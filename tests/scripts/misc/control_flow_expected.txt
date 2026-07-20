@@ -28,50 +28,49 @@ zasm:
 
 QUIT; void run() Body
 PUSHR D0; void run(int) Params
-PUSHR REFFFC; void run(int) Body Start
-SETR D4 SP2
+SETR D4 SP2; void run(int) Body Start
 NOP
 PUSHR D4; while(true) #1 Body [Opt:AlwaysOn] Start
-LOAD D2 0.0001; UsrFunc[void fn_1(int)] Params Start
+LOAD D2 0; UsrFunc[void fn_1(int)] Params Start
 PUSHR D2; UsrFunc[void fn_1(int)] Params End
-CALLFUNC 0.0041; UsrFunc[void fn_1(int)] Call
+CALLFUNC 0.0040; UsrFunc[void fn_1(int)] Call
 PEEK D4
-LOAD D2 0.0001; UsrFunc[void fn_2(int)] Params Start
+LOAD D2 0; UsrFunc[void fn_2(int)] Params Start
 PUSHR D2; UsrFunc[void fn_2(int)] Params End
-CALLFUNC 0.0052; UsrFunc[void fn_2(int)] Call
+CALLFUNC 0.0051; UsrFunc[void fn_2(int)] Call
 PEEK D4
-LOAD D2 0.0001; UsrFunc[void fn_3(int)] Params Start
+LOAD D2 0; UsrFunc[void fn_3(int)] Params Start
 PUSHR D2; UsrFunc[void fn_3(int)] Params End
-CALLFUNC 0.0065; UsrFunc[void fn_3(int)] Call
+CALLFUNC 0.0064; UsrFunc[void fn_3(int)] Call
 PEEK D4
-LOAD D2 0.0001; UsrFunc[void fn_4(int)] Params Start
+LOAD D2 0; UsrFunc[void fn_4(int)] Params Start
 PUSHR D2; UsrFunc[void fn_4(int)] Params End
-CALLFUNC 0.0084; UsrFunc[void fn_4(int)] Call
+CALLFUNC 0.0083; UsrFunc[void fn_4(int)] Call
 PEEK D4
-LOAD D2 0.0001; UsrFunc[void fn_5(int)] Params Start
+LOAD D2 0; UsrFunc[void fn_5(int)] Params Start
 PUSHR D2; UsrFunc[void fn_5(int)] Params End
-CALLFUNC 0.0105; UsrFunc[void fn_5(int)] Call
+CALLFUNC 0.0104; UsrFunc[void fn_5(int)] Call
 PEEK D4
-LOAD D2 0.0001; UsrFunc[void fn_6(int)] Params Start
+LOAD D2 0; UsrFunc[void fn_6(int)] Params Start
 PUSHR D2; UsrFunc[void fn_6(int)] Params End
-CALLFUNC 0.0134; UsrFunc[void fn_6(int)] Call
+CALLFUNC 0.0133; UsrFunc[void fn_6(int)] Call
 PEEK D4
-LOAD D2 0.0001; UsrFunc[void fn_7(int)] Params Start
+LOAD D2 0; UsrFunc[void fn_7(int)] Params Start
 PUSHR D2; UsrFunc[void fn_7(int)] Params End
-CALLFUNC 0.0156; UsrFunc[void fn_7(int)] Call
+CALLFUNC 0.0155; UsrFunc[void fn_7(int)] Call
 PEEK D4
-LOAD D2 0.0001; UsrFunc[void fn_8(int)] Params Start
+LOAD D2 0; UsrFunc[void fn_8(int)] Params Start
 PUSHR D2; UsrFunc[void fn_8(int)] Params End
-CALLFUNC 0.0193; UsrFunc[void fn_8(int)] Call
+CALLFUNC 0.0192; UsrFunc[void fn_8(int)] Call
 POP D4
 WAITFRAME; InlineFunc[void Waitframe()] Body AND while(true) #1 Body [Opt:AlwaysOn] End
-GOTO 5; while() #1 End AND [Opt:NeverRet] AND void run(int) Body End
+GOTO 4; while() #1 End AND [Opt:NeverRet] AND void run(int) Body End
 SETR D4 SP2; Func[void fn_1(int)] Body Start
 LOAD D2 0; if() #8 Test
 COMPAREV D2 10
 SETCMP D2 I==
 COMPAREV D2 0
-GOTOCMP 48 ==; Test 'if'
+GOTOCMP 47 ==; Test 'if'
 TRACEV 1; InlineFunc[void Trace(untyped)] Params AND if() #8 Body Start AND InlineFunc[void Trace(untyped)] Body AND if() #8 Body End
 NOP
 TRACEV 0; InlineFunc[void Trace(untyped)] Params AND InlineFunc[void Trace(untyped)] Body
@@ -82,9 +81,9 @@ LOAD D2 0; if() #1 Test
 COMPAREV D2 10
 SETCMP D2 I==
 COMPAREV D2 0
-GOTOCMP 60 ==; Test 'if'
+GOTOCMP 59 ==; Test 'if'
 TRACEV 1; InlineFunc[void Trace(untyped)] Params AND if() #1 Body Start AND InlineFunc[void Trace(untyped)] Body
-GOTO 61; if() #1 Body End
+GOTO 60; if() #1 Body End
 TRACEV 2; InlineFunc[void Trace(untyped)] Params AND if() #1 Else Start AND InlineFunc[void Trace(untyped)] Body AND if() #1 Else End
 NOP
 TRACEV 0; InlineFunc[void Trace(untyped)] Params AND InlineFunc[void Trace(untyped)] Body
@@ -95,14 +94,14 @@ LOAD D2 0; if() #2 Test
 COMPAREV D2 10
 SETCMP D2 I>=
 COMPAREV D2 0
-GOTOCMP 73 ==; Test 'if'
+GOTOCMP 72 ==; Test 'if'
 TRACEV 1; InlineFunc[void Trace(untyped)] Params AND if() #2 Body Start AND InlineFunc[void Trace(untyped)] Body
-GOTO 80; if() #2 Body End
+GOTO 79; if() #2 Body End
 LOAD D2 0; if() #9 Test AND if() #2 Else Start
 COMPAREV D2 10
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 79 ==; Test 'if'
+GOTOCMP 78 ==; Test 'if'
 TRACEV 2; InlineFunc[void Trace(untyped)] Params AND if() #9 Body Start AND InlineFunc[void Trace(untyped)] Body AND if() #9 Body End
 NOP; if() #2 Else End
 NOP
@@ -114,16 +113,16 @@ LOAD D2 0; if() #3 Test
 COMPAREV D2 10
 SETCMP D2 I>=
 COMPAREV D2 0
-GOTOCMP 92 ==; Test 'if'
+GOTOCMP 91 ==; Test 'if'
 TRACEV 1; InlineFunc[void Trace(untyped)] Params AND if() #3 Body Start AND InlineFunc[void Trace(untyped)] Body
-GOTO 101; if() #3 Body End
+GOTO 100; if() #3 Body End
 LOAD D2 0; if() #4 Test AND if() #3 Else Start
 COMPAREV D2 10
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 99 ==; Test 'if'
+GOTOCMP 98 ==; Test 'if'
 TRACEV 2; InlineFunc[void Trace(untyped)] Params AND if() #4 Body Start AND InlineFunc[void Trace(untyped)] Body
-GOTO 100; if() #4 Body End
+GOTO 99; if() #4 Body End
 TRACEV 3; InlineFunc[void Trace(untyped)] Params AND if() #4 Else Start AND InlineFunc[void Trace(untyped)] Body AND if() #4 Else End
 NOP; if() #3 Else End
 NOP
@@ -135,23 +134,23 @@ LOAD D2 0; if() #5 Test
 COMPAREV D2 10
 SETCMP D2 I>=
 COMPAREV D2 0
-GOTOCMP 113 ==; Test 'if'
+GOTOCMP 112 ==; Test 'if'
 TRACEV 1; InlineFunc[void Trace(untyped)] Params AND if() #5 Body Start AND InlineFunc[void Trace(untyped)] Body
-GOTO 130; if() #5 Body End
+GOTO 129; if() #5 Body End
 LOAD D2 0; if() #6 Test AND if() #5 Else Start
 COMPAREV D2 10
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 120 ==; Test 'if'
+GOTOCMP 119 ==; Test 'if'
 TRACEV 2; InlineFunc[void Trace(untyped)] Params AND if() #6 Body Start AND InlineFunc[void Trace(untyped)] Body
-GOTO 129; if() #6 Body End
+GOTO 128; if() #6 Body End
 LOAD D2 0; if() #7 Test AND if() #6 Else Start
 COMPAREV D2 15
 SETCMP D2 I==
 COMPAREV D2 0
-GOTOCMP 127 ==; Test 'if'
+GOTOCMP 126 ==; Test 'if'
 TRACEV 3; InlineFunc[void Trace(untyped)] Params AND if() #7 Body Start AND InlineFunc[void Trace(untyped)] Body
-GOTO 128; if() #7 Body End
+GOTO 127; if() #7 Body End
 TRACEV 4; InlineFunc[void Trace(untyped)] Params AND if() #7 Else Start AND InlineFunc[void Trace(untyped)] Body AND if() #7 Else End
 NOP; if() #6 Else End
 NOP; if() #5 Else End
@@ -163,20 +162,20 @@ SETR D4 SP2; Func[void fn_6(int)] Body Start
 LOAD D2 0; switch() #1 Key
 SETR SWITCHKEY D2; Store key
 COMPAREV SWITCHKEY 10
-GOTOCMP 146 ==; case '100000'
+GOTOCMP 145 ==; case '100000'
 COMPAREV SWITCHKEY 15
-GOTOCMP 148 ==; case '150000'
+GOTOCMP 147 ==; case '150000'
 COMPAREV SWITCHKEY 25
-GOTOCMP 150 ==; case '250000'
+GOTOCMP 149 ==; case '250000'
 COMPAREV SWITCHKEY 30
-GOTOCMP 152 ==; case '300000'
-GOTO 153; switch() #1 NoMatch
+GOTOCMP 151 ==; case '300000'
+GOTO 152; switch() #1 NoMatch
 TRACEV 1; Case block AND InlineFunc[void Trace(untyped)] Params AND InlineFunc[void Trace(untyped)] Body
-GOTO 153; break 1;
+GOTO 152; break 1;
 TRACEV 2; Case block AND InlineFunc[void Trace(untyped)] Params AND InlineFunc[void Trace(untyped)] Body
-GOTO 153; break 1;
+GOTO 152; break 1;
 TRACEV 3; Case block AND InlineFunc[void Trace(untyped)] Params AND InlineFunc[void Trace(untyped)] Body
-GOTO 153; break 1;
+GOTO 152; break 1;
 TRACEV 4; Case block AND InlineFunc[void Trace(untyped)] Params AND InlineFunc[void Trace(untyped)] Body
 TRACEV 0; break 1; AND InlineFunc[void Trace(untyped)] Params AND InlineFunc[void Trace(untyped)] Body
 POP D5
@@ -184,34 +183,34 @@ RETURNFUNC; Func[void fn_6(int)] Body End
 SETR D4 SP2; Func[void fn_7(int)] Body Start
 LOAD D2 0; if() #8 Test
 COMPAREV D2 10
-GOTOCMP 171 <=
+GOTOCMP 170 <=
 LOAD D2 0
 COMPAREV D2 20
-GOTOCMP 171 >=
+GOTOCMP 170 >=
 LOAD D2 0
 COMPAREV D2 14
-GOTOCMP 171 ==
+GOTOCMP 170 ==
 LOAD D2 0
 COMPAREV D2 16
-GOTOCMP 171 ==
+GOTOCMP 170 ==
 SETV D2 1
-GOTO 172
+GOTO 171
 SETV D2 0
 COMPAREV D2 0
-GOTOCMP 176 ==; Test 'if'
+GOTOCMP 175 ==; Test 'if'
 TRACEV 1; InlineFunc[void Trace(untyped)] Params AND if() #8 Body Start AND InlineFunc[void Trace(untyped)] Body
-GOTO 189; if() #8 Body End
+GOTO 188; if() #8 Body End
 LOAD D2 0; if() #10 Test AND if() #8 Else Start
 COMPAREV D2 15
-GOTOCMP 184 <=
+GOTOCMP 183 <=
 LOAD D2 0
 COMPAREV D2 30
-GOTOCMP 184 >
+GOTOCMP 183 >
 SETV D2 1
-GOTO 185
+GOTO 184
 SETV D2 0
 COMPAREV D2 0
-GOTOCMP 188 ==; Test 'if'
+GOTOCMP 187 ==; Test 'if'
 TRACEV 2; InlineFunc[void Trace(untyped)] Params AND if() #10 Body Start AND InlineFunc[void Trace(untyped)] Body AND if() #10 Body End
 NOP; if() #8 Else End
 NOP
@@ -221,49 +220,49 @@ RETURNFUNC; Func[void fn_7(int)] Body End
 SETR D4 SP2; Func[void fn_8(int)] Body Start
 LOAD D2 0; if() #9 Test
 COMPAREV D2 10
-GOTOCMP 208 <=
+GOTOCMP 207 <=
 LOAD D2 0
 COMPAREV D2 20
-GOTOCMP 208 >=
+GOTOCMP 207 >=
 LOAD D2 0
 COMPAREV D2 14
-GOTOCMP 208 ==
+GOTOCMP 207 ==
 LOAD D2 0
 COMPAREV D2 16
-GOTOCMP 208 ==
+GOTOCMP 207 ==
 SETV D2 1
-GOTO 209
+GOTO 208
 SETV D2 0
 COMPAREV D2 0
-GOTOCMP 228 ==; Test 'if'
+GOTOCMP 227 ==; Test 'if'
 LOAD D2 0; if() #11 Test AND if() #9 Body Start
 COMPAREV D2 11
-GOTOCMP 222 ==
+GOTOCMP 221 ==
 LOAD D2 0
 COMPAREV D2 12
-GOTOCMP 222 ==
+GOTOCMP 221 ==
 LOAD D2 0
 COMPAREV D2 13
-GOTOCMP 222 ==
+GOTOCMP 221 ==
 SETV D2 1
-GOTO 223
+GOTO 222
 SETV D2 0
 COMPAREV D2 0
-GOTOCMP 226 ==; Test 'if'
+GOTOCMP 225 ==; Test 'if'
 TRACEV 1; InlineFunc[void Trace(untyped)] Params AND if() #11 Body Start AND InlineFunc[void Trace(untyped)] Body AND if() #11 Body End
 NOP
-GOTO 241; if() #9 Body End
+GOTO 240; if() #9 Body End
 LOAD D2 0; if() #12 Test AND if() #9 Else Start
 COMPAREV D2 15
-GOTOCMP 236 <=
+GOTOCMP 235 <=
 LOAD D2 0
 COMPAREV D2 30
-GOTOCMP 236 >
+GOTOCMP 235 >
 SETV D2 1
-GOTO 237
+GOTO 236
 SETV D2 0
 COMPAREV D2 0
-GOTOCMP 240 ==; Test 'if'
+GOTOCMP 239 ==; Test 'if'
 TRACEV 2; InlineFunc[void Trace(untyped)] Params AND if() #12 Body Start AND InlineFunc[void Trace(untyped)] Body AND if() #12 Body End
 NOP; if() #9 Else End
 NOP

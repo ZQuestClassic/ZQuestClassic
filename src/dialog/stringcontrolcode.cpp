@@ -14,8 +14,6 @@
 extern bool sorted_fontdd;
 extern script_data *genericscripts[NUMSCRIPTSGENERIC];
 
-void call_geninit_wzrd(zinitdata& start, size_t index);
-
 static std::string retstr;
 static MsgStr const* refstr = nullptr;
 static int command_index = -1;
@@ -1692,7 +1690,7 @@ std::shared_ptr<GUI::Widget> SCCDialog::view()
 			));
 			for (int ind = 0; ind < 8; ++ind)
 			{
-				std::string lbl = meta.initd[ind];
+				std::string lbl = meta.initd_label[ind];
 				if(lbl.empty())
 					lbl = "InitD["+std::to_string(ind)+"]";
 				row->add(Label(text = lbl, hAlign = 1.0));

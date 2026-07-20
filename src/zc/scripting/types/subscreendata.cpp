@@ -46,7 +46,7 @@ int32_t subscreendata_get_register(int32_t reg)
 		case SUBDATASCRIPT:
 		{
 			if(ZCSubscreen* sub = checkSubData(GET_REF(subscreendataref), {sstACTIVE, sstMAP}))
-				ret = sub->script * 10000;
+				ret = sub->scrconfig.script * 10000;
 			break;
 		}
 		case SUBDATASELECTORDSTH:
@@ -212,7 +212,7 @@ void subscreendata_set_register(int32_t reg, int32_t value)
 		case SUBDATASCRIPT:
 		{
 			if(ZCSubscreen* sub = checkSubData(GET_REF(subscreendataref), {sstACTIVE, sstMAP}))
-				sub->script = vbound(value/10000,0,NUMSCRIPTSSUBSCREEN-1);
+				sub->scrconfig.script = vbound(value/10000,0,NUMSCRIPTSSUBSCREEN-1);
 			break;
 		}
 		case SUBDATASELECTORDSTH:
@@ -358,7 +358,7 @@ static ArrayRegistrar SUBDATABTNRIGHT_registrar(SUBDATABTNRIGHT, []{
 }());
 
 static ArrayRegistrar SUBDATAINITD_registrar(SUBDATAINITD, []{
-	static ScriptingArray_ObjectMemberCArray<ZCSubscreenActive, &ZCSubscreenActive::initd> impl;
+	static ScriptingArray_ObjectSubMemberContainer<ZCSubscreenActive, &ZCSubscreenActive::scrconfig, &script_config::run_args> impl;
 	impl.setMul10000(false);
 	return &impl;
 }());

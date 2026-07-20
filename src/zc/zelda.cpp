@@ -2399,9 +2399,9 @@ void show_ffscript_names()
 	for_every_ffc([&](const ffc_handle_t& ffc_handle) {
 		if(ypos > 224) return;
 
-		if (ffc_handle.ffc->script)
+		if (ffc_handle.ffc->scrconfig.script)
 		{
-			textout_shadowed_ex(framebuf,font, ffcmap[ffc_handle.ffc->script-1].scriptname.c_str(),2,ypos,WHITE,BLACK,-1);
+			textout_shadowed_ex(framebuf,font, ffcmap[ffc_handle.ffc->scrconfig.script-1].scriptname.c_str(),2,ypos,WHITE,BLACK,-1);
 			ypos+=12;
 		}
 	});
@@ -3050,12 +3050,12 @@ void game_loop()
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_PLAYER_ACTIVE);
 		if(!FFCore.system_suspend[susptDMAPSCRIPT] && !freeze_message && FFCore.doscript(ScriptType::DMap) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255)
 		{
-			ZScriptVersion::RunScript(ScriptType::DMap, DMaps[cur_dmap].script,cur_dmap);
+			ZScriptVersion::RunScript(ScriptType::DMap, DMaps[cur_dmap].active_scrconfig.script,cur_dmap);
 		}
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_DMAPDATA_ACTIVE);
 		if(!FFCore.system_suspend[susptDMAPSCRIPT] && !freeze_message && FFCore.doscript(ScriptType::ScriptedPassiveSubscreen) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255)
 		{
-			ZScriptVersion::RunScript(ScriptType::ScriptedPassiveSubscreen, DMaps[cur_dmap].passive_sub_script,cur_dmap);
+			ZScriptVersion::RunScript(ScriptType::ScriptedPassiveSubscreen, DMaps[cur_dmap].passive_sub_scrconfig.script,cur_dmap);
 		}
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_DMAPDATA_PASSIVESUBSCREEN);
 		if ( !FFCore.system_suspend[susptCOMBOSCRIPTS] && !freeze_message && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
@@ -3185,13 +3185,13 @@ void game_loop()
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_PLAYER_WAITDRAW);
 		if ( !FFCore.system_suspend[susptDMAPSCRIPT] && FFCore.waitdraw(ScriptType::DMap) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
 		{
-			ZScriptVersion::RunScript(ScriptType::DMap, DMaps[cur_dmap].script,cur_dmap);
+			ZScriptVersion::RunScript(ScriptType::DMap, DMaps[cur_dmap].active_scrconfig.script,cur_dmap);
 			FFCore.waitdraw(ScriptType::DMap) = false;
 		}
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_DMAPDATA_ACTIVE_WAITDRAW);
 		if ( (!( FFCore.system_suspend[susptDMAPSCRIPT] )) && FFCore.waitdraw(ScriptType::ScriptedPassiveSubscreen) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
 		{
-			ZScriptVersion::RunScript(ScriptType::ScriptedPassiveSubscreen, DMaps[cur_dmap].passive_sub_script,cur_dmap);
+			ZScriptVersion::RunScript(ScriptType::ScriptedPassiveSubscreen, DMaps[cur_dmap].passive_sub_scrconfig.script,cur_dmap);
 			FFCore.waitdraw(ScriptType::ScriptedPassiveSubscreen) = false;
 		}
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_DMAPDATA_PASSIVESUBSCREEN_WAITDRAW);
@@ -3199,9 +3199,9 @@ void game_loop()
 		if (FFCore.getQuestHeaderInfo(vZelda) >= 0x255 && !FFCore.system_suspend[susptSCREENSCRIPTS])
 		{
 			for_every_base_screen_in_region([&](mapscr* scr, unsigned int, unsigned int) {
-				if (scr->script != 0 && FFCore.doscript(ScriptType::Screen, scr->screen) && FFCore.waitdraw(ScriptType::Screen, scr->screen))
+				if (scr->scrconfig.script != 0 && FFCore.doscript(ScriptType::Screen, scr->screen) && FFCore.waitdraw(ScriptType::Screen, scr->screen))
 				{
-					ZScriptVersion::RunScript(ScriptType::Screen, scr->script, scr->screen);  
+					ZScriptVersion::RunScript(ScriptType::Screen, scr->scrconfig.script, scr->screen);  
 					FFCore.waitdraw(ScriptType::Screen, scr->screen) = 0;
 				}
 			});
@@ -3211,9 +3211,9 @@ void game_loop()
 		for_every_ffc([&](const ffc_handle_t& ffc_handle) {
 			if (FFCore.waitdraw(ScriptType::FFC, ffc_handle.ffc_id))
 			{
-				if (ffc_handle.ffc->script != 0 && !FFCore.system_suspend[susptFFCSCRIPTS] )
+				if (ffc_handle.ffc->scrconfig.script != 0 && !FFCore.system_suspend[susptFFCSCRIPTS] )
 				{
-					ZScriptVersion::RunScript(ScriptType::FFC, ffc_handle.ffc->script, ffc_handle.ffc_id);
+					ZScriptVersion::RunScript(ScriptType::FFC, ffc_handle.ffc->scrconfig.script, ffc_handle.ffc_id);
 					FFCore.waitdraw(ScriptType::FFC, ffc_handle.ffc_id) = false;
 				}
 			}

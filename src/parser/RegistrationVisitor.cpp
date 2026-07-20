@@ -33,7 +33,7 @@ int32_t StringToVar(std::string var);
 // RegistrationVisitor
 
 RegistrationVisitor::RegistrationVisitor(Program& program)
-	: RecursiveVisitor(program), hasChanged(false)
+	: RegBaseVisitor(program), hasChanged(false)
 {
 	scope = &program.getScope();
 	caseRoot(program.getRoot());
@@ -225,182 +225,6 @@ void RegistrationVisitor::caseScript(ASTScript& host, void* param)
 		return;
 	}
 	script.setRun(possibleRuns[0]);
-}
-
-void RegistrationVisitor::initInternalVar(ASTDataDeclList* node)
-{
-	auto& parsed_comment = node->getParsedComment();
-
-	int refvar = NUL;
-	UserClass* user_class = nullptr;
-	if (scope->isClass())
-	{
-		user_class = &scope->getClassScope()->user_class;
-		refvar = user_class->internalRefVar;
-	}
-
-	for (auto decl : node->getDeclarations())
-	{
-		// Internal variables in classes must have a zasm_var.
-		if (user_class && !parsed_comment.contains_tag("zasm_var"))
-		{
-			handleError(CompileError::BadInternal(decl, "Expected @zasm_var"));
-			continue;
-		}
-
-		bool is_constant_zero = false;
-		int fn_value;
-		if (auto zasm_var = parsed_comment.get_tag("zasm_var"))
-		{
-			if (auto sv = get_script_variable(*zasm_var))
-			{
-				fn_value = *sv;
-				if (auto v = dynamic_cast<InternalVariable*>(decl->manager))
-					v->zasm_register = *sv;
-				else if (auto v = dynamic_cast<UserClassVar*>(decl->manager))
-					v->zasm_register = *sv;
-			}
-			else
-			{
-				handleError(CompileError::BadInternal(decl, fmt::format("Invalid ZASM register: {}", *zasm_var)));
-				continue;
-			}
-		}
-		else
-		{
-			is_constant_zero = true;
-			fn_value = 0;
-		}
-
-		auto& ty = decl->manager->type;
-		bool is_arr = ty.isArray();
-		auto var_type = ty.baseType(*scope, nullptr);
-		auto deprecated = parsed_comment.get_tag("deprecated");
-
-		std::vector<std::string> names = {decl->getName()};
-		for (auto alias : parsed_comment.get_multi_tag("alias"))
-			names.push_back(alias);
-
-		// Add getter(s).
-		for (auto& name : names)
-		{
-			Function* fn;
-
-			std::vector<const DataType*> params;
-			if (user_class)
-				params.push_back(user_class->getType());
-
-			if (is_constant_zero)
-			{
-				fn = scope->addGetter(var_type, name, params, {}, 0);
-				getConstant(refvar, fn, fn_value);
-			}
-			else if (is_arr)
-			{
-				fn = scope->addGetter(&ty, name, params, {}, 0);
-				// `Screen` is special: normal usage doesn't use a ref variable explicity in the generated ZASM,
-				// but when getting a reference to an array must save the current value of REFSCREEN. The
-				// alternative is to use `@zasm_ref` on screendata but that's wasteful.
-				getInternalArray(user_class->getName() == "screendata" ? REFSCREEN : refvar, fn, fn_value);
-
-				auto params2 = params;
-				params2.push_back(&DataType::FLOAT);
-				Function* fn2 = scope->addFunction(var_type, name, params2, {});
-				getIndexedVariable(refvar, fn2, fn_value);
-				if (deprecated)
-				{
-					fn2->setFlag(FUNCFLAG_DEPRECATED);
-					fn2->setInfo(*deprecated);
-				}
-			}
-			else
-			{
-				fn = scope->addGetter(var_type, name, params, {}, 0);
-				getVariable(refvar, fn, fn_value);
-			}
-
-			if (deprecated)
-			{
-				fn->setFlag(FUNCFLAG_DEPRECATED);
-				fn->setInfo(*deprecated);
-			}
-		}
-
-		// Add deprecated getter.
-		if (auto deprecated_getter = parsed_comment.get_tag("deprecated_getter"))
-		{
-			if (is_arr)
-			{
-				handleError(CompileError::BadInternal(decl, "@deprecated_getter cannot be used on arrays"));
-				continue;
-			}
-
-			std::string getter_name = *deprecated_getter;
-			std::vector<const DataType*> params;
-			if (refvar != NUL)
-				params.push_back(user_class->getType());
-			Function* fn = scope->addFunction(var_type, getter_name, params, {}, FUNCFLAG_DEPRECATED|FUNCFLAG_INTERNAL);
-			fn->setExternalScope(scope->makeChild());
-			fn->data_decl_source_node = decl;
-			fn->setInfo(fmt::format("Use {} instead!", decl->getName()));
-
-			getVariable(refvar, fn, fn_value);
-		}
-
-		if (is_constant_zero)
-			continue;
-
-		// Add setter(s).
-		for (auto& name : names)
-		{
-			Function* fn;
-
-			std::vector<const DataType*> params;
-			if (user_class)
-				params.push_back(user_class->getType());
-			params.push_back(var_type);
-
-			if (is_arr)
-			{
-				fn = scope->addSetter(&DataType::ZVOID, name, params, {}, 0);
-				fn->setFlag(FUNCFLAG_READ_ONLY);
-
-				std::vector<const DataType*> params2;
-				if (user_class)
-					params2.push_back(user_class->getType());
-				params2.push_back(&DataType::FLOAT);
-				params2.push_back(var_type);
-				Function* fn2 = scope->addFunction(&DataType::ZVOID, name, params2, {});
-				setIndexedVariable(refvar, fn2, fn_value);
-				if (deprecated)
-				{
-					fn2->setFlag(FUNCFLAG_DEPRECATED);
-					fn2->setInfo(*deprecated);
-				}
-				if (var_type->isUntyped())
-					fn2->setFlag(FUNCFLAG_MAY_SET_OBJECT);
-			}
-			else if (var_type == &DataType::BOOL)
-			{
-				fn = scope->addSetter(&DataType::ZVOID, name, params, {}, 0);
-				setBoolVariable(refvar, fn, fn_value);
-			}
-			else
-			{
-				fn = scope->addSetter(&DataType::ZVOID, name, params, {}, 0);
-				setVariable(refvar, fn, fn_value);
-			}
-
-			if (deprecated)
-			{
-				fn->setFlag(FUNCFLAG_DEPRECATED);
-				fn->setInfo(*deprecated);
-			}
-
-			if (node->readonly)
-				fn->setFlag(FUNCFLAG_READ_ONLY);
-		}
-	}
 }
 
 void RegistrationVisitor::caseClass(ASTClass& host, void* param)
@@ -775,7 +599,20 @@ void RegistrationVisitor::caseDataDeclList(ASTDataDeclList& host, void*)
 		handleError(CompileError::GroupAuto(&host));
 		return;
 	}
+	
+	if (host.was_exported && host.getDeclarations().size() > 1)
+	{
+		handleError(CompileError::Error(&host, "@Export() can't be used on multi-variable declarations!"));
+		return;
+	}
+	
+	if (!host.handled_staticness)
+	{
+		handle_staticness(&host, host.is_static, host.is_nonstatic, scope, false);
+		host.handled_staticness = true;
+	}
 
+	if (breakRecursion(host)) return;
 	// Recurse on list contents.
 	visit_vec(host.getDeclarations());
 	if (breakRecursion(host)) return;
@@ -788,7 +625,9 @@ void RegistrationVisitor::caseDataEnum(ASTDataEnum& host, void* param)
 	DataType const* baseType = host.baseType->resolve_ornull(*scope, this);
     if (breakRecursion(*host.baseType.get())) return;
 	if (!baseType) return;
-
+	
+	host.is_static = !scope->getFunctionScope();
+	
 	// Don't allow void/auto types.
 	if (baseType->isVoid() || baseType->isAuto())
 	{
@@ -817,12 +656,14 @@ void RegistrationVisitor::caseDataEnum(ASTDataEnum& host, void* param)
 		ASTDataDecl* declaration = *it;
 		if(ASTExpr* init = declaration->getInitializer())
 		{
+			scope->in_static_init = host.is_static;
 			visit(init);
-			if(!registered(init)) return;
-			if(std::optional<int32_t> v = init->getCompileTimeValue(this, scope))
-			{
+			std::optional<int32_t> v;
+			if(registered(init))
+				v = init->getCompileTimeValue(this, scope);
+			scope->in_static_init = false;
+			if (v)
 				value = zslongToFix(*v);
-			}
 			else return;
 		}
 		else
@@ -876,125 +717,11 @@ void RegistrationVisitor::caseDataDecl(ASTDataDecl& host, void*)
 	DataType const* type = host.resolve_ornull(scope, this);
 	if (breakRecursion(host)) return;
 	if (!type) return;
+	auto* list = host.list;
 	
 	doRegister(host);
-
-	// Don't allow void type.
-	if (type->isVoid())
-	{
-		handleError(CompileError::BadVarType(&host, host.getName(), type->getName()));
-		return;
-	}
 	
-	if (type->isAuto())
-	{
-		bool good = false;
-		auto arr_depth = type->getArrayDepth();
-		auto init = host.getInitializer();
-		if(init)
-		{
-			auto readty = init->getReadType(scope, this);
-			if(readty && readty->isResolved() && !readty->isVoid() && !readty->isAuto())
-			{
-				if(readty->getArrayDepth() < arr_depth)
-				{
-					handleError(CompileError::BadAutoType(&host, type->getName(), fmt::format("must have an initializer with type that is at least {}-depth array", arr_depth)));
-					return;
-				}
-				type = type->isConstant() ? readty->getConstType() : readty;
-				host.setResolvedType(*type);
-				good = true;
-			}
-		}
-		if(!good)
-		{
-			handleError(CompileError::BadAutoType(&host, type->getName(), "must have an initializer with valid type to mimic."));
-			return;
-		}
-	}
-
-	// Is it a constant?
-	bool isConstant = false;
-	if (type->isConstant() && !host.list->internal)
-	{
-		// A constant without an initializer doesn't make sense (unless it is internal).
-		if (!host.getInitializer())
-		{
-			handleError(CompileError::ConstUninitialized(&host));
-			return;
-		}
-
-		// Inline the constant if possible.
-		isConstant = host.getInitializer()->getCompileTimeValue(this, scope).has_value();
-		//The dataType is constant, but the initializer is not. This is not allowed in Global or Script scopes, as it causes crashes. -V
-		if(!isConstant && (scope->isGlobal() || scope->isScript() || scope->isClass()))
-		{
-			handleError(CompileError::ConstNotConstant(&host, host.getName()));
-			return;
-		}
-	}
-	else if(parsing_user_class == puc_vars) //class variables
-	{
-		if(host.getInitializer())
-		{
-			handleError(CompileError::ClassNoInits(&host, host.getName()));
-			return;
-		}
-	}
-
-	if (isConstant)
-	{
-		if (scope->getLocalDatum(host.getName()))
-		{
-			handleError(CompileError::VarRedef(&host, host.getName()));
-			return;
-		}
-		
-		int32_t value = *host.getInitializer()->getCompileTimeValue(this, scope);
-		Constant::create(*scope, host, *type, value, this);
-	}
-	else
-	{
-		if(parsing_user_class == puc_vars)
-		{
-			UserClassVar::create(*scope, host, *type, this);
-			for (auto alias : host.list->getParsedComment().get_multi_tag("alias"))
-			{
-				auto copy = host.clone();
-				copy->identifier->setValue(alias);
-				copy->list = host.list;
-				copy->setFlag(ASTDataDecl::FL_HIDDEN, true);
-				UserClassVar::create(*scope, *copy, *type, this);
-			}
-			for (auto alias : host.list->getParsedComment().get_multi_tag("deprecated_alias"))
-			{
-				auto copy = host.clone();
-				copy->identifier->setValue(alias);
-				copy->list = host.list;
-				copy->setFlag(ASTDataDecl::FL_HIDDEN, true);
-				UserClassVar::create(*scope, *copy, *type, this);
-			}
-		}
-		else
-		{
-			if (scope->getLocalDatum(host.getName()))
-			{
-				handleError(CompileError::VarRedef(&host, host.getName()));
-				return;
-			}
-
-			if (host.list->internal)
-			{
-				auto ivar = InternalVariable::create(*scope, host, *type, this);
-				initInternalVar(host.list);
-				ivar->readfn = scope->getLocalGetter(host.getName());
-				ivar->writefn = scope->getLocalSetter(host.getName());
-				return;
-			}
-
-			Variable::create(*scope, host, *type, this);
-		}
-	}
+	handle_data_decl_registry(host);
 }
 
 void RegistrationVisitor::caseDataDeclExtraArray(ASTDataDeclExtraArray& host, void*)
@@ -1191,6 +918,14 @@ void RegistrationVisitor::caseFuncDecl(ASTFuncDecl& host, void* param)
 		if(breakRecursion(host)) return;
 	}
 	if(breakRecursion(host)) return;
+	if (!host.handled_staticness)
+	{
+		bool is_static = host.getFlag(FUNCFLAG_STATIC);
+		handle_staticness(&host, is_static, host.getFlag(FUNCFLAG_NONSTATIC), func_lives_in, host.isRun());
+		host.setFlag(FUNCFLAG_STATIC, is_static);
+		host.handled_staticness = true;
+	}
+	if(breakRecursion(host)) return;
 	
 	doRegister(host);
 	
@@ -1326,6 +1061,7 @@ void RegistrationVisitor::caseExprCall(ASTExprCall& host, void*)
 		 it != host.parameters.end(); ++it)
 		parameterTypes.push_back((*it)->getReadType(scope, this));
 
+	bool static_trimmed = false;
 	// Grab functions with the proper name, and matching parameter types
 	vector<Function*> functions;
 	if(identifier)
@@ -1365,17 +1101,17 @@ void RegistrationVisitor::caseExprCall(ASTExprCall& host, void*)
 				if(parsing_user_class == puc_construct && identifier->components[0] == user_class->getName())
 					functions = lookupConstructors(*user_class, parameterTypes, scope);
 				if(!functions.size())
-					functions = lookupFunctions(*scope, identifier->components[0], parameterTypes, identifier->noUsing, true);
+					functions = lookupFunctions(*scope, identifier->components[0], parameterTypes, identifier->noUsing, true, false, scope, &static_trimmed);
 			}
 			if(!functions.size())
-				functions = lookupFunctions(*scope, identifier->components, identifier->delimiters, parameterTypes, identifier->noUsing);
+				functions = lookupFunctions(*scope, identifier->components, identifier->delimiters, parameterTypes, identifier->noUsing, false, false, scope, &static_trimmed);
 		}
 	}
 	else if(user_class)
 	{
 		functions = lookupClassFuncs(*user_class, arrow->right->getValue(), parameterTypes, scope, false, receiver_type);
 	}
-	else functions = lookupFunctions(arrow->leftClass->getScope(), arrow->right->getValue(), parameterTypes, true, false, false, scope); //Never `using` arrow functions
+	else functions = lookupFunctions(arrow->leftClass->getScope(), arrow->right->getValue(), parameterTypes, true, false, false, scope, &static_trimmed); //Never `using` arrow functions
 
 	// Find function with least number of casts.
 	vector<Function*> bestFunctions;
@@ -1563,8 +1299,10 @@ void RegistrationVisitor::caseExprCall(ASTExprCall& host, void*)
 		FunctionSignature signature(host.left->asString(), parameterTypes);
 		if (bestFunctions.size() == 0)
 		{
-			handleError(
-					CompileError::NoFuncMatch(&host, signature.asString()));
+			if (static_trimmed)
+				handleError(CompileError::FuncNotStatic(&host, signature.asString()));
+			else
+				handleError(CompileError::NoFuncMatch(&host, signature.asString()));
 		}
 		else
 		{
@@ -1850,4 +1588,64 @@ bool RegistrationVisitor::registered_vec(Container const& nodes) const
 	return true;
 }
 
+
+void RegistrationVisitor::handle_staticness(AST* node, bool& is_static, bool is_nonstatic, Scope* target_scope, bool disallow)
+{
+	bool in_func = target_scope->getFunctionScope();
+	bool in_script = !in_func && target_scope->getScriptScope();
+	bool in_class = !in_func && target_scope->getClassScope();
+	bool def_static = false;
+	if (in_script)
+	{
+		switch (*lookupOption(*target_scope, CompileOption::OPT_DEFAULT_STATIC_SCRIPT_MEMBERS) / 10000)
+		{
+			case -1:
+			case 1:
+				def_static = !disallow;
+				break;
+		}
+	}
+	
+	if (is_static && is_nonstatic)
+		handleError(CompileError::Error(node, "Conflicting modifiers 'static' and 'nonstatic'"));
+	
+	if (is_nonstatic && (!in_script || disallow))
+		handleError(CompileError::Error(node, "Unexpected modifier 'nonstatic'; not allowed here"));
+	
+	if (disallow)
+	{
+		if (is_static)
+		{
+			handleError(CompileError::Error(node, "Unexpected modifier 'static'; not allowed here"));
+			is_static = false;
+		}
+	}
+	else if (in_func)
+	{
+		if (is_static)
+		{
+			handleError(CompileError::Error(node, "Unexpected modifier 'static'; not allowed here"));
+			is_static = false;
+		}
+	}
+	else
+	{
+		if (!in_class && !in_script)
+		{
+			// Global-scope variables should not be marked static by the user
+			// but SHOULD be marked static, so they get marked here.
+			if (is_static)
+			{
+				handleError(CompileError::Error(node, "Unexpected modifier 'static'; not allowed here"));
+				return;
+			}
+			else
+				is_static = true;
+		}
+		else if (in_script && def_static)
+		{
+			is_static = !is_nonstatic;
+		}
+	}
+}
 

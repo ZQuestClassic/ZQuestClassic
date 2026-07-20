@@ -29,7 +29,7 @@ zasm:
 QUIT; void run() Body
 PUSHR D0; void run(int, int) Params
 PUSHR D1
-PUSHARGSV 0 0.0002; void run(int, int) Body Start
+PUSHV 0; void run(int, int) Body Start
 SETR D4 SP2
 SETR D2 LINKHP
 DIVV D2 2
@@ -56,7 +56,7 @@ PUSHR D2
 POP D0
 SETR D2 COMBODD
 PUSHR D2
-LOAD D2 0.0003
+LOAD D2 0.0002
 POP D3
 COMPARER D3 D2
 SETCMP D2 I==
@@ -73,7 +73,7 @@ PUSHR D2
 POP D0
 POP D2
 SETR COMBODD D2
-LOAD D2 0.0002; InlineFunc[void Audio::PlaySound(int)] Params
+LOAD D2 0.0001; InlineFunc[void Audio::PlaySound(int)] Params
 PLAYSOUNDR D2; InlineFunc[void Audio::PlaySound(int)] Body AND if() #388 Body End
 NOP
 PUSHV 6; InlineFunc[void screendata::DrawTile(int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Params Start

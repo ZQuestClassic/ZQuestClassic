@@ -6,6 +6,9 @@
 #include "zq/zquest.h"
 #include "core/misctypes.h"
 #include "zc_list_data.h"
+#include "script_data_editor.h"
+
+extern script_data *genericscripts[NUMSCRIPTSGENERIC];
 
 void call_editsavemenu_dialog(int index)
 {
@@ -115,15 +118,16 @@ std::shared_ptr<GUI::Widget> SaveMenuDialog::view()
 							}),
 						INFOBTN("The font to draw this option in."),
 						//
-						Label(text = "Generic Script:", hAlign = 1.0),
-						DropDownList(data = list_genscr,
-							fitParent = true, selectedValue = local_ref.options[idx].gen_script,
-							onSelectFunc = [&, idx](int32_t val)
+						Button(colSpan = 2,
+							text = "Script Setup",
+							height = 2_em,
+							onPressFunc = [&, idx]()
 							{
-								local_ref.options[idx].gen_script = val;
-							}),
-						INFOBTN("A generic script to run in Frozen mode when the option is selected."
-							"\nCurrently, no InitD[] can be supplied.")
+								ScriptDataDialog("Save Menu Choice Generic Script Setup",
+									local_ref.options[idx].gen_scrconfig, list_genscr, genericscripts).show();
+							}
+						),
+						INFOBTN("A generic script to run in Frozen mode when the option is selected.")
 					),
 					Rows<2>(rowSpan = 2,
 						Checkbox(_EX_RBOX, text = "Exit",

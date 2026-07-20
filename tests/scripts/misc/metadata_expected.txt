@@ -1174,7 +1174,7 @@ stdout:
         "name": "b",
         "type": "Brand"
       },
-      "5334": {
+      "5337": {
         "loc": {
           "range": {
             "start": {
@@ -1190,7 +1190,7 @@ stdout:
         },
         "doc": "top class"
       },
-      "5335": {
+      "5338": {
         "loc": {
           "range": {
             "start": {
@@ -1206,7 +1206,7 @@ stdout:
         },
         "doc": "absolute trash"
       },
-      "5336": {
+      "5339": {
         "loc": {
           "range": {
             "start": {
@@ -1237,7 +1237,7 @@ stdout:
           "uri": "URI"
         }
       },
-      "5337": {
+      "5340": {
         "loc": {
           "range": {
             "start": {
@@ -1252,7 +1252,7 @@ stdout:
           "uri": "URI"
         }
       },
-      "5338": {
+      "5341": {
         "loc": {
           "range": {
             "start": {
@@ -1267,7 +1267,7 @@ stdout:
           "uri": "URI"
         }
       },
-      "5339": {
+      "5342": {
         "loc": {
           "range": {
             "start": {
@@ -1282,7 +1282,7 @@ stdout:
           "uri": "URI"
         }
       },
-      "5340": {
+      "5343": {
         "loc": {
           "range": {
             "start": {
@@ -1297,7 +1297,7 @@ stdout:
           "uri": "URI"
         }
       },
-      "5341": {
+      "5344": {
         "loc": {
           "range": {
             "start": {
@@ -1315,7 +1315,7 @@ stdout:
         "name": "postfix",
         "type": "int"
       },
-      "5342": {
+      "5345": {
         "loc": {
           "range": {
             "start": {
@@ -1333,7 +1333,7 @@ stdout:
         "name": "postfix2",
         "type": "int"
       },
-      "5343": {
+      "5346": {
         "loc": {
           "range": {
             "start": {
@@ -1351,7 +1351,7 @@ stdout:
         "name": "x",
         "type": "int"
       },
-      "5344": {
+      "5347": {
         "loc": {
           "range": {
             "start": {
@@ -1369,7 +1369,7 @@ stdout:
         "name": "y",
         "type": "int"
       },
-      "5345": {
+      "5348": {
         "loc": {
           "range": {
             "start": {
@@ -1387,7 +1387,7 @@ stdout:
         "name": "z",
         "type": "int"
       },
-      "5346": {
+      "5349": {
         "loc": {
           "range": {
             "start": {
@@ -1434,7 +1434,7 @@ stdout:
         },
         "doc": "Prints the passed value to the output console. Includes a newline character\nafter the value.\n\n\n**@deprecated_alias** TraceLWeapon\n\n**@deprecated_alias** TraceEWeapon\n\n**@deprecated_alias** TraceNPC\n\n**@deprecated_alias** TraceFFC\n\n**@deprecated_alias** TraceItem\n\n**@deprecated_alias** TraceItemData"
       },
-      "5502": {
+      "5506": {
         "loc": {
           "range": {
             "start": {
@@ -1449,7 +1449,7 @@ stdout:
           "uri": "URI"
         }
       },
-      "fn.4385": {
+      "fn.4397": {
         "loc": {
           "range": {
             "start": {
@@ -1482,7 +1482,7 @@ stdout:
         "name": "c2",
         "type": "Car"
       },
-      "5509": {
+      "5513": {
         "loc": {
           "range": {
             "start": {
@@ -1529,7 +1529,7 @@ stdout:
           "uri": "URI"
         }
       },
-      "5482": {
+      "5486": {
         "loc": {
           "range": {
             "start": {
@@ -1546,7 +1546,7 @@ stdout:
         "name": "b",
         "type": "bool"
       },
-      "5347": {
+      "5350": {
         "loc": {
           "range": {
             "start": {
@@ -1627,7 +1627,7 @@ stdout:
         },
         "doc": "Prints the specified format_string to the output console, using the given\nargs to fill in parts of the string that are specially marked. Does not\ninclude a newline character after the string."
       },
-      "5555": {
+      "5558": {
         "loc": {
           "range": {
             "start": {
@@ -1677,7 +1677,7 @@ stdout:
         },
         "doc": "How fast it goes. See [`the vroom method`](command:zscript.openLink?%7B%22file%22%3A%22metadata.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A32%2C%22character%22%3A9%7D%2C%22end%22%3A%7B%22line%22%3A32%2C%22character%22%3A14%7D%7D%7D) or [`speed`](command:zscript.openLink?%7B%22file%22%3A%22metadata.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A24%2C%22character%22%3A8%7D%2C%22end%22%3A%7B%22line%22%3A24%2C%22character%22%3A13%7D%7D%7D) or [`x`](command:zscript.openLink?%7B%22file%22%3A%22metadata.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A17%2C%22character%22%3A4%7D%2C%22end%22%3A%7B%22line%22%3A17%2C%22character%22%3A5%7D%7D%7D) or [`Waitframe()`](command:zscript.openLink?%7B%22file%22%3A%22global.zh%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A102%2C%22character%22%3A14%7D%2C%22end%22%3A%7B%22line%22%3A102%2C%22character%22%3A23%7D%7D%7D) or [`bitmap`](command:zscript.openLink?%7B%22file%22%3A%22bitmap.zh%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A3%2C%22character%22%3A6%7D%2C%22end%22%3A%7B%22line%22%3A3%2C%22character%22%3A12%7D%7D%7D) or [`bitmap::Width`](command:zscript.openLink?%7B%22file%22%3A%22bitmap.zh%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A13%2C%22character%22%3A20%7D%2C%22end%22%3A%7B%22line%22%3A13%2C%22character%22%3A25%7D%7D%7D)"
       },
-      "5549": {
+      "5553": {
         "loc": {
           "range": {
             "start": {
@@ -1709,7 +1709,7 @@ stdout:
         "name": "d",
         "type": "IhaveAdefCtor"
       },
-      "5556": {
+      "5559": {
         "loc": {
           "range": {
             "start": {
@@ -1726,7 +1726,7 @@ stdout:
         "name": "d",
         "type": "IhaveAdefCtor"
       },
-      "fn.4386": {
+      "fn.4398": {
         "loc": {
           "range": {
             "start": {
@@ -1741,7 +1741,7 @@ stdout:
           "uri": "URI"
         }
       },
-      "5557": {
+      "5560": {
         "loc": {
           "range": {
             "start": {
@@ -1758,7 +1758,7 @@ stdout:
         "name": "c2",
         "type": "Car"
       },
-      "5558": {
+      "5561": {
         "loc": {
           "range": {
             "start": {
@@ -1792,7 +1792,7 @@ stdout:
         },
         "doc": "Returns the [`degrees`](command:zscript.openLink?%7B%22file%22%3A%22global.zh%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A780%2C%22character%22%3A39%7D%2C%22end%22%3A%7B%22line%22%3A780%2C%22character%22%3A46%7D%7D%7D) value, wrapped between [-180,180)\n\n\n**@alias** WrapDeg"
       },
-      "5559": {
+      "5562": {
         "loc": {
           "range": {
             "start": {
@@ -1810,7 +1810,7 @@ stdout:
         "name": "arr",
         "type": "int[]"
       },
-      "5562": {
+      "5565": {
         "loc": {
           "range": {
             "start": {
@@ -1827,7 +1827,7 @@ stdout:
         "name": "v",
         "type": "int"
       },
-      "5560": {
+      "5563": {
         "loc": {
           "range": {
             "start": {
@@ -1844,7 +1844,7 @@ stdout:
         "name": "__LOOP_ITER",
         "type": "int"
       },
-      "5561": {
+      "5564": {
         "loc": {
           "range": {
             "start": {
@@ -1861,7 +1861,7 @@ stdout:
         "name": "__LOOP_ARR",
         "type": "int[]"
       },
-      "5563": {
+      "5566": {
         "loc": {
           "range": {
             "start": {
@@ -1878,7 +1878,7 @@ stdout:
         "name": "ahhh",
         "type": "int"
       },
-      "5564": {
+      "5567": {
         "loc": {
           "range": {
             "start": {
@@ -1895,7 +1895,7 @@ stdout:
         "name": "b",
         "type": "Brand"
       },
-      "5565": {
+      "5568": {
         "loc": {
           "range": {
             "start": {
@@ -1913,7 +1913,7 @@ stdout:
         "name": "s",
         "type": "char32[]"
       },
-      "5348": {
+      "5351": {
         "loc": {
           "range": {
             "start": {
@@ -1962,7 +1962,7 @@ stdout:
           "uri": "URI"
         }
       },
-      "7602": {
+      "7605": {
         "loc": {
           "range": {
             "start": {
@@ -1993,7 +1993,7 @@ stdout:
           "character": 4,
           "length": 5
         },
-        "symbol": "5334"
+        "symbol": "5337"
       },
       {
         "loc": {
@@ -2001,7 +2001,7 @@ stdout:
           "character": 4,
           "length": 4
         },
-        "symbol": "5335"
+        "symbol": "5338"
       },
       {
         "loc": {
@@ -2009,7 +2009,7 @@ stdout:
           "character": 4,
           "length": 3
         },
-        "symbol": "5336"
+        "symbol": "5339"
       },
       {
         "loc": {
@@ -2025,7 +2025,7 @@ stdout:
           "character": 4,
           "length": 7
         },
-        "symbol": "5337"
+        "symbol": "5340"
       },
       {
         "loc": {
@@ -2033,7 +2033,7 @@ stdout:
           "character": 13,
           "length": 6
         },
-        "symbol": "5338"
+        "symbol": "5341"
       },
       {
         "loc": {
@@ -2041,7 +2041,7 @@ stdout:
           "character": 21,
           "length": 7
         },
-        "symbol": "5339"
+        "symbol": "5342"
       },
       {
         "loc": {
@@ -2049,7 +2049,7 @@ stdout:
           "character": 30,
           "length": 6
         },
-        "symbol": "5340"
+        "symbol": "5343"
       },
       {
         "loc": {
@@ -2057,7 +2057,7 @@ stdout:
           "character": 4,
           "length": 7
         },
-        "symbol": "5341"
+        "symbol": "5344"
       },
       {
         "loc": {
@@ -2065,7 +2065,7 @@ stdout:
           "character": 4,
           "length": 8
         },
-        "symbol": "5342"
+        "symbol": "5345"
       },
       {
         "loc": {
@@ -2073,7 +2073,7 @@ stdout:
           "character": 15,
           "length": 7
         },
-        "symbol": "5341"
+        "symbol": "5344"
       },
       {
         "loc": {
@@ -2081,7 +2081,7 @@ stdout:
           "character": 4,
           "length": 1
         },
-        "symbol": "5343"
+        "symbol": "5346"
       },
       {
         "loc": {
@@ -2089,7 +2089,7 @@ stdout:
           "character": 4,
           "length": 1
         },
-        "symbol": "5344"
+        "symbol": "5347"
       },
       {
         "loc": {
@@ -2097,7 +2097,7 @@ stdout:
           "character": 7,
           "length": 1
         },
-        "symbol": "5345"
+        "symbol": "5348"
       },
       {
         "loc": {
@@ -2105,7 +2105,7 @@ stdout:
           "character": 4,
           "length": 6
         },
-        "symbol": "5346"
+        "symbol": "5349"
       },
       {
         "loc": {
@@ -2137,7 +2137,7 @@ stdout:
           "character": 10,
           "length": 1
         },
-        "symbol": "5502"
+        "symbol": "5506"
       },
       {
         "loc": {
@@ -2145,7 +2145,7 @@ stdout:
           "character": 11,
           "length": 1
         },
-        "symbol": "5502"
+        "symbol": "5506"
       },
       {
         "loc": {
@@ -2153,7 +2153,7 @@ stdout:
           "character": 4,
           "length": 8
         },
-        "symbol": "fn.4385"
+        "symbol": "fn.4397"
       },
       {
         "loc": {
@@ -2177,7 +2177,7 @@ stdout:
           "character": 8,
           "length": 1
         },
-        "symbol": "5509"
+        "symbol": "5513"
       },
       {
         "loc": {
@@ -2185,7 +2185,7 @@ stdout:
           "character": 11,
           "length": 1
         },
-        "symbol": "5509"
+        "symbol": "5513"
       },
       {
         "loc": {
@@ -2209,7 +2209,7 @@ stdout:
           "character": 6,
           "length": 1
         },
-        "symbol": "5482"
+        "symbol": "5486"
       },
       {
         "loc": {
@@ -2225,7 +2225,7 @@ stdout:
           "character": 8,
           "length": 1
         },
-        "symbol": "5482"
+        "symbol": "5486"
       },
       {
         "loc": {
@@ -2233,7 +2233,7 @@ stdout:
           "character": 8,
           "length": 3
         },
-        "symbol": "5347"
+        "symbol": "5350"
       },
       {
         "loc": {
@@ -2273,7 +2273,7 @@ stdout:
           "character": 26,
           "length": 7
         },
-        "symbol": "5341"
+        "symbol": "5344"
       },
       {
         "loc": {
@@ -2281,7 +2281,7 @@ stdout:
           "character": 36,
           "length": 8
         },
-        "symbol": "5342"
+        "symbol": "5345"
       },
       {
         "loc": {
@@ -2289,7 +2289,7 @@ stdout:
           "character": 50,
           "length": 1
         },
-        "symbol": "5343"
+        "symbol": "5346"
       },
       {
         "loc": {
@@ -2305,7 +2305,7 @@ stdout:
           "character": 18,
           "length": 7
         },
-        "symbol": "5341"
+        "symbol": "5344"
       },
       {
         "loc": {
@@ -2321,7 +2321,7 @@ stdout:
           "character": 18,
           "length": 7
         },
-        "symbol": "5337"
+        "symbol": "5340"
       },
       {
         "loc": {
@@ -2337,7 +2337,7 @@ stdout:
           "character": 13,
           "length": 1
         },
-        "symbol": "5555"
+        "symbol": "5558"
       },
       {
         "loc": {
@@ -2369,7 +2369,7 @@ stdout:
           "character": 29,
           "length": 1
         },
-        "symbol": "5555"
+        "symbol": "5558"
       },
       {
         "loc": {
@@ -2377,7 +2377,7 @@ stdout:
           "character": 39,
           "length": 6
         },
-        "symbol": "5549"
+        "symbol": "5553"
       },
       {
         "loc": {
@@ -2385,7 +2385,7 @@ stdout:
           "character": 54,
           "length": 3
         },
-        "symbol": "5347"
+        "symbol": "5350"
       },
       {
         "loc": {
@@ -2393,7 +2393,7 @@ stdout:
           "character": 60,
           "length": 1
         },
-        "symbol": "5344"
+        "symbol": "5347"
       },
       {
         "loc": {
@@ -2401,7 +2401,7 @@ stdout:
           "character": 64,
           "length": 1
         },
-        "symbol": "5345"
+        "symbol": "5348"
       },
       {
         "loc": {
@@ -2409,7 +2409,7 @@ stdout:
           "character": 68,
           "length": 4
         },
-        "symbol": "5335"
+        "symbol": "5338"
       },
       {
         "loc": {
@@ -2417,7 +2417,7 @@ stdout:
           "character": 75,
           "length": 5
         },
-        "symbol": "5334"
+        "symbol": "5337"
       },
       {
         "loc": {
@@ -2425,7 +2425,7 @@ stdout:
           "character": 83,
           "length": 3
         },
-        "symbol": "5336"
+        "symbol": "5339"
       },
       {
         "loc": {
@@ -2441,7 +2441,7 @@ stdout:
           "character": 13,
           "length": 1
         },
-        "symbol": "5556"
+        "symbol": "5559"
       },
       {
         "loc": {
@@ -2449,7 +2449,7 @@ stdout:
           "character": 21,
           "length": 13
         },
-        "symbol": "fn.4386"
+        "symbol": "fn.4398"
       },
       {
         "loc": {
@@ -2465,7 +2465,7 @@ stdout:
           "character": 12,
           "length": 2
         },
-        "symbol": "5557"
+        "symbol": "5560"
       },
       {
         "loc": {
@@ -2481,7 +2481,7 @@ stdout:
           "character": 12,
           "length": 1
         },
-        "symbol": "5558"
+        "symbol": "5561"
       },
       {
         "loc": {
@@ -2497,7 +2497,7 @@ stdout:
           "character": 16,
           "length": 1
         },
-        "symbol": "5555"
+        "symbol": "5558"
       },
       {
         "loc": {
@@ -2513,7 +2513,7 @@ stdout:
           "character": 16,
           "length": 1
         },
-        "symbol": "5558"
+        "symbol": "5561"
       },
       {
         "loc": {
@@ -2521,7 +2521,7 @@ stdout:
           "character": 12,
           "length": 3
         },
-        "symbol": "5559"
+        "symbol": "5562"
       },
       {
         "loc": {
@@ -2529,7 +2529,7 @@ stdout:
           "character": 17,
           "length": 3
         },
-        "symbol": "5559"
+        "symbol": "5562"
       },
       {
         "loc": {
@@ -2545,7 +2545,7 @@ stdout:
           "character": 18,
           "length": 1
         },
-        "symbol": "5562"
+        "symbol": "5565"
       },
       {
         "loc": {
@@ -2553,7 +2553,7 @@ stdout:
           "character": 13,
           "length": 1
         },
-        "symbol": "5560"
+        "symbol": "5563"
       },
       {
         "loc": {
@@ -2561,7 +2561,7 @@ stdout:
           "character": 13,
           "length": 1
         },
-        "symbol": "5561"
+        "symbol": "5564"
       },
       {
         "loc": {
@@ -2569,7 +2569,7 @@ stdout:
           "character": 17,
           "length": 3
         },
-        "symbol": "5559"
+        "symbol": "5562"
       },
       {
         "loc": {
@@ -2577,7 +2577,7 @@ stdout:
           "character": 13,
           "length": 1
         },
-        "symbol": "5562"
+        "symbol": "5565"
       },
       {
         "loc": {
@@ -2585,7 +2585,7 @@ stdout:
           "character": 16,
           "length": 4
         },
-        "symbol": "5563"
+        "symbol": "5566"
       },
       {
         "loc": {
@@ -2593,7 +2593,7 @@ stdout:
           "character": 16,
           "length": 4
         },
-        "symbol": "5563"
+        "symbol": "5566"
       },
       {
         "loc": {
@@ -2609,7 +2609,7 @@ stdout:
           "character": 18,
           "length": 4
         },
-        "symbol": "5563"
+        "symbol": "5566"
       },
       {
         "loc": {
@@ -2625,7 +2625,7 @@ stdout:
           "character": 14,
           "length": 1
         },
-        "symbol": "5564"
+        "symbol": "5567"
       },
       {
         "loc": {
@@ -2633,7 +2633,7 @@ stdout:
           "character": 18,
           "length": 5
         },
-        "symbol": "5334"
+        "symbol": "5337"
       },
       {
         "loc": {
@@ -2649,7 +2649,7 @@ stdout:
           "character": 14,
           "length": 1
         },
-        "symbol": "5564"
+        "symbol": "5567"
       },
       {
         "loc": {
@@ -2657,7 +2657,7 @@ stdout:
           "character": 17,
           "length": 1
         },
-        "symbol": "5565"
+        "symbol": "5568"
       },
       {
         "loc": {
@@ -2673,7 +2673,7 @@ stdout:
           "character": 8,
           "length": 5
         },
-        "symbol": "5348"
+        "symbol": "5351"
       },
       {
         "loc": {
@@ -2689,7 +2689,7 @@ stdout:
           "character": 8,
           "length": 5
         },
-        "symbol": "5348"
+        "symbol": "5351"
       },
       {
         "loc": {
@@ -2737,7 +2737,7 @@ stdout:
           "character": 22,
           "length": 5
         },
-        "symbol": "7602"
+        "symbol": "7605"
       },
       {
         "loc": {
@@ -2753,7 +2753,7 @@ stdout:
           "character": 6,
           "length": 13
         },
-        "symbol": "fn.4386"
+        "symbol": "fn.4398"
       },
       {
         "loc": {
@@ -2781,151 +2781,150 @@ PUSHR D1                                                                        
 PUSHR D2                                                                        | 9 tests/scripts/misc/metadata.zs:81
 PUSHR D3                                                                        | 10 tests/scripts/misc/metadata.zs:81
 PUSHR D4                                                                        | 11 tests/scripts/misc/metadata.zs:81
-PUSHR REFFFC; void run(int, int, int, int, int) Body Start                      | 12 tests/scripts/misc/metadata.zs:81
-PUSHARGSV 0 0.0008                                                              | 13 tests/scripts/misc/metadata.zs:81
-SETR D4 SP2                                                                     | 14 tests/scripts/misc/metadata.zs:81
-ALLOCATEMEMV D2 7 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start | 15 tests/scripts/misc/metadata.zs:82
-WRITEPODSTRING D2 "%d %d\n"                                                     | 16 tests/scripts/misc/metadata.zs:82
-PUSHR D2                                                                        | 17 tests/scripts/misc/metadata.zs:82
-SETR D2 GD1                                                                     | 18 tests/scripts/misc/metadata.zs:82
-PUSHR D2                                                                        | 19 tests/scripts/misc/metadata.zs:82
-SETR D2 GD2                                                                     | 20 tests/scripts/misc/metadata.zs:82
-POP D3                                                                          | 21 tests/scripts/misc/metadata.zs:82
-ADDR D2 D3                                                                      | 22 tests/scripts/misc/metadata.zs:82
-PUSHVARGR D2                                                                    | 23 tests/scripts/misc/metadata.zs:82
-SETR D2 GD3                                                                     | 24 tests/scripts/misc/metadata.zs:82
-ADDV D2 1                                                                       | 25 tests/scripts/misc/metadata.zs:82
-ADDV D2 2                                                                       | 26 tests/scripts/misc/metadata.zs:82
-PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End        | 27 tests/scripts/misc/metadata.zs:82
-PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start          | 28 tests/scripts/misc/metadata.zs:82
-POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End                | 29 tests/scripts/misc/metadata.zs:82
-PUSHR D4                                                                        | 30 tests/scripts/misc/metadata.zs:83
-PUSHR GD1; UsrFunc[void fn(int)] Params                                         | 31 tests/scripts/misc/metadata.zs:83
-CALLFUNC 0.0157; UsrFunc[void fn(int)] Call                                     | 32 tests/scripts/misc/metadata.zs:83
+PUSHARGSV 0 0.0008; void run(int, int, int, int, int) Body Start                | 12 tests/scripts/misc/metadata.zs:81
+SETR D4 SP2                                                                     | 13 tests/scripts/misc/metadata.zs:81
+ALLOCATEMEMV D2 7 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start | 14 tests/scripts/misc/metadata.zs:82
+WRITEPODSTRING D2 "%d %d\n"                                                     | 15 tests/scripts/misc/metadata.zs:82
+PUSHR D2                                                                        | 16 tests/scripts/misc/metadata.zs:82
+SETR D2 GD1                                                                     | 17 tests/scripts/misc/metadata.zs:82
+PUSHR D2                                                                        | 18 tests/scripts/misc/metadata.zs:82
+SETR D2 GD2                                                                     | 19 tests/scripts/misc/metadata.zs:82
+POP D3                                                                          | 20 tests/scripts/misc/metadata.zs:82
+ADDR D2 D3                                                                      | 21 tests/scripts/misc/metadata.zs:82
+PUSHVARGR D2                                                                    | 22 tests/scripts/misc/metadata.zs:82
+SETR D2 GD3                                                                     | 23 tests/scripts/misc/metadata.zs:82
+ADDV D2 1                                                                       | 24 tests/scripts/misc/metadata.zs:82
+ADDV D2 2                                                                       | 25 tests/scripts/misc/metadata.zs:82
+PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End        | 26 tests/scripts/misc/metadata.zs:82
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start          | 27 tests/scripts/misc/metadata.zs:82
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End                | 28 tests/scripts/misc/metadata.zs:82
+PUSHR D4                                                                        | 29 tests/scripts/misc/metadata.zs:83
+PUSHR GD1; UsrFunc[void fn(int)] Params                                         | 30 tests/scripts/misc/metadata.zs:83
+CALLFUNC 0.0156; UsrFunc[void fn(int)] Call                                     | 31 tests/scripts/misc/metadata.zs:83
 PEEK D4
-PUSHV 1; UsrFunc[FilterBitflags do_filter(FilterBitflags)] Params               | 34 tests/scripts/misc/metadata.zs:84
-CALLFUNC 0.0151; UsrFunc[FilterBitflags do_filter(FilterBitflags)] Call         | 35 tests/scripts/misc/metadata.zs:84
-POP D4                                                                          | 36 tests/scripts/misc/metadata.zs:84
-PUSHR CLASS_THISKEY                                                             | 37 tests/scripts/misc/metadata.zs:87
-PUSHR D4                                                                        | 38 tests/scripts/misc/metadata.zs:87
-PUSHV 2; ClassFunc[Car Car::Car(int)] Params                                    | 39 tests/scripts/misc/metadata.zs:87
-CALLFUNC 0.0121; ClassFunc[Car Car::Car(int)] Constructor Call                  | 40 tests/scripts/misc/metadata.zs:87
-POP D4                                                                          | 41 tests/scripts/misc/metadata.zs:87
-POP CLASS_THISKEY                                                               | 42 tests/scripts/misc/metadata.zs:87
-STORE_OBJECT D2 0.0007                                                          | 43 tests/scripts/misc/metadata.zs:87
-ALLOCATEMEMV D2 10 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start | 44 tests/scripts/misc/metadata.zs:88
-WRITEPODSTRING D2 "%d %d %d\n"                                                  | 45 tests/scripts/misc/metadata.zs:88
-PUSHR D2                                                                        | 46 tests/scripts/misc/metadata.zs:88
-LOAD D2 0.0007                                                                  | 47 tests/scripts/misc/metadata.zs:88
-ZCLASS_READ D2 0                                                                | 48 tests/scripts/misc/metadata.zs:88
-PUSHVARGR D2                                                                    | 49 tests/scripts/misc/metadata.zs:88
-LOAD D2 0.0013                                                                  | 50 tests/scripts/misc/metadata.zs:88
-PUSHVARGR D2                                                                    | 51 tests/scripts/misc/metadata.zs:88
-SETR D2 GD6                                                                     | 52 tests/scripts/misc/metadata.zs:88
-PUSHR D2                                                                        | 53 tests/scripts/misc/metadata.zs:88
-SETR D2 GD4                                                                     | 54 tests/scripts/misc/metadata.zs:88
-POP D3                                                                          | 55 tests/scripts/misc/metadata.zs:88
-ADDR D2 D3                                                                      | 56 tests/scripts/misc/metadata.zs:88
-PUSHR D2                                                                        | 57 tests/scripts/misc/metadata.zs:88
-SETR D2 GD5                                                                     | 58 tests/scripts/misc/metadata.zs:88
-POP D3                                                                          | 59 tests/scripts/misc/metadata.zs:88
-ADDR D2 D3                                                                      | 60 tests/scripts/misc/metadata.zs:88
-ADDV D2 1                                                                       | 61 tests/scripts/misc/metadata.zs:88
-ADDV D2 2                                                                       | 62 tests/scripts/misc/metadata.zs:88
-PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End        | 63 tests/scripts/misc/metadata.zs:88
-PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start          | 64 tests/scripts/misc/metadata.zs:88
-POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End                | 65 tests/scripts/misc/metadata.zs:88
-PUSHR CLASS_THISKEY                                                             | 66 tests/scripts/misc/metadata.zs:89
-PUSHR D4                                                                        | 67 tests/scripts/misc/metadata.zs:89
-CALLFUNC 0.0139; ClassFunc[IhaveAdefCtor IhaveAdefCtor::IhaveAdefCtor()] Constructor Call | 68 tests/scripts/misc/metadata.zs:89
-POP D4                                                                          | 69 tests/scripts/misc/metadata.zs:89
-POP CLASS_THISKEY                                                               | 70 tests/scripts/misc/metadata.zs:89
-STORE_OBJECT D2 0.0006                                                          | 71 tests/scripts/misc/metadata.zs:89
-PUSHR CLASS_THISKEY                                                             | 72 tests/scripts/misc/metadata.zs:90
-PUSHR D4                                                                        | 73 tests/scripts/misc/metadata.zs:90
-PUSHV 2; ClassFunc[Car Car::Car(int)] Params                                    | 74 tests/scripts/misc/metadata.zs:90
-CALLFUNC 0.0121; ClassFunc[Car Car::Car(int)] Constructor Call                  | 75 tests/scripts/misc/metadata.zs:90
-POP D4                                                                          | 76 tests/scripts/misc/metadata.zs:90
-POP CLASS_THISKEY                                                               | 77 tests/scripts/misc/metadata.zs:90
-STORE_OBJECT D2 0.0005                                                          | 78 tests/scripts/misc/metadata.zs:90
-LOAD D2 0.0007                                                                  | 79 tests/scripts/misc/metadata.zs:92
-ZCLASS_READ D2 0                                                                | 80 tests/scripts/misc/metadata.zs:92
-STORE D2 0.0004                                                                 | 81 tests/scripts/misc/metadata.zs:92
-LOAD D2 0.0004; InlineFunc[int WrapDeg(int)] Params                             | 82 tests/scripts/misc/metadata.zs:93
-WRAPDEGREES D2; InlineFunc[int WrapDeg(int)] Body                               | 83 tests/scripts/misc/metadata.zs:93
-ALLOCATEMEMV D2 3 0                                                             | 84 tests/scripts/misc/metadata.zs:95
-PUSHR D2                                                                        | 85 tests/scripts/misc/metadata.zs:95
-WRITEPODARRAY D2 {1,2,3}                                                        | 86 tests/scripts/misc/metadata.zs:95
-POP D2                                                                          | 87 tests/scripts/misc/metadata.zs:95
-STORE_OBJECT D2 0.0003                                                          | 88 tests/scripts/misc/metadata.zs:95
-LOAD D2 0.0003; for(each) #1 ArrDecl                                            | 89 tests/scripts/misc/metadata.zs:96
-STORE_OBJECT D2 0.0001                                                          | 90 tests/scripts/misc/metadata.zs:96
-STOREV 0 0.0002; for(each) #1 IndxDecl                                          | 91 tests/scripts/misc/metadata.zs:96
-STOREV 0 0; for(each) #1 ValDecl                                                | 92 tests/scripts/misc/metadata.zs:96
-LOAD D0 0.0001; for(each) #1 EndArrayCheck                                      | 93 tests/scripts/misc/metadata.zs:96
-ARRAYSIZE D0                                                                    | 94 tests/scripts/misc/metadata.zs:96
-LOAD D3 0.0002                                                                  | 95 tests/scripts/misc/metadata.zs:96
-COMPARER D3 D2                                                                  | 96 tests/scripts/misc/metadata.zs:96
-GOTOCMP 106 >=; for(each) #1 to Else                                            | 97 tests/scripts/misc/metadata.zs:96
-READPODARRAYR D2 D3; for(each) #1 Next Index                                    | 98 tests/scripts/misc/metadata.zs:96
-STORE D2 0                                                                      | 99 tests/scripts/misc/metadata.zs:96
-ADDV D3 1                                                                       | 100 tests/scripts/misc/metadata.zs:96
-STORE D3 0.0002                                                                 | 101 tests/scripts/misc/metadata.zs:96
-LOAD D2 0; InlineFunc[void Trace(untyped)] Params AND for(each) #1 Body Start   | 102 tests/scripts/misc/metadata.zs:97
-TRACER D2; InlineFunc[void Trace(untyped)] Body AND for(each) #1 Body End       | 103 tests/scripts/misc/metadata.zs:97
-GOTO 94; for(each) #1 End                                                       | 104 tests/scripts/misc/metadata.zs:96
-REF_REMOVE 0.0001                                                               | 105 tests/scripts/misc/metadata.zs:96
-STOREV 1 0.0002; if(ahhh=true) #8 [Opt:AlwaysOn]                                | 106 tests/scripts/misc/metadata.zs:99
-LOAD D2 0.0002; InlineFunc[void Trace(untyped)] Params                          | 107 tests/scripts/misc/metadata.zs:101
-TRACER D2; InlineFunc[void Trace(untyped)] Body                                 | 108 tests/scripts/misc/metadata.zs:101
-STOREV 0 0.0002                                                                 | 109 tests/scripts/misc/metadata.zs:103
-LOAD D2 0.0002; InlineFunc[void Trace(untyped)] Params                          | 110 tests/scripts/misc/metadata.zs:104
-TRACER D2; InlineFunc[void Trace(untyped)] Body                                 | 111 tests/scripts/misc/metadata.zs:104
-STOREV 0 0.0001                                                                 | 112 tests/scripts/misc/metadata.zs:112
-REF_REMOVE 0.0003                                                               | 113 tests/scripts/misc/metadata.zs:81
-REF_REMOVE 0.0007                                                               | 114 tests/scripts/misc/metadata.zs:81
-REF_REMOVE 0.0005                                                               | 115 tests/scripts/misc/metadata.zs:81
-REF_REMOVE 0.0006                                                               | 116 tests/scripts/misc/metadata.zs:81
-REF_REMOVE 0.0001                                                               | 117 tests/scripts/misc/metadata.zs:81
-POPARGS D5 0.0014                                                               | 118 tests/scripts/misc/metadata.zs:112
-RETURNFUNC; void run(int, int, int, int, int) Body End                          | 119 tests/scripts/misc/metadata.zs:112
-SETV D2 0; Func[Car Car::Car(int)] Body Start                                   | 120 tests/scripts/misc/metadata.zs:28
-SETR CLASS_THISKEY2 CLASS_THISKEY                                               | 121 tests/scripts/misc/metadata.zs:28
-ZCLASS_CONSTRUCT CLASS_THISKEY {0.0001}                                         | 122 tests/scripts/misc/metadata.zs:28
-REF_INC -0.0001                                                                 | 123 tests/scripts/misc/metadata.zs:28
-SETR D4 SP2                                                                     | 124 tests/scripts/misc/metadata.zs:28
-PUSHR CLASS_THISKEY2                                                            | 125 tests/scripts/misc/metadata.zs:28
-LOAD D2 0                                                                       | 126 tests/scripts/misc/metadata.zs:29
-PUSHR D2                                                                        | 127 tests/scripts/misc/metadata.zs:29
-SETR D2 CLASS_THISKEY                                                           | 128 tests/scripts/misc/metadata.zs:29
-SETR D3 D2                                                                      | 129 tests/scripts/misc/metadata.zs:29
-POP D2                                                                          | 130 tests/scripts/misc/metadata.zs:29
-ZCLASS_WRITE D3 0                                                               | 131 tests/scripts/misc/metadata.zs:29
-POP D5                                                                          | 132 tests/scripts/misc/metadata.zs:29
-REF_AUTORELEASE CLASS_THISKEY                                                   | 133 tests/scripts/misc/metadata.zs:29
-REF_DEC -0.0001                                                                 | 134 tests/scripts/misc/metadata.zs:29
-SETR D2 CLASS_THISKEY                                                           | 135 tests/scripts/misc/metadata.zs:29
-POP CLASS_THISKEY                                                               | 136 tests/scripts/misc/metadata.zs:29
-RETURNFUNC; Func[Car Car::Car(int)] Body End                                    | 137 tests/scripts/misc/metadata.zs:29
-SETV D2 0; Func[IhaveAdefCtor IhaveAdefCtor::IhaveAdefCtor()] Body Start        | 138 tests/scripts/misc/metadata.zs:42
-SETR CLASS_THISKEY2 CLASS_THISKEY                                               | 139 tests/scripts/misc/metadata.zs:42
-ZCLASS_CONSTRUCT CLASS_THISKEY {0}                                              | 140 tests/scripts/misc/metadata.zs:42
-REF_INC -0.0001                                                                 | 141 tests/scripts/misc/metadata.zs:42
-SETR D4 SP2                                                                     | 142 tests/scripts/misc/metadata.zs:42
-PUSHR CLASS_THISKEY2                                                            | 143 tests/scripts/misc/metadata.zs:42
+PUSHV 1; UsrFunc[FilterBitflags do_filter(FilterBitflags)] Params               | 33 tests/scripts/misc/metadata.zs:84
+CALLFUNC 0.0150; UsrFunc[FilterBitflags do_filter(FilterBitflags)] Call         | 34 tests/scripts/misc/metadata.zs:84
+POP D4                                                                          | 35 tests/scripts/misc/metadata.zs:84
+PUSHR CLASS_THISKEY                                                             | 36 tests/scripts/misc/metadata.zs:87
+PUSHR D4                                                                        | 37 tests/scripts/misc/metadata.zs:87
+PUSHV 2; ClassFunc[Car Car::Car(int)] Params                                    | 38 tests/scripts/misc/metadata.zs:87
+CALLFUNC 0.0120; ClassFunc[Car Car::Car(int)] Constructor Call                  | 39 tests/scripts/misc/metadata.zs:87
+POP D4                                                                          | 40 tests/scripts/misc/metadata.zs:87
+POP CLASS_THISKEY                                                               | 41 tests/scripts/misc/metadata.zs:87
+STORE_OBJECT D2 0.0007                                                          | 42 tests/scripts/misc/metadata.zs:87
+ALLOCATEMEMV D2 10 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start | 43 tests/scripts/misc/metadata.zs:88
+WRITEPODSTRING D2 "%d %d %d\n"                                                  | 44 tests/scripts/misc/metadata.zs:88
+PUSHR D2                                                                        | 45 tests/scripts/misc/metadata.zs:88
+LOAD D2 0.0007                                                                  | 46 tests/scripts/misc/metadata.zs:88
+ZCLASS_READ D2 0                                                                | 47 tests/scripts/misc/metadata.zs:88
+PUSHVARGR D2                                                                    | 48 tests/scripts/misc/metadata.zs:88
+LOAD D2 0.0012                                                                  | 49 tests/scripts/misc/metadata.zs:88
+PUSHVARGR D2                                                                    | 50 tests/scripts/misc/metadata.zs:88
+SETR D2 GD6                                                                     | 51 tests/scripts/misc/metadata.zs:88
+PUSHR D2                                                                        | 52 tests/scripts/misc/metadata.zs:88
+SETR D2 GD4                                                                     | 53 tests/scripts/misc/metadata.zs:88
+POP D3                                                                          | 54 tests/scripts/misc/metadata.zs:88
+ADDR D2 D3                                                                      | 55 tests/scripts/misc/metadata.zs:88
+PUSHR D2                                                                        | 56 tests/scripts/misc/metadata.zs:88
+SETR D2 GD5                                                                     | 57 tests/scripts/misc/metadata.zs:88
+POP D3                                                                          | 58 tests/scripts/misc/metadata.zs:88
+ADDR D2 D3                                                                      | 59 tests/scripts/misc/metadata.zs:88
+ADDV D2 1                                                                       | 60 tests/scripts/misc/metadata.zs:88
+ADDV D2 2                                                                       | 61 tests/scripts/misc/metadata.zs:88
+PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End        | 62 tests/scripts/misc/metadata.zs:88
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start          | 63 tests/scripts/misc/metadata.zs:88
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End                | 64 tests/scripts/misc/metadata.zs:88
+PUSHR CLASS_THISKEY                                                             | 65 tests/scripts/misc/metadata.zs:89
+PUSHR D4                                                                        | 66 tests/scripts/misc/metadata.zs:89
+CALLFUNC 0.0138; ClassFunc[IhaveAdefCtor IhaveAdefCtor::IhaveAdefCtor()] Constructor Call | 67 tests/scripts/misc/metadata.zs:89
+POP D4                                                                          | 68 tests/scripts/misc/metadata.zs:89
+POP CLASS_THISKEY                                                               | 69 tests/scripts/misc/metadata.zs:89
+STORE_OBJECT D2 0.0006                                                          | 70 tests/scripts/misc/metadata.zs:89
+PUSHR CLASS_THISKEY                                                             | 71 tests/scripts/misc/metadata.zs:90
+PUSHR D4                                                                        | 72 tests/scripts/misc/metadata.zs:90
+PUSHV 2; ClassFunc[Car Car::Car(int)] Params                                    | 73 tests/scripts/misc/metadata.zs:90
+CALLFUNC 0.0120; ClassFunc[Car Car::Car(int)] Constructor Call                  | 74 tests/scripts/misc/metadata.zs:90
+POP D4                                                                          | 75 tests/scripts/misc/metadata.zs:90
+POP CLASS_THISKEY                                                               | 76 tests/scripts/misc/metadata.zs:90
+STORE_OBJECT D2 0.0005                                                          | 77 tests/scripts/misc/metadata.zs:90
+LOAD D2 0.0007                                                                  | 78 tests/scripts/misc/metadata.zs:92
+ZCLASS_READ D2 0                                                                | 79 tests/scripts/misc/metadata.zs:92
+STORE D2 0.0004                                                                 | 80 tests/scripts/misc/metadata.zs:92
+LOAD D2 0.0004; InlineFunc[int WrapDeg(int)] Params                             | 81 tests/scripts/misc/metadata.zs:93
+WRAPDEGREES D2; InlineFunc[int WrapDeg(int)] Body                               | 82 tests/scripts/misc/metadata.zs:93
+ALLOCATEMEMV D2 3 0                                                             | 83 tests/scripts/misc/metadata.zs:95
+PUSHR D2                                                                        | 84 tests/scripts/misc/metadata.zs:95
+WRITEPODARRAY D2 {1,2,3}                                                        | 85 tests/scripts/misc/metadata.zs:95
+POP D2                                                                          | 86 tests/scripts/misc/metadata.zs:95
+STORE_OBJECT D2 0.0003                                                          | 87 tests/scripts/misc/metadata.zs:95
+LOAD D2 0.0003; for(each) #1 ArrDecl                                            | 88 tests/scripts/misc/metadata.zs:96
+STORE_OBJECT D2 0.0001                                                          | 89 tests/scripts/misc/metadata.zs:96
+STOREV 0 0.0002; for(each) #1 IndxDecl                                          | 90 tests/scripts/misc/metadata.zs:96
+STOREV 0 0; for(each) #1 ValDecl                                                | 91 tests/scripts/misc/metadata.zs:96
+LOAD D0 0.0001; for(each) #1 EndArrayCheck                                      | 92 tests/scripts/misc/metadata.zs:96
+ARRAYSIZE D0                                                                    | 93 tests/scripts/misc/metadata.zs:96
+LOAD D3 0.0002                                                                  | 94 tests/scripts/misc/metadata.zs:96
+COMPARER D3 D2                                                                  | 95 tests/scripts/misc/metadata.zs:96
+GOTOCMP 105 >=; for(each) #1 to Else                                            | 96 tests/scripts/misc/metadata.zs:96
+READPODARRAYR D2 D3; for(each) #1 Next Index                                    | 97 tests/scripts/misc/metadata.zs:96
+STORE D2 0                                                                      | 98 tests/scripts/misc/metadata.zs:96
+ADDV D3 1                                                                       | 99 tests/scripts/misc/metadata.zs:96
+STORE D3 0.0002                                                                 | 100 tests/scripts/misc/metadata.zs:96
+LOAD D2 0; InlineFunc[void Trace(untyped)] Params AND for(each) #1 Body Start   | 101 tests/scripts/misc/metadata.zs:97
+TRACER D2; InlineFunc[void Trace(untyped)] Body AND for(each) #1 Body End       | 102 tests/scripts/misc/metadata.zs:97
+GOTO 93; for(each) #1 End                                                       | 103 tests/scripts/misc/metadata.zs:96
+REF_REMOVE 0.0001                                                               | 104 tests/scripts/misc/metadata.zs:96
+STOREV 1 0.0002; if(ahhh=true) #8 [Opt:AlwaysOn]                                | 105 tests/scripts/misc/metadata.zs:99
+LOAD D2 0.0002; InlineFunc[void Trace(untyped)] Params                          | 106 tests/scripts/misc/metadata.zs:101
+TRACER D2; InlineFunc[void Trace(untyped)] Body                                 | 107 tests/scripts/misc/metadata.zs:101
+STOREV 0 0.0002                                                                 | 108 tests/scripts/misc/metadata.zs:103
+LOAD D2 0.0002; InlineFunc[void Trace(untyped)] Params                          | 109 tests/scripts/misc/metadata.zs:104
+TRACER D2; InlineFunc[void Trace(untyped)] Body                                 | 110 tests/scripts/misc/metadata.zs:104
+STOREV 0 0.0001                                                                 | 111 tests/scripts/misc/metadata.zs:112
+REF_REMOVE 0.0003                                                               | 112 tests/scripts/misc/metadata.zs:81
+REF_REMOVE 0.0007                                                               | 113 tests/scripts/misc/metadata.zs:81
+REF_REMOVE 0.0005                                                               | 114 tests/scripts/misc/metadata.zs:81
+REF_REMOVE 0.0006                                                               | 115 tests/scripts/misc/metadata.zs:81
+REF_REMOVE 0.0001                                                               | 116 tests/scripts/misc/metadata.zs:81
+POPARGS D5 0.0013                                                               | 117 tests/scripts/misc/metadata.zs:112
+RETURNFUNC; void run(int, int, int, int, int) Body End                          | 118 tests/scripts/misc/metadata.zs:112
+SETV D2 0; Func[Car Car::Car(int)] Body Start                                   | 119 tests/scripts/misc/metadata.zs:28
+SETR CLASS_THISKEY2 CLASS_THISKEY                                               | 120 tests/scripts/misc/metadata.zs:28
+ZCLASS_CONSTRUCT CLASS_THISKEY {0.0001}                                         | 121 tests/scripts/misc/metadata.zs:28
+REF_INC -0.0001                                                                 | 122 tests/scripts/misc/metadata.zs:28
+SETR D4 SP2                                                                     | 123 tests/scripts/misc/metadata.zs:28
+PUSHR CLASS_THISKEY2                                                            | 124 tests/scripts/misc/metadata.zs:28
+LOAD D2 0                                                                       | 125 tests/scripts/misc/metadata.zs:29
+PUSHR D2                                                                        | 126 tests/scripts/misc/metadata.zs:29
+SETR D2 CLASS_THISKEY                                                           | 127 tests/scripts/misc/metadata.zs:29
+SETR D3 D2                                                                      | 128 tests/scripts/misc/metadata.zs:29
+POP D2                                                                          | 129 tests/scripts/misc/metadata.zs:29
+ZCLASS_WRITE D3 0                                                               | 130 tests/scripts/misc/metadata.zs:29
+POP D5                                                                          | 131 tests/scripts/misc/metadata.zs:29
+REF_AUTORELEASE CLASS_THISKEY                                                   | 132 tests/scripts/misc/metadata.zs:29
+REF_DEC -0.0001                                                                 | 133 tests/scripts/misc/metadata.zs:29
+SETR D2 CLASS_THISKEY                                                           | 134 tests/scripts/misc/metadata.zs:29
+POP CLASS_THISKEY                                                               | 135 tests/scripts/misc/metadata.zs:29
+RETURNFUNC; Func[Car Car::Car(int)] Body End                                    | 136 tests/scripts/misc/metadata.zs:29
+SETV D2 0; Func[IhaveAdefCtor IhaveAdefCtor::IhaveAdefCtor()] Body Start        | 137 tests/scripts/misc/metadata.zs:42
+SETR CLASS_THISKEY2 CLASS_THISKEY                                               | 138 tests/scripts/misc/metadata.zs:42
+ZCLASS_CONSTRUCT CLASS_THISKEY {0}                                              | 139 tests/scripts/misc/metadata.zs:42
+REF_INC -0.0001                                                                 | 140 tests/scripts/misc/metadata.zs:42
+SETR D4 SP2                                                                     | 141 tests/scripts/misc/metadata.zs:42
+PUSHR CLASS_THISKEY2                                                            | 142 tests/scripts/misc/metadata.zs:42
 NOP
 REF_AUTORELEASE CLASS_THISKEY
 REF_DEC -0.0001
 SETR D2 CLASS_THISKEY
 POP CLASS_THISKEY
 RETURNFUNC; Func[IhaveAdefCtor IhaveAdefCtor::IhaveAdefCtor()] Body End
-SETR D4 SP2; Func[FilterBitflags do_filter(FilterBitflags)] Body Start          | 150 tests/scripts/misc/metadata.zs:65
-LOAD D2 0; InlineFunc[void Trace(untyped)] Params                               | 151 tests/scripts/misc/metadata.zs:67
-TRACER D2; InlineFunc[void Trace(untyped)] Body                                 | 152 tests/scripts/misc/metadata.zs:67
-LOAD D2 0; return Start                                                         | 153 tests/scripts/misc/metadata.zs:68
-POP D5; return End                                                              | 154 tests/scripts/misc/metadata.zs:68
-RETURNFUNC; Func[FilterBitflags do_filter(FilterBitflags)] Body End             | 155 tests/scripts/misc/metadata.zs:68
-SETR D4 SP2; Func[void fn(int)] Body Start                                      | 156 tests/scripts/misc/metadata.zs:119
+SETR D4 SP2; Func[FilterBitflags do_filter(FilterBitflags)] Body Start          | 149 tests/scripts/misc/metadata.zs:65
+LOAD D2 0; InlineFunc[void Trace(untyped)] Params                               | 150 tests/scripts/misc/metadata.zs:67
+TRACER D2; InlineFunc[void Trace(untyped)] Body                                 | 151 tests/scripts/misc/metadata.zs:67
+LOAD D2 0; return Start                                                         | 152 tests/scripts/misc/metadata.zs:68
+POP D5; return End                                                              | 153 tests/scripts/misc/metadata.zs:68
+RETURNFUNC; Func[FilterBitflags do_filter(FilterBitflags)] Body End             | 154 tests/scripts/misc/metadata.zs:68
+SETR D4 SP2; Func[void fn(int)] Body Start                                      | 155 tests/scripts/misc/metadata.zs:119
 NOP
 POP D5
 RETURNFUNC; Func[void fn(int)] Body End

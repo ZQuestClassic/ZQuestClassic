@@ -201,7 +201,7 @@ int32_t eweapon_get_register(int32_t reg)
 			ret=((int32_t)s->scale)*100.0;
 			break;
 		case EWPNSCRIPT:
-			ret=(s->script)*10000;
+			ret=(s->scrconfig.script)*10000;
 			break;
 		case EWPNSCRIPTFLIP:
 			ret=s->scriptflip*10000;
@@ -556,12 +556,10 @@ void eweapon_set_register(int32_t reg, int32_t value)
 		case EWPNSCRIPT:
 			if (s)
 			{
-				(s->script)=vbound(value/10000,0,NUMSCRIPTWEAPONS-1);
-				if ( get_qr(qr_CLEARINITDONSCRIPTCHANGE))
-				{
-					for(int32_t q=0; q<8; q++)
-						(s->initD[q]) = 0;
-				}
+				(s->scrconfig.script)=vbound(value/10000,0,NUMSCRIPTWEAPONS-1);
+				if (get_qr(qr_CLEARINITDONSCRIPTCHANGE))
+					s->scrconfig.run_args.fill(0);
+				s->scrconfig.inst_init.clear();
 				on_reassign_script_engine_data(ScriptType::Ewpn, ri->ewpnref);
 			}
 			break;

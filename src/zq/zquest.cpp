@@ -1559,12 +1559,20 @@ static NewMenu etc_menu
 	{ "Take &Screen Snapshot", onMapscrSnapshot },
 };
 
+void call_global_initd_dialog();
+int onGlobalInitD()
+{
+	call_global_initd_dialog();
+	return D_O_K;
+}
 static NewMenu zscript_menu
 {
 	{ "Compile &ZScript...", onCompileScript },
 	{},
 	{ "&Compiler Settings", onZScriptCompilerSettings },
 	{ "&Quest Script Settings", onZScriptSettings },
+	{},
+	{ "&Global InitD", onGlobalInitD },
 };
 
 void set_console_state()
@@ -6664,9 +6672,9 @@ void refresh(int32_t flags, bool update)
 			{
 				if(ypos+showfont_h-1 > map_page_bar[0].y)
 					break;
-				if(Map.CurrScr()->ffcs[i].script && Map.CurrScr()->ffcs[i].data)
+				if(Map.CurrScr()->ffcs[i].scrconfig.script && Map.CurrScr()->ffcs[i].data)
 				{
-					textout_shadowed_ex(screen, showfont, ffcmap[Map.CurrScr()->ffcs[i].script-1].scriptname.substr(0,300).c_str(),0,ypos,vc(showxypos_ffc==i ? 14 : 15),vc(0),infobg?vc(0):-1);
+					textout_shadowed_ex(screen, showfont, ffcmap[Map.CurrScr()->ffcs[i].scrconfig.script-1].scriptname.substr(0,300).c_str(),0,ypos,vc(showxypos_ffc==i ? 14 : 15),vc(0),infobg?vc(0):-1);
 					ypos+=showfont_h+1;
 				}
 			}
@@ -9769,8 +9777,8 @@ void domouse()
 					newcombo const& cmb = combobuf[ff.data];
 					if (cmb.type)
 						oss << "\nType: " << combo_class_buf[cmb.type].name;
-					if (ff.script > 0)
-						oss << "\nScript: " << ffcmap[ff.script-1].scriptname.substr(0,400).c_str();
+					if (ff.scrconfig.script > 0)
+						oss << "\nScript: " << ffcmap[ff.scrconfig.script-1].scriptname.substr(0,400).c_str();
 					if (!cmb.label.empty())
 						oss << "\nLabel: " << cmb.label;
 					
@@ -10451,7 +10459,7 @@ void domouse()
 												.cset = 0,
 												.delay = 0,
 												.link = 0,
-												.script = 0,
+												.scrconfig = {},
 												.tw = 1,
 												.th = 1,
 												.ew = 16,
@@ -17634,14 +17642,11 @@ bool handle_slot(script_slot_data& slotdata, script_data* scriptdata)
 		scriptdata->pc = data.pc;
 		scriptdata->end_pc = data.end_pc;
 		scriptdata->zasm_script = zasm_scripts[0];
+		scriptdata->script_d_init = data.script_d_init;
+		scriptdata->script_d_exports = data.script_d_exports;
 	}
 	else if(scriptdata)
-	{
-		scriptdata->zasm_script = nullptr;
-		scriptdata->meta.zero();
-		scriptdata->pc = 0;
-		scriptdata->end_pc = 0;
-	}
+		scriptdata->clear();
 	return true;
 }
 bool handle_slot_map(map<int32_t, script_slot_data>& mp, int offs, script_data** scriptdata)

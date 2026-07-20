@@ -89,8 +89,8 @@ struct gamedata
 	bounded_vec<dword,byte> guys {MAXSCRSNORMAL, 0}; // guy counts (enemy kill progress)
 	bitstring item_messages_played;
 	bounded_map<dword,bounded_vec<byte,int32_t>> screen_d {MAX_MI, {8, 0}}; // script-controlled screen variables
-	int32_t global_d[MAX_SCRIPT_REGISTERS]; // script-controlled global variables
-	script_object_type global_d_types[MAX_SCRIPT_REGISTERS];
+	int32_t global_d[MAX_GLOBAL_VARIABLES]; // script-controlled global variables
+	script_object_type global_d_types[MAX_GLOBAL_VARIABLES];
 	
 	word awpn = 255, bwpn = 255, xwpn = 255, ywpn = 255;
 	int16_t abtn_itm = -1, bbtn_itm = -1, xbtn_itm = -1, ybtn_itm = -1;
@@ -106,6 +106,7 @@ struct gamedata
 	bounded_map<word,word> gen_exitState {NUMSCRIPTSGENERIC, 0};
 	bounded_map<word,word> gen_reloadState {NUMSCRIPTSGENERIC, 0};
 	bounded_map<word,bounded_vec<byte,int32_t>> gen_initd {NUMSCRIPTSGENERIC, {8, 0}};
+	bounded_map<word,std::map<word,int>> gen_inst_init {NUMSCRIPTSGENERIC, {}};
 	bounded_map<word,uint32_t> gen_eventstate {NUMSCRIPTSGENERIC, 0};
 	bounded_map<word,bounded_map<dword,int32_t>> gen_data {NUMSCRIPTSGENERIC, {0, 0}};
 	
@@ -423,6 +424,7 @@ public:
 		gen_exitState.normalize();
 		gen_reloadState.normalize();
 		gen_initd.normalize();
+		gen_inst_init.normalize();
 		gen_eventstate.normalize();
 		gen_data.normalize();
 		xstates.normalize();

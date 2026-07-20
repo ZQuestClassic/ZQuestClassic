@@ -162,10 +162,21 @@ static unique_ptr<ScriptsData> _compile_helper(string const& filename, bool incl
 		}
 
 		FunctionData fd(program);
-		if(zscript_error_out) return result;
-		if (fd.globalVariables.size() > MAX_SCRIPT_REGISTERS)
+		if (auto count = fd.globalVariables.size(); count >= MAX_GLOBAL_VARIABLES)
 		{
-			log_error(CompileError::TooManyGlobal(NULL));
+			log_error(CompileError::TooManyGlobal(NULL, count, MAX_GLOBAL_VARIABLES));
+			zscript_error_out = true;
+		}
+		for (Script* scr : program.scripts)
+		{
+			if (auto count = scr->instance_var_count(); count >= MAX_SCRIPT_INST_VARIABLES)
+			{
+				log_error(CompileError::TooManyScriptInstVars(scr->getNode(), scr->getName().c_str(), fmt::format("{}/{}", count, MAX_SCRIPT_INST_VARIABLES).c_str()));
+				zscript_error_out = true;
+			}
+		}
+		if (zscript_error_out)
+		{
 			if (include_metadata)
 				_fill_metadata(filename, &program, result.get());
 			return result;
@@ -911,68 +922,8 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 			// Start of the function.
 			addOpcode2(funccode, new ONoOp(function.getLabel()));
 			
-			// Push on the this, if a script
-			bool hasRunThisParam = false;
-			if (isRun)
-			{
-				ParserScriptType type = program.getScript(scriptname)->getType();
-				hasRunThisParam = true;
-
-				if (type == ParserScriptType::ffc )
-				{
-					addOpcode2(funccode, 
-						new OPushRegister(new VarArgument(REFFFC)));
-				}
-				else if (type == ParserScriptType::item )
-				{
-					addOpcode2(funccode,
-						new OPushRegister(new VarArgument(REFITEMDATA)));
-				}
-				else if (type == ParserScriptType::npc )
-				{
-					addOpcode2(funccode,
-						new OPushRegister(new VarArgument(REFNPC)));
-				}
-				else if (type == ParserScriptType::lweapon )
-				{
-					addOpcode2(funccode,
-						new OPushRegister(new VarArgument(REFLWPN)));
-				}
-				else if (type == ParserScriptType::eweapon )
-				{
-					addOpcode2(funccode,
-						new OPushRegister(new VarArgument(REFEWPN)));
-				}
-				else if (type == ParserScriptType::dmapdata )
-				{
-					addOpcode2(funccode,
-						new OPushRegister(new VarArgument(REFDMAPDATA)));
-				}
-				else if (type == ParserScriptType::itemsprite)
-				{
-					addOpcode2(funccode,
-						new OPushRegister(new VarArgument(REFITEM)));
-				}
-				else if (type == ParserScriptType::subscreendata)
-				{
-					addOpcode2(funccode,
-						new OPushRegister(new VarArgument(REFSUBSCREENDATA)));
-				}
-				else if (type == ParserScriptType::combodata)
-				{
-					addOpcode2(funccode,
-						new OPushRegister(new VarArgument(REFCOMBODATA)));
-				}
-				else if (type == ParserScriptType::genericscr)
-				{
-					addOpcode2(funccode,
-						new OPushRegister(new VarArgument(REFGENERICDATA)));
-				}
-				else hasRunThisParam = false;
-			}
-			
 			// Push 0s for the local variables.
-			int numParams = getParameterCount(function) + (hasRunThisParam ? 1 : 0);
+			int numParams = getParameterCount(function);
 			for (int32_t i = stackSize - numParams; i > 0; --i)
 				addOpcode2(funccode, new OPushImmediate(new LiteralArgument(0)));
 			
@@ -2672,10 +2623,20 @@ bool ScriptAssembler::fill_debug_scope_locals(Scope* scope, int32_t scopeIdx, Sc
 			symbol.storage = LOC_STACK;
 			symbol.offset = *pos;
 		}
-		else if (datum->getGlobalId().has_value())
+		else if (auto id = datum->getGlobalId())
 		{
 			symbol.storage = LOC_GLOBAL;
-			symbol.offset = datum->getGlobalId().value();
+			symbol.offset = *id;
+		}
+		else if (auto id = datum->getScriptId())
+		{
+			symbol.storage = LOC_SCRIPT_INSTANCE;
+			symbol.offset = *id;
+		}
+		else if (auto id = datum->getRegisterId())
+		{
+			symbol.storage = LOC_REGISTER;
+			symbol.offset = *id;
 		}
 		else if (auto d = dynamic_cast<InternalVariable*>(datum))
 		{
@@ -2698,18 +2659,24 @@ bool ScriptAssembler::fill_debug_scope_locals(Scope* scope, int32_t scopeIdx, Sc
 			// declare the metadata necessary for the debugger, instead of hardcoding it here.
 			CHECK(datum->getName() == "this");
 
-			if (fn->isBinding() && fn->getClass() && fn->getClass()->internalRefVar != NUL)
+			if (!fn)
+			{
+				// script 'this'
+				symbol.storage = LOC_REGISTER;
+				symbol.offset = SCRIPT_INST_VARS(0);
+			}
+			else if (fn->isBinding() && fn->getClass() && fn->getClass()->internalRefVar != NUL)
 			{
 				// Class functions for internal classes have a 'this' symbol, but should be hidden.
 				symbol.flags |= SYM_FLAG_HIDDEN;
 			}
-			else if (!fn->node->isRun())
+			else
 			{
 				// Must be a user class method.
 				symbol.storage = LOC_REGISTER;
 				symbol.offset = CLASS_THISKEY;
 				symbol.flags |= SYM_FLAG_HIDDEN;
-			} // Otherwise, is a run function.
+			}
 		}
 
 		if (i == localData.size() - 1 && fn && fn->getFlag(FUNCFLAG_VARARGS))
@@ -2920,10 +2887,13 @@ void ScriptsData::fillFromAssembler(ScriptAssembler& assembler)
 		auto& pcs = pair.second;
 		string const& name = script->getName();
 		
-		zasm_meta& meta = zasmCompilerResult.theScripts[name].meta;
-		zasmCompilerResult.theScripts[name].pc = pcs.first;
-		zasmCompilerResult.theScripts[name].end_pc = pcs.second;
 		zasmCompilerResult.scriptTypes[name] = script->getType().getId();
+		auto& dsd = zasmCompilerResult.theScripts[name];
+		zasm_meta& meta = dsd.meta;
+		dsd.pc = pcs.first;
+		dsd.end_pc = pcs.second;
+		
+		script->apply_data(dsd);
 		
 		meta = script->getMetadata();
 		meta.script_type = script->getType().getTrueId();
@@ -2936,8 +2906,8 @@ void ScriptsData::fillFromAssembler(ScriptAssembler& assembler)
 				it != run->paramNames.end(); ++it)
 			{
 				meta.run_idens[ind] = (**it);
-				if(!meta.initd[ind].size())
-					meta.initd[ind] = meta.run_idens[ind];
+				if(!meta.initd_label[ind].size())
+					meta.initd_label[ind] = meta.run_idens[ind];
 				if (++ind > 7) break; //sanity check
 			}
 			ind = 0;

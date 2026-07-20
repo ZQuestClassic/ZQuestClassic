@@ -29,8 +29,7 @@ zasm:
 QUIT; void run() Body
 PUSHR D0; void run(int, int) Params
 PUSHR D1
-PUSHR REFFFC; void run(int, int) Body Start
-PUSHARGSV 0 0.0002
+PUSHARGSV 0 0.0002; void run(int, int) Body Start
 SETR D4 SP2
 ALLOCATEMEMV D2 19 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
 WRITEPODSTRING D2 "Region->Width: %d\n"
@@ -81,7 +80,7 @@ LOAD D2 0.0001
 PUSHR D2
 LOAD D2 0
 PUSHR D2
-LOAD D2 0.0004
+LOAD D2 0.0003
 PUSHR D2
 PUSHARGSV 1 0.0002
 PUSHV 3
@@ -103,7 +102,7 @@ SETR D2 VIEWPORT_Y
 POP D3
 ADDR D2 D3
 STORE D2 0
-LOAD D2 0.0002; if() #388 Test
+SETR D2 SCR0; if() #388 Test
 PUSHR D2
 POP REFSPRITE
 SETR D2 SPRITE_X
@@ -111,8 +110,8 @@ PUSHR D2
 LOAD D2 0.0001
 POP D3
 COMPARER D3 D2
-GOTOCMP 118 >=
-LOAD D2 0.0002
+GOTOCMP 117 >=
+SETR D2 SCR0
 PUSHR D2
 POP REFSPRITE
 SETR D2 SPRITE_Y
@@ -120,8 +119,8 @@ PUSHR D2
 LOAD D2 0
 POP D3
 COMPARER D3 D2
-GOTOCMP 118 >=
-LOAD D2 0.0002
+GOTOCMP 117 >=
+SETR D2 SCR0
 PUSHR D2
 POP REFSPRITE
 SETR D2 SPRITE_X
@@ -130,8 +129,8 @@ PUSHR D2
 LOAD D2 0.0001
 POP D3
 COMPARER D3 D2
-GOTOCMP 118 <
-LOAD D2 0.0002
+GOTOCMP 117 <
+SETR D2 SCR0
 PUSHR D2
 POP REFSPRITE
 SETR D2 SPRITE_Y
@@ -140,14 +139,14 @@ PUSHR D2
 LOAD D2 0
 POP D3
 COMPARER D3 D2
-GOTOCMP 118 <
+GOTOCMP 117 <
 SETV D2 1
-GOTO 119
+GOTO 118
 SETV D2 0
 COMPAREV D2 0
-GOTOCMP 123 ==; Test 'if'
-LOAD D2 0.0003; InlineFunc[void screendata::TriggerSecrets(int)] Params AND if() #388 Body Start
+GOTOCMP 122 ==; Test 'if'
+LOAD D2 0.0002; InlineFunc[void screendata::TriggerSecrets(int)] Params AND if() #388 Body Start
 REGION_TRIGGER_SECRETS D2; InlineFunc[void screendata::TriggerSecrets(int)] Body AND if() #388 Body End
 NOP
 WAITFRAME; InlineFunc[void Waitframe()] Body AND while(true) #2 Body [Opt:AlwaysOn] End
-GOTO 37; while() #2 End AND [Opt:NeverRet] AND void run(int, int) Body End
+GOTO 36; while() #2 End AND [Opt:NeverRet] AND void run(int, int) Body End

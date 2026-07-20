@@ -379,8 +379,7 @@ struct SubscrWidget
 	std::string override_text; //Override the SW_SelectedText text
 	
 	//Script to run on pressing a button ..plus info
-	word generic_script;
-	int32_t generic_initd[8];
+	script_config generic_scrconfig;
 	byte gen_script_btns;
 	
 	//Page transition on pressing a button ..plus info
@@ -1250,8 +1249,7 @@ struct ZCSubscreen
 	
 	SubscrSelectorInfo selector_setting;
 	
-	word script;
-	int32_t initd[8];
+	script_config scrconfig;
 	
 	SubscrPage& cur_page();
 	SubscrPage* get_page(byte ind);

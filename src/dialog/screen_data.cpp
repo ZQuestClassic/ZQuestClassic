@@ -10,6 +10,7 @@
 #include "core/initdata.h"
 #include "numpick.h"
 #include "info.h"
+#include "script_data_editor.h"
 
 extern word map_count;
 extern script_data *screenscripts[NUMSCRIPTSCREEN];
@@ -27,7 +28,7 @@ void call_screendata_dialog(size_t forceTab)
 }
 
 ScreenDataDialog::ScreenDataDialog(int map, int scr) :
-	mapscrnum(map*MAPSCRS+scr),
+	map(map), scr(scr),
 	list_screenscript(GUI::ZCListData::screen_script()),
 	list_maps(GUI::ListData::numbers(true, 1, map_count)),
 	list_screens(GUI::ListData::numbers(false, 0, 0x80, [](int v)
@@ -40,31 +41,7 @@ ScreenDataDialog::ScreenDataDialog(int map, int scr) :
 	mapscr* thescreen = Map.AbsoluteScr(map,scr);
 	thescr = thescreen;
 	local_scr = *thescreen;
-	screen_misc_data = zinit.screen_data[mapscrnum];
-}
-
-std::shared_ptr<GUI::Widget> ScreenDataDialog::SCREEN_INITD(int index)
-{
-	using namespace GUI::Builder;
-	using namespace GUI::Props;
-	
-	return Row(padding = 0_px,
-		l_initds[index] = Label(minwidth = 12_em, textAlign = 2),
-		ib_initds[index] = Button(forceFitH = true, text = "?",
-			disabled = true,
-			onPressFunc = [&, index]()
-			{
-				InfoDialog("InitD Info",h_initd[index]).show();
-			}),
-		tf_initd[index] = TextField(
-			fitParent = true, minwidth = 8_em,
-			type = GUI::TextField::type::SWAP_ZSINT,
-			val = local_scr.screeninitd[index],
-			onValChangedFunc = [&, index](GUI::TextField::type,std::string_view,int32_t val)
-			{
-				local_scr.screeninitd[index] = val;
-			})
-	);
+	screen_misc_data = zinit.screen_data[map*MAPSCRS+scr];
 }
 
 static const GUI::ListData list_lenseff
@@ -132,45 +109,6 @@ lens_cb[1][ind] = Checkbox(checked = local_scr.lens_hide&(1<<ind), \
 			lens_cb[0][ind]->setChecked(false); \
 		} \
 	})
-
-void ScreenDataDialog::refreshScript()
-{
-	std::string label[8], help[8];
-	for(auto q = 0; q < 8; ++q)
-	{
-		label[q] = "InitD["+std::to_string(q)+"]";
-	}
-	if(local_scr.script)
-	{
-		zasm_meta const& meta = screenscripts[local_scr.script]->meta;
-		for(size_t q = 0; q < 8; ++q)
-		{
-			if(meta.initd[q].size())
-				label[q] = meta.initd[q];
-			if(meta.initd_help[q].size())
-				help[q] = meta.initd_help[q];
-		}
-		
-		for(auto q = 0; q < 8; ++q)
-		{
-			if(unsigned(meta.initd_type[q]) < nswapMAX)
-				tf_initd[q]->setSwapType(meta.initd_type[q]);
-		}
-	}
-	else
-	{
-		for(auto q = 0; q < 8; ++q)
-		{
-			tf_initd[q]->setSwapType(nswapDEC);
-		}
-	}
-	for(auto q = 0; q < 8; ++q)
-	{
-		l_initds[q]->setText(label[q]);
-		h_initd[q] = help[q];
-		ib_initds[q]->setDisabled(help[q].empty());
-	}
-}
 
 void ScreenDataDialog::refreshTWarp()
 {
@@ -725,8 +663,8 @@ std::shared_ptr<GUI::Widget> ScreenDataDialog::view()
 							}),
 						INFOBTN("The starting size of the screen's 'Screen->Data[]' array."),
 						//
-						databtn = Button(colSpan = 3, fitParent = true,
-							text = "Edit Starting Data",
+						databtn = Button(fitParent = true,
+							text = "Edit Starting Data", height = 2_em,
 							disabled = screen_misc_data.empty(),
 							onPressFunc = [&]()
 							{
@@ -738,19 +676,14 @@ std::shared_ptr<GUI::Widget> ScreenDataDialog::view()
 					),
 					Row(
 						Column(
-							SCREEN_INITD(0),
-							SCREEN_INITD(1),
-							SCREEN_INITD(2),
-							SCREEN_INITD(3),
-							SCREEN_INITD(4),
-							SCREEN_INITD(5),
-							SCREEN_INITD(6),
-							SCREEN_INITD(7)
-						),
-						Column(
-							padding = 0_px, fitParent = true,
-							Rows<2>(vAlign = 0.0,
-								SCRIPT_LIST_PROC("Action Script:", list_screenscript, local_scr.script, refreshScript)
+							Button(
+								text = "Script Setup",
+								height = 2_em,
+								onPressFunc = [&]()
+								{
+									ScriptDataDialog(fmt::format("Screen {}x{:02X} Script Setup", map+1, scr),
+										local_scr.scrconfig, list_screenscript, screenscripts).show();
+								}
 							),
 							Checkbox(
 								hAlign = 0.0,
@@ -781,7 +714,6 @@ std::shared_ptr<GUI::Widget> ScreenDataDialog::view()
 			)
 		)
 	);
-	refreshScript();
 	refreshTWarp();
 	refreshLensEff();
 	return window;
@@ -796,7 +728,7 @@ bool ScreenDataDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			break;
 		case message::OK:
 			*thescr = local_scr;
-			zinit.screen_data[mapscrnum] = screen_misc_data;
+			zinit.screen_data[map*MAPSCRS+scr] = screen_misc_data;
 			mark_save_dirty();
 			[[fallthrough]];
 		case message::CANCEL:

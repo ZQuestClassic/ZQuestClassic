@@ -1466,54 +1466,54 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 				
 				if(version>9)
 				{
-					if(!p_igetw(&(tempffc.script),f))
+					if(!p_igetw(&(tempffc.scrconfig.script),f))
 					{
 						return qe_invalid;
 					}
 				}
 				else
 				{
-					tempffc.script=0;
+					tempffc.scrconfig.script=0;
 				}
 				
 				if(version>10)
 				{
-					if(!p_igetl(&(tempffc.initd[0]),f))
+					if(!p_igetl(&(tempffc.scrconfig.run_args[0]),f))
 					{
 						return qe_invalid;
 					}
 					
-					if(!p_igetl(&(tempffc.initd[1]),f))
+					if(!p_igetl(&(tempffc.scrconfig.run_args[1]),f))
 					{
 						return qe_invalid;
 					}
 					
-					if(!p_igetl(&(tempffc.initd[2]),f))
+					if(!p_igetl(&(tempffc.scrconfig.run_args[2]),f))
 					{
 						return qe_invalid;
 					}
 					
-					if(!p_igetl(&(tempffc.initd[3]),f))
+					if(!p_igetl(&(tempffc.scrconfig.run_args[3]),f))
 					{
 						return qe_invalid;
 					}
 					
-					if(!p_igetl(&(tempffc.initd[4]),f))
+					if(!p_igetl(&(tempffc.scrconfig.run_args[4]),f))
 					{
 						return qe_invalid;
 					}
 					
-					if(!p_igetl(&(tempffc.initd[5]),f))
+					if(!p_igetl(&(tempffc.scrconfig.run_args[5]),f))
 					{
 						return qe_invalid;
 					}
 					
-					if(!p_igetl(&(tempffc.initd[6]),f))
+					if(!p_igetl(&(tempffc.scrconfig.run_args[6]),f))
 					{
 						return qe_invalid;
 					}
 					
-					if(!p_igetl(&(tempffc.initd[7]),f))
+					if(!p_igetl(&(tempffc.scrconfig.run_args[7]),f))
 					{
 						return qe_invalid;
 					}
@@ -1530,9 +1530,7 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 				
 				if(loading_tileset_flags & TILESET_CLEARSCRIPTS)
 				{
-					tempffc.script = 0;
-					for(int q = 0; q < 8; ++q)
-						tempffc.initd[q] = 0;
+					tempffc.scrconfig.clear();
 				}
 				if(version <= 11)
 				{
@@ -1570,13 +1568,13 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 
 	if ( version >= 20 && Header->zelda_version > 0x253 )
 	{
-	if(!p_igetw(&(temp_mapscr->script),f))
+	if(!p_igetw(&(temp_mapscr->scrconfig.script),f))
 	{
 		return qe_invalid;
 	} 
 	for ( int32_t q = 0; q < 8; q++)
 	{
-		if(!p_igetl(&(temp_mapscr->screeninitd[q]),f))
+		if(!p_igetl(&(temp_mapscr->scrconfig.run_args[q]),f))
 		{
 			return qe_invalid;
 		}
@@ -1584,8 +1582,7 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 	}
 	if ( version < 20 )
 	{
-	temp_mapscr->script = 0;
-	for ( int32_t q = 0; q < 8; q++) temp_mapscr->screeninitd[q] = 0;
+		temp_mapscr->scrconfig.clear();
 	}
 	if ( version >= 21 && Header->zelda_version > 0x253 )
 	{
@@ -1925,13 +1922,23 @@ int32_t readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, wo
 		}
 		if(scr_has_flags & SCRHAS_SCRIPT)
 		{
-			if(!p_igetw(&(temp_mapscr->script),f))
-				return qe_invalid;
-			if(!p_getc(&(temp_mapscr->preloadscript),f))
-				return qe_invalid;
-			for ( int32_t q = 0; q < 8; q++ )
+			if (version < 41)
 			{
-				if(!p_igetl(&(temp_mapscr->screeninitd[q]),f))
+				if (!p_igetw(&(temp_mapscr->scrconfig.script),f))
+					return qe_invalid;
+				if (!p_getc(&(temp_mapscr->preloadscript),f))
+					return qe_invalid;
+				for (int32_t q = 0; q < 8; q++)
+				{
+					if(!p_igetl(&(temp_mapscr->scrconfig.run_args[q]),f))
+						return qe_invalid;
+				}
+			}
+			else
+			{
+				if (!p_getvar(&(temp_mapscr->scrconfig),f))
+					return qe_invalid;
+				if (!p_getc(&(temp_mapscr->preloadscript),f))
 					return qe_invalid;
 			}
 		}
@@ -2111,13 +2118,18 @@ int32_t readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, wo
 			if(!p_igetl(&(tempffc.flags),f))
 				return qe_invalid;
 			tempffc.updateSolid();
-			if(!p_igetw(&(tempffc.script),f))
-				return qe_invalid;
-			for(auto q = 0; q < 8; ++q)
+			if (version < 41)
 			{
-				if(!p_igetl(&(tempffc.initd[q]),f))
+				if(!p_igetw(&(tempffc.scrconfig.script),f))
 					return qe_invalid;
+				for(auto q = 0; q < 8; ++q)
+				{
+					if(!p_igetl(&(tempffc.scrconfig.run_args[q]),f))
+						return qe_invalid;
+				}
 			}
+			else if (!p_getvar(&tempffc.scrconfig, f))
+				return qe_invalid;
 			if(version < 33)
 			{
 				if(!p_getc(&(tempbyte),f))
@@ -2138,9 +2150,7 @@ int32_t readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, wo
 
 			if(loading_tileset_flags & TILESET_CLEARSCRIPTS)
 			{
-				tempffc.script = 0;
-				for(int q = 0; q < 8; ++q)
-					tempffc.initd[q] = 0;
+				tempffc.scrconfig.clear();
 			}
 		}
 		//END FFC

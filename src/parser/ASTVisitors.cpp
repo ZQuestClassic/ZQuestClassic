@@ -553,7 +553,11 @@ void RecursiveVisitor::caseDataDecl(ASTDataDecl& host, void* param)
 	if (breakRecursion(host, param)) return;
 	visit_vec(host.extraArrays, param);
 	if (breakRecursion(host, param)) return;
+	if (scope)
+		scope->in_static_init = host.is_static();
 	visit(host.getInitializer(), param);
+	if (scope)
+		scope->in_static_init = false;
 }
 
 void RecursiveVisitor::caseDataDeclExtraArray(

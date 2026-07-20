@@ -56,6 +56,13 @@ string GlobalArgument::toString() const
     return string(temp);
 }
 
+string ScriptInstanceArgument::toString() const
+{
+    char temp[40];
+    snprintf(temp, sizeof(temp), "SCR%d", ID);
+    return string(temp);
+}
+
 string LabelArgument::toString() const
 {
 	char buf[40];

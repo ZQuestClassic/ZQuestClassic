@@ -140,6 +140,7 @@ void resetItems(gamedata *game2, zinitdata *zinit2, bool freshquest)
 		game2->gen_exitState = zinit2->gen_exitState;
 		game2->gen_reloadState = zinit2->gen_reloadState;
 		game2->gen_initd = zinit2->gen_initd;
+		game2->gen_inst_init = zinit2->gen_inst_init;
 		game2->gen_data = zinit2->gen_data;
 		game2->gen_eventstate = zinit2->gen_eventstate;
 		game2->screen_data = zinit2->screen_data;
@@ -221,6 +222,7 @@ constexpr std::size_t countof(T(&)[N]) { return N; }
 	VEC_PROP(gen_exitState) \
 	VEC_PROP(gen_reloadState) \
 	VEC_PROP_2D(gen_initd) \
+	VEC_MAP_PROP(gen_inst_init) \
 	VEC_PROP_2D(gen_data) \
 	BITSTR_PROP(items) \
 	VEC_PROP(level_keys) \
@@ -257,6 +259,22 @@ string serialize_init_data_delta(zinitdata *base, zinitdata *changed)
 			for (int j = 0; j < base->name[i].size(); j++) \
 				if (base->name[i][j] != changed->name[i][j]) \
 					tokens.push_back(fmt::format("{}[{}][{}]={}", #name, i, j, int(changed->name[i][j])));
+	#define VEC_MAP_PROP(name) \
+		for (int i = 0; i < base->name.size(); i++) \
+		{ \
+			auto& basemap = base->name[i]; \
+			auto& changedmap = changed->name[i]; \
+			for (auto& [key, val] : changedmap) \
+			{ \
+				if (!basemap.contains(key) || basemap[key] != val) \
+					tokens.push_back(fmt::format("{}[{}][{}]={}", #name, i, int(key), int(val))); \
+			} \
+			for (auto& [key, val] : basemap) \
+			{ \
+				if (!changedmap.contains(key)) \
+					tokens.push_back(fmt::format("{}[{}][{}]={}", #name, i, int(key), "null")); \
+			} \
+		}
 	#define BITSTR_PROP(name) \
 	{ \
 		auto& bvec = base->name.inner(); \
@@ -268,6 +286,7 @@ string serialize_init_data_delta(zinitdata *base, zinitdata *changed)
 	}
 	LIST_ARRAY_PROPS;
 	#undef BITSTR_PROP
+	#undef VEC_MAP_PROP
 	#undef VEC_PROP_2D
 	#undef VEC_PROP
 	#undef ARRAY_PROP
@@ -300,7 +319,8 @@ zinitdata *apply_init_data_delta(zinitdata *base, string delta, string& out_erro
 		FAIL_IF(kv.size() != 2, fmt::format("invalid token '{}': expected one =", token));
 
 		errno = 0;
-		int as_int = std::strtol(kv[1].data(), nullptr, 10);
+		bool is_null = kv[1] == "null";
+		int as_int = is_null ? 0 : std::strtol(kv[1].data(), nullptr, 10);
 		FAIL_IF(errno, fmt::format("invalid token '{}': expected integer", token));
 		
 		if(kv[0] == "VERSION")
@@ -441,6 +461,16 @@ zinitdata *apply_init_data_delta(zinitdata *base, string delta, string& out_erro
 				FAIL_IF(index[0] >= result->name.size() \
 					|| index[1] >= result->name[index[0]].size(), fmt::format("invalid token '{}': integer too big", token)); \
 				result->name[index[0]][index[1]] = as_int; \
+				continue; \
+			}
+			#define VEC_MAP_PROP(name) if (key == #name) \
+			{ \
+				FAIL_IF(index.size() < 2, fmt::format("invalid token '{}': expected 2 indeces, got {}", token, index.size())); \
+				FAIL_IF(index[0] >= result->name.size(), fmt::format("invalid token '{}': integer too big", token)); \
+				if (is_null) \
+					result->name[index[0]].erase(index[1]); \
+				else \
+					result->name[index[0]][index[1]] = as_int; \
 				continue; \
 			}
 			#define BITSTR_PROP(name) if (key == #name) \

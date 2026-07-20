@@ -161,6 +161,7 @@ void gamedata::clear_genscript()
 	gen_reloadState.clear();
 	gen_eventstate.clear();
 	gen_initd.clear();
+	gen_inst_init.clear();
 	gen_data.clear();
 }
 

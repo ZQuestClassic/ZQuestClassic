@@ -451,11 +451,23 @@ class itemdata {
 	// @zasm_var IDATAPOWER
 	internal int Power;
 
-	// The 8 InitD values shared by the item's Action, Pickup, and Sprite
-	// scripts.
+	// The 8 InitD values used by the Action script.
+	// [qr_SCRIPTS_SHARE_INITD] makes changing this array also change [PickupInitD] and [SpriteInitD].
 	//
 	// @zasm_var IDATAINITDD
 	internal untyped InitD[];
+	
+	// The 8 InitD values shared by the item's Pickup script.
+	//
+	// @versionadded 3.0
+	// @zasm_var IDATACOLLECTINITD
+	internal untyped PickupInitD[];
+	
+	// The 8 InitD values shared by the item's Sprite script.
+	//
+	// @versionadded 3.0
+	// @zasm_var IDATASPRITEINITD
+	internal untyped SpriteInitD[];
 
 	// The Hero Tile Modifier associated with this item.
 	//

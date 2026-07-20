@@ -177,7 +177,7 @@ enum
 	vTiles, vCombos, vCSets, vMaps, vDMaps, vDoors, vItems, vWeaponSprites,
 	vColours, vIcons, vGfxPack, vInitData, vGuys, vMIDIs, vCheats, vSaveformat,
 	vComboAliases, vHeroSprites, vSubscreen, vItemDropsets, vFFScript, vSFX, vFavourites,
-	qMapCount, vLastCompile, vCompatRule,
+	qMapCount, vLastCompile, vCompatRule, vCompileSetting,
 	versiontypesLAST
 	
 };
@@ -447,7 +447,8 @@ void runF6Engine();
 void runOnDeathEngine();
 void runOnLaunchEngine();
 void runGenericPassiveEngine(int32_t scrtm);
-bool runGenericFrozenEngine(const word script, const int32_t* init_data = nullptr);
+bool runGenericFrozenEngine(script_config const& scrconfig);
+bool runGenericFrozenEngine(const word script);
 bool runScriptedActiveSubscreen();
 bool runOnMapScriptEngine();
 void doScriptMenuDraws();

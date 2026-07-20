@@ -7,6 +7,8 @@
 #include <string>
 #include <utility>
 #include <vector>
+#include <map>
+#include <array>
 
 using warnings = std::vector<std::string>;
 
@@ -82,18 +84,36 @@ int wrap(int x,int low,int high);
 // inclusive
 double wrap_float(double x,double low,double high);
 
+#define GLOBAL_SCRIPT_INIT         0
+#define GLOBAL_SCRIPT_GAME         1
+#define GLOBAL_SCRIPT_END          2
+#define GLOBAL_SCRIPT_ONSAVELOAD   3
+#define GLOBAL_SCRIPT_ONLAUNCH     4
+#define GLOBAL_SCRIPT_ONCONTGAME   5
+#define GLOBAL_SCRIPT_F6           6
+#define GLOBAL_SCRIPT_ONSAVE       7
+
+#define NUMSCRIPTGLOBAL            8
+
+#define NUMSCRIPTGLOBAL255OLD      7
+#define NUMSCRIPTGLOBAL253         4
+#define NUMSCRIPTGLOBALOLD         3
+
+#define SCRIPT_HERO_INIT    1
+#define SCRIPT_HERO_ACTIVE  2
+#define SCRIPT_HERO_DEATH   3
+#define SCRIPT_HERO_WIN     4
+
+#define NUMSCRIPTHERO       5
+
+#define NUMSCRIPTHEROOLD    3
+
 //Script Counts
 #define NUMSCRIPTFFC               512
 #define NUMSCRIPTFFCOLD            256
 #define NUMSCRIPTITEM              256
 #define NUMSCRIPTGUYS              256
 #define NUMSCRIPTWEAPONS           256
-#define NUMSCRIPTGLOBAL            8
-#define NUMSCRIPTGLOBAL255OLD      7
-#define NUMSCRIPTGLOBAL253         4
-#define NUMSCRIPTGLOBALOLD         3
-#define NUMSCRIPTHEROOLD           3
-#define NUMSCRIPTHERO            5
 #define NUMSCRIPTSCREEN            256
 #define NUMSCRIPTSDMAP             256
 #define NUMSCRIPTSITEMSPRITE       256
@@ -106,8 +126,8 @@ double wrap_float(double x,double low,double high);
 #define FFSCRIPT_MISC              32
 #define MAX_STACK_SIZE             5120
 #define MAX_CALL_FRAMES            1024
-#define MAX_SCRIPT_REGISTERS       1024
-#define MAX_SCRIPT_REGISTERS_250   256
+#define MAX_GLOBAL_VARIABLES       1024
+#define MAX_SCRIPT_INST_VARIABLES  256
 #define MAX_PC                     dword(-1)
 
 //Sizes
@@ -544,6 +564,40 @@ struct CheckListInfo
 		: name(std::move(name)), info(std::move(info)), flags(flags)
 	{}
 };
+
+enum
+{
+	nswapDEC, nswapHEX, nswapLDEC, nswapLHEX, nswapBOOL, nswapMAX
+};
+static const char* swp_strs[nswapMAX] = {"D", "H", "LD", "LH", "B"};
+
+struct exported_variable
+{
+	std::string name;
+	std::string helptext;
+	int8_t btn_type = nswapDEC;
+	zfix min = -214748.3648_zf, max = 214748.3647_zf;
+	bool operator==(const exported_variable& other) const = default;
+};
+
+struct script_config
+{
+	word script;
+	std::array<int, 8> run_args;
+	std::map<word, int> inst_init;
+	
+	script_config(word script = 0);
+	script_config(script_config const& other);
+	script_config(script_config&& other) noexcept;
+	script_config& operator=(script_config const& other);
+	script_config& operator=(script_config&& other) noexcept;
+	bool operator==(const script_config& other) const = default;
+	bool empty() const;
+	void clear();
+};
+
+// Exists for p_putvar / p_getvar resolution to skip saving the script
+struct script_config_nosavescript : public script_config{};
 
 #endif
 

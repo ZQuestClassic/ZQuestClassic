@@ -1013,6 +1013,8 @@ namespace ZScript
 		Scope* parentScope;
 		bool prototype;
 		owning_ptr<ASTExprConst> defaultReturn;
+		
+		bool handled_staticness;
 	private:
 		int32_t flags;
 		friend class Function;
@@ -1043,6 +1045,14 @@ namespace ZScript
 
 		bool readonly;
 		bool internal;
+		bool is_static;
+		bool is_nonstatic; // only matters until registration
+		
+		bool handled_staticness;
+		
+		bool was_exported;
+		bool was_range_exported;
+		exported_variable export_data;
 
 	protected:
 		// The list of individual data declarations.
@@ -1133,6 +1143,11 @@ namespace ZScript
 		static const uint FL_HIDDEN = 0x04;
 
 		Scope* getScope() const;
+		
+		bool is_static() const
+		{
+			return list && list->is_static;
+		}
 
 	private:
 		// The initialization expression. Optional.

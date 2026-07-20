@@ -256,6 +256,27 @@ ParserScriptType UserScript::getType() const
 	return resolveScriptType(*node.type, *scope->getParent());
 }
 
+void UserScript::register_instance_var(Variable* v, optional<int32_t> value)
+{
+	if (!v) return;
+	if (v->is_static) return;
+	assert(!v->registerId);
+	auto id = getUniqueInstanceID();
+	v->registerId = SCRIPT_INST_VARS(id);
+	
+	if (value)
+		script_d_init[id] = *value;
+	
+	auto* decl_list = v->node.list;
+	if (decl_list && decl_list->was_exported)
+		script_d_exports[id] = decl_list->export_data;
+}
+void UserScript::apply_data(disassembled_script_data& dest)
+{
+	dest.script_d_init = script_d_init;
+	dest.script_d_exports = script_d_exports;
+}
+
 // ZScript::BuiltinScript
 const string BuiltinScript::builtin_author = "ZQ_PARSER";
 BuiltinScript::BuiltinScript(
@@ -350,7 +371,7 @@ Namespace* ZScript::createNamespace(Program&, Scope& parentScope, ASTNamespace& 
 
 Datum::Datum(Scope& scope, DataType const& type)
 	: scope(scope), type(type), id(ScriptParser::getUniqueVarID()),
-	erased(false)
+	erased(false), is_static(false)
 {}
 
 bool Datum::tryAddToScope(CompileErrorHandler* errorHandler)
@@ -360,8 +381,7 @@ bool Datum::tryAddToScope(CompileErrorHandler* errorHandler)
 
 bool ZScript::isGlobal(Datum const& datum)
 {
-	return (datum.scope.isGlobal() || datum.scope.isScript())
-		&& datum.getName();
+	return datum.is_static && datum.getName();
 }
 
 std::optional<int32_t> ZScript::getStackOffset(Datum const& datum)
@@ -373,6 +393,28 @@ std::optional<int32_t> ZScript::getStackOffset(Datum const& datum)
 int32_t Datum::getStackOffset(bool i10k) const
 {
 	return (i10k ? 10000 : 1) * ZScript::getStackOffset(*this).value();
+}
+optional<int32_t> Datum::getGlobalId() const
+{
+	auto ret = getRegisterId();
+	if (ret)
+	{
+		*ret -= GD(0);
+		if (unsigned(*ret) >= MAX_GLOBAL_VARIABLES)
+			return nullopt;
+	}
+	return ret;
+}
+optional<int32_t> Datum::getScriptId() const
+{
+	auto ret = getRegisterId();
+	if (ret)
+	{
+		*ret -= SCRIPT_INST_VARS(0);
+		if (unsigned(*ret) >= MAX_SCRIPT_INST_VARIABLES)
+			return nullopt;
+	}
+	return ret;
 }
 
 // ZScript::Variable
@@ -389,13 +431,13 @@ Variable* Variable::create(
 
 Variable::Variable(
 		Scope& scope, ASTDataDecl& node, DataType const& type)
-	: Datum(scope, type),
-	  node(node),
-	  globalId((scope.isGlobal() || scope.isScript())
-	           ? std::optional<int32_t>(ScriptParser::getUniqueGlobalID())
-	           : std::nullopt)
+	: Datum(scope, type), node(node),
+	  registerId(nullopt)
 {
 	node.manager = this;
+	is_static = node.is_static();
+	if (is_static)
+		registerId = GD(ScriptParser::getUniqueGlobalID());
 }
 
 std::optional<int32_t> Variable::getCompileTimeValue(bool getinitvalue) const
@@ -426,6 +468,7 @@ InternalVariable::InternalVariable(Scope& scope, ASTDataDecl& node, DataType con
 	: Datum(scope, type), readfn(nullptr), writefn(nullptr), node(node)
 {
 	node.manager = this;
+	is_static = (node.is_static());
 }
 
 // ZScript::UserClassVar
@@ -499,21 +542,18 @@ int UserClassVar::getZasmRegister()
 
 BuiltinVariable* BuiltinVariable::create(
 		Scope& scope, DataType const& type, string const& name,
-		CompileErrorHandler* errorHandler)
+		CompileErrorHandler* errorHandler, optional<int32_t> rid)
 {
-	BuiltinVariable* builtin = new BuiltinVariable(scope, type, name);
+	BuiltinVariable* builtin = new BuiltinVariable(scope, type, name, rid);
 	if (builtin->tryAddToScope(errorHandler)) return builtin;
 	delete builtin;
 	return NULL;
 }
 
-BuiltinVariable::BuiltinVariable(
-		Scope& scope, DataType const& type, string const& name)
-	: Datum(scope, type),
-	  name(name),
-	  globalId((scope.isGlobal() || scope.isScript())
-	           ? std::optional<int32_t>(ScriptParser::getUniqueGlobalID())
-	           : std::nullopt)
+BuiltinVariable::BuiltinVariable(Scope& scope, DataType const& type,
+	string const& name, optional<int32_t> rid)
+	: Datum(scope, type), name(name),
+	  registerId(rid)
 {}
 
 // ZScript::Constant
@@ -533,6 +573,7 @@ Constant::Constant(
 	: Datum(scope, type), node(node), value(value)
 {
 	node.manager = this;
+	is_static = (node.is_static());
 }
 
 std::optional<string> Constant::getName() const {return node.getName();}
@@ -627,7 +668,7 @@ Function::Function(DataType const* returnType, string const& name,
 				   int32_t flags, int32_t internal_flags, bool prototype, optional<int32_t> defaultReturn)
 	: returnType(returnType), name(name), hasPrefixType(false), isFromTypeTemplate(false),
 	  paramTypes(paramTypes), paramNames(paramNames), paramDatum(), templ_bound_ts(),
-	  numOptionalParams(), id(id), node(NULL), thisVar(NULL), aliased_func(nullptr),
+	  numOptionalParams(), id(id), node(NULL), aliased_func(nullptr),
 	  data_decl_source_node(NULL), prototype(prototype),
 	  defaultReturn(defaultReturn), prologue_end_label(std::nullopt), label(std::nullopt), flags(flags),
 	  internal_flags(internal_flags), internalScope(NULL), externalScope(NULL)

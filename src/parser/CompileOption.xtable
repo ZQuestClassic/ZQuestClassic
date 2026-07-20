@@ -7,6 +7,7 @@ X(	STRING_SWITCH_CASE_INSENSITIVE,    qr_PARSER_STRINGSWITCH_INSENSITIVE,       
 X(	WARN_DEPRECATED,                                                    0,        OPTTYPE_CONFIG,                OPTION_OFF)
 X(	ON_MISSING_RETURN,                                                  0,        OPTTYPE_CONFIG,              OPTION_ERROR)
 X(	LEGACY_ARRAYS,                                                      0,        OPTTYPE_CONFIG,               OPTION_WARN)
+X(	DEFAULT_STATIC_SCRIPT_MEMBERS,                                      0,   OPTTYPE_QST_SETTING,               OPTION_AUTO)
 
 // These no longer do anything. Only here to not break scripts w/ unknown option error.
 X(	BINARY_32BIT,                                  qr_PARSER_BINARY_32BIT,            OPTTYPE_QR,                OPTION_OFF)

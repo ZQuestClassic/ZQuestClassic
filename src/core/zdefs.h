@@ -136,41 +136,44 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 
 //Version number of the different section types
 #define V_HEADER           9
-#define V_RULES           17
+#define V_RULES           18
 #define V_STRINGS         13
-#define V_MISC            21
+#define V_MISC            22
 #define V_TILES            4 //3 added blank tile optimization and 4-bit packing; 4 used by .ztileset
 #define V_TILES_ZTILESET_MIN 4 // .ztileset files before this used a different per-tile encoding
-#define V_COMBOS          71
+#define V_COMBOS          72
 #define V_CSETS            6 //palette data
-#define V_MAPS            40
-#define V_DMAPS           26
+#define V_MAPS            41
+#define V_DMAPS           27
 #define V_DOORS            1
-#define V_ITEMS           70
+#define V_ITEMS           71
 #define V_WEAPONS          9
 #define V_COLORS           4 //Misc Colours
 #define V_ICONS            10 //Game Icons
 #define V_GRAPHICSPACK     1
-#define V_INITDATA        49
-#define V_GUYS            58
+#define V_INITDATA        50
+#define V_GUYS            59
 #define V_GUYS_ZNPC_MIN   57 // .znpc files before this used a different field ordering
 #define V_MIDIS            5
 #define V_CHEATS           1
-#define V_SAVEGAME        51
+#define V_SAVEGAME        52
 #define V_COMBOALIASES     5
 #define V_HEROSPRITES      16
-#define V_SUBSCREEN        20
+#define V_SUBSCREEN        21
 #define V_ITEMDROPSETS     2
-#define V_FFSCRIPT         29
+#define V_FFSCRIPT         30
 #define V_SFX              9
 #define V_FAVORITES        4
 #define V_ZINFO            5
 #define V_ADVMUSIC         1
 
 // not 'real' sections, just separate version numbers
-#define V_COMPATRULE       120
+#define V_COMPATRULE       121
 
-#define V_WEAP_DATA        4
+#define V_COMPILESETTING   1
+
+#define V_WEAP_DATA        5
+#define V_SCRIPT_CONFIG    1
 
 //= V_SHOPS is under V_MISC
 
@@ -451,12 +454,6 @@ enum
 
 #define PITFALL_FALL_FRAMES 70
 #define WATER_DROWN_FRAMES 64
-
-#define lensflagSHOWHINTS = 0x0010;
-#define lensflagHIDESECRETS = 0x0020;
-#define lensflagNOXRAY = 0x0400;
-#define lensflagSHOWRAFTPATHS = 0x0800;
-#define lensflagSHOWINVISENEMIES = 0x1000;
 
 enum
 {
@@ -1176,14 +1173,10 @@ struct guydata
     int16_t firesfx; //weapon fire (attack) sound
     int32_t movement[32]; //Reserved for npc movement types and args. 
     int32_t new_weapon[32]; //Reserved for weapon patterns and args.
-    int32_t initD[8];
-    
-    word script; //For future npc action scripts. 
+	script_config scrconfig;
     //int16_t parentCore; //Probably not needed here. -Z
     int32_t editorflags;
 	move_flags moveflags;
-    
-    char initD_label[8][65];
     
 	word spr_shadow, spr_death, spr_spawn;
 	word specialsfx;
@@ -1302,6 +1295,9 @@ public:
 	
 	vector<vector<int32_t>> zs_vargs_stack {1};
 	vector<std::set<int32_t>> zs_vargs_pos_is_object {1};
+	
+	bounded_vec<word, int32_t> script_d {MAX_SCRIPT_INST_VARIABLES, 0};
+	std::set<uint32_t> script_d_is_object;
 
 	void Clear()
 	{
@@ -1362,7 +1358,7 @@ struct zasm_meta
 	std::string usrflags[16];
 	std::string attributes_help[NUM_ZMETA_ATTRIBUTES];
 	std::string usrflags_help[16];
-	std::string initd[8];
+	std::string initd_label[8];
 	std::string initd_help[8];
 	int8_t initd_type[8];
 	
@@ -1405,7 +1401,7 @@ struct zasm_meta
 			usrflags[q].clear();
 			usrflags_help[q].clear();
 			if(q > 7) continue;
-			initd[q].clear();
+			initd_label[q].clear();
 			initd_help[q].clear();
 			initd_type[q] = -1;
 			run_idens[q].clear();
@@ -1448,7 +1444,7 @@ struct zasm_meta
 			usrflags[q] = other.usrflags[q];
 			usrflags_help[q] = other.usrflags_help[q];
 			if(q > 7) continue;
-			initd[q] = other.initd[q];
+			initd_label[q] = other.initd_label[q];
 			initd_help[q] = other.initd_help[q];
 			initd_type[q] = other.initd_type[q];
 			run_idens[q] = other.run_idens[q];
@@ -1486,7 +1482,7 @@ struct zasm_meta
 			if(usrflags_help[q].compare(other.usrflags_help[q]))
 				return false;
 			if(q > 7) continue;
-			if(initd[q].compare(other.initd[q]))
+			if(initd_label[q].compare(other.initd_label[q]))
 				return false;
 			if(initd_help[q].compare(other.initd_help[q]))
 				return false;
@@ -1683,6 +1679,10 @@ struct script_data
 	uint32_t pc;
 	// Exclusive.
 	uint32_t end_pc;
+	
+	// Initializer values for instance vars
+	bounded_map<word, int32_t> script_d_init {MAX_SCRIPT_INST_VARIABLES, 0};
+	bounded_map<word, exported_variable> script_d_exports {MAX_SCRIPT_INST_VARIABLES, {}};
 
 	script_data(ScriptType type, int index) : meta(), id({type, index}), pc(0), end_pc(0) {}
 
@@ -1704,6 +1704,15 @@ struct script_data
 		zasm_script = nullptr;
 		pc = 0;
 		end_pc = 0;
+	}
+	
+	void clear()
+	{
+		zasm_script = nullptr;
+		pc = end_pc = 0;
+		meta.zero();
+		script_d_init.clear();
+		script_d_exports.clear();
 	}
 };
 
@@ -2014,20 +2023,6 @@ INLINE bool isinRect(int32_t x,int32_t y,int32_t rx1,int32_t ry1,int32_t rx2,int
 extern void flushItemCache(bool justcost = false);
 extern void removeFromItemCache(int32_t itemclass);
 
-#define GLOBAL_SCRIPT_INIT 			0
-#define GLOBAL_SCRIPT_GAME			1
-#define GLOBAL_SCRIPT_END			2
-#define GLOBAL_SCRIPT_ONSAVELOAD	3
-#define GLOBAL_SCRIPT_ONLAUNCH		4
-#define GLOBAL_SCRIPT_ONCONTGAME	5
-#define GLOBAL_SCRIPT_F6			6
-#define GLOBAL_SCRIPT_ONSAVE		7
-
-#define SCRIPT_HERO_INIT 1
-#define SCRIPT_HERO_ACTIVE 2
-#define SCRIPT_HERO_DEATH 3
-#define SCRIPT_HERO_WIN 4
-
 //Hero Internal Flags
 #define LF_PAID_SWORD_COST		0x01
 #define LF_PAID_WAND_COST		0x02
@@ -2155,8 +2150,6 @@ void enter_sys_pal();
 void exit_sys_pal();
 
 extern viewport_t viewport;
-
-enum {nswapDEC, nswapHEX, nswapLDEC, nswapLHEX, nswapBOOL, nswapMAX};
 
 
 double WrapAngle(double radians);

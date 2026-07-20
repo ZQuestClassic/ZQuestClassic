@@ -76,8 +76,8 @@ optional<byte> SaveMenu::run(optional<byte> cursor, bool continue_point) const
 
 			running = false;
 
-			if (opt.gen_script)
-				FFCore.runGenericFrozenEngine(opt.gen_script);
+			if (opt.gen_scrconfig.script)
+				FFCore.runGenericFrozenEngine(opt.gen_scrconfig);
 
 			if (Quit)
 				;

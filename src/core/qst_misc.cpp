@@ -1002,8 +1002,16 @@ int32_t readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
 				if (!p_igetl(&opt.font, f))
 					return qe_invalid;
 				
-				if (!p_igetw(&opt.gen_script, f))
-					return qe_invalid;
+				if (s_version >= 22)
+				{
+					if (!p_getvar(&opt.gen_scrconfig, f))
+						return qe_invalid;
+				}
+				else
+				{
+					if (!p_igetw(&opt.gen_scrconfig.script, f))
+						return qe_invalid;
+				}
 			}
 		}
 		

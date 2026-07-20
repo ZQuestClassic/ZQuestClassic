@@ -45,7 +45,7 @@ struct user_genscript
 	word exitState;
 	word reloadState;
 	uint32_t eventstate;
-	bounded_vec<byte,int32_t> initd;
+	script_config scrconfig;
 	
 	//Temp Vars
 	bool wait_atleast = true;
@@ -77,7 +77,6 @@ struct user_genscript
 private:
 	static user_genscript user_scripts[NUMSCRIPTSGENERIC];
 	
-	int32_t indx;
 	user_genscript() = default;
 };
 

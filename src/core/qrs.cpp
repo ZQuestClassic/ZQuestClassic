@@ -4,6 +4,7 @@
 byte quest_rules[QUESTRULES_NEW_SIZE];
 byte extra_rules[EXTRARULES_SIZE];
 bool _qrs_unpacked[qr_MAX];
+map<QSTCompilerSetting, int> qst_compiler_settings;
 
 void unpack_qrs()
 {
@@ -28,3 +29,14 @@ void set_er(int index,bool state)
 {
 	set_bit(extra_rules,index,state);
 }
+
+std::string to_string(QSTCompilerSetting setting)
+{
+	switch (setting)
+	{
+		case QSTCompilerSetting::DEFAULT_STATIC_SCRIPT_MEMBERS:
+			return "DEFAULT_STATIC_SCRIPT_MEMBERS";
+	}
+	return "INVALID_SETTING";
+}
+

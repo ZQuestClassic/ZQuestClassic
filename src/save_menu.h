@@ -31,7 +31,7 @@ struct SaveMenuOption
 	save_menu_option_flags flags;
 	byte color = WHITE, picked_color = WHITE;
 	int32_t font;
-	word gen_script;
+	script_config gen_scrconfig;
 	bool operator==(SaveMenuOption const& other) const = default;
 };
 

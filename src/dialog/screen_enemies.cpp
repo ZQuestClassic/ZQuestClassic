@@ -63,7 +63,7 @@ void ScreenEnemiesDialog::UpdatePreview()
 			"\nNew Tile: {}\nHP: {}\nDamage: {}\nW. Damage: {}\nFamily: {}\nDrop: {}\nScript: {}\nW Script: {}"
 			"\n\nCopied:\n{}",
 			enemyID, enemy.tile, enemy.s_tile, enemy.e_tile, enemy.hp, enemy.dp,
-			enemy.wdp, enemy.type, enemy.item_set, enemy.script, enemy.weap_data.script, copied_name));
+			enemy.wdp, enemy.type, enemy.item_set, enemy.scrconfig.script, enemy.weap_data.scrconfig.script, copied_name));
 		if (enemyID > 0)
 		{
 			widgPrev->setDisabled(false);

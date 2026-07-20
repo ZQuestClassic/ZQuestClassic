@@ -31,8 +31,7 @@ PUSHR D0; void run(int, int, int, int) Params
 PUSHR D1
 PUSHR D2
 PUSHR D3
-PUSHR REFFFC; void run(int, int, int, int) Body Start
-SETR D4 SP2
+SETR D4 SP2; void run(int, int, int, int) Body Start
 NOP
-POPARGS D5 0.0005
+POPARGS D5 0.0004
 RETURNFUNC; void run(int, int, int, int) Body End

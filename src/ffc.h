@@ -55,8 +55,7 @@ public:
 	word delay;
 	byte cset;
 	ffc_id_t link;
-	word script;
-	int32_t initd[INITIAL_D];
+	script_config scrconfig;
 	bool hooked;
 	bool recently_hit;
 	int32_t changer_x = -1000, changer_y = -1000;

@@ -2,12 +2,13 @@
 #define ZSCRIPT_SEMANTIC_ANALYZER_H_
 
 #include "ASTVisitors.h"
+#include "RegBaseVisitor.h"
 #include "DataStructs.h"
 #include "ZScript.h"
 
 namespace ZScript
 {
-	class SemanticAnalyzer : public RecursiveVisitor
+	class SemanticAnalyzer : public RegBaseVisitor
 	{
 	public:
 

@@ -393,7 +393,6 @@ item::item(zfix X,zfix Y,zfix Z,int32_t i,int32_t p,int32_t c, bool isDummy) : s
 	pickup_string_flags = itm.pickup_string_flags;
 	linked_parent = type == itype_progressive_itm ? -1 : 0;
 	moveflags = itm.moveflags;
-	for ( int32_t q = 0; q < 8; q++ ) initD[q] = itm.initiald[q];
 	
 	//if ( itm.overrideFLAGS&itemdataOVERRIDE_PICKUP ) pickup = itm.pickup;
 	switch (itm.pickupflag) 
@@ -473,7 +472,7 @@ item::item(zfix X,zfix Y,zfix Z,int32_t i,int32_t p,int32_t c, bool isDummy) : s
 		*/
 	}
 	//if ( itm.flags&itemdataOVERRIDE_DRAW_Z_OFFSET ) zofs = itm.zofs;
-	script = itm.sprite_script;
+	scrconfig = itm.sprite_scrconfig;
 	
 	viewport_suspend_range = itm.viewport_suspend_range;
 	viewport_despawn_range = itm.viewport_despawn_range;
@@ -942,7 +941,7 @@ void draw_lens_hint_sprite(BITMAP *dest, int32_t x, int32_t y, int32_t sprite_id
 	temp.fake_weapon = true;
 	temp.yofs = 0;
 	data.get(temp.clk2, temp.aframe, &temp.csclk);
-	temp.script = 0; // ensure no scripts
+	temp.scrconfig.clear(); // ensure no scripts
 	if (replay_version_check(0, 56))
 		temp.animate(0);
 	else if(!get_qr(qr_OLD_WEAPON_DRAW_ANIMATE_TIMING))
@@ -1465,22 +1464,14 @@ void itemdata::advpaste(itemdata const& other, bitstring const& pasteflags)
 	}
 	if(pasteflags.get(ITM_ADVP_ITEMSCRIPTS))
 	{
-		for(int q = 0; q < 8; ++q)
-		{
-			initiald[q] = other.initiald[q];
-			strcpy(initD_label[q], other.initD_label[q]);
-			strcpy(sprite_initD_label[q], other.sprite_initD_label[q]);
-		}
-		script = other.script;
-		collect_script = other.collect_script;
-		sprite_script = other.sprite_script;
+		scrconfig = other.scrconfig;
+		collect_scrconfig = other.collect_scrconfig;
+		sprite_scrconfig = other.sprite_scrconfig;
 		CPYFLAG(flags, item_passive_script, other.flags);
 	}
 	if(pasteflags.get(ITM_ADVP_WEAPONSCRIPT))
 	{
-		weap_data.script = other.weap_data.script;
-		for(int q = 0; q < 8; ++q)
-			weap_data.initd[q] = other.weap_data.initd[q];
+		weap_data.scrconfig = other.weap_data.scrconfig;
 	}
 }
 
@@ -1556,10 +1547,10 @@ void run_first_script_of_type([[maybe_unused]] int itype)
 		auto const& itm = itemsbuf.get(q);
 		if (itm.type == itype)
 		{
-			if (itm.script && !(FFCore.doscript(ScriptType::Item, q) && get_qr(qr_ITEMSCRIPTSKEEPRUNNING)) ) 
+			if (itm.scrconfig.script && !(FFCore.doscript(ScriptType::Item, q) && get_qr(qr_ITEMSCRIPTSKEEPRUNNING)) ) 
 			{
 				FFCore.reset_script_engine_data(ScriptType::Item, q);
-				ZScriptVersion::RunScript(ScriptType::Item, itm.script, q);
+				ZScriptVersion::RunScript(ScriptType::Item, itm.scrconfig.script, q);
 				FFCore.deallocateAllScriptOwned(ScriptType::Item, q);
 			}
 			break;

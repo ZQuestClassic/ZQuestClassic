@@ -48,7 +48,7 @@ X(	ConstTrunc,			C,	A,	W,	STR,	VOID,	"Constant %s is too long and has been trunc
 X(	NoFuncMatch,			T,	A,	E,	STR,	VOID,	"Function %s has not been declared."							)
 X(	TooFuncMatch,			T,	A,	E,	STR,	STR,	"There are too many choices for function %s.\n        The possible choices are:\n%s"	)
 X(	FuncBadReturn,			T,	A,	E,	VOID,	VOID,	"This function is not void, so it cannot return nothing."     	  	   	   	)
-X(	TooManyGlobal,			L,	A,	E,	VOID,	VOID,	"There are too many global variables."	 						)
+X(	TooManyGlobal,			L,	A,	E,	INT,	INT,	"There are too many global variables (%d/%d)."	 						)
 X(	ShiftNotInt,			T,	A,	W,	VOID,	VOID,	"Bitshift by non-integer amount; it has been truncated." 				)
 X(	RefVar,				S,	A,	E,	STR,	VOID,	"Variables of type %s are not allowed to be global."					)
 X(	ArrowNotPointer,		T,	A,	E,	VOID,	VOID,	"The left of the -> is not a pointer type (ffc, etc)."					)
@@ -87,7 +87,7 @@ X(	UnresolvedScriptType,		T,	A,	E,	STR,	VOID,	"Script Type %s has not been decla
 X(	RedefScriptType,		T,	A,	W,	STR,	STR,	"Script Type %s has already been defined as %s."    	     				)
 X(	ArrayInvalidSize,		T,	A,	E,	VOID,	VOID,	"An array's size must be between 0 and 214748"	    	      		    			)
 X(	ArrayDecimal,		T,	A,	W,	VOID,	VOID,	"Array sizes containing decimals will be truncated"	    	      		    			)
-X(	ConstNotConstant,			C,	A,	E,	STR,	VOID,	"Constant %s is global or script scope, and the value is not constant at compile-time."				)
+X(	ConstNotConstant,			C,	A,	E,	STR,	VOID,	"Constant %s is not at function scope, and the value is not constant at compile-time."				)
 X(	TooManyUsing,				P,	A,	E,	STR,	VOID,	"'using' found too many matches for the namespace %s."				)
 X(	DuplicateUsing,				P,	A,	E,	STR,	VOID,	"Namespace %s is already being used!"				)
 X(	TooManyVar,				P,	A,	E,	STR,	VOID,	"There are too many vars/consts named %s. Check your 'using' statements."				)
@@ -135,5 +135,9 @@ X(	BadVArgType,            S,  A,  E,  STR,    VOID,   "Function varg parameter 
 X(	IndexNotArray,            S,  A,  E,  STR,    VOID,   "Index operator '[]' must have an array type ('%s' is not an array type)"	 					)
 X(	Warn,			S,	A,	W,	STR,	VOID,	"%s"								)
 X(	Error,			S,	A,	E,	STR,	VOID,	"%s"								)
+X(	VarNotStatic,			S,	A,	E,	STR,	VOID,	"Variable %s is not static, so cannot be accessed externally.")
+X(	FuncNotStatic,			T,	A,	E,	STR,	VOID,	"Function %s is not static, so cannot be accessed externally.")
+X(	TooManyScriptInstVars,			L,	A,	E,	STR,	STR,	"Script %s has too many non-static variables (%s)."	 						)
+X(	ExportError, S, A, E, STR, VOID, "%s" )
 
 #undef STR

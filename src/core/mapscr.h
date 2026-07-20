@@ -185,8 +185,7 @@ struct mapscr
 	byte lens_layer;
 	byte lens_show, lens_hide;
 
-	word script;
-	int32_t screeninitd[8];
+	script_config scrconfig;
 	byte preloadscript;
 	
 	byte hidelayers;

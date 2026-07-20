@@ -30,6 +30,7 @@ using std::shared_ptr;
 #define FUNCFLAG_INTERNAL           0x00004000 //Function is internal
 #define FUNCFLAG_CONSTEXPR          0x00008000 //Function is constexpr
 #define FUNCFLAG_MAY_SET_OBJECT     0x00010000 //Function is a setter, and may or may not retain an object reference
+#define FUNCFLAG_NONSTATIC          0x00020000 //'FUNCFLAG_STATIC' should be removed if was auto-applied
 
 #define IFUNCFLAG_SKIPPOINTER	      0x01
 #define IFUNCFLAG_REASSIGNPTR	      0x02
@@ -43,6 +44,7 @@ using std::shared_ptr;
 #define OPTTYPE_QR                  0
 #define OPTTYPE_CONFIG              1
 #define OPTTYPE_CONFIG_FLOAT        2
+#define OPTTYPE_QST_SETTING         3
 
 #define MAX_INCLUDE_PATH_CHARS      65535
 

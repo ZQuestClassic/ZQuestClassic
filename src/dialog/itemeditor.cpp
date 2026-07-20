@@ -7,6 +7,7 @@
 #include "zinfo.h"
 #include <fmt/format.h>
 #include "weap_data_editor.h"
+#include "script_data_editor.h"
 
 void reset_itembuf(itemdata *item, int32_t id);
 char *ordinal(int32_t num);
@@ -1196,31 +1197,6 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::SPRITE_DROP_IMPL(T* mem, int inde
 }
 
 #define SPRITE_DROP(ind, mem) SPRITE_DROP_IMPL(&local_itemref.mem, ind)
-
-std::shared_ptr<GUI::Widget> ItemEditorDialog::IT_INITD(int index)
-{
-	using namespace GUI::Builder;
-	using namespace GUI::Props;
-	
-	return Row(padding = 0_px,
-		l_it_initds[index] = Label(minwidth = ATTR_LAB_WID, hAlign = 1.0, textAlign = 2),
-		ib_it_initds[index] = Button(forceFitH = true, text = "?",
-			disabled = true,
-			onPressFunc = [&, index]()
-			{
-				InfoDialog("InitD Info",h_it_initds[index]).show();
-			}),
-		tf_it_initd[index] = TextField(
-			fitParent = true, minwidth = 8_em,
-			type = GUI::TextField::type::SWAP_ZSINT2,
-			val = local_itemref.initiald[index],
-			onValChangedFunc = [&, index](GUI::TextField::type,std::string_view,int32_t val)
-			{
-				local_itemref.initiald[index] = val;
-			})
-	);
-}
-
 std::shared_ptr<GUI::Widget> ItemEditorDialog::MoveFlag(move_flags index, string const& str)
 {
 	using namespace GUI::Builder;
@@ -1558,14 +1534,12 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 							)
 						),
 						Column(
+							Button(text = "Weapon Data",
+								onPressFunc = [&]()
+								{
+									call_weap_data_editor(local_itemref.weap_data, true);
+								}),
 							Rows<3>(
-								Button(text = "Weapon Data",
-									colSpan = 3,
-									onPressFunc = [&]()
-									{
-										call_weap_data_editor(local_itemref.weap_data, true);
-									}),
-								//
 								Label(text = "SFX", colSpan = 3),
 								//
 								l_sfx[0] = Label(textAlign = 2, width = ACTION_LAB_WID),
@@ -2333,42 +2307,52 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 						)
 					))
 				)),
-				TabRef(name = "Scripts", TabPanel(
-					ptr = &itmtabs[3],
-					TabRef(name = "Item", Row(
-						Column(
-							IT_INITD(0),
-							IT_INITD(1),
-							IT_INITD(2),
-							IT_INITD(3),
-							IT_INITD(4),
-							IT_INITD(5),
-							IT_INITD(6),
-							IT_INITD(7)
+				TabRef(name = "Scripts", Column(
+					Row(
+						Button(
+							text = "Action Script Setup",
+							height = 2_em,
+							onPressFunc = [&]()
+							{
+								ScriptDataDialog(fmt::format("Item '{}' #{} Action Script Setup ({})",
+									local_itemref.name, index, (local_itemref.flags & item_passive_script) ? "passive" : "active"),
+									local_itemref.scrconfig, list_itemdatscript, itemscripts).show();
+							}
 						),
-						Column(
-							padding = 0_px, fitParent = true,
-							Rows<2>(vAlign = 0.0,
-								SCRIPT_LIST_PROC("Action Script:", list_itemdatscript, local_itemref.script, refreshScripts),
-								SCRIPT_LIST_PROC("Pickup Script:", list_itemdatscript, local_itemref.collect_script, refreshScripts),
-								SCRIPT_LIST_PROC("Sprite Script:", list_itemsprscript, local_itemref.sprite_script, refreshScripts)
-							),
-							Row(
-								Label(text = "Script Info:"),
-								DropDownList(
-									maxwidth = 10_em,
-									data = ScriptDataList,
-									selectedValue = item_use_script_data,
-									onSelectFunc = [&](int32_t val)
-									{
-										item_use_script_data = val;
-										zc_set_config("zquest","show_itemscript_meta_type",val);
-										refreshScripts();
-									}
-								)
-							)
+						Button(
+							text = "Pickup Script Setup",
+							height = 2_em,
+							onPressFunc = [&]()
+							{
+								ScriptDataDialog(fmt::format("Item '{}' #{} Pickup Script Setup", local_itemref.name, index),
+									local_itemref.collect_scrconfig, list_itemdatscript, itemscripts).show();
+							}
+						),
+						Button(
+							text = "Sprite Script Setup",
+							height = 2_em,
+							onPressFunc = [&]()
+							{
+								ScriptDataDialog(fmt::format("Item '{}' #{} Sprite Script Setup", local_itemref.name, index),
+									local_itemref.sprite_scrconfig, list_itemsprscript, itemspritescripts).show();
+							}
 						)
-					))
+					),
+					Row(
+						Label(text = "Script Info:"),
+						INFOBTN("Determines which script(s) provide metadata info to item editor attributes."),
+						DropDownList(
+							maxwidth = 10_em,
+							data = ScriptDataList,
+							selectedValue = item_use_script_data,
+							onSelectFunc = [&](int32_t val)
+							{
+								item_use_script_data = val;
+								zc_set_config("zquest","show_itemscript_meta_type",val);
+								loadItemClass();
+							}
+						)
+					)
 				))
 			),
 			Row(
@@ -2403,7 +2387,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 				SETFLAG(local_itemref.pickup_litems, (1 << q), state);
 			}));
 	}
-	refreshScripts();
+	loadItemClass();
 	return window;
 }
 
@@ -2423,76 +2407,6 @@ void load_meta(ItemNameInfo& inf, zasm_meta const& meta)
 	}
 }
 
-void ItemEditorDialog::refreshScripts()
-{
-	loadItemClass();
-	std::string it_initd[8];
-	int32_t ty_it_initd[8];
-	for(auto q = 0; q < 8; ++q)
-	{
-		it_initd[q] = "InitD[" + std::to_string(q) + "]";
-		h_it_initds[q].clear();
-		ty_it_initd[q] = -1;
-	}
-	bool did_item_scr = false;
-	auto iscd = item_use_script_data;
-	if(!iscd) iscd = ISCRDATA_ALL;
-	if(local_itemref.sprite_script && (iscd & ISCRDATA_SPRITE))
-	{
-		did_item_scr = true;
-		zasm_meta const& meta = itemspritescripts[local_itemref.sprite_script]->meta;
-		for(auto q = 0; q < 8; ++q)
-		{
-			if(meta.initd[q].size())
-				it_initd[q] = meta.initd[q];
-			if(meta.initd_help[q].size())
-				h_it_initds[q] = meta.initd_help[q];
-			if(meta.initd_type[q] > -1)
-				ty_it_initd[q] = meta.initd_type[q];
-		}
-	}
-	if(local_itemref.collect_script && (iscd & ISCRDATA_PICKUP))
-	{
-		did_item_scr = true;
-		zasm_meta const& meta = itemscripts[local_itemref.collect_script]->meta;
-		for(auto q = 0; q < 8; ++q)
-		{
-			if(meta.initd[q].size())
-				it_initd[q] = meta.initd[q];
-			if(meta.initd_help[q].size())
-				h_it_initds[q] = meta.initd_help[q];
-			if(meta.initd_type[q] > -1)
-				ty_it_initd[q] = meta.initd_type[q];
-		}
-	}
-	if(local_itemref.script && (iscd & ISCRDATA_ACTION))
-	{
-		did_item_scr = true;
-		zasm_meta const& meta = itemscripts[local_itemref.script]->meta;
-		for(auto q = 0; q < 8; ++q)
-		{
-			if(meta.initd[q].size())
-				it_initd[q] = meta.initd[q];
-			if(meta.initd_help[q].size())
-				h_it_initds[q] = meta.initd_help[q];
-			if(meta.initd_type[q] > -1)
-				ty_it_initd[q] = meta.initd_type[q];
-		}
-	}
-	if(!did_item_scr)
-	{
-		for(auto q = 0; q < 8; ++q)
-			ty_it_initd[q] = nswapDEC;
-	}
-	for(auto q = 0; q < 8; ++q)
-	{
-		if(ty_it_initd[q] > -1)
-			tf_it_initd[q]->setSwapType(ty_it_initd[q]);
-		l_it_initds[q]->setText(it_initd[q]);
-		ib_it_initds[q]->setDisabled(h_it_initds[q].empty());
-	}
-}
-
 void ItemEditorDialog::loadItemClass()
 {
 	animFrame->setTile(calcBottleTile(local_itemref, bottleType));
@@ -2503,20 +2417,20 @@ void ItemEditorDialog::loadItemClass()
 	
 	if(item_use_script_data)
 	{
-		if(local_itemref.sprite_script && (item_use_script_data & ISCRDATA_SPRITE))
+		if(auto scr = local_itemref.sprite_scrconfig.script; scr && (item_use_script_data & ISCRDATA_SPRITE))
 		{
-			zasm_meta const& meta = itemspritescripts[local_itemref.sprite_script]->meta;
-			load_meta(inf,meta);
+			zasm_meta const& meta = itemspritescripts[scr]->meta;
+			load_meta(inf, meta);
 		}
-		if(local_itemref.collect_script && (item_use_script_data & ISCRDATA_PICKUP))
+		if(auto scr = local_itemref.collect_scrconfig.script; scr && (item_use_script_data & ISCRDATA_PICKUP))
 		{
-			zasm_meta const& meta = itemscripts[local_itemref.collect_script]->meta;
-			load_meta(inf,meta);
+			zasm_meta const& meta = itemscripts[scr]->meta;
+			load_meta(inf, meta);
 		}
-		if(local_itemref.script && (item_use_script_data & ISCRDATA_ACTION))
+		if(auto scr = local_itemref.scrconfig.script; scr && (item_use_script_data & ISCRDATA_ACTION))
 		{
-			zasm_meta const& meta = itemscripts[local_itemref.script]->meta;
-			load_meta(inf,meta);
+			zasm_meta const& meta = itemscripts[scr]->meta;
+			load_meta(inf, meta);
 		}
 	}
 	wizardButton->setDisabled(!hasItemWizard(local_itemref.type));

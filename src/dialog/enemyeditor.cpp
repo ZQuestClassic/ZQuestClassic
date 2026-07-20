@@ -12,6 +12,7 @@
 #include "zinfo.h"
 #include "defdata.h"
 #include "weap_data_editor.h"
+#include "script_data_editor.h"
 
 void mark_save_dirty();
 extern int32_t CSet;
@@ -307,45 +308,6 @@ static const GUI::ListData list_deathtype
 	{"Robot Master",3}, //Megaman
 	{"Disintegrate",4}, //BS GANON
 };
-
-void EnemyEditorDialog::refreshScript()
-{
-	loadEnemyType();
-	//active
-	int32_t sw_initd[8];
-	for (auto q = 0; q < 8; ++q)
-	{
-		l_initd[q] = "InitD[" + to_string(q) + "]:";
-		h_initd[q].clear();
-		sw_initd[q] = -1;
-	}
-	if (local_guyref.script)
-	{
-		zasm_meta const& meta = guyscripts[local_guyref.script]->meta;
-		for (auto q = 0; q < 8; ++q)
-		{
-			if (unsigned(meta.initd_type[q]) < nswapMAX)
-				sw_initd[q] = meta.initd_type[q];
-			if (meta.initd[q].size())
-				l_initd[q] = meta.initd[q];
-			if (meta.initd_help[q].size())
-				h_initd[q] = meta.initd_help[q];
-		}
-	}
-	else
-	{
-		for (auto q = 0; q < 8; ++q)
-			sw_initd[q] = nswapDEC;
-	}
-	
-	for (auto q = 0; q < 8; ++q)
-	{
-		ib_initds[q]->setDisabled(h_initd[q].empty());
-		l_initds[q]->setText(l_initd[q]);
-		if (sw_initd[q] > -1)
-			tf_initd[q]->setSwapType(sw_initd[q]);
-	}
-}
 
 void EnemyEditorDialog::loadEnemyType()
 {
@@ -1159,32 +1121,6 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::MoveFlag(move_flags index, strin
 	);
 }
 
-//Script Tab
-
-std::shared_ptr<GUI::Widget> EnemyEditorDialog::ScriptField(int index)
-{
-	using namespace GUI::Builder;
-	using namespace GUI::Props;
-
-	return Row(padding = 0_px,
-		l_initds[index] = Label(minwidth = ATTR_LAB_WID, hAlign = 1.0, textAlign = 2),
-		ib_initds[index] = Button(forceFitH = true, text = "?",
-			disabled = true,
-			onPressFunc = [&, index]()
-			{
-				InfoDialog("InitD Info", h_initd[index]).show();
-			}),
-		tf_initd[index] = TextField(
-			fitParent = true, minwidth = 8_em,
-			type = GUI::TextField::type::SWAP_ZSINT2,
-			val = local_guyref.initD[index],
-			onValChangedFunc = [&, index](GUI::TextField::type, std::string_view, int32_t val)
-			{
-				local_guyref.initD[index] = val;
-			})
-	);
-}
-
 std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 {
 	using namespace GUI::Builder;
@@ -1698,26 +1634,16 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 	);
 	auto scripts_tab = TabPanel(
 		ptr = &guy_tabs[13],
-		TabRef(name = "Scripts", TabPanel(
-			ptr = &guy_tabs[14],
-			TabRef(name = "Action Script", Row(
-				Column(
-					ScriptField(0),
-					ScriptField(1),
-					ScriptField(2),
-					ScriptField(3),
-					ScriptField(4),
-					ScriptField(5),
-					ScriptField(6),
-					ScriptField(7)
-				),
-				Column(vAlign = 0.0,
-					Row(
-						padding = 0_px,
-						SCRIPT_LIST_PROC("NPC Action Script:", list_guyscripts, local_guyref.script, refreshScript)
-					)
-				)
-			))
+		TabRef(name = "Scripts", Column(
+			Button(
+				text = "Script Setup",
+				height = 2_em,
+				onPressFunc = [&]()
+				{
+					ScriptDataDialog(fmt::format("NPC '{}' #{} Script Setup", enemy_name, index),
+						local_guyref.scrconfig, list_guyscripts, guyscripts).show();
+				}
+			)
 		))
 	);
 
@@ -1765,7 +1691,7 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 			)
 		)
 	);
-	refreshScript();
+	loadEnemyType();
 	updateWarnings();
 	return window;
 }

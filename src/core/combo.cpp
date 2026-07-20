@@ -1273,9 +1273,7 @@ bool newcombo::is_blank(bool ignoreEff) const
 	if(usrflags) return false;
 	if(genflags) return false;
 	if(!label.empty()) return false;
-	if(script) return false;
-	for(auto q = 0; q < 8; ++q)
-		if(initd[q]) return false;
+	if (!scrconfig.empty()) return false;
 	if(o_tile) return false;
 	if(cur_frame) return false;
 	if(aclk) return false;
@@ -1398,11 +1396,7 @@ void newcombo::advpaste(newcombo const& other, bitstring const& flags)
 	if(flags.get(CMB_ADVP_LABEL))
 		label = other.label;
 	if(flags.get(CMB_ADVP_SCRIPT))
-	{
-		script = other.script;
-		for(int32_t q = 0; q < 8; ++q)
-			initd[q] = other.initd[q];
-	}
+		scrconfig = other.scrconfig;
 	if(flags.get(CMB_ADVP_EFFECT))
 		walk = (walk&0x0F) | (other.walk&0xF0);
 	if(flags.get(CMB_ADVP_TRIGGERS))

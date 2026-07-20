@@ -269,3 +269,50 @@ rect_t rect_t::expanded(int dist) const
 	r.expand(dist);
 	return r;
 }
+
+script_config::script_config(word script)
+	: script(script), inst_init()
+{
+	run_args.fill(0);
+}
+script_config::script_config(script_config const& other)
+{
+	*this = other;
+}
+script_config::script_config(script_config&& other) noexcept
+{
+	*this = other;
+}
+
+script_config& script_config::operator=(script_config const& other)
+{
+	script = other.script;
+	run_args = other.run_args;
+	inst_init = other.inst_init;
+	return *this;
+}
+script_config& script_config::operator=(script_config&& other) noexcept
+{
+	script = other.script;
+	run_args.fill(0);
+	inst_init.clear();
+	run_args.swap(other.run_args);
+	inst_init.swap(other.inst_init);
+	return *this;
+}
+
+bool script_config::empty() const
+{
+	if (script)
+		return false;
+	for (auto q : run_args)
+		if (q)
+			return false;
+	if (!inst_init.empty())
+		return false;
+	return true;
+}
+void script_config::clear()
+{
+	*this = script_config();
+}

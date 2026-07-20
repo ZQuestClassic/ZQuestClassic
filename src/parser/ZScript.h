@@ -109,14 +109,26 @@ namespace ZScript
 		
 		void setRun(Function* func) {runFunc = func;}
 		Function* getRun() const {return runFunc;}
+		virtual void register_instance_var(Variable*, optional<int32_t>) {};
+		virtual void apply_data(disassembled_script_data&) {};
 		
 		bool isPrototypeRun() const;
 
+		int32_t getUniqueInstanceID()
+		{
+			return inst_id++;
+		}
+		int32_t instance_var_count() const
+		{
+			return inst_id;
+		}
 	protected:
 		Script(Program& program);
 
 	private:
 		Function* runFunc;
+		// starts at 1 because `this` uses slot 0
+		int32_t inst_id = 1;
 	};
 
 	class UserScript : public Script
@@ -134,12 +146,16 @@ namespace ZScript
 		ScriptScope& getScope() /*override*/ {return *scope;}
 		ScriptScope const& getScope() const /*override*/ {return *scope;}
 		std::optional<int32_t> getInitWeight() const /*override*/ {return node.init_weight;}
-
+		void register_instance_var(Variable* v, optional<int32_t> value) /*override*/;
+		void apply_data(disassembled_script_data& dest) /*override*/;
+		
 	private:
 		UserScript(Program&, ASTScript&);
 
 		ASTScript& node;
 		ScriptScope* scope;
+		bounded_map<word, int32_t> script_d_init {MAX_SCRIPT_INST_VARIABLES, 0};
+		bounded_map<word, exported_variable> script_d_exports {MAX_SCRIPT_INST_VARIABLES, {}};
 	};
 
 	class BuiltinScript : public Script
@@ -273,6 +289,9 @@ namespace ZScript
 
 		// Id for lookup tables.
 		int32_t const id;
+		
+		// If the datum is 'static', i.e. a non-instance member of a class/script
+		bool is_static;
 
 		// Get the data's name.
 		virtual std::optional<std::string> getName() const {return std::nullopt;}
@@ -286,8 +305,10 @@ namespace ZScript
 		// Get the declaring node.
 		virtual AST* getNode() const {return NULL;}
 		
-		// Get the global register this uses.
-		virtual std::optional<int32_t> getGlobalId() const {return std::nullopt;}
+		// Get the register this uses.
+		virtual std::optional<int32_t> getRegisterId() const {return std::nullopt;}
+		std::optional<int32_t> getGlobalId() const;
+		std::optional<int32_t> getScriptId() const;
 		
 		virtual bool isBuiltIn() const {return false;}
 		
@@ -324,13 +345,14 @@ namespace ZScript
 		std::optional<std::string> getName() const {return node.getName();}
 		std::optional<std::string> getDocComment() const {return node.doc_comment;}
 		ASTDataDecl* getNode() const {return &node;}
-		std::optional<int32_t> getGlobalId() const {return globalId;}
+		std::optional<int32_t> getRegisterId() const {return registerId;}
 		virtual std::optional<int32_t> getCompileTimeValue(bool getinitvalue = false) const;
 	private:
 		Variable(Scope& scope, ASTDataDecl& node, DataType const& type);
 
 		ASTDataDecl& node;
-		std::optional<int32_t> globalId;
+		std::optional<int32_t> registerId;
+		friend void UserScript::register_instance_var(Variable*, optional<int32_t>);
 	};
 
 	class InternalVariable : public Datum
@@ -388,18 +410,20 @@ namespace ZScript
 	public:
 		static BuiltinVariable* create(
 				Scope&, DataType const&, std::string const& name,
-				CompileErrorHandler* = NULL);
+				CompileErrorHandler* = nullptr,
+				std::optional<int32_t> rid = nullopt);
 
 		std::optional<std::string> getName() const {return name;}
-		std::optional<int32_t> getGlobalId() const {return globalId;}
+		std::optional<int32_t> getRegisterId() const {return registerId;}
 
 		virtual bool isBuiltIn() const {return true;}
 		
 	private:
-		BuiltinVariable(Scope&, DataType const&, std::string const& name);
+		BuiltinVariable(Scope&, DataType const&, std::string const& name,
+			std::optional<int32_t> rid);
 
 		std::string const name;
-		std::optional<int32_t> globalId;
+		std::optional<int32_t> registerId;
 	};
 
 	// An inlined constant.
@@ -474,7 +498,6 @@ namespace ZScript
 		int32_t id;
 
 		ASTFuncDecl* node; // May be null (see @deprecated_getter).
-		Datum* thisVar;
 		Function* aliased_func; //the function this is an alias for, if any
 		ASTDataDecl* data_decl_source_node; // Only if this Function was created via @deprecated_getter
 

@@ -35,6 +35,13 @@ static const GUI::ListData list_deprecated_features
 	{ "Warn", 3 },
 };
 
+static const GUI::ListData list_auto_off_on
+{
+	{ "Auto", -1 },
+	{ "Off", 0 },
+	{ "On", 1 },
+};
+
 GUI::ListData compileSettingList
 {
 	{ "Disable Tracing", qr_PARSER_NO_LOGGING, "OPTION - Disables 'Trace()', 'printf()', and similar commands." },
@@ -62,6 +69,7 @@ void CompileSettingsDlg::load()
 		}
 		set_bit(qst_cfg,q,get_qr(compileSettingList.getValue(q)));
 	}
+	local_compiler_settings = qst_compiler_settings;
 }
 void CompileSettingsDlg::save()
 {
@@ -87,6 +95,22 @@ void CompileSettingsDlg::save()
 		set_qr(compileSettingList.getValue(q),get_bit(qst_cfg,q));
 	}
 	
+	vector<QSTCompilerSetting> ids_to_remove;
+	for (auto [id, val] : local_compiler_settings)
+	{
+		switch (id)
+		{
+			case QSTCompilerSetting::DEFAULT_STATIC_SCRIPT_MEMBERS:
+				if (val == -1)
+					ids_to_remove.push_back(id);
+				break;
+		}
+	}
+	for (auto id : ids_to_remove)
+		local_compiler_settings.erase(id);
+	
+	qst_compiler_settings = local_compiler_settings;
+	
 	FFCore.updateIncludePaths();
 	ZQincludePaths = FFCore.includePaths;
 	write_includepaths();
@@ -103,6 +127,8 @@ std::shared_ptr<GUI::Widget> CompileSettingsDlg::view()
 	using namespace GUI::Builder;
 	using namespace GUI::Props;
 	using namespace GUI::Key;
+	
+	shared_ptr<GUI::Grid> qrs_grid;
 	
 	window = Window(
 		title = "ZScript Compiler Settings",
@@ -210,14 +236,23 @@ std::shared_ptr<GUI::Widget> CompileSettingsDlg::view()
 					)
 				)),
 				TabRef(name = "Quest Settings", Column(
-					QRPanel(
-						padding = 3_px,
-						onToggle = message::TOGGLE_QUEST_CFG,
-						onCloseInfo = message::REFR_INFO,
-						indexed = true,
-						qr_ptr = qst_cfg,
-						count = 14,
-						data = compileSettingList
+					qrs_grid = Rows<2>(),
+					Rows<3>(
+						Label(text = "Default Static Script Members", hAlign = 1.0),
+						DropDownList(data = list_auto_off_on,
+							fitParent = true,
+							selectedValue = local_compiler_settings.contains(QSTCompilerSetting::DEFAULT_STATIC_SCRIPT_MEMBERS)
+								? local_compiler_settings[QSTCompilerSetting::DEFAULT_STATIC_SCRIPT_MEMBERS] : -1,
+							onSelectFunc = [&](int32_t val)
+							{
+								local_compiler_settings[QSTCompilerSetting::DEFAULT_STATIC_SCRIPT_MEMBERS] = val;
+							}
+						),
+						INFOBTN(
+							"AUTO: Automatically picks ON or OFF. Currently, always picks ON; this will eventually change."
+							"\nOFF: Scripts will default to members being non-static, requiring the 'static' keyword to make them static."
+							"\nON: Scripts will default to members being static, requiring the 'nonstatic' keyword to make them non-static."
+						)
 					)
 				))
 			),
@@ -237,6 +272,26 @@ std::shared_ptr<GUI::Widget> CompileSettingsDlg::view()
 			)
 		)
 	);
+	int qr_index = 0;
+	compileSettingList.for_all_items([&](auto const& itm)
+	{
+		int qr = qr_index++;
+		
+		if (itm.info.empty())
+			qrs_grid->add(DINFOBTN());
+		else
+			qrs_grid->add(INFOBTN(itm.info));
+		
+		qrs_grid->add(
+			Checkbox(
+				text = itm.text, hAlign = 0.0,
+				checked = get_qr(qr),
+				onToggleFunc = [&, qr](bool state)
+				{
+					set_bit(qst_cfg, qr, state);
+				})
+		);
+	});
 	return window;
 }
 
@@ -247,9 +302,6 @@ bool CompileSettingsDlg::handleMessage(const GUI::DialogMessage<message>& msg)
 		case message::REFR_INFO:
 			rerun_dlg = true;
 			return true;
-		case message::TOGGLE_QUEST_CFG:
-			toggle_bit(qst_cfg,msg.argument);
-			break;
 		case message::OK:
 			save();
 			mark_save_dirty();

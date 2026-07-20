@@ -39,7 +39,7 @@ static WeaponArrayRegistrar WPNBURNLIGHTOFFSET_registrar(LWPNBURNLIGHTOFFSET, EW
 }());
 
 static WeaponArrayRegistrar WPNINITD_registrar(LWPNINITD, EWPNINITD, []{
-	static ScriptingArray_ObjectMemberCArray<weapon, &weapon::initD> impl;
+	static ScriptingArray_ObjectSubMemberContainer<weapon, &weapon::scrconfig, &script_config::run_args> impl;
 	impl.setMul10000(false);
 	impl.compatBoundIndex();
 	return &impl;

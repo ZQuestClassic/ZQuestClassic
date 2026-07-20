@@ -1222,7 +1222,7 @@ void ASTImportCondDecl::execute(ASTVisitor& visitor, void* param)
 
 ASTFuncDecl::ASTFuncDecl(LocationData const& location)
 	: ASTDecl(location), identifier(NULL), returnType(NULL), block(NULL), invalidMsg(""), func(NULL), parentScope(NULL),
-	  prototype(false), defaultReturn(NULL), flags(0)
+	  prototype(false), defaultReturn(NULL), flags(0), handled_staticness(false)
 {}
 
 void ASTFuncDecl::execute(ASTVisitor& visitor, void* param)
@@ -1264,12 +1264,16 @@ std::optional<LocationData> ASTFuncDecl::getIdentifierLocation() const
 // ASTDataDeclList
 
 ASTDataDeclList::ASTDataDeclList(LocationData const& location)
-	: ASTDecl(location), baseType(NULL), readonly(false), internal(false)
+	: ASTDecl(location), baseType(NULL), readonly(false), internal(false),
+	is_static(false), is_nonstatic(false), handled_staticness(false),
+	was_exported(false), was_range_exported(false), export_data()
 {}
 
 ASTDataDeclList::ASTDataDeclList(ASTDataDeclList const& other)
 	: ASTDecl(other),
-	  baseType(other.baseType), readonly(other.readonly), internal(other.internal)
+	  baseType(other.baseType), readonly(other.readonly), internal(other.internal),
+	  is_static(other.is_static), is_nonstatic(other.is_nonstatic), handled_staticness(other.handled_staticness),
+	  was_exported(other.was_exported), was_range_exported(other.was_range_exported), export_data(other.export_data)
 {
 	for (auto it = other.declarations_.cbegin();
 	     it != other.declarations_.cend(); ++it)
@@ -1422,7 +1426,8 @@ void ASTDataDecl::setInitializer(ASTExpr* initializer)
 {
 	if (initializer->isConstant())
 	{
-		initializer_ = new ASTExprVarInitializer(initializer, initializer->location);
+		auto init = new ASTExprVarInitializer(initializer, initializer->location);
+		initializer_ = init;
 	}
 	else
 	{
@@ -1681,7 +1686,7 @@ void ASTExprVarInitializer::execute(ASTVisitor& visitor, void* param)
 std::optional<int32_t> ASTExprVarInitializer::getCompileTimeValue(
 		CompileErrorHandler* errorHandler, Scope* scope)
 {
-	if(scope->isGlobal() || scope->isScript())
+	if(scope->in_static_init)
 		return value;
 	else
 		return value ? value : content->getCompileTimeValue(errorHandler, scope);
@@ -1749,7 +1754,7 @@ string ASTExprIdentifier::asString() const
 
 std::optional<int32_t> ASTExprIdentifier::getCompileTimeValue(CompileErrorHandler*, Scope* scope)
 {
-	return binding ? binding->getCompileTimeValue(scope->isGlobal() || scope->isScript()) : std::nullopt;
+	return binding ? binding->getCompileTimeValue(scope && scope->in_static_init) : std::nullopt;
 }
 
 DataType const* ASTExprIdentifier::getReadType(Scope*, CompileErrorHandler*)

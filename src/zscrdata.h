@@ -6,6 +6,7 @@
 #include "components/zasm/debug_data.h"
 #include "zconsole/ConsoleLogger.h"
 #include "parser/Compiler.h"
+#include "base/containers.h"
 #include <sstream>
 
 #ifndef IS_PARSER
@@ -25,57 +26,286 @@ using std::map;
 using std::string;
 using std::vector;
 
-void write_str(std::string const& str, FILE* f)
+void write_str(string const& str, FILE* f);
+void read_str(string& str, FILE* f);
+template<typename T>
+void write_vec(vector<T> const& vec, FILE* f);
+template<typename T>
+void read_vec(vector<T>& vec, FILE* f);
+template<uint_type Sz,typename T>
+inline void write_boundedcont(bounded_vec<Sz,T> const& cont, FILE *f);
+template<uint_type Sz,typename T>
+inline void write_boundedcont(bounded_map<Sz,T> const& cont, FILE *f);
+template<uint_type Sz,typename T>
+inline void read_boundedcont(bounded_vec<Sz,T> &cont, FILE *f);
+template<uint_type Sz,typename T>
+inline void read_boundedcont(bounded_map<Sz,T> &cont, FILE *f);
+
+template<integral_type T>
+inline void write_var(T const& val, FILE *f)
+{
+	fwrite((char const*)&val, sizeof(T), 1, f);
+}
+template<integral_type T>
+inline void read_var(T& val, FILE *f)
+{
+	fread((char*)&val, sizeof(T), 1, f);
+}
+
+inline void write_var(string const& val, FILE *f)
+{
+	write_str(val, f);
+}
+inline void read_var(string& val, FILE *f)
+{
+	read_str(val, f);
+}
+template<typename T>
+inline void write_var(vector<T> const& val, FILE *f)
+{
+	write_vec(val, f);
+}
+template<typename T>
+inline void read_var(vector<T>& val, FILE *f)
+{
+	read_vec(val, f);
+}
+template<uint_type Sz,typename T>
+inline void write_var(bounded_vec<Sz,T> const& val, FILE *f)
+{
+	write_boundedcont(val, f);
+}
+template<uint_type Sz,typename T>
+inline void write_var(bounded_map<Sz,T> const& val, FILE *f)
+{
+	write_boundedcont(val, f);
+}
+template<uint_type Sz,typename T>
+inline void read_var(bounded_vec<Sz,T>& val, FILE *f)
+{
+	read_boundedcont(val, f);
+}
+template<uint_type Sz,typename T>
+inline void read_var(bounded_map<Sz,T>& val, FILE *f)
+{
+	read_boundedcont(val, f);
+}
+
+
+inline void write_var(zfix const& val, FILE *f)
+{
+	write_var(val.val, f);
+}
+inline void read_var(zfix& val, FILE *f)
+{
+	read_var(val.val, f);
+}
+
+inline void write_var(exported_variable const& val, FILE *f)
+{
+	write_str(val.name, f);
+	write_str(val.helptext, f);
+	write_var(val.btn_type, f);
+	write_var(val.min, f);
+	write_var(val.max, f);
+}
+inline void read_var(exported_variable& val, FILE *f)
+{
+	read_str(val.name, f);
+	read_str(val.helptext, f);
+	read_var(val.btn_type, f);
+	read_var(val.min, f);
+	read_var(val.max, f);
+}
+
+
+inline void write_str(string const& str, FILE* f)
 {
 	size_t sz = str.size();
-	fwrite(&sz, sizeof(size_t), 1, f);
+	write_var(sz, f);
 	for(size_t q = 0; q < sz; ++q)
-	{
 		fputc(str.at(q), f);
-	}
 }
-void read_str(std::string& str, FILE* f)
+inline void read_str(string& str, FILE* f)
 {
 	size_t sz;
-	fread(&sz, sizeof(size_t), 1, f);
+	read_var(sz, f);
 	str.clear();
 	for(size_t q = 0; q < sz; ++q)
-	{
 		str.push_back(fgetc(f));
+}
+
+template<typename T>
+void write_vec(vector<T> const& vec, FILE* f)
+{
+	size_t sz = vec.size();
+	write_var(sz, f);
+	for(size_t q = 0; q < sz; ++q)
+		write_var(vec.at(q), f);
+}
+template<typename T>
+void read_vec(vector<T>& vec, FILE* f)
+{
+	size_t sz;
+	read_var(sz, f);
+	vec.clear();
+	for(size_t q = 0; q < sz; ++q)
+		read_var(vec.emplace_back(), f);
+}
+
+
+template<uint_type Sz,typename T>
+inline void write_boundedcont(bounded_vec<Sz,T> const& cont, FILE *f)
+{
+	Sz sz = cont.size();
+	write_var(sz, f);
+	if(sz)
+	{
+		T dt = cont.defval();
+		Sz writecnt_v = cont.capacity();
+		Sz writecnt_m = 0;
+		for(Sz q = 0; q < writecnt_v; ++q)
+			if(cont.get(q) != dt)
+				++writecnt_m;
+		bool pairs = (writecnt_m * (sizeof(T)+sizeof(Sz))) <= writecnt_v * sizeof(T);
+		write_var(byte(pairs ? 1 : 0), f);
+		write_var(pairs ? writecnt_m : writecnt_v, f);
+		if(pairs)
+		{
+			for(Sz q = 0; q < writecnt_v; ++q)
+			{
+				if(cont.get(q) == dt) continue;
+				write_var(q, f);
+				write_var(cont.get(q), f);
+			}
+		}
+		else
+		{
+			for(Sz q = 0; q < writecnt_v; ++q)
+				write_var(cont.get(q), f);
+		}
 	}
 }
-void write_w(word val, FILE* f)
+template<uint_type Sz,typename T>
+inline void write_boundedcont(bounded_map<Sz,T> const& cont, FILE *f)
 {
-	fwrite(&val, sizeof(word), 1, f);
+	Sz sz = cont.size();
+	write_var(sz, f);
+	if(sz)
+	{
+		T dt = cont.defval();
+		auto lkey = cont.lastKey();
+		Sz writecnt_v = lkey ? *lkey+1 : 0;
+		Sz writecnt_m = 0;
+		for(auto [k,v] : cont.inner())
+			if(k < sz && v != dt)
+				++writecnt_m;
+		bool pairs = (writecnt_m * (sizeof(T)+sizeof(Sz))) <= writecnt_v * sizeof(T);
+		write_var(byte(pairs ? 1 : 0), f);
+		write_var(pairs ? writecnt_m : writecnt_v, f);
+		if(pairs)
+		{
+			for(auto [k,v] : cont.inner())
+			{
+				if(k >= sz || v == dt) continue;
+				write_var(k, f);
+				write_var(v, f);
+			}
+		}
+		else
+		{
+			for(Sz q = 0; q < writecnt_v; ++q)
+				write_var(cont.get(q), f);
+		}
+	}
 }
-void read_w(word &val, FILE* f)
+
+template<uint_type Sz,typename T>
+inline void read_boundedcont(bounded_vec<Sz,T> &cont, FILE *f)
 {
-	fread(&val, sizeof(word), 1, f);
+	cont.clear();
+	Sz sz = 0;
+	read_var(sz, f);
+	cont.resize(sz);
+	if(sz) //cont found
+	{
+		Sz count;
+		byte pairs;
+		read_var(pairs, f);
+		read_var(count, f);
+		Sz k;
+		T v = cont.defval();
+		if(pairs)
+		{
+			while(count--)
+			{
+				read_var(k, f);
+				read_var(v, f);
+				cont[k] = v;
+			}
+		}
+		else
+		{
+			for(k = 0; k < count; ++k)
+			{
+				read_var(v, f);
+				cont[k] = v;
+			}
+		}
+		cont.normalize();
+	}
 }
-void write_b(byte val, FILE* f)
+template<uint_type Sz,typename T>
+inline void read_boundedcont(bounded_map<Sz,T> &cont, FILE *f)
 {
-	fwrite(&val, sizeof(byte), 1, f);
-}
-void read_b(byte &val, FILE* f)
-{
-	fread(&val, sizeof(byte), 1, f);
+	cont.clear();
+	Sz sz = 0;
+	read_var(sz, f);
+	cont.resize(sz);
+	if(sz) //cont found
+	{
+		Sz count;
+		byte pairs;
+		read_var(pairs, f);
+		read_var(count, f);
+		Sz k;
+		T v = cont.defval();
+		if(pairs)
+		{
+			while(count--)
+			{
+				read_var(k, f);
+				read_var(v, f);
+				cont[k] = v;
+			}
+		}
+		else
+		{
+			for(k = 0; k < count; ++k)
+			{
+				read_var(v, f);
+				cont[k] = v;
+			}
+		}
+		cont.normalize();
+	}
 }
 
 void write_meta(zasm_meta const& meta, FILE* f)
 {
-	write_w(meta.zasm_v, f);
-	write_w(meta.meta_v, f);
-	write_w(meta.ffscript_v, f);
-	write_b((byte)meta.script_type, f);
+	write_var(meta.zasm_v, f);
+	write_var(meta.meta_v, f);
+	write_var(meta.ffscript_v, f);
+	write_var(byte(meta.script_type), f);
 	for(auto q = 0; q < 8; ++q)
 		write_str(meta.run_idens[q], f);
 	for(auto q = 0; q < 8; ++q)
-		write_b(meta.run_types[q], f);
-	write_b(meta.flags, f);
-	write_w(meta.compiler_v1, f);
-	write_w(meta.compiler_v2, f);
-	write_w(meta.compiler_v3, f);
-	write_w(meta.compiler_v4, f);
+		write_var(meta.run_types[q], f);
+	write_var(meta.flags, f);
+	write_var(meta.compiler_v1, f);
+	write_var(meta.compiler_v2, f);
+	write_var(meta.compiler_v3, f);
+	write_var(meta.compiler_v4, f);
 	write_str(meta.script_name, f);
 	write_str(meta.author, f);
 	for(auto q = 0; q < NUM_ZMETA_ATTRIBUTES; ++q)
@@ -87,32 +317,32 @@ void write_meta(zasm_meta const& meta, FILE* f)
 	for(auto q = 0; q < 16; ++q)
 		write_str(meta.usrflags_help[q], f);
 	for(auto q = 0; q < 8; ++q)
-		write_str(meta.initd[q], f);
+		write_str(meta.initd_label[q], f);
 	for(auto q = 0; q < 8; ++q)
 		write_str(meta.initd_help[q], f);
 	for(auto q = 0; q < 8; ++q)
-		write_b(meta.initd_type[q], f);
+		write_var(meta.initd_type[q], f);
 }
 
 void read_meta(zasm_meta& meta, FILE* f)
 {
-	read_w(meta.zasm_v, f);
-	read_w(meta.meta_v, f);
-	read_w(meta.ffscript_v, f);
+	read_var(meta.zasm_v, f);
+	read_var(meta.meta_v, f);
+	read_var(meta.ffscript_v, f);
 	{
 		byte st = (byte)meta.script_type;
-		read_b(st, f);
+		read_var(st, f);
 		meta.script_type = (ScriptType)st;
 	}
 	for(auto q = 0; q < 8; ++q)
 		read_str(meta.run_idens[q], f);
 	for(auto q = 0; q < 8; ++q)
-		read_b(meta.run_types[q], f);
-	read_b(meta.flags, f);
-	read_w(meta.compiler_v1, f);
-	read_w(meta.compiler_v2, f);
-	read_w(meta.compiler_v3, f);
-	read_w(meta.compiler_v4, f);
+		read_var(meta.run_types[q], f);
+	read_var(meta.flags, f);
+	read_var(meta.compiler_v1, f);
+	read_var(meta.compiler_v2, f);
+	read_var(meta.compiler_v3, f);
+	read_var(meta.compiler_v4, f);
 	read_str(meta.script_name, f);
 	read_str(meta.author, f);
 	for(auto q = 0; q < NUM_ZMETA_ATTRIBUTES; ++q)
@@ -124,11 +354,11 @@ void read_meta(zasm_meta& meta, FILE* f)
 	for(auto q = 0; q < 16; ++q)
 		read_str(meta.usrflags_help[q], f);
 	for(auto q = 0; q < 8; ++q)
-		read_str(meta.initd[q], f);
+		read_str(meta.initd_label[q], f);
 	for(auto q = 0; q < 8; ++q)
 		read_str(meta.initd_help[q], f);
 	for(auto q = 0; q < 8; ++q)
-		read_b((byte&)meta.initd_type[q], f);
+		read_var(meta.initd_type[q], f);
 }
 
 void read_compile_data(ZScript::ZasmCompilerResult& zasmCompilerResult)
@@ -138,11 +368,7 @@ void read_compile_data(ZScript::ZasmCompilerResult& zasmCompilerResult)
 	size_t stypes_sz, scripts_sz;
 	size_t dummy;
 	ZScript::ParserScriptType::Id _id;
-	char buf[512] = {0};
-	char* buf2 = nullptr;
-	size_t buf2sz = 0;
-	char* buf3 = nullptr;
-	size_t buf3sz = 0;
+	string str, str2;
 	
 	FILE *tempfile = fopen("tmp2","rb");
 			
@@ -152,91 +378,52 @@ void read_compile_data(ZScript::ZasmCompilerResult& zasmCompilerResult)
 		return;
 	}
 	
-	fread(&stypes_sz, sizeof(size_t), 1, tempfile);
+	read_var(stypes_sz, tempfile);
 	for(size_t ind = 0; ind < stypes_sz; ++ind)
 	{
-		fread(&dummy, sizeof(size_t), 1, tempfile);
-		dummy = fread(buf, sizeof(char), dummy, tempfile);
-		buf[dummy] = 0;
-		fread(&_id, sizeof(ZScript::ParserScriptType), 1, tempfile);
-		zasmCompilerResult.scriptTypes[buf] = _id;
+		read_str(str, tempfile);
+		read_var(_id, tempfile);
+		zasmCompilerResult.scriptTypes[str] = _id;
 	}
 	
-	fread(&scripts_sz, sizeof(size_t), 1, tempfile);
+	read_var(scripts_sz, tempfile);
 	for(size_t ind = 0; ind < scripts_sz; ++ind)
 	{
-		fread(&dummy, sizeof(size_t), 1, tempfile);
-
-		dummy = fread(buf, sizeof(char), dummy, tempfile);
-		buf[dummy] = 0;
+		read_str(str, tempfile);
 		
 		disassembled_script_data dsd;
 		
 		read_meta(dsd.meta, tempfile);
 		
-		fread(&(dsd.format), sizeof(byte), 1, tempfile);
+		read_var(dsd.format, tempfile);
 		
-		fread(&(dsd.pc), sizeof(int32_t), 1, tempfile);
-		fread(&(dsd.end_pc), sizeof(int32_t), 1, tempfile);
+		read_var(dsd.pc, tempfile);
+		read_var(dsd.end_pc, tempfile);
 		
-		zasmCompilerResult.theScripts[buf] = dsd;
+		read_boundedcont(dsd.script_d_init, tempfile);
+		read_boundedcont(dsd.script_d_exports, tempfile);
+		
+		zasmCompilerResult.theScripts[str] = dsd;
 	}
 
-	std::vector<byte> encodedDebugData;
-	size_t encoded_debug_data_sz;
-	
 	size_t zasm_sz;
-	fread(&zasm_sz, sizeof(size_t), 1, tempfile);
+	read_var(zasm_sz, tempfile);
 	zasmCompilerResult.zasm.reserve(zasm_sz);
 	for(size_t ind2 = 0; ind2 < zasm_sz; ++ind2)
 	{
-		//read opcode into buf2
-		fread(&dummy, sizeof(size_t), 1, tempfile);
-		if (buf2sz < dummy + 1)
-		{
-			if (buf2) free(buf2);
-			buf2sz = zc_max(dummy + 1, 1024);
-			buf2 = (char*)malloc(buf2sz);
-			if (!buf2)
-			{
-				buf2sz = 0;
-				goto read_compile_error;
-			}
-		}
-		dummy = fread(buf2, sizeof(char), dummy, tempfile);
-		if (dummy >= buf2sz)
-			dummy = buf2sz - 1; //This indicates an error, and shouldn't be reached...
-		buf2[dummy] = 0;
-		
-		//read comment into buf3
-		fread(&dummy, sizeof(size_t), 1, tempfile);
-		if (buf3sz < dummy + 1)
-		{
-			if (buf3) free(buf3);
-			buf3sz = zc_max(dummy + 1, 1024);
-			buf3 = (char*)malloc(buf3sz);
-			if (!buf3)
-			{
-				buf3sz = 0;
-				goto read_compile_error;
-			}
-		}
-		dummy = fread(buf3, sizeof(char), dummy, tempfile);
-		if (dummy >= buf3sz)
-			dummy = buf3sz - 1; //This indicates an error, and shouldn't be reached...
-		buf3[dummy] = 0;
+		read_str(str, tempfile);
+		read_str(str2, tempfile);
 		
 		int32_t lbl;
-		fread(&lbl, sizeof(int32_t), 1, tempfile);
-		std::shared_ptr<ZScript::Opcode> oc = std::make_shared<ZScript::ArbitraryOpcode>(buf2);
+		read_var(lbl, tempfile);
+		std::shared_ptr<ZScript::Opcode> oc = std::make_shared<ZScript::ArbitraryOpcode>(str);
 		oc->setLabel(lbl);
-		oc->setComment(buf3);
+		oc->setComment(str2);
 		zasmCompilerResult.zasm.push_back(oc);
 	}
 
-	fread(&encoded_debug_data_sz, sizeof(size_t), 1, tempfile);
-	encodedDebugData.resize(encoded_debug_data_sz);
-	fread(encodedDebugData.data(), sizeof(byte), encoded_debug_data_sz, tempfile);
+	std::vector<byte> encodedDebugData;
+	read_vec(encodedDebugData, tempfile);
 	if (auto debugData = DebugData::decode(encodedDebugData))
 		zasmCompilerResult.debugData = std::move(*debugData);
 	else
@@ -244,13 +431,10 @@ void read_compile_data(ZScript::ZasmCompilerResult& zasmCompilerResult)
 
 read_compile_error:
 	fclose(tempfile);
-	
-	if (buf2) free(buf2);
 }
 
 void write_compile_data(const ZScript::ZasmCompilerResult& zasmCompilerResult)
 {
-	size_t dummy = zasmCompilerResult.scriptTypes.size();
 	FILE *tempfile = fopen("tmp2","wb");
 			
 	if(!tempfile)
@@ -259,58 +443,50 @@ void write_compile_data(const ZScript::ZasmCompilerResult& zasmCompilerResult)
 		return;
 	}
 	
-	fwrite(&dummy, sizeof(size_t), 1, tempfile);
+	size_t dummy = zasmCompilerResult.scriptTypes.size();
+	write_var(dummy, tempfile);
 	for(auto it = zasmCompilerResult.scriptTypes.begin(); it != zasmCompilerResult.scriptTypes.end(); ++it)
 	{
 		string const& str = it->first;
-		ZScript::ParserScriptType v = it->second;
-		dummy = str.size();
-		fwrite(&dummy, sizeof(size_t), 1, tempfile);
-		fwrite((void*)str.c_str(), sizeof(char), dummy, tempfile);
-		fwrite(&v, sizeof(ZScript::ParserScriptType), 1, tempfile);
+		ZScript::ParserScriptType::Id v = it->second;
+		write_str(str, tempfile);
+		write_var(v, tempfile);
 	}
 	
 	dummy = zasmCompilerResult.theScripts.size();
-	fwrite(&dummy, sizeof(size_t), 1, tempfile);
+	write_var(dummy, tempfile);
 	for(auto it = zasmCompilerResult.theScripts.begin(); it != zasmCompilerResult.theScripts.end(); ++it)
 	{
 		string const& str = it->first;
 		const disassembled_script_data& v = it->second;
-		dummy = str.size();
-		fwrite(&dummy, sizeof(size_t), 1, tempfile);
-		fwrite((void*)str.c_str(), sizeof(char), dummy, tempfile);
+		write_str(str, tempfile);
 		
 		write_meta(v.meta, tempfile);
 		
-		fwrite(&(v.format), sizeof(byte), 1, tempfile);
+		write_var(v.format, tempfile);
 		
-		fwrite(&(v.pc), sizeof(int32_t), 1, tempfile);
-		fwrite(&(v.end_pc), sizeof(int32_t), 1, tempfile);
+		write_var(v.pc, tempfile);
+		write_var(v.end_pc, tempfile);
+		
+		write_boundedcont(v.script_d_init, tempfile);
+		write_boundedcont(v.script_d_exports, tempfile);
 	}
 	
 	dummy = zasmCompilerResult.zasm.size();
-	fwrite(&dummy, sizeof(size_t), 1, tempfile);
+	write_var(dummy, tempfile);
 	for(auto it = zasmCompilerResult.zasm.begin(); it != zasmCompilerResult.zasm.end(); ++it)
 	{
 		string opstr = (*it)->toString();
 		string const& commentstr = (*it)->getComment();
 		int32_t lbl = (*it)->getLabel();
 		
-		dummy = opstr.size();
-		fwrite(&dummy, sizeof(size_t), 1, tempfile);
-		fwrite((void*)opstr.c_str(), sizeof(char), dummy, tempfile);
-		
-		dummy = commentstr.size();
-		fwrite(&dummy, sizeof(size_t), 1, tempfile);
-		fwrite((void*)commentstr.c_str(), sizeof(char), dummy, tempfile);
-		
-		fwrite(&lbl, sizeof(int32_t), 1, tempfile);
+		write_str(opstr, tempfile);
+		write_str(commentstr, tempfile);
+		write_var(lbl, tempfile);
 	}
 
 	std::vector<byte> debugDataEncoded = zasmCompilerResult.debugData.encode();
-	dummy = debugDataEncoded.size();
-	fwrite(&dummy, sizeof(size_t), 1, tempfile);
-	fwrite((void*)debugDataEncoded.data(), sizeof(byte), dummy, tempfile);
+	write_vec(debugDataEncoded, tempfile);
 
 	fclose(tempfile);
 }
@@ -503,8 +679,8 @@ string zasm_meta::get_meta() const
 	}
 	for(auto q = 0; q < 8; ++q)
 	{
-		if(initd[q].size())
-			oss << "\n#INITD_" << q << " = " << initd[q];
+		if(initd_label[q].size())
+			oss << "\n#INITD_" << q << " = " << initd_label[q];
 		if(initd_help[q].size())
 			oss << "\n#INITD_HELP_" << q << " = "
 				<< util::escape_characters(initd_help[q]);
@@ -707,7 +883,7 @@ bool zasm_meta::parse_meta(const char *buffer)
 		byte ind = cmd.at(7) - '0';
 		if (ind < 8)
 		{
-			initd[ind] = val;
+			initd_label[ind] = val;
 		}
 		else return false;
 	}

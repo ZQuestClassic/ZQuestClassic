@@ -698,6 +698,7 @@ void do_dev_qrs_zscript_command(std::string const& fname)
 		{ qr_OLD_LONG_SCC_ARGS, "qr_OLD_LONG_SCC_ARGS" },
 		{ qr_STRINGS_DONT_SCROLL, "qr_STRINGS_DONT_SCROLL" },
 		{ qr_STRING_SEGMENTED_SCROLL, "qr_STRING_SEGMENTED_SCROLL" },
+		{ qr_SCRIPTS_SHARE_INITD, "qr_SCRIPTS_SHARE_INITD" },
 	};
 	static std::map<std::string, std::string> qr_compat_names = {
 		{ "qr_WEAPONS_EXTRA_FRAME", qr_const_names[qr_WEAPONS_EXTRA_DEATH_FRAME]}

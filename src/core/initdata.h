@@ -94,9 +94,13 @@ struct zinitdata
 	bounded_map<word,word> gen_exitState {NUMSCRIPTSGENERIC};
 	bounded_map<word,word> gen_reloadState {NUMSCRIPTSGENERIC};
 	bounded_map<word,bounded_vec<byte,int32_t>> gen_initd {NUMSCRIPTSGENERIC, {8}};
+	bounded_map<word,std::map<word,int>> gen_inst_init {NUMSCRIPTSGENERIC, {}};
 	bounded_map<word,uint32_t> gen_eventstate {NUMSCRIPTSGENERIC};
 	bounded_map<word,bounded_map<dword,int32_t>> gen_data {NUMSCRIPTSGENERIC, {0}};
 	bounded_map<dword,bounded_map<dword,int32_t>> screen_data {MAXSCRS, {0}};
+	
+	std::array<script_config_nosavescript, NUMSCRIPTGLOBAL> global_scrconfig;
+	std::array<script_config_nosavescript, NUMSCRIPTHERO> hero_scrconfig;
 	
 	byte bottle_slot[NUM_BOTTLE_SLOTS];
 	word sprite_z_thresholds[SPRITE_THRESHOLD_MAX];
@@ -112,6 +116,7 @@ struct zinitdata
 		gen_exitState.normalize();
 		gen_reloadState.normalize();
 		gen_initd.normalize();
+		gen_inst_init.normalize();
 		gen_eventstate.normalize();
 		gen_data.normalize();
 		screen_data.normalize();
@@ -122,7 +127,7 @@ struct zinitdata
 	void clear();
 	void copy(zinitdata const& other);
 	
-	zinitdata() = default;
+	zinitdata();
 };
 extern zinitdata zinit;
 

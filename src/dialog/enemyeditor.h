@@ -33,16 +33,12 @@ private:
 	EnemyEditorDialog(guydata const& ref, int32_t index);
 	EnemyEditorDialog(int32_t index);
 
-	void refreshScript();
 	void loadEnemyType();
 	void loadAttributes();
 	void updateWarnings();
 	void apply_enemy();
 
 	std::shared_ptr<GUI::Window> window;
-	std::shared_ptr<GUI::TextField> tf_initd[8];
-	std::shared_ptr<GUI::Label> l_initds[8];
-	std::shared_ptr<GUI::Button> ib_initds[8];
 	std::shared_ptr<GUI::Button> warnbtn;
 	std::shared_ptr<GUI::SelTileSwatch> tswatch[3];
 	//Attributes
@@ -59,8 +55,8 @@ private:
 	std::shared_ptr<GUI::Checkbox> l_bflags[16];
 	std::shared_ptr<GUI::Button> ib_bflags[16];
 	
-	string h_initd[8], h_attribute[32], h_bflag[16];
-	string l_initd[8], l_attribute[32], l_bflag[16];
+	string h_attribute[32], h_bflag[16];
+	string l_attribute[32], l_bflag[16];
 
 	vector<string> warnings;
 
@@ -94,8 +90,6 @@ private:
 	std::shared_ptr<GUI::Widget> WeaponFlag(weapon_flags index, string const& str);
 	
 	std::shared_ptr<GUI::Widget> WeaponMoveFlag(move_flags index, string const& str);
-
-	std::shared_ptr<GUI::Widget> ScriptField(int index);
 
 	friend bool call_enemy_editor(int32_t index);
 };

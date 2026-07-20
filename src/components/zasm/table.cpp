@@ -1042,7 +1042,8 @@ static constexpr script_variable variable_list[]=
 	{ "NPCBOSSPAL", NPCBOSSPAL, 0},
 	{ "NPCBGSFX", NPCBGSFX, 0},
 	{ "NPCCOUNT", NPCCOUNT, 0},
-	{ "GD", GD(0), 1024},
+	{ "GD", GD(0), MAX_GLOBAL_VARIABLES},
+	{ "SCR", SCRIPT_INST_VARS(0), MAX_SCRIPT_INST_VARIABLES},
 	{ "SDD", SDD, 0},
 	{ "GDD", GDD, 0},
 	{ "SDDD", SDDD, 0},
@@ -1794,7 +1795,6 @@ static constexpr script_variable variable_list[]=
 	
 	{"NPCDATAINITD", NPCDATAINITD, 0},
 	{"NPCDATASCRIPT", NPCDATASCRIPT, 0},
-	{"NPCMATCHINITDLABEL", NPCMATCHINITDLABEL, 0},
 	//lweapon scripts
 	{"LWPNSCRIPT", LWPNSCRIPT, 0},
 	{"LWPNINITD", LWPNINITD, 0},
@@ -2805,6 +2805,9 @@ static constexpr script_variable variable_list[]=
 	{ "MESSAGEDATA_ADVSFX", MESSAGEDATA_ADVSFX, 0 },
 	{ "MESSAGEDATA_MENUMOVE_SFX", MESSAGEDATA_MENUMOVE_SFX, 0 },
 	{ "MESSAGEDATA_MENUCLOSE_SFX", MESSAGEDATA_MENUCLOSE_SFX, 0 },
+	{ "IDATACOLLECTINITD", IDATACOLLECTINITD, 0 },
+	{ "IDATASPRITEINITD", IDATASPRITEINITD, 0 },
+	{ "DMAPDATAPSUBINITD", DMAPDATAPSUBINITD, 0 },
 	{"", -1},
 };
 
@@ -2857,12 +2860,7 @@ std::pair<const script_variable*, int> get_script_variable(int32_t var)
 			int32_t start = sv.id;
 			if (var >= start && var < start + sv.maxcount)
 			{
-				for(int32_t w = 0; w < sv.maxcount; ++w)
-				{
-					if (var != start + w) continue;
-
-					return {&sv, w};
-				}
+				return {&sv, var - start};
 			}
 		}
 		else if (sv.id == var) return {&sv, 0};
@@ -2882,10 +2880,42 @@ std::optional<int> get_script_variable(const std::string& var_name)
 			if (c >= 0 && c < INITIAL_D) return D(c);
 		}
 	}
-	else if ((var_name[0] == 'G' || var_name[0] == 'g') && (var_name[1] == 'D' || var_name[1] == 'd'))
+	else if (var_name.size() > 2
+		&& (var_name[0] == 'G' || var_name[0] == 'g')
+		&& (var_name[1] == 'D' || var_name[1] == 'd'))
 	{
-		int c = std::stoi(var_name.substr(2));
-		if (c >= 0 && c < 1024) return GD(c);
+		bool non_number = false;
+		auto str = var_name.substr(2);
+		for (char c : str)
+			if (!isdigit(c))
+			{
+				non_number = true;
+				break;
+			}
+		if (!non_number)
+		{
+			if (auto c = std::stoi(str); unsigned(c) < MAX_GLOBAL_VARIABLES)
+				return GD(c);
+		}
+	}
+	else if (var_name.size() > 3
+		&& (var_name[0] == 'S' || var_name[0] == 's')
+		&& (var_name[1] == 'C' || var_name[1] == 'c')
+		&& (var_name[2] == 'R' || var_name[2] == 'r'))
+	{
+		bool non_number = false;
+		auto str = var_name.substr(3);
+		for (char c : str)
+			if (!isdigit(c))
+			{
+				non_number = true;
+				break;
+			}
+		if (!non_number)
+		{
+			if (auto c = std::stoi(str); unsigned(c) < MAX_SCRIPT_INST_VARIABLES)
+				return SCRIPT_INST_VARS(c);
+		}
 	}
 
 	for (int q = 0; variable_list[q].id != -1; ++q)
@@ -3189,6 +3219,7 @@ static std::vector<int> _get_register_dependencies(int reg)
 		case DMAPDATAMINIMAPCSET:
 		case DMAPDATAMINIMAPTILE:
 		case DMAPDATASUBINITD:
+		case DMAPDATAPSUBINITD:
 		case DMAPFLAGSD:
 		case DMAPINITD:
 		case DMAPLEVELD:
@@ -3247,6 +3278,8 @@ static std::vector<int> _get_register_dependencies(int reg)
 		case IDATABURNINGSPR:
 		case IDATAFLAGS:
 		case IDATAINITDD:
+		case IDATACOLLECTINITD:
+		case IDATASPRITEINITD:
 		case IDATAMISCD:
 		case IDATAMOVEFLAGS:
 		case IDATASPRITE:
@@ -3796,6 +3829,7 @@ std::optional<int> get_register_ref_dependency(int reg)
 		case DMAPDATAPSUBSCRIPT:
 		case DMAPDATASIDEVIEW:
 		case DMAPDATASUBINITD:
+		case DMAPDATAPSUBINITD:
 		case DMAPDATASUBSCRA:
 		case DMAPDATASUBSCRM:
 		case DMAPDATASUBSCRO:
@@ -4040,6 +4074,8 @@ std::optional<int> get_register_ref_dependency(int reg)
 		case IDATAHZSZ:
 		case IDATAID:
 		case IDATAINITDD:
+		case IDATACOLLECTINITD:
+		case IDATASPRITEINITD:
 		case IDATAJINXIMMUNE:
 		case IDATAJINXSWAP:
 		case IDATAKEEP:
@@ -4512,7 +4548,6 @@ std::optional<int> get_register_ref_dependency(int reg)
 		case NPCDDEATHSPR:
 		case NPCDSHADOWSPR:
 		case NPCDSPAWNSPR:
-		case NPCMATCHINITDLABEL:
 		case NPCDATA_WEAPONDATA:
 			return REFNPCDATA;
 

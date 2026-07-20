@@ -20,17 +20,23 @@ using namespace util;
 using std::set;
 using std::shared_ptr;
 
+
+static inline void trimBadFunctions(std::vector<Function*>& functions,
+	std::vector<DataType const*> const& parameterTypes,
+	Scope const* caller_scope, bool trimClasses, bool trimScripts,
+	bool* static_trim = nullptr);
+
 ////////////////////////////////////////////////////////////////
 // Scope
 
 Scope::Scope(TypeStore& typeStore)
-	: lexical_options_scope(nullptr), typeStore_(typeStore), name_(std::nullopt)
+	: lexical_options_scope(nullptr), typeStore_(typeStore), name_(std::nullopt), in_static_init(false)
 {
 	id = ScopeID++;
 }
 
 Scope::Scope(TypeStore& typeStore, string const& name)
-	: lexical_options_scope(nullptr), typeStore_(typeStore), name_(name)
+	: lexical_options_scope(nullptr), typeStore_(typeStore), name_(name), in_static_init(false)
 {
 	id = ScopeID++;
 }
@@ -455,13 +461,34 @@ ZClass* ZScript::lookupClass(Scope const& scope, string const& name)
 	return NULL;
 }
 
-Datum* ZScript::lookupDatum(Scope& scope, std::string const& name, ASTExprIdentifier& host, CompileErrorHandler* errorHandler, bool forceSkipUsing)
+static Datum* _lookupDatum(Scope& scope, std::string const& name, ASTExprIdentifier& host, CompileErrorHandler* errorHandler, bool forceSkipUsing, bool trimScriptLocal, bool trimClassLocal, bool* trimmed_match)
 {
 	Datum* datum = NULL;
 	Scope const* current = &scope;
 	for (; current; current = current->getParent())
 	{
 		Datum* temp = current->getLocalDatum(name);
+		if (temp && !temp->is_static)
+		{
+			bool trim = false;
+			if (trimScriptLocal && current->isScript())
+				trim = true;
+			else if (trimClassLocal && current->isClass())
+				trim = true;
+			
+			if (trim)
+			{
+				if (trimmed_match)
+					*trimmed_match = true;
+				temp = nullptr;
+			}
+		}
+		if (!temp && current->isClass() && trimClassLocal && trimmed_match)
+		{
+			auto* cscope = current->getClassScope();
+			*trimmed_match = cscope->getClassVar(name) != nullptr;
+		}
+		
 		if(!datum)
 		{
 			//Only continue if this var was found at the file scope or higher.
@@ -497,16 +524,38 @@ Datum* ZScript::lookupDatum(Scope& scope, std::string const& name, ASTExprIdenti
 	return datum;
 }
 
-Datum* ZScript::lookupDatum(Scope& scope, ASTExprIdentifier& host, CompileErrorHandler* errorHandler)
+Datum* ZScript::lookupDatum(Scope& scope, ASTExprIdentifier& host, CompileErrorHandler* errorHandler, bool* trimmed_match, bool forceNoTrim)
 {
 	vector<string> names = host.components;
 	if (names.size() == 0)
 		return NULL;
 	else if (names.size() == 1)
-		return lookupDatum(scope, names[0], host, errorHandler);
+	{
+		bool trim_script = true, trim_class = true;
+		if (forceNoTrim)
+		{
+			trim_script = false;
+			trim_class = false;
+		}
+		else
+		{
+			if (auto* func_scope = scope.getFunctionScope();
+				func_scope && func_scope->function.getFlag(FUNCFLAG_STATIC))
+				;
+			else if (scope.getScriptScope())
+				trim_script = false;
+			else if (scope.getClassScope())
+				trim_class = false;
+		}
+		return _lookupDatum(scope, names[0], host, errorHandler, false, trim_script, trim_class, trimmed_match);
+	}
 	vector<string> childNames(names.begin(), --names.end());
 	if (Scope* child = lookupScope(scope, childNames, host.delimiters, host.noUsing, host, errorHandler))
-		return lookupDatum(*child, names.back(), host, errorHandler, true); //lookupScope() handles UsingNamespaces; don't allow using to occur again! -V
+	{
+		bool trim = !forceNoTrim;
+		// lookupScope() handles UsingNamespaces; don't allow using to occur again! -Em
+		return _lookupDatum(*child, names.back(), host, errorHandler, true, trim, trim, trimmed_match);
+	}
 
 	return NULL;
 }
@@ -541,11 +590,15 @@ Function* ZScript::lookupSetter(Scope const& scope, string const& name)
 
 vector<Function*> ZScript::lookupFunctions(Scope& scope, string const& name,
 	vector<DataType const*> const& parameterTypes, bool noUsing, bool isClass,
-	bool skipParamCheck, Scope const* caller_scope)
+	bool skipParamCheck, Scope const* caller_scope, bool* static_trim)
 {
 	if(!caller_scope) caller_scope = &scope;
 	set<Function*> functions;
 	Scope const* current = &scope;
+	bool trim_scripts = false;
+	if (auto* func_scope = caller_scope->getFunctionScope())
+		if (func_scope->function.getFlag(FUNCFLAG_STATIC))
+			trim_scripts = true;
 	bool foundFile = false;
 	//Standard lookup loop
 	for (; current; current = current->getParent())
@@ -559,7 +612,7 @@ vector<Function*> ZScript::lookupFunctions(Scope& scope, string const& name,
 			foundFile = true;
 		vector<Function*> currentFunctions = current->getLocalFunctions(name);
 		if (!skipParamCheck)
-			trimBadFunctions(currentFunctions, parameterTypes, caller_scope, !isClass);
+			trimBadFunctions(currentFunctions, parameterTypes, caller_scope, !isClass, trim_scripts, static_trim);
 		functions.insert(currentFunctions.begin(), currentFunctions.end());
 	}
 	if(!noUsing)
@@ -571,7 +624,7 @@ vector<Function*> ZScript::lookupFunctions(Scope& scope, string const& name,
 			NamespaceScope* nsscope = *it;
 			vector<Function*> currentFunctions = nsscope->getLocalFunctions(name);
 			if (!skipParamCheck)
-				trimBadFunctions(currentFunctions, parameterTypes, caller_scope, !isClass);
+				trimBadFunctions(currentFunctions, parameterTypes, caller_scope, !isClass, trim_scripts, static_trim);
 			functions.insert(currentFunctions.begin(), currentFunctions.end());
 		}
 		current = &scope;
@@ -582,13 +635,13 @@ vector<Function*> ZScript::lookupFunctions(Scope& scope, string const& name,
 vector<Function*> ZScript::lookupFunctions(
 		Scope& scope, vector<string> const& names, vector<string> const& delimiters,
 		vector<DataType const*> const& parameterTypes, bool noUsing, bool isClass, bool skipParamCheck,
-		Scope const* caller_scope)
+		Scope const* caller_scope, bool* static_trim)
 {
 	if(!caller_scope) caller_scope = &scope;
 	if (names.size() == 0)
 		return vector<Function*>();
 	else if (names.size() == 1)
-		return lookupFunctions(scope, names[0], parameterTypes, noUsing, isClass, skipParamCheck, caller_scope);
+		return lookupFunctions(scope, names[0], parameterTypes, noUsing, isClass, skipParamCheck, caller_scope, static_trim);
 
 	vector<Function*> functions;
 	string const& name = names.back();
@@ -609,7 +662,7 @@ vector<Function*> ZScript::lookupFunctions(
 		if(current.isFile()) foundFile = true;
 		vector<Function*> currentFunctions = current.getLocalFunctions(name);
 		if (!skipParamCheck)
-			trimBadFunctions(currentFunctions, parameterTypes, caller_scope, !isClass);
+			trimBadFunctions(currentFunctions, parameterTypes, caller_scope, !isClass, true, static_trim);
 		functions.insert(functions.end(),
 		                 currentFunctions.begin(), currentFunctions.end());
 	}
@@ -622,7 +675,7 @@ vector<Function*> ZScript::lookupFunctions(
 			Scope& current = **it;
 			vector<Function*> currentFunctions = current.getLocalFunctions(name);
 			if (!skipParamCheck)
-				trimBadFunctions(currentFunctions, parameterTypes, caller_scope, !isClass);
+				trimBadFunctions(currentFunctions, parameterTypes, caller_scope, !isClass, true, static_trim);
 			functions.insert(functions.end(),
 							 currentFunctions.begin(), currentFunctions.end());
 		}
@@ -750,7 +803,7 @@ vector<Function*> ZScript::lookupConstructors(UserClass const& user_class, vecto
 {
 	vector<Function*> functions = user_class.getScope().getConstructors();
 	applyClassTemplates(user_class, functions, receiver_type);
-	trimBadFunctions(functions, parameterTypes, scope, false);
+	trimBadFunctions(functions, parameterTypes, scope, false, true);
 	return functions;
 }
 vector<Function*> ZScript::lookupClassFuncs(UserClass const& user_class,
@@ -759,7 +812,7 @@ vector<Function*> ZScript::lookupClassFuncs(UserClass const& user_class,
 	vector<Function*> functions = user_class.getScope().getLocalFunctions(name);
 	applyClassTemplates(user_class, functions, receiver_type);
 	if (!ignoreParams)
-		trimBadFunctions(functions, parameterTypes, scope, false);
+		trimBadFunctions(functions, parameterTypes, scope, false, true);
 	for (vector<Function*>::iterator it = functions.begin();
 		 it != functions.end();)
 	{
@@ -932,8 +985,12 @@ static bool trimBadFunctionsCheck(std::vector<DataType const*> const& parameterT
 	return true;
 }
 
-inline void ZScript::trimBadFunctions(std::vector<Function*>& functions, std::vector<DataType const*> const& parameterTypes, Scope const* caller_scope, bool trimClasses)
+static inline void trimBadFunctions(std::vector<Function*>& functions,
+	std::vector<DataType const*> const& parameterTypes,
+	Scope const* caller_scope, bool trimClasses, bool trimScripts,
+	bool* static_trim)
 {
+	using namespace ZScript;
 	std::vector<Function*> viable_functions;
 	int legacy_arrays_opt = *lookupOption(caller_scope, CompileOption::OPT_LEGACY_ARRAYS);
 	bool any_from_type_template = false;
@@ -942,10 +999,6 @@ inline void ZScript::trimBadFunctions(std::vector<Function*>& functions, std::ve
 	for (auto function : functions)
 	{
 		if (function->getFlag(FUNCFLAG_NIL))
-		{
-			continue;
-		}
-		if(trimClasses && function->getInternalScope()->getClassScope() && !function->getFlag(FUNCFLAG_STATIC))
 		{
 			continue;
 		}
@@ -963,7 +1016,7 @@ inline void ZScript::trimBadFunctions(std::vector<Function*>& functions, std::ve
 		auto lowsize = zc_min(maxSize, parameterTypes.size());
 		// Check parameter types.
 		bool parametersMatch = true;
-		if(function->getFlag(FUNCFLAG_NOCAST)) //no casting params
+		if (function->getFlag(FUNCFLAG_NOCAST)) //no casting params
 		{
 			// TODO: remove this branch?
 			Scope* scope = function->getInternalScope();
@@ -998,9 +1051,6 @@ inline void ZScript::trimBadFunctions(std::vector<Function*>& functions, std::ve
 					}
 				}
 			}
-
-			if (parametersMatch)
-				viable_functions.push_back(function);
 		}
 		else
 		{
@@ -1023,9 +1073,6 @@ inline void ZScript::trimBadFunctions(std::vector<Function*>& functions, std::ve
 				parametersMatch = trimBadFunctionsCheck(parameterTypes, function, allowDeprecatedArrayCast, lowsize, user_vargs);
 			}
 
-			if (parametersMatch)
-				viable_functions.push_back(function);
-
 			if (!parametersMatch && legacy_arrays_opt)
 			{
 				allowDeprecatedArrayCast = true;
@@ -1046,11 +1093,26 @@ inline void ZScript::trimBadFunctions(std::vector<Function*>& functions, std::ve
 					function = resolved_function;
 					parametersMatch = trimBadFunctionsCheck(parameterTypes, function, allowDeprecatedArrayCast, lowsize, user_vargs);
 				}
-
-				if (parametersMatch)
-					viable_functions.push_back(function);
 			}
 		}
+		if (!parametersMatch)
+			continue;
+		
+		if (!function->getFlag(FUNCFLAG_STATIC))
+		{
+			bool trim = false;
+			if (trimClasses && function->getInternalScope()->getClassScope())
+				trim = true;
+			else if (trimScripts && function->getInternalScope()->getScriptScope())
+				trim = true;
+			if (trim)
+			{
+				if (static_trim)
+					*static_trim = true;
+				continue;
+			}
+		}
+		viable_functions.push_back(function);
 	}
 
 	for (auto function : viable_functions)

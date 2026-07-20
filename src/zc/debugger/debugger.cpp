@@ -660,9 +660,10 @@ void Debugger::UpdateVariables()
 
 	variable_groups.clear();
 
-	variable_groups.reserve(3);
+	variable_groups.reserve(4);
 	auto& local_group = variable_groups.emplace_back("Local");
 	auto& class_group = variable_groups.emplace_back("Class");
+	auto& script_group = variable_groups.emplace_back("Script");
 	auto& global_group = variable_groups.emplace_back("Global");
 
 	const DebugScope* scope = selected_scope;
@@ -687,6 +688,8 @@ void Debugger::UpdateVariables()
 				class_group.variables.push_back(var);
 			else if (scope->tag == TAG_ROOT || scope->tag == TAG_FILE || scope->tag == TAG_NAMESPACE)
 				global_group.variables.push_back(var);
+			else if (scope->tag == TAG_SCRIPT)
+				script_group.variables.push_back(var);
 			else
 				local_group.variables.push_back(var);
 		}

@@ -306,7 +306,7 @@ static void parseForSymbolLinks(Scope* scope, const AST* node, bool check_params
 
 			if (!symbol_node)
 			{
-				if (auto datum = lookupDatum(*scope, ident, nullptr))
+				if (auto datum = lookupDatum(*scope, ident, nullptr, nullptr, true))
 				{
 					symbol_node = datum->getNode();
 					is_array = datum->type.isArray();
@@ -359,7 +359,7 @@ static void parseForSymbolLinks(Scope* scope, const AST* node, bool check_params
 			datum_ident.components.pop_back();
 
 			std::string prop = ident.components[1];
-			if (auto datum = lookupDatum(*scope, datum_ident, nullptr); datum && datum->type.getUsrClass())
+			if (auto datum = lookupDatum(*scope, datum_ident, nullptr, nullptr, true); datum && datum->type.getUsrClass())
 			{
 				datum_ident.components[0] = prop;
 				if (try_variables)

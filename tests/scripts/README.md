@@ -9,9 +9,12 @@ To update the expected output files, you can run `python tests/test_zscript.py -
 - `alucard`: these are scripts from Alucard's quests. We have replays for these quests, and we also have all the scripts. In `test_zscript.py - test_compile_and_quick_assign` these quests are recompiled and the replays are run on the newly saved qst. This prevents regressions in the ZScript compilation process - the ZASM will not be the same, but the behavior will be.
 - `compat`: scripts in `alucard` rely on some removed behavior from older versions of `std`. That lives here.
 - `errors`: all these scripts fail to compile. The errors emitted by the compiler are checked here.
+- `freeform shutters`: a shutter test script
 - `misc`: random scripts.
 - `newbie_boss`: similar to `alucard`, these scripts are recompiled and the `newbie_boss.zplay` replay is run against the new qst.
 - `playground`: these scripts are used to implement all the replays in `tests/replays/playground`. See the next section for more.
+- `script_instance_vars`: tests related to `static` / `nonstatic` and script variables
+- `z3`: tests related to regions
 
 ## Playground
 

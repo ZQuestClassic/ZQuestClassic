@@ -45,8 +45,7 @@ struct weapon_data
 	byte lift_time = 16;
 	zfix lift_height = 8;
 	
-	word script;
-	int32_t initd[INITIAL_D];
+	script_config scrconfig;
 	
 	int16_t pierce_count = -1;
 

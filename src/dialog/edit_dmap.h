@@ -38,7 +38,6 @@ public:
 private:
 	void refreshGridSquares();
 	void refreshDMapStrings();
-	void refreshScripts();
 
 	std::shared_ptr<GUI::Window> window;
 	std::shared_ptr<GUI::DMapMinimap> dmap_mmap;
@@ -48,23 +47,8 @@ private:
 	std::shared_ptr<GUI::TextField> continue_field;
 	std::shared_ptr<GUI::List> disabled_list;
 	std::shared_ptr<GUI::List> item_list;
-	std::shared_ptr<GUI::Widget> DMAP_AC_INITD(int index);
-	std::shared_ptr<GUI::Label> l_ac_initds[8];
-	std::shared_ptr<GUI::Button> ib_ac_initds[8];
-	std::shared_ptr<GUI::TextField> tf_ac_initds[8];
-	std::string h_ac_initds[8];
-	std::shared_ptr<GUI::Widget> DMAP_SS_INITD(int index);
-	std::shared_ptr<GUI::Label> l_ss_initds[8];
-	std::shared_ptr<GUI::Button> ib_ss_initds[8];
-	std::shared_ptr<GUI::TextField> tf_ss_initds[8];
-	std::string h_ss_initds[8];
-	std::shared_ptr<GUI::Widget> DMAP_MAP_INITD(int index);
-	std::shared_ptr<GUI::Label> l_map_initds[8];
-	std::shared_ptr<GUI::Button> ib_map_initds[8];
-	std::shared_ptr<GUI::TextField> tf_map_initds[8];
 	std::shared_ptr<GUI::Frame> compass_frame;
 	std::shared_ptr<GUI::Frame> continue_frame;
-	std::string h_map_initds[8];
 	std::shared_ptr<GUI::RegionGrid> region_grid;
 	std::shared_ptr<GUI::Checkbox> region_checks[10];
 	std::shared_ptr<GUI::TextField> grav_tf[2];

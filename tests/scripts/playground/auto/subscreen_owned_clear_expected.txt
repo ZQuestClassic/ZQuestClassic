@@ -52,8 +52,7 @@ zasm:
 SETV GD2 0; void run() Body Start
 SETV GD1 0
 QUIT; void run() Body End
-PUSHR REFDMAPDATA; void run() Body Start
-PUSHARGSV 0 0.0003
+PUSHARGSV 0 0.0003; void run() Body Start
 SETR D4 SP2
 ALLOCATEMEMV D2 100 0
 STORE_OBJECT D2 0.0002
@@ -74,7 +73,7 @@ LOAD D2 0.0001; if() #389 Test
 COMPAREV D2 -1
 SETCMP D2 I==
 COMPAREV D2 0
-GOTOCMP 33 ==; Test 'if'
+GOTOCMP 32 ==; Test 'if'
 ALLOCATEMEMV D2 53 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start AND if() #389 Body Start
 WRITEPODSTRING D2 "[Test] failed to start - could not find test script\n"
 PUSHR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
@@ -101,20 +100,19 @@ PUSHR D2
 POP REFGENERICDATA
 SETR D2 GENDATARUNNING
 COMPAREV D2 0
-GOTOCMP 56 ==; Test 'while'
+GOTOCMP 55 ==; Test 'while'
 WAITFRAME; InlineFunc[void Waitframe()] Body AND while() #2 Body
-GOTO 48; while() #2 End
-CALLFUNC 0.0180; UsrFunc[void End()] Call AND [Opt:NeverRet]
+GOTO 47; while() #2 End
+CALLFUNC 0.0177; UsrFunc[void End()] Call AND [Opt:NeverRet]
 REF_REMOVE 0.0002; [Opt:NeverRet] AND void run() Body End
-PUSHR REFSUBSCREENDATA; void run() Body Start
-PUSHARGSV 0 0.0002
+PUSHARGSV 0 0.0002; void run() Body Start
 SETR D4 SP2
 STOREV 0 0.0001; for() #136 setup
 LOAD D2 0.0001; for() #136 LoopTest
 COMPAREV D2 100
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 87 ==; for() #136 TestFail?
+GOTOCMP 85 ==; for() #136 TestFail?
 PUSHV 8; InlineFunc[bitmap bitmap::bitmap(int, int)] Params Start AND for() #136 Body Start
 SETV D1 8; InlineFunc[bitmap bitmap::bitmap(int, int)] Params End
 POP D0; InlineFunc[bitmap bitmap::bitmap(int, int)] Body Start
@@ -123,7 +121,7 @@ STORE_OBJECT D2 0
 LOAD D2 0; InlineFunc[bool bitmap::isAllocated()] Params AND unless() #390 Test
 ISALLOCATEDBITMAP D2; InlineFunc[bool bitmap::isAllocated()] Body
 COMPAREV D2 0
-GOTOCMP 78 !=; Test 'unless'
+GOTOCMP 76 !=; Test 'unless'
 SETV D2 1; unless() #390 Body Start
 SETR GD2 D2; unless() #390 Body End
 NOP
@@ -134,22 +132,21 @@ REF_REMOVE 0; for() #136 Body End
 LOAD D2 0.0001; for() #136 LoopIncrement
 ADDV D2 1
 STORE D2 0.0001
-GOTO 62; for() #136 End
+GOTO 60; for() #136 End
 NOP
 SETR D2 GD1
 ADDV D2 1
 SETR GD1 D2
-LOAD D2 0.0002; InlineFunc[void subscreendata::Close()] Params Start
+SETR D2 SCR0; InlineFunc[void subscreendata::Close()] Params Start
 SETR REFSUBSCREENDATA D2; InlineFunc[void subscreendata::Close()] Params End
 SUBDATA_CLOSE; InlineFunc[void subscreendata::Close()] Body
-POPARGS D5 0.0003
+POPARGS D5 0.0002
 RETURNFUNC; void run() Body End
-PUSHR REFGENERICDATA; void run() Body Start
-PUSHV 0
+PUSHV 0; void run() Body Start
 SETR D4 SP2
 PUSHR D4
 PUSHV 0; UsrFunc[void Init(int)] Params
-CALLFUNC 0.0158; UsrFunc[void Init(int)] Call
+CALLFUNC 0.0155; UsrFunc[void Init(int)] Call
 POP D4
 SETR D2 CURDMAP; InlineFunc[dmapdata Game::LoadDMapData(int)] Params
 LOADDMAPDATAR D2; InlineFunc[dmapdata Game::LoadDMapData(int)] Body Start
@@ -174,13 +171,13 @@ SETR D2 GD1; while() #3 Test
 COMPAREV D2 4
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 133 ==; Test 'while'
+GOTOCMP 130 ==; Test 'while'
 PUSHR D4; while() #3 Body Start
 PUSHV 6; UsrFunc[void press(int)] Params
-CALLFUNC 0.0144; UsrFunc[void press(int)] Call
+CALLFUNC 0.0141; UsrFunc[void press(int)] Call
 POP D4
 WAITFRAME; InlineFunc[void Waitframe()] Body AND while() #3 Body End
-GOTO 122; while() #3 End
+GOTO 119; while() #3 End
 PUSHR D4
 SETR D2 GD2; UsrFunc[void Assert(bool, char32[])] Params Start
 COMPAREV D2 0
@@ -189,9 +186,9 @@ PUSHR D2
 ALLOCATEMEMV D2 45 0
 WRITEPODSTRING D2 "owned bitmaps released when subscreen closes"
 PUSHR D2; UsrFunc[void Assert(bool, char32[])] Params End
-CALLFUNC 0.0187; UsrFunc[void Assert(bool, char32[])] Call
+CALLFUNC 0.0184; UsrFunc[void Assert(bool, char32[])] Call
 POP D4
-CALLFUNC 0.0180; UsrFunc[void End()] Call AND [Opt:NeverRet] AND [Opt:NeverRet] AND void run() Body End
+CALLFUNC 0.0177; UsrFunc[void End()] Call AND [Opt:NeverRet] AND [Opt:NeverRet] AND void run() Body End
 SETR D4 SP2; Func[void press(int)] Body Start
 PUSHV 15; InlineFunc[void WaitTo(ScriptTiming, bool)] Params Start
 SETV D3 0; InlineFunc[void WaitTo(ScriptTiming, bool)] Params End
@@ -219,7 +216,7 @@ LOAD D2 0; if() #388 Test
 COMPAREV D2 0
 SETCMP D2 I!=
 COMPAREV D2 0
-GOTOCMP 177 ==; Test 'if'
+GOTOCMP 174 ==; Test 'if'
 PUSHV 5; InlineFunc[void hero::Warp(int, int)] Params Start AND if() #388 Body Start
 LOAD D2 0; InlineFunc[void hero::Warp(int, int)] Params End
 POP D3; InlineFunc[void hero::Warp(int, int)] Body Start
@@ -240,10 +237,10 @@ MARK_TYPE_STACK 0.0009 0
 REF_INC 0
 LOAD D2 0.0001; unless() #391 Test
 COMPAREV D2 0
-GOTOCMP 196 !=; Test 'unless'
+GOTOCMP 193 !=; Test 'unless'
 LOAD D2 0; UsrFunc[void Fail(char32[])] Params Start AND unless() #391 Body Start
 PUSHR D2; UsrFunc[void Fail(char32[])] Params End
-CALLFUNC 0.0200; UsrFunc[void Fail(char32[])] Call AND [Opt:NeverRet] AND unless() #391 Body End
+CALLFUNC 0.0197; UsrFunc[void Fail(char32[])] Call AND [Opt:NeverRet] AND unless() #391 Body End
 NOP
 REF_REMOVE 0
 POPARGS D5 0.0002
@@ -257,7 +254,7 @@ STRINGLENGTH D2 D3; InlineFunc[int strlen(char32[])] Body
 COMPAREV D2 0
 SETCMP D2 I>
 COMPAREV D2 0
-GOTOCMP 219 ==; Test 'if'
+GOTOCMP 216 ==; Test 'if'
 ALLOCATEMEMV D2 24 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start AND if() #109 Body Start
 WRITEPODSTRING D2 "[Test] failed test: %s\n"
 PUSHR D2
@@ -266,7 +263,7 @@ PUSHVARGR D2
 MARK_TYPE_VARG 0.0009; InlineFunc[void printf(char32[], ...untyped[])] Params End
 PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
 POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
-GOTO 224; if() #109 Body End
+GOTO 221; if() #109 Body End
 ALLOCATEMEMV D2 20 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start AND if() #109 Else Start
 WRITEPODSTRING D2 "[Test] failed test\n"
 PUSHR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End

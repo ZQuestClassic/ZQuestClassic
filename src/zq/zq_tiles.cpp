@@ -11530,25 +11530,6 @@ int32_t onCombos()
 	return D_O_K;
 }
 
-static newcombo curr_combo;
-int32_t d_combo_loader(int32_t msg,DIALOG *d,int32_t c)
-{
-	//these are here to bypass compiler warnings about unused arguments
-	c=c;
-	
-	if(msg==MSG_DRAW)
-	{
-		FONT *f = get_zc_font(font_lfont_l);
-		textprintf_ex(screen,f,d->x,d->y,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"Tile:");
-		textprintf_ex(screen,f,d->x+((1.5)*36),d->y,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%d",curr_combo.o_tile);
-		textprintf_ex(screen,f,d->x,d->y+(14),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"Flip:");
-		textprintf_ex(screen,f,d->x+((1.5)*36),d->y+(14),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%d",curr_combo.flip);
-		textprintf_ex(screen,f,d->x,d->y+(36),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"CSet2:");
-	}
-	
-	return D_O_K;
-}
-
 bool call_combo_editor(int32_t);
 bool edit_combo(int32_t c,bool freshen,[[maybe_unused]] int32_t cs)
 {
@@ -11740,14 +11721,7 @@ int32_t d_combo_proc(int32_t msg,DIALOG *d,int32_t)
 			{
 				clear_bitmap(buf);
 				
-				if(d->d1==-1) // Display curr_combo instead of combobuf
-				{
-					newcombo hold = combobuf[0];
-					combobuf[0] = curr_combo;
-					putcombo(buf,0,0,0,d->fg);
-					combobuf[0] = hold;
-				}
-				else if(d->d1)
+				if (d->d1 > 0)
 				{
 					putcombo(buf,0,0,d->d1,d->fg);
 				}

@@ -353,6 +353,7 @@ static ASTExpr* handle_statement_expr(ASTExpr* expr)
 %token INLINE
 %token INTERNAL
 %token STATIC
+%token NONSTATIC
 %token CONSTEXPR
 %left NEW
 %left DELETE
@@ -464,8 +465,12 @@ Global_List :
 		root->options.push_back(option);
 		if (root->hasDeclarations())
 			yywarn("WARNING: Options should come before everything else.");}
-	| %empty {root.reset(new ASTFile(noloc));}
-	;
+	| FileRoot {}
+
+FileRoot :
+	%empty {
+		root.reset(new ASTFile(noloc));
+	};
 
 Global_Statement :
 	Import {$$ = $1;}
@@ -473,9 +478,8 @@ Global_Statement :
 	| Namespace {$$ = $1;}
 	| DataTypeDef SEMICOLON {$$ = $1;}
 	| ScriptTypeDef SEMICOLON {$$ = $1;}
-	| Data SEMICOLON {$$ = $1;}
+	| Annotated_Data SEMICOLON {$$ = $1;}
 	| Function {$$ = $1;}
-	| Script {$$ = $1;}
 	| Annotated_Script {$$ = $1;}
 	| Class {$$ = $1;}
 	| Annotated_Enum SEMICOLON {$$ = $1;}
@@ -598,9 +602,8 @@ Namespace_Statement :
 	Namespace {$$ = $1;}
 	| DataTypeDef SEMICOLON {$$ = $1;}
 	| ScriptTypeDef SEMICOLON {$$ = $1;}
-	| Data SEMICOLON {$$ = $1;}
+	| Annotated_Data SEMICOLON {$$ = $1;}
 	| Function {$$ = $1;}
-	| Script {$$ = $1;}
 	| Annotated_Script {$$ = $1;}
 	| Class {$$ = $1;}
 	| Annotated_Enum SEMICOLON {$$ = $1;}
@@ -762,12 +765,101 @@ ScriptTypeDef : SCRIPT TYPEDEF Script_Type IDENTIFIER {
 ////////////////////////////////////////////////////////////////
 // Data Declaration
 
+Annotated_Data :
+	Annotation_List Data {
+		ASTAnnotationList* list = (ASTAnnotationList*)$1;
+		ASTDataDeclList* decl = (ASTDataDeclList*)$2;
+		handle_annotations(list, [&](AnnotData& data, map<string, std::set<string>>&)
+		{
+			auto& key = data.key;
+			if (key == "Export")
+			{
+				if (annot_sig_check(data,
+					{
+						{ANNTY_STR},
+						{ANNTY_NONE, ANNTY_STR},
+						{ANNTY_NONE, ANNTY_STR}
+					}))
+				{
+					auto sz = data.params.size();
+					if (sz >= 3)
+					{
+						if (auto v = annot_param_check_swaptype(data, 2))
+							decl->export_data.btn_type = *v;
+					}
+					
+					if (sz >= 2)
+					{
+						auto& param = data.params[1];
+						annot_trunc_str(param.val, 65535);
+						decl->export_data.helptext = param.val;
+					}
+					
+					// if (sz >= 1)
+					{
+						auto& param = data.params[0];
+						annot_trunc_str(param.unescaped_val, 255);
+						decl->export_data.name = param.unescaped_val;
+					}
+					
+					decl->was_exported = true;
+				}
+				return true;
+			}
+			else if (key == "ExportRange")
+			{
+				if (annot_sig_check(data,
+					{
+						{ANNTY_INT},
+						{ANNTY_INT}
+					}))
+				{
+					zfix min = data.params[0].intval;
+					zfix max = data.params[1].intval;
+					if (min > max)
+					{
+						annot_errstr(fmt::format("ERROR: Bad Annotation Value: @{} expects"
+							" min <= max; got {} > {}",
+							key, min.str(), max.str()), data.location);
+					}
+					else
+					{
+						decl->export_data.min = min;
+						decl->export_data.max = max;
+					}
+					
+					decl->was_range_exported = true;
+				}
+				return true;
+			}
+			return false;
+		});
+		$$ = decl;}
+	| Data {$$ = $1;}
+	;
+
 Data : 
 	INTERNAL Data {
 		ASTDataDeclList* list = (ASTDataDeclList*)$2;
 		if (list->internal)
 			yyerrmsg("internal modifier used twice");
 		list->internal = true;
+		$$ = list;}
+	| STATIC Data {
+		ASTDataDeclList* list = (ASTDataDeclList*)$2;
+		if (list->is_static)
+			yyerrmsg("static modifier used twice");
+		else if (list->is_nonstatic)
+			yyerrmsg("nonstatic modifier conflicts with static modified");
+		list->is_static = true;
+		$$ = list;}
+	| NONSTATIC Data {
+		ASTDataDeclList* list = (ASTDataDeclList*)$2;
+		if (list->is_nonstatic)
+			yyerrmsg("nonstatic modifier used twice");
+		else if (list->is_static)
+			yyerrmsg("nonstatic modifier conflicts with static modified");
+		list->is_nonstatic = true;
 		$$ = list;}
 	| DataType Data_List {
 		ASTDataType* type = (ASTDataType*)$1;
@@ -882,12 +974,33 @@ Function :
 			func->setFlag(FUNCFLAG_INVALID);
 			func->invalidMsg += " Duplicate `static`.";
 		}
+		else if(func->getFlag(FUNCFLAG_NONSTATIC))
+		{
+			func->setFlag(FUNCFLAG_INVALID);
+			func->invalidMsg += " Conflicting `static` / `nonstatic`.";
+		}
 		else if(func->getFlag(FUNCFLAG_DESTRUCTOR|FUNCFLAG_CONSTRUCTOR))
 		{
 			func->setFlag(FUNCFLAG_INVALID);
 			func->invalidMsg += " Constructors and destructors cannot be static.";
 		}
 		else func->setFlag(FUNCFLAG_STATIC);
+		$$ = func;
+	}
+	| NONSTATIC Function
+	{
+		ASTFuncDecl* func = (ASTFuncDecl*)$2;
+		if (func->getFlag(FUNCFLAG_NONSTATIC))
+		{
+			func->setFlag(FUNCFLAG_INVALID);
+			func->invalidMsg += " Duplicate `nonstatic`.";
+		}
+		else if(func->getFlag(FUNCFLAG_STATIC))
+		{
+			func->setFlag(FUNCFLAG_INVALID);
+			func->invalidMsg += " Conflicting `static` / `nonstatic`.";
+		}
+		else func->setFlag(FUNCFLAG_NONSTATIC);
 		$$ = func;
 	}
 	| INLINE Function
@@ -1161,7 +1274,7 @@ Class_Destructor :
 	;
 
 Class_Data :
-	Data {$$ = $1;}
+	Annotated_Data {$$ = $1;}
 	;
 
 Class_Block_Element :
@@ -1242,7 +1355,7 @@ Annotated_Script :
 					if(annot_sig_check_1(ANNTY_STR, data))
 					{
 						annot_trunc_str(p1->unescaped_val, 255);
-						script->metadata.initd[c] = p1->unescaped_val;
+						script->metadata.initd_label[c] = p1->unescaped_val;
 					}
 					excl_keys[fmt::format("ExportInitD{}", c)].insert(key);
 					return true;
@@ -1366,7 +1479,7 @@ Annotated_Script :
 							{
 								auto& param = data.params[0];
 								annot_trunc_str(param.unescaped_val, 255);
-								script->metadata.initd[c] = param.unescaped_val;
+								script->metadata.initd_label[c] = param.unescaped_val;
 							}
 						}
 						excl_keys[fmt::format("InitD{}", c)].insert(key);
@@ -1440,6 +1553,7 @@ Annotated_Script :
 			return false;
 		});
 		$$ = script;}
+	| Script {$$ = $1;}
 	;
 
 Script :
@@ -1497,7 +1611,7 @@ Script_Block_List :
 	;
 
 Script_Block_Element :
-	Data SEMICOLON {$$ = $1;}
+	Annotated_Data SEMICOLON {$$ = $1;}
 	| Function {$$ = $1;}
 	| DataTypeDef SEMICOLON {$$ = $1;}
 	| Annotated_Enum SEMICOLON {$$ = $1;}
@@ -1601,7 +1715,7 @@ Statement :
 	// The %dprec prefers the declaration parse when a statement is ambiguous with
 	// an expression, which happens for class template types (ex: `stack<TPerson> sp = ...`
 	// also parses as nested comparisons).
-	Data SEMICOLON %dprec 2 {$$ = $1;}
+	Annotated_Data SEMICOLON %dprec 2 {$$ = $1;}
 	| DataTypeDef SEMICOLON {$$ = $1;}
 	| Annotated_Enum SEMICOLON {$$ = $1;}
 	| Using SEMICOLON {$$ = $1;}
@@ -1634,7 +1748,7 @@ Statement :
 
 Statement_NoSemicolon:
 	// Declarations
-	Data %dprec 2 {$$ = $1;}
+	Annotated_Data %dprec 2 {$$ = $1;}
 	| DataTypeDef {$$ = $1;}
 	| Annotated_Enum {$$ = $1;}
 	// Normal Statements
@@ -2670,6 +2784,13 @@ Expression_Range :
 // Literals
 
 Literal :
+	Literal_Numeric {$$ = $1;}
+	| Literal_String {$$ = $1;}
+	| Literal_Bool {$$ = $1;}
+	| Literal_Array {$$ = $1;}
+	;
+
+Literal_Numeric :
 	NUMBER {
 		ASTFloat* val = (ASTFloat*)$1;
 		$$ = new ASTNumberLiteral(val, @$);}
@@ -2680,16 +2801,9 @@ Literal :
 		ASTString* as = (ASTString*)$1;
 		ASTFloat* number = new ASTFloat(int(as->getValue().at(1)), 0, @$);
 		$$ = new ASTCharLiteral(number, @$);}
-	| Literal_String {$$ = $1;}
-	| Literal_Bool {$$ = $1;}
-	| Literal_Array {$$ = $1;}
 	| OPTIONVALUE LPAREN IDENTIFIER RPAREN {
 		ASTString* name = (ASTString*)$3;
 		$$ = new ASTOptionValue(name->getValue(), @$);
-		delete name;}
-	| ISINCLUDED LPAREN IMPORTSTRING RPAREN {
-		ASTString* name = (ASTString*)$3;
-		$$ = new ASTIsIncluded(name->getValue(), @$);
 		delete name;}
 	;
 
@@ -2715,6 +2829,10 @@ Literal_String :
 Literal_Bool :
 	ZTRUE {$$ = new ASTBoolLiteral(true, @$);}
 	| ZFALSE {$$ = new ASTBoolLiteral(false, @$);}
+	| ISINCLUDED LPAREN IMPORTSTRING RPAREN {
+		ASTString* name = (ASTString*)$3;
+		$$ = new ASTIsIncluded(name->getValue(), @$);
+		delete name;}
 	;
 
 Literal_Array :

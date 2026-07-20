@@ -21,7 +21,7 @@ int32_t dmapdata_get_register(int32_t reg)
 	{
 		case DMAPDATAASUBSCRIPT:	//word
 		{
-			ret = (dmap.active_sub_script) * 10000; break;
+			ret = (dmap.active_sub_scrconfig.script) * 10000; break;
 		}
 		case DMAPDATACOMPASS:	//byte
 		{
@@ -66,7 +66,7 @@ int32_t dmapdata_get_register(int32_t reg)
 		}
 		case DMAPDATAMAPSCRIPT:	//byte
 		{
-			ret = (dmap.onmap_script) * 10000; break;
+			ret = (dmap.onmap_scrconfig.script) * 10000; break;
 		}
 		case DMAPDATAMIDI:	//byte
 		{
@@ -94,7 +94,7 @@ int32_t dmapdata_get_register(int32_t reg)
 		}
 		case DMAPDATAPSUBSCRIPT:	//word
 		{
-			ret = (dmap.passive_sub_script) * 10000; break;
+			ret = (dmap.passive_sub_scrconfig.script) * 10000; break;
 		}
 		case DMAPDATASIDEVIEW:	//byte
 		{
@@ -149,7 +149,7 @@ int32_t dmapdata_get_register(int32_t reg)
 		}
 		case DMAPSCRIPT:	//word
 		{
-			ret = (dmap.script) * 10000; break;
+			ret = (dmap.active_scrconfig.script) * 10000; break;
 		}
 
 		default:
@@ -167,7 +167,7 @@ void dmapdata_set_register(int32_t reg, int32_t value)
 	{
 		case DMAPDATAASUBSCRIPT:	//byte
 		{
-			dmap.active_sub_script = vbound((value / 10000),0,NUMSCRIPTSDMAP-1);
+			dmap.active_sub_scrconfig.script = vbound((value / 10000),0,NUMSCRIPTSDMAP-1);
 			on_reassign_script_engine_data(ScriptType::ScriptedActiveSubscreen, ri->dmapdataref);
 			break;
 		}
@@ -222,7 +222,7 @@ void dmapdata_set_register(int32_t reg, int32_t value)
 		}
 		case DMAPDATAMAPSCRIPT:	//byte
 		{
-			dmap.onmap_script = vbound((value / 10000),0,NUMSCRIPTSDMAP-1);
+			dmap.onmap_scrconfig.script = vbound((value / 10000),0,NUMSCRIPTSDMAP-1);
 			on_reassign_script_engine_data(ScriptType::OnMap, ri->dmapdataref);
 			break;
 		}
@@ -260,9 +260,9 @@ void dmapdata_set_register(int32_t reg, int32_t value)
 		{
 			FFScript::deallocateAllScriptOwned(ScriptType::ScriptedPassiveSubscreen, ri->dmapdataref);
 			word val = vbound((value / 10000),0,NUMSCRIPTSDMAP-1);
-			if (FFCore.doscript(ScriptType::ScriptedPassiveSubscreen) && ri->dmapdataref == cur_dmap && val == dmap.passive_sub_script)
+			if (FFCore.doscript(ScriptType::ScriptedPassiveSubscreen) && ri->dmapdataref == cur_dmap && val == dmap.passive_sub_scrconfig.script)
 				break;
-			dmap.passive_sub_script = val;
+			dmap.passive_sub_scrconfig.script = val;
 			if(ri->dmapdataref == cur_dmap)
 			{
 				FFCore.doscript(ScriptType::ScriptedPassiveSubscreen) = val != 0;
@@ -349,7 +349,7 @@ void dmapdata_set_register(int32_t reg, int32_t value)
 		}
 		case DMAPSCRIPT:	//byte
 		{
-			dmap.script = vbound((value / 10000),0,NUMSCRIPTSDMAP-1);
+			dmap.active_scrconfig.script = vbound((value / 10000),0,NUMSCRIPTSDMAP-1);
 			on_reassign_script_engine_data(ScriptType::DMap, ri->dmapdataref);
 			break;
 		}
@@ -362,7 +362,7 @@ void dmapdata_set_register(int32_t reg, int32_t value)
 // dmapdata arrays.
 
 static ArrayRegistrar DMAPINITD_registrar(DMAPINITD, []{
-	static ScriptingArray_ObjectMemberCArray<dmap, &dmap::initD> impl;
+	static ScriptingArray_ObjectSubMemberContainer<dmap, &dmap::active_scrconfig, &script_config::run_args> impl;
 	impl.compatSetDefaultValue(-10000);
 	impl.setMul10000(false);
 	return &impl;
@@ -383,14 +383,25 @@ static ArrayRegistrar DMAPDATAGRID_registrar(DMAPDATAGRID, []{
 }());
 
 static ArrayRegistrar DMAPDATAMAPINITD_registrar(DMAPDATAMAPINITD, []{
-	static ScriptingArray_ObjectMemberCArray<dmap, &dmap::onmap_initD> impl;
+	static ScriptingArray_ObjectSubMemberContainer<dmap, &dmap::onmap_scrconfig, &script_config::run_args> impl;
 	impl.compatSetDefaultValue(-10000);
 	impl.setMul10000(false);
 	return &impl;
 }());
 
 static ArrayRegistrar DMAPDATASUBINITD_registrar(DMAPDATASUBINITD, []{
-	static ScriptingArray_ObjectMemberCArray<dmap, &dmap::sub_initD> impl;
+	static ScriptingArray_ObjectSubMemberContainer<dmap, &dmap::active_sub_scrconfig, &script_config::run_args> impl;
+	impl.compatSetDefaultValue(-10000);
+	impl.setMul10000(false);
+	impl.setSideEffect([](auto* dmap, auto*, auto*, int index, int val){
+		if (get_qr(qr_SCRIPTS_SHARE_INITD))
+			dmap->passive_sub_scrconfig.run_args[index] = val;
+	});
+	return &impl;
+}());
+
+static ArrayRegistrar DMAPDATAPSUBINITD_registrar(DMAPDATAPSUBINITD, []{
+	static ScriptingArray_ObjectSubMemberContainer<dmap, &dmap::passive_sub_scrconfig, &script_config::run_args> impl;
 	impl.compatSetDefaultValue(-10000);
 	impl.setMul10000(false);
 	return &impl;
