@@ -86,7 +86,7 @@ int32_t dmapdata_get_register(int32_t reg)
 		}
 		case DMAPDATAOFFSET:	//char
 		{
-			ret = ((char)dmap.xoff) * 10000; break;
+			ret = dmap.xoff * 10000; break;
 		}
 		case DMAPDATAPALETTE:	//word
 		{
@@ -244,7 +244,7 @@ void dmapdata_set_register(int32_t reg, int32_t value)
 		}
 		case DMAPDATAOFFSET:	//char
 		{
-			dmap.xoff = ((char)(value / 10000)); break;
+			dmap.xoff = ((int8_t)(value / 10000)); break;
 		}
 		case DMAPDATAPALETTE:	//word
 		{
