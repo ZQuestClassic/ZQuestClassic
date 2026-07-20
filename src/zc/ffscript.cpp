@@ -11316,7 +11316,7 @@ int32_t get_register_slow(const int32_t arg)
 		}
 		case DMAPDATAOFFSET:	//char
 		{
-			ret = ((char)DMaps[ri->dmapsref].xoff) * 10000; break;
+			ret = DMaps[ri->dmapsref].xoff * 10000; break;
 		}
 		case DMAPDATACOMPASS:	//byte
 		{
@@ -24524,7 +24524,7 @@ void set_register_slow(int32_t arg, int32_t value)
 		}
 		case DMAPDATAOFFSET:	//char
 		{
-			DMaps[ri->dmapsref].xoff = ((char)(value / 10000)); break;
+			DMaps[ri->dmapsref].xoff = ((int8_t)(value / 10000)); break;
 		}
 		case DMAPDATACOMPASS:	//byte
 		{
