@@ -99,6 +99,9 @@ struct zinitdata
 	bounded_map<word,bounded_map<dword,int32_t>> gen_data {NUMSCRIPTSGENERIC, {0}};
 	bounded_map<dword,bounded_map<dword,int32_t>> screen_data {MAXSCRS, {0}};
 	
+	std::array<script_config_nosavescript, NUMSCRIPTGLOBAL> global_scrconfig;
+	std::array<script_config_nosavescript, NUMSCRIPTHERO> hero_scrconfig;
+	
 	byte bottle_slot[NUM_BOTTLE_SLOTS];
 	word sprite_z_thresholds[SPRITE_THRESHOLD_MAX];
 
@@ -124,7 +127,7 @@ struct zinitdata
 	void clear();
 	void copy(zinitdata const& other);
 	
-	zinitdata() = default;
+	zinitdata();
 };
 extern zinitdata zinit;
 

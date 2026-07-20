@@ -92,6 +92,11 @@ void ListData::for_all_items(std::function<void(ListItem const&)> proc)
 	for (ListItem const& itm : listItems)
 		proc(itm);
 }
+void ListData::for_all_items_mut(std::function<void(ListItem&)> proc)
+{
+	for (ListItem& itm : listItems)
+		proc(itm);
+}
 
 ListData& ListData::filter(std::function<bool(ListItem&)> filt_func)
 {

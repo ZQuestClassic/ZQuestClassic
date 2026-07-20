@@ -270,8 +270,8 @@ rect_t rect_t::expanded(int dist) const
 	return r;
 }
 
-script_config::script_config()
-	: script(0), inst_init()
+script_config::script_config(word script)
+	: script(script), inst_init()
 {
 	run_args.fill(0);
 }

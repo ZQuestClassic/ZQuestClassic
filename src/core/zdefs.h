@@ -2023,20 +2023,6 @@ INLINE bool isinRect(int32_t x,int32_t y,int32_t rx1,int32_t ry1,int32_t rx2,int
 extern void flushItemCache(bool justcost = false);
 extern void removeFromItemCache(int32_t itemclass);
 
-#define GLOBAL_SCRIPT_INIT 			0
-#define GLOBAL_SCRIPT_GAME			1
-#define GLOBAL_SCRIPT_END			2
-#define GLOBAL_SCRIPT_ONSAVELOAD	3
-#define GLOBAL_SCRIPT_ONLAUNCH		4
-#define GLOBAL_SCRIPT_ONCONTGAME	5
-#define GLOBAL_SCRIPT_F6			6
-#define GLOBAL_SCRIPT_ONSAVE		7
-
-#define SCRIPT_HERO_INIT 1
-#define SCRIPT_HERO_ACTIVE 2
-#define SCRIPT_HERO_DEATH 3
-#define SCRIPT_HERO_WIN 4
-
 //Hero Internal Flags
 #define LF_PAID_SWORD_COST		0x01
 #define LF_PAID_WAND_COST		0x02

@@ -862,7 +862,7 @@ static void load_scriptnames(std::map<std::string, int32_t> &vals,
 extern std::string global_slotnames[NUMSCRIPTGLOBAL];
 extern std::string player_slotnames[NUMSCRIPTHERO - 1];
 
-static GUI::ListData load_scriptnames_slots(std::map<int32_t, script_slot_data> scrmap, int32_t count, std::string* slotnames, bool alphabetize, bool skipempty)
+static GUI::ListData load_scriptnames_slots(std::map<int32_t, script_slot_data> scrmap, int32_t count, std::string* slotnames, bool alphabetize, bool skipempty, int offset = 1)
 {
 	std::map<std::string, int32_t> vals;
 	vector<std::pair<string, int>> empties;
@@ -880,7 +880,7 @@ static GUI::ListData load_scriptnames_slots(std::map<int32_t, script_slot_data> 
 		else
 			sname = scrmap[i].scriptname;
 
-		slotname = slotnames ? slotnames[i] : (alphabetize ? fmt::format("{:03}", i + 1) : fmt::format("Slot {}", i + 1));
+		slotname = slotnames ? slotnames[i] : (alphabetize ? fmt::format("{:03}", i + offset) : fmt::format("Slot {}", i + offset));
 		if(alphabetize)
 			sname = fmt::format("{1} ({0})", slotname, sname);
 		else
@@ -889,14 +889,14 @@ static GUI::ListData load_scriptnames_slots(std::map<int32_t, script_slot_data> 
 		if (alphabetize)
 		{
 			if(scrmap[i].scriptname.empty())
-				empties.emplace_back( sname,i + 1 );
+				empties.emplace_back( sname,i + offset );
 			else
 			{
-				vals[sname] = i + 1;
+				vals[sname] = i + offset;
 			}
 		}
 		else
-			ls.add(sname, i+1);
+			ls.add(sname, i+offset);
 	}
 	if (alphabetize)
 	{
@@ -1051,7 +1051,7 @@ GUI::ListData GUI::ZCListData::slots_ffc_script(bool alphabetize, bool skipempty
 
 GUI::ListData GUI::ZCListData::slots_global_script(bool alphabetize, bool skipempty)
 {
-	return load_scriptnames_slots(globalmap, NUMSCRIPTGLOBAL, global_slotnames, alphabetize, skipempty);
+	return load_scriptnames_slots(globalmap, NUMSCRIPTGLOBAL, global_slotnames, alphabetize, skipempty, 0);
 }
 
 GUI::ListData GUI::ZCListData::slots_itemdata_script(bool alphabetize, bool skipempty)

@@ -13150,6 +13150,10 @@ int32_t writeinitdata(PACKFILE *f, zquestheader *)
 			new_return(86);
 		if(!p_putbmap(zinit.gen_inst_init, f))
 			new_return(87);
+		if (!p_putarr(zinit.global_scrconfig, f))
+			new_return(88);
+		if (!p_putarr(zinit.hero_scrconfig, f))
+			new_return(89);
 
 		if(writecycle==0)
 		{

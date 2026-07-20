@@ -1567,7 +1567,7 @@ static void set_current_script_engine_data(ScriptEngineData& data, ScriptType ty
 						script_object_ref_dec(game->global_d[i]);
 				}
 				
-				reset_script_variables();
+				reset_script_variables(zinit.global_scrconfig[script]);
 				data.initialized = 1;
 			}
 		}
@@ -1608,7 +1608,7 @@ static void set_current_script_engine_data(ScriptEngineData& data, ScriptType ty
 			if (!data.initialized)
 			{
 				got_initialized = true;
-				reset_script_variables();
+				reset_script_variables(zinit.hero_scrconfig[script]);
 				data.initialized = 1;
 			}
 		}

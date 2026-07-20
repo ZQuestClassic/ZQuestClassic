@@ -1559,12 +1559,20 @@ static NewMenu etc_menu
 	{ "Take &Screen Snapshot", onMapscrSnapshot },
 };
 
+void call_global_initd_dialog();
+int onGlobalInitD()
+{
+	call_global_initd_dialog();
+	return D_O_K;
+}
 static NewMenu zscript_menu
 {
 	{ "Compile &ZScript...", onCompileScript },
 	{},
 	{ "&Compiler Settings", onZScriptCompilerSettings },
 	{ "&Quest Script Settings", onZScriptSettings },
+	{},
+	{ "&Global InitD", onGlobalInitD },
 };
 
 void set_console_state()
