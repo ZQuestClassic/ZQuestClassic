@@ -87,11 +87,28 @@ jobs:
           arch: ${{ inputs.arch }}
 
       - name: Install LLVM and Clang
-        if: inputs.compiler == 'clang' && runner.os == 'Linux'
+        if: inputs.compiler == 'clang' && runner.os == 'Linux' && runner.arch == 'X64'
         uses: KyleMayes/install-llvm-action@v1
         with:
           version: 17.0.2
           env: true
+
+      # install-llvm-action@v1 only knows x86-64 Linux assets, so on arm64 it
+      # installs an x86-64 clang (Exec format error). Fetch the matching
+      # aarch64 release directly.
+      - name: Install LLVM and Clang (Linux arm64)
+        if: inputs.compiler == 'clang' && runner.os == 'Linux' && runner.arch == 'ARM64'
+        run: |
+          curl -sL -o llvm.tar.xz https://github.com/llvm/llvm-project/releases/download/llvmorg-17.0.2/clang+llvm-17.0.2-aarch64-linux-gnu.tar.xz
+          mkdir -p "$GITHUB_WORKSPACE/llvm"
+          tar -xf llvm.tar.xz -C "$GITHUB_WORKSPACE/llvm" --strip-components=1
+          rm llvm.tar.xz
+          # The llvm.org binaries link against libtinfo5.
+          sudo apt-get install -y libtinfo5 || true
+          echo "$GITHUB_WORKSPACE/llvm/bin" >> $GITHUB_PATH
+          echo "CC=$GITHUB_WORKSPACE/llvm/bin/clang" >> $GITHUB_ENV
+          echo "CXX=$GITHUB_WORKSPACE/llvm/bin/clang++" >> $GITHUB_ENV
+          "$GITHUB_WORKSPACE/llvm/bin/clang" --version
 
       - name: Restore ccache
         if: inputs.cache
