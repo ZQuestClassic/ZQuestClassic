@@ -6897,10 +6897,25 @@ int32_t jwin_droplist_proc(int32_t msg,DIALOG *d,int32_t c)
 	
 	d1 = d->d1;
 	ret = jwin_list_proc(msg,d,c);
-	
+
 	if(d->d1!=d->d2)
 	{
-		d->d1=d->d2;
+		// 'jwin_list_proc' scrolls assuming the widget shows '(h-3)/text_height'
+		// rows starting at the offset (d2), but a closed dropdown displays only
+		// the selected item (d1). Depending on the font size that row count can
+		// be 0 or 2+, letting the offset drift from the selection (ex: MSG_START
+		// clamping the offset away from a selected last item). Keep the
+		// selection and move the offset - except for the mouse wheel, which
+		// scrolls the offset on purpose to change the selection.
+		if(msg == MSG_WHEEL)
+		{
+			ListData *data = (ListData *)d->dp;
+			int32_t listsize;
+			data->listFunc(-1, &listsize);
+			d->d1 = d->d2 = vbound(d->d2, 0, listsize-1);
+		}
+		else
+			d->d2 = d->d1;
 		jwin_droplist_proc(MSG_DRAW, d, 0);
 	}
 
