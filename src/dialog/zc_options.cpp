@@ -50,7 +50,7 @@ void ZCOptionsDialog::saveOption(int ind)
 	if(ind >= OPT_FIRSTFONT && ind <= OPT_LASTFONT)
 		zc_set_config("ZQ_GUI", get_font_cfgname(false, ind-OPT_FIRSTFONT).c_str(), v);
 	else if(ind >= OPT_FIRST_FONTSCALE && ind <= OPT_LAST_FONTSCALE)
-		zc_set_config("ZQ_GUI", get_font_cfgname(true, ind-OPT_FIRSTFONT).c_str(), v);
+		zc_set_config("ZQ_GUI", get_font_cfgname(true, ind-OPT_FIRST_FONTSCALE).c_str(), v);
 	// else switch(ind)
 	// {
 		// default:
