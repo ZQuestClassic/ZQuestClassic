@@ -110,6 +110,8 @@ void init_NES_mode();
 extern int32_t black_opening_count;
 extern int32_t black_opening_x,black_opening_y;
 extern int32_t black_opening_shape;
+extern bool black_fade_hold;
+void dismiss_black_fade();
 
 void zapout();
 void zapin();

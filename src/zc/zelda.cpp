@@ -1505,6 +1505,7 @@ void init_game_vars(bool is_cont_game = false)
 	strike_hint_timer = 0;
 	strike_hint = 0;
 	black_opening_count = 0;
+	black_fade_hold = false;
 	introclk = intropos = 0;
 	drawguys = true;
 	lensclk = 0;

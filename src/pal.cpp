@@ -5,6 +5,7 @@
 #include "core/qrs.h"
 #include "core/dmap.h"
 #include "zc/maps.h"
+#include "zc/zc_sys.h"
 #include "zc/zelda.h"
 #include "zc/hero.h"
 #include "zalleg/colors.h"
@@ -29,6 +30,8 @@ void copy_pal(RGB *src,RGB *dest)
 
 void loadfullpal()
 {
+    dismiss_black_fade();
+
     for(int32_t i=0; i<240; i++)
         RAMpal[i]=_RGB(colordata+i*3);
         
@@ -47,6 +50,8 @@ extern PALETTE userPALETTE[256];
 
 void loadlvlpal(int32_t level)
 {
+	dismiss_black_fade();
+
 	byte *si = colordata + CSET(level*pdLEVEL+poLEVEL)*3;
 	
 	for(int32_t i=0; i<16*3; i++)
@@ -120,6 +125,8 @@ void loadlvlpal(int32_t level)
 
 void loadpalset(int32_t cset, int32_t dataset, bool update_tint)
 {
+	dismiss_black_fade();
+
 	int32_t j = CSET(dataset) * 3;
 
 	for (int32_t i = 0; i < 16; i++, j += 3)
@@ -182,6 +189,8 @@ void ringcolor(bool forceDefault)
 
 void loadfadepal(int32_t dataset)
 {
+    dismiss_black_fade();
+
     byte *si = colordata + CSET(dataset)*3;
     
     for(int32_t i=0; i<pdFADE*16; i++)

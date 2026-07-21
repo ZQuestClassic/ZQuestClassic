@@ -1297,6 +1297,26 @@ static bool is_opening_screen;
 int32_t black_opening_count=0;
 int32_t black_opening_x,black_opening_y;
 int32_t black_opening_shape;
+// After a fade-to-black closing wipe finishes, the palette is held black until
+// an opening wipe fades it back in or a new palette load dismisses the hold.
+bool black_fade_hold=false;
+// Set when a palette is loaded while a closing fade is still active (possible
+// for non-waiting wipes, e.g. engine cave warps): the finished close then
+// restores the palette as it always did, instead of holding black.
+static bool black_fade_dirty=false;
+
+void dismiss_black_fade()
+{
+	if(black_opening_count>0 && black_opening_shape==bosFADEBLACK)
+		black_fade_dirty=true;
+	if(!black_fade_hold)
+		return;
+	black_fade_hold=false;
+	black_opening_shape = bosCIRCLE;
+	memcpy(RAMpal, tempblackpal, PAL_SIZE*sizeof(RGB));
+	refreshTints();
+	refreshpal=true;
+}
 
 int32_t choose_opening_shape()
 {
@@ -1338,12 +1358,15 @@ void close_black_opening(int32_t x, int32_t y, bool wait, int32_t shape)
 {
 	x -= viewport.x;
 	y -= viewport.y;
-	black_opening_shape= (shape>-1 ? shape : choose_opening_shape());
-	
+	int32_t next_shape = (shape>-1 ? shape : choose_opening_shape());
+	if(next_shape != bosFADEBLACK)
+		dismiss_black_fade();
+	black_opening_shape = next_shape;
+
 	int32_t w=framebuf->w, h=framebuf->h;
 	int32_t blockrows=h/8, blockcolumns=32;
 	int32_t xoffset=(x-(w/2))/8, yoffset=(y-(h/2))/8;
-	
+
 	for(int32_t blockrow=0; blockrow<blockrows; ++blockrow)  //30
 	{
 		for(int32_t blockcolumn=0; blockcolumn<blockcolumns; ++blockcolumn)  //40
@@ -1351,18 +1374,24 @@ void close_black_opening(int32_t x, int32_t y, bool wait, int32_t shape)
 			screen_triangles[blockrow][blockcolumn]=zc_max(abs(int32_t(double(blockcolumns-1)/2-blockcolumn+xoffset)),abs(int32_t(double(blockrows-1)/2-blockrow+yoffset)))|0x0100|((blockrow-yoffset<blockrows/2)?0:0x8000)|((blockcolumn-xoffset<blockcolumns/2)?0x4000:0);
 		}
 	}
-	
+
 	black_opening_count = 66;
 	black_opening_x = x;
     black_opening_y = y;
 	lensclk = 0;
+	black_fade_dirty = false;
 	//black_opening_shape=(black_opening_shape+1)%bosMAX;
-	
-	
+
+
 	if(black_opening_shape == bosFADEBLACK)
 	{
-		refreshTints();
-		memcpy(tempblackpal, RAMpal, sizeof(RAMpal)); //Store palette in temp palette for fade effect
+		if(black_fade_hold) //already faded out: tempblackpal still holds the palette to fade back in
+			black_fade_hold = false;
+		else
+		{
+			refreshTints();
+			memcpy(tempblackpal, RAMpal, sizeof(RAMpal)); //Store palette in temp palette for fade effect
+		}
 	}
 	if(wait)
 	{
@@ -1384,12 +1413,15 @@ void open_black_opening(int32_t x, int32_t y, bool wait, int32_t shape)
 {
 	x -= viewport.x;
 	y -= viewport.y;
-	black_opening_shape= (shape>-1 ? shape : choose_opening_shape());
-	
+	int32_t next_shape = (shape>-1 ? shape : choose_opening_shape());
+	if(next_shape != bosFADEBLACK)
+		dismiss_black_fade();
+	black_opening_shape = next_shape;
+
 	int32_t w=framebuf->w, h=framebuf->h;
 	int32_t blockrows=h/8, blockcolumns=32;
 	int32_t xoffset=(x-(w/2))/8, yoffset=(y-(h/2))/8;
-	
+
 	for(int32_t blockrow=0; blockrow<blockrows; ++blockrow)  //30
 	{
 		for(int32_t blockcolumn=0; blockcolumn<blockcolumns; ++blockcolumn)  //40
@@ -1397,15 +1429,21 @@ void open_black_opening(int32_t x, int32_t y, bool wait, int32_t shape)
 			screen_triangles[blockrow][blockcolumn]=zc_max(abs(int32_t(double(blockcolumns-1)/2-blockcolumn+xoffset)),abs(int32_t(double(blockrows-1)/2-blockrow+yoffset)))|0x0100|((blockrow-yoffset<blockrows/2)?0:0x8000)|((blockcolumn-xoffset<blockcolumns/2)?0x4000:0);
 		}
 	}
-	
+
 	black_opening_count = -66;
 	black_opening_x = x;
     black_opening_y = y;
 	lensclk = 0;
+	black_fade_dirty = false;
 	if(black_opening_shape == bosFADEBLACK)
 	{
-		refreshTints();
-		memcpy(tempblackpal, RAMpal, sizeof(RAMpal)); //Store palette in temp palette for fade effect
+		if(black_fade_hold) //already faded out: tempblackpal still holds the palette to fade back in
+			black_fade_hold = false;
+		else
+		{
+			refreshTints();
+			memcpy(tempblackpal, RAMpal, sizeof(RAMpal)); //Store palette in temp palette for fade effect
+		}
 	}
 	if(wait)
 	{
@@ -3181,19 +3219,38 @@ void updatescr(bool allowwavy)
 	else if(black_opening_count>0) //shape is closing
 	{
 		black_opening(framebuf,black_opening_x,black_opening_y,black_opening_count,66);
-		
+
 		if(Advance||(!Paused))
 		{
 			--black_opening_count;
+
+			// A finished fade-out must not reveal the screen again; hold the
+			// palette black until an opening wipe or a palette load ends it.
+			// But if a palette was loaded mid-fade (a non-waiting engine warp
+			// wipe), fall through to the restore below like always.
+			if(black_opening_count==0 && black_opening_shape==bosFADEBLACK)
+			{
+				if(black_fade_dirty)
+					black_fade_dirty=false;
+				else
+					black_fade_hold=true;
+			}
 		}
 	}
 
 	if(black_opening_count==0&&black_opening_shape==bosFADEBLACK)
 	{
-		black_opening_shape = bosCIRCLE;
-		memcpy(RAMpal, tempblackpal, PAL_SIZE*sizeof(RGB));
-		refreshTints();
-		refreshpal=true;
+		if(!black_fade_hold)
+		{
+			black_opening_shape = bosCIRCLE;
+			memcpy(RAMpal, tempblackpal, PAL_SIZE*sizeof(RGB));
+			refreshTints();
+			refreshpal=true;
+		}
+		else if(!Playing)
+			dismiss_black_fade();
+		else if(refreshpal)
+			black_fade(63); //keep the held fade black over stray palette writes
 	}
 	
 	if(refreshpal)
@@ -4272,6 +4329,7 @@ void openscreen(int32_t shape)
 	}
 	else
 	{
+		dismiss_black_fade();
 		Hero.set_engine_invis(true);
 		show_subscreen_dmap_dots=false;
 		show_subscreen_numbers=false;
@@ -4320,6 +4378,7 @@ void closescreen(int32_t shape)
 	}
 	else
 	{
+		dismiss_black_fade();
 		Hero.set_engine_invis(true);
 		show_subscreen_dmap_dots=false;
 		show_subscreen_numbers=false;

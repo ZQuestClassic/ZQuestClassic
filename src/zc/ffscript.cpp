@@ -14613,6 +14613,8 @@ void FFScript::runF6Engine()
 			ScopedScriptEngineDataClear engine_data_guard{ScriptType::Global, GLOBAL_SCRIPT_F6};
 			int32_t openingwipe = black_opening_count;
 			int32_t openingshape = black_opening_shape;
+			bool openinghold = black_fade_hold;
+			black_fade_hold = false;
 			black_opening_count = 0; //No opening wipe during F6 menu
 			if(black_opening_shape==bosFADEBLACK) black_fade(0);
 			GameFlags |= GAMEFLAG_F6SCRIPT_ACTIVE;
@@ -14645,10 +14647,16 @@ void FFScript::runF6Engine()
 			//Restore opening wipe
 			black_opening_count = openingwipe;
 			black_opening_shape = openingshape;
+			black_fade_hold = openinghold;
 			if(openingshape == bosFADEBLACK)
 			{
-				refreshTints();
-				memcpy(tempblackpal, RAMpal, PAL_SIZE*sizeof(RGB));
+				if(black_fade_hold)
+					black_fade(63); //re-apply the held fade-to-black
+				else
+				{
+					refreshTints();
+					memcpy(tempblackpal, RAMpal, PAL_SIZE*sizeof(RGB));
+				}
 			}
 			//Restore script refinfo
 			pop_ri();
