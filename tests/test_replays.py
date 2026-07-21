@@ -297,13 +297,21 @@ class TestReplays(unittest.TestCase):
         # This is the frame it stops at because of the loadscr check failing.
         self.assertEqual(result.frame, 634)
         self.assertEqual(result.failing_frame, 1)
-        self.assertEqual(result.unexpected_gfx_frames, [1])
+        # The screen is static (all input was removed), so snapshots are driven
+        # by the frames where the replay recorded a gfx change - capped by the
+        # per-segment snapshot limit, even though the segment runs to the end.
+        self.assertEqual(len(result.unexpected_gfx_frames), 157)
+        self.assertEqual(result.unexpected_gfx_frames[0], 1)
+        self.assertEqual(result.unexpected_gfx_frames[-1], 301)
         self.assertEqual(result.unexpected_gfx_segments, [[1, 634]])
         self.assertEqual(result.unexpected_gfx_segments_limited, [[1, 301]])
         snapshots = get_snapshots()
         self.assertEqual(
             snapshots,
-            ['0/failing/failing.zplay.1-unexpected.png'],
+            [
+                f'0/failing/failing.zplay.{frame}-unexpected.png'
+                for frame in result.unexpected_gfx_frames
+            ],
         )
 
     # Regression for global/static state that wasn't reset between in-process games.
