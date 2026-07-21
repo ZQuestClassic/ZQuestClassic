@@ -91,6 +91,9 @@ static bool prev_gfx_hash_was_same;
 static int prev_debug_x;
 static int prev_debug_y;
 static bool gfx_got_mismatch;
+// Assert mode: the replay log recorded a gfx change for this frame (the
+// expected screen changed, whether or not ours did).
+static bool gfx_expected_changed;
 static std::array<int, 4> prev_mouse_state;
 static std::array<int, 4> current_mouse_state;
 static std::chrono::time_point<std::chrono::steady_clock> time_started;
@@ -1291,14 +1294,19 @@ static void maybe_take_snapshot()
 				if (unexpected_gfx_segments_limited.back().second == -1)
 					unexpected_gfx_segments_limited.back().second = frame_count - 1;
 			}
-			else if (!prev_gfx_hash_was_same)
+			// Save when our screen changed, but also when the baseline's screen
+			// was expected to change - so a static-but-wrong screen still
+			// produces frames the compare report can pair against the baseline.
+			// The segment's first frame always saves.
+			else if (!prev_gfx_hash_was_same || gfx_expected_changed
+				|| current_failing_gfx_segment_start_frame == frame_count)
 				save_snapshot(framebuf, RAMpal, frame_count, gfx_got_mismatch);
 			return;
 		}
 		else if (last_failing_gfx_frame != -1 && frame_count - last_failing_gfx_frame <= 10)
 		{
 			// Save a few frames after the last failing gfx, for context.
-			if (!prev_gfx_hash_was_same)
+			if (!prev_gfx_hash_was_same || gfx_expected_changed)
 				save_snapshot(framebuf, RAMpal, frame_count, gfx_got_mismatch);
 			return;
 		}
@@ -1409,6 +1417,7 @@ bool replay_start(ReplayMode mode_, std::filesystem::path path, int frame)
     failed_loadscr_count_frame = -1;
     has_rng_desynced = false;
     gfx_got_mismatch = false;
+    gfx_expected_changed = false;
     replay_path = path;
     if (output_dir.empty()) output_dir = replay_path.parent_path();
     manual_takeover_start_index = assert_current_index = replay_log_current_index = frame_count = 0;
@@ -2112,13 +2121,18 @@ void replay_step_gfx(uint32_t gfx_hash)
 			}
 		}
 
+		gfx_expected_changed = !expected_gfx_comment.empty();
+
 		if (expected_gfx_comment.empty() && gfx_hash != prev_gfx_hash)
 			gfx_got_mismatch = true;
 		if (!expected_gfx_comment.empty() && expected_gfx_comment != gfx_comment)
 			gfx_got_mismatch = true;
 		if (gfx_got_mismatch)
 			last_failing_gfx_frame = frame_count;
-		if (gfx_hash != prev_gfx_hash)
+		// A change on either side can start or end a failure segment. Checking
+		// only our own hash would never even open a segment when the failure is
+		// a static-but-wrong screen (frozen black) against a changing baseline.
+		if (gfx_hash != prev_gfx_hash || gfx_expected_changed)
 		{
 			if (gfx_got_mismatch && current_failing_gfx_segment_start_frame == -1)
 			{
