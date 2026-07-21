@@ -68,9 +68,8 @@ generic script falsy_coalescing
 		global_side_effect_count = 0;
 		int arr[3];
 		arr[trigger_side_effect(0)] ?:= 99;
-		// TODO: this doesn't actually work. And neither would `arr[trigger_side_effect(0)] += 99`.
-		// if (global_side_effect_count > 1)
-		// 	Test::Fail("L-value was evaluated multiple times during assignment!");
+		if (global_side_effect_count > 1)
+			Test::Fail("L-value was evaluated multiple times during assignment!");
 		Test::AssertEqual(arr[0], 99);
 
 		Test::End();

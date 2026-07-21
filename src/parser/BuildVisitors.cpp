@@ -1818,8 +1818,303 @@ void BuildOpcodes::caseCustomDataTypeDef(ASTDataTypeDef&, void*) {}
 
 // Expressions
 
+// Scans an expression for anything that could have observable side effects
+// if it were evaluated more than once.
+class SideFXScanner : public RecursiveVisitor
+{
+public:
+	bool found = false;
+
+	SideFXScanner(Program& program) : RecursiveVisitor(program) {}
+
+	void caseExprCall(ASTExprCall&, void*) override {found = true;}
+	void caseExprAssign(ASTExprAssign&, void*) override {found = true;}
+	void caseExprCoalesceAssign(ASTExprCoalesceAssign&, void*) override {found = true;}
+	void caseExprIncrement(ASTExprIncrement&, void*) override {found = true;}
+	void caseExprDecrement(ASTExprDecrement&, void*) override {found = true;}
+	void caseExprDelete(ASTExprDelete&, void*) override {found = true;}
+	// Short-circuit exprs may have been rewritten into a bool tree, with the
+	// original operands disabled and clones stored as the tree's leaves.
+	void caseExprAnd(ASTExprAnd& host, void* param) override
+	{
+		if(host.tree)
+			scanTree(host.tree->root, param);
+		RecursiveVisitor::caseExprAnd(host, param);
+	}
+	void caseExprOr(ASTExprOr& host, void* param) override
+	{
+		if(host.tree)
+			scanTree(host.tree->root, param);
+		RecursiveVisitor::caseExprOr(host, param);
+	}
+
+private:
+	void scanTree(BoolTreeNode& node, void* param)
+	{
+		if(node.mode == BoolTreeNode::MODE_LEAF)
+			visit(node.leaf.get(), param);
+		else for(BoolTreeNode& child : node.branch)
+			scanTree(child, param);
+	}
+};
+
+static bool expr_has_side_effects(Program& program, ASTExpr* expr)
+{
+	SideFXScanner scanner(program);
+	scanner.visit(expr, nullptr);
+	return scanner.found;
+}
+
+static ASTExpr* booltree_first_leaf(ASTExprBoolTree* tree)
+{
+	BoolTreeNode* node = &tree->root;
+	while(node->mode != BoolTreeNode::MODE_LEAF)
+	{
+		if(node->branch.empty())
+			return nullptr;
+		node = &node->branch.front();
+	}
+	return node->leaf.get();
+}
+
+// Finds the read of the LHS inside the desugared RHS of a compound
+// assignment: the leftmost leaf of the binary expression, looking through
+// short-circuit bool trees.
+static ASTExpr* find_compound_read_node(ASTExpr* expr)
+{
+	AST* cur = expr;
+	while(cur)
+	{
+		if(auto* andnode = dynamic_cast<ASTExprAnd*>(cur); andnode && andnode->tree)
+			cur = booltree_first_leaf(andnode->tree.get());
+		else if(auto* ornode = dynamic_cast<ASTExprOr*>(cur); ornode && ornode->tree)
+			cur = booltree_first_leaf(ornode->tree.get());
+		else if(auto* bin = dynamic_cast<ASTBinaryExpr*>(cur))
+			cur = bin->left.get();
+		else
+			break;
+	}
+	return dynamic_cast<ASTExpr*>(cur);
+}
+
+// The arrow access a read of the given lval shape compiles through, if any.
+static ASTExprArrow* get_lval_arrow(ASTExpr* expr)
+{
+	if(auto* arrow = dynamic_cast<ASTExprArrow*>(expr))
+		return arrow;
+	if(auto* idx = dynamic_cast<ASTExprIndex*>(expr))
+		if(idx->array->isTypeArrow())
+			return static_cast<ASTExprArrow*>(idx->array.get());
+	return nullptr;
+}
+
+enum { ARROW_STASH_PTR = 1, ARROW_STASH_IDX = 2 };
+
+// Which parts of an arrow access get evaluated (and so are stashed by
+// emitArrowStash) for a read-modify-write of it. For a compound assignment
+// the LHS arrow only has its writeFunction bound and the RHS's read of it
+// only has its readFunction, so `read_arrow` supplies the read half when the
+// two are separate nodes.
+static int compute_arrow_stash_mask(ASTExprArrow& arrow, ASTExprArrow* read_arrow)
+{
+	int mask = 0;
+	if(arrow.index.get())
+		mask |= ARROW_STASH_IDX;
+	Function* readfn = arrow.readFunction ? arrow.readFunction
+		: read_arrow ? read_arrow->readFunction : nullptr;
+	Function* writefn = arrow.writeFunction ? arrow.writeFunction
+		: read_arrow ? read_arrow->writeFunction : nullptr;
+	if(arrow.u_datum && !arrow.u_datum->is_internal)
+		mask |= ARROW_STASH_PTR;
+	else
+	{
+		bool read_uses_ptr = readfn && !readfn->getIntFlag(IFUNCFLAG_SKIPPOINTER);
+		bool write_uses_ptr = writefn && !writefn->getIntFlag(IFUNCFLAG_SKIPPOINTER);
+		if(read_uses_ptr || write_uses_ptr)
+			mask |= ARROW_STASH_PTR;
+	}
+	return mask;
+}
+
+// Returns the lval as an ASTExprIndex if it reads/writes via the generic POD
+// array opcodes AND re-evaluating its array or index would repeat side
+// effects, so a read-modify-write of it should evaluate them only once.
+ASTExprIndex* BuildOpcodes::getSingleEvalIndexLVal(ASTExpr* expr)
+{
+	ASTExprIndex* lval = dynamic_cast<ASTExprIndex*>(expr);
+	if(!lval)
+		return nullptr;
+	// Arrow arrays use read/write functions instead; mirror the dispatch in
+	// caseExprIndex / LValBOHelper::caseExprIndex.
+	if(lval->array->isTypeArrow())
+	{
+		ASTExprArrow* arrow = static_cast<ASTExprArrow*>(lval->array.get());
+		if(!arrow->isTypeArrowUsrClass())
+			return nullptr;
+		if(arrow->u_datum->is_internal)
+			return nullptr;
+	}
+	if(!expr_has_side_effects(program, lval->array.get())
+		&& !expr_has_side_effects(program, lval->index.get()))
+		return nullptr; // re-evaluating is harmless; keep the cheaper codegen
+	return lval;
+}
+
+// Evaluates the lval's array pointer and index once, leaving them stashed on
+// the stack (array below index) for emitStashedIndexRead/Write.
+void BuildOpcodes::emitIndexStash(ASTExprIndex& lval, void* param)
+{
+	VISIT_USEVAL(lval.array.get(), param);
+	addOpcode(new OPushRegister(new VarArgument(EXP1)));
+	VISIT_USEVAL(lval.index.get(), param);
+	addOpcode(new OPushRegister(new VarArgument(EXP1)));
+}
+
+// Reads the current value of a stashed array[index] into EXP1, keeping the
+// stash on the stack.
+void BuildOpcodes::emitStashedIndexRead()
+{
+	addOpcode(new OPopRegister(new VarArgument(EXP2))); // index
+	addOpcode(new OPopRegister(new VarArgument(INDEX))); // array
+	addOpcode(new OPushRegister(new VarArgument(INDEX)));
+	addOpcode(new OPushRegister(new VarArgument(EXP2)));
+	addOpcode(new OReadPODArrayR(new VarArgument(EXP1), new VarArgument(EXP2)));
+}
+
+// Consumes the stash, writing EXP1 to array[index].
+void BuildOpcodes::emitStashedIndexWrite(DataType const* setting_type)
+{
+	addOpcode(new OPopRegister(new VarArgument(EXP2))); // index
+	addOpcode(new OPopRegister(new VarArgument(INDEX))); // array
+	addOpcode(new OWritePODArrayRR(new VarArgument(EXP2), new VarArgument(EXP1), new TypeArgument(setting_type)));
+}
+
+// Compiles a compound assignment (ex: `arr[f()] += v`) whose LHS is an array
+// access with side effects, evaluating the array pointer and index only once.
+bool BuildOpcodes::tryCompoundIndexAssign(ASTExprAssign& host, void* param)
+{
+	ASTExprIndex* lval = getSingleEvalIndexLVal(host.left.get());
+	if(!lval)
+		return false;
+	// The desugared RHS starts by reading the LHS back; that read must use
+	// the stashed array/index instead of evaluating them again.
+	ASTExprIndex* read = dynamic_cast<ASTExprIndex*>(find_compound_read_node(host.right.get()));
+	if(!read || read == lval)
+		return false;
+
+	emitIndexStash(*lval, param);
+
+	read->compound_read_active = true;
+	VISIT_USEVAL(host.right.get(), param);
+	read->compound_read_active = false;
+
+	const DataType* setting_type = &DataType::ZVOID;
+	if (auto type = host.right->getReadType(scope, nullptr); type && !type->isUntyped())
+		setting_type = type;
+
+	emitStashedIndexWrite(setting_type);
+	return true;
+}
+
+// Returns the arrow access of an lval that compiles through caseExprArrow
+// for both its read and its write, when re-evaluating its pointer or index
+// would repeat side effects. `read_arrow` is the separate read node of a
+// compound assignment, if any (see compute_arrow_stash_mask).
+ASTExprArrow* BuildOpcodes::getSingleEvalArrowLVal(ASTExpr* expr, ASTExprArrow* read_arrow)
+{
+	ASTExprArrow* arrow = nullptr;
+	if(auto* direct = dynamic_cast<ASTExprArrow*>(expr))
+		arrow = direct;
+	else if(auto* idx = dynamic_cast<ASTExprIndex*>(expr))
+	{
+		// Indexed arrows divert to the arrow codegen for both read and
+		// write only when not a user class array.
+		if(idx->array->isTypeArrow())
+		{
+			auto* a = static_cast<ASTExprArrow*>(idx->array.get());
+			if(!a->isTypeArrowUsrClass())
+				arrow = a;
+		}
+	}
+	if(!arrow)
+		return nullptr;
+	bool ucv = arrow->u_datum && !arrow->u_datum->is_internal;
+	Function* readfn = arrow->readFunction ? arrow->readFunction
+		: read_arrow ? read_arrow->readFunction : nullptr;
+	Function* writefn = arrow->writeFunction ? arrow->writeFunction
+		: read_arrow ? read_arrow->writeFunction : nullptr;
+	if(!ucv && (!readfn || !writefn))
+		return nullptr;
+	if(!ucv && !writefn->isNil() && !writefn->getFlag(FUNCFLAG_INLINE))
+		return nullptr; // no write path; let the old codegen report it
+	int mask = compute_arrow_stash_mask(*arrow, read_arrow);
+	if(!mask)
+		return nullptr;
+	if(!((mask & ARROW_STASH_PTR) && expr_has_side_effects(program, arrow->left.get()))
+		&& !((mask & ARROW_STASH_IDX) && expr_has_side_effects(program, arrow->index.get())))
+		return nullptr; // re-evaluating is harmless; keep the cheaper codegen
+	return arrow;
+}
+
+// Evaluates the arrow's pointer and index once, leaving them stashed on the
+// stack (pointer below index) for the flagged arrow read/write to use.
+void BuildOpcodes::emitArrowStash(ASTExprArrow& arrow, int stash_mask, void* param)
+{
+	if(stash_mask & ARROW_STASH_PTR)
+	{
+		VISIT_USEVAL(arrow.left.get(), param);
+		addOpcode(new OPushRegister(new VarArgument(EXP1)));
+	}
+	if(stash_mask & ARROW_STASH_IDX)
+	{
+		VISIT_USEVAL(arrow.index.get(), param);
+		addOpcode(new OPushRegister(new VarArgument(EXP1)));
+	}
+}
+
+// Writes EXP1 to the lval via LValBOHelper.
+void BuildOpcodes::emitCompoundWrite(AST& lval, DataType const* setting_type, void* param)
+{
+	LValBOHelper helper(program, this);
+	helper.parsing_user_class = parsing_user_class;
+	helper.setting_type = setting_type;
+	lval.execute(helper, param);
+	addOpcodes(helper.getResult());
+}
+
+// Compiles a compound assignment (ex: `getObj()->X += v`) whose LHS is an
+// arrow access with side effects, evaluating the pointer and index only once.
+bool BuildOpcodes::tryCompoundArrowAssign(ASTExprAssign& host, void* param)
+{
+	ASTExprArrow* read = get_lval_arrow(find_compound_read_node(host.right.get()));
+	if(!read)
+		return false;
+	ASTExprArrow* lval = getSingleEvalArrowLVal(host.left.get(), read);
+	if(!lval || read == lval)
+		return false;
+	int mask = compute_arrow_stash_mask(*lval, read);
+
+	emitArrowStash(*lval, mask, param);
+
+	read->compound_read_stash = mask;
+	VISIT_USEVAL(host.right.get(), param);
+	read->compound_read_stash = 0;
+
+	const DataType* setting_type = &DataType::ZVOID;
+	if (auto type = host.right->getReadType(scope, nullptr); type && !type->isUntyped())
+		setting_type = type;
+
+	lval->compound_write_stash = mask;
+	emitCompoundWrite(*host.left, setting_type, param);
+	lval->compound_write_stash = 0;
+	return true;
+}
+
 void BuildOpcodes::caseExprAssign(ASTExprAssign &host, void* param)
 {
+	if (host.is_compound && (tryCompoundIndexAssign(host, param) || tryCompoundArrowAssign(host, param)))
+		return;
+
 	//load the rval into EXP1
 	VISIT_USEVAL(host.right.get(), param);
 
@@ -1888,27 +2183,49 @@ void BuildOpcodes::caseExprIdentifier(ASTExprIdentifier& host, void*)
 
 void BuildOpcodes::caseExprArrow(ASTExprArrow& host, void* param)
 {
+	// The read of a compound assignment's LHS: the pointer and index were
+	// already evaluated and stashed on the stack. Load them into registers,
+	// keeping the stash for the write that follows.
+	int stash_mask = host.compound_read_stash;
+	bool from_stash = stash_mask != 0;
+	if(from_stash)
+	{
+		host.compound_read_stash = 0;
+		if(stash_mask & ARROW_STASH_IDX)
+			addOpcode(new OPopRegister(new VarArgument(EXP2)));
+		if(stash_mask & ARROW_STASH_PTR)
+		{
+			addOpcode(new OPopRegister(new VarArgument(EXP1)));
+			addOpcode(new OPushRegister(new VarArgument(EXP1)));
+		}
+		if(stash_mask & ARROW_STASH_IDX)
+			addOpcode(new OPushRegister(new VarArgument(EXP2)));
+	}
+
 	if (UserClassVar* ucv = host.u_datum; ucv && !ucv->is_internal)
 	{
-		SIDEFX_CHECK(host.left.get());
-		visit(host.left.get(), param);
+		if(!from_stash)
+		{
+			SIDEFX_CHECK(host.left.get());
+			visit(host.left.get(), param);
+		}
 		addOpcode(new OClassRead(new VarArgument(EXP1), new LiteralArgument(ucv->getIndex())));
 		return;
 	}
 
 	bool isIndexed = host.index;
 	Function* readfunc = host.readFunction;
-	
+
 	if(readfunc->isNil())
 	{
 		bool skipptr = readfunc->getIntFlag(IFUNCFLAG_SKIPPOINTER);
-		
-		if (!skipptr)
+
+		if (!skipptr && !from_stash)
 			sidefx_visit(host.left.get(), param);
-		
-		if(isIndexed)
+
+		if(isIndexed && !from_stash)
 			sidefx_visit(host.index.get(), param);
-		
+
 		if(!sidefx_only)
 			addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(0)));
 	}
@@ -1917,16 +2234,22 @@ void BuildOpcodes::caseExprArrow(ASTExprArrow& host, void* param)
 		if (!(readfunc->getIntFlag(IFUNCFLAG_SKIPPOINTER)))
 		{
 			//push the lhs of the arrow
-			VISIT_USEVAL(host.left.get(), param);
+			if(!from_stash)
+				VISIT_USEVAL(host.left.get(), param);
 			addOpcode(new OPushRegister(new VarArgument(EXP1)));
 		}
-		
+
 		if(isIndexed)
 		{
-			VISIT_USEVAL(host.index.get(), param);
-			addOpcode(new OPushRegister(new VarArgument(EXP1)));
+			if(from_stash)
+				addOpcode(new OPushRegister(new VarArgument(EXP2)));
+			else
+			{
+				VISIT_USEVAL(host.index.get(), param);
+				addOpcode(new OPushRegister(new VarArgument(EXP1)));
+			}
 		}
-		
+
 		std::vector<std::shared_ptr<Opcode>> const& funcCode = readfunc->getCode();
 		for(auto it = funcCode.begin();
 			it != funcCode.end(); ++it)
@@ -1946,15 +2269,21 @@ void BuildOpcodes::caseExprArrow(ASTExprArrow& host, void* param)
 		if (!(readfunc->getIntFlag(IFUNCFLAG_SKIPPOINTER)))
 		{
 			//push the lhs of the arrow
-			VISIT_USEVAL(host.left.get(), param);
+			if(!from_stash)
+				VISIT_USEVAL(host.left.get(), param);
 			addOpcode(new OPushRegister(new VarArgument(EXP1)));
 		}
 
 		//if indexed, push the index
 		if(isIndexed)
 		{
-			VISIT_USEVAL(host.index.get(), param);
-			addOpcode(new OPushRegister(new VarArgument(EXP1)));
+			if(from_stash)
+				addOpcode(new OPushRegister(new VarArgument(EXP2)));
+			else
+			{
+				VISIT_USEVAL(host.index.get(), param);
+				addOpcode(new OPushRegister(new VarArgument(EXP1)));
+			}
 		}
 
 		//call the function
@@ -1985,13 +2314,23 @@ void BuildOpcodes::caseExprIndex(ASTExprIndex& host, void* param)
 		}
 	}
 	
+	// The read of a compound assignment's LHS: the array pointer and index
+	// were already evaluated and stashed on the stack; read from those
+	// instead of evaluating them (and their side effects) a second time.
+	if(host.compound_read_active)
+	{
+		host.compound_read_active = false;
+		emitStashedIndexRead();
+		return;
+	}
+
 	if(sidefx_only)
 	{
 		sidefx_visit(host.array.get(), param);
 		sidefx_visit(host.index.get(), param);
 		return;
 	}
-	
+
 	auto arrVal = host.array->getCompileTimeValue(this,scope);
 	auto indxVal = host.index->getCompileTimeValue(this,scope);
 	
@@ -3471,8 +3810,72 @@ void BuildOpcodes::caseExprCoalesce(ASTExprCoalesce& host, void* param)
 
 void BuildOpcodes::caseExprCoalesceAssign(ASTExprCoalesceAssign& host, void* param)
 {
+	if (ASTExprIndex* lval = getSingleEvalIndexLVal(host.left.get()))
+	{
+		emitIndexStash(*lval, param);
+		emitStashedIndexRead();
+
+		int32_t skiplabel = ScriptParser::getUniqueLabelID();
+		int32_t endlabel = ScriptParser::getUniqueLabelID();
+		addOpcode(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(0)));
+		addOpcode(new OGotoFalseImmediate(new LabelArgument(skiplabel)));
+
+		VISIT_USEVAL(host.right.get(), param);
+
+		const DataType* setting_type = &DataType::ZVOID;
+		if (auto type = host.right->getReadType(scope, nullptr); type && !type->isUntyped())
+			setting_type = type;
+
+		emitStashedIndexWrite(setting_type);
+		addOpcode(new OGotoImmediate(new LabelArgument(endlabel)));
+
+		// lval was non-zero: discard the stash. EXP1 still holds the current
+		// value, which is the expression's result.
+		addOpcode(new ONoOp(skiplabel));
+		addOpcode(new OPopRegister(new VarArgument(EXP2)));
+		addOpcode(new OPopRegister(new VarArgument(INDEX)));
+		addOpcode(new ONoOp(endlabel));
+		return;
+	}
+
+	if (ASTExprArrow* lval = getSingleEvalArrowLVal(host.left.get(), nullptr))
+	{
+		int mask = compute_arrow_stash_mask(*lval, nullptr);
+
+		emitArrowStash(*lval, mask, param);
+		lval->compound_read_stash = mask;
+		VISIT_USEVAL(host.left.get(), param);
+		lval->compound_read_stash = 0;
+
+		int32_t skiplabel = ScriptParser::getUniqueLabelID();
+		int32_t endlabel = ScriptParser::getUniqueLabelID();
+		addOpcode(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(0)));
+		addOpcode(new OGotoFalseImmediate(new LabelArgument(skiplabel)));
+
+		VISIT_USEVAL(host.right.get(), param);
+
+		const DataType* setting_type = &DataType::ZVOID;
+		if (auto type = host.right->getReadType(scope, nullptr); type && !type->isUntyped())
+			setting_type = type;
+
+		lval->compound_write_stash = mask;
+		emitCompoundWrite(*host.left, setting_type, param);
+		lval->compound_write_stash = 0;
+		addOpcode(new OGotoImmediate(new LabelArgument(endlabel)));
+
+		// lval was non-zero: discard the stash. EXP1 still holds the current
+		// value, which is the expression's result.
+		addOpcode(new ONoOp(skiplabel));
+		if(mask & ARROW_STASH_IDX)
+			addOpcode(new OPopRegister(new VarArgument(EXP2)));
+		if(mask & ARROW_STASH_PTR)
+			addOpcode(new OPopRegister(new VarArgument(INDEX)));
+		addOpcode(new ONoOp(endlabel));
+		return;
+	}
+
 	VISIT_USEVAL(host.left.get(), param);
-	
+
 	int32_t skiplabel = ScriptParser::getUniqueLabelID();
 	addOpcode(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(0)));
 	addOpcode(new OGotoFalseImmediate(new LabelArgument(skiplabel)));
@@ -3922,6 +4325,29 @@ void BuildOpcodes::compareExprs(ASTExpr* left, ASTExpr* right, void* param)
 
 void BuildOpcodes::buildPreOp(ASTExpr* operand, void* param, vector<shared_ptr<Opcode>> const& ops)
 {
+	if (ASTExprIndex* lval = getSingleEvalIndexLVal(operand))
+	{
+		emitIndexStash(*lval, param);
+		emitStashedIndexRead();
+		addOpcodes(ops);
+		emitStashedIndexWrite(&DataType::ZVOID);
+		return;
+	}
+
+	if (ASTExprArrow* lval = getSingleEvalArrowLVal(operand, nullptr))
+	{
+		int mask = compute_arrow_stash_mask(*lval, nullptr);
+		emitArrowStash(*lval, mask, param);
+		lval->compound_read_stash = mask;
+		VISIT_USEVAL(operand, param);
+		lval->compound_read_stash = 0;
+		addOpcodes(ops);
+		lval->compound_write_stash = mask;
+		emitCompoundWrite(*operand, &DataType::ZVOID, param);
+		lval->compound_write_stash = 0;
+		return;
+	}
+
 	OpcodeContext* c = (OpcodeContext*)param;
 
 	// Load value of the variable into EXP1.
@@ -3941,7 +4367,50 @@ void BuildOpcodes::buildPostOp(ASTExpr* operand, void* param, vector<shared_ptr<
 {
 	if(sidefx_only)
 		return buildPreOp(operand, param, ops);
-	
+
+	if (ASTExprIndex* lval = getSingleEvalIndexLVal(operand))
+	{
+		emitIndexStash(*lval, param);
+		emitStashedIndexRead();
+		// Save the original value under the stash while the new value is
+		// computed and written.
+		addOpcode(new OPushRegister(new VarArgument(EXP1)));
+		addOpcodes(ops);
+		addOpcode(new OPopRegister(new VarArgument(SFTEMP)));
+		emitStashedIndexWrite(&DataType::ZVOID);
+		addOpcode(new OSetRegister(new VarArgument(EXP1), new VarArgument(SFTEMP)));
+		return;
+	}
+
+	if (ASTExprArrow* lval = getSingleEvalArrowLVal(operand, nullptr))
+	{
+		int mask = compute_arrow_stash_mask(*lval, nullptr);
+		emitArrowStash(*lval, mask, param);
+		lval->compound_read_stash = mask;
+		VISIT_USEVAL(operand, param);
+		lval->compound_read_stash = 0;
+
+		// Tuck the original value under the stash until after the write.
+		if(mask & ARROW_STASH_IDX)
+			addOpcode(new OPopRegister(new VarArgument(EXP2)));
+		if(mask & ARROW_STASH_PTR)
+			addOpcode(new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode(new OPushRegister(new VarArgument(EXP1)));
+		if(mask & ARROW_STASH_PTR)
+			addOpcode(new OPushRegister(new VarArgument(SFTEMP)));
+		if(mask & ARROW_STASH_IDX)
+			addOpcode(new OPushRegister(new VarArgument(EXP2)));
+
+		addOpcodes(ops);
+
+		lval->compound_write_stash = mask;
+		emitCompoundWrite(*operand, &DataType::ZVOID, param);
+		lval->compound_write_stash = 0;
+
+		addOpcode(new OPopRegister(new VarArgument(EXP1)));
+		return;
+	}
+
 	OpcodeContext* c = (OpcodeContext*)param;
 
 	// Load value of the variable into EXP1 and push.
@@ -4118,8 +4587,29 @@ void LValBOHelper::caseExprIdentifier(ASTExprIdentifier& host, void* param)
 
 void LValBOHelper::caseExprArrow(ASTExprArrow &host, void *param)
 {
+	// The write of a compound assignment: the pointer and index were
+	// already evaluated once and stashed on the stack by the read side.
+	// Consume the stash instead of evaluating them again. EXP1 holds the
+	// value to write throughout.
+	int stash_mask = host.compound_write_stash;
+	bool from_stash = stash_mask != 0;
+	if(from_stash)
+	{
+		host.compound_write_stash = 0;
+		if(stash_mask & ARROW_STASH_IDX)
+			addOpcode(new OPopRegister(new VarArgument(EXP2)));
+		if(stash_mask & ARROW_STASH_PTR)
+			addOpcode(new OPopRegister(new VarArgument(SFTEMP)));
+	}
+
 	if(UserClassVar* ucv = host.u_datum; ucv && !ucv->is_internal)
 	{
+		if(from_stash)
+		{
+			addOpcode(new OSetRegister(new VarArgument(EXP2), new VarArgument(SFTEMP)));
+			addOpcode(new OClassWrite(new VarArgument(EXP2), new LiteralArgument(ucv->getIndex())));
+			return;
+		}
 		BuildOpcodes oc(program, this);
 		oc.parsing_user_class = parsing_user_class;
 		addOpcode(new OPushRegister(new VarArgument(EXP1)));
@@ -4133,9 +4623,12 @@ void LValBOHelper::caseExprArrow(ASTExprArrow &host, void *param)
 
 	int32_t isIndexed = (host.index != NULL);
 	assert(host.writeFunction->isInternal());
-	
+
 	if(host.writeFunction->isNil())
 	{
+		// With a stash, the pointer/index side effects already ran.
+		if(from_stash)
+			return;
 		bool skipptr = host.writeFunction->getIntFlag(IFUNCFLAG_SKIPPOINTER);
 		bool needs_pushpop = isIndexed || !skipptr;
 		if(needs_pushpop)
@@ -4148,7 +4641,7 @@ void LValBOHelper::caseExprArrow(ASTExprArrow &host, void *param)
 			oc.visit(host.left.get(), param);
 			addOpcodes(oc.getResult());
 		}
-		
+
 		if(isIndexed)
 		{
 			BuildOpcodes oc2(program, this);
@@ -4163,33 +4656,48 @@ void LValBOHelper::caseExprArrow(ASTExprArrow &host, void *param)
 	{
 		if (!(host.writeFunction->getIntFlag(IFUNCFLAG_SKIPPOINTER)))
 		{
-			//Push rval
-			addOpcode(new OPushRegister(new VarArgument(EXP1)));
-			//Get lval
-			BuildOpcodes oc(program, this);
-			oc.parsing_user_class = parsing_user_class;
-			oc.visit(host.left.get(), param);
-			addOpcodes(oc.getResult());
-			//Pop rval
-			addOpcode(new OPopRegister(new VarArgument(EXP2)));
-			//Push lval
-			addOpcode(new OPushRegister(new VarArgument(EXP1)));
-			//Push rval
-			addOpcode(new OPushRegister(new VarArgument(EXP2)));
+			if(from_stash)
+			{
+				//Push lval
+				addOpcode(new OPushRegister(new VarArgument(SFTEMP)));
+				//Push rval
+				addOpcode(new OPushRegister(new VarArgument(EXP1)));
+			}
+			else
+			{
+				//Push rval
+				addOpcode(new OPushRegister(new VarArgument(EXP1)));
+				//Get lval
+				BuildOpcodes oc(program, this);
+				oc.parsing_user_class = parsing_user_class;
+				oc.visit(host.left.get(), param);
+				addOpcodes(oc.getResult());
+				//Pop rval
+				addOpcode(new OPopRegister(new VarArgument(EXP2)));
+				//Push lval
+				addOpcode(new OPushRegister(new VarArgument(EXP1)));
+				//Push rval
+				addOpcode(new OPushRegister(new VarArgument(EXP2)));
+			}
 		}
 		else
 		{
 			//Push rval
 			addOpcode(new OPushRegister(new VarArgument(EXP1)));
 		}
-		
+
 		if(isIndexed)
 		{
-			BuildOpcodes oc2(program, this);
-			oc2.parsing_user_class = parsing_user_class;
-			oc2.visit(host.index.get(), param);
-			addOpcodes(oc2.getResult());
-			addOpcode(new OPushRegister(new VarArgument(EXP1)));
+			if(from_stash)
+				addOpcode(new OPushRegister(new VarArgument(EXP2)));
+			else
+			{
+				BuildOpcodes oc2(program, this);
+				oc2.parsing_user_class = parsing_user_class;
+				oc2.visit(host.index.get(), param);
+				addOpcodes(oc2.getResult());
+				addOpcode(new OPushRegister(new VarArgument(EXP1)));
+			}
 		}
 
 		// Some internal variables (untyped arrays like sprite::Misc[]) may set objects. For those,

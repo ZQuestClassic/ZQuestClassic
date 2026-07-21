@@ -1377,6 +1377,11 @@ namespace ZScript
 	
 		owning_ptr<ASTExpr> left;
 		owning_ptr<ASTExpr> right;
+
+		// True for the desugared form of a compound assignment operator
+		// (`+=`, `-=`, ...), where `right` is a binary expression whose
+		// left operand is a clone of `left`.
+		bool is_compound = false;
 	};
 
 	class ASTExprIdentifier : public ASTExpr
@@ -1448,6 +1453,13 @@ namespace ZScript
 		DataType const* wtype;
 		UserClassVar* u_datum;
 		bool iscall;
+
+		// Set during codegen on a compound assignment's LHS: a mask of
+		// ARROW_STASH_* parts that were already evaluated once and stashed
+		// on the stack. The read loads them from the stash (keeping it);
+		// the write consumes it. 0 when inactive.
+		int compound_read_stash = 0;
+		int compound_write_stash = 0;
 	};
 
 	class ASTExprIndex : public ASTExpr
@@ -1471,6 +1483,11 @@ namespace ZScript
 	
 		owning_ptr<ASTExpr> array;
 		owning_ptr<ASTExpr> index;
+
+		// Set during codegen on the read of a compound assignment's LHS:
+		// the array pointer and index were already evaluated and pushed to
+		// the stack, so read from those instead of evaluating again.
+		bool compound_read_active = false;
 	};
 
 	class ASTExprCall : public ASTExpr

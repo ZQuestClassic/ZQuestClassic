@@ -259,7 +259,18 @@ namespace ZScript
 		
 		void buildPreOp(ASTExpr* operand, void* param, vector<std::shared_ptr<Opcode>> const& ops);
 		void buildPostOp(ASTExpr* operand, void* param, vector<std::shared_ptr<Opcode>> const& ops);
-		
+
+		ASTExprIndex* getSingleEvalIndexLVal(ASTExpr* expr);
+		void emitIndexStash(ASTExprIndex& lval, void* param);
+		void emitStashedIndexRead();
+		void emitStashedIndexWrite(DataType const* setting_type);
+		bool tryCompoundIndexAssign(ASTExprAssign& host, void* param);
+
+		ASTExprArrow* getSingleEvalArrowLVal(ASTExpr* expr, ASTExprArrow* read_arrow);
+		void emitArrowStash(ASTExprArrow& arrow, int stash_mask, void* param);
+		void emitCompoundWrite(AST& lval, DataType const* setting_type, void* param);
+		bool tryCompoundArrowAssign(ASTExprAssign& host, void* param);
+
 		void push_param(bool varg = false);
 		optional<int> eatSetCompare();
 		optional<bool> rec_booltree_shortcircuit(BoolTreeNode& node, int parentMode, int truelbl, int falselbl, void* param);

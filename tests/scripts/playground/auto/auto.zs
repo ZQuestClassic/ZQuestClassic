@@ -2,6 +2,7 @@
 
 #include "auto/arrays.zs"
 #include "auto/bitmap_load_rt_screen.zs"
+#include "auto/bug_compound_assign_side_effects.zs"
 #include "auto/bug_convert_rgb.zs"
 #include "auto/bug_draw_minitile_oob.zs"
 #include "auto/bug_dtor_reentrancy.zs"
