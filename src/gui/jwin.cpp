@@ -5134,9 +5134,11 @@ void _jwin_draw_abclistbox(DIALOG *d)
 }
 
 /* _jwin_draw_listbox:
-  *  Helper function to draw a listbox object.
+  *  Helper function to draw a listbox object. 'max_rows' caps how many
+  *  list rows are drawn (0 for no cap): a closed dropdown passes 1, as it
+  *  displays only the selected item no matter how many rows of text fit.
   */
-void _jwin_draw_listbox(DIALOG *d)
+void _jwin_draw_listbox(DIALOG *d, int32_t max_rows = 0)
 {
     int32_t height, listsize, i, len, bar, x, y, w;
     int32_t fg_color, bg_color, fg, bg;
@@ -5146,6 +5148,8 @@ void _jwin_draw_listbox(DIALOG *d)
 
     data->listFunc(-1, &listsize);
     height = (d->h-3) / text_height(*data->font);
+    if(max_rows > 0)
+        height = zc_min(height, max_rows);
     bar = (listsize > height);
     w = (bar ? d->w-21 : d->w-5);
     fg_color = (d->flags & D_DISABLED) ? scheme[jcDISABLED_FG] : (d->fg ? d->fg : scheme[jcTEXTFG]);
@@ -6797,14 +6801,21 @@ int32_t jwin_droplist_proc(int32_t msg,DIALOG *d,int32_t c)
 	{
 		case MSG_CLICK:
 			goto dropit;
-				
+
 			break;
-			
+
 		case MSG_KEY:
 			goto dropit;
 			break;
+
+		case MSG_DRAW:
+			// A closed dropdown displays only the selected row, no matter how
+			// many rows of text fit in the widget height.
+			_jwin_draw_listbox(d, 1);
+			draw_arrow_button(screen, d->x+d->w-18, d->y+2,16, d->h-4, 0, 0);
+			return D_O_K;
 	}
-	
+
 	d1 = d->d1;
 	ret = jwin_list_proc(msg,d,c);
 
@@ -6836,11 +6847,6 @@ int32_t jwin_droplist_proc(int32_t msg,DIALOG *d,int32_t c)
 			ret |= D_CLOSE;
 	}
 
-	if(msg == MSG_DRAW)
-	{
-		draw_arrow_button(screen, d->x+d->w-18, d->y+2,16, d->h-4, 0, 0);
-	}
-	
 	return ret;
 	
 dropit:
