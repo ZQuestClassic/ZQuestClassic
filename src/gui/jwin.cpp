@@ -5422,7 +5422,9 @@ int32_t jwin_do_abclist_proc(int32_t msg, DIALOG *d, int32_t c)
 					}
 				}
 
-				return D_REDRAWME;
+				// No early return: 'ret' may hold D_CLOSE, and the function
+				// tail must restore the height shrunk at entry.
+				ret |= D_REDRAWME;
 			}
 			else
 			{
