@@ -1110,7 +1110,7 @@ int32_t npc_get_register(int32_t reg)
 		
 		case NPCSCRIPTUID:
 			if (!npc)
-				ret = -10000;
+				ret = 0;
 			else
 				ret = ((npc->getUID()));
 				
@@ -1118,7 +1118,7 @@ int32_t npc_get_register(int32_t reg)
 		
 		case NPCPARENTUID:
 			if (!npc)
-				ret = -10000;
+				ret = 0;
 			else
 				ret = npc->parent ? npc->parent->getUID() : 0; //literal, not *10000
 				

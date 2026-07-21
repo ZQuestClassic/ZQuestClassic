@@ -612,7 +612,11 @@ class npc {
 	// @zasm_var NPCSCRIPTUID
 	internal const int UID;
 
-	// @deprecated
+	// @versionadded 3.0
+	// @zasm_var NPCPARENTUID
+	internal npc Parent;
+
+	// @deprecated - use [Parent] or [Parent->UID] instead.
 	// @zasm_var NPCPARENTUID
 	internal int ParentUID;
 
