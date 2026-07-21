@@ -5,6 +5,7 @@
 #include "base/version.h"
 #include "base/zapp.h"
 #include "zc/zc_sys.h"
+#include "zalleg/render.h"
 #include "zalleg/zalleg.h"
 #include "base/util.h"
 #include "zc/zelda.h"
@@ -33,6 +34,9 @@
 #ifdef __EMSCRIPTEN__
 #include "base/emscripten_utils.h"
 #endif
+
+extern PALETTE* hw_palette;
+extern bool update_hw_pal;
 
 using namespace std::chrono_literals;
 
@@ -1502,6 +1506,15 @@ void replay_poll()
 			return;
 		}
 		exit_sys_pal();
+
+		// exit_sys_pal only schedules the palette swap for the next render, but the
+		// gfx hash below converts the frame via the currently applied palette - so
+		// apply it now, else this frame hashes with the system palette.
+		if (hw_palette)
+		{
+			zc_set_palette(*hw_palette);
+			update_hw_pal = false;
+		}
 
         rs.did_attempt_input_during_replay = false;
         install_keyboard_handlers();
