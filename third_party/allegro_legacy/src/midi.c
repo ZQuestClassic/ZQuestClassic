@@ -119,6 +119,28 @@ static MIDI_CHANNEL midi_channel[16];           /* MIDI channel info */
 static WAITING_NOTE midi_waiting[MIDI_VOICES];  /* notes still to be played */
 static PATCH_TABLE patch_table[128];            /* GM -> external synth */
 
+/* local edit - shadow of the durable per-channel state held by an external
+ * (raw_midi) synth. The synth device outlives each song, and CC121 ("reset
+ * all controllers") deliberately does not reset bank select, pitch bend
+ * sensitivity or channel tuning, so without explicit resets one song's
+ * controller setup detunes every song played after it. This shadow lets
+ * prepare_to_play() reset the synth to GM defaults per song, and lets
+ * midi_seek() re-send controllers that would otherwise be swallowed while
+ * seeking with the dummy driver installed.
+ */
+typedef struct MIDI_CHANNEL_SHADOW
+{
+   unsigned char cc[128];                       /* last sent value, 255 = never sent */
+   unsigned char sel_mode;                      /* 0 = none, 1 = RPN, 2 = NRPN */
+   unsigned char bend_range_semi;               /* RPN 0 coarse (semitones) */
+   unsigned char bend_range_cents;              /* RPN 0 fine (cents) */
+   unsigned char fine_tune_msb;                 /* RPN 1 coarse */
+   unsigned char fine_tune_lsb;                 /* RPN 1 fine */
+   unsigned char coarse_tune;                   /* RPN 2 coarse */
+} MIDI_CHANNEL_SHADOW;
+
+static MIDI_CHANNEL_SHADOW midi_shadow[16];
+
 static int midi_seeking;                        /* set during seeks */
 static int midi_looping;                        /* set during loops */
 
@@ -619,6 +641,148 @@ END_OF_STATIC_FUNCTION(all_sound_off);
 
 
 
+/* local edit - shadow_note_cc:
+ *  Records a controller value in the channel shadow, interpreting the RPN
+ *  select / data entry machinery so we know the effective pitch bend range
+ *  and channel tuning the external synth is left with.
+ */
+static void shadow_note_cc(int channel, int ctrl, int data)
+{
+   MIDI_CHANNEL_SHADOW *s = &midi_shadow[channel];
+
+   s->cc[ctrl] = data;
+
+   switch (ctrl) {
+
+      case 98:                                  /* NRPN select */
+      case 99:
+	 s->sel_mode = 2;
+	 break;
+
+      case 100:                                 /* RPN select */
+      case 101:
+	 s->sel_mode = 1;
+	 break;
+
+      case 6:                                   /* data entry */
+      case 38:
+	 if ((s->sel_mode == 1) && (s->cc[101] == 0)) {
+	    switch (s->cc[100]) {
+	       case 0:                          /* pitch bend sensitivity */
+		  if (ctrl == 6)
+		     s->bend_range_semi = data;
+		  else
+		     s->bend_range_cents = data;
+		  break;
+	       case 1:                          /* channel fine tuning */
+		  if (ctrl == 6)
+		     s->fine_tune_msb = data;
+		  else
+		     s->fine_tune_lsb = data;
+		  break;
+	       case 2:                          /* channel coarse tuning */
+		  if (ctrl == 6)
+		     s->coarse_tune = data;
+		  break;
+	    }
+	 }
+	 break;
+   }
+}
+
+END_OF_STATIC_FUNCTION(shadow_note_cc);
+
+
+
+/* local edit - raw_cc:
+ *  Sends a controller message to a raw MIDI device and mirrors it into the
+ *  channel shadow. Only call when midi_driver->raw_midi is set.
+ */
+static void raw_cc(int channel, int ctrl, int data)
+{
+   midi_driver->raw_midi(0xB0+channel);
+   midi_driver->raw_midi(ctrl);
+   midi_driver->raw_midi(data);
+   shadow_note_cc(channel, ctrl, data);
+}
+
+END_OF_STATIC_FUNCTION(raw_cc);
+
+
+
+/* local edit - raw_cc_send:
+ *  Like raw_cc, but does not touch the shadow. Used when re-sending state
+ *  the shadow already holds (after a seek).
+ */
+static void raw_cc_send(int channel, int ctrl, int data)
+{
+   midi_driver->raw_midi(0xB0+channel);
+   midi_driver->raw_midi(ctrl);
+   midi_driver->raw_midi(data);
+}
+
+END_OF_STATIC_FUNCTION(raw_cc_send);
+
+
+
+/* local edit - reset_synth_channel:
+ *  Resets the durable state of one channel of an external synth to GM
+ *  defaults. CC121 (sent by reset_controllers) does not cover any of this:
+ *  per the MIDI spec it must leave bank select, pitch bend sensitivity,
+ *  channel tunings and effects sends alone. Songs routinely change these
+ *  (and the GM Reset sysex they carry is never forwarded to the device), so
+ *  without this a song that e.g. sets bend range 12 poisons the pitch bends
+ *  of every song after it, until the app is restarted.
+ *  Only call when midi_driver->raw_midi is set.
+ */
+static void reset_synth_channel(int channel)
+{
+   /* bank select */
+   raw_cc(channel, 0, 0);
+   raw_cc(channel, 32, 0);
+
+   /* pitch bend sensitivity = 2 semitones (RPN 0) */
+   raw_cc(channel, 101, 0);
+   raw_cc(channel, 100, 0);
+   raw_cc(channel, 6, 2);
+   raw_cc(channel, 38, 0);
+
+   /* channel fine tuning = center (RPN 1) */
+   raw_cc(channel, 100, 1);
+   raw_cc(channel, 6, 64);
+   raw_cc(channel, 38, 0);
+
+   /* channel coarse tuning = center (RPN 2) */
+   raw_cc(channel, 100, 2);
+   raw_cc(channel, 6, 64);
+
+   /* deselect (RPN null), so stray data entry does nothing */
+   raw_cc(channel, 101, 127);
+   raw_cc(channel, 100, 127);
+
+   /* controllers CC121 covers, sent explicitly anyway so the shadow and
+      less compliant synths agree with it, plus GM effects defaults */
+   raw_cc(channel, 1, 0);                       /* modulation */
+   raw_cc(channel, 5, 0);                       /* portamento time */
+   raw_cc(channel, 11, 127);                    /* expression */
+   raw_cc(channel, 64, 0);                      /* hold pedal */
+   raw_cc(channel, 65, 0);                      /* portamento switch */
+   raw_cc(channel, 66, 0);                      /* sostenuto */
+   raw_cc(channel, 67, 0);                      /* soft pedal */
+   raw_cc(channel, 91, 40);                     /* reverb send */
+   raw_cc(channel, 93, 0);                      /* chorus send */
+
+   /* drum channel: back to the standard kit (raw_program_change skips 9) */
+   if (channel == 9) {
+      midi_driver->raw_midi(0xC0+channel);
+      midi_driver->raw_midi(0);
+   }
+}
+
+END_OF_STATIC_FUNCTION(reset_synth_channel);
+
+
+
 /* reset_controllers:
  *  Resets volume, pan, pitch bend, etc, to default positions.
  */
@@ -741,6 +905,9 @@ static void process_controller(int channel, int ctrl, int data)
 	 break;
 
       default:
+	 /* local edit - track durable state so it can be reset per song and
+	    restored across seeks */
+	 shadow_note_cc(channel, ctrl, data);
 	 if (midi_driver->raw_midi) {
 	    midi_driver->raw_midi(0xB0+channel);
 	    midi_driver->raw_midi(ctrl);
@@ -1055,6 +1222,15 @@ static int midi_init(void)
       for (c2=0; c2<128; c2++)
 	 for (c3=0; c3<MIDI_LAYERS; c3++)
 	    midi_channel[c].note[c2][c3] = -1;
+
+      /* local edit - shadow starts at GM defaults / never-sent */
+      memset(midi_shadow[c].cc, 255, sizeof(midi_shadow[c].cc));
+      midi_shadow[c].sel_mode = 0;
+      midi_shadow[c].bend_range_semi = 2;
+      midi_shadow[c].bend_range_cents = 0;
+      midi_shadow[c].fine_tune_msb = 64;
+      midi_shadow[c].fine_tune_lsb = 0;
+      midi_shadow[c].coarse_tune = 64;
    }
 
    for (c=0; c<MIDI_VOICES; c++) {
@@ -1215,6 +1391,12 @@ static void prepare_to_play(MIDI *midi)
    for (c=0; c<16; c++)
       reset_controllers(c);
 
+   /* local edit - fully reset external synths; CC121 alone leaves bend
+      range, tunings and bank select from the previous song in place */
+   if (midi_driver->raw_midi)
+      for (c=0; c<16; c++)
+	 reset_synth_channel(c);
+
    update_controllers();
 
    midifile = midi;
@@ -1373,11 +1555,120 @@ END_OF_FUNCTION(midi_resume);
 
 
 
+/* local edit - shadow_replay_banks:
+ *  After a seek, re-sends bank select if the seeked-over events changed it.
+ *  Returns non-zero if it did (the caller must then re-send program change,
+ *  since bank select only takes effect on the next program change).
+ */
+static int shadow_replay_banks(int channel, MIDI_CHANNEL_SHADOW *old)
+{
+   MIDI_CHANNEL_SHADOW *s = &midi_shadow[channel];
+   int changed = FALSE;
+
+   if ((s->cc[0] != 255) && (s->cc[0] != old->cc[0])) {
+      raw_cc_send(channel, 0, s->cc[0]);
+      changed = TRUE;
+   }
+   if ((s->cc[32] != 255) && (s->cc[32] != old->cc[32])) {
+      raw_cc_send(channel, 32, s->cc[32]);
+      changed = TRUE;
+   }
+   return changed;
+}
+
+END_OF_STATIC_FUNCTION(shadow_replay_banks);
+
+
+
+/* local edit - shadow_replay_ccs:
+ *  After a seek, re-sends any pass-through controllers the seeked-over
+ *  events changed. Without this, seeking (including loop-back seeks, and
+ *  a song's configured start offset) silently dropped every controller in
+ *  the skipped region: they were "sent" to the dummy driver and lost.
+ */
+static void shadow_replay_ccs(int channel, MIDI_CHANNEL_SHADOW *old)
+{
+   MIDI_CHANNEL_SHADOW *s = &midi_shadow[channel];
+   int ctrl;
+
+   for (ctrl=1; ctrl<120; ctrl++) {
+      /* handled elsewhere: banks (0/32), volume (7), pan (10), and the
+	 (N)RPN machinery (6/38/96-101) */
+      if ((ctrl == 6) || (ctrl == 7) || (ctrl == 10) || (ctrl == 32) ||
+	  (ctrl == 38) || ((ctrl >= 96) && (ctrl <= 101)))
+	 continue;
+
+      if ((s->cc[ctrl] != 255) && (s->cc[ctrl] != old->cc[ctrl]))
+	 raw_cc_send(channel, ctrl, s->cc[ctrl]);
+   }
+}
+
+END_OF_STATIC_FUNCTION(shadow_replay_ccs);
+
+
+
+/* local edit - shadow_replay_rpns:
+ *  After a seek, re-sends pitch bend sensitivity and channel tunings if the
+ *  seeked-over events changed them, then leaves the device's (N)RPN
+ *  selection matching the shadow.
+ */
+static void shadow_replay_rpns(int channel, MIDI_CHANNEL_SHADOW *old)
+{
+   MIDI_CHANNEL_SHADOW *s = &midi_shadow[channel];
+   int sent = FALSE;
+
+   if ((s->bend_range_semi != old->bend_range_semi) ||
+       (s->bend_range_cents != old->bend_range_cents)) {
+      raw_cc_send(channel, 101, 0);
+      raw_cc_send(channel, 100, 0);
+      raw_cc_send(channel, 6, s->bend_range_semi);
+      raw_cc_send(channel, 38, s->bend_range_cents);
+      sent = TRUE;
+   }
+
+   if ((s->fine_tune_msb != old->fine_tune_msb) ||
+       (s->fine_tune_lsb != old->fine_tune_lsb)) {
+      raw_cc_send(channel, 101, 0);
+      raw_cc_send(channel, 100, 1);
+      raw_cc_send(channel, 6, s->fine_tune_msb);
+      raw_cc_send(channel, 38, s->fine_tune_lsb);
+      sent = TRUE;
+   }
+
+   if (s->coarse_tune != old->coarse_tune) {
+      raw_cc_send(channel, 101, 0);
+      raw_cc_send(channel, 100, 2);
+      raw_cc_send(channel, 6, s->coarse_tune);
+      sent = TRUE;
+   }
+
+   if (sent || (s->sel_mode != old->sel_mode) ||
+       (s->cc[98] != old->cc[98]) || (s->cc[99] != old->cc[99]) ||
+       (s->cc[100] != old->cc[100]) || (s->cc[101] != old->cc[101])) {
+      if ((s->sel_mode == 2) && (s->cc[99] != 255)) {
+	 raw_cc_send(channel, 99, s->cc[99]);
+	 raw_cc_send(channel, 98, (s->cc[98] != 255) ? s->cc[98] : 127);
+      }
+      else if ((s->sel_mode == 1) && (s->cc[101] != 255)) {
+	 raw_cc_send(channel, 101, s->cc[101]);
+	 raw_cc_send(channel, 100, (s->cc[100] != 255) ? s->cc[100] : 127);
+      }
+      else {
+	 raw_cc_send(channel, 101, 127);
+	 raw_cc_send(channel, 100, 127);
+      }
+   }
+}
+
+END_OF_STATIC_FUNCTION(shadow_replay_rpns);
+
+
+
 /* midi_seek:
- *  Seeks to the given midi_pos in the current MIDI file. If the target 
- *  is earlier in the file than the current midi_pos it seeks from the 
- *  beginning; otherwise it seeks from the current position. Returns zero 
- *  if successful, non-zero if it hit the end of the file (1 means it 
+ *  Seeks to the given midi_pos in the current MIDI file. If the target
+ *  is earlier in the file than the current midi_pos it seeks from the
+ *  beginning; otherwise it seeks from the current position. Returns zero
+ *  if successful, non-zero if it hit the end of the file (1 means it
  *  stopped playing, 2 means it looped back to the start).
  */
 int midi_seek(int target)
@@ -1389,6 +1680,7 @@ int midi_seek(int target)
    int old_volume[16];
    int old_pan[16];
    int old_pitch_bend[16];
+   MIDI_CHANNEL_SHADOW old_shadow[16];          /* local edit */
    int c;
 
    if (!midifile)
@@ -1404,6 +1696,7 @@ int midi_seek(int target)
       old_pan[c] = midi_channel[c].pan;
       old_pitch_bend[c] = midi_channel[c].pitch_bend;
    }
+   memcpy(old_shadow, midi_shadow, sizeof(old_shadow));   /* local edit */
 
    /* save some variables and give temporary values */
    old_driver = midi_driver;
@@ -1445,8 +1738,12 @@ int midi_seek(int target)
       /* refresh the driver with any changed parameters */
       if (midi_driver->raw_midi) {
 	 for (c=0; c<16; c++) {
+	    /* local edit - bank select (must precede program change) */
+	    int bank_changed = shadow_replay_banks(c, &old_shadow[c]);
+
 	    /* program change (this sets the volume as well) */
-	    if ((midi_channel[c].patch != old_patch[c]) ||
+	    if ((bank_changed) ||
+		(midi_channel[c].patch != old_patch[c]) ||
 		(midi_channel[c].volume != old_volume[c]))
 	       raw_program_change(c, midi_channel[c].patch);
 
@@ -1463,6 +1760,10 @@ int midi_seek(int target)
 	       midi_driver->raw_midi(midi_channel[c].pitch_bend & 0x7F);
 	       midi_driver->raw_midi(midi_channel[c].pitch_bend >> 7);
 	    }
+
+	    /* local edit - everything else the seeked-over events changed */
+	    shadow_replay_ccs(c, &old_shadow[c]);
+	    shadow_replay_rpns(c, &old_shadow[c]);
 	 }
       }
 
@@ -1574,6 +1875,7 @@ static void midi_lock_mem(void)
    LOCK_VARIABLE(midi_track);
    LOCK_VARIABLE(midi_voice);
    LOCK_VARIABLE(midi_channel);
+   LOCK_VARIABLE(midi_shadow);
    LOCK_VARIABLE(midi_waiting);
    LOCK_VARIABLE(patch_table);
    LOCK_VARIABLE(midi_msg_callback);
@@ -1583,6 +1885,13 @@ static void midi_lock_mem(void)
    LOCK_VARIABLE(midi_looping);
    LOCK_FUNCTION(parse_var_len);
    LOCK_FUNCTION(raw_program_change);
+   LOCK_FUNCTION(shadow_note_cc);
+   LOCK_FUNCTION(raw_cc);
+   LOCK_FUNCTION(raw_cc_send);
+   LOCK_FUNCTION(reset_synth_channel);
+   LOCK_FUNCTION(shadow_replay_banks);
+   LOCK_FUNCTION(shadow_replay_ccs);
+   LOCK_FUNCTION(shadow_replay_rpns);
    LOCK_FUNCTION(midi_note_off);
    LOCK_FUNCTION(_midi_allocate_voice);
    LOCK_FUNCTION(midi_note_on);
