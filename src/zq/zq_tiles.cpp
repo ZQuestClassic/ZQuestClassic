@@ -55,6 +55,7 @@ static bool massRecolorSetup(int32_t cset);
 static void massRecolorApply(int32_t tile);
 extern int32_t last_droplist_sel;
 extern int32_t TilePgCursorCol, CmbPgCursorCol;
+extern int32_t bie_cnt;
 
 int32_t ex=0;
 int32_t nextcombo_fake_click=0;
@@ -6757,9 +6758,11 @@ bool _handle_tile_move(TileMoveProcess dest_process, optional<TileMoveProcess> s
 			));
 		build_bie_list(false);
 		bool newtiles=get_qr(qr_NEWENEMYTILES)!=0;
-		for(int u=0; u<eMAXGUYS; u++)
+		for(int u=0; u<bie_cnt; u++)
 		{
-			guydata& enemy=guysbuf[bie[u].i];
+			// 'bie' is alphabetized; 'id' is the real npc id.
+			int id = bie[u].i;
+			guydata& enemy=guysbuf[id];
 			bool darknut=false;
 			bool gleeok=false;
 			
@@ -6776,9 +6779,9 @@ bool _handle_tile_move(TileMoveProcess dest_process, optional<TileMoveProcess> s
 			}
 			
 			// Dummied out enemies
-			if(bie[u].i>=eOCTO1S && bie[u].i<e177)
+			if(id>=eOCTO1S && id<e177)
 			{
-				if(old_guy_string[bie[u].i][strlen(old_guy_string[bie[u].i])-1]==' ')
+				if(old_guy_string[id][strlen(old_guy_string[id])-1]==' ')
 				{
 					continue;
 				}
@@ -6797,7 +6800,7 @@ bool _handle_tile_move(TileMoveProcess dest_process, optional<TileMoveProcess> s
 				{
 					if (enemy.s_tile != 0)
 					{
-						movelist->add_tile(&enemy.s_tile, enemy.s_width, enemy.s_height, fmt::format("Enemy {} ({}) 'Special'", u, bie[u].s));
+						movelist->add_tile(&enemy.s_tile, enemy.s_width, enemy.s_height, fmt::format("Enemy {} ({}) 'Special'", id, bie[u].s));
 					}
 				}
 				else if (gleeok)
@@ -6809,7 +6812,7 @@ bool _handle_tile_move(TileMoveProcess dest_process, optional<TileMoveProcess> s
 					rects.emplace_back(enemy.attributes[7], 4, 1);
 					rects.emplace_back(enemy.attributes[8], 4, 1);
 				}
-				movelist->add_tile(&enemy.e_tile, enemy.e_width, enemy.e_height, fmt::format("Enemy {} ({}) 'New'", u, bie[u].s),
+				movelist->add_tile(&enemy.e_tile, enemy.e_width, enemy.e_height, fmt::format("Enemy {} ({}) 'New'", id, bie[u].s),
 					false, 0, 0, rects);
 				
 			}
@@ -6819,11 +6822,11 @@ bool _handle_tile_move(TileMoveProcess dest_process, optional<TileMoveProcess> s
 				{
 					continue;
 				}
-				movelist->add_tile(&enemy.tile, enemy.width, enemy.height, fmt::format("Enemy {} ({}) 'Old'", u, bie[u].s));
+				movelist->add_tile(&enemy.tile, enemy.width, enemy.height, fmt::format("Enemy {} ({}) 'Old'", id, bie[u].s));
 				
 				if(enemy.s_tile!=0)
 				{
-					movelist->add_tile(&enemy.s_tile, enemy.s_width, enemy.s_height, fmt::format("Enemy {} ({}) 'Special'", u, bie[u].s));
+					movelist->add_tile(&enemy.s_tile, enemy.s_width, enemy.s_height, fmt::format("Enemy {} ({}) 'Special'", id, bie[u].s));
 				}
 			}
 		}
