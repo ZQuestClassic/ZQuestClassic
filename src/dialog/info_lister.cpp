@@ -465,7 +465,10 @@ bool ItemListerDialog::paste()
 		return false;
 	if(copied_item_id == selected_val)
 		return false;
-	itemsbuf[selected_val] = itemsbuf.get(copied_item_id);
+	// Copy first: `itemsbuf[selected_val]` may grow the vec, invalidating
+	// the reference returned by `get()`.
+	itemdata const copied_itm = itemsbuf.get(copied_item_id);
+	itemsbuf[selected_val] = copied_itm;
 	refresh_dlg();
 	mark_save_dirty();
 	return true;
@@ -504,7 +507,10 @@ bool ItemListerDialog::adv_paste()
 	};
 	if(!call_checklist_dialog("Advanced Paste",advp_names,pasteflags))
 		return false;
-	itemsbuf[selected_val].advpaste(itemsbuf.get(copied_item_id), pasteflags);
+	// Copy first: `itemsbuf[selected_val]` may grow the vec, invalidating
+	// the reference returned by `get()`.
+	itemdata const copied_itm = itemsbuf.get(copied_item_id);
+	itemsbuf[selected_val].advpaste(copied_itm, pasteflags);
 	refresh_dlg();
 	mark_save_dirty();
 	return true;
@@ -719,7 +725,10 @@ bool SpriteListerDialog::paste()
 		return false;
 	if(copied_sprite_id == selected_val)
 		return false;
-	sprite_data_buf[selected_val] = sprite_data_buf.get(copied_sprite_id);
+	// Copy first: `sprite_data_buf[selected_val]` may grow the vec,
+	// invalidating the reference returned by `get()`.
+	sprite_data const copied_spr = sprite_data_buf.get(copied_sprite_id);
+	sprite_data_buf[selected_val] = copied_spr;
 	refresh_dlg();
 	mark_save_dirty();
 	return true;
