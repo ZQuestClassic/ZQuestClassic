@@ -32421,8 +32421,14 @@ void HeroClass::ganon_intro()
     dir=up;
 
 	// TODO: un-hardcode this music?
-    if((!getmapflag(screen, mSPECIALITEM) || (scr->flags9&fBELOWRETURN)) && (tunes[258].data))
-        jukebox(258);
+    // The Ganon room plays the last custom MIDI slot. Quests from before
+    // 1.92 build 178 only had 32 custom MIDI slots (see readmidis), so
+    // their last slot is at a different tunes index.
+    int32_t ganon_midi = 258;
+    if(QHeader.zelda_version < 0x192 || (QHeader.zelda_version == 0x192 && QHeader.build < 178))
+        ganon_midi = ZC_MIDI_COUNT + MAXCUSTOMMIDIS192b177 - 1;
+    if((!getmapflag(screen, mSPECIALITEM) || (scr->flags9&fBELOWRETURN)) && (tunes[ganon_midi].data))
+        jukebox(ganon_midi);
     else
         playLevelMusic();
         
