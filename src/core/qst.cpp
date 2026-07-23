@@ -1482,6 +1482,7 @@ void reset_subscreens()
 	subscreens_passive.clear();
 	subscreens_overlay.clear();
 	subscreens_map.clear();
+	reset_old_subscreen_fixup_state();
 }
 
 int32_t setupsubscreens()
@@ -2670,7 +2671,10 @@ static int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Mi
     }
     
 	init_spritelists();
-	
+
+	if(!get_bit(skip_flags, skip_subscreens) && !get_bit(skip_flags, skip_dmaps))
+		fixup_old_dmap_subscreen_indices();
+
     // check data
     if(f)
     {
