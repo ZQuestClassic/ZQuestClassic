@@ -1235,22 +1235,33 @@ void get_root_path(char* path, int32_t size)
 
 /* relativize_path:
   *  Takes a path, and returns its relative path from the root directory.
-  */
-void relativize_path(char* dest, char const* src_path)
-{
-	char rootpath[PATH_MAX] = {0};
-	get_root_path(rootpath, PATH_MAX);
-    strcpy(dest, std::filesystem::relative(src_path, rootpath).string().c_str());
-}
-
-/* relativize_path:
-  *  Takes a path, and returns its relative path from the root directory.
+  *  If the relative path can't be resolved (ex: the path is on an
+  *  inaccessible drive), returns the path unchanged.
   */
 std::string relativize_path(std::string src_path)
 {
 	char rootpath[PATH_MAX] = {0};
 	get_root_path(rootpath, PATH_MAX);
-    return std::filesystem::relative(src_path, rootpath).string();
+	try
+	{
+		std::error_code ec;
+		auto result = std::filesystem::relative(src_path, rootpath, ec);
+		if(ec)
+			return src_path;
+		return result.string();
+	}
+	catch(...)
+	{
+		return src_path;
+	}
+}
+
+/* relativize_path:
+  *  Takes a path, and returns its relative path from the root directory.
+  */
+void relativize_path(char* dest, char const* src_path)
+{
+	strcpy(dest, relativize_path(std::string(src_path)).c_str());
 }
 
 /* derelativize_path:
