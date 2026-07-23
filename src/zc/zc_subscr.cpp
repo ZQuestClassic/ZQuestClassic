@@ -542,24 +542,22 @@ void dosubscr()
 	FFCore.skipscriptdraws = skipdraws;
 }
 
-void markBmap(int32_t dir, int32_t sc)
+void markBmap(int32_t dir, int32_t sc, int32_t dmap)
 {
-    /*
-      if((DMaps[get_currdmap()].type&dmfTYPE)==dmOVERW)
-        return;
-    */
+    if(dmap < 0)
+        dmap = get_currdmap();
+
     if(sc>=128 || sc<0)
     {
         return;
     }
-    
-    byte drow = DMaps[get_currdmap()].grid[sc>>4];
-    byte mask = 1 << (7-((sc&15)-DMaps[get_currdmap()].xoff));
-    int32_t di = (get_currdmap() << 7) + (sc & 0x7F); //+ ((sc&0xF)-(DMaps[get_currdmap()].type==dmOVERW ? 0 : DMaps[get_currdmap()].xoff));
+
+    byte drow = DMaps[dmap].grid[sc>>4];
+    byte mask = 1 << (7-((sc&15)-DMaps[dmap].xoff));
+    int32_t di = (dmap << 7) + (sc & 0x7F); //+ ((sc&0xF)-(DMaps[dmap].type==dmOVERW ? 0 : DMaps[dmap].xoff));
     int32_t code = 0;
-    
-    
-    switch((DMaps[get_currdmap()].type&dmfTYPE))
+
+    switch((DMaps[dmap].type&dmfTYPE))
     {
     case dmDNGN:
 		if(get_qr(qr_DUNGEONS_USE_CLASSIC_CHARTING))

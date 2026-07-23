@@ -5428,7 +5428,10 @@ void loadscr(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool overlay
 	}
 	homescr = oscr;
 
-	markBmap(-1);
+	// When `scrollscr` calls this during a scrolling warp, `currdmap` still holds the old dmap
+	// (it is updated later, just before the scroll animation), so the destination dmap must be
+	// given explicitly or the wrong dmap's map gets charted.
+	markBmap(-1, get_currscr(), destdmap);
 }
 
 // Screen is being viewed by the Overworld Map viewer.
