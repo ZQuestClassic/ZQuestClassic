@@ -11196,11 +11196,25 @@ int32_t readherosprites(PACKFILE *f, zquestheader *Header)
     else return readherosprites2(f, s_version, dummy);
 }
 
+// State for fixup_old_dmap_subscreen_indices, recorded by read_old_subscreens.
+static bool has_old_subscreens;
+static int old_subscreen_reach[2]; // per sstACTIVE/sstPASSIVE: count reachable by the old engine
+static int old_subscreen_fallback_type = -1;
+static int old_subscreen_fallback_index = -1;
+
+void reset_old_subscreen_fixup_state()
+{
+	has_old_subscreens = false;
+	old_subscreen_reach[sstACTIVE] = old_subscreen_reach[sstPASSIVE] = 0;
+	old_subscreen_fallback_type = old_subscreen_fallback_index = -1;
+}
+
 int32_t read_old_subscreens(PACKFILE *f, word s_version)
 {
 	subscreens_active.clear();
 	subscreens_passive.clear();
 	subscreens_overlay.clear();
+	bool hit_empty = false;
 	for(int32_t i=0; i<OLD_MAXCUSTOMSUBSCREENS; i++)
 	{
 		subscreen_group g;
@@ -11208,13 +11222,65 @@ int32_t read_old_subscreens(PACKFILE *f, word s_version)
 		int32_t ret = read_one_old_subscreen(f, &g, s_version);
 		if(ret!=0)
 			return ret;
-		if(g.objects[0].type == ssoNULL) continue;
-		auto& vec = g.ss_type == sstPASSIVE ? subscreens_passive : subscreens_active;
+		if(g.objects[0].type == ssoNULL)
+		{
+			hit_empty = true;
+			continue;
+		}
+		bool passive = g.ss_type == sstPASSIVE;
+		auto& vec = passive ? subscreens_passive : subscreens_active;
 		ZCSubscreen& sub = vec.emplace_back();
 		sub.load_old(g);
+		// The old engine resolved dmap subscreen indices by scanning this
+		// combined array, stopping at the first empty slot. Track what it
+		// could reach, for fixup_old_dmap_subscreen_indices.
+		if(!hit_empty)
+		{
+			old_subscreen_reach[passive ? sstPASSIVE : sstACTIVE] = vec.size();
+			old_subscreen_fallback_type = passive ? sstPASSIVE : sstACTIVE;
+			old_subscreen_fallback_index = vec.size()-1;
+			has_old_subscreens = true;
+		}
 	}
-	
+
 	return 0;
+}
+
+// The old engine (pre new-subscreen-system) resolved a dmap's active/passive
+// subscreen index by scanning the combined subscreen array in order, counting
+// only entries of the wanted type and stopping early at the first empty slot.
+// If the index was out of range, it landed on the last group before the first
+// empty slot, regardless of that group's type. "Link's Grand Adventure 2" (the
+// only quest known to hit this) has dmaps saying 'passive #1' when only one
+// passive subscreen exists, and displayed fine only because of that fallback -
+// so emulate it here.
+void fixup_old_dmap_subscreen_indices()
+{
+	if(!has_old_subscreens || old_subscreen_fallback_type < 0)
+		return;
+	int fallback_index[2] = {-1,-1};
+	fallback_index[old_subscreen_fallback_type] = old_subscreen_fallback_index;
+	auto fallback = [&](int type) -> int
+	{
+		if(fallback_index[type] < 0)
+		{
+			// The old engine happily drew a group of the wrong type; clone it
+			// into the requested list to match.
+			auto& src_vec = old_subscreen_fallback_type == sstPASSIVE ? subscreens_passive : subscreens_active;
+			auto& dest_vec = type == sstPASSIVE ? subscreens_passive : subscreens_active;
+			ZCSubscreen& copy = dest_vec.emplace_back(src_vec[old_subscreen_fallback_index]);
+			copy.sub_type = type;
+			fallback_index[type] = dest_vec.size()-1;
+		}
+		return fallback_index[type];
+	};
+	for(int i=0; i<MAXDMAPS; ++i)
+	{
+		if(DMaps[i].active_subscreen >= old_subscreen_reach[sstACTIVE])
+			DMaps[i].active_subscreen = fallback(sstACTIVE);
+		if(DMaps[i].passive_subscreen >= old_subscreen_reach[sstPASSIVE])
+			DMaps[i].passive_subscreen = fallback(sstPASSIVE);
+	}
 }
 
 int32_t read_one_old_subscreen(PACKFILE *f, subscreen_group* g, word s_version)
@@ -11757,7 +11823,8 @@ int32_t readsubscreens(PACKFILE *f)
 		return qe_invalid;
 	if(!p_igetl(&dummy,f)) //section size
 		return qe_invalid;
-	
+
+	reset_old_subscreen_fixup_state();
 	if(s_version < 8)
 		return read_old_subscreens(f,s_version);
 	
@@ -11818,6 +11885,7 @@ void reset_subscreens()
 	subscreens_active.clear();
 	subscreens_passive.clear();
 	subscreens_overlay.clear();
+	reset_old_subscreen_fixup_state();
 }
 
 int32_t setupsubscreens()
@@ -22173,7 +22241,10 @@ static int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Mi
     }
     
 	init_spritelists();
-	
+
+	if(!get_bit(skip_flags, skip_subscreens) && !get_bit(skip_flags, skip_dmaps))
+		fixup_old_dmap_subscreen_indices();
+
     // check data
     if(f)
     {
