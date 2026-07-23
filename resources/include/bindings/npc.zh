@@ -560,13 +560,15 @@ class npc {
 	// @zasm_var NPCKNOCKBACKSPEED
 	internal int SlideSpeed;
 
-	// The spawn sprite used by the npc, 0-255
+	// The spawn sprite used by the npc, 0-8191
 	//
+	// @versionchanged 3.0 Max sprite expanded from 255 to 8191
 	// @zasm_var NPCSPAWNSPR
 	internal int SpawnSprite;
 
-	// The death sprite used by the npc, 0-255
+	// The death sprite used by the npc, 0-8191
 	//
+	// @versionchanged 3.0 Max sprite expanded from 255 to 8191
 	// @zasm_var NPCDEATHSPR
 	internal int DeathSprite;
 
