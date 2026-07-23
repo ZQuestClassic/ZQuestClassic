@@ -267,6 +267,8 @@ int32_t readitemdropsets(PACKFILE *f, word version, word build);
 int32_t readfavorites(PACKFILE *f, int32_t, word);
 
 int32_t readsubscreens(PACKFILE *f);
+void reset_old_subscreen_fixup_state();
+void fixup_old_dmap_subscreen_indices();
 int32_t read_old_subscreens(PACKFILE *f, word s_version);
 int32_t read_one_old_subscreen(PACKFILE* f, subscreen_group* g, word s_version);
 
