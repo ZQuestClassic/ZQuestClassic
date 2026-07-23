@@ -6767,7 +6767,10 @@ void loadscr(int32_t destdmap, int32_t screen, int32_t ldir, bool origin_screen_
 	}
 
 	enemy_spawning_has_checked_been_here = false;
-	markBmap(-1, Hero.current_screen);
+	// When `scrollscr` calls this during a scrolling warp, `cur_dmap` still holds the old dmap
+	// (it is updated later, just before the scroll animation), so the destination dmap must be
+	// given explicitly or the wrong dmap's map gets charted.
+	markBmap(-1, Hero.current_screen, destdmap);
 	Hero.maybe_begin_advanced_maze();
 }
 
