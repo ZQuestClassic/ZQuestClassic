@@ -287,7 +287,7 @@ def do_web_packaging():
             'modules/classic/classic_fonts.dat',
             'modules/classic/default.qst',
             'modules/classic/title_gfx.dat',
-            'modules/classic/zelda.nsf',
+            'music/zelda.nsf',
             'sfx.dat',
             'zc.png',
             'zquest_web.cfg',
