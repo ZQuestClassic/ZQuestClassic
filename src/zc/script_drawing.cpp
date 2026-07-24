@@ -511,6 +511,42 @@ void do_circler(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 }
 
 
+// Fills a pie slice (the sector of a circle between two angles) by rasterizing
+// it as a polygon: the center plus points sampled along the arc. The previous
+// implementation drew the arc outline plus the two edge lines and then flood
+// filled a probe point inside the wedge; whenever that probe landed outside the
+// wedge (wrap-around angle spans, or the probe's x clamped to 0 for pies
+// offscreen to the left) the fill escaped and covered everything except the
+// wedge.
+//
+// Angles are allegro binary angles (256ths of a revolution, anticlockwise,
+// 0 = east), normalized the same way allegro's arc() normalizes them.
+static void fill_pie(BITMAP* bmp, int cx, int cy, int r, fixed sa, fixed ea, int color)
+{
+	fixed a1 = sa & 0xFFFFFF;
+	fixed a2 = ea & 0xFFFFFF;
+	if (a2 < a1) a2 += itofix(256);
+
+	if (a1 == a2) // zero span: arc() draws a single point, so the "pie" is just the ray to it
+	{
+		line(bmp, cx, cy, cx + fixtoi(fixcos(a1) * r), cy - fixtoi(fixsin(a1) * r), color);
+		return;
+	}
+
+	std::vector<int> points;
+	points.reserve(2 * (fixtoi(a2 - a1) + 3));
+	points.push_back(cx);
+	points.push_back(cy);
+	for (fixed a = a1; true; a += itofix(1)) // one point per 256th of a revolution
+	{
+		if (a > a2) a = a2;
+		points.push_back(cx + fixtoi(fixcos(a) * r));
+		points.push_back(cy - fixtoi(fixsin(a) * r));
+		if (a == a2) break;
+	}
+	polygon(bmp, points.size() / 2, points.data(), color);
+}
+
 void do_arcr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 {
     //sdci[1]=layer
@@ -574,29 +610,19 @@ void do_arcr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
         sa-=ra;
     }
     
-    int32_t fx=cx+fixtoi(fixcos(-(ea+sa)/2)*r/2);
-    int32_t fy=cy+fixtoi(fixsin(-(ea+sa)/2)*r/2);
-    
     if(sdci[12]) //closed
     {
         if(sdci[13]) //filled
         {
-            clear_bitmap(prim_bmp);
-            arc(prim_bmp, cx+xoffset, cy+yoffset, sa, ea, int32_t(r), color);
-            line(prim_bmp, cx+xoffset, cy+yoffset, cx+xoffset+fixtoi(fixcos(-sa)*r), cy+yoffset+fixtoi(fixsin(-sa)*r), color);
-            line(prim_bmp, cx+xoffset, cy+yoffset, cx+xoffset+fixtoi(fixcos(-ea)*r), cy+yoffset+fixtoi(fixsin(-ea)*r), color);
-			int fillx = zc_max(0,fx)+xoffset;
-			int filly = zc_max(0,fy)+yoffset;
-			zprint2("Screen->Arc fill at prim_bmp (%d,%d) - 512x512\n", fillx, filly);
-			floodfill(prim_bmp, fillx, filly, color);
-            
             if(sdci[14]/10000<=127) //translucent
             {
+                clear_bitmap(prim_bmp);
+                fill_pie(prim_bmp, cx+xoffset, cy+yoffset, int32_t(r), sa, ea, color);
                 draw_trans_sprite(bmp, prim_bmp, 0,0);
             }
             else
             {
-                draw_sprite(bmp, prim_bmp, 0,0);
+                fill_pie(bmp, cx+xoffset, cy+yoffset, int32_t(r), sa, ea, color);
             }
         }
         else
@@ -4248,29 +4274,19 @@ void bmp_do_arcr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
         sa-=ra;
     }
     
-    int32_t fx=cx+fixtoi(fixcos(-(ea+sa)/2)*r/2);
-    int32_t fy=cy+fixtoi(fixsin(-(ea+sa)/2)*r/2);
-    
     if(sdci[12]) //closed
     {
         if(sdci[13]) //filled
         {
-            clear_bitmap(prim_bmp);
-            arc(prim_bmp, cx+xoffset, cy+yoffset, sa, ea, int32_t(r), color);
-            line(prim_bmp, cx+xoffset, cy+yoffset, cx+xoffset+fixtoi(fixcos(-sa)*r), cy+yoffset+fixtoi(fixsin(-sa)*r), color);
-            line(prim_bmp, cx+xoffset, cy+yoffset, cx+xoffset+fixtoi(fixcos(-ea)*r), cy+yoffset+fixtoi(fixsin(-ea)*r), color);
-			int fillx = zc_max(0,fx)+xoffset;
-			int filly = zc_max(0,fy)+yoffset;
-			zprint2("bitmap->Arc fill at prim_bmp (%d,%d) - 512x512\n", fillx, filly);
-			floodfill(prim_bmp, fillx, filly, color);
-            
             if(sdci[14]/10000<=127) //translucent
             {
+                clear_bitmap(prim_bmp);
+                fill_pie(prim_bmp, cx+xoffset, cy+yoffset, int32_t(r), sa, ea, color);
                 draw_trans_sprite(refbmp, prim_bmp, 0,0);
             }
             else
             {
-                draw_sprite(refbmp, prim_bmp, 0,0);
+                fill_pie(refbmp, cx+xoffset, cy+yoffset, int32_t(r), sa, ea, color);
             }
         }
         else
