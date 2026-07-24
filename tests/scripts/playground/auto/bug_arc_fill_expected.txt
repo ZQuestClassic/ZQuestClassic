@@ -1,0 +1,450 @@
+stderr:
+
+Compiling 'bug_arc_fill.zs'
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+Pass 4: Analyzing Code
+bug_arc_fill.zs Line 24 @ Columns 18-36 - Warning S094: Function 'Game::CreateBitmap(int, int)' is deprecated, and should not be used.
+
+22    
+23            // Color 0 pie carved out of a filled bitmap: previously a no-op.
+24            bitmap carve = Game->CreateBitmap(64, 64);
+                             ^~~~~~~~~~~~~~~~~~
+
+
+INFO: Use `new bitmap(width, height)` instead!
+bug_arc_fill.zs Line 31 @ Columns 17-35 - Warning S094: Function 'Game::CreateBitmap(int, int)' is deprecated, and should not be used.
+
+29    // bitmap: allegro draws the 270 degree pie covering N/W/S; the old
+30    // flood fill escaped and painted everything else instead.
+31    bitmap wrap = Game->CreateBitmap(64, 64);
+                    ^~~~~~~~~~~~~~~~~~
+
+
+INFO: Use `new bitmap(width, height)` instead!
+Pass 5: Checking code paths
+Pass 6: Generating object code
+Pass 7: Assembling
+Success!
+Compile finished with exit code '0' (success)
+
+stdout:
+
+{
+  "success": true,
+  "diagnostics": [
+    {
+      "range": {
+        "start": {
+          "line": 23,
+          "character": 17
+        },
+        "end": {
+          "line": 23,
+          "character": 35
+        }
+      },
+      "severity": 2,
+      "message": "S094: Function 'Game::CreateBitmap(int, int)' is deprecated, and should not be used.\nUse `new bitmap(width, height)` instead!"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 30,
+          "character": 16
+        },
+        "end": {
+          "line": 30,
+          "character": 34
+        }
+      },
+      "severity": 2,
+      "message": "S094: Function 'Game::CreateBitmap(int, int)' is deprecated, and should not be used.\nUse `new bitmap(width, height)` instead!"
+    }
+  ],
+  "metadata": {
+    "currentFileSymbols": 5,
+    "symbols": 21,
+    "identifiers": 77,
+    "elided": true
+  }
+}
+
+zasm:
+
+QUIT; void run() Body
+PUSHR REFDMAPDATA; void run() Body Start
+PUSHARGSV 0 0.0003
+SETR D4 SP2
+ALLOCATEMEMV D2 100 0
+STORE_OBJECT D2 0.0002
+LOAD D2 0.0002; InlineFunc[void Game::GetSaveName(char32[])] Params
+GETSAVENAME D2; InlineFunc[void Game::GetSaveName(char32[])] Body
+ALLOCATEMEMV D2 19 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
+WRITEPODSTRING D2 "[Test] Running %s\n"
+PUSHR D2
+LOAD D2 0.0002
+PUSHVARGR D2
+MARK_TYPE_VARG 0.0009; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
+LOAD D2 0.0002; InlineFunc[int Game::GetGenericScript(char32[])] Params
+GETGENERICSCRIPT D2; InlineFunc[int Game::GetGenericScript(char32[])] Body
+STORE D2 0.0001
+LOAD D2 0.0001; if() #9 Test
+COMPAREV D2 -1
+SETCMP D2 I==
+COMPAREV D2 0
+GOTOCMP 31 ==; Test 'if'
+ALLOCATEMEMV D2 53 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start AND if() #9 Body Start
+WRITEPODSTRING D2 "[Test] failed to start - could not find test script\n"
+PUSHR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
+GAMEEXIT; InlineFunc[void Game::Exit()] Body AND if() #9 Body End
+NOP
+LOAD D2 0.0001; InlineFunc[genericdata Game::LoadGenericData(int)] Params
+LOADGENERICDATA D2; InlineFunc[genericdata Game::LoadGenericData(int)] Body Start
+SETR D2 REFGENERICDATA; InlineFunc[genericdata Game::LoadGenericData(int)] Body End
+STORE D2 0
+SETV D2 1
+PUSHR D2
+LOAD D2 0
+POP D3
+PUSHR D2
+PUSHR D3
+POP D2
+CASTBOOLI D2
+POP REFGENERICDATA
+SETR GENDATARUNNING D2
+LOAD D2 0; while() #1 Test
+PUSHR D2
+POP REFGENERICDATA
+SETR D2 GENDATARUNNING
+COMPAREV D2 0
+GOTOCMP 54 ==; Test 'while'
+WAITFRAME; InlineFunc[void Waitframe()] Body AND while() #1 Body
+GOTO 46; while() #1 End
+CALLFUNC 0.0347; UsrFunc[void End()] Call AND [Opt:NeverRet]
+REF_REMOVE 0.0002; [Opt:NeverRet] AND void run() Body End
+PUSHR REFGENERICDATA; void run() Body Start
+PUSHARGSV 0 0.0003
+SETR D4 SP2
+PUSHR D4
+PUSHV 0; UsrFunc[void Init(int)] Params
+CALLFUNC 0.0325; UsrFunc[void Init(int)] Call
+POP D4
+PUSHV 64; InlineFunc[bitmap Game::CreateBitmap(int, int)] Params Start
+SETV D1 64; InlineFunc[bitmap Game::CreateBitmap(int, int)] Params End
+POP D0; InlineFunc[bitmap Game::CreateBitmap(int, int)] Body Start
+SETR D2 CREATEBITMAP; InlineFunc[bitmap Game::CreateBitmap(int, int)] Body End
+STORE_OBJECT D2 0.0002
+LOAD D2 0.0002; InlineFunc[void bitmap::Rectangle(int, int, int, int, int, int, int, int, int, int, bool, int)] Params Start
+PUSHR D2
+PUSHARGSV 0 0.0003
+PUSHARGSV 63 0.0002
+PUSHV 39
+PUSHV 1
+PUSHARGSV 0 0.0003
+PUSHV 1
+PUSHV 128; InlineFunc[void bitmap::Rectangle(int, int, int, int, int, int, int, int, int, int, bool, int)] Params End
+BMPRECTR; InlineFunc[void bitmap::Rectangle(int, int, int, int, int, int, int, int, int, int, bool, int)] Body Start
+POPARGS D5 0.0013; InlineFunc[void bitmap::Rectangle(int, int, int, int, int, int, int, int, int, int, bool, int)] Body End
+LOAD D2 0.0002; InlineFunc[void bitmap::Arc(int, int, int, int, int, int, int, int, int, int, int, bool, bool, int)] Params Start
+PUSHR D2
+PUSHV 0
+PUSHARGSV 32 0.0002
+PUSHV 20
+PUSHV 0
+PUSHV 270
+PUSHV 0
+PUSHV 1
+PUSHARGSV 0 0.0003
+PUSHARGSV 1 0.0002
+PUSHV 128; InlineFunc[void bitmap::Arc(int, int, int, int, int, int, int, int, int, int, int, bool, bool, int)] Params End
+BMPARCR; InlineFunc[void bitmap::Arc(int, int, int, int, int, int, int, int, int, int, int, bool, bool, int)] Body Start
+POPARGS D5 0.0015; InlineFunc[void bitmap::Arc(int, int, int, int, int, int, int, int, int, int, int, bool, bool, int)] Body End
+PUSHV 64; InlineFunc[bitmap Game::CreateBitmap(int, int)] Params Start
+SETV D1 64; InlineFunc[bitmap Game::CreateBitmap(int, int)] Params End
+POP D0; InlineFunc[bitmap Game::CreateBitmap(int, int)] Body Start
+SETR D2 CREATEBITMAP; InlineFunc[bitmap Game::CreateBitmap(int, int)] Body End
+STORE_OBJECT D2 0.0001
+LOAD D2 0.0001; InlineFunc[void bitmap::Clear(int)] Params Start
+PUSHR D2
+PUSHV 0; InlineFunc[void bitmap::Clear(int)] Params End
+CLEARBITMAP; InlineFunc[void bitmap::Clear(int)] Body Start
+POPARGS D5 0.0002; InlineFunc[void bitmap::Clear(int)] Body End
+LOAD D2 0.0001; InlineFunc[void bitmap::Arc(int, int, int, int, int, int, int, int, int, int, int, bool, bool, int)] Params Start
+PUSHR D2
+PUSHV 0
+PUSHARGSV 32 0.0002
+PUSHV 20
+PUSHV 90
+PUSHV 0
+PUSHV 53
+PUSHV 1
+PUSHARGSV 0 0.0003
+PUSHARGSV 1 0.0002
+PUSHV 128; InlineFunc[void bitmap::Arc(int, int, int, int, int, int, int, int, int, int, int, bool, bool, int)] Params End
+BMPARCR; InlineFunc[void bitmap::Arc(int, int, int, int, int, int, int, int, int, int, int, bool, bool, int)] Body Start
+POPARGS D5 0.0015; InlineFunc[void bitmap::Arc(int, int, int, int, int, int, int, int, int, int, int, bool, bool, int)] Body End
+WAITFRAME; InlineFunc[void Waitframe()] Body
+PUSHR D4
+LOAD D2 0.0002; InlineFunc[int bitmap::GetPixel(int, int)] Params Start AND UsrFunc[void AssertEqual(int, int)] Params Start
+PUSHR D2
+PUSHV 40
+SETV D0 24; InlineFunc[int bitmap::GetPixel(int, int)] Params End
+POP D1; InlineFunc[int bitmap::GetPixel(int, int)] Body Start
+POP D2
+GRAPHICSGETPIXEL D2; InlineFunc[int bitmap::GetPixel(int, int)] Body End
+PUSHR D2
+PUSHV 0; UsrFunc[void AssertEqual(int, int)] Params End
+CALLFUNC 0.0354; UsrFunc[void AssertEqual(int, int)] Call
+PEEK D4
+LOAD D2 0.0002; InlineFunc[int bitmap::GetPixel(int, int)] Params Start AND UsrFunc[void AssertEqual(int, int)] Params Start
+PUSHR D2
+PUSHV 24
+SETV D0 40; InlineFunc[int bitmap::GetPixel(int, int)] Params End
+POP D1; InlineFunc[int bitmap::GetPixel(int, int)] Body Start
+POP D2
+GRAPHICSGETPIXEL D2; InlineFunc[int bitmap::GetPixel(int, int)] Body End
+PUSHR D2
+PUSHV 0; UsrFunc[void AssertEqual(int, int)] Params End
+CALLFUNC 0.0354; UsrFunc[void AssertEqual(int, int)] Call
+PEEK D4
+LOAD D2 0.0002; InlineFunc[int bitmap::GetPixel(int, int)] Params Start AND UsrFunc[void AssertEqual(int, int)] Params Start
+PUSHR D2
+PUSHV 40
+SETV D0 40; InlineFunc[int bitmap::GetPixel(int, int)] Params End
+POP D1; InlineFunc[int bitmap::GetPixel(int, int)] Body Start
+POP D2
+GRAPHICSGETPIXEL D2; InlineFunc[int bitmap::GetPixel(int, int)] Body End
+PUSHR D2
+PUSHV 39; UsrFunc[void AssertEqual(int, int)] Params End
+CALLFUNC 0.0354; UsrFunc[void AssertEqual(int, int)] Call
+PEEK D4
+LOAD D2 0.0001; InlineFunc[int bitmap::GetPixel(int, int)] Params Start AND UsrFunc[void AssertEqual(int, int)] Params Start
+PUSHR D2
+PUSHV 60
+SETV D0 4; InlineFunc[int bitmap::GetPixel(int, int)] Params End
+POP D1; InlineFunc[int bitmap::GetPixel(int, int)] Body Start
+POP D2
+GRAPHICSGETPIXEL D2; InlineFunc[int bitmap::GetPixel(int, int)] Body End
+PUSHR D2
+PUSHV 0; UsrFunc[void AssertEqual(int, int)] Params End
+CALLFUNC 0.0354; UsrFunc[void AssertEqual(int, int)] Call
+PEEK D4
+LOAD D2 0.0001; InlineFunc[int bitmap::GetPixel(int, int)] Params Start AND UsrFunc[void AssertEqual(int, int)] Params Start
+PUSHR D2
+PUSHV 44
+SETV D0 20; InlineFunc[int bitmap::GetPixel(int, int)] Params End
+POP D1; InlineFunc[int bitmap::GetPixel(int, int)] Body Start
+POP D2
+GRAPHICSGETPIXEL D2; InlineFunc[int bitmap::GetPixel(int, int)] Body End
+PUSHR D2
+PUSHV 0; UsrFunc[void AssertEqual(int, int)] Params End
+CALLFUNC 0.0354; UsrFunc[void AssertEqual(int, int)] Call
+PEEK D4
+LOAD D2 0.0001; InlineFunc[int bitmap::GetPixel(int, int)] Params Start AND UsrFunc[void AssertEqual(int, int)] Params Start
+PUSHR D2
+PUSHV 20
+SETV D0 32; InlineFunc[int bitmap::GetPixel(int, int)] Params End
+POP D1; InlineFunc[int bitmap::GetPixel(int, int)] Body Start
+POP D2
+GRAPHICSGETPIXEL D2; InlineFunc[int bitmap::GetPixel(int, int)] Body End
+PUSHR D2
+PUSHV 53; UsrFunc[void AssertEqual(int, int)] Params End
+CALLFUNC 0.0354; UsrFunc[void AssertEqual(int, int)] Call
+POP D4
+STOREV 0 0; for() #5 setup
+LOAD D2 0; for() #5 LoopTest
+COMPAREV D2 60
+SETCMP D2 I<
+COMPAREV D2 0
+GOTOCMP 321 ==; for() #5 TestFail?
+PUSHV 6; InlineFunc[void screendata::Arc(int, int, int, int, int, int, int, int, int, int, int, bool, bool, int)] Params Start AND for() #5 Body Start
+PUSHARGSV 60 0.0002
+PUSHV 30
+PUSHV -180
+PUSHV 90
+PUSHARGSV 1 0.0002
+PUSHARGSV 0 0.0003
+PUSHARGSV 1 0.0002
+PUSHV 128; InlineFunc[void screendata::Arc(int, int, int, int, int, int, int, int, int, int, int, bool, bool, int)] Params End
+ARCR; InlineFunc[void screendata::Arc(int, int, int, int, int, int, int, int, int, int, int, bool, bool, int)] Body Start
+POPARGS D5 0.0014; InlineFunc[void screendata::Arc(int, int, int, int, int, int, int, int, int, int, int, bool, bool, int)] Body End
+PUSHV 6; InlineFunc[void screendata::Arc(int, int, int, int, int, int, int, int, int, int, int, bool, bool, int)] Params Start
+PUSHV 140
+PUSHV 60
+PUSHV 30
+PUSHV 90
+PUSHV 0
+PUSHV 2
+PUSHV 1
+PUSHARGSV 0 0.0003
+PUSHARGSV 1 0.0002
+PUSHV 128; InlineFunc[void screendata::Arc(int, int, int, int, int, int, int, int, int, int, int, bool, bool, int)] Params End
+ARCR; InlineFunc[void screendata::Arc(int, int, int, int, int, int, int, int, int, int, int, bool, bool, int)] Body Start
+POPARGS D5 0.0014; InlineFunc[void screendata::Arc(int, int, int, int, int, int, int, int, int, int, int, bool, bool, int)] Body End
+PUSHV 6; InlineFunc[void screendata::Arc(int, int, int, int, int, int, int, int, int, int, int, bool, bool, int)] Params Start
+PUSHV 200
+PUSHV 60
+PUSHV 28
+PUSHV 10
+PUSHV 25
+PUSHV 3
+PUSHV 1
+PUSHARGSV 0 0.0003
+PUSHARGSV 1 0.0002
+PUSHV 128; InlineFunc[void screendata::Arc(int, int, int, int, int, int, int, int, int, int, int, bool, bool, int)] Params End
+ARCR; InlineFunc[void screendata::Arc(int, int, int, int, int, int, int, int, int, int, int, bool, bool, int)] Body Start
+POPARGS D5 0.0014; InlineFunc[void screendata::Arc(int, int, int, int, int, int, int, int, int, int, int, bool, bool, int)] Body End
+PUSHV 6; InlineFunc[void screendata::Arc(int, int, int, int, int, int, int, int, int, int, int, bool, bool, int)] Params Start
+PUSHV 240
+PUSHV 60
+PUSHV 12
+PUSHARGSV 45 0.0002
+PUSHV 9
+PUSHV 1
+PUSHARGSV 0 0.0003
+PUSHARGSV 1 0.0002
+PUSHV 128; InlineFunc[void screendata::Arc(int, int, int, int, int, int, int, int, int, int, int, bool, bool, int)] Params End
+ARCR; InlineFunc[void screendata::Arc(int, int, int, int, int, int, int, int, int, int, int, bool, bool, int)] Body Start
+POPARGS D5 0.0014; InlineFunc[void screendata::Arc(int, int, int, int, int, int, int, int, int, int, int, bool, bool, int)] Body End
+PUSHV 6; InlineFunc[void screendata::Arc(int, int, int, int, int, int, int, int, int, int, int, bool, bool, int)] Params Start
+PUSHV -10
+PUSHV 120
+PUSHV 40
+PUSHV -45
+PUSHV 45
+PUSHV 4
+PUSHV 1
+PUSHARGSV 0 0.0003
+PUSHARGSV 1 0.0002
+PUSHV 128; InlineFunc[void screendata::Arc(int, int, int, int, int, int, int, int, int, int, int, bool, bool, int)] Params End
+ARCR; InlineFunc[void screendata::Arc(int, int, int, int, int, int, int, int, int, int, int, bool, bool, int)] Body Start
+POPARGS D5 0.0014; InlineFunc[void screendata::Arc(int, int, int, int, int, int, int, int, int, int, int, bool, bool, int)] Body End
+PUSHV 6; InlineFunc[void screendata::Arc(int, int, int, int, int, int, int, int, int, int, int, bool, bool, int)] Params Start
+PUSHV -30
+PUSHV 90
+PUSHV 25
+PUSHV 135
+PUSHV 225
+PUSHV 10
+PUSHV 1
+PUSHARGSV 0 0.0003
+PUSHARGSV 1 0.0002
+PUSHV 128; InlineFunc[void screendata::Arc(int, int, int, int, int, int, int, int, int, int, int, bool, bool, int)] Params End
+ARCR; InlineFunc[void screendata::Arc(int, int, int, int, int, int, int, int, int, int, int, bool, bool, int)] Body Start
+POPARGS D5 0.0014; InlineFunc[void screendata::Arc(int, int, int, int, int, int, int, int, int, int, int, bool, bool, int)] Body End
+PUSHV 6; InlineFunc[void screendata::Arc(int, int, int, int, int, int, int, int, int, int, int, bool, bool, int)] Params Start
+PUSHV 60
+PUSHV 150
+PUSHV 30
+PUSHV 0
+PUSHV 200
+PUSHV 5
+PUSHV 1
+PUSHARGSV 0 0.0003
+PUSHARGSV 1 0.0002
+PUSHV 64; InlineFunc[void screendata::Arc(int, int, int, int, int, int, int, int, int, int, int, bool, bool, int)] Params End
+ARCR; InlineFunc[void screendata::Arc(int, int, int, int, int, int, int, int, int, int, int, bool, bool, int)] Body Start
+POPARGS D5 0.0014; InlineFunc[void screendata::Arc(int, int, int, int, int, int, int, int, int, int, int, bool, bool, int)] Body End
+PUSHV 6; InlineFunc[void screendata::Arc(int, int, int, int, int, int, int, int, int, int, int, bool, bool, int)] Params Start
+PUSHV 140
+PUSHV 150
+PUSHARGSV 30 0.0002
+PUSHV 150
+PUSHV 6
+PUSHV 1
+PUSHARGSV 0 0.0003
+PUSHV 1
+PUSHV 0
+PUSHV 128; InlineFunc[void screendata::Arc(int, int, int, int, int, int, int, int, int, int, int, bool, bool, int)] Params End
+ARCR; InlineFunc[void screendata::Arc(int, int, int, int, int, int, int, int, int, int, int, bool, bool, int)] Body Start
+POPARGS D5 0.0014; InlineFunc[void screendata::Arc(int, int, int, int, int, int, int, int, int, int, int, bool, bool, int)] Body End
+PUSHV 6; InlineFunc[void screendata::Arc(int, int, int, int, int, int, int, int, int, int, int, bool, bool, int)] Params Start
+PUSHV 200
+PUSHV 150
+PUSHARGSV 30 0.0002
+PUSHV 150
+PUSHV 7
+PUSHV 1
+PUSHARGSV 0 0.0005
+PUSHV 128; InlineFunc[void screendata::Arc(int, int, int, int, int, int, int, int, int, int, int, bool, bool, int)] Params End
+ARCR; InlineFunc[void screendata::Arc(int, int, int, int, int, int, int, int, int, int, int, bool, bool, int)] Body Start
+POPARGS D5 0.0014; InlineFunc[void screendata::Arc(int, int, int, int, int, int, int, int, int, int, int, bool, bool, int)] Body End
+PUSHV 6; InlineFunc[void screendata::Arc(int, int, int, int, int, int, int, int, int, int, int, bool, bool, int)] Params Start
+PUSHV 230
+PUSHV 20
+PUSHV 12
+PUSHV 0
+PUSHV 359
+PUSHV 8
+PUSHV 1
+PUSHARGSV 0 0.0003
+PUSHARGSV 1 0.0002
+PUSHV 128; InlineFunc[void screendata::Arc(int, int, int, int, int, int, int, int, int, int, int, bool, bool, int)] Params End
+ARCR; InlineFunc[void screendata::Arc(int, int, int, int, int, int, int, int, int, int, int, bool, bool, int)] Body Start
+POPARGS D5 0.0014; InlineFunc[void screendata::Arc(int, int, int, int, int, int, int, int, int, int, int, bool, bool, int)] Body End
+WAITFRAME; InlineFunc[void Waitframe()] Body AND for() #5 Body End
+LOAD D2 0; for() #5 LoopIncrement
+ADDV D2 1
+STORE D2 0
+GOTO 186; for() #5 End
+NOP
+CALLFUNC 0.0347; UsrFunc[void End()] Call AND [Opt:NeverRet]
+REF_REMOVE 0.0002
+REF_REMOVE 0.0001; [Opt:NeverRet] AND void run() Body End
+SETR D4 SP2; Func[void Init(int)] Body Start
+ALLOCATEMEMV D2 35 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
+WRITEPODSTRING D2 "[Test] started: dmap %d screen %d\n"
+PUSHR D2
+PUSHVARGV 5
+LOAD D2 0
+PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
+LOAD D2 0; if() #8 Test
+COMPAREV D2 0
+SETCMP D2 I!=
+COMPAREV D2 0
+GOTOCMP 344 ==; Test 'if'
+PUSHV 5; InlineFunc[void hero::Warp(int, int)] Params Start AND if() #8 Body Start
+LOAD D2 0; InlineFunc[void hero::Warp(int, int)] Params End
+POP D3; InlineFunc[void hero::Warp(int, int)] Body Start
+WARPR D3 D2; InlineFunc[void hero::Warp(int, int)] Body End
+WAITFRAME; InlineFunc[void Waitframe()] Body AND if() #8 Body End
+NOP
+POP D5
+RETURNFUNC; Func[void Init(int)] Body End
+SETR D4 SP2; Func[void End()] Body Start
+ALLOCATEMEMV D2 13 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
+WRITEPODSTRING D2 "[Test] done\n"
+PUSHR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
+GAMEEXIT; InlineFunc[void Game::Exit()] Body AND [Opt:NeverRet] AND Func[void End()] Body End
+SETR D4 SP2; Func[void AssertEqual(int, int)] Body Start
+LOAD D2 0; if() #10 Test
+PUSHR D2
+LOAD D2 0.0001
+POP D3
+COMPARER D3 D2
+SETCMP D2 I!=
+COMPAREV D2 0
+GOTOCMP 373 ==; Test 'if'
+ALLOCATEMEMV D2 49 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start AND if() #10 Body Start
+WRITEPODSTRING D2 "[Test] failed assertion: expected %d but got %d\n"
+PUSHR D2
+LOAD D2 0
+PUSHVARGR D2
+LOAD D2 0.0001
+PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
+GAMEEXIT; InlineFunc[void Game::Exit()] Body AND if() #10 Body End
+NOP
+POPARGS D5 0.0002
+RETURNFUNC; Func[void AssertEqual(int, int)] Body End
