@@ -5808,7 +5808,7 @@ bool _walkflag(zfix_round zx,zfix_round zy,int32_t cnt,zfix const& switchblockst
 bool _effectflag(int32_t x,int32_t y,int32_t cnt, int32_t layer, bool notLink)
 {
 	//  walkflagx=x; walkflagy=y;
-	if(get_qr(qr_LTTPWALK) || notLink)
+	if(get_qr(qr_LTTPWALK) || notLink || get_qr(qr_NEW_HERO_MOVEMENT2))
 	{
 		if(x<0||y<0) return false;
 		
@@ -6197,7 +6197,7 @@ bool _walkflag_layer(zfix_round zx,zfix_round zy,int32_t cnt, mapscr* m)
 bool _effectflag_layer(int32_t x,int32_t y,int32_t cnt, mapscr* m, bool notLink)
 {
 	//  walkflagx=x; walkflagy=y;
-	if(get_qr(qr_LTTPWALK) || notLink)
+	if(get_qr(qr_LTTPWALK) || notLink || get_qr(qr_NEW_HERO_MOVEMENT2))
 	{
 		if(x<0||y<0) return false;
 		
