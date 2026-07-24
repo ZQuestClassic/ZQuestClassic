@@ -7387,7 +7387,7 @@ bool _effectflag(int32_t x,int32_t y,int32_t cnt, int32_t layer, bool notLink)
 	DCHECK(cnt == 0 || cnt == 1);
 	int max_x = world_w;
 	int max_y = world_h;
-	if (!get_qr(qr_LTTPWALK) && !notLink)
+	if (!get_qr(qr_LTTPWALK) && !notLink && !get_qr(qr_NEW_HERO_MOVEMENT2))
 	{
 		max_x -= 7;
 		max_y -= 7;
@@ -7507,7 +7507,7 @@ bool _effectflag_layer(int32_t x, int32_t y, int32_t layer, int32_t cnt, bool no
 	
 	int max_x = world_w;
 	int max_y = world_h;
-	if (!get_qr(qr_LTTPWALK) && !notLink)
+	if (!get_qr(qr_LTTPWALK) && !notLink && !get_qr(qr_NEW_HERO_MOVEMENT2))
 	{
 		max_x -= 7;
 		max_y -= 7;

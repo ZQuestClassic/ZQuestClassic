@@ -510,7 +510,6 @@ bool _walkflag(zfix_round x,zfix_round y,int32_t cnt);
 bool _walkflag(zfix_round x,zfix_round y,int32_t cnt,zfix const& switchblockstate);
 bool _effectflag(int32_t x,int32_t y,int32_t cnt, int32_t layer = -1, bool notLink = false);
 bool _walkflag(zfix_round x,zfix_round y,int32_t cnt, mapscr* m);
-bool _walkflag(zfix_round x,zfix_round y,int32_t cnt, mapscr* m, mapscr* s1, mapscr* s2);
 bool _walkflag_layer(zfix_round x,zfix_round y, int32_t layer=-1, int32_t cnt=1);
 bool _walkflag_layer(zfix_round x,zfix_round y,int32_t cnt, mapscr* m);
 bool _walkflag_layer_scrolling(zfix_round zx,zfix_round zy,int32_t cnt, mapscr* m);
