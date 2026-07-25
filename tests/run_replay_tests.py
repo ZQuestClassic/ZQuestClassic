@@ -50,6 +50,7 @@ import atexit
 import os
 import platform
 import random
+import shlex
 import shutil
 import subprocess
 import sys
@@ -742,7 +743,7 @@ def prompt_to_create_compare_report(failing_test_results_list: list[ReplayTestRe
             command_args.append('--no-jit')
         if args.no_console:
             command_args.append('--no_console')
-        print(f'Collecting baseline locally: {" ".join(command_args)}')
+        print(f'Collecting baseline locally: {shlex.join(command_args)}')
         subprocess.check_call(command_args)
         test_runs.extend(collect_many_test_results_from_dir(local_baseline_dir))
     elif selected_index == 2:
