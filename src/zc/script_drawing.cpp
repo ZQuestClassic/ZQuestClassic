@@ -68,7 +68,10 @@ static std::optional<std::pair<int, int>> get_draw_origin_offset(DrawOrigin draw
 		sprite* draw_origin_target = sprite::getByUID(draw_origin_target_uid);
 		if (!draw_origin_target)
 		{
-			Z_scripterrlog("Warning: Ignoring draw command using DRAW_ORIGIN_SPRITE with non-existent sprite uid: %d.\n", draw_origin_target_uid);
+			// The sprite existed when the command was queued (that's checked in
+			// do_drawing_command), but despawned before the frame rendered - a
+			// weapon flying off the edge of the screen, for example. There is
+			// nothing to draw relative to anymore; skip silently.
 			return std::nullopt;
 		}
 

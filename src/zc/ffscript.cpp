@@ -7736,6 +7736,24 @@ static void do_drawing_command(int32_t script_command, bool is_screen_draw)
 	script_drawing_commands[j].draw_origin = draw_origin;
 	script_drawing_commands[j].draw_origin_target = draw_origin_target;
 
+	// A sprite draw origin must exist when the command is issued - a dangling
+	// target means the script is drawing relative to a sprite that's already
+	// gone, so warn while the log can still attribute it to this script. The
+	// sprite can also despawn later this same frame, after the command is
+	// queued but before it renders (a weapon flying off the edge of the
+	// screen, for example); that is normal and skips the draw silently.
+	for (auto [origin, target] : {
+		std::pair{script_drawing_commands[j].draw_origin, script_drawing_commands[j].draw_origin_target},
+		std::pair{script_drawing_commands[j].secondary_draw_origin, script_drawing_commands[j].secondary_draw_origin_target}})
+	{
+		if (origin == DrawOrigin::Sprite && !sprite::getByUID(target))
+		{
+			Z_scripterrlog("Warning: Ignoring draw command using DRAW_ORIGIN_SPRITE with non-existent sprite uid: %d.\n", target);
+			script_drawing_commands[j][0] = 0; // never renders
+			return;
+		}
+	}
+
 	script_drawing_commands.mark_dirty(script_drawing_commands[j][1]/10000);
 }
 
