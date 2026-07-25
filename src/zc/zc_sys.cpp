@@ -6513,8 +6513,10 @@ int32_t onFullscreenMenu()
 
 void fix_menu()
 {
+	// Hide the trailing separator + Debug entry.
 	if(!debug_enabled)
-		settings_menu.chop_index = 13;
+		if(auto ind = settings_menu.ind_at(MENUID_SETTINGS_DEBUG))
+			settings_menu.chop_index = *ind - 1;
 }
 
 int32_t onSetSnapshotFormat(SnapshotType format)
