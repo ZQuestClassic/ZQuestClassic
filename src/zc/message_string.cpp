@@ -1618,6 +1618,16 @@ void tick_message()
 	{
 		cur_iterator->next();
 		msg_consume_spaces();
+
+		// A string with no printable text is done immediately. End it now, or else the
+		// early-out above will deactivate the message next frame without running the usual
+		// end-of-string code (unfreezing the hero, charging repairs, etc.).
+		// Replay note: only know replay needing this check is terror_of_necromancy_demo6_02_of_54.zplay
+		if (cur_iterator->done() && replay_version_check(63))
+		{
+			msg_tick_end();
+			return;
+		}
 	}
 
 	// If the player is holding down the B button, or if speed is 0, process as many characters
