@@ -4220,6 +4220,7 @@ void SW_GaugePiece::draw_piece(BITMAP* dest, int dx, int dy, int container, int 
 {
 	word ctr_cur = get_ctr(), ctr_max = get_ctr_max(),
 		ctr_per_cont = get_per_container();
+	if (ctr_per_cont == 0) return; // misconfigured widget; avoid divide-by-zero
 	int containers=ctr_max/ctr_per_cont;
 	int fr = frames ? frames : 1;
 	
@@ -4298,7 +4299,7 @@ void SW_GaugePiece::draw(BITMAP* dest, int xofs, int yofs, SubscrPage& page) con
 	auto ctr = get_ctr();
 	auto ctr_max = get_ctr_max();
 	bool skipanim = frames > 1 && (flags&SUBSCR_GAUGE_ANIM_SKIP);
-	if(flags&SUBSCR_GAUGE_ANIM_PERCENT)
+	if((flags&SUBSCR_GAUGE_ANIM_PERCENT) && ctr_max)
 	{
 		if((flags&SUBSCR_GAUGE_ANIM_UNDER) && ((1000*ctr)/ctr_max) > (10*anim_val))
 			animate = false;
