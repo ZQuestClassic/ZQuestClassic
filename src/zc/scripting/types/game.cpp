@@ -89,12 +89,11 @@ void do_getmessage(const bool v)
 	if(BC::checkMessage(ID) != SH::_NoError)
 		return;
 
-	if (get_qr(qr_OLD_SCRIPTS_MESSAGE_DATA_BINARY_ENCODING))
-		MsgStrings[ID].ensureLegacyEncoding();
-	else
-		MsgStrings[ID].ensureAsciiEncoding();
-		
-	if(ArrayH::setArray(arrayptr, MsgStrings[ID].s, true) == SH::_Overflow)
+	auto encoding_type = get_qr(qr_OLD_SCRIPTS_MESSAGE_DATA_BINARY_ENCODING) ?
+		MsgStr::EncodingType::Binary :
+		MsgStr::EncodingType::Ascii;
+	std::string text = MsgStrings[ID].serialize(encoding_type);
+	if(ArrayH::setArray(arrayptr, text, true) == SH::_Overflow)
 		Z_scripterrlog("Array supplied to 'Game->GetMessage' not large enough\n");
 }
 

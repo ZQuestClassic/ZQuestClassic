@@ -213,17 +213,7 @@ void MsgStr::ensureLegacyEncoding()
 	if (encoding_type == EncodingType::Binary)
 		return;
 
-	parse();
-
-	auto [binary, warnings] = parsed_msg_str.serialize_legacy();
-	if (warnings.size())
-	{
-		al_trace("Warning: lossy conversion of message string to the legacy encoding: %s\n", s.c_str());
-		for (auto& warning : warnings)
-			al_trace("\t%s\n", warning.c_str());
-	}
-
-	s = std::move(binary);
+	s = serialize(EncodingType::Binary);
 	parsed_msg_str = {};
 	encoding_type = EncodingType::Binary;
 }
@@ -236,6 +226,28 @@ void MsgStr::ensureAsciiEncoding()
 	s = serialize();
 	parsed_msg_str = {};
 	encoding_type = EncodingType::Ascii;
+}
+
+// Returns `s` re-encoded as `type`, without modifying this MsgStr.
+std::string MsgStr::serialize(EncodingType type) const
+{
+	if (encoding_type == type)
+		return s;
+
+	if (type == EncodingType::Ascii)
+		return serialize();
+
+	parse();
+
+	auto [binary, warnings] = parsed_msg_str.serialize_legacy();
+	if (warnings.size())
+	{
+		al_trace("Warning: lossy conversion of message string to the legacy encoding: %s\n", s.c_str());
+		for (auto& warning : warnings)
+			al_trace("\t%s\n", warning.c_str());
+	}
+
+	return binary;
 }
 
 // Note: this always returns an ascii-compatible encoding.
@@ -327,6 +339,9 @@ std::string MsgStr::iterator::peek(byte n) const
 
 const char* MsgStr::iterator::remaining_word() const
 {
+	// `k` is the index just past `character`, so a CHARACTER state guarantees k >= 1.
+	if (k < 1)
+		return word.c_str();
 	return word.c_str() + k - 1;
 }
 
@@ -336,22 +351,36 @@ bool MsgStr::iterator::next_segment()
 	j = 0;
 	k = 0;
 
-	if (str->parsed_msg_str.segment_types.size() <= segment_index)
+	// The bounds checks below can only fail if the string is re-parsed underneath a live
+	// iterator (a script modifying the string mid-display, via Game->SetMessage). In that
+	// case, just end the string.
+	auto& parsed = str->parsed_msg_str;
+	if (parsed.segment_types.size() <= segment_index)
 	{
 		state = DONE;
 		return true;
 	}
 
-	auto segment_type = str->parsed_msg_str.segment_types[segment_index++];
+	auto segment_type = parsed.segment_types[segment_index++];
 	if (segment_type == ParsedMsgStr::SegmentType::Command)
 	{
+		if (parsed.commands.size() <= command_index)
+		{
+			state = DONE;
+			return true;
+		}
 		state = COMMAND;
-		command = str->parsed_msg_str.commands[command_index++];
+		command = parsed.commands[command_index++];
 	}
 	else
 	{
+		if (parsed.literals.size() <= literal_index)
+		{
+			state = DONE;
+			return true;
+		}
 		state = CHARACTER;
-		buffer = str->parsed_msg_str.literals[literal_index++];
+		buffer = parsed.literals[literal_index++];
 	}
 
 	return false;
@@ -395,10 +424,10 @@ bool MsgStr::iterator::next_word()
 		else
 		{
 			// Complete words finish at spaces.
-			int k = j;
+			int word_start = j;
 			while (j < buffer.size() && buffer[j] != ' ')
 				j++;
-			word = buffer.substr(k, j - k);
+			word = buffer.substr(word_start, j - word_start);
 		}
 	}
 	else
@@ -413,7 +442,7 @@ bool MsgStr::iterator::next_character()
 {
 	character = "";
 
-	if (state == 0 || k == word.size())
+	if (state == NOT_STARTED || k == word.size())
 		if (next_word()) return true;
 
 	if (state == COMMAND)

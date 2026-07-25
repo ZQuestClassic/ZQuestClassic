@@ -118,11 +118,13 @@ struct MsgStr
 	void ensureAsciiEncoding();
 	// A human-readable encoding of the string.
 	std::string serialize() const;
+	// Returns `s` re-encoded as `type`, without modifying this MsgStr.
+	std::string serialize(EncodingType type) const;
 	const std::vector<zfix>& segmentsAsZFixArray() const;
 
 	struct iterator
 	{
-		enum state {
+		enum State {
 			NOT_STARTED,
 			CHARACTER,
 			COMMAND,
@@ -151,7 +153,7 @@ struct MsgStr
 		int get_post_segment_delay() const;
 		bool get_post_segment_delay_forced() const;
 
-		state state = NOT_STARTED;
+		State state = NOT_STARTED;
 		// A single character. This is a string because eventually this may contain a unicode
 		// character, which is larger than one byte.
 		// This is only valid if `state` is CHARACTER.

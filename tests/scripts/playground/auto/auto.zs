@@ -34,6 +34,7 @@
 #include "auto/jit_mult_pow2.zs"
 #include "auto/jit_shifts.zs"
 #include "auto/jit_yielder_hot_loop.zs"
+#include "auto/msg_strings.zs"
 #include "auto/optional_params.zs"
 #include "auto/scc.zs"
 #include "auto/scopes.zs"

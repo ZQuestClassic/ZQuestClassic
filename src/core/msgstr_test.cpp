@@ -15,9 +15,7 @@
 namespace
 {
 
-// `MsgStr::iterator::state` the member hides `state` the enum type, so the
-// type has to be named indirectly.
-using IterState = decltype(MsgStr::iterator::state);
+using IterState = MsgStr::iterator::State;
 
 struct IterEvent
 {
@@ -443,6 +441,54 @@ void test_peek_at_word_boundary()
 	assertEqual(it.peek(2), std::string("c"));
 }
 
+// serialize(type) re-encodes without modifying the string. Game->GetMessage
+// relies on this to not permanently convert (and, for the legacy encoding,
+// lossily downgrade) a string as a side effect of reading it.
+void test_serialize_to_encoding_does_not_mutate()
+{
+	MsgStr msg{};
+	init_msg(msg, "AB \nC");
+
+	std::string binary = msg.serialize(MsgStr::EncodingType::Binary);
+	assertEqual(binary.size(), (size_t)5); // 'A' 'B' ' ' newline-command 'C'
+	assertEqual((int)(byte)binary[3], MSGC_NEWLINE + 1);
+
+	assertEqual(msg.s, std::string("AB \nC"));
+	assertEqual(msg.encoding_type, MsgStr::EncodingType::Ascii);
+	assertEqual(msg.serialize(MsgStr::EncodingType::Ascii), msg.s);
+
+	MsgStr legacy{};
+	init_msg(legacy, "AB ", true, MsgStr::EncodingType::Binary);
+	// The legacy parser trims trailing spaces...
+	assertEqual(legacy.serialize(MsgStr::EncodingType::Ascii), std::string("AB"));
+	// ...but the raw data is untouched.
+	assertEqual(legacy.s, std::string("AB "));
+	assertEqual(legacy.encoding_type, MsgStr::EncodingType::Binary);
+}
+
+// A script can rewrite a string while it is being displayed (Game->SetMessage).
+// The live iterator's segment indices then refer to a different parse; it must
+// end the string safely instead of reading out of bounds.
+void test_reparse_mid_iteration_ends_safely()
+{
+	MsgStr msg{};
+	init_msg(msg, R"(x\Speed\1\ \Speed\2\)"); // Literal, Command, Command
+	auto it = msg.create_iterator();
+
+	it.next();
+	assertEqual(it.character, std::string("x"));
+	it.next();
+	it.next();
+	assertEqual(it.state, MsgStr::iterator::COMMAND); // both commands consumed
+
+	// Re-parse to a string whose next (4th) segment is a command, but which has
+	// fewer commands overall than the iterator already consumed.
+	init_msg(msg, "ab\ncd\nef"); // Literal, Command, Literal, Command, Literal
+
+	assertTrue(it.next());
+	assertTrue(it.done());
+}
+
 } // end namespace
 
 TestResults test_msgstr(bool verbose)
@@ -469,6 +515,8 @@ TestResults test_msgstr(bool verbose)
 		{ "post_segment_delay_forced", test_post_segment_delay_forced },
 		{ "peek_within_word", test_peek_within_word },
 		{ "peek_at_word_boundary", test_peek_at_word_boundary },
+		{ "serialize_to_encoding_does_not_mutate", test_serialize_to_encoding_does_not_mutate },
+		{ "reparse_mid_iteration_ends_safely", test_reparse_mid_iteration_ends_safely },
 	};
 
 	for (auto& test : tests)
