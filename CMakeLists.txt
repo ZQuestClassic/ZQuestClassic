@@ -228,11 +228,10 @@ set(WANT_EXAMPLES OFF CACHE BOOL "" FORCE)
 set(WANT_DEMO OFF CACHE BOOL "" FORCE)
 set(WANT_DOCS OFF CACHE BOOL "" FORCE)
 set(WANT_IMAGE_WEBP OFF CACHE BOOL "" FORCE)
-if(WANT_VENDORED_LIBJPEG_TURBO)
-	set(OFF CACHE BOOL "" FORCE)
-else()
-	set(ON CACHE BOOL "" FORCE)
-endif()
+# JPEG support is always wanted: with the vendored libjpeg-turbo the find
+# results are pre-seeded by third_party/CMakeLists.txt, otherwise Allegro
+# finds the system libjpeg itself.
+set(WANT_IMAGE_JPG ON CACHE BOOL "" FORCE)
 set(WANT_OPUS OFF CACHE BOOL "" FORCE)
 set(WANT_DUMB ON CACHE BOOL "" FORCE)
 set(WANT_FLAC OFF CACHE BOOL "" FORCE)
