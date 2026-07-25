@@ -7237,6 +7237,7 @@ void ZCSubscreen::page_change(byte mode, byte targ, SubscrTransition const& tran
 			dest = new_subscreen_active;
 		else dest = new_subscreen_map;
 	}
+	if (!dest) return; // no active subscreen to swap to
 	int pg = dest->curpage;
 	switch(mode)
 	{
