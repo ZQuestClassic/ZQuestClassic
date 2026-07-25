@@ -14,6 +14,7 @@
 #include "auto/bug_mod_int_min.zs"
 #include "auto/bug_neg_index_one_indexed.zs"
 #include "auto/bug_nested_class_constructors.zs"
+#include "auto/bug_npc_flags_high_bits.zs"
 #include "auto/bug_object_deleted_during_constructor.zs"
 #include "auto/bug_opt_var_across_waitframe.zs"
 #include "auto/bug_script_draw_error_logging.zs"

@@ -821,7 +821,7 @@ public:
 
 		if (auto val = transformValue<bool>(value))
 		{
-			auto flag = (MemberType)(1<<index);
+			auto flag = (MemberType)(1ULL<<index);
 			SETFLAG(obj->*T_MemberPtr, flag, val.value());
 
 			if (m_writeSideEffect)
@@ -871,7 +871,7 @@ public:
 
 		if (auto val = transformValue<bool>(value))
 		{
-			auto flag = (MemberType)(1<<index);
+			auto flag = (MemberType)(1ULL<<index);
 			SETFLAG(obj->*T_MemberPtr.*T_SubMemberPtr, flag, val.value());
 
 			if (m_writeSideEffect)
