@@ -30,6 +30,12 @@ def submit_all(fn, items):
     responsible for keeping the executor alive until all results are read,
     e.g. by using it as a context manager.
     """
+    # Workers spawn many short-lived processes; tell run_target.py to skip its
+    # lldb crash-handling wrapper, which re-indexes the target's debug symbols
+    # on every invocation and would dominate the runtime (rerun without this
+    # env var to get a backtrace from a crashing input).
+    os.environ.setdefault('ZC_FAST_RUN_TARGET', '1')
+
     executor = concurrent.futures.ThreadPoolExecutor(max_workers=get_test_concurrency())
     futures = {item: executor.submit(fn, item) for item in items}
     return executor, futures

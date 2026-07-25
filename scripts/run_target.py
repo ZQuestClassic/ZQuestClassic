@@ -26,6 +26,13 @@ def get_debug_method():
     if 'ZC_DISABLE_DEBUG' in os.environ:
         return {'method': DEBUG_METHOD_NONE}
 
+    # Set by tests that fan out many short-lived runs (see submit_all in
+    # tests/common.py). The lldb wrapper re-indexes the target's debug symbols
+    # on every invocation, which costs seconds per run and dwarfs the actual
+    # work; skip crash handling entirely for these.
+    if 'ZC_FAST_RUN_TARGET' in os.environ:
+        return {'method': DEBUG_METHOD_NONE}
+
     debug_method = _get_debug_method()
     if debug_method['method'] == DEBUG_METHOD_NONE and platform.system() != 'Windows':
         print_run_target('WARNING: if there is a crash, you will not see a backtrace')
