@@ -13,8 +13,9 @@
 #include <algorithm>
 #include <array>
 #include <map>
-#include <filesystem>
 #include <thread>
+#include <vector>
+#include <xxhash.h>
 
 static bool is_enabled;
 static bool jit_log_enabled;
@@ -246,6 +247,75 @@ static bool set_compilation_thread_pool_size(int target_size)
 	return true;
 }
 
+// Instructions are staged into a small buffer and hashed a few thousand at a
+// time, since updating the hash with each instruction's few bytes on its own is
+// several times slower. The buffer is small enough to stay in cache.
+static constexpr size_t hash_batch_length = 4096;
+
+static void hash_flush(XXH3_state_t* state, std::vector<int32_t>& buffer)
+{
+	if (!buffer.empty())
+	{
+		XXH3_64bits_update(state, buffer.data(), buffer.size() * sizeof(int32_t));
+		buffer.clear();
+	}
+}
+
+static void hash_scripts(XXH3_state_t* state, std::vector<int32_t>& buffer, script_data *scripts[], size_t len)
+{
+	for (size_t i = 0; i < len; i++)
+	{
+		auto script = scripts[i];
+		if (!script || !script->valid())
+			continue;
+
+		for (size_t j = 0; j < script->size; j++)
+		{
+			auto& instr = script->zasm[j];
+			buffer.push_back(instr.command);
+			buffer.push_back(instr.arg1);
+			buffer.push_back(instr.arg2);
+			if (instr.vecptr)
+				buffer.insert(buffer.end(), instr.vecptr->begin(), instr.vecptr->end());
+			if (instr.strptr)
+			{
+				hash_flush(state, buffer);
+				XXH3_64bits_update(state, instr.strptr->data(), instr.strptr->size());
+			}
+			if (buffer.size() >= hash_batch_length)
+				hash_flush(state, buffer);
+		}
+	}
+}
+
+// Hash of every loaded script's zasm (commands, args, and attached
+// vector/string literals). Detects whether the scripts actually changed from
+// one quest load to the next.
+static uint64_t all_scripts_hash()
+{
+	XXH3_state_t* state = XXH3_createState();
+	XXH3_64bits_reset(state);
+	std::vector<int32_t> buffer;
+	buffer.reserve(hash_batch_length + 8);
+	hash_scripts(state, buffer, ffscripts, NUMSCRIPTFFC);
+	hash_scripts(state, buffer, itemscripts, NUMSCRIPTITEM);
+	hash_scripts(state, buffer, guyscripts, NUMSCRIPTGUYS);
+	hash_scripts(state, buffer, screenscripts, NUMSCRIPTSCREEN);
+	hash_scripts(state, buffer, lwpnscripts, NUMSCRIPTWEAPONS);
+	hash_scripts(state, buffer, ewpnscripts, NUMSCRIPTWEAPONS);
+	hash_scripts(state, buffer, dmapscripts, NUMSCRIPTSDMAP);
+	hash_scripts(state, buffer, itemspritescripts, NUMSCRIPTSITEMSPRITE);
+	hash_scripts(state, buffer, comboscripts, NUMSCRIPTSCOMBODATA);
+	hash_scripts(state, buffer, genericscripts, NUMSCRIPTSGENERIC);
+	hash_scripts(state, buffer, subscreenscripts, NUMSCRIPTSSUBSCREEN);
+	hash_scripts(state, buffer, globalscripts, NUMSCRIPTGLOBAL);
+	hash_scripts(state, buffer, playerscripts, NUMSCRIPTPLAYER);
+	hash_flush(state, buffer);
+	uint64_t hash = XXH3_64bits_digest(state);
+	XXH3_freeState(state);
+	return hash;
+}
+
 static void create_compile_tasks()
 {
 	al_lock_mutex(tasks_mutex);
@@ -372,10 +442,14 @@ void jit_startup()
 	if (!task_finish_cond)
 		task_finish_cond = al_create_cond();
 
-	// Only clear compiled functions if quest has changed since last quest load.
-	// TODO: could get even smarter and hash each ZASM script, only recompiling if something really changed.
-	static std::pair<std::string, std::filesystem::file_time_type> previous_state;
-	std::pair<std::string, std::filesystem::file_time_type> state = {qstpath, std::filesystem::last_write_time(qstpath)};
+	// Only clear compiled functions if the loaded scripts actually changed
+	// since the last quest load, so resetting (F9) an unchanged quest reuses
+	// them. The key hashes the loaded zasm itself rather than the qst file's
+	// timestamp: compiled code must never outlive the scripts it was built
+	// from (test mode reloads a qst the editor just recompiled, and stale
+	// native code silently runs the old scripts).
+	static std::pair<std::string, uint64_t> previous_state;
+	std::pair<std::string, uint64_t> state = {qstpath, all_scripts_hash()};
 	bool should_clear = state != previous_state;
 	if (should_clear)
 	{
