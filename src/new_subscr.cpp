@@ -2563,6 +2563,7 @@ byte SW_ButtonItem::getType() const
 void SW_ButtonItem::draw(BITMAP* dest, int32_t xofs, int32_t yofs, [[maybe_unused]] SubscrPage& page) const
 {
 	if(!show_subscreen_items) return;
+	if(btn >= 4) return; // guards the btnitem_ids[]/btnitem_clks[] accesses below
 	
 	bool invis_0 = get_qr(qr_ITM_0_INVIS_ON_BTNS);
 #ifdef IS_PLAYER
