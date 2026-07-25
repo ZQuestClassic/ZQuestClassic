@@ -2449,7 +2449,7 @@ void SW_BtnCounter::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& p
 		if(!(flags&SUBSCR_BTNCOUNTER_NOCOLLAPSE))
 			if(costs[0] == crNONE && costs[1] != crNONE)
 				zc_swap(costs[0],costs[1]);
-		if(costs[costind] != crNONE)
+		if(costind < 2 && costs[costind] != crNONE)
 			counter = costs[costind];
 		else return;
 	}
