@@ -59,6 +59,13 @@ class bitmap {
 
 	// Identical to [Screen->Arc], but it draws to a target bitmap.
 	//
+	// Opaque fills with color 0 write color 0 to the bitmap, so a filled `Arc`
+	// can be used to carve transparent pie-slice regions out of a bitmap.
+	//
+	// @versionchanged 3.0 Filled pie slices used to draw garbage (often filling
+	// everything but the slice) for wrap-around angle spans, slices partially
+	// offscreen, or tiny radii. All angle spans now draw correctly. Opaque fills
+	// with color 0 used to draw nothing; they now write color 0.
 	// @zasm
 	//   BMPARCR
 	//   POPARGS D5 0.0015

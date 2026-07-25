@@ -1242,6 +1242,31 @@ class screendata {
 						 int scale = 1, int rx = 0, int ry = 0, int rot_degrees = 0,
 						 bool fill = true, int opacity = OP_OPAQUE);
 
+	// Draws an arc - a piece of a circle's edge - on the specified layer of the
+	// current screen. The circle is centered at `(x, y)` with radius `radius * scale`.
+	//
+	// Angles are in degrees and rotate counter-clockwise as seen on screen:
+	// 0 points right (east), 90 points up (north), 180 points left (west), and
+	// 270 (or equivalently -90) points down (south).
+	//
+	// The arc is swept counter-clockwise from `start_degrees` to `end_degrees`,
+	// wrapping around the circle if needed, so it always covers
+	// `(end_degrees - start_degrees) % 360` degrees. For example,
+	// `Screen->Arc(l, x, y, r, 0, 90, c)` sweeps the quarter circle from east up
+	// to north (the top-right), while `Screen->Arc(l, x, y, r, 90, 0, c)` sweeps
+	// the other 270 degrees.
+	//
+	// If `closed` is true, both ends of the arc are connected to the center with
+	// straight lines, forming a pie slice; if `fill` is also true, the slice is
+	// drawn filled. If `closed` is false, only the arc's edge is drawn and `fill`
+	// is ignored.
+	//
+	// The result is then rotated by `rot_degrees` around the point `(rx, ry)`.
+	//
+	// @versionchanged 3.0 Filled pie slices used to draw garbage (often filling
+	// everything but the slice) for wrap-around angle spans, slices partially
+	// offscreen, or tiny radii. All angle spans now draw correctly. Opaque fills
+	// with color 0 used to draw nothing; they now write color 0.
 	// @zasm
 	//   ARCR
 	//   POPARGS D5 0.0014
