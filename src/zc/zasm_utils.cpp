@@ -783,6 +783,98 @@ std::string zasm_to_string(const zasm_script* script, bool top_functions, bool g
 	return ss.str();
 }
 
+struct xxh3_state_deleter
+{
+	void operator()(XXH3_state_t* state) const { XXH3_freeState(state); }
+};
+
+uint64_t zasm_scripts_hash()
+{
+	// The instructions are split into fixed-size chunks that are hashed on
+	// multiple threads, then the per-chunk hashes are folded together in order.
+	// The chunk boundaries depend only on how many instructions each script has,
+	// so the result is still stable across loads of the same scripts.
+	static constexpr size_t chunk_length = 16 * 1024;
+
+	struct chunk
+	{
+		const zasm_script* script;
+		size_t start, end;
+		uint64_t hash;
+	};
+
+	std::vector<chunk> chunks;
+	for (auto& script : zasm_scripts)
+	{
+		size_t size = script->zasm.size();
+		for (size_t start = 0; start < size; start += chunk_length)
+			chunks.push_back({script.get(), start, std::min(start + chunk_length, size), 0});
+		// Scripts with no instructions still contribute their name.
+		if (!size)
+			chunks.push_back({script.get(), 0, 0, 0});
+	}
+
+	auto hash_chunk = [](chunk& c) {
+		// Instructions are staged into a small buffer and hashed a few thousand
+		// at a time. Updating the hash with each instruction's 16 bytes on its own
+		// is several times slower, and gathering the whole chunk before hashing it
+		// is slower still - the buffer wants to stay in cache. Both the buffer and
+		// the hash state are kept per thread because quests have thousands of
+		// small scripts, and an allocation per chunk costs more than the hashing.
+		static constexpr size_t batch_length = 4096;
+		static thread_local std::vector<int32_t> buffer;
+		static thread_local std::unique_ptr<XXH3_state_t, xxh3_state_deleter> state_holder(XXH3_createState());
+		XXH3_state_t* state = state_holder.get();
+		XXH3_64bits_reset(state);
+		buffer.clear();
+		buffer.reserve(batch_length + 8);
+
+		auto flush = [&]() {
+			if (!buffer.empty())
+			{
+				XXH3_64bits_update(state, buffer.data(), buffer.size() * sizeof(int32_t));
+				buffer.clear();
+			}
+		};
+
+		if (c.start == 0)
+			XXH3_64bits_update(state, c.script->name.data(), c.script->name.size());
+
+		for (size_t i = c.start; i < c.end; i++)
+		{
+			const ffscript& instr = c.script->zasm[i];
+			buffer.push_back(instr.command);
+			buffer.push_back(instr.arg1);
+			buffer.push_back(instr.arg2);
+			buffer.push_back(instr.arg3);
+			if (instr.vecptr)
+				buffer.insert(buffer.end(), instr.vecptr->begin(), instr.vecptr->end());
+			if (instr.strptr)
+			{
+				flush();
+				XXH3_64bits_update(state, instr.strptr->data(), instr.strptr->size());
+			}
+			if (buffer.size() >= batch_length)
+				flush();
+		}
+		flush();
+
+		c.hash = XXH3_64bits_digest(state);
+	};
+
+	// TODO: debug issues on web build.
+	if (!is_web())
+		std::for_each(std::execution::par_unseq, chunks.begin(), chunks.end(), hash_chunk);
+	else
+		std::for_each(std::execution::seq, chunks.begin(), chunks.end(), hash_chunk);
+
+	std::vector<uint64_t> hashes;
+	hashes.reserve(chunks.size());
+	for (const chunk& c : chunks)
+		hashes.push_back(c.hash);
+	return XXH3_64bits(hashes.data(), hashes.size() * sizeof(uint64_t));
+}
+
 void zasm_for_every_script(bool parallel, std::function<void(zasm_script*)> fn)
 {
 	std::vector<zasm_script*> scripts;

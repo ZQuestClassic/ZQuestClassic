@@ -141,6 +141,11 @@ std::string zasm_to_string(const zasm_script* script, bool top_functions = false
 // Work is never parallelized for newer quests (3.0+) since they have just a single zasm_script.
 void zasm_for_every_script(bool parallel, std::function<void(zasm_script*)> zasm_script);
 
+// Hash of every currently loaded zasm script's contents (commands, args, and
+// attached vector/string literals). Detects whether the scripts actually
+// changed from one quest load to the next.
+uint64_t zasm_scripts_hash();
+
 std::pair<bool, bool> get_command_rw(int command, int arg);
 
 #endif

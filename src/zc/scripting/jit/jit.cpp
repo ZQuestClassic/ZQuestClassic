@@ -16,7 +16,6 @@
 #include <fmt/format.h>
 #include <algorithm>
 #include <map>
-#include <filesystem>
 #include <memory>
 
 static bool is_enabled;
@@ -236,12 +235,16 @@ void jit_startup(bool precompile)
 	if (!compiled_scripts_cond)
 		compiled_scripts_cond = al_create_cond();
 
-	// Only clear compiled scripts if quest has changed since last quest load.
-	// TODO: could get even smarter and hash each ZASM script, only recompiling if something really changed.
+	// Only clear compiled scripts if the loaded scripts actually changed since
+	// the last quest load, so resetting (F9) an unchanged quest reuses them.
+	// The key hashes the loaded zasm itself rather than the qst file's
+	// timestamp: compiled code must never outlive the scripts it was built
+	// from (test mode reloads a qst the editor just recompiled, and stale
+	// native code silently runs the old scripts).
 	al_lock_mutex(compiled_scripts_mutex);
 	{
-		static std::tuple<std::string, std::filesystem::file_time_type, bool> previous_state;
-		std::tuple<std::string, std::filesystem::file_time_type, bool> state = {qstpath, std::filesystem::last_write_time(qstpath), zasm_optimize_is_enabled()};
+		static std::tuple<std::string, uint64_t, bool> previous_state;
+		std::tuple<std::string, uint64_t, bool> state = {qstpath, zasm_scripts_hash(), zasm_optimize_is_enabled()};
 		bool should_clear = state != previous_state;
 		if (should_clear)
 		{
