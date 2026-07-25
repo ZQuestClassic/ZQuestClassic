@@ -347,10 +347,26 @@ void zalleg_setup_allegro(App id, int argc, char **argv)
 	packfile_password(NULL);
 }
 
+static int web_display_w, web_display_h;
+void zalleg_set_web_display_size(int w, int h)
+{
+	web_display_w = w;
+	web_display_h = h;
+}
+
+static int virtual_display_w, virtual_display_h;
+std::pair<int, int> zalleg_get_virtual_display_size()
+{
+	return {virtual_display_w, virtual_display_h};
+}
+
 // (v_width, v_height): the size of the allegro 4 screen bitmap. It's the "base" resolution, as far as allegro 4 is concerned.
 // (saved_window_width, saved_window_height): the size to make the display window. If -1, this function picks the best size based on the monitor.
 void zalleg_create_window(const char* title, int gfx_mode, int v_width, int v_height, [[maybe_unused]] int saved_window_width, [[maybe_unused]] int saved_window_height, [[maybe_unused]] int max_scale)
 {
+	virtual_display_w = v_width;
+	virtual_display_h = v_height;
+
 	if (is_headless())
 	{
 		initFonts(); // Doesn't really belong here, but whatever.
@@ -360,10 +376,12 @@ void zalleg_create_window(const char* title, int gfx_mode, int v_width, int v_he
 	}
 
 #ifdef __EMSCRIPTEN__
-	// For web, there's no point making the display size different from the virtual screen size,
-	// because the canvas that SDL renders into is scaled up via CSS.
-	int w = v_width;
-	int h = v_height;
+	// For web, there's normally no point making the display size different from the virtual
+	// screen size, because the canvas that SDL renders into is scaled up via CSS. The exception
+	// is when a display shader needs real output pixels to work with - see
+	// zalleg_set_web_display_size.
+	int w = web_display_w > 0 ? web_display_w : v_width;
+	int h = web_display_h > 0 ? web_display_h : v_height;
 #else
 	// Either get the saved window width/height (if not -1), or determine the largest width/height
 	// for the primary monitor that fits the virtual screen's aspect ratio.
@@ -490,9 +508,16 @@ void zalleg_process_display_events()
 	int prev_h = display ? al_get_display_height(display) : 0;
 
 	all_process_display_events();
+#ifndef __EMSCRIPTEN__
 	// TODO: should do this only in response to a resize event
 	doAspectResize();
 	zc_do_minsize();
+#else
+	// Not on web. There is no OS window to keep usable, and the canvas size is driven by the
+	// page (see crt_filter_update_web_display_size). zc_do_minsize in particular would fight
+	// that: its 320x240 floor is far below any size the page asks for, so all it can do is
+	// clamp a size it should not have an opinion about.
+#endif
 
 	if (!display || !zalleg_redraw_display)
 		return;

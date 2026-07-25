@@ -118,7 +118,14 @@ std::pair<int, int> RenderTreeItem::world_to_local(int x, int y)
 		transform_matrix_inverse = transform_matrix.inverse();
 		transform_inverse_dirty = false;
 	}
-	return transform_matrix_inverse.apply(x, y);
+	auto [lx, ly] = transform_matrix_inverse.apply(x, y);
+	if (uv_warp && width > 0 && height > 0)
+	{
+		auto [u, v] = uv_warp((lx + 0.5) / width, (ly + 0.5) / height);
+		lx = (int)std::floor(u * width);
+		ly = (int)std::floor(v * height);
+	}
+	return {lx, ly};
 }
 std::pair<int, int> RenderTreeItem::local_to_world(int x, int y)
 {
@@ -386,6 +393,44 @@ static void render_tree_draw_item_prepare(RenderTreeItem* rti)
 	}
 }
 
+// Draws `rti` and its descendants into the current target bitmap, in that bitmap's own
+// coordinate space: (x, y) is where rti's origin lands, (xs, ys) the accumulated scale.
+static void render_tree_bake_item(RenderTreeItem* rti, float x, float y, float xs, float ys)
+{
+	if (!rti->visible)
+		return;
+
+	auto& t = rti->get_transform();
+	float bx = x + t.x * xs;
+	float by = y + t.y * ys;
+	float bxs = xs * t.xscale;
+	float bys = ys * t.yscale;
+	if (rti->bitmap)
+	{
+		int w = al_get_bitmap_width(rti->bitmap);
+		int h = al_get_bitmap_height(rti->bitmap);
+		al_draw_scaled_bitmap(rti->bitmap, 0, 0, w, h, bx, by, w * bxs, h * bys, 0);
+	}
+	for (auto child : rti->get_children())
+		render_tree_bake_item(child, bx, by, bxs, bys);
+}
+
+// A shader draw covers only the item's own bitmap, so children drawn separately on top of it
+// escape the shader - the title logo stayed crisp and flat over a scanlined, curved game.
+// Bake them into the item's bitmap right after it renders, so they pass through the same
+// shader (and warp geometry) as everything under them. Called only while the item is
+// unfrozen, which also means a frozen layer keeps its children frozen in place with it.
+static void render_tree_bake_children(RenderTreeItem* rti)
+{
+	ALLEGRO_STATE oldstate;
+	al_store_state(&oldstate, ALLEGRO_STATE_TARGET_BITMAP | ALLEGRO_STATE_BLENDER);
+	al_set_target_bitmap(rti->bitmap);
+	al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA);
+	for (auto child : rti->get_children())
+		render_tree_bake_item(child, 0, 0, 1, 1);
+	al_restore_state(&oldstate);
+}
+
 static void render_tree_draw_item(RenderTreeItem* rti, bool do_a4_only)
 {
 	if (!rti->visible)
@@ -435,6 +480,8 @@ static void render_tree_draw_item(RenderTreeItem* rti, bool do_a4_only)
 				rti->render(size_changed);
 				al_set_target_backbuffer(all_get_display());
 			}
+			if (rti->shader && rti->has_children())
+				render_tree_bake_children(rti);
 		}
 	}
 
@@ -449,6 +496,13 @@ static void render_tree_draw_item(RenderTreeItem* rti, bool do_a4_only)
 		auto [x1, y1] = matrix.apply(w, h);
 		int tw = x1 - x0;
 		int th = y1 - y0;
+		bool shader_active = false;
+		if (rti->shader)
+		{
+			shader_active = al_use_shader(rti->shader);
+			if (shader_active && rti->shader_prepare)
+				rti->shader_prepare(rti, tw, th);
+		}
 		if (rti->tint)
 		{
 			al_draw_tinted_scaled_bitmap(rti->bitmap, *rti->tint, 0, 0, w, h, x0, y0, tw, th, 0);
@@ -457,7 +511,14 @@ static void render_tree_draw_item(RenderTreeItem* rti, bool do_a4_only)
 		{
 			al_draw_scaled_bitmap(rti->bitmap, 0, 0, w, h, x0, y0, tw, th, 0);
 		}
+		if (shader_active)
+			al_use_shader(nullptr);
 	}
+
+	// A shader-drawn item's children were baked into its bitmap when it rendered - drawing
+	// them here too would double them up, unshaded.
+	if (rti->shader)
+		return;
 
 	for (auto rti_child : rti->get_children())
 	{

@@ -158,6 +158,7 @@ void stop_item_sfx(int32_t family);
 int32_t  pan(int32_t x);
 int32_t  onSetSnapshotFormat(SnapshotType format);
 int32_t onSetBottom8Pixels(int option);
+int32_t onSetCrtFilter(int mode);
 void updateShowBottomPixels();
 int32_t onKeyboardEntry();
 int32_t onLetterGridEntry();

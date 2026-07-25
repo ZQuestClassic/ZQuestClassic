@@ -6,6 +6,7 @@
 #include "allegro5/joystick.h"
 #include "zalleg/files.h"
 #include "zalleg/render.h"
+#include "zc/crt_filter.h"
 #include "core/zdefs.h"
 #include "zalleg/zalleg.h"
 #include "core/qrs.h"
@@ -5257,6 +5258,13 @@ static NewMenu name_entry_mode_menu
 	{ "&Extended Letter Grid", onExtLetterGridEntry },
 };
 
+static NewMenu crt_filter_menu
+{
+	{ "&None", std::bind(onSetCrtFilter, (int)CrtFilterMode::none) },
+	{ "&Flat (crt-easymode)", std::bind(onSetCrtFilter, (int)CrtFilterMode::easymode) },
+	{ "&Curved (crt-geom)", std::bind(onSetCrtFilter, (int)CrtFilterMode::geom) },
+};
+
 enum
 {
 	MENUID_WINDOW_LOCK_ASPECT,
@@ -5282,9 +5290,10 @@ enum
 };
 static NewMenu options_menu
 {
+	{ "&Window Settings", &window_menu },
+	{ "&CRT Filter", &crt_filter_menu },
 	{ "Name &Entry Mode", &name_entry_mode_menu },
 	{ "S&napshot Format", &snapshot_format_menu },
-	{ "&Window Settings", &window_menu },
 	{ "Epilepsy Flash Reduction", onEpilepsy, MENUID_OPTIONS_EPILEPSYPROT },
 	{ "Pause In Background", onPauseInBackground, MENUID_OPTIONS_PAUSE_BG },
 	{ "Show Bottom 8 Pixels", &bottom_8_pixels_menu, MENUID_OPTIONS_SHOWBOTTOMPIXELS },
@@ -5603,6 +5612,17 @@ int32_t onSetSnapshotFormat(SnapshotType format)
 	return D_O_K;
 }
 
+int32_t onSetCrtFilter(int mode)
+{
+	crt_filter_set_mode((CrtFilterMode)mode);
+	crt_filter_menu.select_only_index(mode);
+	// Build the shader now rather than letting the render loop try: if it can't be built
+	// on this system, the checked menu item would otherwise just silently do nothing.
+	if ((CrtFilterMode)mode != CrtFilterMode::none && !crt_filter_shader())
+		InfoDialog("CRT Filter", "This filter could not be built on this system, so the game will render unfiltered. See allegro.log for details.").show();
+	return D_O_K;
+}
+
 int32_t onSetBottom8Pixels(int option)
 {
 	ShowBottomPixels = option;
@@ -5875,6 +5895,7 @@ void System()
 
 			snapshot_format_menu.select_only_index(SnapshotFormat);
 			bottom_8_pixels_menu.select_only_index(ShowBottomPixels);
+			crt_filter_menu.select_only_index((int)crt_filter_get_mode());
 		}
 		
 		if(debug_enabled)

@@ -2,6 +2,7 @@
 #define ZALLEG_RENDER_TREE_H_
 
 #include "allegro5/color.h"
+#include "allegro5/shader.h"
 #include "zalleg/zalleg.h"
 #include "base/headers.h"
 #include <vector>
@@ -137,6 +138,15 @@ public:
 	bool freeze = false;
 	bool dirty = true;
 	bool skip_tint = false;
+	// Optional shader applied when drawing `bitmap` to the screen. Requires the display to have
+	// been created with ALLEGRO_PROGRAMMABLE_PIPELINE.
+	ALLEGRO_SHADER* shader = nullptr;
+	// Called while `shader` is active, just before drawing, to set its uniforms.
+	// (out_w, out_h) is the on-screen size of the destination rect.
+	std::function<void(RenderTreeItem* rti, int out_w, int out_h)> shader_prepare;
+	// Optional non-affine warp appended to world_to_local, in normalized [0,1] local space.
+	// Lets mouse coordinates track a shader that spatially distorts this item (e.g. CRT curvature).
+	std::function<std::pair<double, double>(double u, double v)> uv_warp;
 
 	RenderTreeItem(std::string name, RenderTreeItem* parent = nullptr);
 	virtual ~RenderTreeItem();

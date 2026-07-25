@@ -51,6 +51,15 @@ extern bool sound_was_installed;
 
 void zalleg_setup_allegro(App id, int argc, char **argv);
 void zalleg_create_window(const char* title, int gfx_mode, int v_width, int v_height, int saved_window_width, int saved_window_height, int max_scale = 3);
+// Web only: create the display at this size instead of the virtual screen size. Must be called
+// before zalleg_create_window; 0 means "use the virtual screen size". Used to render at native
+// resolution (the canvas is normally sized to the virtual screen and enlarged by CSS, which a
+// display shader can't see past).
+void zalleg_set_web_display_size(int w, int h);
+// The (v_width, v_height) the display was created with - the "base" resolution. Unlike SCREEN_W/
+// SCREEN_H (which are gfx_driver->w/h, and track the *display*) and unlike the global `screen`
+// (which popup dialogs temporarily repoint at their own bitmap), this does not move.
+std::pair<int, int> zalleg_get_virtual_display_size();
 void zalleg_bring_window_to_foreground(ALLEGRO_DISPLAY* display);
 void zalleg_wait_for_all_keys_up();
 std::pair<int, int> zalleg_get_default_display_size(int base_width, int base_height, int saved_width, int saved_height, int max_scale = 3);

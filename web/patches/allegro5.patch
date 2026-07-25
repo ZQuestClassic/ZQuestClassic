@@ -27,6 +27,20 @@ index 12fc8f14d..afbe4703d 100644
  }
  
  static void sdl_update_display_region(ALLEGRO_DISPLAY *d, int x, int y,
+@@ -414,7 +414,12 @@ static bool sdl_acknowledge_resize(ALLEGRO_DISPLAY *display)
+       al_use_shader(display->default_shader);
+    }
+ 
+-   recreate_textures(display);
++   // With the backup-on-flip above disabled, the memory copies recreate_textures() would
++   // "restore" from are stale - all zeros for anything created as a video bitmap. On the web
++   // a canvas resize never destroys the GL context or its textures, so there is nothing to
++   // restore anyway; re-uploading just wipes every preserved bitmap (fonts, frozen layers...).
++   // recreate_textures(display);
++   (void)recreate_textures; // reference it so it doesn't trip -Wunused-function
+ 
+    _al_glsl_unuse_shaders();
+ 
 diff --git a/src/sdl/sdl_system.c b/src/sdl/sdl_system.c
 index ee7034488..f859e9177 100644
 --- a/src/sdl/sdl_system.c

@@ -114,6 +114,14 @@ namespace GUI::Lists
 		{ "Letter Grid", 1 },
 		{ "Extended Letter Grid", 2 }
 	};
+
+	// Values match CrtFilterMode; labels match the player's Options > CRT Filter menu.
+	static const ListData crtFilterList
+	{
+		{ "None", 0 },
+		{ "Flat (crt-easymode)", 1 },
+		{ "Curved (crt-geom)", 2 }
+	};
 	
 	static const ListData resPresetList
 	{
@@ -549,6 +557,7 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 						CONFIG_CHECKBOX_I("Optimize ZASM",App::zelda,"ZSCRIPT","optimize_zasm",1,"Optimize ZASM (zscript bytecode). Script heavy quests are known to run 2x more efficiently with this enabled.")
 					),
 					Rows<3>(fitParent = true,
+						CONFIG_DROPDOWN_I("CRT Filter:", App::zelda,"zeldadx","crt_filter",0,crtFilterList,"Cosmetic CRT display filter applied to the game area. Flat adds scanlines; Curved additionally rounds the screen like a CRT tube."),
 						CONFIG_TEXTFIELD_FL("Cursor Scale:", App::zelda,"zeldadx","cursor_scale_large",1.5,1.0,5.0, 4),
 						CONFIG_DROPDOWN_I("Snapshot Format:", App::zelda,"zeldadx","snapshot_format",3,snapshotFormatList,"The format of snapshots"),
 						CONFIG_DROPDOWN_I("Snapshot Scale:", App::zelda,"zeldadx","snapshot_scale",2,snapshotScaleList,"The scale of snapshots"),

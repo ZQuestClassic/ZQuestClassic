@@ -1,4 +1,5 @@
 #include "zc/render.h"
+#include "zc/crt_filter.h"
 #include "zalleg/render.h"
 #include "zc/debugger/debugger.h"
 #include "zc/zelda.h"
@@ -144,6 +145,23 @@ static void configure_render_tree()
 		.yscale = yscale,
 	});
 	rti_game.visible = true;
+
+	// The CRT filter applies only to the game layer, so menus and dialogs stay crisp.
+	rti_game.shader = crt_filter_shader();
+	if (rti_game.shader)
+	{
+		rti_game.shader_prepare = [](RenderTreeItem* rti, int out_w, int out_h) {
+			crt_filter_set_uniforms(rti->width, rti->height, out_w, out_h);
+		};
+		rti_game.uv_warp = crt_filter_warps_mouse() ?
+			[](double u, double v) { return crt_filter_warp_uv(u, v); } :
+			std::function<std::pair<double, double>(double, double)>();
+	}
+	else
+	{
+		rti_game.shader_prepare = nullptr;
+		rti_game.uv_warp = nullptr;
+	}
 
 	rti_infolayer.set_transform({
 		.x = (int)(resx - w*xscale) / 2,
@@ -394,7 +412,12 @@ void render_zc()
 	render_tree_draw(&rti_root);
 
 	ALLEGRO_FONT* a5font = get_zc_font_a5(font_gboraclepfont);
-	static int font_scale = 3;
+	// Match the overlay text to the game's scale rather than using a fixed scale. The text is
+	// stamped into the backbuffer, so a fixed scale means its apparent size tracks the
+	// backbuffer resolution - most visible on web, where the backbuffer is the 640x480 virtual
+	// screen without a CRT filter (CSS then magnifies it, text included) but the full canvas
+	// resolution with one.
+	int font_scale = std::max(1, (int)std::round(rti_game.get_transform().yscale));
 
 	std::vector<std::string> lines_left;
 	std::vector<std::string> lines_right;

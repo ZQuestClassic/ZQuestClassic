@@ -168,6 +168,7 @@ async function main() {
     canvas: document.querySelector('canvas'),
     // instantiateWasm,
     onRuntimeInitialized: () => {
+      runtimeReady = true;
       if (TARGET === 'zplayer') setupTouchControls();
       else {
         // TODO: better way to hide touch controls (just don't render them?)
@@ -255,6 +256,13 @@ async function main() {
   }
 
   window.addEventListener('resize', resize);
+  // Not redundant with 'resize': browsers differ on whether that fires before or after
+  // document.fullscreenElement is set, and canvasSize() reads it.
+  document.addEventListener('fullscreenchange', resize);
+  // The wasm module sizes the canvas backbuffer when it creates the display, long after this
+  // runs, so re-apply the CSS size and scaling mode once that happens. Only the CSS - going
+  // through resize() would ask C++ for another backbuffer and put us back in a loop.
+  new MutationObserver(applyCanvasCss).observe(canvas, {attributes: true, attributeFilter: ['width', 'height']});
   resize();
 
   const requestPersist = () => {
@@ -343,13 +351,70 @@ async function main() {
 //   }
 // }
 
+const VIRTUAL_W = 640;
+const VIRTUAL_H = 480;
+
+// Set from onRuntimeInitialized. Guards calls into the wasm module - see scheduleDisplayResize.
+let runtimeReady = false;
+
+// Single source of truth for canvas geometry, also read from C++ (see
+// crt_filter_update_web_display_size). cssW/cssH is the largest 4:3 box that fits on the page.
+// It is authoritative and is never derived from the backbuffer: allegro sizes the backbuffer by
+// scaling the CSS size, so deriving one from the other in both directions makes the two chase
+// each other. bufW/bufH is that same box measured in physical pixels. A display shader must
+// render into exactly bufW x bufH, because any other backbuffer size makes the browser resample
+// the shaded image, which turns its scanlines and mask into moire.
+function canvasSize() {
+  // <main> is what goes fullscreen, so the header is off screen then - but it is still laid out
+  // and still reports its height, and subtracting it would waste a band of the screen.
+  const headerH = document.fullscreenElement ? 0 : document.querySelector('header').clientHeight;
+  const heightAvail = innerHeight - headerH;
+  const scale = Math.min(innerWidth / VIRTUAL_W, heightAvail / VIRTUAL_H);
+  const cssW = Math.max(0, Math.floor(VIRTUAL_W * scale));
+  const cssH = Math.max(0, Math.floor(VIRTUAL_H * scale));
+  return {
+    cssW, cssH,
+    // Never smaller than the virtual screen: the display is created at bufW x bufH, and a page
+    // that is hidden or still laying out reports a zero-sized viewport.
+    bufW: Math.max(VIRTUAL_W, Math.round(cssW * devicePixelRatio)),
+    bufH: Math.max(VIRTUAL_H, Math.round(cssH * devicePixelRatio)),
+  };
+}
+window.zcCanvasSize = canvasSize;
+
+function applyCanvasCss() {
+  const {cssW, cssH} = canvasSize();
+  canvas.style.width = cssW + "px";
+  canvas.style.height = cssH + "px";
+  // A backbuffer larger than the virtual screen means a display shader already shaded this at
+  // device resolution - nearest-neighbor would re-alias what it just drew.
+  canvas.style.imageRendering = canvas.width > VIRTUAL_W ? 'auto' : '';
+}
+
 function resize() {
-  let w = 640;
-  let h = 480;
-  const heightAvail = innerHeight - document.querySelector('header').clientHeight;
-  const canvasScale = Math.min(innerWidth / w, heightAvail / h);
-  canvas.style.width = (Math.floor(w * canvasScale)) + "px";
-  canvas.style.height = (Math.floor(h * canvasScale)) + "px";
+  applyCanvasCss();
+  // The backbuffer was sized for the viewport as it was when the display was created, so on its
+  // own this would leave the game in a box the size of the old viewport - very visible when
+  // going fullscreen.
+  scheduleDisplayResize();
+}
+
+let displayResizeTimer;
+// Resizing the display wipes render target contents, so coalesce the burst of resize events a
+// window drag produces rather than doing it for every one. C++ works out the size it wants and
+// returns without touching anything if the canvas already matches.
+function scheduleDisplayResize() {
+  clearTimeout(displayResizeTimer);
+  displayResizeTimer = setTimeout(() => {
+    // Merely *reading* an export before the wasm module is initialized aborts the runtime, so
+    // this has to be a real check and not optional chaining on the property. Nothing is lost by
+    // skipping: the display does not exist yet either, and it is created at whatever
+    // zcCanvasSize() reports at the time.
+    if (!runtimeReady) return;
+    // Reading the property is safe once initialized; the ?.() only guards against a stale wasm
+    // built before the export existed.
+    window.Module._zc_web_display_size_changed?.();
+  }, 100);
 }
 
 async function renderQuestList() {

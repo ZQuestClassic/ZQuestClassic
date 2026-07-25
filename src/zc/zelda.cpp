@@ -46,6 +46,7 @@
 #include "zc/script_timings.h"
 #include "zc/scripting/jit/jit.h"
 #include "zc/matrix.h"
+#include "zc/crt_filter.h"
 #include "zc/render.h"
 #include "zc/rendertarget.h"
 #include "zc/replay_upload.h"
@@ -3964,6 +3965,14 @@ static void init_display()
 	// The main game bitmap is a smaller resolution defined by framebuf.
 	zq_screen_w = 640;
 	zq_screen_h = 480;
+
+	// Shader support, for the CRT display filters. Allegro still installs its default
+	// shaders with this flag, so all other drawing is unaffected.
+	all_set_display_flags(all_get_display_flags() | ALLEGRO_PROGRAMMABLE_PIPELINE);
+
+	// The web canvas is normally the virtual screen size and enlarged by CSS, but the CRT
+	// filters need real output pixels - at ~2x scale their scanlines only alias.
+	crt_filter_update_web_display_size();
 
 	zalleg_create_window(window_title, gfx_mode, zq_screen_w, zq_screen_h, saved_window_width, saved_window_height);
 	zalleg_redraw_display = render_zc;
