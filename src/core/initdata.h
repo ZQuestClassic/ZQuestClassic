@@ -30,67 +30,67 @@ enum
 };
 struct zinitdata
 {
-	bitstring items;
+	bitstring items = {};
 	
 	word litems[MAXLEVELS] = {0};
 	bounded_vec<word,dword> lvlswitches {MAXLEVELS, 0};
 	bounded_vec<word,byte> level_keys {MAXLEVELS, 0};
 	
-	word counter[MAX_COUNTERS];
+	word counter[MAX_COUNTERS] = {};
 	word mcounter[MAX_COUNTERS] = {0, 255, 0, 0, 0, 255}; // crMONEY/crKEYS = 255
 	
 	byte bomb_ratio = 4; // ratio of super bombs to bombs
-	byte hcp, hcp_per_hc = 4;
-	word cont_heart; // continue health
+	byte hcp = 0, hcp_per_hc = 4;
+	word cont_heart = 100; // continue health
 
-	byte hp_per_heart, magic_per_block, hero_damage_multiplier, ene_damage_multiplier;
-	byte dither_type, dither_arg, dither_percent, def_lightrad, transdark_percent, darkcol;
-	word light_wave_rate, light_wave_size;
+	byte hp_per_heart = 16, magic_per_block = 32, hero_damage_multiplier = 2, ene_damage_multiplier = 4;
+	byte dither_type = 0, dither_arg = 0, dither_percent = 20, def_lightrad = 24, transdark_percent = 0, darkcol = BLACK;
+	word light_wave_rate = 0, light_wave_size = 0;
 	
 	int32_t ss_grid_x = 8;
 	int32_t ss_grid_y = 8;
-	int32_t ss_grid_xofs;
-	int32_t ss_grid_yofs;
+	int32_t ss_grid_xofs = 0;
+	int32_t ss_grid_yofs = 0;
 	int32_t ss_grid_color = 8;
 	int32_t ss_bbox_1_color = 15;
 	int32_t ss_bbox_2_color = 7;
-	int32_t ss_flags;
+	int32_t ss_flags = 0;
 	
-	bitstring flags;
+	bitstring flags = {};
 	
-	byte last_map, last_screen; //last editor map/screen
+	byte last_map = 0, last_screen = 0; //last editor map/screen
 	byte msg_speed = 5, msg_advance_delay = 50;
 	
 	int32_t gravity = 1600, swimgravity = 5;
 	word terminalv = 320;
-	byte hero_swim_speed; //old movement still needs
+	byte hero_swim_speed = 67; //old movement still needs
 	byte hero_swim_mult = 2, hero_swim_div = 3; //new movement
 	
-	word heroSideswimUpStep, heroSideswimSideStep, heroSideswimDownStep;
-	int32_t exitWaterJump;
+	word heroSideswimUpStep = 150, heroSideswimSideStep = 100, heroSideswimDownStep = 75;
+	int32_t exitWaterJump = 0;
 	
-	word heroStep;
-	byte heroAnimationStyle;
+	word heroStep = 150;
+	byte heroAnimationStyle = 0;
 	byte jump_hero_layer_threshold = 255; // Hero is drawn above layer 3 if z > this.
-	int32_t bunny_ltm;
+	int32_t bunny_ltm = 0;
 	
-	word start_dmap;
+	word start_dmap = 0;
 	word subscrSpeed = 1;
-	byte switchhookstyle, magicdrainrate;
+	byte switchhookstyle = 0, magicdrainrate = 2;
 	byte spriteflickerspeed = 1, spriteflickercolor = 0x00, spriteflickertransp = 0;
 	
 	zfix shove_offset = 6.5_zf;
 	zfix air_drag = 0.0100_zf;
 	
-	byte region_mapping;
+	byte region_mapping = REGION_MAPPING_FULL;
 	
 	word item_spawn_flicker = 32, item_timeout_dur = 512, item_timeout_flicker = 0;
 	byte item_flicker_speed = 2;
 	
-	int8_t hero_itembox_xofs, hero_itembox_yofs = 8;
+	int8_t hero_itembox_xofs = 0, hero_itembox_yofs = 8;
 	byte hero_itembox_width = 16, hero_itembox_height = 8;
 	
-	bitstring gen_doscript;
+	bitstring gen_doscript = {};
 	bounded_map<word,word> gen_exitState {NUMSCRIPTSGENERIC};
 	bounded_map<word,word> gen_reloadState {NUMSCRIPTSGENERIC};
 	bounded_map<word,bounded_vec<byte,int32_t>> gen_initd {NUMSCRIPTSGENERIC, {8}};
@@ -98,8 +98,8 @@ struct zinitdata
 	bounded_map<word,bounded_map<dword,int32_t>> gen_data {NUMSCRIPTSGENERIC, {0}};
 	bounded_map<dword,bounded_map<dword,int32_t>> screen_data {MAXSCRS, {0}};
 	
-	byte bottle_slot[NUM_BOTTLE_SLOTS];
-	word sprite_z_thresholds[SPRITE_THRESHOLD_MAX];
+	byte bottle_slot[NUM_BOTTLE_SLOTS] = {};
+	word sprite_z_thresholds[SPRITE_THRESHOLD_MAX] = {};
 
 	bool get_item(size_t ind) const {return items.get(ind);}
 	void set_item(size_t ind, bool st) {items.set(ind,st);}
