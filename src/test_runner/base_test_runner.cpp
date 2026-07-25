@@ -16,12 +16,14 @@ int32_t main(int32_t argc, char* argv[])
 	bool verbose = argc >= 2 && (strcmp(argv[1], "-verbose") == 0 || strcmp(argv[1], "-v") == 0);
 
 	extern TestResults test_scc(bool);
+	extern TestResults test_msgstr(bool);
 	extern TestResults test_zc_math(bool);
 	extern TestResults test_zfix(bool);
 	extern TestResults test_containers(bool);
 	extern TestResults test_wasm_structurer(bool);
 
 	success = run_tests(test_scc, "test_scc", verbose);
+	success &= run_tests(test_msgstr, "test_msgstr", verbose);
 	success &= run_tests(test_zc_math, "test_zc_math", verbose);
 	success &= run_tests(test_zfix, "test_zfix", verbose);
 	success &= run_tests(test_containers, "test_containers", verbose);
