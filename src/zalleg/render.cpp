@@ -920,6 +920,10 @@ void reload_dialog_tint()
 
 	rti_tint.visible = !dlg_tint_paused();
 }
+RenderTreeItem* get_dlg_tint_rti()
+{
+	return &rti_tint;
+}
 ALLEGRO_COLOR& get_dlg_tint()
 {
 	return override_dlg_tint ? *override_dlg_tint : dialog_tint;
