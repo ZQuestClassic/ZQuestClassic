@@ -391,7 +391,7 @@ endforeach()
 # Build the ZScript parser
 #############################################################
 
-find_package(BISON QUIET)
+find_package(BISON 3.0 QUIET)
 find_package(FLEX QUIET)
 
 if(${BISON_FOUND} AND ${FLEX_FOUND})
@@ -402,7 +402,7 @@ if(${BISON_FOUND} AND ${FLEX_FOUND})
 	BISON_TARGET(ZScriptParser ${CMAKE_SOURCE_DIR}/src/parser/ffscript.ypp ${CMAKE_SOURCE_DIR}/src/parser/y.tab.cpp COMPILE_FLAGS -v)
 	add_flex_bison_dependency(ZScriptLexer ZScriptParser)
 else()
-	message(FATAL_ERROR "Flex and Bison not found. ZQuest cannot be compiled without these.")
+	message(FATAL_ERROR "Flex and Bison (>= 3.0) not found. ZQuest cannot be compiled without these.")
 endif()
 
 
