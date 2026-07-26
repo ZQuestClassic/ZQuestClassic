@@ -144,6 +144,22 @@ public:
 	// Called while `shader` is active, just before drawing, to set its uniforms.
 	// (out_w, out_h) is the on-screen size of the destination rect.
 	std::function<void(RenderTreeItem* rti, int out_w, int out_h)> shader_prepare;
+	// Children of a shader-drawn item are normally baked into its bitmap, at its resolution.
+	// A child with `fullres_overlay` set is instead drawn as its own pass over the parent's
+	// full output rect, through the parent's `overlay_shader` - keeping the child at its
+	// bitmap's full resolution (the title logo under the CRT filter). The overlay shader
+	// must handle mapping the child's rect within the parent; `overlay_prepare` is called
+	// while it is active to set that up. Falls back to baking when overlay_shader is null.
+	// Three caveats, for children of a shader-drawn item only: the child's own `tint` is not
+	// consulted (baking ignores tints, and the overlay pass applies the parent's tint - the
+	// zc renderer assigns children the parent's tint anyway); overlay children always
+	// composite above baked siblings, whatever the child order; and children are only ever
+	// *drawn* (baked or composited) - neither path runs their render()/bitmap-create
+	// lifecycle (prepare still runs), so a child needs an externally managed `bitmap` or it
+	// silently won't draw while its parent has a shader.
+	bool fullres_overlay = false;
+	ALLEGRO_SHADER* overlay_shader = nullptr;
+	std::function<void(RenderTreeItem* rti, RenderTreeItem* child, int out_w, int out_h)> overlay_prepare;
 	// Optional non-affine warp appended to world_to_local, in normalized [0,1] local space.
 	// Lets mouse coordinates track a shader that spatially distorts this item (e.g. CRT curvature).
 	std::function<std::pair<double, double>(double u, double v)> uv_warp;

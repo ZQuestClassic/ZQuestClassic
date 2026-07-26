@@ -427,7 +427,12 @@ static void render_tree_bake_children(RenderTreeItem* rti)
 	al_set_target_bitmap(rti->bitmap);
 	al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA);
 	for (auto child : rti->get_children())
+	{
+		// Full-resolution children get their own overlay pass at draw time instead.
+		if (child->fullres_overlay && rti->overlay_shader)
+			continue;
 		render_tree_bake_item(child, 0, 0, 1, 1);
+	}
 	al_restore_state(&oldstate);
 }
 
@@ -513,10 +518,34 @@ static void render_tree_draw_item(RenderTreeItem* rti, bool do_a4_only)
 		}
 		if (shader_active)
 			al_use_shader(nullptr);
+
+		// Full-resolution children of a shader-drawn item: each is composited by its own
+		// overlay pass covering the parent's whole output rect, so the overlay shader can
+		// keep its scanline/curvature geometry identical to the parent pass while sampling
+		// the child's bitmap at full resolution.
+		if (rti->shader && rti->overlay_shader)
+		{
+			for (auto child : rti->get_children())
+			{
+				if (!child->fullres_overlay || !child->visible || !child->bitmap)
+					continue;
+				bool overlay_active = al_use_shader(rti->overlay_shader);
+				if (overlay_active && rti->overlay_prepare)
+					rti->overlay_prepare(rti, child, tw, th);
+				int cw = al_get_bitmap_width(child->bitmap);
+				int ch = al_get_bitmap_height(child->bitmap);
+				if (rti->tint)
+					al_draw_tinted_scaled_bitmap(child->bitmap, *rti->tint, 0, 0, cw, ch, x0, y0, tw, th, 0);
+				else
+					al_draw_scaled_bitmap(child->bitmap, 0, 0, cw, ch, x0, y0, tw, th, 0);
+				if (overlay_active)
+					al_use_shader(nullptr);
+			}
+		}
 	}
 
-	// A shader-drawn item's children were baked into its bitmap when it rendered - drawing
-	// them here too would double them up, unshaded.
+	// A shader-drawn item's children were baked into its bitmap when it rendered (or drawn
+	// by an overlay pass above) - drawing them here too would double them up, unshaded.
 	if (rti->shader)
 		return;
 

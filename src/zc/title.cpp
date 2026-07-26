@@ -23,6 +23,7 @@
 #include "zc/replay.h"
 #include "zc/replay_upload.h"
 #include "zc/zc_sys.h"
+#include "zcsfx.h"
 #include "zc/zelda.h"
 #include "zalleg/zsys.h"
 #include "core/qst.h"
@@ -228,6 +229,34 @@ static void framerect(BITMAP* dest, int32_t x, int32_t y, int32_t w, int32_t h, 
 	destroy_bitmap(temp);
 }
 
+// The logo art is far larger than it ever displays (2365x865, shown at most a few
+// hundred pixels tall). Sampling it directly at that minification aliases badly - and the
+// CRT overlay pass can't use mipmaps (WebGL1 disallows them on non-power-of-two textures) -
+// so scale it once at load, with linear filtering, to a size close to the largest it shows.
+static ALLEGRO_BITMAP* prescale_logo_bitmap(ALLEGRO_BITMAP* src, int target_h = 480)
+{
+	if (!src || al_get_bitmap_height(src) <= target_h)
+		return src;
+
+	int w = al_get_bitmap_width(src) * target_h / al_get_bitmap_height(src);
+	int prev_flags = al_get_new_bitmap_flags();
+	al_set_new_bitmap_flags(ALLEGRO_CONVERT_BITMAP | ALLEGRO_MIN_LINEAR | ALLEGRO_MAG_LINEAR);
+	ALLEGRO_BITMAP* out = al_create_bitmap(w, target_h);
+	al_set_new_bitmap_flags(prev_flags);
+	if (!out)
+		return src;
+
+	ALLEGRO_STATE oldstate;
+	al_store_state(&oldstate, ALLEGRO_STATE_TARGET_BITMAP | ALLEGRO_STATE_BLENDER);
+	al_set_target_bitmap(out);
+	al_clear_to_color(al_map_rgba(0, 0, 0, 0));
+	al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
+	al_draw_scaled_bitmap(src, 0, 0, al_get_bitmap_width(src), al_get_bitmap_height(src), 0, 0, w, target_h, 0);
+	al_restore_state(&oldstate);
+	al_destroy_bitmap(src);
+	return out;
+}
+
 static RenderTreeItem* get_logo()
 {
 	static std::string logo_path;
@@ -240,12 +269,15 @@ static RenderTreeItem* get_logo()
 	}
 
 	static RenderTreeItem rti_logo("logo");
-	static ALLEGRO_BITMAP* logo_bitmap = al_load_bitmap(logo_path.c_str());
+	static ALLEGRO_BITMAP* logo_bitmap = prescale_logo_bitmap(al_load_bitmap(logo_path.c_str()));
 
 	if (logo_bitmap)
 	{
 		rti_logo.bitmap = logo_bitmap;
 		rti_logo.freeze = true;
+		// Under a CRT filter, composite at the bitmap's own resolution rather than being
+		// baked into the (chunky) game-resolution layer.
+		rti_logo.fullres_overlay = true;
 		rti_game.add_child(&rti_logo);
 	}
 
@@ -302,7 +334,7 @@ static void selectscreen()
 		int target_width = target_height * aspect_ratio;
 		float scale = (float)target_height / al_get_bitmap_height(logo->bitmap);
 		int x = (al_get_bitmap_width(rti_game.bitmap) - target_width) / 2;
-		logo->set_transform({.x = x, .y = -5, .xscale = scale, .yscale = scale});
+		logo->set_transform({.x = x, .y = 0, .xscale = scale, .yscale = scale});
 	}
 	else
 	{
@@ -1431,11 +1463,7 @@ static void select_game(bool skip = false)
 		}
 		disabledKeys[KEY_ESC] = state.mode != TitleMenuMode::Normal;
 
-		if (!sfxdat)
-		{
-			sfxdat = 1;
-			setupsfx(); // reload default sfx from sfxdat
-		}
+		ensure_default_sfx();
 		blit(scrollbuf,framebuf,0,0,0,0,framebuf->w,framebuf->h);
 		list_saves(state.get_page_start());
 		draw_cursor(state.get_ui_pos(), static_cast<int32_t>(state.mode));
@@ -1615,6 +1643,15 @@ static void actual_titlescreen()
 
 	loadfullpal();
 
+	// Deep blue (#072aab): the background the logo crawls over (the framebuf clears below).
+	RAMpal[vc(1)].r = 0x07;
+	RAMpal[vc(1)].g = 0x2A;
+	RAMpal[vc(1)].b = 0xAB;
+
+	// The select screen normally loads these, but that happens after this screen - and with
+	// no sounds loaded, the chimes here (sword impact, skipping with a keypress) are muted.
+	ensure_default_sfx();
+
 	auto logo = get_logo();
 	if (logo->bitmap)
 	{
@@ -1623,7 +1660,70 @@ static void actual_titlescreen()
 		int target_width = target_height * aspect_ratio;
 		float scale = (float)target_height / al_get_bitmap_height(logo->bitmap);
 		int x = (al_get_bitmap_width(rti_game.bitmap) - target_width) / 2;
-		logo->set_transform({.x = x, .y = -5, .xscale = scale, .yscale = scale});
+		logo->set_transform({.x = x, .y = 0, .xscale = scale, .yscale = scale});
+	}
+
+	// Sword intro: the logo crawls up without its sword, then the sword thrusts in from the left
+	// and slots home through the letters - a sfx plays (rising woosh into a metallic tick), and a
+	// white flash on impact. If a custom assets/logo.png is present, the plain crawl is used
+	// instead.
+	static ALLEGRO_BITMAP* logo_nosword;
+	static ALLEGRO_BITMAP* logo_sword;
+	static bool sword_assets_attempted;
+	static RenderTreeItem rti_sword("logo_sword");
+	static RenderTreeItem rti_flash("title_flash");
+	static ZCSFX sword_sfx;
+	bool sword_intro = logo->bitmap != nullptr && !exists("assets/logo.png");
+	if (sword_intro && !sword_assets_attempted)
+	{
+		sword_assets_attempted = true;
+		logo_nosword = prescale_logo_bitmap(al_load_bitmap("assets/zc/ZC_Logo_NoSword.png"));
+		logo_sword = prescale_logo_bitmap(al_load_bitmap("assets/zc/ZC_Logo_Sword.png"));
+		try
+		{
+			// The woosh's peak and impact tick sit at 260ms, matching the 16-frame
+			// thrust it is started alongside.
+			sword_sfx.load_file("assets/zc/ZC_Sword_Woosh.wav");
+		}
+		catch (std::exception const& e)
+		{
+			// Not fatal - the thrust falls back to a stock sound.
+			al_trace("title: could not load the sword woosh: %s\n", e.what());
+		}
+	}
+	sword_intro = sword_intro && logo_nosword && logo_sword;
+
+	ALLEGRO_BITMAP* logo_full = logo->bitmap;
+	if (sword_intro)
+	{
+		logo->bitmap = logo_nosword;
+
+		rti_sword.bitmap = logo_sword;
+		rti_sword.freeze = true;
+		rti_sword.visible = false;
+		rti_sword.fullres_overlay = true;
+		// Behind the base logo, so the blade passes under the letters.
+		rti_game.add_child_before(&rti_sword, logo);
+
+		if (!rti_flash.bitmap)
+		{
+			set_bitmap_create_flags(true);
+			rti_flash.bitmap = create_a5_bitmap(16, 16);
+			clear_a5_bmp(al_map_rgba(0, 0, 0, 0), rti_flash.bitmap);
+			al_set_new_bitmap_flags(0);
+		}
+		rti_flash.freeze = true;
+		rti_flash.visible = false;
+		// A child of the game layer sized to exactly cover it, so the flash stays inside
+		// the game area - and composites through the CRT overlay pass like the sword, so
+		// under a filter it takes the tube's shape. The fade is baked into the bitmap's
+		// color each frame rather than using `tint`, because the zc renderer reassigns
+		// the game layer's children's tints every frame.
+		rti_flash.fullres_overlay = true;
+		rti_game.add_child(&rti_flash);
+		rti_flash.set_size(16, 16);
+		rti_flash.set_transform({.x = 0, .y = 0,
+			.xscale = (float)rti_game.width / 16, .yscale = (float)rti_game.height / 16});
 	}
 
 	int starting_y = rti_game.height + 46;
@@ -1631,6 +1731,9 @@ static void actual_titlescreen()
 
 	bool show_text = false;
 	int duration = 150;
+	const int sword_frames = 16;
+	const int flash_frames = 12;
+	const int sword_hit = duration + sword_frames;
 	int counter = 0;
 	while (!Quit)
 	{
@@ -1641,11 +1744,47 @@ static void actual_titlescreen()
 			break;
 		}
 
-		double ratio = (double)counter / duration;
+		double ratio = std::min(1.0, (double)counter / duration);
 
 		auto t = logo->get_transform();
 		t.y = starting_y + (final_y - starting_y) * ratio;
 		logo->set_transform(t);
+
+		if (sword_intro && counter >= duration && counter <= sword_hit + flash_frames)
+		{
+			auto lt = logo->get_transform();
+			if (counter < sword_hit)
+			{
+				// Thrust in from off screen left. The woosh starts with the motion and
+				// crescendos into the hit; its baked-in impact tick lands at the swap below.
+				if (counter == duration)
+				{
+					if (sound_was_installed && !sword_sfx.is_invalid())
+						sword_sfx.play(128, false);
+					else
+						sfx(WAV_SWORD);
+				}
+				double r = (double)(counter - duration + 1) / sword_frames;
+				int logo_w = (int)(al_get_bitmap_width(logo->bitmap) * lt.xscale);
+				int from_x = -logo_w;
+				rti_sword.visible = true;
+				rti_sword.set_transform({.x = (int)std::lround(from_x + (lt.x - from_x) * r),
+					.y = lt.y, .xscale = lt.xscale, .yscale = lt.yscale});
+			}
+			else if (counter == sword_hit)
+			{
+				// Slotted home: swap in the complete logo and light it up.
+				logo->bitmap = logo_full;
+				rti_sword.visible = false;
+				rti_flash.visible = true;
+			}
+			if (counter >= sword_hit)
+			{
+				double fade = 1.0 - (double)(counter - sword_hit) / flash_frames;
+				clear_a5_bmp(al_premul_rgba_f(1, 1, 1, 0.85 * std::max(0.0, fade)), rti_flash.bitmap);
+				rti_flash.visible = fade > 0;
+			}
+		}
 
 		if (!show_text)
 		{
@@ -1661,22 +1800,35 @@ static void actual_titlescreen()
 			}
 		}
 
-		clear_bitmap(framebuf);
+		// Deep blue rather than black - the logo crawl reads much better against it.
+		clear_to_color(framebuf, vc(1));
 		if (show_text)
 		{
 			int w = text_length(get_zc_font(font_zfont), "PRESS ANYTHING TO START");
-			textout_ex(framebuf,get_zc_font(font_zfont),"PRESS ANYTHING TO START",(framebuf->w - w)/2,framebuf->h - 20,WHITE,0);
+			textout_ex(framebuf,get_zc_font(font_zfont),"PRESS ANYTHING TO START",(framebuf->w - w)/2,framebuf->h - 20,WHITE,-1);
 		}
 
-		if (counter < duration)
+		if (counter <= sword_hit + flash_frames)
 			counter++;
 		advanceframe(true);
 	}
 
-	clear_bitmap(framebuf);
+	if (sword_intro)
+	{
+		// However the loop ended (impact, skip, quit), leave the logo fully assembled.
+		logo->bitmap = logo_full;
+		rti_sword.visible = false;
+		rti_sword.remove();
+		rti_flash.visible = false;
+		rti_flash.remove();
+		if (sword_sfx.is_playing())
+			sword_sfx.stop();  // skipped mid-thrust
+	}
+
+	clear_to_color(framebuf, vc(1));
 
 	starting_y = logo->get_transform().y;
-	final_y = -5;
+	final_y = 0;
 	duration = 30;
 	counter = 0;
 	while (!Quit && counter <= duration)

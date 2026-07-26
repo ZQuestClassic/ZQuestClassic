@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <cmath>
 #include <optional>
+#include <string>
 
 #ifdef __EMSCRIPTEN__
 #include <emscripten/emscripten.h>
@@ -45,6 +46,13 @@
 // allegro's default vertex shader, which provides `varying_texcoord` normalized over
 // the source bitmap and `varying_color` holding the draw call's tint. The HLSL ones
 // pair with allegro's default `vs_main`/`VS_OUTPUT` (`Input.TexCoord`/`Input.Color`).
+//
+// Each source also builds a second program with OVERLAY defined (see build_shader): the
+// full-resolution overlay variant used to composite the title logo over the shaded layer.
+// It shares every constant and all of the scanline/mask/curvature math with the base pass
+// - keeping the two passes in a single source is what guarantees they can't drift apart -
+// and differs only where #ifdef OVERLAY marks it: the sampling front-end (one direct
+// sub-rect sample instead of the game-pixel reconstruction) and the output alpha.
 
 static const char* easymode_glsl = R"(
 #ifdef GL_ES
@@ -58,6 +66,9 @@ precision mediump float;
 uniform sampler2D al_tex;
 uniform vec2 u_source_size;
 uniform vec2 u_output_size;
+#ifdef OVERLAY
+uniform vec4 u_sub_rect;
+#endif
 varying vec2 varying_texcoord;
 varying vec4 varying_color;
 
@@ -112,13 +123,16 @@ vec3 filter_lanczos(vec4 coeffs, mat4 color_matrix)
 
 void main()
 {
+    vec3 col, col2;
+    float out_alpha;
+
+#ifndef OVERLAY
     vec2 dx     = vec2(1.0 / u_source_size.x, 0.0);
     vec2 dy     = vec2(0.0, 1.0 / u_source_size.y);
     vec2 pix_co = varying_texcoord * u_source_size - vec2(0.5, 0.5);
     vec2 tex_co = (floor(pix_co) + vec2(0.5, 0.5)) / u_source_size;
     vec2 dist   = fract(pix_co);
     float curve_x;
-    vec3 col, col2;
 
     curve_x = curve_distance(dist.x, SHARPNESS_H * SHARPNESS_H);
 
@@ -132,6 +146,33 @@ void main()
 
     col = mix(col, col2, curve_distance(dist.y, SHARPNESS_V));
     col = pow(col, vec3(GAMMA_INPUT / (DILATION + 1.0)));
+    out_alpha = 1.0;
+#else
+    // The OVERLAY build composites a full-resolution element (the title logo) over the
+    // shaded layer: identical scanline and mask math, but the color comes from one direct
+    // sample of the overlay bitmap - occupying u_sub_rect of the layer, in source uv -
+    // rather than the Lanczos game-pixel reconstruction, and its alpha passes through.
+    // varying_texcoord has GL's origin (v grows upward) while u_sub_rect is measured from
+    // the layer's top, so flip into top-down layer space for the rect mapping - and flip
+    // back when sampling, since GL stores the overlay texture bottom-up too. The scanline
+    // and mask terms below keep the raw texcoord on purpose: the base pass underneath uses
+    // it as-is, and matching it keeps the two passes phase-identical. (The HLSL twin has
+    // no flips - Direct3D's texture origin is already top-down.) The base pass never
+    // exposes the flip because all its vertical terms are symmetric.
+    vec2 suv = vec2(varying_texcoord.x, 1.0 - varying_texcoord.y);
+    vec2 uv = (suv - u_sub_rect.xy) / u_sub_rect.zw;
+    vec2 in_rect = step(vec2(0.0), uv) * step(uv, vec2(1.0));
+    vec2 cuv = clamp(uv, 0.0, 1.0);
+    vec4 samp = texture2D(al_tex, vec2(cuv.x, 1.0 - cuv.y)) * in_rect.x * in_rect.y;
+
+    // dilate() matches the base pass's input curve; diverging leaves the overlay in a
+    // different color space than the layer under it, washing the artwork out.
+    // Known tradeoff: samp is premultiplied-alpha, and this gamma (plus the scanline and
+    // mask math below) runs on it directly, slightly darkening partial-alpha edge pixels.
+    // Un-premultiplying around the math isn't worth the cost for how thin those edges are.
+    col = pow(dilate(samp).rgb, vec3(GAMMA_INPUT / (DILATION + 1.0)));
+    out_alpha = samp.a;
+#endif
 
     float luma        = dot(vec3(0.2126, 0.7152, 0.0722), col);
     float bright      = (max(col.r, max(col.g, col.b)) + luma) * 0.5;
@@ -163,7 +204,7 @@ void main()
     if (u_source_size.y >= SCANLINE_CUTOFF)
         scan_weight = 1.0;
 
-    col2 = col.rgb;
+    col2 = col;
     col *= vec3(scan_weight);
     col  = mix(col, col2, scan_bright);
     col *= mask_weight;
@@ -172,7 +213,7 @@ void main()
     // Multiplying by the vertex color is what applies the tint passed to the draw call
     // (used to dim the game while a menu or dialog is up). The default shader does the
     // same; a shader that ignores it silently drops every tint.
-    gl_FragColor = vec4(col * BRIGHT_BOOST, 1.0) * varying_color;
+    gl_FragColor = vec4(col * BRIGHT_BOOST, out_alpha) * varying_color;
 }
 )";
 
@@ -183,6 +224,9 @@ sampler2D s = sampler_state {
 };
 float2 u_source_size;
 float2 u_output_size;
+#ifdef OVERLAY
+float4 u_sub_rect;
+#endif
 
 static const float SHARPNESS_H = 0.5;
 static const float SHARPNESS_V = 1.0;
@@ -230,14 +274,17 @@ float3 filter_lanczos(float4 coeffs, float4 c0, float4 c1, float4 c2, float4 c3)
 
 float4 ps_main(VS_OUTPUT Input) : COLOR0
 {
-    float2 co     = Input.TexCoord;
+    float2 co = Input.TexCoord;
+    float3 col, col2;
+    float out_alpha;
+
+#ifndef OVERLAY
     float2 dx     = float2(1.0 / u_source_size.x, 0.0);
     float2 dy     = float2(0.0, 1.0 / u_source_size.y);
     float2 pix_co = co * u_source_size - float2(0.5, 0.5);
     float2 tex_co = (floor(pix_co) + float2(0.5, 0.5)) / u_source_size;
     float2 dist   = frac(pix_co);
     float curve_x;
-    float3 col, col2;
 
     curve_x = curve_distance(dist.x, SHARPNESS_H * SHARPNESS_H);
 
@@ -252,6 +299,18 @@ float4 ps_main(VS_OUTPUT Input) : COLOR0
     col = lerp(col, col2, curve_distance(dist.y, SHARPNESS_V));
     float gamma_in = GAMMA_INPUT / (DILATION + 1.0);
     col = pow(col, float3(gamma_in, gamma_in, gamma_in));
+    out_alpha = 1.0;
+#else
+    // See the GLSL version. No coordinate flips here: Direct3D's texture origin is
+    // already top-down, matching u_sub_rect.
+    float2 uv = (co - u_sub_rect.xy) / u_sub_rect.zw;
+    float2 in_rect = step(float2(0.0, 0.0), uv) * step(uv, float2(1.0, 1.0));
+    float4 samp = tex2D(s, clamp(uv, 0.0, 1.0)) * in_rect.x * in_rect.y;
+
+    float gamma_in = GAMMA_INPUT / (DILATION + 1.0);
+    col = pow(dilate(samp).rgb, float3(gamma_in, gamma_in, gamma_in));
+    out_alpha = samp.a;
+#endif
 
     float luma        = dot(float3(0.2126, 0.7152, 0.0722), col);
     float bright      = (max(col.r, max(col.g, col.b)) + luma) * 0.5;
@@ -283,7 +342,7 @@ float4 ps_main(VS_OUTPUT Input) : COLOR0
     if (u_source_size.y >= SCANLINE_CUTOFF)
         scan_weight = 1.0;
 
-    col2 = col.rgb;
+    col2 = col;
     col *= scan_weight;
     col  = lerp(col, col2, scan_bright);
     col *= mask_weight;
@@ -291,7 +350,7 @@ float4 ps_main(VS_OUTPUT Input) : COLOR0
     col  = pow(col, float3(gamma_out, gamma_out, gamma_out));
 
     // See the GLSL version: Input.Color is the tint from the draw call.
-    return float4(col * BRIGHT_BOOST, 1.0) * Input.Color;
+    return float4(col * BRIGHT_BOOST, out_alpha) * Input.Color;
 }
 )";
 
@@ -313,6 +372,9 @@ uniform vec2 u_output_size;
 uniform vec3 u_stretch;
 uniform vec2 u_sinangle;
 uniform vec2 u_cosangle;
+#ifdef OVERLAY
+uniform vec4 u_sub_rect;
+#endif
 varying vec2 varying_texcoord;
 varying vec4 varying_color;
 
@@ -390,6 +452,10 @@ void main()
     float filter_ = u_source_size.y / u_output_size.y;
     vec2 uv_ratio = fract(ratio_scale);
 
+    vec4 col, col2;
+    float out_alpha;
+
+#ifndef OVERLAY
     xy = (floor(ratio_scale) + vec2(0.5)) / u_source_size;
 
     vec4 coeffs = PI * vec4(1.0 + uv_ratio.x, uv_ratio.x, 1.0 - uv_ratio.x, 2.0 - uv_ratio.x);
@@ -398,18 +464,36 @@ void main()
     coeffs /= dot(coeffs, vec4(1.0));
 
     vec2 one = vec2(1.0) / u_source_size;
-    vec4 col = clamp(mat4(
+    col = clamp(mat4(
             TEX2D(xy + vec2(-one.x, 0.0)),
             TEX2D(xy),
             TEX2D(xy + vec2(one.x, 0.0)),
             TEX2D(xy + vec2(2.0 * one.x, 0.0))) * coeffs,
             0.0, 1.0);
-    vec4 col2 = clamp(mat4(
+    col2 = clamp(mat4(
             TEX2D(xy + vec2(-one.x, one.y)),
             TEX2D(xy + vec2(0.0, one.y)),
             TEX2D(xy + one),
             TEX2D(xy + vec2(2.0 * one.x, one.y))) * coeffs,
             0.0, 1.0);
+    out_alpha = 1.0;
+#else
+    // The OVERLAY build composites a full-resolution element over the shaded layer - see
+    // easymode. Same curvature, corner and scanline geometry, but one direct sample of
+    // the overlay bitmap stands in for both scanline rows. GL's texture-space y runs
+    // bottom-up while u_sub_rect is top-down, and the warp commutes with the flip
+    // (vertically symmetric up to the 0.001 tilt offsets in u_sinangle - a sub-pixel
+    // error), so flip after warping for the rect mapping and again when sampling. (The
+    // HLSL twin has no flips - Direct3D is already top-down.)
+    vec2 xyd = vec2(xy.x, 1.0 - xy.y);
+    vec2 uv = (xyd - u_sub_rect.xy) / u_sub_rect.zw;
+    vec2 in_rect = step(vec2(0.0), uv) * step(uv, vec2(1.0));
+    vec2 cuv = clamp(uv, 0.0, 1.0);
+    vec4 samp = texture2D(al_tex, vec2(cuv.x, 1.0 - cuv.y)) * in_rect.x * in_rect.y;
+    col = pow(samp, vec4(CRTgamma));
+    col2 = col;
+    out_alpha = samp.a * cval;
+#endif
 
     vec4 weights  = scanlineWeights(uv_ratio.y, col);
     vec4 weights2 = scanlineWeights(1.0 - uv_ratio.y, col2);
@@ -433,7 +517,7 @@ void main()
     mul_res = pow(mul_res, vec3(1.0 / monitorgamma));
 
     // See easymode above: the vertex color carries the draw call's tint.
-    gl_FragColor = vec4(mul_res, 1.0) * varying_color;
+    gl_FragColor = vec4(mul_res, out_alpha) * varying_color;
 }
 )";
 
@@ -447,6 +531,9 @@ float2 u_output_size;
 float3 u_stretch;
 float2 u_sinangle;
 float2 u_cosangle;
+#ifdef OVERLAY
+float4 u_sub_rect;
+#endif
 
 static const float CRTgamma = 2.4;
 static const float monitorgamma = 2.2;
@@ -522,6 +609,10 @@ float4 ps_main(VS_OUTPUT Input) : COLOR0
     float filter_ = u_source_size.y / u_output_size.y;
     float2 uv_ratio = frac(ratio_scale);
 
+    float4 col, col2;
+    float out_alpha;
+
+#ifndef OVERLAY
     xy = (floor(ratio_scale) + float2(0.5, 0.5)) / u_source_size;
 
     float4 coeffs = PI * float4(1.0 + uv_ratio.x, uv_ratio.x, 1.0 - uv_ratio.x, 2.0 - uv_ratio.x);
@@ -530,18 +621,28 @@ float4 ps_main(VS_OUTPUT Input) : COLOR0
     coeffs /= dot(coeffs, float4(1.0, 1.0, 1.0, 1.0));
 
     float2 one = float2(1.0, 1.0) / u_source_size;
-    float4 col = clamp(
+    col = clamp(
             TEX2D(xy + float2(-one.x, 0.0)) * coeffs.x +
             TEX2D(xy) * coeffs.y +
             TEX2D(xy + float2(one.x, 0.0)) * coeffs.z +
             TEX2D(xy + float2(2.0 * one.x, 0.0)) * coeffs.w,
             0.0, 1.0);
-    float4 col2 = clamp(
+    col2 = clamp(
             TEX2D(xy + float2(-one.x, one.y)) * coeffs.x +
             TEX2D(xy + float2(0.0, one.y)) * coeffs.y +
             TEX2D(xy + one) * coeffs.z +
             TEX2D(xy + float2(2.0 * one.x, one.y)) * coeffs.w,
             0.0, 1.0);
+    out_alpha = 1.0;
+#else
+    // See the GLSL version. No coordinate flips here: Direct3D is already top-down.
+    float2 uv = (xy - u_sub_rect.xy) / u_sub_rect.zw;
+    float2 in_rect = step(float2(0.0, 0.0), uv) * step(uv, float2(1.0, 1.0));
+    float4 samp = tex2D(s, clamp(uv, 0.0, 1.0)) * in_rect.x * in_rect.y;
+    col = pow(samp, float4(CRTgamma, CRTgamma, CRTgamma, CRTgamma));
+    col2 = col;
+    out_alpha = samp.a * cval;
+#endif
 
     float4 weights  = scanlineWeights(uv_ratio.y, col);
     float4 weights2 = scanlineWeights(1.0 - uv_ratio.y, col2);
@@ -566,7 +667,7 @@ float4 ps_main(VS_OUTPUT Input) : COLOR0
     mul_res = pow(mul_res, float3(gamma_out, gamma_out, gamma_out));
 
     // See easymode above: Input.Color is the tint from the draw call.
-    return float4(mul_res, 1.0) * Input.Color;
+    return float4(mul_res, out_alpha) * Input.Color;
 }
 )";
 
@@ -725,7 +826,11 @@ extern "C" void zc_web_display_size_changed()
 }
 #endif
 
-static ALLEGRO_SHADER* build_shader(const char* name, const char* glsl_source, const char* hlsl_source)
+// Each filter's source builds two programs: the base pass, and (with `overlay` set, which
+// prepends `#define OVERLAY`) the full-resolution overlay variant. Both languages'
+// preprocessors handle the define, and neither source carries a #version line that would
+// have to stay first.
+static ALLEGRO_SHADER* build_shader(const char* name, const char* glsl_source, const char* hlsl_source, bool overlay = false)
 {
 	ALLEGRO_SHADER_PLATFORM platform = ALLEGRO_SHADER_AUTO;
 	ALLEGRO_SHADER* shader = al_create_shader(platform);
@@ -743,9 +848,11 @@ static ALLEGRO_SHADER* build_shader(const char* name, const char* glsl_source, c
 	}
 
 	bool is_glsl = al_get_shader_platform(shader) == ALLEGRO_SHADER_GLSL;
-	const char* pixel_source = is_glsl ? glsl_source : hlsl_source;
+	std::string pixel_source = is_glsl ? glsl_source : hlsl_source;
+	if (overlay)
+		pixel_source = "#define OVERLAY\n" + pixel_source;
 	if (!al_attach_shader_source(shader, ALLEGRO_VERTEX_SHADER, al_get_default_shader_source(platform, ALLEGRO_VERTEX_SHADER)) ||
-		!al_attach_shader_source(shader, ALLEGRO_PIXEL_SHADER, pixel_source) ||
+		!al_attach_shader_source(shader, ALLEGRO_PIXEL_SHADER, pixel_source.c_str()) ||
 		!al_build_shader(shader))
 	{
 		Z_message("Failed to build CRT filter '%s': %s\n", name, al_get_shader_log(shader));
@@ -783,6 +890,33 @@ ALLEGRO_SHADER* crt_filter_shader()
 	return shaders[index];
 }
 
+ALLEGRO_SHADER* crt_filter_overlay_shader()
+{
+	CrtFilterMode mode = crt_filter_get_mode();
+	if (mode == CrtFilterMode::none)
+		return nullptr;
+
+	static ALLEGRO_SHADER* shaders[(int)CrtFilterMode::count];
+	static bool attempted[(int)CrtFilterMode::count];
+	int index = (int)mode;
+	if (!attempted[index])
+	{
+		attempted[index] = true;
+		switch (mode)
+		{
+			case CrtFilterMode::easymode:
+				shaders[index] = build_shader("easymode overlay", easymode_glsl, easymode_hlsl, true);
+				break;
+			case CrtFilterMode::geom:
+				shaders[index] = build_shader("geom overlay", geom_glsl, geom_hlsl, true);
+				break;
+			default:
+				break;
+		}
+	}
+	return shaders[index];
+}
+
 void crt_filter_set_uniforms(int src_w, int src_h, int out_w, int out_h)
 {
 	float source_size[2] = {(float)src_w, (float)src_h};
@@ -800,6 +934,14 @@ void crt_filter_set_uniforms(int src_w, int src_h, int out_w, int out_h)
 		al_set_shader_float_vector("u_sinangle", 2, sinangle, 1);
 		al_set_shader_float_vector("u_cosangle", 2, cosangle, 1);
 	}
+}
+
+void crt_filter_set_overlay_uniforms(int src_w, int src_h, int out_w, int out_h,
+	float rect_x, float rect_y, float rect_w, float rect_h)
+{
+	crt_filter_set_uniforms(src_w, src_h, out_w, out_h);
+	float sub_rect[4] = {rect_x, rect_y, rect_w, rect_h};
+	al_set_shader_float_vector("u_sub_rect", 4, sub_rect, 1);
 }
 
 bool crt_filter_warps_mouse()

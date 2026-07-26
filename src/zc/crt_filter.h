@@ -24,9 +24,19 @@ void crt_filter_set_mode(CrtFilterMode mode);
 // built on this display (no programmable pipeline, compile failure). Lazily built and cached.
 ALLEGRO_SHADER* crt_filter_shader();
 
+// Companion shader for full-resolution overlays composited over the shaded layer (the title
+// logo): identical scanline/mask/curvature geometry, but samples the overlay bitmap directly
+// at its own resolution. Draw as a quad covering the same output rect as the layer itself.
+ALLEGRO_SHADER* crt_filter_overlay_shader();
+
 // Sets the current shader's uniforms. Must be called while the shader is active (al_use_shader).
 // (src_w, src_h) is the game bitmap size; (out_w, out_h) is the on-screen destination size.
 void crt_filter_set_uniforms(int src_w, int src_h, int out_w, int out_h);
+
+// Same, for the overlay shader. The rect is the overlay's position and size within the
+// layer, normalized to [0,1] of the layer's source size.
+void crt_filter_set_overlay_uniforms(int src_w, int src_h, int out_w, int out_h,
+	float rect_x, float rect_y, float rect_w, float rect_h);
 
 // Web only, no-op elsewhere: match the display size to the canvas's real pixel size while a
 // filter is active, and return it to the virtual screen size when none is. Call before creating

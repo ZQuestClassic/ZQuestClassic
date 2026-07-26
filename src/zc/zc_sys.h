@@ -159,6 +159,8 @@ int32_t  pan(int32_t x);
 int32_t  onSetSnapshotFormat(SnapshotType format);
 int32_t onSetBottom8Pixels(int option);
 int32_t onSetCrtFilter(int mode);
+// Lazily load the default quest sound effects if they aren't loaded yet.
+void ensure_default_sfx();
 void updateShowBottomPixels();
 int32_t onKeyboardEntry();
 int32_t onLetterGridEntry();

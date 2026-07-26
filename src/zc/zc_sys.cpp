@@ -587,6 +587,16 @@ void load_mouse()
 	exit_sys_pal();
 }
 
+// The default quest sound effects load lazily; until they have, sfx() silently does nothing.
+void ensure_default_sfx()
+{
+	if (!sfxdat)
+	{
+		sfxdat = 1;
+		setupsfx(); // reload default sfx from sfxdat
+	}
+}
+
 void null_quest()
 {
 	std::string title_assets_path = "modules/classic/title_gfx.dat";
@@ -599,11 +609,7 @@ void null_quest()
 	set_bit(skip_flags, skip_tiles, 0);
 	set_bit(skip_flags, skip_csets, 0);
 	loadquest(title_assets_path.c_str(), &QHeader, &QMisc, tunes+ZC_MIDI_COUNT, false, skip_flags, 0, false);
-	if (!sfxdat)
-	{
-		sfxdat = 1;
-		setupsfx(); // reload default sfx from sfxdat
-	}
+	ensure_default_sfx();
 	// TODO: sfx.dat is ~1.2 MB. Could be better to break that up into individual files and load on demand / not at startup.
 	// TODO: can we cache the tiles/colordata so we don't have to read title_gfx.dat more than once?
 	//       colordata is tiny, but tilebuf is huge, so limit that to just what the title screen needs.

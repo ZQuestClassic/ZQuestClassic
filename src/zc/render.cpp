@@ -153,6 +153,16 @@ static void configure_render_tree()
 		rti_game.shader_prepare = [](RenderTreeItem* rti, int out_w, int out_h) {
 			crt_filter_set_uniforms(rti->width, rti->height, out_w, out_h);
 		};
+		// Full-resolution children (the title logo) composite through the overlay variant.
+		rti_game.overlay_shader = crt_filter_overlay_shader();
+		rti_game.overlay_prepare = [](RenderTreeItem* rti, RenderTreeItem* child, int out_w, int out_h) {
+			auto& t = child->get_transform();
+			crt_filter_set_overlay_uniforms(rti->width, rti->height, out_w, out_h,
+				(float)t.x / rti->width,
+				(float)t.y / rti->height,
+				al_get_bitmap_width(child->bitmap) * t.xscale / rti->width,
+				al_get_bitmap_height(child->bitmap) * t.yscale / rti->height);
+		};
 		rti_game.uv_warp = crt_filter_warps_mouse() ?
 			[](double u, double v) { return crt_filter_warp_uv(u, v); } :
 			std::function<std::pair<double, double>(double, double)>();
@@ -160,6 +170,8 @@ static void configure_render_tree()
 	else
 	{
 		rti_game.shader_prepare = nullptr;
+		rti_game.overlay_shader = nullptr;
+		rti_game.overlay_prepare = nullptr;
 		rti_game.uv_warp = nullptr;
 	}
 
