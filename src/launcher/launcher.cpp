@@ -59,6 +59,8 @@ void hit_close_button()
     return;
 }
 
+static void render_launcher();
+
 int32_t main(int32_t argc, char* argv[])
 {
 	zalleg_setup_allegro(App::launcher, argc, argv);
@@ -92,6 +94,7 @@ int32_t main(int32_t argc, char* argv[])
 	int window_height = zc_get_config("ZLAUNCH", "window_height", -1);
 
 	zalleg_create_window("ZQuest Classic Launcher", gfx_mode, zq_screen_w, zq_screen_h, window_width, window_height, 2);
+	zalleg_redraw_display = render_launcher;
 
 	Z_message("Loading bitmaps..."); //{
 	mouse_bmp = create_bitmap_ex(8,16,16);

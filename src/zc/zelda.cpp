@@ -3966,6 +3966,7 @@ static void init_display()
 	zq_screen_h = 480;
 
 	zalleg_create_window(window_title, gfx_mode, zq_screen_w, zq_screen_h, saved_window_width, saved_window_height);
+	zalleg_redraw_display = render_zc;
 
 #ifndef __EMSCRIPTEN__
 	if (!all_get_fullscreen_flag() && !is_headless())

@@ -472,12 +472,38 @@ std::pair<int, int> zalleg_get_default_display_size(int base_width, int base_hei
 	return {w, h};
 }
 
+void (*zalleg_redraw_display)() = nullptr;
+
 void zalleg_process_display_events()
 {
+	ALLEGRO_DISPLAY* display = all_get_display();
+	int prev_w = display ? al_get_display_width(display) : 0;
+	int prev_h = display ? al_get_display_height(display) : 0;
+
 	all_process_display_events();
 	// TODO: should do this only in response to a resize event
 	doAspectResize();
 	zc_do_minsize();
+
+	if (!display || !zalleg_redraw_display)
+		return;
+
+	// Resizing the display throws away the contents of the backbuffer, so the window
+	// stays blank until the next frame is due - very visible while dragging the window
+	// edge, where that wait is a whole frame or, when unthrottled, several. Put a frame
+	// up right away instead.
+	if (al_get_display_width(display) != prev_w || al_get_display_height(display) != prev_h)
+	{
+		// The render functions don't pump display events, but guard anyway so that a
+		// future one that does can't recurse forever.
+		static bool redrawing = false;
+		if (redrawing)
+			return;
+
+		redrawing = true;
+		zalleg_redraw_display();
+		redrawing = false;
+	}
 }
 
 PACKFILE* zalleg_pack_fopen_password(const char *filename, const char *mode, const char *password)

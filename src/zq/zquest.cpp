@@ -19752,6 +19752,7 @@ int32_t main(int32_t argc,char **argv)
 	window_height = zc_get_config("zquest","window_height",-1);
 
 	zalleg_create_window("ZC Editor", gfx_mode, zq_screen_w, zq_screen_h, window_width, window_height);
+	zalleg_redraw_display = render_zq;
 
 	load_assets();
 	load_size_poses();

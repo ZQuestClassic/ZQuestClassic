@@ -54,6 +54,9 @@ void zalleg_create_window(const char* title, int gfx_mode, int v_width, int v_he
 void zalleg_bring_window_to_foreground(ALLEGRO_DISPLAY* display);
 void zalleg_wait_for_all_keys_up();
 std::pair<int, int> zalleg_get_default_display_size(int base_width, int base_height, int saved_width, int saved_height, int max_scale = 3);
+// Repaints the display. Set by each app to its own render function, so that
+// zalleg_process_display_events can put a frame up as soon as the window is resized.
+extern void (*zalleg_redraw_display)();
 void zalleg_process_display_events();
 PACKFILE* zalleg_pack_fopen_password(const char *filename, const char *mode, const char *password);
 uint64_t zalleg_file_size_ex_password(const char *filename, const char *password);
