@@ -22,6 +22,9 @@ bool is_ci();
 void set_headless_mode();
 bool is_headless();
 std::pair<int, int> zc_get_default_display_size(int base_width, int base_height, int saved_width, int saved_height, int max_scale = 3);
+// Repaints the display. Set by each app to its own render function, so that
+// zc_process_display_events can put a frame up as soon as the window is resized.
+extern void (*zalleg_redraw_display)();
 void zc_process_display_events();
 void zapp_set_crash_cb(std::function<void()> cb);
 void zapp_reporting_add_breadcrumb(const char* category, const char* message);

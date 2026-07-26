@@ -319,12 +319,38 @@ void zc_do_minsize()
 	}
 }
 
+void (*zalleg_redraw_display)() = nullptr;
+
 void zc_process_display_events()
 {
+	ALLEGRO_DISPLAY* display = all_get_display();
+	int prev_w = display ? al_get_display_width(display) : 0;
+	int prev_h = display ? al_get_display_height(display) : 0;
+
 	all_process_display_events();
 	// TODO: should do this only in response to a resize event
 	doAspectResize();
 	zc_do_minsize();
+
+	if (!display || !zalleg_redraw_display)
+		return;
+
+	// Resizing the display throws away the contents of the backbuffer, so the window
+	// stays blank until the next frame is due - very visible while dragging the window
+	// edge, where that wait is a whole frame or, when unthrottled, several. Put a frame
+	// up right away instead.
+	if (al_get_display_width(display) != prev_w || al_get_display_height(display) != prev_h)
+	{
+		// The render functions don't pump display events, but guard anyway so that a
+		// future one that does can't recurse forever.
+		static bool redrawing = false;
+		if (redrawing)
+			return;
+
+		redrawing = true;
+		zalleg_redraw_display();
+		redrawing = false;
+	}
 }
 
 void zapp_reporting_add_breadcrumb(const char* category, const char* message)

@@ -25995,6 +25995,7 @@ int32_t main(int32_t argc,char **argv)
 	}
 
 	alleg4_set_window_title("ZC Editor");
+	zalleg_redraw_display = render_zq;
 
 	initFonts();
 	load_size_poses();

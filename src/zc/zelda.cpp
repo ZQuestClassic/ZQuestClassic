@@ -4751,6 +4751,7 @@ int main(int argc, char **argv)
 	if (window_title_arg > 0)
 		window_title = argv[window_title_arg + 1];
 	alleg4_set_window_title(window_title);
+	zalleg_redraw_display = render_zc;
 
 	initFonts();
 

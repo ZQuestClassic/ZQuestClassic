@@ -82,6 +82,8 @@ void hit_close_button()
     return;
 }
 
+static void render_launcher();
+
 int32_t main(int32_t argc, char* argv[])
 {
 	common_main_setup(App::launcher, argc, argv);
@@ -209,7 +211,8 @@ int32_t main(int32_t argc, char* argv[])
 	al_init_font_addon();
 	al_init_primitives_addon();
 	initFonts();
-	
+	zalleg_redraw_display = render_launcher;
+
 	Z_message("Loading bitmaps..."); //{
 	tmp_scr = create_bitmap_ex(8,zq_screen_w,zq_screen_h);
 	mouse_bmp = create_bitmap_ex(8,16,16);
