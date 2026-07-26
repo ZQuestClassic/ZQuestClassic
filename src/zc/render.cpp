@@ -254,6 +254,20 @@ static void configure_render_tree()
 		rti_infolayer.tint = nullptr;
 	}
 	reload_dialog_tint();
+
+	// The tint dims whatever is behind the active dialog, so it must cover the entire
+	// display. It lives inside rti_dialogs, which only spans the GUI area (letterboxed
+	// to keep the GUI's aspect ratio), so undo that scaling here.
+	auto& rti_tint = *get_dlg_tint_rti();
+	if (rti_tint.width > 0 && rti_tint.height > 0)
+	{
+		rti_tint.set_transform({
+			.x = 0,
+			.y = 0,
+			.xscale = resx / (gui_xscale * rti_tint.width),
+			.yscale = resy / (gui_yscale * rti_tint.height),
+		});
+	}
 }
 
 static ALLEGRO_STATE infobmp_old_state;
