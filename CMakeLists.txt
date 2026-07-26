@@ -254,7 +254,7 @@ set(MINIMP3_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/include/minimp3)
 FetchContent_Declare(
   allegro5
   GIT_REPOSITORY https://github.com/connorjclark/allegro5.git
-  GIT_TAG        8f1fc009dcda9bdd07133e177cc25f015a62cbef
+  GIT_TAG        a2799f13bdf890c1480e8dcbc9fca4e5938bd98b
   EXCLUDE_FROM_ALL
 )
 if(EMSCRIPTEN)
