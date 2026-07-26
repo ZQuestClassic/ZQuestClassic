@@ -554,7 +554,6 @@ int32_t do_NewQuest()
 }
 
 extern int CheckerCol1, CheckerCol2;
-int32_t alignment_arrow_timer=0;
 int32_t  Flip=0,Combo=0,CSet=2,current_combolist=0,current_comboalist=0,current_cpoollist=0,current_cautolist=0,current_mappage=0;
 int32_t  Flags=0,Flag=0,menutype=(m_block);
 int MouseScroll = 0, SavePaths = 0, CycleOn = 0, ShowGrid = 0, ShowScreenGrid = 0, ShowRegionGrid = 0, GridColor = 15, ShowCurScreenOutline = 1,
@@ -19976,12 +19975,7 @@ int32_t main(int32_t argc,char **argv)
 		handle_sentry_tags();
 
 		check_autosave();
-		++alignment_arrow_timer;
 		
-		if(alignment_arrow_timer>63)
-		{
-			alignment_arrow_timer=0;
-		}
 		++global_frame;
 		
 		file_menu.disable_uid(MENUID_FILE_SAVE, saved||OverwriteProtection);

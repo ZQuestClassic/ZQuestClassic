@@ -142,8 +142,6 @@ extern bool zq_showpal;
 extern bool zoomed_minimap;
 extern int32_t scrolling_destdmap, cur_dmap;
 
-
-extern int32_t alignment_arrow_timer;
 extern int32_t  Flip,Combo,CSet;
 extern int32_t  Flags,Flag,menutype;
 extern int32_t MouseScroll, SavePaths, CycleOn, NoScreenPreview,

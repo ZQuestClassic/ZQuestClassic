@@ -412,6 +412,8 @@ public:
 	void regions_refresh();
 	const std::vector<region_description>& get_region_descriptions();
 	bool is_region(int screen);
+	bool is_same_region_id(int screen1, int screen2);
+	bool is_same_region_dir(int screen, int dir);
     bool isDark(int scr);
 	bool isValid(int32_t scr);
 	bool isValid(int32_t map, int32_t scr);

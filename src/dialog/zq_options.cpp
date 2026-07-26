@@ -837,7 +837,14 @@ std::shared_ptr<GUI::Widget> OptionsDialog::view()
 					ROW_CHECK(OPT_MOUSESCROLL, "Mouse Scroll"),
 					ROW_CHECK_I(OPT_COMB_BRUSH, "Combo Brush", "Show the combo you would place if you clicked"),
 					ROW_CHECK_I(OPT_FLOAT_BRUSH, "Floating Brush", "Make the Combo Brush float above the screen instead of aligning flatly"),
-					ROW_CHECK_I(OPT_MISALIGNS, "Show Misaligns", "Show arrows at the edge of the screen to indicate solidity misalignments"),
+					ROW_CHECK_I(OPT_MISALIGNS, "Show Misaligns",
+						"Show arrows at the edge of the screen to indicate solidity misalignments."
+						"\nEdges of the screen touching other screens in the same region will not show arrows."
+						"\nSidewarps at the edge of the screen will not show arrows unless the warp is a Scrolling Warp."
+						" Scrolling sidewarps will display arrows based on the screen at the destination of the warp."
+						"\n'Invalid' screens will be treated as 'fully solid' for this check, rather than fully walkable."
+						" This includes sidewarps leading to invalid destinations."
+					),
 					ROW_CHECK_I(OPT_INFO_BG, "Show BG behind infotext", "Show black behind the top-left info text"),
 					ROW_CHECK_I(OPT_HIDEMOUSE, "Allow Hiding Mouse", "When displaying the combo or alias brush, allow the normal cursor to be hidden."),
 					ROW_CHECK_I(OPT_COMPILEONSAVE, "Compile ZScript on Save", "Perform a 'quick compile', recompiling existing scripts and assigning to slots, when saving the quest."),

@@ -630,6 +630,34 @@ bool zmap::is_region(int screen)
 	regions_refresh();
 	return current_map_region_ids[screen];
 }
+bool zmap::is_same_region_id(int screen1, int screen2)
+{
+	if (screen1 == screen2)
+		return true;
+	int id1 = 0, id2 = 0;
+	regions_refresh();
+	if (!(screen1 < 0 || screen1 >= 0x80))
+		id1 = current_map_region_ids[screen1];
+	if (!(screen2 < 0 || screen2 >= 0x80))
+		id2 = current_map_region_ids[screen2];
+	return id1 > 0 && id1 == id2;
+}
+bool zmap::is_same_region_dir(int screen, int dir)
+{
+	switch (dir)
+	{
+		case up:
+			return screen >= 0x10 && is_same_region_id(screen, screen - 0x10);
+		case down:
+			return screen < 0x70 && is_same_region_id(screen, screen + 0x10);
+		case left:
+			return (screen & 0xF) && is_same_region_id(screen, screen - 1);
+		case right:
+			return (screen & 0xF) < 0xF && is_same_region_id(screen, screen + 1);
+	}
+	NOTREACHED();
+	return false;
+}
 bool zmap::isDark(int scr)
 {
     return (screens[scr].flags&fDARK)!=0;
@@ -1831,57 +1859,99 @@ bool zmap::misaligned(int32_t map, int32_t screen, int32_t i, int32_t dir)
 	byte cmbwalk[2] = {0, 0};
 	int idxs[2] = {i, i};
 	int max_bridge_layer = get_qr(qr_BRIDGES_ABOVE_2) ? 6 : 2;
+	int maps[2] = {map, map};
 	int scrs[2] = {screen, screen};
+	mapscr* base_screens[2] = {};
 	
 	int32_t layermap, layerscreen;
 	
-	switch(dir)
+	if (is_same_region_dir(screen, dir))
+		return false; // Edges to the same region cannot be "misaligned"
+	
+	switch(dir) // check for edge of screen
+	{
+		case up:
+			if (i > 15) //not top row of combos
+				return false;
+			idxs[1] += 160;
+			break;
+		case down:
+			if (i < 160) //not bottom row of combos
+				return false;
+			idxs[1] -= 160;
+			break;
+		case left:
+			if((i & 0xF) != 0) //not left column of combos
+				return false;
+			idxs[1] += 15;
+			break;
+		case right:
+			if ((i & 0xF) != 15) //not right column of combos
+				return false;
+			idxs[1] -= 15;
+			break;
+	}
+	
+	base_screens[0] = AbsoluteScr(map, screen);
+	
+	bool sidewarp = (base_screens[0]->flags2 & (wfUP << dir));
+	if (sidewarp)
+	{
+		int widx = (base_screens[0]->sidewarpindex >> (2*dir)) & 3;
+		int wtype = base_screens[0]->sidewarptype[widx];
+		if (wtype != wtSCROLL)
+			return false; // show no misaligns for non-scrolling warps
+		
+		int dmap = base_screens[0]->sidewarpdmap[widx];
+		auto& dm = DMaps[dmap];
+		maps[1] = dm.map;
+		int scr = base_screens[0]->sidewarpscr[widx];
+		if (unsigned((scr & 0xF) + dm.xoff) < 0x10)
+			scrs[1] = scr + dm.xoff;
+		else
+			scrs[1] = -1;
+	}
+	else switch(dir) // normal scrolling
 	{
 		case up:
 		{
-			if (i > 15) //not top row of combos
-				return false;
 			if (screen < 16) //top row of screens
 				return false;
 			scrs[1] -= 16;
-			idxs[1] += 160;
 			break;
 		}
 		case down:
 		{
-			if (i < 160) //not bottom row of combos
-				return false;
 			if (screen > 111) //bottom row of screens
 				return false;
 			scrs[1] += 16;
-			idxs[1] -= 160;
 			break;
 		}
 		case left:
 		{
-			if((i & 0xF) != 0) //not left column of combos
-				return false;
 			if ((screen & 0xF) == 0) //left column of screens
 				return false;
 			scrs[1] -= 1;
-			idxs[1] += 15;
 			break;
 		}
 		case right:
 		{
-			if ((i & 0xF) != 15) //not right column of combos
-				return false;
 			if((screen & 0xF) == 15) //right column of screens
 				return false;
 			scrs[1] += 1;
-			idxs[1] -= 15;
 			break;
 		}
 	}
-	
+	base_screens[1] = AbsoluteScr(maps[1], scrs[1]);
 	for (int idx = 0; idx < 2; ++idx)
 	{
-		mapscr* base_scr = AbsoluteScr(map, scrs[idx]);
+		mapscr* base_scr = base_screens[idx];
+		if (!base_scr || !(base_scr->valid&mVALID))
+		{
+			// Treat invalid screens as fully solid for misalignment arrows
+			cmbwalk[idx] = 0xF;
+			continue;
+		}
 		byte bridge_mask = 0xF;
 		for (int layer = max_bridge_layer; layer >= 0; --layer)
 		{
@@ -1942,149 +2012,49 @@ bool zmap::misaligned(int32_t map, int32_t screen, int32_t i, int32_t dir)
 
 void zmap::check_alignments(BITMAP* dest,int32_t x,int32_t y,int32_t scr)
 {
-    int32_t checkcombo;
-    
-    if(alignment_arrow_timer>31)
-    {
-        if(scr<0)
-        {
-            scr=cursor.screen;
-        }
-        
-        if((scr<128))                                           //do the misalignment arrows
-        {
-            for(checkcombo=1; checkcombo<15; checkcombo++)        //check the top row (except the corners)
-            {
-                if(misaligned(cursor.map, scr, checkcombo, up))
-                {
-                    masked_blit(arrow_bmp[0],dest,0,0,((checkcombo&15)<<4)+x,(checkcombo&0xF0)+y,16,16);
-                }
-            }
-            
-            for(checkcombo=161; checkcombo<175; checkcombo++)     //check the top row (except the corners)
-            {
-                if(misaligned(cursor.map, scr, checkcombo, down))
-                {
-                    masked_blit(arrow_bmp[1],dest,0,0,((checkcombo&15)<<4)+x,(checkcombo&0xF0)+y,16,16);
-                }
-            }
-            
-            for(checkcombo=16; checkcombo<160; checkcombo+=16)    //check the left side (except the corners)
-            {
-                if(misaligned(cursor.map, scr, checkcombo, left))
-                {
-                    masked_blit(arrow_bmp[2],dest,0,0,((checkcombo&15)<<4)+x,(checkcombo&0xF0)+y,16,16);
-                }
-            }
-            
-            for(checkcombo=31; checkcombo<175; checkcombo+=16)    //check the right side (except the corners)
-            {
-                if(misaligned(cursor.map, scr, checkcombo, right))
-                {
-                    masked_blit(arrow_bmp[3],dest,0,0,((checkcombo&15)<<4)+x,(checkcombo&0xF0)+y,16,16);
-                }
-            }
-            
-            int32_t tempalign;
-            
-            //check top left corner
-            checkcombo=0;
-            tempalign=0;
-            tempalign+=(misaligned(cursor.map, scr, checkcombo, up))?1:0;
-            tempalign+=(misaligned(cursor.map, scr, checkcombo, left))?2:0;
-            
-            switch(tempalign)
-            {
-            case 0:
-                break;
-                
-            case 1:                                             //up
-                masked_blit(arrow_bmp[0],dest,0,0,((checkcombo&15)<<4)+x,(checkcombo&0xF0)+y,16,16);
-                break;
-                
-            case 2:                                             //left
-                masked_blit(arrow_bmp[2],dest,0,0,((checkcombo&15)<<4)+x,(checkcombo&0xF0)+y,16,16);
-                break;
-                
-            case 3:                                             //up-left
-                masked_blit(arrow_bmp[4],dest,0,0,((checkcombo&15)<<4)+x,(checkcombo&0xF0)+y,16,16);
-                break;
-            }
-            
-            //check top right corner
-            checkcombo=15;
-            tempalign=0;
-            tempalign+=(misaligned(cursor.map, scr, checkcombo, up))?1:0;
-            tempalign+=(misaligned(cursor.map, scr, checkcombo, right))?2:0;
-            
-            switch(tempalign)
-            {
-            case 0:
-                break;
-                
-            case 1:                                             //up
-                masked_blit(arrow_bmp[0],dest,0,0,((checkcombo&15)<<4)+x,(checkcombo&0xF0)+y,16,16);
-                break;
-                
-            case 2:                                             //right
-                masked_blit(arrow_bmp[3],dest,0,0,((checkcombo&15)<<4)+x,(checkcombo&0xF0)+y,16,16);
-                break;
-                
-            case 3:                                             //up-right
-                masked_blit(arrow_bmp[5],dest,0,0,((checkcombo&15)<<4)+x,(checkcombo&0xF0)+y,16,16);
-                break;
-            }
-            
-            //check bottom left corner
-            checkcombo=160;
-            tempalign=0;
-            tempalign+=(misaligned(cursor.map, scr, checkcombo, down))?1:0;
-            tempalign+=(misaligned(cursor.map, scr, checkcombo, left))?2:0;
-            
-            switch(tempalign)
-            {
-            case 0:
-                break;
-                
-            case 1:                                             //down
-                masked_blit(arrow_bmp[1],dest,0,0,((checkcombo&15)<<4)+x,(checkcombo&0xF0)+y,16,16);
-                break;
-                
-            case 2:                                             //left
-                masked_blit(arrow_bmp[2],dest,0,0,((checkcombo&15)<<4)+x,(checkcombo&0xF0)+y,16,16);
-                break;
-                
-            case 3:                                             //down-left
-                masked_blit(arrow_bmp[6],dest,0,0,((checkcombo&15)<<4)+x,(checkcombo&0xF0)+y,16,16);
-                break;
-            }
-            
-            //check bottom right corner
-            
-            checkcombo=175;
-            tempalign=0;
-            tempalign+=(misaligned(cursor.map, scr, checkcombo, down))?1:0;
-            tempalign+=(misaligned(cursor.map, scr, checkcombo, right))?2:0;
-            
-            switch(tempalign)
-            {
-            case 0:
-                break;
-                
-            case 1:                                             //down
-                masked_blit(arrow_bmp[1],dest,0,0,((checkcombo&15)<<4)+x,(checkcombo&0xF0)+y,16,16);
-                break;
-                
-            case 2:                                             //right
-                masked_blit(arrow_bmp[3],dest,0,0,((checkcombo&15)<<4)+x,(checkcombo&0xF0)+y,16,16);
-                break;
-                
-            case 3:                                             //down-right
-                masked_blit(arrow_bmp[7],dest,0,0,((checkcombo&15)<<4)+x,(checkcombo&0xF0)+y,16,16);
-                break;
-            }
-        }
-    }
+	if (global_frame & 32) // & only works because power of 2
+		return;
+	if (scr < 0)
+		scr = cursor.screen;
+	if (unsigned(scr) >= 0x80)
+		return;
+	
+	for (int cpos = 1; cpos < 15; ++cpos) //check the top row (except the corners)
+		if (misaligned(cursor.map, scr, cpos, up))
+			masked_blit(arrow_bmp[up], dest, 0, 0, ((cpos&0x0F)<<4) + x, (cpos&0xF0) + y, 16, 16);
+	
+	for (int cpos = 161; cpos < 175; ++cpos) //check the bottom row (except the corners)
+		if (misaligned(cursor.map, scr, cpos, down))
+			masked_blit(arrow_bmp[down], dest, 0, 0, ((cpos&0x0F)<<4) + x, (cpos&0xF0) + y, 16, 16);
+	
+	for (int cpos = 16; cpos < 160; cpos += 16) //check the left side (except the corners)
+		if (misaligned(cursor.map, scr, cpos, left))
+			masked_blit(arrow_bmp[left], dest, 0, 0, ((cpos&0x0F)<<4) + x, (cpos&0xF0) + y, 16, 16);
+	
+	for (int cpos = 31; cpos < 175; cpos += 16) //check the right side (except the corners)
+		if (misaligned(cursor.map, scr, cpos, right))
+			masked_blit(arrow_bmp[right], dest, 0, 0, ((cpos&0x0F)<<4) + x, (cpos&0xF0) + y, 16, 16);
+	
+	int corners[4];
+	corners[l_up - 4] = 0;
+	corners[r_up - 4] = 15;
+	corners[l_down - 4] = 160;
+	corners[r_down - 4] = 175;
+	
+	for (int q = 0; q < 4; ++q)
+	{
+		int cpos = corners[q];
+		auto dir = NORMAL_DIR(q + 4);
+		auto xd = X_DIR(dir);
+		auto yd = Y_DIR(dir);
+		if (!misaligned(cursor.map, scr, cpos, xd))
+			xd = dir_invalid;
+		if (!misaligned(cursor.map, scr, cpos, yd))
+			yd = dir_invalid;
+		dir = XY_DIR(xd, yd);
+		if (dir != dir_invalid)
+			masked_blit(arrow_bmp[dir], dest, 0, 0, ((cpos&0x0F)<<4) + x, (cpos&0xF0) + y, 16, 16);
+	}
 }
 
 int32_t zmap::MAPCOMBO3(int32_t map, int32_t screen, int32_t layer, int32_t x,int32_t y)
