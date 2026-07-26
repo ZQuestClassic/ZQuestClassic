@@ -1,8 +1,29 @@
 import fs from 'node:fs/promises';
 import http from 'http';
-import mime from 'mime-types';
 import path from 'path';
 import {fileURLToPath} from 'url';
+
+// Just enough to cover what the web package serves. Anything else (.qst, .zplay,
+// .pat, ...) is fetched as bytes, so the octet-stream default is fine.
+const mimeTypes = {
+	'.bmp': 'image/bmp',
+	'.css': 'text/css',
+	'.gif': 'image/gif',
+	'.html': 'text/html',
+	'.ico': 'image/vnd.microsoft.icon',
+	'.jpeg': 'image/jpeg',
+	'.jpg': 'image/jpeg',
+	'.js': 'text/javascript',
+	'.json': 'application/json',
+	'.map': 'application/json',
+	'.md': 'text/markdown',
+	'.mjs': 'text/javascript',
+	'.png': 'image/png',
+	'.svg': 'image/svg+xml',
+	'.ttf': 'font/ttf',
+	'.txt': 'text/plain',
+	'.wasm': 'application/wasm',
+};
 
 const __dirname = path.posix.dirname(fileURLToPath(import.meta.url));
 const projectRootDir = path.posix.normalize(path.posix.join(__dirname, '..'));
@@ -43,7 +64,7 @@ const server = http.createServer(async (req, res) => {
 
 	console.log(200, req.url);
 	res.writeHead(200, {
-		'Content-Type': mime.lookup(path.extname(file)),
+		'Content-Type': mimeTypes[path.extname(file).toLowerCase()] || 'application/octet-stream',
 		'Content-Length': data.length,
 		'Cross-Origin-Embedder-Policy': 'require-corp',
 		'Cross-Origin-Opener-Policy': 'same-origin',
