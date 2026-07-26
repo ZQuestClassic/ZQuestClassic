@@ -19200,6 +19200,7 @@ void anim_hw_screen()
 void custom_vsync()
 {
 	anim_hw_screen();
+	++global_frame;
 }
 
 void switch_out()
@@ -19975,8 +19976,6 @@ int32_t main(int32_t argc,char **argv)
 		handle_sentry_tags();
 
 		check_autosave();
-		
-		++global_frame;
 		
 		file_menu.disable_uid(MENUID_FILE_SAVE, saved||OverwriteProtection);
 		file_menu.disable_uid(MENUID_FILE_REVERT, saved||OverwriteProtection);
