@@ -176,7 +176,16 @@ std::shared_ptr<GUI::Widget> MapPickDialog<Sz>::view()
 	using namespace GUI::Props;
 	
 	if(local_map.empty()) return nullptr;
-	
+
+	if(local_map.inner_empty())
+		pg = 0;
+	else
+	{
+		size_t maxpg = (local_map.capacity()-1)/pglimit;
+		if(pg > maxpg)
+			pg = maxpg;
+	}
+
 	std::shared_ptr<GUI::Grid> wingrid, sgrid, cmdrow;
 	
 	sgrid = GUI::Internal::makeRows(4);
@@ -217,8 +226,13 @@ std::shared_ptr<GUI::Widget> MapPickDialog<Sz>::view()
 							{
 								if(auto v = call_get_num("Add at what index?", q, local_map.size()-1, 0))
 								{
-									local_map[*v] = local_map.defval();
-									this->refresh_dlg();
+									// call_get_num does not clamp when max==min (size 1),
+									// and local_map[] throws on out-of-range indexes
+									if(*v >= 0 && size_t(*v) < size_t(local_map.size()))
+									{
+										local_map[*v] = local_map.defval();
+										this->refresh_dlg();
+									}
 								}
 								break;
 							}
@@ -286,7 +300,8 @@ std::shared_ptr<GUI::Widget> MapPickDialog<Sz>::view()
 	}
 	if (local_map.inner_empty()) sgrid->add(DummyWidget()); //prevent crash on empty map
 	auto curpg_start = pg*pglimit;
-	auto curpg_end = zc_min(local_map.size()-1,((pg+1)*pglimit)-1);
+	auto curpg_end = local_map.inner_empty() ? curpg_start
+		: zc_min(size_t(local_map.capacity()-1),((pg+1)*pglimit)-1);
 	wingrid->add(Row(
 			Button(type = GUI::Button::type::ICON, icon = BTNICON_ARROW_LEFT2,
 				disabled = !pg,
