@@ -293,6 +293,8 @@ def add_comment(symbol):
         'deprecated_alias',
         'deprecated_future',
         'deprecated_getter',
+        'deprecated',
+        'soft_deprecated',
         'index',
         'length',
         'param',
@@ -308,9 +310,10 @@ def add_comment(symbol):
 
     if has_comment_or_interesting_tags:
         add('')
-        add('.. rst-class:: classref-comment')
+        add('.. container:: classref-comment')
         add('')
-        for tag, value in symbol.comment.tags:
+        # Sort 'deprecated' tags to the end
+        for tag, value in sorted(symbol.comment.tags, key=lambda s: 'deprecated' in s[0]):
             if tag in [
                 'versionadded',
                 'versionchanged',
@@ -322,20 +325,21 @@ def add_comment(symbol):
                     add(format_comment(indent(f'{data[1].strip()}', 3)))
                 add('')
                 add('')
+            elif tag in [
+                'deprecated',
+                'soft_deprecated',
+            ]:
+                add(format_comment(f'.. deprecated::'))
+                add('')
+                add(format_comment(indent(value, 3)))
+                add('')
+                add('')
             elif tag in interesting_tags:
                 add(format_comment(f'`{tag}` ' + value))
                 add('')
                 add('')
         add('')
         add(format_comment(symbol.comment.text))
-        add('')
-
-    if (deprecation := symbol.deprecation_message()) is not None:
-        deprecation = deprecation.replace('\n', ' ')
-        add('')
-        add('.. deprecated::')
-        add('')
-        add(format_comment(deprecation))
         add('')
 
 
