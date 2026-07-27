@@ -27685,7 +27685,9 @@ bool HeroClass::check_prescroll()
 	zfix tx = x, ty = y, tz = z;
 	x = vbound(x, 0, world_w-16);
 	y = vbound(y, 0, world_h-16);
-	if(onWater(true) || drownclk)
+	// same gate as checkspecial2: water can't drown the hero without these
+	bool can_drown = get_qr(qr_DROWN) || CanSideSwim();
+	if((can_drown && onWater(true)) || drownclk)
 		return false; // would drown before scrolling
 	if(pitslide() || fallclk)
 		return false; // would fall before scrolling
