@@ -666,6 +666,7 @@ void Debugger::UpdateVariables()
 	auto& global_group = variable_groups.emplace_back("Global");
 
 	const DebugScope* scope = selected_scope;
+	bool crossed_static_fn = false;
 	while (scope)
 	{
 		ExpressionEvaluator eval{zasm_debug_data, scope, vm};
@@ -674,6 +675,11 @@ void Debugger::UpdateVariables()
 		for (auto symbol : symbols)
 		{
 			if (symbol->flags & SYM_FLAG_HIDDEN)
+				continue;
+
+			// Class instance variables have no instance to read from when the
+			// paused function is static.
+			if (symbol->storage == LOC_CLASS && crossed_static_fn)
 				continue;
 
 			DebugValue value = eval.readSymbol(symbol);
@@ -696,6 +702,9 @@ void Debugger::UpdateVariables()
 
 		if (scope->tag == TAG_FILE)
 			break;
+
+		if (scope->tag == TAG_FUNCTION && (scope->flags & SCOPE_FLAG_STATIC_FN))
+			crossed_static_fn = true;
 
 		scope = &zasm_debug_data.scopes[scope->parent_index];
 	}

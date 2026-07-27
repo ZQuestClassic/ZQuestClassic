@@ -872,18 +872,29 @@ DebugData::ResolveResult DebugData::resolveEntity(const std::string& identifier,
 		// Walk up parents + imports.
 		const DebugScope* walker = (ctx_scope_idx >= 0) ? &scopes[ctx_scope_idx] : nullptr;
 		bool found = false;
+		bool crossed_static_fn = false;
 
 		while (walker)
 		{
 			int32_t s_idx = getScopeIndex(walker);
-			
+
 			// Collect scan targets: Self + Imports
 			std::vector<int32_t> lookups = { s_idx };
 			lookups.insert(lookups.end(), walker->imports.begin(), walker->imports.end());
 
-			for (int32_t lookup_idx : lookups) 
+			for (int32_t lookup_idx : lookups)
 			{
 				current_res = find_member(lookup_idx, tokens[0]);
+
+				// Class instance variables have no instance to read from when
+				// the evaluation context is a static function - keep walking
+				// outward, as if the symbol were not there.
+				if (current_res.sym && current_res.sym->storage == LOC_CLASS && crossed_static_fn)
+				{
+					current_res = {};
+					continue;
+				}
+
 				if (current_res.sym || current_res.scope_idx != -1)
 				{
 					found = true;
@@ -894,9 +905,12 @@ DebugData::ResolveResult DebugData::resolveEntity(const std::string& identifier,
 			if (found)
 				break;
 
+			if (walker->tag == TAG_FUNCTION && (walker->flags & SCOPE_FLAG_STATIC_FN))
+				crossed_static_fn = true;
+
 			if (walker->parent_index != -1)
 				walker = &scopes[walker->parent_index];
-			else 
+			else
 				walker = nullptr;
 		}
 

@@ -35,6 +35,9 @@ enum DebugScopeFlags : uint8_t
 	SCOPE_FLAG_HIDDEN = 1,
 	SCOPE_FLAG_INTERNAL = 2,
 	SCOPE_FLAG_DEPRECATED = 4,
+	// A function with no instance context (`static`) - class instance
+	// variables must not resolve from inside it.
+	SCOPE_FLAG_STATIC_FN = 8,
 };
 
 struct DebugScope

@@ -52,6 +52,12 @@ namespace A
 			return 123;
 		}
 
+		static int StaticGetDouble(int x)
+		{
+			int doubled = x * 2;
+			return doubled; // end of DataBag::StaticGetDouble
+		}
+
 		int var1;
 		int var2;
 		
@@ -378,6 +384,19 @@ int returnOne()
 	return 1;
 }
 
+void DebugStaticClassFunction()
+{
+	// Call an instance method first, leaving a lingering `this` object behind.
+	// The debugger should not show DataBag's instance variables when paused
+	// inside the static function below, despite the class scope and the
+	// lingering `this`.
+	auto bag = new A::DataBag();
+	bag->var1 = 41;
+	bag->var2 = 42;
+	Test::AssertEqual(bag->sum(0), 83);
+	Test::AssertEqual(A::DataBag::StaticGetDouble(21), 42);
+}
+
 generic script scopes
 {
 	int SCRIPT_SCOPED_GLOBAL = 123;
@@ -441,6 +460,7 @@ generic script scopes
 		DebugFunctionDefaultCtor1();
 		DebugFunctionVarargs(1, 2, 3);
 		Test::AssertEqual(new A::DataBag()->sum(3, 4, 5, 6), 21);
+		DebugStaticClassFunction();
 		Test::Assert(this->Running);
 
 		GC();

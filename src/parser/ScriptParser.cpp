@@ -2591,6 +2591,8 @@ bool ScriptAssembler::init_debug_scope(Scope* scope, DebugScope& dScope, const f
 			dScope.flags |= SCOPE_FLAG_HIDDEN;
 		if (fs->function.isBinding())
 			dScope.flags |= SCOPE_FLAG_INTERNAL;
+		if (fs->function.getFlag(FUNCFLAG_STATIC))
+			dScope.flags |= SCOPE_FLAG_STATIC_FN;
 	}
 	else if (scope->isClass())
 	{

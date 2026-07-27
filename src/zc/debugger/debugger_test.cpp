@@ -675,6 +675,21 @@ static TestTask run_scopes_replay_coroutine()
 	verify_expression(debugger, "c[0]", "DebugClassDefaultCtor {data = 10.0000}");
 	verify_expression(debugger, "c[0]->data", "10.0000");
 
+	// Static class functions have no instance, so the debugger should not list
+	// the class's instance variables or `this` - even though an instance method
+	// ran just before this, leaving a lingering `this` object behind.
+	debugger->RemoveBreakpoints();
+	add_breakpoint(debugger, "scopes.zs", "// end of DataBag::StaticGetDouble");
+	co_await PlayAndWaitForPause(debugger);
+
+	verify_variable(debugger, "x", "21.0000");
+	verify_variable(debugger, "doubled", "42.0000");
+	verify_variable_not_present(debugger, "var1");
+	verify_variable_not_present(debugger, "var2");
+	verify_variable_not_present(debugger, "this");
+	verify_expression_invalid(debugger, "var1", "Unknown variable: var1");
+	verify_expression_invalid(debugger, "this", "Unknown variable: this");
+
 	debugger->RemoveBreakpoints();
 	add_breakpoint(debugger, "scopes.zs", "// Create CL");
 	co_await PlayAndWaitForPause(debugger);
