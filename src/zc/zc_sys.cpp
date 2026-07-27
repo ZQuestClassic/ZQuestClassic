@@ -4993,33 +4993,41 @@ int32_t onQuit()
 	return D_O_K;
 }
 
-int32_t onTryQuitMenu()
+static int32_t onTryQuitMenu()
 {
-	return onTryQuit(true);
+	return onTryQuit(true) ? D_CLOSE : D_O_K;
 }
 
-int32_t onTryQuit(bool inMenu)
+static bool hard_disable_f6()
 {
-	if(Playing && !(GameFlags & GAMEFLAG_NO_F6))
+	return !Playing || get_qr(qr_DISABLE_F6) || (GameFlags & GAMEFLAG_NO_F6);
+}
+static bool can_f6_menu()
+{
+	return !hard_disable_f6() && active_cutscene.can_f6();
+}
+
+bool onTryQuit(bool inMenu)
+{
+	if (hard_disable_f6())
+		return false;
+	if (!active_cutscene.can_f6())
 	{
-		if(active_cutscene.can_f6())
-		{
-			if(get_qr(qr_OLD_F6))
-			{
-				if(inMenu) onQuit();
-				else /*if(!get_qr(qr_NOCONTINUE))*/ f_Quit(qQUIT);
-			}
-			else
-			{
-				disableClickToFreeze=false;
-				GameFlags |= GAMEFLAG_TRYQUIT;
-			}
-			return D_CLOSE;
-		}
-		else active_cutscene.error();
+		active_cutscene.error();
+		return false;
 	}
 	
-	return D_O_K;
+	if (get_qr(qr_OLD_F6))
+	{
+		if (inMenu) onQuit();
+		else /*if(!get_qr(qr_NOCONTINUE))*/ f_Quit(qQUIT);
+	}
+	else
+	{
+		disableClickToFreeze = false;
+		GameFlags |= GAMEFLAG_TRYQUIT;
+	}
+	return true;
 }
 
 int32_t onReset()
@@ -5767,7 +5775,7 @@ void System()
 	dev_menu.disable_uid(MENUID_DEV_SETCHEAT, !Playing);
 	#endif
 	game_menu.disable_uid(MENUID_GAME_LOADQUEST, get_unset_save_slot());
-	game_menu.disable_uid(MENUID_GAME_ENDGAME, !Playing);
+	game_menu.disable_uid(MENUID_GAME_ENDGAME, !can_f6_menu());
 	misc_menu.disable_uid(MENUID_MISC_QUEST_INFO, !Playing);
 	misc_menu.disable_uid(MENUID_MISC_QUEST_DIR, Playing);
 	clear_keybuf();

@@ -1402,6 +1402,9 @@ static GUI::ListData miscRulesList
 		" Circle will not display."},
 	{ "No Saving When Continuing", qr_NOSAVE,
 		"If enabled, removes the 'Save' option from the Game Over screen. Saving must be done through other methods."},
+	{ "Disable F6 Menu", qr_DISABLE_F6,
+		"The 'F6' hotkey will be disabled, and the 'End Game' menu option will be greyed out."
+		" The script function 'Game->ShowContinueScreen()' will also not function." },
 	{ "Return To File Select On Death/F6", qr_NOCONTINUE,
 		"If enabled, the Continue Screen is skipped, and the Hero is returned to the file select screen on Death or Game->End."
 		" Note that this means all progress is lost since last save."
