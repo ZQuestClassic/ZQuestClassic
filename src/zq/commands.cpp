@@ -5,6 +5,7 @@
 #include "base/zapp.h"
 #include "dialog/compilezscript.h"
 #include "dialog/quest_rules.h"
+#include "zc_list_data.h"
 #include "zc/ffscript.h"
 #include "zq/package.h"
 #include "zq/zq_class.h"
@@ -704,6 +705,7 @@ void do_dev_qrs_zscript_command(std::string const& fname)
 	static std::map<std::string, std::string> qr_compat_names = {
 		{ "qr_WEAPONS_EXTRA_FRAME", qr_const_names[qr_WEAPONS_EXTRA_DEATH_FRAME]}
 	};
+	auto const& rule_templates = GUI::ZCListData::rule_templates_list();
 	GUI::ListData qrs = combinedQRList() + combinedZSRList();
 	qrs.valsort();
 	
@@ -712,13 +714,17 @@ void do_dev_qrs_zscript_command(std::string const& fname)
 		{
 			if (!qr_const_names.contains(ref.value))
 				missing_qrs << ref.value << " [" << ref.text << "]\n";
+			auto info = ref.info;
+			auto info_hints = parse_hint_text(info);
+			for (auto& val : info_hints[INFOHINT_T_QR])
+				if (!qrs.hasKey(val) && !qr_const_names.contains(val))
+					missing_qrs << val << " [Unknown; from '" << ref.text << "'s info hint]\n";
 			return true;
 		});
 	
 	auto missing_str = missing_qrs.str();
 	if (!missing_str.empty())
 	{
-		missing_str = missing_str.substr(0, missing_str.size() - 2); // trailing comma
 		printf("error: missing qr constants!\n%s\n", missing_str.c_str());
 		zq_exit(1);
 	}
@@ -750,7 +756,30 @@ void do_dev_qrs_zscript_command(std::string const& fname)
 		}
 		else info = "@deprecated";
 		
+		auto const info_hints = parse_hint_text(info);
+		
 		vector<string> info_lines = wrap_qr_info(info);
+		
+		for (auto& [ty, vals] : info_hints)
+		{
+			if (vals.empty()) continue;
+			switch (ty)
+			{
+				case INFOHINT_T_QR:
+					info_lines.emplace_back();
+					info_lines.push_back("Related QRs:");
+					
+					for (auto& val : vals)
+						info_lines.push_back(fmt::format("- [{}|{}]", qr_const_names.at(val), qrs.findText(val)));
+					break;
+				case INFOHINT_T_RULETMPL:
+					info_lines.emplace_back();
+					info_lines.push_back("Related Rule Templates:");
+					for (auto& val : vals)
+						info_lines.push_back(fmt::format("- {}", rule_templates.findText(val)));
+					break;
+			}
+		}
 		
 		if (!name.empty())
 		{

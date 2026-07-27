@@ -4,6 +4,7 @@
 #include "zq/zquest.h"
 #include "zq/zq_files.h"
 #include "info.h"
+#include "zc_list_data.h"
 
 static bool modified;
 bool call_ruletemplate_dlg(byte* dest)
@@ -13,20 +14,9 @@ bool call_ruletemplate_dlg(byte* dest)
 	return modified;
 }
 
-const GUI::ListData ruletemplatesList
-{
-	{ "Bugfix", ruletemplateFixCompat,
-		"Removes all 'Compat' rules" },
-	{ "ZScript Bugfix", ruletemplateFixZSCompat,
-		"Remove ZScript compatibility rules" },
-	{ "New Subscreen", ruletemplateNewSubscreen,
-		"Set a variety of rules for newer engine subscreen functionality." },
-	{ "Old Subscreen", ruletemplateOldSubscreen,
-		"The exact opposite of 'New Subscreen', reverts to old"
-		" engine subscreen functionality." },
-};
-
-PickRuleTemplateDialog::PickRuleTemplateDialog(byte* dest_qrs): dest_qrs(dest_qrs)
+PickRuleTemplateDialog::PickRuleTemplateDialog(byte* dest_qrs) :
+	dest_qrs(dest_qrs),
+	list_rule_templates(GUI::ZCListData::rule_templates_list())
 {}
 
 std::shared_ptr<GUI::Widget> PickRuleTemplateDialog::view()
@@ -34,9 +24,9 @@ std::shared_ptr<GUI::Widget> PickRuleTemplateDialog::view()
 	using namespace GUI::Builder;
 	using namespace GUI::Props;
 	std::shared_ptr<GUI::Grid> cboxes = Rows<2>();
-	for(size_t q = 0; q < ruletemplatesList.size(); ++q)
+	for(size_t q = 0; q < list_rule_templates.size(); ++q)
 	{
-		std::string infostr = ruletemplatesList.getInfo(q);
+		std::string infostr = list_rule_templates.getInfo(q);
 		cboxes->add(Button(forceFitH = true, text = "?",
 			disabled = (infostr.size() < 1),
 			onPressFunc = [infostr]()
@@ -46,7 +36,7 @@ std::shared_ptr<GUI::Widget> PickRuleTemplateDialog::view()
 		cboxes->add(templates[q] = Checkbox(
 			hAlign = 0.0,
 			checked = false,
-			text = ruletemplatesList.getText(q)
+			text = list_rule_templates.getText(q)
 			));
 	}
 	
@@ -90,12 +80,12 @@ bool PickRuleTemplateDialog::handleMessage(const GUI::DialogMessage<message>& ms
 	{
 		//Exiting messages
 		case message::OK:
-			for(size_t q = 0; q < ruletemplatesList.size(); ++q)
+			for(size_t q = 0; q < list_rule_templates.size(); ++q)
 			{
 				if(templates[q]->getChecked())
 				{
 					modified = true;
-					applyRuleTemplateWithConfirmation(ruletemplatesList.getValue(q),dest_qrs);
+					applyRuleTemplateWithConfirmation(list_rule_templates.getValue(q),dest_qrs);
 				}
 			}
 			return modified;

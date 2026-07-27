@@ -8,7 +8,6 @@
 #include "zq/zq_files.h"
 
 bool call_ruletemplate_dlg(byte* dest = nullptr);
-extern const GUI::ListData ruletemplatesList;
 
 class PickRuleTemplateDialog: public GUI::Dialog<PickRuleTemplateDialog>
 {
@@ -23,6 +22,7 @@ public:
 private:
 	byte* dest_qrs;
 	std::shared_ptr<GUI::Checkbox> templates[sz_ruletemplate];
+	GUI::ListData const& list_rule_templates;
 };
 
 #endif

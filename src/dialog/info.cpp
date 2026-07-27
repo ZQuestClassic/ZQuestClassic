@@ -3,12 +3,11 @@
 #include <utility>
 #include "core/qrs.h"
 #include <fmt/ranges.h>
+#include "zc_list_data.h"
 
 #ifdef IS_EDITOR
 #include "quest_rules.h"
 #include "zq/zq_files.h"
-
-extern const GUI::ListData ruletemplatesList;
 #endif
 
 InfoDialog::InfoDialog(string const& title, string const& text):
@@ -48,58 +47,18 @@ void InfoDialog::postinit()
 {
 	_has_run_postinit = true;
 	old_dest_qrs = next_dest_qr;
-	while(true)
+	
+	if (get_app_id() == App::zquest)
 	{
-		size_t pos = d_text.find_first_of("$");
-		if(pos == string::npos)
-			break;
-		size_t nextpos = d_text.find_first_of("$",pos+1);
-		if(nextpos == string::npos)
-			break;
-		string sub = d_text.substr(pos+1,nextpos-pos-1);
-		d_text.erase(pos,nextpos-pos+1);
-		#ifdef IS_EDITOR
-		dword special_type = 0; //qr by default
-		if(sub[0] == '#') //Special type id given
-		{
-			auto nexthash = sub.find_first_of("#",1);
-			if(nexthash == string::npos || nexthash == 1)
-				continue; //invalid
-			if(sub.find_first_not_of("0123456789",1) != nexthash)
-				continue; //invalid
-			special_type = atoi(sub.substr(1,nexthash).c_str());
-			sub.erase(0,nexthash+1);
-		}
-		bool running = true;
-		while(running)
-		{
-			size_t commapos = sub.find_first_of(",");
-			string sub2;
-			if(commapos == string::npos)
-			{
-				running = false;
-				sub2 = sub;
-			}
-			else
-			{
-				sub2 = sub.substr(0,commapos);
-				sub.erase(0,commapos+1);
-			}
-			if(sub2.size() < 1 || sub2.find_first_not_of("0123456789") != string::npos)
-				continue; //invalid
-			int val = atoi(sub2.c_str());
-			
-			switch(special_type)
-			{
-				case INFOHINT_T_QR:
-					qrs.insert(val);
-					break;
-				case INFOHINT_T_RULETMPL:
-					ruleTemplates.insert(val);
-					break;
-			}
-		}
-		#endif
+		auto hints = parse_hint_text(d_text);
+		qrs = hints[INFOHINT_T_QR];
+		ruleTemplates = hints[INFOHINT_T_RULETMPL];
+	}
+	else
+	{
+		erase_hint_text(d_text);
+		qrs.clear();
+		ruleTemplates.clear();
 	}
 	
 	if(qrs.size() || ruleTemplates.size())
@@ -158,15 +117,16 @@ std::shared_ptr<GUI::Widget> InfoDialog::view()
 		cboxes->add(Label(colSpan = 2, text = "Note: Selecting a rule template"
 			"\nwill write to numerous QRs."));
 		int cnt = 0;
-		for(size_t q = 0; q < ruletemplatesList.size(); ++q)
+		auto const& list_rule_templates = GUI::ZCListData::rule_templates_list();
+		for(size_t q = 0; q < list_rule_templates.size(); ++q)
 		{
 			if(!ruleTemplates.contains(q))
 				continue;
-			string infostr = ruletemplatesList.getInfo(q);
+			string infostr = list_rule_templates.getInfo(q);
 			cboxes->add(infostr.size() ? INFOBTN(infostr) : DINFOBTN());
 			cboxes->add(Checkbox(
 					hAlign = 0.0, checked = false,
-					text = ruletemplatesList.getText(q),
+					text = list_rule_templates.getText(q),
 					onToggleFunc = [=, this](bool state)
 					{
 						on_templates[q] = state;

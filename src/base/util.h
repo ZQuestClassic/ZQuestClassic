@@ -165,6 +165,8 @@ void clear_clip_rect(BITMAP* bitmap);
 
 std::string QRHINT(std::vector<int> qrs);
 std::string RULETMPL_HINT(std::vector<int> tmpls);
+void erase_hint_text(std::string& str);
+std::map<uint8_t, std::set<int>> parse_hint_text(std::string& str);
 enum //special insert types
 {
 	INFOHINT_T_QR,
