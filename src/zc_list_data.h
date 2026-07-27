@@ -81,6 +81,7 @@ namespace GUI::ZCListData
 	GUI::ListData const& heroanimations();
 	GUI::ListData const& swimtypes();
 	GUI::ListData const& doortypes();
+	GUI::ListData const& rule_templates_list();
 }
 
 namespace GUI::ZCCheckListData

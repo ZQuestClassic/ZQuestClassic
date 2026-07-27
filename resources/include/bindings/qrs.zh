@@ -745,7 +745,10 @@ enum QR
 	// 'No Solid Damage Combos'
 	//
 	// Disables solid damage combos. You can only take damage by stepping on a walkable damage combo. Note that this does not affect solid sideview
-	// damage combos that you step on, you will still take damage from those even if this rule is on.$#0#361$
+	// damage combos that you step on, you will still take damage from those even if this rule is on.
+	//
+	// Related QRs:
+	// - [qr_NO_SIDEVIEW_SOLID_DAMAGE|No Sideview Solid Damage]
 	qr_NOSOLIDDAMAGECOMBOS,
 
 	// 'Draining Rupees Can Still Be Spent'
@@ -1380,7 +1383,7 @@ enum QR
 	// Candle limited uses per screen is shared between candles
 	qr_CANDLES_SHARED_LIMIT,
 
-	// 'Classic Respawn Points'
+	// 'Classic Hazard Respawn Points'
 	//
 	// Respawn points on drowning/pitfall will always be the screen entry point with this checked.
 	//
@@ -1975,20 +1978,38 @@ enum QR
 
 	// 'Sensitive Solid Damage Combos'
 	//
-	// Solid damage combos only check the center of the Hero's hitbox. Does not affect sideview damage combos you step on. Does nothing if 'No
-	// Solid Damage Combos' or 'Lenient Solid Damage Combos' is checked.$#0#145,360$
+	// Solid damage combos check closer to the edge of the Hero's hitbox. Does not affect sideview damage combos you step on. Does nothing if 'No
+	// Solid Damage Combos' or 'Lenient Solid Damage Combos' is checked.
+	//
+	// Related QRs:
+	// - [qr_NOSOLIDDAMAGECOMBOS|No Solid Damage Combos]
+	// - [qr_LENIENT_SOLID_DAMAGE|Lenient Solid Damage Combos]
 	qr_SENSITIVE_SOLID_DAMAGE,
 
 	// 'Lenient Solid Damage Combos'
 	//
 	// Solid damage combos only check the center of the Hero's hitbox. Does not affect sideview damage combos you step on. Does nothing if 'No
-	// Solid Damage Combos' is checked.$#0#145$
+	// Solid Damage Combos' is checked.
+	//
+	// Related QRs:
+	// - [qr_NOSOLIDDAMAGECOMBOS|No Solid Damage Combos]
 	qr_LENIENT_SOLID_DAMAGE,
 
 	// 'No Sideview Solid Damage'
 	//
-	// Disables taking damage by stepping on solid sideview damage. Does not affect damage taken by walkin into solid damage combos.$#0#145$
+	// Disables taking damage by stepping on solid sideview damage. Does not affect damage taken by walkin into solid damage combos.
+	//
+	// Related QRs:
+	// - [qr_NOSOLIDDAMAGECOMBOS|No Solid Damage Combos]
 	qr_NO_SIDEVIEW_SOLID_DAMAGE,
+
+	// 'Disable F6 Menu'
+	//
+	// The 'F6' hotkey will be disabled, and the 'End Game' menu option will be greyed out. The script function 'Game->ShowContinueScreen()' will
+	// also not function.
+	//
+	// @versionadded 3.0
+	qr_DISABLE_F6,
 
 	// 'Old FFC Functionality'
 	//
@@ -2023,7 +2044,11 @@ enum QR
 	// 'Newer Hero Movement'
 	//
 	// Alters the Hero's movement; with this enabled, most of the effects of 'New Hero Movement' and 'Disable 4-Way Movement's Gridlock' apply, and
-	// the Hero's collision code is newly cleaned up.$#0#199,200$
+	// the Hero's collision code is newly cleaned up.
+	//
+	// Related QRs:
+	// - [qr_NEW_HERO_MOVEMENT|New Hero Movement]
+	// - [qr_DISABLE_4WAY_GRIDLOCK|Disable 4-Way Movement's Gridlock]
 	qr_NEW_HERO_MOVEMENT2,
 
 	// 'Carryables Can't Leave Screen'
@@ -2288,8 +2313,6 @@ enum QR
 	//
 	// If disabled, these strings draw directly UNDER the subscreen instead.
 	//
-	// Has no effect at all if `Subscreen Appears Above Sprites` is unchecked.$#0#123$
-	//
 	// @versionadded 3.0
 	qr_LAYER6_STRINGS_OVER_SUBSCREEN,
 
@@ -2437,11 +2460,7 @@ enum QR
 
 	// 'Classic Drawing Order'
 	//
-	// When enabled, uses the classic drawing order code. When disabled, uses the newer drawing code, which has several effects:
-	//
-	// - 'Negative' layers draw in the proper order (-3 is behind -2)
-	//
-	// - Scripts can draw to layers '-1' through '-7' to draw in the BG
+	// When enabled, uses the classic drawing order code. When disabled, uses the newer drawing code, which changes:
 	//
 	// - Sprites (enemies, weapons, player, etc) are drawn in their Z-order. This means that higher enemies will be drawn above lower enemies.
 	//
@@ -2456,7 +2475,10 @@ enum QR
 	// Requires 'Classic Drawing Order' be disabled.
 	//
 	// When enabled, sprites which share the same Z coordinate will additionally have their draws ordered by their Y-value, such that sprites lower
-	// on the screen (higher Y values) are drawn over sprites higher on the screen.$#0#469$
+	// on the screen (higher Y values) are drawn over sprites higher on the screen.
+	//
+	// Related QRs:
+	// - [qr_CLASSIC_DRAWING_ORDER|Classic Drawing Order]
 	//
 	// @versionadded 3.0
 	qr_YSORT_SPRITES,
@@ -2607,7 +2629,10 @@ enum QR
 	// 'Scripts Draw During Frozen Messages'
 	//
 	// If checked, script draws will continue to clear during frozen messages. Otherwise, they will not clear until the message has closed and all
-	// draws during the message will be ignored.$#0#111$
+	// draws during the message will be ignored.
+	//
+	// Related QRs:
+	// - [qr_MSGFREEZE|Messages Freeze All Action]
 	qr_SCRIPTDRAWSFROZENMSG,
 
 	// 'Broken Sideview Sprite Jump'
@@ -2666,31 +2691,290 @@ enum QR
 	// @versionadded 3.0
 	qr_BROKEN_SELF_TRIGGERING_TRIGGERS,
 
-	// '2.50 Division Truncation'
+	// 'Old Item Hitboxes'
 	//
-	// COMPAT - This replicates an old bug with division.
-	qr_PARSER_250DIVISION = 80 * 8,
+	// If enabled, items will use relatively weird hitboxes, and the player will also use a weird hitbox calculation for picking them up. This
+	// weirdness is how items have worked in ZC for a long time, but makes it difficult to do things like customize item hitboxes per-item and
+	// still having them work properly.
+	//
+	// If disabled, items use a standard 16x16 hitbox by default, and the player's collision check uses a customizable hitbox for items (see
+	// 'Quest->Hero').
+	//
+	// @versionadded 3.0
+	qr_OLD_ITEM_HITBOXES,
+
+	// 'Subscreen Selector fits to item hitboxes'
+	//
+	// If enabled, the subscreen selector will fit itself to the hitbox of an Item Slot widget's item.
+	//
+	// @versionadded 3.0
+	qr_SUBSCR_SELECTOR_USES_ITEM_HITBOX,
+
+	// 'Broken 0-power BRang/HShot'
+	//
+	// If enabled, boomerangs and hookshots with 0 power set in the item editor will ignore script changes to their power (including via Enemy Hit
+	// generic events) when hitting enemies with 'Damaged by Power 0 weapons' unchecked.
+	//
+	// @versionadded 3.0
+	qr_BROKEN_0_DAMAGE_BRANG_HSHOT,
+
+	// 'Pause Sliding While Attacking'
+	//
+	// If enabled, the Hero will temporarily stop sliding on ice while in the 'attacking' state. The sliding will resume when the attacking state
+	// ends, at the same momentum as before it was paused.
+	//
+	// @versionadded 3.0
+	qr_PAUSE_ICE_SLIDING_WHILE_ATTACKING,
+
+	// 'Broken Spin Tile Combo Change'
+	//
+	// If enabled, Spin Tile combos won't change combos when activating.
+	//
+	// @versionadded 3.0
+	qr_BROKEN_SPINTILE_COMBO_CHANGE,
+
+	// 'Sprite Light Radius Ignores Hit Offsets'
+	//
+	// If enabled, sprites that emit light will ignore hit offsets when calculating the center position.
+	//
+	// @versionadded 3.0
+	qr_LIGHT_RADIUS_IGNORE_HIT_OFFSETS,
+
+	// 'Broken Solid Conveyors in Sideview'
+	//
+	// If enabled, solid conveyors in sideview will not work properly. They may still work in extremely specific situations, but not consistently
+	// or how they should.
+	//
+	// @versionadded 3.0
+	qr_BROKEN_SV_SOLID_CONVEYORS,
+
+	// 'Items Ignore Hitbox For Conveyors'
+	//
+	// If enabled, items will use a hardcoded 16x16 hitbox with no offset for conveyors.
+	//
+	// @versionadded 3.0
+	qr_ITEM_CONVEYORS_IGNORE_HITBOX,
+
+	// 'Items Use Hardcoded Sideview Hitbox'
+	//
+	// If enabled, items will use a hardcoded 16x16 hitbox with no offset for sideview gravity.
+	//
+	// @versionadded 3.0
+	qr_ITEMS_HARDCODED_SIDEVIEW_HITBOX,
+
+	// 'Weapons Use Hardcoded Sideview Hitbox'
+	//
+	// If enabled, weapons will use a hardcoded 16x16 hitbox with no offset for sideview gravity.
+	//
+	// @versionadded 3.0
+	qr_WEAPONS_HARDCODED_SIDEVIEW_HITBOX,
+
+	// 'Broken Pushblock Trigger Groups'
+	//
+	// If enabled, moving Pushblocks will not count towards trigger groups.
+	//
+	// @versionadded 3.0
+	qr_BROKEN_PUSHBLOCK_TRIGGER_GROUPS,
+
+	// 'Old Layer Draw Order'
+	//
+	// When enabled, layer -3 draws in front of layer -2, and script draws / FFCs cannot directly use layers -1 to -7. Also, layer 7 script draws
+	// will only work if 'Subscreen Appears Above Sprites' is also enabled.
+	//
+	// @versionadded 3.0
+	qr_OLD_LAYER_DRAW_ORDER,
+
+	// 'Map Spoils Darkrooms'
+	//
+	// When enabled, the Map will not spoil darkrooms.When disabled, for New Darkrooms, it will draw the proper darkness- for old darkrooms, they
+	// will simply be blacked-out.
+	//
+	// @versionadded 3.0
+	qr_MAP_SPOILS_DARKROOMS,
+
+	// 'BS Overworld Ignores Map'
+	//
+	// When enabled, BS Overworlds will show rooms marked on the map even without that level's Map item.
+	//
+	// @versionadded 3.0
+	qr_BS_OW_IGNORES_MAP_ITEM,
+
+	// 'Broken Enemy Sideview Platform Hitbox'
+	//
+	// When enabled, enemies will use their old hit detection for sideview hitboxes, which doesn't properly check the correct size of the hitbox,
+	// or account for hit offsets.
+	//
+	// @versionadded 3.0
+	qr_BROKEN_ENEMY_SIDEVIEW_PLATFORM_HITBOX,
+
+	// 'Hazard Respawn Half-Gridlock'
+	//
+	// If checked, the player's hazard respawn point checks will snap to the nearest half-grid (8px) position. Does nothing if 'Classic Hazard
+	// Respawn Points' is enabled.
+	//
+	// Related QRs:
+	// - [qr_OLD_RESPAWN_POINTS|Classic Hazard Respawn Points]
+	//
+	// @versionadded 3.0
+	qr_RESPAWN_POINTS_HALF_GRID,
+
+	// 'Broken Solids Pushing Player'
+	//
+	// When enabled, moving solid objects won't be able to push the player into pitfall combos, but WILL be able to push them while they are
+	// drowning/falling.
+	//
+	// @versionadded 3.0
+	qr_BROKEN_PLAYER_SOLIDPUSH,
+
+	// 'Rerolled Drops Always Roll 'Nothing''
+	//
+	// If enabled, drops that would be 'rerolled' instead become 'Nothing' drops.
+	//
+	// @versionadded 3.0
+	qr_SMARTDROPS_NOTHING,
+
+	// 'Bridges Cover Less Stuff'
+	//
+	// When enabled, Bridge combos won't cover certain things, like Warp/Step/Save/Slash combos, Step->/Dive-> combo triggers, Fairy Ring / Weapon
+	// placed flags, etc. Also, bridges on layers above 2 will not affect most things.
+	//
+	// @versionadded 3.0
+	qr_OLD_BRIDGE_COMBO_COVER,
+
+	// 'Subscreen Minimap uses dmap-based state instead of map-based'
+	//
+	// If enabled, the Visited color for minimap widgets will use the dmap Charted state, instead of the Visited screen state.
+	//
+	// @versionadded 3.0
+	qr_MINIMAP_VISITED_CHARTED,
+
+	// 'Allow Jumping While Charging'
+	//
+	// Allow the player to jump while charging up a charged attack.
+	//
+	// @versionadded 3.0
+	qr_ALLOW_JUMP_WHILE_CHARGING,
+
+	// 'Quake Hammer In Air'
+	//
+	// When enabled, charged hammer attacks can be released in the air. Otherwise, the charge will not release while airborne, requiring landing to
+	// unleash the attack.
+	//
+	// @versionadded 3.0
+	qr_QUAKE_HAMMER_IN_AIR,
+
+	// 'Message 'More...' ignores flashing settings'
+	//
+	// When enabled, the 'More...' icon for strings will never flash.
+	//
+	// @versionadded 3.0
+	qr_NO_FLASHING_MSG_MORE,
+
+	// 'Lens 'Disable Secrets' disables hints too'
+	//
+	// When enabled, the lens 'Disable Secrets' flag will also disable the Show Hints flag.
+	//
+	// @versionadded 3.0
+	qr_BROKEN_LENS_HINTS_SECRETS,
+
+	// 'Bridge Combos Work Above Layer 2'
+	//
+	// If checked, Bridge combos will work even above layer 2.
+	//
+	// @versionadded 3.0
+	qr_BRIDGES_ABOVE_2,
+
+	// 'Chests, Signposts, Lockblocks Work Above Layer 2'
+	//
+	// If checked, Chest, Signpost, and Lockblock combos will work even above layer 2.
+	//
+	// @versionadded 3.0
+	qr_CHESTS_SIGNS_LOCKBLOCKS_ABOVE_2,
+
+	// 'Knockback knocks Hero through Sideview Platforms'
+	//
+	// When enabled, the Hero's knockback collision check doesn't account for sideview platforms, knocking the player through them rather than
+	// stopping on them.
+	//
+	// @versionadded 3.0
+	qr_KNOCKBACK_THROUGH_PLATFORMS,
+
+	// 'Broken FFC Solids in Sideview'
+	//
+	// When enabled, the code used for ffc 'platform's in sideview uses broken collision checks, and player ceiling / floor collision will not
+	// properly account for off-grid solidity, possibly clipping the player into solid ffcs.
+	//
+	// @versionadded 3.0
+	qr_BROKEN_SIDEVIEW_SOLID_FFC_COLLISION,
+
+	// 'Old Summoner Counts'
+	//
+	// When enabled, enemies that summon other enemies will use the old method of checking if there are already too many enemies. 'Summon' types
+	// will check how many of the target enemy ID exist, while 'Summon (Layer)' types check the total enemy count on-screen.
+	//
+	// When disabled, summoner enemies will count the number of enemies they themselves have summoned instead, allowing per-summoner limits.
+	//
+	// @versionadded 3.0
+	qr_OLD_SUMMONER_COUNTS,
+
+	// 'Broken Large Armos Anim'
+	//
+	// When enabled, enemies with the 'Armos (4-frame)' anim style and 'Armos' walk style will always add 20 to their starting tile when they
+	// randomly start 'faster'.
+	//
+	// If disabled, these enemies will instead add a multiple of 20 large enough to be on a tile not in a row already used by the animation.
+	//
+	// @versionadded 3.0
+	qr_BROKEN_LARGE_ARMOS_ANIM,
+
+	// 'Broken SCC Map Args'
+	//
+	// When enabled, some SCCs checking or setting states on other screens will use the wrong Map, off-by-1 from the specified map.
+	//
+	// @versionadded 3.0
+	qr_BROKEN_SCC_MAP_ARGS,
+
+	// 'Old Long SCC Args'
+	//
+	// When enabled, some SCCs will divide certain args by 10000.
+	//
+	// @versionadded 3.0
+	qr_OLD_LONG_SCC_ARGS,
+
+	// 'Strings Don't Scroll'
+	//
+	// When enabled, strings will cut off when they reach their bottom margin, rather than scrolling.
+	//
+	// 'Old String Margins' being enabled takes priority over this setting.
+	//
+	// Related QRs:
+	// - [qr_OLD_STRING_EDITOR_MARGINS|Old String Margins]
+	//
+	// @versionadded 3.0
+	qr_STRINGS_DONT_SCROLL,
+
+	// 'Messages Scroll In Segments'
+	//
+	// If enabled, messages that are larger than their message box will be separated into segments, such that each segment is the full height of
+	// the message box, and scrolling will always show a full segment at a time. Each segment will wait for the player to press to advance before
+	// continuing to the next.
+	//
+	// Related QRs:
+	// - [qr_OLD_STRING_EDITOR_MARGINS|Old String Margins]
+	// - [qr_STRINGS_DONT_SCROLL|Strings Don't Scroll]
+	//
+	// @versionadded 3.0
+	qr_STRING_SEGMENTED_SCROLL,
+	qr_PARSER_250DIVISION = 80 * 8, // @deprecated
 
 	// 'Disable Tracing'
 	//
 	// OPTION - Disables 'Trace()', 'printf()', and similar commands.
 	qr_PARSER_NO_LOGGING,
-
-	// 'Short-Circuit Boolean Operations'
-	//
-	// COMPAT REVERSE - applies short-circuit.
-	qr_PARSER_SHORT_CIRCUIT,
-
-	// '2.50 Value of 'true' is 0.0001'
-	//
-	// COMPAT - replicates old behavior possibly needed for ZASM
-	qr_PARSER_BOOL_TRUE_DECIMAL,
+	qr_PARSER_SHORT_CIRCUIT, // @deprecated
+	qr_PARSER_BOOL_TRUE_DECIMAL, // @deprecated
 	qr_SPRITEXY_IS_FLOAT, // 'Sprite Coordinates are Float'
-
-	// 'True MAX_INT sizing'
-	//
-	// COMPAT REVERSE - Uses 214748.3648 as the max value, instead of 214747 (similar for negative min value)
-	qr_PARSER_TRUE_INT_SIZE,
+	qr_PARSER_TRUE_INT_SIZE, // @deprecated
 	qr_WPNANIMFIX, // @deprecated
 	qr_NOSCRIPTSDURINGSCROLL, // @deprecated
 
@@ -2710,10 +2994,7 @@ enum QR
 	qr_NOITEMWAITDRAW, // 'No Item Script Waitdraw()'
 	qr_TRACESCRIPTIDS, // 'Print Script Metadata on Traces'
 	qr_FIXDRUNKINPUTS, // 'Writing to INPUT Overrides Drunk State'
-
-	// 'Binary Operations use true 32-bit Int'
-	//
-	// COMPAT - treats all binary operations as 'long' type
+	// @deprecated
 	//
 	// @versionadded 3.0
 	qr_PARSER_BINARY_32BIT,

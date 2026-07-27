@@ -2,6 +2,7 @@ import argparse
 import os
 import run_target
 import sys
+import subprocess
 
 from pathlib import Path
 
@@ -26,6 +27,8 @@ build_folder = None
 if args.build_folder:
     build_folder = Path(args.build_folder).absolute()
 
+script_dir = Path(os.path.dirname(os.path.realpath(__file__)))
+
 def output_qr_enum_file():
     run_target.check_run('zeditor', [
         '-dev-qrs-zscript',
@@ -33,6 +36,11 @@ def output_qr_enum_file():
         '-q',
         '-headless',
     ], build_folder)
+    subprocess.check_call([
+        sys.executable,
+        script_dir / 'lint_zscript_versions.py',
+        '--fix'
+    ])
 
 if __name__ == '__main__':
     output_qr_enum_file()

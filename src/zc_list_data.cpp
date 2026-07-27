@@ -9,6 +9,7 @@
 #include "advanced_music.h"
 #include "core/misctypes.h"
 #include "core/autocombo.h"
+#include "core/qrs.h"
 #include <fmt/format.h>
 #include "sprite_data.h"
 
@@ -1481,6 +1482,24 @@ static const GUI::ListData door_types
 GUI::ListData const& GUI::ZCListData::doortypes()
 {
 	return door_types;
+}
+
+static const GUI::ListData _rule_templates_list
+{
+	{ "Bugfix", ruletemplateFixCompat,
+		"Removes all 'Compat' rules" },
+	{ "ZScript Bugfix", ruletemplateFixZSCompat,
+		"Remove ZScript compatibility rules" },
+	{ "New Subscreen", ruletemplateNewSubscreen,
+		"Set a variety of rules for newer engine subscreen functionality." },
+	{ "Old Subscreen", ruletemplateOldSubscreen,
+		"The exact opposite of 'New Subscreen', reverts to old"
+		" engine subscreen functionality." },
+};
+
+GUI::ListData const& GUI::ZCListData::rule_templates_list()
+{
+	return _rule_templates_list;
 }
 
 // Checklist Data

@@ -1142,6 +1142,69 @@ std::string RULETMPL_HINT(std::vector<int> tmpls)
 	return HINT_TY(tmpls,INFOHINT_T_RULETMPL);
 }
 
+static void _handle_hint_text(string& str, map<uint8_t, set<int>>* out_data)
+{
+	while(true)
+	{
+		size_t pos = str.find_first_of("$");
+		if(pos == string::npos)
+			break;
+		size_t nextpos = str.find_first_of("$",pos+1);
+		if(nextpos == string::npos)
+			break;
+		string sub = str.substr(pos+1,nextpos-pos-1);
+		str.erase(pos,nextpos-pos+1);
+		
+		if (!out_data)
+			continue;
+		auto& ret = *out_data;
+		
+		uint8_t special_type = INFOHINT_T_QR; //qr by default
+		if(sub[0] == '#') //Special type id given
+		{
+			auto nexthash = sub.find_first_of("#",1);
+			if(nexthash == string::npos || nexthash == 1)
+				continue; //invalid
+			if(sub.find_first_not_of("0123456789",1) != nexthash)
+				continue; //invalid
+			special_type = atoi(sub.substr(1,nexthash).c_str());
+			sub.erase(0,nexthash+1);
+		}
+		bool running = true;
+		while(running)
+		{
+			size_t commapos = sub.find_first_of(",");
+			string sub2;
+			if(commapos == string::npos)
+			{
+				running = false;
+				sub2 = sub;
+			}
+			else
+			{
+				sub2 = sub.substr(0,commapos);
+				sub.erase(0,commapos+1);
+			}
+			if(sub2.size() < 1 || sub2.find_first_not_of("0123456789") != string::npos)
+				continue; //invalid
+			int val = atoi(sub2.c_str());
+			ret[special_type].insert(val);
+		}
+	}
+	
+}
+
+void erase_hint_text(string& str)
+{
+	_handle_hint_text(str, nullptr);
+}
+map<uint8_t, set<int>> parse_hint_text(string& str)
+{
+	map<uint8_t, set<int>> ret;
+	_handle_hint_text(str, &ret);
+	return ret;
+}
+
 int binary_search_int(int b1, int b2, std::function<int(int,int&)> proc, int defval)
 {
 	int ret = defval;
