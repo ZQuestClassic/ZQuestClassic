@@ -10289,7 +10289,7 @@ heroanimate_skip_liftwpn:;
 			int32_t warpsound = cmb.c_attributes[8].getTrunc();
 			if (rpos_handle.base_scr->flags5 & fDIRECTAWARP)
 			{
-				setpit();
+				setpit(rpos_handle.base_scr);
 			}
 			
 			sdir = dir;
@@ -10343,7 +10343,7 @@ heroanimate_skip_liftwpn:;
 		{
 			if(ffc_handle.scr->flags5&fDIRECTAWARP)
 			{
-				setpit();
+				setpit(ffc_handle.scr);
 			}
 			
 			sdir = dir;
@@ -24053,7 +24053,7 @@ void HeroClass::checkspecial2(int32_t *ls)
 			{
 				if(scr->flags5&fDIRECTSWARP)
 				{
-					setpit();
+					setpit(scr);
 				}
 				
 				sdir=dir;
@@ -24065,7 +24065,7 @@ void HeroClass::checkspecial2(int32_t *ls)
 			{
 				if(scr->flags5&fDIRECTSWARP)
 				{
-					setpit();
+					setpit(scr);
 				}
 				
 				sdir=dir;
@@ -24077,7 +24077,7 @@ void HeroClass::checkspecial2(int32_t *ls)
 			{
 				if(scr->flags5&fDIRECTSWARP)
 				{
-					setpit();
+					setpit(scr);
 				}
 				
 				sdir=dir;
@@ -24089,7 +24089,7 @@ void HeroClass::checkspecial2(int32_t *ls)
 			{
 				if(scr->flags5&fDIRECTSWARP)
 				{
-					setpit();
+					setpit(scr);
 				}
 				
 				sdir=dir;
@@ -24101,7 +24101,7 @@ void HeroClass::checkspecial2(int32_t *ls)
 			{
 				if(scr->flags5&fDIRECTSWARP)
 				{
-					setpit();
+					setpit(scr);
 				}
 				
 				sdir=dir;
@@ -25203,15 +25203,15 @@ RaftingStuff:
 		else if(type==cCAVE) walkdown(opening);
 	}
 	
-	if(type==cPIT)
-	{
-		setpit();
-		warp_sound = warpsfx2;
-	}
-
 	mapscr* scr = nullptr;
 	for (int i = 0; i < 4 && !scr; i++) scr = scrs[i];
 	if (!scr) scr = hero_scr;
+
+	if(type==cPIT)
+	{
+		setpit(scr);
+		warp_sound = warpsfx2;
+	}
 
 	if (!is_in_scrolling_region()
 			&& DMaps[cur_dmap].flags&dmf3STAIR
@@ -25299,7 +25299,7 @@ RaftingStuff:
 					unsetxmapflag(scr->screen, (1<<q));
 		}
 		
-		setpit();
+		setpit(scr);
 		sdir=dir;
 		dowarp(scr, 4, 0, warpsfx2);
 	}
@@ -25602,6 +25602,8 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 				didpit=false;
 				x=pitx;
 				y=pity;
+				x = vbound(x.getInt(), 0, world_w-16);
+				y = vbound(y.getInt(), 0, world_h-16);
 			}
 			
 			reset_hookshot();
@@ -25649,6 +25651,8 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 				didpit=false;
 				x=pitx;
 				y=pity;
+				x = vbound(x.getInt(), 0, world_w-16);
+				y = vbound(y.getInt(), 0, world_h-16);
 			}
 			
 			reset_hookshot();
@@ -25731,6 +25735,8 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 			didpit=false;
 			x=pitx;
 			y=pity;
+			x = vbound(x.getInt(), 0, world_w-16);
+			y = vbound(y.getInt(), 0, world_h-16);
 		}
 		
 		y=0;
@@ -25837,6 +25843,8 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 
 		x += region_scr_dx * 256;
 		y += region_scr_dy * 176;
+		x = vbound(x.getInt(), 0, world_w-16);
+		y = vbound(y.getInt(), 0, world_h-16);
 		update_viewport();
 		
 		if(dlevel)
@@ -26146,6 +26154,8 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 
 		x += region_scr_dx * 256;
 		y += region_scr_dy * 176;
+		x = vbound(x.getInt(), 0, world_w-16);
+		y = vbound(y.getInt(), 0, world_h-16);
 		update_viewport();
 		
 		markBmap(dir^1, current_screen);
@@ -26293,6 +26303,8 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 
 			x += region_scr_dx * 256;
 			y += region_scr_dy * 176;
+			x = vbound(x.getInt(), 0, world_w-16);
+			y = vbound(y.getInt(), 0, world_h-16);
 			update_viewport();
 			
 			markBmap(dir^1, current_screen);
@@ -26580,6 +26592,8 @@ void HeroClass::exitcave()
     
     x += region_scr_dx*256;
     y += region_scr_dy*176;
+	x = vbound(x.getInt(), 0, world_w-16);
+	y = vbound(y.getInt(), 0, world_h-16);
 	update_viewport();
         
     int32_t type1 = combobuf[MAPCOMBO(x,y-16)].type;
@@ -26851,11 +26865,19 @@ void HeroClass::stepforward(int32_t steps, bool adjust)
     shiftdir=sh;
 }
 
-void HeroClass::setpit()
+void HeroClass::setpit(const mapscr* base_scr)
 {
 	didpit = true;
-	pitx = x.getInt() % 256;
-	pity = y.getInt() % 176;
+	if (!base_scr) base_scr = hero_scr;
+	// Store the position relative to the screen whose warp is being taken -
+	// the warp arrival re-bases it onto the destination screen. A plain
+	// `% 256` would base it on whichever screen contains the top-left pixel,
+	// which is the wrong screen when straddling a screen boundary in a region.
+	int sx = 0, sy = 0;
+	if (base_scr && base_scr->screen < 128 && is_in_current_region(base_scr->screen))
+		std::tie(sx, sy) = translate_screen_coordinates_to_world(base_scr->screen);
+	pitx = x.getInt() - sx;
+	pity = y.getInt() - sy;
 }
 
 void HeroClass::walkdown(bool opening) //entering cave
@@ -27150,6 +27172,8 @@ void HeroClass::stepout() // Step out of item cellars and passageways
 
 	x += region_scr_dx * 256;
 	y += region_scr_dy * 176;
+	x = vbound(x.getInt(), 0, world_w-16);
+	y = vbound(y.getInt(), 0, world_h-16);
 	update_viewport();
     
     if(x+y == 0)

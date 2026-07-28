@@ -479,7 +479,7 @@ public:
 	void handle_water_passive_damage(combined_handle_t combined_handle, int compat = 0);
 private:
 	void handleSpotlights();
-	void setpit();
+	void setpit(const mapscr* base_scr = nullptr);
 	void walkdown(bool opening);
 	void walkup(bool opening);
 	void walkdown2(bool opening);

@@ -8107,11 +8107,13 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmap, int32_t screen, int32
 			if ( warpDestY == 5 || warpDestY < 0)
 			{
 				//Pit warp
-				lx = (int32_t)Hero.getX() % 256;
-				ly = (int32_t)Hero.getY() % 176;
+				// Position relative to the hero's current screen - a plain `% 256`
+				// picks the wrong screen when straddling a screen boundary in a region.
+				lx = (int32_t)Hero.getX() - region_scr_dx * 256;
+				ly = (int32_t)Hero.getY() - region_scr_dy * 176;
 
-				wx = lx + rx * 256;
-				wy = ly + ry * 176;
+				wx = vbound(lx + rx * 256, 0, region.width-16);
+				wy = vbound(ly + ry * 176, 0, region.height-16);
 			}
 			else
 			{
