@@ -942,6 +942,12 @@ void EnemyEditorDialog::updateWarnings()
 				}
 			}
 			break;
+		case eePATRA:
+			if(get_qr(qr_HARDCODED_BS_PATRA))
+				warnings.emplace_back("The compat rule 'Hardcoded BS Patras' is enabled!"
+					" Patras with 'Type: 2x2 Patra' will be hardcoded, ignoring most enemy editor"
+					" settings (including all firing attributes and inner eye placement).");
+			break;
 	}
 	
 	warnbtn->setDisabled(warnings.empty());
