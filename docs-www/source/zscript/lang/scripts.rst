@@ -19,8 +19,78 @@ for example, an `npc script` runs when an `npc` (an enemy) is alive.
 
 	/zscript/lang/script_types
 
-Annotations
------------
+.. _script_static:
+
+Instance Variables
+------------------
+Declaring variables inside a script creates 'instance variables'. These variables will
+hold a different value for each instance of the script that is running. The `this` variable
+of scripts is now an instance variable.
+
+A variable declared with the `static` keyword will be a global variable instead, holding one
+value for all instances of the script. Constants are automatically static.
+
+The compiler option :ref:`DEFAULT_STATIC_SCRIPT_MEMBERS<zslang_options>` strongly affects instance variables.
+It may mark all script variables and functions as `static` depending on the setting; this is used to preserve old scripts.
+
+While static global variables in a script can be accessed using `ScriptName.var_name`,
+instance variables cannot be accessed except by the script they belong to.
+
+Exported Variables
+^^^^^^^^^^^^^^^^^^
+Script-scope variables can be annotated with some export-related :ref:`annotations<annotations>`.
+Exported variables can have their initial value modified in the Editor when setting
+up the script, similarly to `InitD[]`.
+
+If an exported variable has an initializer, the initializer value will be used as a default
+value, used automatically if no value is specified in the editor. A button in the editor
+also allows "resetting to default" an exported variable's value.
+
+A value in [square brackets] indicates an 'optional' value.
+
+.. table::
+	:widths: auto
+	
+	+-----------------+-----------------------------------------------+-------------------------------------------------+
+	| Annotation Name | Values                                        | Purpose                                         |
+	+=================+===============================================+=================================================+
+	| `@Export`       | | Name: String (256)                          | Exports the specified variable to be modifiable |
+	|                 | | Help Text: [String (65535)]                 | Sets the label, helptext, and input field       |
+	|                 | | Type: ["D", "H", "LD", "LH", "B", "-1"]     | type of the textbox for the exported variable.  |
+	|                 |                                               |                                                 |
+	|                 |                                               | Name must be specified, help text               |
+	|                 |                                               | defaults to blank, and type defaults based on   |
+	|                 |                                               | variable type, as:                              |
+	|                 |                                               |                                                 |
+	|                 |                                               | | `int`, `float`, `untyped` -> "D"              |
+	|                 |                                               | | `long` -> "LD"                                |
+	|                 |                                               | | `bool` -> "B"                                 |
+	|                 |                                               | | `rgb` -> "LH"                                 |
+	|                 |                                               | | else -> "-1"                                  |
+	+-----------------+-----------------------------------------------+-------------------------------------------------+
+	| `@ExportRange`  | | Min: int                                    | Sets a range for the exported variable. The     |
+	|                 | | Max: int                                    | field in the editor will not allow setting its  |
+	|                 |                                               | value outside of the specified range.           |
+	|                 |                                               |                                                 |
+	|                 |                                               | | If used on a non-exported variable, errors.   |
+	|                 |                                               | | If used on a boolean variable, errors.        |
+	+-----------------+-----------------------------------------------+-------------------------------------------------+
+
+Static Functions
+----------------
+Functions declared inside scripts work very similarly to variables; an 'instance function'
+can access all instance variables of the script, but any functions declared as `static`
+will be unable to access instance variables from the script. Static variables can still
+be accessed as normal.
+
+The compiler option :ref:`DEFAULT_STATIC_SCRIPT_MEMBERS<zslang_options>` affects script functions
+in almost the exact same way it affects variables; the main difference is that the
+`void run()` function will not be made static by it.
+
+Marking a `void run()` function as `static` is an error.
+
+Script Annotations
+------------------
 
 Scripts are capable of being targetted with a number of :ref:`annotations<annotations>`.
 
