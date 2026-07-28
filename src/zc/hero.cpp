@@ -2023,6 +2023,7 @@ void HeroClass::init()
 	{
 		x += region_scr_dx*256;
 		y += region_scr_dy*176;
+		reset_viewport_follow();
 		update_viewport();
 	}
 
@@ -25149,6 +25150,7 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 		y += region_scr_dy * 176;
 		x = vbound(x.getInt(), 0, world_w-16);
 		y = vbound(y.getInt(), 0, world_h-16);
+		reset_viewport_follow();
 		update_viewport();
 		
 		if(dlevel)
@@ -25466,6 +25468,7 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 		y += region_scr_dy * 176;
 		x = vbound(x.getInt(), 0, world_w-16);
 		y = vbound(y.getInt(), 0, world_h-16);
+		reset_viewport_follow();
 		update_viewport();
 
 		if (cave_check_world_coords)
@@ -25643,6 +25646,7 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 			y += region_scr_dy * 176;
 			x = vbound(x.getInt(), 0, world_w-16);
 			y = vbound(y.getInt(), 0, world_h-16);
+			reset_viewport_follow();
 			update_viewport();
 
 			if (cave_check_world_coords)
@@ -25939,6 +25943,7 @@ void HeroClass::exitcave()
     y += region_scr_dy*176;
 	x = vbound(x.getInt(), 0, world_w-16);
 	y = vbound(y.getInt(), 0, world_h-16);
+	reset_viewport_follow();
 	update_viewport();
         
     int32_t type1 = combobuf[MAPCOMBO(x,y-16)].type;
@@ -26186,6 +26191,8 @@ void HeroClass::stepforward(int32_t steps, bool adjust)
         
 		handleSpotlights();
         clear_darkroom_bitmaps();
+        // Not reset_viewport_follow: stepping in is continuous movement, which the follow logic
+        // should see like any other walking (as in the cave walk animations below).
         update_viewport();
         draw_screen();
         if (canSideviewLadder()) setOnSideviewLadder(true);
@@ -26225,6 +26232,8 @@ void HeroClass::setpit(const mapscr* base_scr)
 	pity = y.getInt() - sy;
 }
 
+// The cave walk animations move the hero a pixel at a time and follow with plain update_viewport
+// calls, not reset_viewport_follow: that is continuous movement, not a jump to snap across.
 void HeroClass::walkdown(bool opening) //entering cave
 {
     if(opening)
@@ -26519,6 +26528,7 @@ void HeroClass::stepout() // Step out of item cellars and passageways
 	y += region_scr_dy * 176;
 	x = vbound(x.getInt(), 0, world_w-16);
 	y = vbound(y.getInt(), 0, world_h-16);
+	reset_viewport_follow();
 	update_viewport();
     
     if(x+y == 0)
@@ -28012,6 +28022,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 		set_viewport_sprite(&Hero);
 		viewport_mode = ViewportMode::CenterAndBound;
 		clear_camera_effect();
+		reset_viewport_follow();
 		update_viewport();
 	}
 	
@@ -29119,6 +29130,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 	playing_field_offset = new_playing_field_offset;
 	x = new_hero_x;
 	y = new_hero_y;
+	reset_viewport_follow();
 	yofs = playing_field_offset;
 	if(ladderx > 0 || laddery > 0)
 	{

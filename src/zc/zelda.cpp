@@ -1936,6 +1936,7 @@ int32_t init_game()
 
 		Hero.x += region_scr_dx*256;
 		Hero.y += region_scr_dy*176;
+		reset_viewport_follow();
 		update_viewport();
 	}
 
@@ -2275,6 +2276,7 @@ int32_t cont_game()
 		Hero.setY(hero_scr->warpreturny[testingqst_retsqr]);
 		Hero.x += region_scr_dx*256;
 		Hero.y += region_scr_dy*176;
+		reset_viewport_follow();
 		update_viewport();
 	}
 
@@ -3169,7 +3171,7 @@ void game_loop()
 					if (has_active_camera_effect())
 						tick_camera_effect();
 					else
-						update_viewport();
+						tick_viewport_follow();
 				}
 
 				if(GameFlags & GAMEFLAG_RESET_GAME_LOOP) continue; //continue the game_loop while(true)

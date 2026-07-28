@@ -17,7 +17,7 @@ class solid_object;
 // How large the current region is in pixels.
 // If not currently in a scrolling region, this is just the size of a single screen (256, 176).
 extern int world_w, world_h;
-// The "camera" in the above world-space coordinates.
+// The "viewport" in the above world-space coordinates.
 // (viewport.x, viewport.y) is the point in world-space to draw as the top-left corner of the visible screen.
 // In region mode, by default x and y are set such that the hero in the middle of the screen when possible, snapping
 // to the region edges when not. This behavior is modified by `viewport_mode`.
@@ -278,6 +278,8 @@ std::optional<CameraEffect> get_active_camera_effect();
 bool has_active_camera_effect();
 void clear_camera_effect();
 void tick_camera_effect();
+void tick_viewport_follow();
+void reset_viewport_follow();
 void update_viewport();
 mapscr* determine_hero_screen_from_coords();
 bool edge_of_region(direction dir);

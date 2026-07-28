@@ -60,6 +60,16 @@ extern std::set<rpos_t> lens_pushblocks_hidden;
 viewport_t viewport;
 static int viewport_sprite_uid;
 ViewportMode viewport_mode;
+// The persistent focus point of the follow logic, in world coordinates. When neither a script
+// (ViewportMode::Script) nor a camera effect controls the viewport, `update_viewport` derives the
+// viewport from this point rather than reading the target sprite directly. For now the focus is
+// always locked exactly to the target's center, which makes this equivalent to the old behavior;
+// follow behaviors (deadzone, lookahead, smoothing) will apply between the target and this point.
+struct ViewportFollowState
+{
+	zfix x, y;
+};
+static ViewportFollowState follow_state;
 int world_w, world_h;
 int region_scr_dx, region_scr_dy;
 int region_scr_count;
@@ -75,6 +85,7 @@ void maps_init_game_vars()
 	viewport = {};
 	viewport_mode = ViewportMode::CenterAndBound;
 	viewport_sprite_uid = 1;
+	follow_state = {};
 	currscr_for_passive_subscr = -1;
 	scrolling_maze_last_solved_screen = 0;
 	maze_state = {};
@@ -413,6 +424,23 @@ void set_viewport_sprite(sprite* spr)
 	viewport_sprite_uid = spr->uid;
 }
 
+// True when no follow behaviors are configured, meaning the viewport focus is locked exactly to
+// the target sprite's center.
+static bool viewport_follow_is_locked()
+{
+	return true;
+}
+
+// Snap the viewport focus to the target sprite's center. Call whenever the target is repositioned
+// discontinuously (warps, screen entry, script teleports, target changes) — the follow logic
+// should never ease across such a jump.
+void reset_viewport_follow()
+{
+	sprite* spr = get_viewport_sprite();
+	follow_state.x = spr->x + spr->txsz*16/2;
+	follow_state.y = spr->y + spr->tysz*16/2;
+}
+
 static std::optional<CameraEffect> active_camera_effect;
 
 void set_camera_effect(CameraEffect camera_effect)
@@ -664,8 +692,20 @@ void tick_camera_effect()
 	}
 }
 
-// Recompute `viewport` from the current camera/sprite position. Safe to call any number of times
-// per frame: it never advances the camera effect's animation clock (tick_camera_effect does that).
+// Advance the follow logic by one frame and recompute the viewport from it. Call exactly once
+// per frame from the game loop, when no camera effect is active (tick_camera_effect owns the
+// viewport in that case).
+void tick_viewport_follow()
+{
+	// Follow behaviors (deadzone, lookahead, smoothing) will advance `follow_state` toward the
+	// target here. A locked viewport has no per-frame state to advance — update_viewport snaps the
+	// focus itself.
+	update_viewport();
+}
+
+// Recompute `viewport` from the current viewport state. Safe to call any number of times per
+// frame: it never advances the camera effect's animation clock (tick_camera_effect does that)
+// nor the follow logic's easing (tick_viewport_follow does that).
 void update_viewport()
 {
 	if (viewport_mode == ViewportMode::Script)
@@ -678,10 +718,12 @@ void update_viewport()
 		return;
 	}
 
-	sprite* spr = get_viewport_sprite();
-	int x = spr->x + spr->txsz*16/2;
-	int y = spr->y + spr->tysz*16/2;
-	calculate_viewport(viewport, cur_dmap, cur_screen, world_w, world_h, x, y);
+	// While the viewport is locked to its target, ad-hoc calls (warps, script moves of the hero,
+	// etc.) must see the viewport snap immediately, as it always has.
+	if (viewport_follow_is_locked())
+		reset_viewport_follow();
+
+	calculate_viewport(viewport, cur_dmap, cur_screen, world_w, world_h, follow_state.x, follow_state.y);
 }
 
 mapscr* determine_hero_screen_from_coords()
