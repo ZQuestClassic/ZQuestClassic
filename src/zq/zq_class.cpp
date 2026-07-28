@@ -3886,6 +3886,13 @@ int list_command::size()
     return s;
 }
 
+set_combo_command::set_combo_command(params p)
+    : map(p.map), scr(p.scr), pos(p.pos), combo(p.combo), cset(p.cset),
+      prev_combo(p.prev_combo), prev_cset(p.prev_cset)
+{
+    cursor = p.cursor;
+}
+
 void set_combo_command::execute()
 {
     mapscr* scr_ptr = Map.AbsoluteScrMakeValid(map, scr);
@@ -3926,6 +3933,12 @@ set_ffc_command::data_t set_ffc_command::create_data(const ffcdata& ffc)
 		.viewport_suspend_range = ffc.viewport_suspend_range,
 		.viewport_despawn_range = ffc.viewport_despawn_range,
 	};
+}
+
+set_ffc_command::set_ffc_command(params p)
+    : map(p.map), scr(p.scr), i(p.i), data(p.data), prev_data(p.prev_data)
+{
+    cursor = p.cursor;
 }
 
 void set_ffc_command::execute()
@@ -3985,6 +3998,12 @@ void set_ffc_command::undo()
 	mapscr_ptr->ffcs[i].updateSolid();
 }
 
+set_flag_command::set_flag_command(params p)
+    : map(p.map), scr(p.scr), pos(p.pos), flag(p.flag), prev_flag(p.prev_flag)
+{
+    cursor = p.cursor;
+}
+
 void set_flag_command::execute()
 {
     mapscr* mapscr_ptr = Map.AbsoluteScrMakeValid(map, scr);
@@ -4001,6 +4020,12 @@ void set_flag_command::undo()
     mapscr_ptr->sflag[pos] = prev_flag;
 }
 
+set_door_command::set_door_command(params p)
+    : side(p.side), door(p.door), prev_door(p.prev_door)
+{
+    cursor = p.cursor;
+}
+
 void set_door_command::execute()
 {
 	auto* mapscr_ptr = Map.AbsoluteScrMakeValid(cursor.map, cursor.screen);
@@ -4015,6 +4040,12 @@ void set_door_command::undo()
 	Map.AbsoluteScr(cursor.map, cursor.screen)->door[side] = prev_door;
 }
 
+set_dcs_command::set_dcs_command(params p)
+    : dcs(p.dcs), prev_dcs(p.prev_dcs)
+{
+    cursor = p.cursor;
+}
+
 void set_dcs_command::execute()
 {
 	auto* mapscr_ptr = Map.AbsoluteScrMakeValid(cursor.map, cursor.screen);
@@ -4027,6 +4058,14 @@ void set_dcs_command::execute()
 void set_dcs_command::undo()
 {
 	Map.AbsoluteScr(cursor.map, cursor.screen)->door_combo_set = prev_dcs;
+}
+
+paste_screen_command::paste_screen_command(params p)
+    : type(p.type), screen_index(p.screen_index), screen(std::move(p.screen)),
+      prev_screens(std::move(p.prev_screens))
+{
+    ASSERT(screen_index >= 0);
+    cursor = p.cursor;
 }
 
 void paste_screen_command::execute()
@@ -4086,6 +4125,13 @@ void paste_screen_command::perform(mapscr* to)
         Map.clearscr(screen_index);
     }
     refresh(rALL);
+}
+
+set_screen_command::set_screen_command(params p)
+    : screen_index(p.screen_index), screen(std::move(p.screen)), prev_screen(std::move(p.prev_screen))
+{
+    ASSERT(screen_index >= 0);
+    cursor = p.cursor;
 }
 
 void set_screen_command::execute()
@@ -4261,20 +4307,24 @@ void zmap::DoSetComboCommand(int map, int scr, int pos, int combo, int cset)
 	mapscr* mapscr_ptr = AbsoluteScrMakeValid(map, scr);
 	if (!mapscr_ptr) return;
 
-    std::shared_ptr<set_combo_command> command(new set_combo_command);
-    command->cursor = cursor;
-    command->map = map;
-    command->scr = scr;
-    command->pos = pos;
-    command->combo = combo;
-    command->cset = cset;
-    command->prev_combo = mapscr_ptr->data[pos];
-    command->prev_cset = mapscr_ptr->cset[pos];
-    if ((command->combo != -1 && command->prev_combo == command->combo) && command->cset == command->prev_cset)
+    int prev_combo = mapscr_ptr->data[pos];
+    int prev_cset = mapscr_ptr->cset[pos];
+    if ((combo != -1 && prev_combo == combo) && cset == prev_cset)
     {
         // nothing to do...
         return;
     }
+
+    auto command = std::make_shared<set_combo_command>(set_combo_command::params{
+        .cursor = cursor,
+        .map = map,
+        .scr = scr,
+        .pos = pos,
+        .combo = combo,
+        .cset = cset,
+        .prev_combo = prev_combo,
+        .prev_cset = prev_cset,
+    });
 
     ExecuteCommand(command);
 }
@@ -4286,21 +4336,21 @@ void zmap::DoSetFFCCommand(int map, int scr, int i, set_ffc_command::data_t data
 
 	mapscr_ptr->ensureFFC(i);
 
-	std::shared_ptr<set_ffc_command> command(new set_ffc_command);
-
 	auto prev_data = set_ffc_command::create_data(mapscr_ptr->ffcs[i]);
-
-    command->cursor = cursor;
-    command->map = map;
-    command->scr = scr;
-    command->i = i;
-    command->data = data;
-    command->prev_data = prev_data;
     if (data == prev_data)
     {
         // nothing to do...
         return;
     }
+
+    auto command = std::make_shared<set_ffc_command>(set_ffc_command::params{
+        .cursor = cursor,
+        .map = map,
+        .scr = scr,
+        .i = i,
+        .data = data,
+        .prev_data = prev_data,
+    });
 
     ExecuteCommand(command);
 }
@@ -4329,18 +4379,21 @@ void zmap::DoSetFlagCommand(int map, int scr, int pos, int flag)
 	mapscr* mapscr_ptr = Map.AbsoluteScr(map, scr);
 	if(!mapscr_ptr) return;
 
-    std::shared_ptr<set_flag_command> command(new set_flag_command);
-    command->cursor = cursor;
-    command->map = map;
-    command->scr = scr;
-    command->pos = pos;
-    command->flag = flag;
-    command->prev_flag = mapscr_ptr->sflag[pos];
-    if (command->flag == command->prev_flag)
+    int prev_flag = mapscr_ptr->sflag[pos];
+    if (flag == prev_flag)
     {
         // nothing to do...
         return;
     }
+
+    auto command = std::make_shared<set_flag_command>(set_flag_command::params{
+        .cursor = cursor,
+        .map = map,
+        .scr = scr,
+        .pos = pos,
+        .flag = flag,
+        .prev_flag = prev_flag,
+    });
 
     ExecuteCommand(command);
 }
@@ -4349,11 +4402,12 @@ void zmap::DoSetDoorCommand(int scr, int side, int door)
 {
 	if(screens[scr].door[side] == door)
 		return;
-    std::shared_ptr<set_door_command> command(new set_door_command);
-    command->cursor = cursor;
-    command->side = side;
-    command->door = door;
-    command->prev_door = screens[scr].door[side];
+    auto command = std::make_shared<set_door_command>(set_door_command::params{
+        .cursor = cursor,
+        .side = side,
+        .door = door,
+        .prev_door = screens[scr].door[side],
+    });
 
     ExecuteCommand(command);
 }
@@ -4361,10 +4415,11 @@ void zmap::DoSetDCSCommand(int dcs)
 {
 	if(screens[cursor.screen].door_combo_set == dcs)
 		return;
-    std::shared_ptr<set_dcs_command> command(new set_dcs_command);
-    command->cursor = cursor;
-    command->dcs = dcs;
-    command->prev_dcs = screens[cursor.screen].door_combo_set;
+    auto command = std::make_shared<set_dcs_command>(set_dcs_command::params{
+        .cursor = cursor,
+        .dcs = dcs,
+        .prev_dcs = screens[cursor.screen].door_combo_set,
+    });
 
     ExecuteCommand(command);
 }
@@ -4374,46 +4429,52 @@ void zmap::DoPasteScreenCommand(PasteCommandType type, int screen)
 	if (screen == -1)
 		screen = cursor.screen;
 
-    std::shared_ptr<paste_screen_command> command(new paste_screen_command);
-    command->cursor = cursor;
-    command->type = type;
-    command->screen = std::shared_ptr<mapscr>(new mapscr(copymapscr));
-	command->screen_index = screen;
-
+    std::vector<std::shared_ptr<mapscr>> prev_screens;
     if (type == PasteCommandType::ScreenPartialToEveryScreen || type == PasteCommandType::ScreenAllToEveryScreen)
     {
         for (int i=0; i < 128; i++)
         {
-            command->prev_screens.push_back(std::shared_ptr<mapscr>(new mapscr(screens[i])));
+            prev_screens.push_back(std::make_shared<mapscr>(screens[i]));
         }
     }
     else
     {
-        command->prev_screens.push_back(std::shared_ptr<mapscr>(new mapscr(screens[screen])));
+        prev_screens.push_back(std::make_shared<mapscr>(screens[screen]));
     }
+
+    auto command = std::make_shared<paste_screen_command>(paste_screen_command::params{
+        .cursor = cursor,
+        .type = type,
+        .screen_index = screen,
+        .screen = std::make_shared<mapscr>(copymapscr),
+        .prev_screens = std::move(prev_screens),
+    });
 
     ExecuteCommand(command);
 }
 
 void zmap::DoClearScreenCommand(int screen)
 {
-    std::shared_ptr<set_screen_command> command(new set_screen_command);
-    command->cursor = cursor;
-    command->prev_screen = std::shared_ptr<mapscr>(new mapscr(screens[screen]));
-    command->screen = std::shared_ptr<mapscr>(nullptr);
-	command->screen_index = screen;
+    auto command = std::make_shared<set_screen_command>(set_screen_command::params{
+        .cursor = cursor,
+        .screen_index = screen,
+        .screen = nullptr,
+        .prev_screen = std::make_shared<mapscr>(screens[screen]),
+    });
 
     ExecuteCommand(command);
 }
 
 void zmap::DoTemplateCommand(int floorcombo, int floorcset, int screen)
 {
-    std::shared_ptr<set_screen_command> command(new set_screen_command);
-    command->cursor = cursor;
-    command->screen_index = screen;
-    command->prev_screen = std::shared_ptr<mapscr>(new mapscr(*Map.Scr(screen)));
+    auto prev_screen = std::make_shared<mapscr>(*Map.Scr(screen));
     Template(floorcombo, floorcset, screen);
-    command->screen = std::shared_ptr<mapscr>(new mapscr(*Map.Scr(screen)));
+    auto command = std::make_shared<set_screen_command>(set_screen_command::params{
+        .cursor = cursor,
+        .screen_index = screen,
+        .screen = std::make_shared<mapscr>(*Map.Scr(screen)),
+        .prev_screen = prev_screen,
+    });
 
     ExecuteCommand(command, true);
 }

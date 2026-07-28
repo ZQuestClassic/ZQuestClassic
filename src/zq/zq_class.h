@@ -147,6 +147,14 @@ public:
 class set_combo_command : public user_input_command
 {
 public:
+    struct params
+    {
+        MapCursor cursor;
+        int map, scr, pos, combo, cset;
+        int prev_combo, prev_cset;
+    };
+    explicit set_combo_command(params p);
+
     int map, scr, pos, combo, cset;
     int prev_combo, prev_cset;
 
@@ -171,6 +179,14 @@ public:
 	};
 	static data_t create_data(const ffcdata& ffc);
 
+    struct params
+    {
+        MapCursor cursor;
+        int map, scr, i;
+        data_t data, prev_data;
+    };
+    explicit set_ffc_command(params p);
+
     int map, scr, i;
 	data_t data, prev_data;
 
@@ -181,6 +197,14 @@ public:
 class set_flag_command : public user_input_command
 {
 public:
+    struct params
+    {
+        MapCursor cursor;
+        int map, scr, pos, flag;
+        int prev_flag;
+    };
+    explicit set_flag_command(params p);
+
     int map, scr, pos, flag;
     int prev_flag;
 
@@ -191,6 +215,14 @@ public:
 class set_door_command : public user_input_command
 {
 public:
+    struct params
+    {
+        MapCursor cursor;
+        int side, door;
+        int prev_door;
+    };
+    explicit set_door_command(params p);
+
     int side, door;
     int prev_door;
 
@@ -201,6 +233,14 @@ public:
 class set_dcs_command : public user_input_command
 {
 public:
+    struct params
+    {
+        MapCursor cursor;
+        int dcs;
+        int prev_dcs;
+    };
+    explicit set_dcs_command(params p);
+
     int dcs;
     int prev_dcs;
 
@@ -230,6 +270,16 @@ enum PasteCommandType {
 class paste_screen_command : public user_input_command
 {
 public:
+    struct params
+    {
+        MapCursor cursor;
+        PasteCommandType type;
+        int screen_index = -1;
+        std::shared_ptr<mapscr> screen;
+        std::vector<std::shared_ptr<mapscr>> prev_screens;
+    };
+    explicit paste_screen_command(params p);
+
     PasteCommandType type;
 	int screen_index;
     std::shared_ptr<mapscr> screen;
@@ -246,6 +296,16 @@ private:
 class set_screen_command : public user_input_command
 {
 public:
+    struct params
+    {
+        MapCursor cursor;
+        int screen_index = -1;
+        // A null screen/prev_screen means "clear the screen" on execute/undo.
+        std::shared_ptr<mapscr> screen;
+        std::shared_ptr<mapscr> prev_screen;
+    };
+    explicit set_screen_command(params p);
+
 	int screen_index;
     std::shared_ptr<mapscr> screen;
     std::shared_ptr<mapscr> prev_screen;
