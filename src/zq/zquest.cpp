@@ -2804,12 +2804,14 @@ int32_t onDrawingModeAuto()
 
 int32_t onReTemplate()
 {
-    if (alert_confirm("Confirm Overwrite","Apply NES Dungeon template to all screens on this map?"))
+    if (alert_confirm("Confirm Overwrite","Apply NES Dungeon template to all screens on this map?",
+        std::nullopt, std::nullopt,
+        "This copies the walls of screen 83 onto every screen of the map (creating unmade screens), and can be undone."))
     {
         Map.TemplateAll();
         refresh(rALL);
     }
-    
+
     return D_O_K;
 }
 

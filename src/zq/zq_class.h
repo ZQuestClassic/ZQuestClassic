@@ -418,7 +418,6 @@ public:
     void update_combo_cycling();
     void update_freeform_combos();
     int32_t getMapCount();
-    bool isDungeon(int32_t scr);
     bool isstepable(int32_t combo);
     bool ishookshottable(int32_t bx, int32_t by, int32_t i);
     bool ishookshottable(int32_t map, int32_t screen, int32_t bx, int32_t by, int32_t i);

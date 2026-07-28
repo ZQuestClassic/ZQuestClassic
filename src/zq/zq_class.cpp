@@ -246,19 +246,6 @@ int32_t zmap::getLayerTargetMultiple()
 {
     return layer_target_multiple;
 }
-bool zmap::isDungeon(int32_t scr)
-{
-    for(int32_t i=0; i<4; i++)
-    {
-        if(screens[scr].data[i]!=screens[TEMPLATE].data[i])
-        {
-            return false;
-        }
-    }
-    
-    return true;
-}
-
 bool zmap::clearall(bool validate)
 {
     Color=0;
@@ -826,12 +813,12 @@ int32_t zmap::tcmbflag2(int32_t pos)
 
 void zmap::TemplateAll()
 {
+    // This used to only apply to valid screens whose top-left combos still
+    // matched the template screen's - meaning it silently did nothing on
+    // blank maps, or after editing the template's corner combos.
     StartListCommand();
     for(int32_t i=0; i<128; i++)
-    {
-        if((screens[i].valid&mVALID) && isDungeon(i))
-            DoTemplateCommand(-1, -1, i);
-    }
+        DoTemplateCommand(-1, -1, i);
     FinishListCommand();
 }
 
