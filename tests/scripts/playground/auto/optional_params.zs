@@ -59,8 +59,7 @@ generic script optional_params
 
 		Test::AssertEqual(fn5(), 11);
 
-		// TODO: for some reason this prints an empty string on windows 32bit.
-		// fn6();
+		fn6();
 		fn6("fn6 not default");
 
 		Trace(fn7());
