@@ -1,6 +1,7 @@
 #include <chrono>
 #include <cstring>
 #include <exception>
+#include <numeric>
 #include <string>
 #include <stdexcept>
 #include <map>
@@ -9583,10 +9584,11 @@ void parse_strings_tsv(std::string tsv)
 			util::split(text, strs, ' ');
 			if (strs.size() != 4)
 				throw std::runtime_error("margin field must have 4 components");
+			// Written in top/right/bottom/left order - see writestrings_tsv.
 			msg.margins[0] = std::stoi(strs[0]);
-			msg.margins[1] = std::stoi(strs[1]);
-			msg.margins[2] = std::stoi(strs[2]);
-			msg.margins[3] = std::stoi(strs[3]);
+			msg.margins[3] = std::stoi(strs[1]);
+			msg.margins[1] = std::stoi(strs[2]);
+			msg.margins[2] = std::stoi(strs[3]);
 		} },
 		{ "portrait_tile", [](auto& msg, auto& text){ msg.portrait.tile = std::stoi(text); } },
 		{ "portrait_cset", [](auto& msg, auto& text){ msg.portrait.cset = std::stoi(text); } },
@@ -9681,10 +9683,22 @@ void parse_strings_tsv(std::string tsv)
 		}
 	}
 
-	init_msgstrings(0, msgs.size());
+	init_msgstrings(0, msgs.size() + 1);
 	for (int i = 0; i < msgs.size(); i++)
 		MsgStrings[i + 1] = msgs[i];
 	msg_count = msgs.size() + 1;
+
+	// MsgStr::operator= intentionally does not copy listpos, so apply the
+	// imported 'pos' column explicitly. The editor requires list positions to
+	// be contiguous and unique, so sort by the imported values (stable, so
+	// duplicates or gaps from a hand-edited file keep their row order) and
+	// assign ranks.
+	std::vector<int> order(msgs.size());
+	std::iota(order.begin(), order.end(), 0);
+	std::stable_sort(order.begin(), order.end(), [&](int a, int b){ return msgs[a].listpos < msgs[b].listpos; });
+	for (int rank = 0; rank < (int)order.size(); rank++)
+		MsgStrings[order[rank] + 1].listpos = rank + 1;
+
 	msglistcache.clear();
 }
 
