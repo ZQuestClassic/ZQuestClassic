@@ -7,6 +7,13 @@ endif()
 set(CMAKE_CONFIGURATION_TYPES Asan Debug Release RelWithDebInfo Coverage CACHE STRING INTERNAL FORCE)
 project (ZeldaClassic HOMEPAGE_URL "https://www.zquestclassic.com")
 
+# CMake 4 rejects dependencies whose cmake_minimum_required is below 3.5
+# (allegro_legacy, gme, websocketpp). This raises their policy floor to 3.5;
+# it never lowers anything, and older CMake ignores the variable entirely.
+if(NOT DEFINED CMAKE_POLICY_VERSION_MINIMUM)
+	set(CMAKE_POLICY_VERSION_MINIMUM 3.5)
+endif()
+
 if(UNIX AND NOT APPLE)
 	set(LINUX TRUE)
 endif()
