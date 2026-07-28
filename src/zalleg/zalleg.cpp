@@ -307,6 +307,15 @@ void zalleg_setup_allegro(App id, int argc, char **argv)
 		else
 		{
 			Z_message("OK\n");
+
+			// GME music (.spc/.nsf/.vgm/etc.) is the only audio routed
+			// through the legacy software mixer. Its default per-voice
+			// scale reserves ~6dB of headroom for panning, making a
+			// centered stream play at half amplitude -- noticeably quieter
+			// than the OGG/MP3/tracker streams that go straight to the
+			// Allegro 5 mixer at full gain. Scale 0 lets a single centered
+			// voice play at full volume so GME music matches the rest.
+			set_volume_per_voice(0);
 		}
 	}
 
