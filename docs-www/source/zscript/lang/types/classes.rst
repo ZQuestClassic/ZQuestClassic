@@ -97,11 +97,18 @@ Declaring a function inside a class with the `static` modifier makes the functio
 the class, rather than a part of each object. Static functions have a few differences from normal
 member functions:
 
-- No `this` pointer (meaning no access to any data members from the class)
+- No `this` pointer (meaning no access to any instance variables/functions from the class)
 - Called similarly to :ref:`functions inside namespaces<namespaces>`, except that a `.` is used after the class name, rather than the scope-resolution operator `::`
 
-Effectively, they are functions whose only thing to do with the class, is that they are called using the class's name.
+Effectively, they are global functions inside the class's scope.
 One possible use of such functions would be to create 'named constructors' for different purposes\ [#static]_\ .
+
+Static Variables
+----------------
+
+`static` can also be used on variable declarations. Static variables can be accessed directly
+from all functions (static and instance) in the class, and can be accessed externally in the same way
+as static functions.
 
 Array Data Members
 ------------------

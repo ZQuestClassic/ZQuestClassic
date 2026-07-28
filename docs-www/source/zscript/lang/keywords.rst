@@ -56,7 +56,11 @@ Misc
 	+------------------+-------------------------------------------------------------------+
 	| `class`          | used to declare :ref:`classes<zslang_classes>`                    |
 	+------------------+-------------------------------------------------------------------+
-	| `static`         | Class member modifier for :ref:`static uses<class_static>`        |
+	| `static`         | Variable / function modifier for :ref:`class<class_static>` and   |
+	|                  | :ref:`script<script_static>` uses                                 |
+	+------------------+-------------------------------------------------------------------+
+	| `nonstatic`      | used as an opposite of static, to cancel the effects of           |
+	|                  | :ref:`DEFAULT_STATIC_SCRIPT_MEMBERS<zslang_options>`              |
 	+------------------+-------------------------------------------------------------------+
 	| `namespace`      | used when declaring :ref:`namespaces<namespaces>`                 |
 	+------------------+-------------------------------------------------------------------+
