@@ -4410,6 +4410,7 @@ void zmap::DoTemplateCommand(int floorcombo, int floorcset, int screen)
 {
     std::shared_ptr<set_screen_command> command(new set_screen_command);
     command->cursor = cursor;
+    command->screen_index = screen;
     command->prev_screen = std::shared_ptr<mapscr>(new mapscr(*Map.Scr(screen)));
     Template(floorcombo, floorcset, screen);
     command->screen = std::shared_ptr<mapscr>(new mapscr(*Map.Scr(screen)));
