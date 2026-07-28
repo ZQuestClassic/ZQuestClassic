@@ -298,6 +298,26 @@ class TestZEditor(unittest.TestCase):
                 e.add_note(allegro_log_path.read_text())
             raise e
 
+    def test_roundtrip_strings(self):
+        if 'emscripten' in str(run_target.get_build_folder()):
+            return
+
+        src_qst = root_dir / 'tests/replays/classic_1st/classic_1st.qst'
+        work_qst = tmp_dir / 'strings_work.qst'
+        export1 = tmp_dir / 'strings1.tsv'
+        export2 = tmp_dir / 'strings2.tsv'
+
+        shutil.copy(root_dir / 'tests/replays/playground/playground.qst', work_qst)
+        self.run_zeditor(['-export-strings', src_qst, export1])
+        self.run_zeditor(['-import-strings', work_qst, export1])
+        self.run_zeditor(['-export-strings', work_qst, export2])
+
+        self.assertEqual(
+            export1.read_text(),
+            export2.read_text(),
+            'strings export after import+save differs from original export',
+        )
+
     def test_roundtrip_tiles(self):
         if 'emscripten' in str(run_target.get_build_folder()):
             return

@@ -982,6 +982,32 @@ void zeditor_handle_commands()
 		zq_exit(0);
 	}
 
+	int import_strings_arg = zapp_check_switch("-import-strings", {"qst", "input.tsv"});
+	if (import_strings_arg > 0)
+	{
+		is_zq_replay_test = true;
+		set_headless_mode();
+
+		std::string qst = zapp_get_arg_string(import_strings_arg + 1);
+		std::string input_tsv = zapp_get_arg_string(import_strings_arg + 2);
+
+		int load_ret = load_quest(qst.c_str(), false);
+		if (load_ret != qe_OK) { printf("Failed to load quest: %d\n", load_ret); zq_exit(1); }
+
+		try
+		{
+			parse_strings_tsv(util::read_text_file(input_tsv));
+		}
+		catch (std::exception& ex)
+		{
+			printf("Failed to import strings: %s\n", ex.what());
+			zq_exit(1);
+		}
+
+		if (save_quest(qst.c_str()) != 0) { printf("Failed to save quest\n"); zq_exit(1); }
+		zq_exit(0);
+	}
+
 	int export_tiles_arg = zapp_check_switch("-export-tiles", {"input.qst", "output.ztileset", "start_page", "page_count"});
 	if (export_tiles_arg > 0)
 	{
