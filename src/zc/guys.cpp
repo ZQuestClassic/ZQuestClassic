@@ -1896,7 +1896,7 @@ void enemy::FireBreath(bool seekhero)
 	}
 	
 	addEwpn(wx+xoff,wy+yoff,z,wpn,2,wdp,seekhero ? 0xFF : wdir, getUID(), 0, fakez);
-	sfx(wpnsfx(wpn),pan(x));
+	sfx(firesfx,pan(x));
 	
 	int32_t i=Ewpns.Count()-1;
 	weapon *ew = (weapon*)(Ewpns.spr(i));
@@ -2081,7 +2081,7 @@ void enemy::FireWeapon()
 	default:
 		Ewpns.add(new weapon(x+xoff,y+yoff,z,wpn,2+(dmisc1==e1t3SHOTSFAST || dmisc1==e1tFAST ? 4:0),wdp,wpn==ewFireball2 || wpn==ewFireball ? 0:dir,-1, getUID(),false));
 		((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->fakez = fakez;
-		sfx(wpnsfx(wpn),pan(x));
+		sfx(firesfx,pan(x));
 		break;
 		
 	case e1tSLANT:
@@ -2095,7 +2095,7 @@ void enemy::FireWeapon()
 			
 		Ewpns.add(new weapon(x+xoff,y+yoff,z,wpn,2+(((dir^slant)+1)<<3),wdp,wpn==ewFireball2 || wpn==ewFireball ? 0:dir,-1, getUID(),false));
 		((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->fakez = fakez;
-		sfx(wpnsfx(wpn),pan(x));
+		sfx(firesfx,pan(x));
 		break;
 	}
 	
@@ -2127,7 +2127,7 @@ void enemy::FireWeapon()
 		Ewpns.add(new weapon(x+xoff,y+yoff,z,wpn,0,wdp,right,-1, getUID(),false));
 		((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->fakez = fakez;
 		((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~move_can_pitfall; //No falling in pits
-		sfx(wpnsfx(wpn),pan(x));
+		sfx(firesfx,pan(x));
 		break;
 		
 	case e1tSUMMON: // Bat Wizzrobe
@@ -7885,39 +7885,6 @@ waves2:
 	}
 }
 
-int32_t enemy::wpnsfx(int32_t wpn)
-{
-	switch (wpn)
-	{
-		case wScript1:
-		case wScript2:
-		case wScript3:
-		case wScript4:
-		case wScript5:
-		case wScript6:
-		case wScript7:
-		case wScript8:
-		case wScript9:
-		case wScript10: //sure why not
-		case ewFireTrail:
-		case ewFlame:
-		case ewFlame2Trail:
-		case ewFlame2:
-		case ewWind:
-		case ewMagic:
-		case ewIce:
-			return firesfx;
-
-		case ewRock:
-		case ewFireball2:
-		case ewFireball:
-			if (get_qr(qr_MORESOUNDS)) return firesfx;
-			break;
-	}
-
-	return 0;
-}
-
 int32_t enemy::run_script(int32_t mode)
 {
 	void push_ri();
@@ -10635,7 +10602,7 @@ bool eZora::animate(int32_t index)
 		
 	case 35+19:
 		addEwpn(x,y,z,wpn,2,wdp,dir,getUID(), 0, fakez);
-		sfx(wpnsfx(wpn),pan(x));
+		sfx(firesfx,pan(x));
 		break;
 		
 	case 35+66:
@@ -10774,7 +10741,7 @@ bool eStalfos::animate(int32_t index)
 				((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~move_can_pitfall; //No falling in pits
 				addEwpn(x,y,z,wpn2,0,dmisc4,r_down, getUID(), 0, fakez);
 				((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~move_can_pitfall; //No falling in pits
-				sfx(wpnsfx(wpn2),pan(x));
+				sfx(firesfx,pan(x));
 			}
 		}
 		
@@ -11116,7 +11083,7 @@ bool eStalfos::animate(int32_t index)
 	}
 	else
 	{
-		//sfx(wpnsfx(wpn),pan(x));
+		//sfx(firesfx,pan(x));
 		if(clk2>2) clk2--;
 	}
 	
@@ -11124,7 +11091,7 @@ bool eStalfos::animate(int32_t index)
 	if(wpn && dmisc1==e1tEACHTILE && clk2==1 && !hclk)
 	{
 		addEwpn(x,y,z,wpn,0,wdp,dir, getUID(), 0, fakez);
-		sfx(wpnsfx(wpn),pan(x));
+		sfx(firesfx,pan(x));
 		
 		int32_t i=Ewpns.Count()-1;
 		weapon *ew = (weapon*)(Ewpns.spr(i));
@@ -11202,7 +11169,7 @@ bool eStalfos::animate(int32_t index)
 				{
 					Ewpns.add(new weapon(x,y,z, wpn, 0, wdp, dir, -1,getUID(),false));
 					((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->fakez = fakez;
-					sfx(wpnsfx(wpn),pan(x));
+					sfx(firesfx,pan(x));
 					fired=true;
 				}
 			}
@@ -12636,7 +12603,7 @@ bool eAquamentus::animate(int32_t index)
 		addEwpn(fbx,y,z,wpn,2,wdp,up,getUID(), 0, fakez);
 		addEwpn(fbx,y,z,wpn,2,wdp,8,getUID(), 0, fakez);
 		addEwpn(fbx,y,z,wpn,2,wdp,down,getUID(), 0, fakez);
-		sfx(wpnsfx(wpn),pan(x));
+		sfx(firesfx,pan(x));
 	}
 	
 	if(clk3<-80 && !(zc_oldrand()&63))
@@ -12839,15 +12806,15 @@ bool eGohma::animate(int32_t index)
 			addEwpn(x,y+2,z,wpn,3,wdp,left,getUID(), 0, fakez);
 			addEwpn(x,y+2,z,wpn,3,wdp,8,getUID(), 0, fakez);
 			addEwpn(x,y+2,z,wpn,3,wdp,right,getUID(), 0, fakez);
-			sfx(wpnsfx(wpn),pan(x));
+			sfx(firesfx,pan(x));
 			break;
 			
 		default:
 			if(dmisc1 != 1 && dmisc1 != 2)
 			{
 				addEwpn(x,y+2,z,wpn,3,wdp,8,getUID(), 0, fakez);
-				sfx(wpnsfx(wpn),pan(x));
-				sfx(wpnsfx(wpn),pan(x));
+				sfx(firesfx,pan(x));
+				sfx(firesfx,pan(x));
 			}
 			
 			break;
@@ -13303,7 +13270,7 @@ bool eGanon::animate(int32_t index) //DO NOT ADD a check for do_animation to thi
 		if(++clk2>72 && !(zc_oldrand()&3))
 		{
 			addEwpn(x,y,z,wpn,3,wdp,dir,getUID(), 0, fakez);
-			sfx(wpnsfx(wpn),pan(x));
+			sfx(firesfx,pan(x));
 			clk2=0;
 		}
 		
@@ -14650,7 +14617,7 @@ bool esManhandla::animate(int32_t index)
 	if(!(zc_oldrand()&127))
 	{
 		addEwpn(x,y,z,wpn,3,wdp,dir,getUID(), 0, fakez);
-		sfx(wpnsfx(wpn),pan(x));
+		sfx(firesfx,pan(x));
 	}
 	
 	return enemy::animate(index);
@@ -14858,7 +14825,7 @@ bool eGleeok::animate(int32_t index)
 			int32_t i = zc::math::SafeMod(zc_oldrand(), misc);
 			enemy *head = ((enemy*)guys.spr(index+i+1));
 			addEwpn(head->x,head->y,head->z,wpn,3,wdp,dir,getUID(), 0, head->fakez);
-			sfx(wpnsfx(wpn),pan(x));
+			sfx(firesfx,pan(x));
 			clk2=0;
 		}
 	}
@@ -15838,7 +15805,7 @@ bool ePatra::animate(int32_t index)
 					if(!(zc_oldrand()&127))
 					{
 						addEwpn(guys.spr(i)->x,guys.spr(i)->y,guys.spr(i)->z,wpn,3,wdp,dir,getUID());
-						sfx(wpnsfx(wpn),pan(x));
+						sfx(firesfx,pan(x));
 					}
 					*/
 					if (((esPatra*)guys.spr(i))->clk5 < 0 && (editorflags & ENEMY_FLAG3))
@@ -15888,7 +15855,7 @@ bool ePatra::animate(int32_t index)
 								if (((esPatra*)guys.spr(i))->clk5 == -16 && (((esPatra*)guys.spr(i))->clk4 % 12) == 0)
 								{
 									addEwpn(guys.spr(i)->x,guys.spr(i)->y,guys.spr(i)->z,wpn,3,wdp,dir,getUID(), 0, guys.spr(i)->fakez);
-									sfx(wpnsfx(wpn),pan(x));
+									sfx(firesfx,pan(x));
 								}
 								break;
 							}
@@ -15905,7 +15872,7 @@ bool ePatra::animate(int32_t index)
 									else
 									{
 										addEwpn(guys.spr(i)->x,guys.spr(i)->y,guys.spr(i)->z,wpn,3,wdp,dir,getUID(), 0, guys.spr(i)->fakez);
-										sfx(wpnsfx(wpn),pan(x));
+										sfx(firesfx,pan(x));
 										int32_t m=Ewpns.Count()-1;
 										weapon *ew = (weapon*)(Ewpns.spr(m));
 										
@@ -15918,7 +15885,7 @@ bool ePatra::animate(int32_t index)
 								if (((esPatra*)guys.spr(i))->clk5 == -16)
 								{
 									addEwpn(guys.spr(i)->x,guys.spr(i)->y,guys.spr(i)->z,wpn,3,wdp,dir,getUID(), 0, guys.spr(i)->fakez);
-									sfx(wpnsfx(wpn),pan(x));
+									sfx(firesfx,pan(x));
 									int32_t m=Ewpns.Count()-1;
 									weapon *ew = (weapon*)(Ewpns.spr(m));
 									
@@ -15937,7 +15904,7 @@ bool ePatra::animate(int32_t index)
 								if (((esPatra*)guys.spr(i))->clk5 == -16)
 								{
 									addEwpn(guys.spr(i)->x,guys.spr(i)->y,guys.spr(i)->z,wpn,3,wdp,dir,getUID(), 0, guys.spr(i)->fakez);
-									sfx(wpnsfx(wpn),pan(x));
+									sfx(firesfx,pan(x));
 								}
 								break;
 							}
@@ -15954,7 +15921,7 @@ bool ePatra::animate(int32_t index)
 									else
 									{
 										addEwpn(guys.spr(i)->x,guys.spr(i)->y,guys.spr(i)->z,wpn,3,wdp,dir,getUID(), 0, guys.spr(i)->fakez);
-										sfx(wpnsfx(wpn),pan(x));
+										sfx(firesfx,pan(x));
 										((esPatra*)guys.spr(i))->clk5 = 0;
 										clk5 = 0;
 										if (editorflags & ENEMY_FLAG6) clk4 = 16;
@@ -15963,7 +15930,7 @@ bool ePatra::animate(int32_t index)
 								if ((editorflags & ENEMY_FLAG3) && get_qr(qr_NEWENEMYTILES) && ((esPatra*)guys.spr(i))->clk5 == -16)
 								{
 									addEwpn(guys.spr(i)->x,guys.spr(i)->y,guys.spr(i)->z,wpn,3,wdp,dir,getUID(), 0, guys.spr(i)->fakez);
-									sfx(wpnsfx(wpn),pan(x));
+									sfx(firesfx,pan(x));
 								}
 								break;
 							}
@@ -15982,7 +15949,7 @@ bool ePatra::animate(int32_t index)
 									else
 									{
 										addEwpn(guys.spr(i)->x,guys.spr(i)->y,guys.spr(i)->z,wpn,3,wdp,dir,getUID(), 0, fakez);
-										sfx(wpnsfx(wpn),pan(x));
+										sfx(firesfx,pan(x));
 										((esPatra*)guys.spr(i))->clk5 = 0;
 										if (editorflags & ENEMY_FLAG6) clk4 = 16;
 									}
@@ -15990,7 +15957,7 @@ bool ePatra::animate(int32_t index)
 								if ((editorflags & ENEMY_FLAG3) && get_qr(qr_NEWENEMYTILES) && ((esPatra*)guys.spr(i))->clk5 == -16)
 								{
 									addEwpn(guys.spr(i)->x,guys.spr(i)->y,guys.spr(i)->z,wpn,3,wdp,dir,getUID(), 0, fakez);
-									sfx(wpnsfx(wpn),pan(x));
+									sfx(firesfx,pan(x));
 								}
 								break;
 							}
@@ -16026,7 +15993,7 @@ void ePatra::FirePatraWeapon()
 		else
 			yoff += (hit_height / 2) - 8;
 	}
-	sfx(wpnsfx(wpn),pan(x));
+	sfx(firesfx,pan(x));
 	// TODO(crash): check that .add succeeds.
 	switch (dmisc28)
 	{
@@ -16104,7 +16071,7 @@ void ePatra::FirePatraWeapon()
 			break;
 			
 	}
-	sfx(wpnsfx(wpn),pan(x));
+	sfx(firesfx,pan(x));
 	//+0.46364761
 	//11.80
 }

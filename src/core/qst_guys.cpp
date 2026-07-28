@@ -113,6 +113,70 @@ void guy_update_firesfx(guydata& tempguy)
 	}
 }
 
+// Whether the old `enemy::wpnsfx` returned the fire sound for this weapon.
+bool firesfx_played_for_weapon(int32_t weapon)
+{
+	switch (weapon)
+	{
+	case wScript1:
+	case wScript2:
+	case wScript3:
+	case wScript4:
+	case wScript5:
+	case wScript6:
+	case wScript7:
+	case wScript8:
+	case wScript9:
+	case wScript10:
+	case ewFireTrail:
+	case ewFlame:
+	case ewFlame2Trail:
+	case ewFlame2:
+	case ewWind:
+	case ewMagic:
+	case ewIce:
+		return true;
+	case ewRock:
+	case ewFireball2:
+	case ewFireball:
+		return get_qr(qr_MORESOUNDS);
+	}
+
+	return false;
+}
+
+// Before guy version 60, the fire sound only actually played for some weapon
+// types (see the old `enemy::wpnsfx`). Now that it plays for every weapon
+// type, zero it wherever the old engine kept quiet, so old quests (and the
+// values auto-seeded by `guy_update_firesfx`) still sound the same.
+void guy_silence_unplayed_firesfx(guydata& tempguy)
+{
+	// Wizzrobes play the fire sound directly, for any weapon type.
+	if (tempguy.type == eeWIZZ)
+		return;
+
+	// As do summoning enemies.
+	if ((tempguy.type == eeWALK || tempguy.type == eePROJECTILE) && (tempguy.attributes[0] == e1tSUMMON || tempguy.attributes[0] == e1tSUMMONLAYER))
+		return;
+
+	if (firesfx_played_for_weapon(tempguy.weapon))
+		return;
+
+	// The 'Fire Octo' death effect fires the weapon named by 'Weapon Offset'
+	// rather than the enemy's own weapon, so that one's sound played too.
+	if (tempguy.type == eeWALK && tempguy.attributes[1] == e2tFIREOCTO &&
+		tempguy.weapon && tempguy.weapon != ewBrang)
+	{
+		int32_t death_weapon = tempguy.weapon + tempguy.attributes[2];
+		if (death_weapon <= wEnemyWeapons || death_weapon >= wMax)
+			death_weapon = tempguy.weapon;
+		if (firesfx_played_for_weapon(death_weapon))
+			return;
+	}
+
+	tempguy.firesfx = 0;
+}
+
 void guy_update_weaponflags(guydata& tempguy)
 {
 	tempguy.weap_data.unblockable = 0;
@@ -501,6 +565,7 @@ void init_guys(int32_t guyversion)
         }
 
         guy_update_firesfx(guysbuf[i]);
+		guy_silence_unplayed_firesfx(guysbuf[i]);
 		guy_update_weaponflags(guysbuf[i]);
 		guy_update_weaponspecialsfx(guysbuf[i]);
     }
@@ -1801,6 +1866,10 @@ int32_t readguy_single(PACKFILE *f, word guyversion, word guy_cversion, zquesthe
 	if (guyversion < 51) //reimport the firesfx, zoria ducked up.
 	{
 		guy_update_firesfx(tempguy);
+	}
+	if (guyversion < 60) //the fire sound now plays for every weapon type
+	{
+		guy_silence_unplayed_firesfx(tempguy);
 	}
 	if (guyversion < 52)
 	{
