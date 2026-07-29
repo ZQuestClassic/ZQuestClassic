@@ -620,24 +620,62 @@ static void uninstall_keyboard_handlers()
 	keyboard_callback = nullptr;
 }
 
+// The gfx hash is defined as XXH32 over the frame converted to 24bpp, and it is baked into every
+// recorded replay - so this must keep producing the exact same bytes as blitting the whole frame
+// to a 24bpp bitmap and hashing it.
+//
+// That whole-frame cross-format blit is slow, and unnecessary: allegro's 8bpp -> truecolor blit
+// (blit_from_256) is a pure per-pixel lookup into _palette_expansion_table, so the entire
+// conversion of a frame is described by just 256 entries. So build that lookup *through the same
+// blit* and apply it here, then stream scanlines through the hash.
 static uint32_t hash_bitmap(BITMAP* bitmap)
 {
-	// Reused scratch buffer to convert to a known depth before hashing. Recreate it if
-	// the source dimensions change, otherwise the blit would clip and we'd silently hash
-	// a stale region.
-	static BITMAP* true_bitmap;
-	if (true_bitmap && (true_bitmap->w != bitmap->w || true_bitmap->h != bitmap->h))
-	{
-		destroy_bitmap(true_bitmap);
-		true_bitmap = nullptr;
-	}
-	if (!true_bitmap)
-		true_bitmap = create_bitmap_ex(24, bitmap->w, bitmap->h);
+	DCHECK(bitmap_color_depth(bitmap) == 8);
 
-	blit(bitmap, true_bitmap, 0, 0, 0, 0, bitmap->w, bitmap->h);
-	int depth = bitmap_color_depth(true_bitmap);
-	size_t len = (size_t)true_bitmap->w * true_bitmap->h * BYTES_PER_PIXEL(depth);
-	return XXH32(true_bitmap->dat, len, 0);
+	// Blitting an identity ramp (pixel x holds value x) extracts allegro's conversion table
+	// rather than reimplementing it - byte-identical by construction, no need to replicate its
+	// 6-bit palette scaling or channel order. 256 pixels instead of a whole frame, and redone
+	// every call because the palette can change on any frame.
+	static BITMAP* lut_src;
+	static BITMAP* lut_dst;
+	if (!lut_src)
+	{
+		lut_src = create_bitmap_ex(8, 256, 1);
+		for (int i = 0; i < 256; i++)
+			lut_src->line[0][i] = i;
+		lut_dst = create_bitmap_ex(24, 256, 1);
+	}
+	blit(lut_src, lut_dst, 0, 0, 0, 0, 256, 1);
+
+	// lut[i*3 .. i*3+2] is what palette index i expands to in 24bpp. Copied out of the bitmap
+	// for a tighter inner loop, and padded so the 4-byte read of entry 255 stays in bounds.
+	uint8_t lut[256 * 3 + 1];
+	memcpy(lut, lut_dst->line[0], 256 * 3);
+
+	int w = bitmap->w;
+	// One byte of slack for the last pixel's overlapping 4-byte store.
+	static std::vector<uint8_t> line_buf;
+	line_buf.resize((size_t)w * 3 + 1);
+
+	XXH32_state_t state;
+	XXH32_reset(&state, 0);
+	for (int y = 0; y < bitmap->h; y++)
+	{
+		const uint8_t* src = bitmap->line[y];
+		uint8_t* dst = line_buf.data();
+		for (int x = 0; x < w; x++)
+		{
+			// One 4-byte load/store beats three byte-sized ones. The 4th byte is junk, but
+			// dst only advances by 3, so the next pixel overwrites it.
+			uint32_t v;
+			memcpy(&v, lut + src[x] * 3, 4);
+			memcpy(dst, &v, 4);
+			dst += 3;
+		}
+		XXH32_update(&state, line_buf.data(), (size_t)w * 3);
+	}
+
+	return XXH32_digest(&state);
 }
 
 static void do_recording_poll()
