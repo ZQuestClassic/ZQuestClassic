@@ -8,8 +8,9 @@
 // - Division by constants uses sdiv: AArch64 sdiv rounds toward zero, exactly
 //   matching C semantics and the x64 backend's magic-multiply sequences.
 // - No SSE4.1 gate for CEILING/FLOOR: frintp/frintm are baseline.
-// - Resume after a call/wait is a pc-comparison dispatch at entry rather than
-//   x64's indirect branch (see the comment at the dispatch).
+// - Resume after a call/wait is a pc-comparison dispatch at entry for
+//   functions with few resume points, and x64's indirect branch otherwise
+//   (see the comment at the dispatch).
 // - Conditional branches in very large functions go through emit_cond_branch,
 //   since b.cond only reaches +/-1 MB.
 // - The constant 10000 is kept in a function-wide register (vTenK).
@@ -1946,22 +1947,25 @@ std::optional<JittedFunction> jit_backend_compile_function(zasm_script* script, 
 	// direct branches also keep the resume blocks reachable, so no
 	// annotation is needed.
 	//
-	// A/B knob: resume after a call/wait via an annotated indirect branch,
-	// like the x64 backend (ctx->resume_address holds the resume label's
-	// native address). This works correctly - an early version of this
-	// backend saw asmjit miscompile the pattern (control flow around the
-	// annotation targets collapsed to a branch-to-self), but that was an
-	// artifact of two since-removed conditions (manually pinned physical
-	// callee-saved registers, and the asmjit fork reserving x3/x13-x15 on
-	// AArch64, now scoped to x64 by third_party/asmjit.patch). It is however
-	// ~10% SLOWER on script-heavy quests: an indirect edge cannot carry
-	// per-edge register fixup moves, so the allocator must keep the register
-	// state consistent at every resume label at once, pessimizing the whole
-	// function body. The default pc-comparison dispatch below costs one
-	// compare per resume point at entry but lets every resume edge get its
-	// own fixups, which wins decisively.
+	// Resume after a call/wait either via an annotated indirect branch like
+	// the x64 backend (ctx->resume_address holds the resume label's native
+	// address), or via pc-comparison branches.
+	//
+	// The comparison dispatch lets every resume edge carry its own register
+	// fixup moves, while an indirect edge cannot, forcing the allocator to
+	// keep the register state consistent at every resume label at once and
+	// pessimizing the function body. But it costs one compare per resume
+	// point on every entry, so for a function with many call sites it is
+	// quadratic-feeling in practice: every return from a callee re-walks the
+	// chain. Decompiled 2.50-era quests have global scripts with thousands of
+	// call sites in one function, where the chain made scripts ~30x slower
+	// than the interpreter (and the cost grows the deeper into the function
+	// the game's hot call sites sit). So: comparison dispatch for functions
+	// with few resume points, indirect branch for the rest.
 	static bool annotated_resume = get_flag_bool("-jit-a64-annotated-resume").value_or(false);
-	if (annotated_resume && !state.resume_labels.empty())
+	constexpr size_t max_linear_resume_points = 32;
+	bool use_annotated_resume = annotated_resume || state.resume_labels.size() > max_linear_resume_points;
+	if (use_annotated_resume && !state.resume_labels.empty())
 	{
 		JumpAnnotation* annotation = cc.newJumpAnnotation();
 		for (auto& [k, label] : state.resume_labels)

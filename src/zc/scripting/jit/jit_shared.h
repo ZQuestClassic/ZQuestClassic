@@ -47,8 +47,9 @@ struct JittedExecutionContext
 	// Used by the x64 backend to save the callee-saved registers it pins; the
 	// a64 backend uses virtual registers and leaves this untouched.
 	uint64_t saved_regs[4];
-	// x64 only: the native address to jump to on entry when resuming after a
-	// call or wait. The a64 backend resumes by comparing pc instead.
+	// The native address to jump to on entry when resuming after a call or wait. The x64 backend
+	// always uses this; the a64 backend resumes by either using this (for functions with many
+	// resume points) or by comparing pc instead (for small functions).
 	uintptr_t resume_address;
 };
 
