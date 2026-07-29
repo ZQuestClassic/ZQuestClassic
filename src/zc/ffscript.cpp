@@ -2798,6 +2798,35 @@ int32_t get_register(int32_t arg)
 	if (arg >= SCRIPT_INST_VARS(0) && arg < SCRIPT_INST_VARS(MAX_SCRIPT_INST_VARIABLES))
 		return ri->script_d[arg - SCRIPT_INST_VARS(0)];
 
+	// Fast paths for the registers measured to dominate in script-heavy quests. Each is identical
+	// to its generic handler below; the array accessors keep the register context set so error logs
+	// are unchanged.
+	switch (arg)
+	{
+		case REFFFC: return ZScriptVersion::ffcRefIsSpriteId() ? ri->ffcref : ri->ffcref * 10000;
+		case REFNPC: return ri->npcref;
+		case REFLWPN: return ri->lwpnref;
+		case REFEWPN: return ri->ewpnref;
+		case REFITEM: return ri->itemref;
+		case REFSPRITE: return ri->spriteref;
+		case SCRIPTRAM:
+		case GLOBALRAM:
+		{
+			current_zasm_register = arg;
+			int32_t ret = ArrayH::getElement(GET_D(rINDEX), GET_D(rINDEX2) / 10000);
+			current_zasm_register = 0;
+			return ret;
+		}
+		case SCRIPTRAMD:
+		case GLOBALRAMD:
+		{
+			current_zasm_register = arg;
+			int32_t ret = ArrayH::getElement(GET_D(rINDEX), 0);
+			current_zasm_register = 0;
+			return ret;
+		}
+	}
+
 	int32_t ret = 0;
 	current_zasm_register = arg;
 
@@ -2833,6 +2862,29 @@ void set_register(int32_t arg, int32_t value)
 	{
 		ri->script_d[arg-SCRIPT_INST_VARS(0)] = value;
 		return;
+	}
+
+	// See the matching fast paths in get_register.
+	switch (arg)
+	{
+		case REFFFC: ri->ffcref = ZScriptVersion::ffcRefIsSpriteId() ? value : value / 10000; return;
+		case REFNPC: ri->npcref = value; return;
+		case REFLWPN: ri->lwpnref = value; return;
+		case REFEWPN: ri->ewpnref = value; return;
+		case REFITEM: ri->itemref = value; return;
+		case REFSPRITE: ri->spriteref = value; return;
+		case SCRIPTRAM:
+		case GLOBALRAM:
+			current_zasm_register = arg;
+			ArrayH::setElement(GET_D(rINDEX), GET_D(rINDEX2) / 10000, value);
+			current_zasm_register = 0;
+			return;
+		case SCRIPTRAMD:
+		case GLOBALRAMD:
+			current_zasm_register = arg;
+			ArrayH::setElement(GET_D(rINDEX), 0, value);
+			current_zasm_register = 0;
+			return;
 	}
 
 	current_zasm_register = arg;
