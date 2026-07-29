@@ -1023,8 +1023,12 @@ else()
 	set(zc_dialog_opt_flag -O1)
 endif()
 file(GLOB zc_dialog_sources CONFIGURE_DEPENDS src/dialog/*.cpp)
-set_source_files_properties(${zc_dialog_sources} PROPERTIES
-	COMPILE_OPTIONS "$<$<CONFIG:Release,RelWithDebInfo>:${zc_dialog_opt_flag}>")
+# The Xcode generator rejects per-config per-source COMPILE_OPTIONS; that
+# build is only used for profiling, so just let it compile dialog/ slower.
+if(NOT CMAKE_GENERATOR STREQUAL "Xcode")
+	set_source_files_properties(${zc_dialog_sources} PROPERTIES
+		COMPILE_OPTIONS "$<$<CONFIG:Release,RelWithDebInfo>:${zc_dialog_opt_flag}>")
+endif()
 
 #############################################################
 # ZScript parser
