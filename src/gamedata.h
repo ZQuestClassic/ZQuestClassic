@@ -106,6 +106,7 @@ struct gamedata
 	bounded_map<word,word> gen_exitState {NUMSCRIPTSGENERIC, 0};
 	bounded_map<word,word> gen_reloadState {NUMSCRIPTSGENERIC, 0};
 	bounded_map<word,bounded_vec<byte,int32_t>> gen_initd {NUMSCRIPTSGENERIC, {8, 0}};
+	bounded_map<word,std::map<word,int>> gen_inst_init {NUMSCRIPTSGENERIC, {}};
 	bounded_map<word,uint32_t> gen_eventstate {NUMSCRIPTSGENERIC, 0};
 	bounded_map<word,bounded_map<dword,int32_t>> gen_data {NUMSCRIPTSGENERIC, {0, 0}};
 	
@@ -423,6 +424,7 @@ public:
 		gen_exitState.normalize();
 		gen_reloadState.normalize();
 		gen_initd.normalize();
+		gen_inst_init.normalize();
 		gen_eventstate.normalize();
 		gen_data.normalize();
 		xstates.normalize();

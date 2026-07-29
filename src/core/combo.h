@@ -1,9 +1,8 @@
 #ifndef CORE_COMBO_H_
 #define CORE_COMBO_H_
 
-#include "base/ints.h"
-#include "base/zfix.h"
 #include "base/headers.h"
+#include "base/general.h"
 #include "base/containers.h"
 #include "core/flags.h"
 #include "core/weapon_data.h"
@@ -180,8 +179,7 @@ struct newcombo
 	weapon_data lift_weap_data {weapon_data::def_lifting_data};
 	weapon_data misc_weap_data {weapon_data::def_data};
 	std::string label;
-	word script;
-	int32_t initd[8];
+	script_config scrconfig;
 	int32_t o_tile;
 	byte cur_frame;
 	byte aclk;

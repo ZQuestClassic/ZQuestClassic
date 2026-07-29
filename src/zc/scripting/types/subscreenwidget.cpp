@@ -84,7 +84,7 @@ int32_t subscreenwidget_get_register(int32_t reg)
 		case SUBWIDGPRESSSCRIPT:
 		{
 			if(SubscrWidget* widg = checkSubWidg(GET_REF(subscreenwidgref), {sstACTIVE, sstMAP}))
-				ret = 10000*widg->generic_script;
+				ret = 10000*widg->generic_scrconfig.script;
 			break;
 		}
 		case SUBWIDGREQCOUNTER:
@@ -1344,7 +1344,7 @@ void subscreenwidget_set_register(int32_t reg, int32_t value)
 		case SUBWIDGPRESSSCRIPT:
 		{
 			if(SubscrWidget* widg = checkSubWidg(GET_REF(subscreenwidgref), {sstACTIVE, sstMAP}))
-				widg->generic_script = vbound(value/10000,0,NUMSCRIPTSGENERIC-1);
+				widg->generic_scrconfig.script = vbound(value/10000,0,NUMSCRIPTSGENERIC-1);
 			break;
 		}
 		case SUBWIDGREQCOUNTER:
@@ -2604,7 +2604,7 @@ static ArrayRegistrar SUBWIDGBTNPRESS_registrar(SUBWIDGBTNPRESS, []{
 }());
 
 static ArrayRegistrar SUBWIDGPRESSINITD_registrar(SUBWIDGPRESSINITD, []{
-	static ScriptingArray_ObjectMemberCArray<SubscrWidgetActive, &SubscrWidgetActive::generic_initd> impl;
+	static ScriptingArray_ObjectSubMemberContainer<SubscrWidgetActive, &SubscrWidgetActive::generic_scrconfig, &script_config::run_args> impl;
 	impl.setMul10000(false);
 	return &impl;
 }());

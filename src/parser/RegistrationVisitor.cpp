@@ -600,6 +600,12 @@ void RegistrationVisitor::caseDataDeclList(ASTDataDeclList& host, void*)
 		return;
 	}
 	
+	if (host.was_exported && host.getDeclarations().size() > 1)
+	{
+		handleError(CompileError::Error(&host, "@Export() can't be used on multi-variable declarations!"));
+		return;
+	}
+	
 	if (!host.handled_staticness)
 	{
 		handle_staticness(&host, host.is_static, host.is_nonstatic, scope, false);

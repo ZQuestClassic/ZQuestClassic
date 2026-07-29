@@ -200,6 +200,7 @@ public:
 	}
 	
 	void for_all_items(std::function<void(ListItem const&)>);
+	void for_all_items_mut(std::function<void(ListItem&)>);
 	//Modifies the listdata, and returns a self-reference
 	ListData& filter(std::function<bool(ListItem&)>);
 	ListData& valsort(size_t frozen_start = 0, size_t frozen_end = 0);

@@ -132,7 +132,7 @@ int32_t npcdata_get_register(int32_t reg)
 		case NPCDATAHXOFS: GET_NPCDATA_VAR_INT32(hxofs, "HitXOffset"); break;
 		case NPCDATAHYOFS: GET_NPCDATA_VAR_INT32(hyofs, "HitYOffset"); break;
 		case NPCDATARANDOM: GET_NPCDATA_VAR_INT16(rate, "Random"); break;
-		case NPCDATASCRIPT: GET_NPCDATA_VAR_INT32(script, "Script"); break;
+		case NPCDATASCRIPT: GET_NPCDATA_VAR_INT32(scrconfig.script, "Script"); break;
 		case NPCDATASHEIGHT: GET_NPCDATA_VAR_BYTE(s_height, "SHeight"); break;
 		case NPCDATASIZEFLAG: GET_NPCDATA_VAR_INT32(SIZEflags, "SizeFlags"); break;
 		case NPCDATASTEP: GET_NPCDATA_VAR_INT16(step, "Step"); break;
@@ -152,7 +152,7 @@ int32_t npcdata_get_register(int32_t reg)
 				Z_scripterrlog("Invalid NPC ID passed to npcdata->WeaponScript: %d\n", ri->npcdataref);
 				ret = -10000;
 			}
-			else ret = (nd->weap_data.script *10000);
+			else ret = (nd->weap_data.scrconfig.script *10000);
 			break;
 		}
 		case NPCDATAWIDTH: GET_NPCDATA_VAR_BYTE(width, "Width"); break;
@@ -208,28 +208,6 @@ int32_t npcdata_get_register(int32_t reg)
 				break;
 			}
 			ret = FFCore.get_new_weapondata(wdata_type::npcdata, GET_REF(npcdataref));
-			break;
-		}
-		case NPCMATCHINITDLABEL: 	 //Same form as SetScreenD()
-			//bool npcdata->MatchInitDLabel("label", d)
-		{
-
-			if( !nd ) \
-			{ 
-				Z_scripterrlog("Invalid NPC ID passed to npcdata->%s: %d\n", "MatchInitDLabel()", GET_REF(npcdataref));
-				ret = 0; 
-				break;
-			} 
-
-			int32_t arrayptr = get_register(sarg1);
-			int32_t init_d_index = get_register(sarg2) / 10000;
-
-			string name;
-			ArrayH::getString(arrayptr, name, 256); // What's the limit on name length?
-
-			bool match = (!( strcmp(name.c_str(), nd->initD_label[init_d_index] )));
-
-			ret = ( match ? 10000 : 0 );
 			break;
 		}
 
@@ -306,7 +284,12 @@ void npcdata_set_register(int32_t reg, int32_t value)
 		case NPCDATAHXOFS: SET_NPCDATA_VAR_INT(hxofs, "HitXOffset"); break;
 		case NPCDATAHYOFS: SET_NPCDATA_VAR_INT(hyofs, "HitYOffset"); break;
 		case NPCDATARANDOM: SET_NPCDATA_VAR_WORD(rate, "Random"); break;
-		case NPCDATASCRIPT: SET_NPCDATA_VAR_BYTE(script, "Script"); break;
+		case NPCDATASCRIPT:
+			nd->scrconfig.script = vbound((value / 10000),0,NUMSCRIPTGUYS-1);
+			if ( get_qr(qr_CLEARINITDONSCRIPTCHANGE))
+				nd->scrconfig.run_args.fill(0);
+			nd->scrconfig.inst_init.clear();
+			break;
 		case NPCDATASHEIGHT: SET_NPCDATA_VAR_BYTE(s_height, "SHeight"); break;
 		case NPCDATASIZEFLAG: SET_NPCDATA_VAR_INT(SIZEflags, "SizeFlags"); break;
 		case NPCDATASTEP: SET_NPCDATA_VAR_WORD(step, "Step"); break;
@@ -321,7 +304,10 @@ void npcdata_set_register(int32_t reg, int32_t value)
 		case NPCDATAWEAPONDAMAGE: SET_NPCDATA_VAR_WORD(wdp, "WeaponDamage"); break;
 		case NPCDATAWEAPONSCRIPT: 
 		{
-			nd->weap_data.script = vbound((value / 10000),0,214747);
+			nd->weap_data.scrconfig.script = vbound((value / 10000),0,NUMSCRIPTWEAPONS-1);
+			if ( get_qr(qr_CLEARINITDONSCRIPTCHANGE))
+				nd->weap_data.scrconfig.run_args.fill(0);
+			nd->weap_data.scrconfig.inst_init.clear();
 			break;
 		}
 		case NPCDATAWIDTH: SET_NPCDATA_VAR_BYTE(width, "Width"); break;
@@ -370,7 +356,7 @@ static ArrayRegistrar NPCDATADEFENSE_registrar(NPCDATADEFENSE, []{
 }());
 
 static ArrayRegistrar NPCDATAINITD_registrar(NPCDATAINITD, []{
-	static ScriptingArray_ObjectMemberCArray<guydata, &guydata::initD> impl;
+	static ScriptingArray_ObjectSubMemberContainer<guydata, &guydata::scrconfig, &script_config::run_args> impl;
 	impl.compatSetDefaultValue(-10000);
 	impl.setMul10000(false);
 	impl.setValueTransform(transforms::vbound<0, 214747>);
@@ -378,7 +364,7 @@ static ArrayRegistrar NPCDATAINITD_registrar(NPCDATAINITD, []{
 }());
 
 static ArrayRegistrar NPCDATAWEAPONINITD_registrar(NPCDATAWEAPONINITD, []{
-	static ScriptingArray_ObjectSubMemberCArray<guydata, &guydata::weap_data, &weapon_data::initd> impl;
+	static ScriptingArray_ObjectSubSubMemberContainer<guydata, &guydata::weap_data, &weapon_data::scrconfig, &script_config::run_args> impl;
 	impl.compatSetDefaultValue(-10000);
 	impl.setMul10000(false);
 	impl.setValueTransform(transforms::vbound<0, 214747>);

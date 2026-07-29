@@ -57,18 +57,18 @@ void draw_subscrs(BITMAP* dest, int x, int y, bool showtime, int pos)
 
 bool run_active_subscript(bool waitdraw)
 {
-	if (new_subscreen_active && new_subscreen_active->script && FFCore.doscript(ScriptType::EngineSubscreen, sstACTIVE)
+	if (new_subscreen_active && new_subscreen_active->scrconfig.script && FFCore.doscript(ScriptType::EngineSubscreen, sstACTIVE)
 		&& (!waitdraw || FFCore.waitdraw(ScriptType::EngineSubscreen, sstACTIVE)))
 	{
-		auto ret = ZScriptVersion::RunScript(ScriptType::EngineSubscreen, new_subscreen_active->script, sstACTIVE);
+		auto ret = ZScriptVersion::RunScript(ScriptType::EngineSubscreen, new_subscreen_active->scrconfig.script, sstACTIVE);
 		if (ret == RUNSCRIPT_SELFDELETE)
 			return true;
 		if (waitdraw) FFCore.waitdraw(ScriptType::EngineSubscreen, sstACTIVE) = false;
 	}
-	if (new_subscreen_map && new_subscreen_map->script && FFCore.doscript(ScriptType::EngineSubscreen, sstMAP)
+	if (new_subscreen_map && new_subscreen_map->scrconfig.script && FFCore.doscript(ScriptType::EngineSubscreen, sstMAP)
 		&& (!waitdraw || FFCore.waitdraw(ScriptType::EngineSubscreen, sstMAP)))
 	{
-		auto ret = ZScriptVersion::RunScript(ScriptType::EngineSubscreen, new_subscreen_map->script, sstMAP);
+		auto ret = ZScriptVersion::RunScript(ScriptType::EngineSubscreen, new_subscreen_map->scrconfig.script, sstMAP);
 		if (ret == RUNSCRIPT_SELFDELETE)
 			return true;
 		if (waitdraw) FFCore.waitdraw(ScriptType::EngineSubscreen, sstMAP) = false;
@@ -297,9 +297,9 @@ void dosubscr()
 							| ((use_x && (!can_unequip || Xwpn != data)) ? INT_BTN_X : 0)
 							| ((use_y && (!can_unequip || Ywpn != data)) ? INT_BTN_Y : 0);
 					}
-					if(widg->generic_script && (bpress&widg->gen_script_btns))
+					if(widg->generic_scrconfig.script && (bpress&widg->gen_script_btns))
 					{
-						FFCore.runGenericFrozenEngine(widg->generic_script, widg->generic_initd);
+						FFCore.runGenericFrozenEngine(widg->generic_scrconfig);
 						data = widg->getItemVal(); //update incase script changed
 						if(must_equip) //update values depending on data.id
 						{

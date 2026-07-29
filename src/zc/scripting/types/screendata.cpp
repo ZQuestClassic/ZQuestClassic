@@ -309,7 +309,7 @@ int32_t screendata_get_register(int32_t reg)
 			break;
 		}
 		case SCREENSCRIPT:
-			ret=scr->script*10000;
+			ret=scr->scrconfig.script*10000;
 			break;
 		case SCREENSECRETSTRIGGERED:
 		{
@@ -575,13 +575,10 @@ void screendata_set_register(int32_t reg, int32_t value)
 		}
 		case SCREENSCRIPT:
 		{
-			if ( get_qr(qr_CLEARINITDONSCRIPTCHANGE))
-			{
-				for(int32_t q=0; q<8; q++)
-					scr->screeninitd[q] = 0;
-			}
-
-			scr->script=vbound(value/10000, 0, NUMSCRIPTSCREEN-1);
+			if (get_qr(qr_CLEARINITDONSCRIPTCHANGE))
+				scr->scrconfig.run_args.fill(0);
+			scr->scrconfig.inst_init.clear();
+			scr->scrconfig.script=vbound(value/10000, 0, NUMSCRIPTSCREEN-1);
 			on_reassign_script_engine_data(ScriptType::Screen, ri->screenref);
 			break;
 		}
@@ -1134,7 +1131,7 @@ static ArrayRegistrar SCREENDATATILEWARPDMAP_registrar(SCREENDATATILEWARPDMAP, [
 }());
 
 static ArrayRegistrar SCREENINITD_registrar(SCREENINITD, []{
-	static ScriptingArray_ObjectMemberCArray<screendata, &screendata::screeninitd> impl;
+	static ScriptingArray_ObjectSubMemberContainer<screendata, &screendata::scrconfig, &script_config::run_args> impl;
 	impl.setMul10000(false);
 	return &impl;
 }());

@@ -189,7 +189,7 @@ int32_t lweapon_get_register(int32_t reg)
 			ret=((int32_t)s->scale)*100.0;
 			break;
 		case LWPNSCRIPT:
-			ret=(s->script)*10000;
+			ret=(s->scrconfig.script)*10000;
 			break;
 		case LWPNSCRIPTFLIP:
 			ret=s->scriptflip*10000;
@@ -564,12 +564,10 @@ void lweapon_set_register(int32_t reg, int32_t value)
 			s->scale=(zfix)(value/100.0);
 			break;
 		case LWPNSCRIPT:
-			(s->script)=vbound(value/10000,0,NUMSCRIPTWEAPONS-1);
-			if ( get_qr(qr_CLEARINITDONSCRIPTCHANGE))
-			{
-				for(int32_t q=0; q<8; q++)
-					(s->initD[q]) = 0;
-			}
+			(s->scrconfig.script)=vbound(value/10000,0,NUMSCRIPTWEAPONS-1);
+			if (get_qr(qr_CLEARINITDONSCRIPTCHANGE))
+				s->scrconfig.run_args.fill(0);
+			s->scrconfig.inst_init.clear();
 			on_reassign_script_engine_data(ScriptType::Lwpn, ri->lwpnref);
 			break;
 		case LWPNSCRIPTFLIP:

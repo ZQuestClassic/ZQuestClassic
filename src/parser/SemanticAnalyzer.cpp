@@ -545,6 +545,12 @@ void SemanticAnalyzer::caseDataDeclList(ASTDataDeclList& host, void*)
 			handleError(CompileError::GroupAuto(&host));
 			return;
 		}
+		
+		if (host.was_exported && host.getDeclarations().size() > 1)
+		{
+			handleError(CompileError::Error(&host, "@Export() can't be used on multi-variable declarations!"));
+			return;
+		}
 	}
 	// Recurse on list contents.
 	visit_vec(host.getDeclarations());

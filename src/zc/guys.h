@@ -94,8 +94,6 @@ public:
 	dmisc24, dmisc25, dmisc26, dmisc27, dmisc28, dmisc29, dmisc30, dmisc31, dmisc32;
 	int32_t movement[32]; //Reserved for npc movement types and args. 
 	int32_t new_weapon[32]; //Reserved for weapon patterns and args.
-	word npcscript; 
-	int32_t initD[8];
 	byte stickclk;
    
 	int32_t editorflags; //Enemy editor flags 1 to 16

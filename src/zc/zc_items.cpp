@@ -140,7 +140,7 @@ int32_t select_dropitem(int32_t item_set, int32_t x, int32_t y)
 int32_t item::run_script(int32_t mode)
 {
 	if(switch_hooked && !get_qr(qr_SWITCHOBJ_RUN_SCRIPT)) return RUNSCRIPT_OK;
-	if (script <= 0 || script >= NUMSCRIPTSITEMSPRITE || FFCore.getQuestHeaderInfo(vZelda) < 0x255 || FFCore.system_suspend[susptITEMSPRITESCRIPTS])
+	if (scrconfig.script <= 0 || scrconfig.script >= NUMSCRIPTSITEMSPRITE || FFCore.getQuestHeaderInfo(vZelda) < 0x255 || FFCore.system_suspend[susptITEMSPRITESCRIPTS])
 		return RUNSCRIPT_OK;
 	auto scrty = *get_scrtype();
 	auto uid = getUID();
@@ -151,11 +151,11 @@ int32_t item::run_script(int32_t mode)
 	switch(mode)
 	{
 		case MODE_NORMAL:
-			return ZScriptVersion::RunScript(ScriptType::ItemSprite, script, uid);
+			return ZScriptVersion::RunScript(ScriptType::ItemSprite, scrconfig.script, uid);
 		case MODE_WAITDRAW:
 			if(waitdraw)
 			{
-				ret = ZScriptVersion::RunScript(ScriptType::ItemSprite, script, uid);
+				ret = ZScriptVersion::RunScript(ScriptType::ItemSprite, scrconfig.script, uid);
 				waitdraw = false;
 			}
 			break;

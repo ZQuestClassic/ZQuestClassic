@@ -1892,7 +1892,10 @@ GUI::ListData instructionRulesList
 		" When disabled, the more capable ascii encoding is used."},
 	{ "Game->Generic[GEN_CONTINUEHEARTS] is in 'Hearts'", qr_SCRIPT_CONTHP_IS_HEARTS,
 		"If checked, read/write to 'Game->Generic[GEN_CONTINUEHEARTS]' is in 'Hearts'. Otherwise,"
-		" it will be in 'HP'. (Has no effect if 'Game->Generic[GEN_CONTINUEISPERCENT]' is true)"}
+		" it will be in 'HP'. (Has no effect if 'Game->Generic[GEN_CONTINUEISPERCENT]' is true)" },
+	{ "Writing to some ->InitD[] affects others", qr_SCRIPTS_SHARE_INITD,
+		"If checked, writes to 'itemdata->InitD[]' also modify 'itemdata->PickupInitD[]' and"
+		" 'itemdata->SpriteInitD[]', and writes to 'dmapdata->SubInitD[]' also modify 'dmapdata->PassiveSubInitD[]'." }
 	
 };
 

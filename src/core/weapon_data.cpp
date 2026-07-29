@@ -17,9 +17,7 @@ void weapon_data::clear_lifting()
 }
 bool weapon_data::is_blank_lifting() const
 {
-	weapon_data w;
-	w.clear_lifting();
-	return *this == w;
+	return *this == def_lifting_data;
 }
 
 weapon_data weapon_data::make_blank_lifting()

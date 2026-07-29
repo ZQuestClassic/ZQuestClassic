@@ -244,6 +244,7 @@ namespace ZScript
 		virtual bool isUntyped() const {return false;}
 		virtual bool isVoid() const {return false;}
 		virtual bool isAuto() const {return false;}
+		virtual bool isBool() const {return false;}
 		virtual bool isCustom() const {return false;}
 		virtual bool isEnum() const {return false;}
 		virtual bool isBitflagsEnum() const {return false;}
@@ -348,6 +349,7 @@ namespace ZScript
 		virtual bool isUntyped() const {return simpleId == ZTID_UNTYPED;}
 		virtual bool isVoid() const {return simpleId == ZTID_VOID;}
 		virtual bool isAuto() const {return simpleId == ZTID_AUTO;}
+		virtual bool isBool() const {return simpleId == ZTID_BOOL;}
 		virtual bool isLong() const {return simpleId == ZTID_LONG;}
 
 		int32_t getId() const {return simpleId;}

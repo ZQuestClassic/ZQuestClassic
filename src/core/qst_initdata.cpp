@@ -1702,6 +1702,15 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header)
 			temp_zinit.hero_itembox_yofs = 0;
 			temp_zinit.hero_itembox_height = 16;
 		}
+		if (s_version >= 50)
+		{
+			if (!p_getbmap(&temp_zinit.gen_inst_init, f))
+				return qe_invalid;
+			if (!p_getarr(&temp_zinit.global_scrconfig, f))
+				return qe_invalid;
+			if (!p_getarr(&temp_zinit.hero_scrconfig, f))
+				return qe_invalid;
+		}
 	}
 	
 	if(s_version < 46)

@@ -993,8 +993,8 @@ template<typename T_Object, auto T_MemberPtr>
 class ScriptingArray_ObjectMemberContainer : public IScriptingArray
 {
 public:
-	using MemberType = field_type<T_MemberPtr>::type;
-	using ElementType = MemberType::value_type;
+	using ContainerType = field_type<T_MemberPtr>::type;
+	using ElementType = ContainerType::value_type;
 
 	size_t getSize(int ref) const override
 	{
@@ -1013,7 +1013,7 @@ public:
 
 		if (auto resolved_index = resolveIndex(index, container.size(), m_boundGetterIndex))
 		{
-			if constexpr (is_gettable_container<MemberType>)
+			if constexpr (is_gettable_container<ContainerType>)
 				return container.get(*resolved_index) * (m_mul10000 ? 10000 : 1);
 			else
 				return container[*resolved_index] * (m_mul10000 ? 10000 : 1);
@@ -1037,10 +1037,145 @@ public:
 		if (auto val = transformValue<ElementType>(value))
 		{
 			container[index] = val.value();
+			
+			if (m_writeSideEffect)
+				m_writeSideEffect(obj, &container, index, val.value());
 			return true;
 		}
 		return false;
 	}
+	void setSideEffect(std::function<void(T_Object*, ContainerType*, int, int)> writeSideEffect) { m_writeSideEffect = std::move(writeSideEffect); }
+
+private:
+	std::function<void(T_Object*, ContainerType*, int, int)> m_writeSideEffect;
+};
+
+template<typename T_Object, auto T_MemberPtr, auto T_SubMemberPtr>
+class ScriptingArray_ObjectSubMemberContainer : public IScriptingArray
+{
+public:
+	using MemberType = field_type<T_MemberPtr>::type;
+	using ContainerType = field_type<T_SubMemberPtr>::type;
+	using ElementType = ContainerType::value_type;
+
+	size_t getSize(int ref) const override
+	{
+		auto* obj = resolveScriptingObject<T_Object>(ref);
+		if (!obj) return 0;
+
+		return (obj->*T_MemberPtr.*T_SubMemberPtr).size();
+	}
+
+	int getElement(int ref, int index) const override
+	{
+		auto* obj = resolveScriptingObject<T_Object>(ref);
+		if (!obj) return getDefaultValue();
+
+		const auto& container = obj->*T_MemberPtr.*T_SubMemberPtr;
+
+		if (auto resolved_index = resolveIndex(index, container.size(), m_boundGetterIndex))
+		{
+			if constexpr (is_gettable_container<ContainerType>)
+				return container.get(*resolved_index) * (m_mul10000 ? 10000 : 1);
+			else
+				return container[*resolved_index] * (m_mul10000 ? 10000 : 1);
+		}
+
+		return getDefaultValue();
+	}
+
+	bool setElement(int ref, int index, int value) override
+	{
+		auto* obj = resolveScriptingObject<T_Object>(ref);
+		if (!obj) return false;
+
+		auto& member = (obj->*T_MemberPtr);
+		auto& container = (member.*T_SubMemberPtr);
+
+		if (auto resolved_index = resolveIndex(index, container.size(), m_boundSetterIndex))
+			index = *resolved_index;
+		else
+			return false;
+
+		if (auto val = transformValue<ElementType>(value))
+		{
+			container[index] = val.value();
+			
+			if (m_writeSideEffect)
+				m_writeSideEffect(obj, &member, &container, index, val.value());
+			return true;
+		}
+		return false;
+	}
+	void setSideEffect(std::function<void(T_Object*, MemberType*, ContainerType*, int, int)> writeSideEffect) { m_writeSideEffect = std::move(writeSideEffect); }
+
+private:
+	std::function<void(T_Object*, MemberType*, ContainerType*, int, int)> m_writeSideEffect;
+};
+
+template<typename T_Object, auto T_MemberPtr, auto T_SubMemberPtr, auto T_SubSubMemberPtr>
+class ScriptingArray_ObjectSubSubMemberContainer : public IScriptingArray
+{
+public:
+	using MemberType = field_type<T_MemberPtr>::type;
+	using SubMemberType = field_type<T_SubMemberPtr>::type;
+	using ContainerType = field_type<T_SubSubMemberPtr>::type;
+	using ElementType = ContainerType::value_type;
+
+	size_t getSize(int ref) const override
+	{
+		auto* obj = resolveScriptingObject<T_Object>(ref);
+		if (!obj) return 0;
+
+		return (obj->*T_MemberPtr.*T_SubMemberPtr.*T_SubSubMemberPtr).size();
+	}
+
+	int getElement(int ref, int index) const override
+	{
+		auto* obj = resolveScriptingObject<T_Object>(ref);
+		if (!obj) return getDefaultValue();
+
+		const auto& container = obj->*T_MemberPtr.*T_SubMemberPtr.*T_SubSubMemberPtr;
+
+		if (auto resolved_index = resolveIndex(index, container.size(), m_boundGetterIndex))
+		{
+			if constexpr (is_gettable_container<ContainerType>)
+				return container.get(*resolved_index) * (m_mul10000 ? 10000 : 1);
+			else
+				return container[*resolved_index] * (m_mul10000 ? 10000 : 1);
+		}
+
+		return getDefaultValue();
+	}
+
+	bool setElement(int ref, int index, int value) override
+	{
+		auto* obj = resolveScriptingObject<T_Object>(ref);
+		if (!obj) return false;
+
+		auto& member = (obj->*T_MemberPtr);
+		auto& sub_member = (member.*T_SubMemberPtr);
+		auto& container = (sub_member.*T_SubSubMemberPtr);
+
+		if (auto resolved_index = resolveIndex(index, container.size(), m_boundSetterIndex))
+			index = *resolved_index;
+		else
+			return false;
+
+		if (auto val = transformValue<ElementType>(value))
+		{
+			container[index] = val.value();
+			
+			if (m_writeSideEffect)
+				m_writeSideEffect(obj, &member, &sub_member, &container, index, val.value());
+			return true;
+		}
+		return false;
+	}
+	void setSideEffect(std::function<void(T_Object*, MemberType*, SubMemberType*, ContainerType*, int, int)> writeSideEffect) { m_writeSideEffect = std::move(writeSideEffect); }
+
+private:
+	std::function<void(T_Object*, MemberType*, SubMemberType*, ContainerType*, int, int)> m_writeSideEffect;
 };
 
 struct ArrayRegistrar

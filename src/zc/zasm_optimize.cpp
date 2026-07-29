@@ -359,7 +359,7 @@ static bool optimize_conseq_additive(OptContext& ctx)
 
 				// D5 is a special "null" register - it is never valid to read
 				// from it, so we are free to remove writes.
-				// ...except for the initial script call, which may have set initd[5].
+				// ...except for the initial script call, which may have set run_args[5].
 				if (!(prev_arg1 == arg1 || (!is_entry_fn && prev_arg1 == D(5))))
 					break;
 

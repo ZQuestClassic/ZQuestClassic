@@ -18,10 +18,6 @@ void mark_save_dirty();
 extern script_data *genericscripts[NUMSCRIPTSGENERIC];
 
 static bool life_in_hearts;
-void call_geninit_wzrd(zinitdata& start, size_t index)
-{
-	InitGenscriptWizard(start,index).show();
-}
 void call_init_dlg(zinitdata& sourcezinit, bool zc)
 {
 	life_in_hearts = zc_get_config("misc","init_data_life_in_hearts",1);
@@ -778,26 +774,25 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 		)
 	);
 	
-	if(!isZC)
-	{
-		tabs->add(TabRef(name = "GenScript", Row(
-				List(minheight = 300_px,
-					data = list_genscr,
-					selectedIndex = genscr_index,
-					onSelectFunc = [&](int32_t val)
-					{
-						genscr_index = (size_t)val;
-						genscr_btn->setDisabled(!val);
-					}),
-				genscr_btn = Button(text = "Edit",
-					disabled = !genscr_index,
-					onPressFunc = [&]()
-					{
-						if(genscr_index)
-							InitGenscriptWizard(local_zinit,genscr_index).show();
-					})
-			)));
-	}
+#ifndef IS_PLAYER
+	tabs->add(TabRef(name = "GenScript", Row(
+		List(minheight = 300_px,
+			data = list_genscr,
+			selectedIndex = genscr_index,
+			onSelectFunc = [&](int32_t val)
+			{
+				genscr_index = (size_t)val;
+				genscr_btn->setDisabled(!val);
+			}),
+		genscr_btn = Button(text = "Edit",
+			disabled = !genscr_index,
+			onPressFunc = [&]()
+			{
+				if(genscr_index)
+					InitGenscriptWizard(local_zinit,genscr_index).show();
+			})
+	)));
+#endif
 	
 	return window;
 }
@@ -821,36 +816,12 @@ bool InitDataDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 	return false;
 }
 
+#ifndef IS_PLAYER
+#include "script_data_editor.h"
 
 InitGenscriptWizard::InitGenscriptWizard(zinitdata& start, size_t index):
 	local_zinit(start), dest_zinit(start), index(index)
 {}
-std::shared_ptr<GUI::Widget> InitGenscriptWizard::GEN_INITD(int ind,zasm_meta const& meta)
-{
-	using namespace GUI::Builder;
-	using namespace GUI::Props;
-	std::string lbl = meta.initd[ind];
-	if(lbl.empty())
-		lbl = "InitD["+std::to_string(ind)+"]";
-	return Row(padding = 0_px,
-		Label(text = lbl, hAlign = 1.0),
-		Button(forceFitH = true, text = "?",
-			hPadding = 0_px,
-			disabled = meta.initd_help[ind].empty(),
-			onPressFunc = [&, ind]()
-			{
-				InfoDialog("InitD Info",meta.initd_help[ind]).show();
-			}),
-		TextField(
-			fitParent = true, minwidth = 8_em,
-			type = GUI::TextField::type::SWAP_ZSINT2,
-			val = local_zinit.gen_initd.get(index).get(ind), swap_type = meta.initd_type[ind],
-			onValChangedFunc = [&, ind](GUI::TextField::type,std::string_view,int32_t val)
-			{
-				local_zinit.gen_initd[index][ind] = val;
-			})
-	);
-}
 
 #define GEN_EXSTATE_RELOAD         0x01
 #define GEN_EXSTATE_CONTINUE       0x02
@@ -1016,7 +987,35 @@ std::shared_ptr<GUI::Widget> InitGenscriptWizard::view()
 						{
 							if(!local_zinit.gen_data.get(index).empty())
 								call_edit_map(local_zinit.gen_data[index], true);
-						})
+						}),
+					Button(
+						text = "InitD / Var Setup",
+						colSpan = 3, fitParent = true,
+						onPressFunc = [&]()
+						{
+							script_config scrconfig;
+							
+							scrconfig.script = index;
+							auto const& start_run_args = local_zinit.gen_initd.get(index);
+							for (int q = 0; q < 8; ++q)
+								scrconfig.run_args[q] = start_run_args.get(q);
+							scrconfig.inst_init = local_zinit.gen_inst_init.get(index);
+							
+							ScriptDataDialog(fmt::format("Generic '{}' #{} Script Setup", meta.script_name, index),
+								scrconfig, GUI::ListData(), genericscripts).show();
+							
+							bounded_vec<byte,int32_t> end_run_args {8};
+							for (int q = 0; q < 8; ++q)
+							{
+								if (int v = scrconfig.run_args[q])
+									end_run_args[q] = v;
+							}
+							if (end_run_args != local_zinit.gen_initd.get(index))
+								local_zinit.gen_initd[index] = end_run_args;
+							if (scrconfig.inst_init != local_zinit.gen_inst_init.get(index))
+								local_zinit.gen_inst_init[index] = scrconfig.inst_init;
+						}
+					)
 				)
 			)
 		)
@@ -1189,19 +1188,6 @@ std::shared_ptr<GUI::Widget> InitGenscriptWizard::view()
 			)
 		)
 	));
-	//InitD
-	tabs->add(TabRef(name = "InitD",
-		Column(padding = 0_px,
-			GEN_INITD(0,meta),
-			GEN_INITD(1,meta),
-			GEN_INITD(2,meta),
-			GEN_INITD(3,meta),
-			GEN_INITD(4,meta),
-			GEN_INITD(5,meta),
-			GEN_INITD(6,meta),
-			GEN_INITD(7,meta)
-		)
-	));
 	
 	return window;
 }
@@ -1216,6 +1202,7 @@ bool InitGenscriptWizard::handleMessage(const GUI::DialogMessage<message>& msg)
 			dest_zinit.gen_exitState[index] = local_zinit.gen_exitState.get(index);
 			dest_zinit.gen_reloadState[index] = local_zinit.gen_reloadState.get(index);
 			dest_zinit.gen_initd[index] = local_zinit.gen_initd.get(index);
+			dest_zinit.gen_inst_init[index] = local_zinit.gen_inst_init.get(index);
 			dest_zinit.gen_data[index] = local_zinit.gen_data.get(index);
 			dest_zinit.gen_eventstate[index] = local_zinit.gen_eventstate.get(index);
 		}
@@ -1227,3 +1214,4 @@ bool InitGenscriptWizard::handleMessage(const GUI::DialogMessage<message>& msg)
 	return false;
 }
 
+#endif

@@ -1209,6 +1209,9 @@ int icon_proportion(int icon,int s1,int s2)
 		case BTNICON_MINUS:
 			sz += 4;
 			break;
+		case BTNICON_LOOP_ARROW:
+			sz = zc_min(s1,s2)-2;
+			break;
 	}
 	return sz;
 }
@@ -1307,92 +1310,94 @@ void jwin_draw_icon(BITMAP *dest, int x, int y, int col, int icon, int aw, int a
 			break;
 	}
 	int woff = (aw/2)+1, hoff = (ah/2)+1;
-	int cx = center ? (x-aw/2) : x,
-		cy = center ? (y-ah/2) : y;
+	int ulx = center ? (x-aw/2) : x,
+		uly = center ? (y-ah/2) : y;
+	int cx = center ? x : (x+aw/2),
+		cy = center ? y : (y+ah/2);
 	switch(icon)
 	{
 		case BTNICON_ARROW_UP:
-			draw_arrow(dest, col, x, cy, ah, true, center);
+			draw_arrow(dest, col, x, uly, ah, true, center);
 			break;
 		case BTNICON_ARROW_DOWN:
-			draw_arrow(dest, col, x, cy, ah, false, center);
+			draw_arrow(dest, col, x, uly, ah, false, center);
 			break;
 		case BTNICON_ARROW_LEFT:
-			draw_arrow_horz(dest, col, cx, y, aw, true, center);
+			draw_arrow_horz(dest, col, ulx, y, aw, true, center);
 			break;
 		case BTNICON_ARROW_RIGHT:
-			draw_arrow_horz(dest, col, cx, y, aw, false, center);
+			draw_arrow_horz(dest, col, ulx, y, aw, false, center);
 			break;
 		case BTNICON_CONTRACT_VERT:
-			draw_arrow(dest, col, x, cy-hoff, ah, false, center);
-			draw_arrow(dest, col, x, cy+hoff, ah, true, center);
+			draw_arrow(dest, col, x, uly-hoff, ah, false, center);
+			draw_arrow(dest, col, x, uly+hoff, ah, true, center);
 			break;
 		case BTNICON_EXPAND_VERT:
-			draw_arrow(dest, col, x, cy-hoff, ah, true, center);
-			draw_arrow(dest, col, x, cy+hoff, ah, false, center);
+			draw_arrow(dest, col, x, uly-hoff, ah, true, center);
+			draw_arrow(dest, col, x, uly+hoff, ah, false, center);
 			break;
 		case BTNICON_CONTRACT_HORZ:
-			draw_arrow_horz(dest, col, cx-woff, y, aw, false, center);
-			draw_arrow_horz(dest, col, cx+woff, y, aw, true, center);
+			draw_arrow_horz(dest, col, ulx-woff, y, aw, false, center);
+			draw_arrow_horz(dest, col, ulx+woff, y, aw, true, center);
 			break;
 		case BTNICON_EXPAND_HORZ:
-			draw_arrow_horz(dest, col, cx-woff, y, aw, true, center);
-			draw_arrow_horz(dest, col, cx+woff, y, aw, false, center);
+			draw_arrow_horz(dest, col, ulx-woff, y, aw, true, center);
+			draw_arrow_horz(dest, col, ulx+woff, y, aw, false, center);
 			break;
 		case BTNICON_ARROW_LEFT2:
-			draw_arrow_horz(dest, col, cx, y, w2, true, center);
-			draw_arrow_horz(dest, col, cx+w2, y, w2, true, center);
+			draw_arrow_horz(dest, col, ulx, y, w2, true, center);
+			draw_arrow_horz(dest, col, ulx+w2, y, w2, true, center);
 			break;
 		case BTNICON_ARROW_LEFT3:
-			draw_arrow_horz(dest, col, cx, y, w2, true, center);
-			draw_arrow_horz(dest, col, cx+w2, y, w2, true, center);
-			draw_arrow_horz(dest, col, cx+w2*2, y, w2, true, center);
+			draw_arrow_horz(dest, col, ulx, y, w2, true, center);
+			draw_arrow_horz(dest, col, ulx+w2, y, w2, true, center);
+			draw_arrow_horz(dest, col, ulx+w2*2, y, w2, true, center);
 			break;
 		case BTNICON_ARROW_RIGHT2:
-			draw_arrow_horz(dest, col, cx, y, w2, false, center);
-			draw_arrow_horz(dest, col, cx+w2, y, w2, false, center);
+			draw_arrow_horz(dest, col, ulx, y, w2, false, center);
+			draw_arrow_horz(dest, col, ulx+w2, y, w2, false, center);
 			break;
 		case BTNICON_ARROW_RIGHT3:
-			draw_arrow_horz(dest, col, cx, y, w2, false, center);
-			draw_arrow_horz(dest, col, cx+w2, y, w2, false, center);
-			draw_arrow_horz(dest, col, cx+w2*2, y, w2, false, center);
+			draw_arrow_horz(dest, col, ulx, y, w2, false, center);
+			draw_arrow_horz(dest, col, ulx+w2, y, w2, false, center);
+			draw_arrow_horz(dest, col, ulx+w2*2, y, w2, false, center);
 			break;
 		case BTNICON_ARROW_UP2:
-			draw_arrow(dest, col, x, cy, h2, true, center);
-			draw_arrow(dest, col, x, cy+h2, h2, true, center);
+			draw_arrow(dest, col, x, uly, h2, true, center);
+			draw_arrow(dest, col, x, uly+h2, h2, true, center);
 			break;
 		case BTNICON_ARROW_UP3:
-			draw_arrow(dest, col, x, cy, h2, true, center);
-			draw_arrow(dest, col, x, cy+h2, h2, true, center);
-			draw_arrow(dest, col, x, cy+h2*2, h2, true, center);
+			draw_arrow(dest, col, x, uly, h2, true, center);
+			draw_arrow(dest, col, x, uly+h2, h2, true, center);
+			draw_arrow(dest, col, x, uly+h2*2, h2, true, center);
 			break;
 		case BTNICON_ARROW_DOWN2:
-			draw_arrow(dest, col, x, cy, h2, false, center);
-			draw_arrow(dest, col, x, cy+h2, h2, false, center);
+			draw_arrow(dest, col, x, uly, h2, false, center);
+			draw_arrow(dest, col, x, uly+h2, h2, false, center);
 			break;
 		case BTNICON_ARROW_DOWN3:
-			draw_arrow(dest, col, x, cy, h2, false, center);
-			draw_arrow(dest, col, x, cy+h2, h2, false, center);
-			draw_arrow(dest, col, x, cy+h2*2, h2, false, center);
+			draw_arrow(dest, col, x, uly, h2, false, center);
+			draw_arrow(dest, col, x, uly+h2, h2, false, center);
+			draw_arrow(dest, col, x, uly+h2*2, h2, false, center);
 			break;
 		case BTNICON_STOPSQUARE:
-			rectfill(dest, cx, cy, cx+aw-1, cy+ah-1, col);
+			rectfill(dest, ulx, uly, ulx+aw-1, uly+ah-1, col);
 			break;
 		case BTNICON_MINUS:
-			rectfill(dest, cx, cy+(ah/2)-(h2/2), cx+aw-1, cy+(ah/2)+(h2/2), col);
+			rectfill(dest, ulx, uly+(ah/2)-(h2/2), ulx+aw-1, uly+(ah/2)+(h2/2), col);
 			break;
 		case BTNICON_PLUS:
-			rectfill(dest, cx, cy+(ah/2)-(h2/2), cx+aw-1, cy+(ah/2)+(h2/2), col);
-			rectfill(dest, cx+(aw/2)-(w2/2), cy, cx+(aw/2)+(w2/2), cy+ah-1, col);
+			rectfill(dest, ulx, uly+(ah/2)-(h2/2), ulx+aw-1, uly+(ah/2)+(h2/2), col);
+			rectfill(dest, ulx+(aw/2)-(w2/2), uly, ulx+(aw/2)+(w2/2), uly+ah-1, col);
 			break;
 		case BTNICON_GEAR:
 		{
 			BITMAP* tmp = create_bitmap_ex(8, sz, sz);
-			int tx = cx, ty = cy;
-			cx = cy = 0;
+			int tx = ulx, ty = uly;
+			ulx = uly = 0;
 			clear_bitmap(tmp);
-			rectfill(tmp, cx, cy+(ah/2)-(h2/2), cx+aw-1, cy+(ah/2)+(h2/2), col);
-			rectfill(tmp, cx+(aw/2)-(w2/2), cy, cx+(aw/2)+(w2/2), cy+ah-1, col);
+			rectfill(tmp, ulx, uly+(ah/2)-(h2/2), ulx+aw-1, uly+(ah/2)+(h2/2), col);
+			rectfill(tmp, ulx+(aw/2)-(w2/2), uly, ulx+(aw/2)+(w2/2), uly+ah-1, col);
 			rotate_sprite(tmp, tmp, 0, 0, ftofix(DegtoFix(45.0)));
 			circlefill(tmp, sz/2, sz/2, round((sz / 2) * 0.6), col);
 			circlefill(tmp, sz/2, sz/2, round((sz / 2) * 0.3), 0);
@@ -1404,8 +1409,8 @@ void jwin_draw_icon(BITMAP *dest, int x, int y, int col, int icon, int aw, int a
 		{
 			BITMAP* tmp = create_bitmap_ex(8, sz, sz);
 			clear_bitmap(tmp);
-			int tx = cx, ty = cy;
-			cx = cy = 0;
+			int tx = ulx, ty = uly;
+			ulx = uly = 0;
 			const int TOP_GAP = 2;
 			const int TOP_BUMP_H = 4;
 			const int TOP_BUMP_CUT_V = 2;
@@ -1413,23 +1418,53 @@ void jwin_draw_icon(BITMAP *dest, int x, int y, int col, int icon, int aw, int a
 			int INNER_VGAP = zc_max(1, h2/2);
 			int VLINE_WIDTH = zc_max(1, w2/2);
 			if (!(VLINE_WIDTH%2)) --VLINE_WIDTH;
-			rectfill(tmp, cx + aw * 0.25_zf, cy, cx + aw * 0.75_zf, cy + TOP_BUMP_H, col);
-			rectfill(tmp, cx + aw * 0.25_zf + TOP_BUMP_CUT_H, cy + TOP_BUMP_CUT_V, cx + aw * 0.75_zf - TOP_BUMP_CUT_H, cy + TOP_BUMP_H, 0);
-			rectfill(tmp, cx, cy + (TOP_GAP + TOP_BUMP_H), cx+aw-1, cy+h2, col);
-			int xs[] = {cx, cx+aw-1, cx+aw-1-w2, cx+w2};
-			int ys[] = {cy+h2+TOP_GAP, cy+h2+TOP_GAP, cy+ah-1, cy+ah-1};
+			rectfill(tmp, ulx + aw * 0.25_zf, uly, ulx + aw * 0.75_zf, uly + TOP_BUMP_H, col);
+			rectfill(tmp, ulx + aw * 0.25_zf + TOP_BUMP_CUT_H, uly + TOP_BUMP_CUT_V, ulx + aw * 0.75_zf - TOP_BUMP_CUT_H, uly + TOP_BUMP_H, 0);
+			rectfill(tmp, ulx, uly + (TOP_GAP + TOP_BUMP_H), ulx+aw-1, uly+h2, col);
+			int xs[] = {ulx, ulx+aw-1, ulx+aw-1-w2, ulx+w2};
+			int ys[] = {uly+h2+TOP_GAP, uly+h2+TOP_GAP, uly+ah-1, uly+ah-1};
 			triangle(tmp, xs[0], ys[0], xs[1], ys[1], xs[2], ys[2], col);
 			triangle(tmp, xs[2], ys[2], xs[3], ys[3], xs[0], ys[0], col);
 			
 			zfix tw = aw;
-			zfix xls[] = {cx + tw * 0.25_zf + 1, cx + tw * 0.5_zf, cx + tw * 0.75_zf - 1};
-			int ly = cy+h2+TOP_GAP+INNER_VGAP;
-			int ly2 = cy+ah-1-INNER_VGAP;
+			zfix xls[] = {ulx + tw * 0.25_zf + 1, ulx + tw * 0.5_zf, ulx + tw * 0.75_zf - 1};
+			int ly = uly+h2+TOP_GAP+INNER_VGAP;
+			int ly2 = uly+ah-1-INNER_VGAP;
 			int yls[] = {ly2 - 2, ly2, ly2 - 2};
 			for (int q = 0; q < 3; ++q)
 				rectfill(tmp, xls[q] - VLINE_WIDTH / 2_zf, ly, xls[q] + VLINE_WIDTH / 2_zf, yls[q], 0);
 			
 			masked_blit(tmp, dest, 0, 0, tx, ty, sz, sz);
+			destroy_bitmap(tmp);
+			break;
+		}
+		case BTNICON_LOOP_ARROW:
+		{
+			// cx -= 1; cy -= 1;
+			// auto csz = sz / 2 - 3;
+			// circle(dest, cx, cy, csz, col);
+			// circle(dest, cx, cy, csz-1, col);
+			// draw_arrow(dest, col, cx - csz, cy-2, 4, false, true);
+			BITMAP* tmp = create_bitmap_ex(8, sz, sz);
+			clear_bitmap(tmp);
+			
+			cx = cy = sz / 2 - 1;
+			auto csz = sz / 2 - 3;
+			auto off1 = csz * 0.2_zf;
+			auto off2 = csz * 0.5_zf;
+			set_clip_rect(tmp, cx+off1, cy, sz, sz);
+			circlefill(tmp, cx, cy, csz-1, col);
+			circlefill(tmp, cx, cy, csz-2, 0);
+			set_clip_rect(tmp, 0, 0, sz, cy);
+			circlefill(tmp, cx, cy, csz, col);
+			circlefill(tmp, cx, cy, csz-2, 0);
+			set_clip_rect(tmp, 0, 0, cx+off2, cy);
+			circlefill(tmp, cx, cy, csz, col);
+			circlefill(tmp, cx, cy, csz-3, 0);
+			set_clip_rect(tmp, 0, 0, sz, sz);
+			draw_arrow(tmp, col, cx - csz + 1, cy, 4, false, true);
+			
+			masked_blit(tmp, dest, 0, 0, ulx, uly, sz, sz);
 			destroy_bitmap(tmp);
 			break;
 		}
@@ -3401,8 +3436,7 @@ void trim_trailing_0s(char* str, bool leaveDec = false)
 }
 int32_t jwin_swapbtn_proc(int32_t msg, DIALOG* d, int32_t c)
 {
-	static const char* swp[nswapMAX] = {"D", "H", "LD", "LH", "B"};
-	d->dp = (void*)swp[d->d1&0xF];
+	d->dp = (void*)swp_strs[d->d1&0xF];
 	//d1 is (0xF0 = old val, 0x0F = new val)
 	//d2 is max val
 	if(d->d2 < 2 || d->d2 > nswapMAX) return D_O_K; //Not setup yet, or bad value
@@ -3413,7 +3447,7 @@ int32_t jwin_swapbtn_proc(int32_t msg, DIALOG* d, int32_t c)
 	if(d->flags & D_SELECTED) //On selection
 	{
 		d->d1 = ((d->d1&0x0F)<<4) | (((d->d1&0x0F)+1)%d->d2);
-		d->dp = (void*)swp[d->d1&0xF];
+		d->dp = (void*)swp_strs[d->d1&0xF];
 		d->flags &= ~D_SELECTED;
 		if(tf_obj) tf_obj->refresh_cb_swap();
 		if(relproc)

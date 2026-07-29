@@ -36,6 +36,7 @@ char str_oname[512];
 char str_cpyname[512];
 char subscr_namebuf[512];
 ZCSubscreen subscr_edit;
+size_t subscr_edit_index;
 SubscrPage subscr_copied_page;
 bool has_copied_page = false;
 bool sso_selection[NEW_MAXSUBSCREENITEMS];
@@ -2591,6 +2592,7 @@ void do_edit_subscr(size_t ind, byte ty)
 		subscr_edit.pages.emplace_back();
 		subscr_edit.pages[0].setParent(&subscr_edit);
 	}
+	subscr_edit_index = ind;
 	if(edit_subscreen())
 	{
 		if(ind < vec.size())

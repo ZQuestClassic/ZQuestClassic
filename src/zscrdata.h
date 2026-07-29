@@ -92,6 +92,33 @@ inline void read_var(bounded_map<Sz,T>& val, FILE *f)
 }
 
 
+inline void write_var(zfix const& val, FILE *f)
+{
+	write_var(val.val, f);
+}
+inline void read_var(zfix& val, FILE *f)
+{
+	read_var(val.val, f);
+}
+
+inline void write_var(exported_variable const& val, FILE *f)
+{
+	write_str(val.name, f);
+	write_str(val.helptext, f);
+	write_var(val.btn_type, f);
+	write_var(val.min, f);
+	write_var(val.max, f);
+}
+inline void read_var(exported_variable& val, FILE *f)
+{
+	read_str(val.name, f);
+	read_str(val.helptext, f);
+	read_var(val.btn_type, f);
+	read_var(val.min, f);
+	read_var(val.max, f);
+}
+
+
 inline void write_str(string const& str, FILE* f)
 {
 	size_t sz = str.size();
@@ -290,7 +317,7 @@ void write_meta(zasm_meta const& meta, FILE* f)
 	for(auto q = 0; q < 16; ++q)
 		write_str(meta.usrflags_help[q], f);
 	for(auto q = 0; q < 8; ++q)
-		write_str(meta.initd[q], f);
+		write_str(meta.initd_label[q], f);
 	for(auto q = 0; q < 8; ++q)
 		write_str(meta.initd_help[q], f);
 	for(auto q = 0; q < 8; ++q)
@@ -327,7 +354,7 @@ void read_meta(zasm_meta& meta, FILE* f)
 	for(auto q = 0; q < 16; ++q)
 		read_str(meta.usrflags_help[q], f);
 	for(auto q = 0; q < 8; ++q)
-		read_str(meta.initd[q], f);
+		read_str(meta.initd_label[q], f);
 	for(auto q = 0; q < 8; ++q)
 		read_str(meta.initd_help[q], f);
 	for(auto q = 0; q < 8; ++q)
@@ -374,6 +401,7 @@ void read_compile_data(ZScript::ZasmCompilerResult& zasmCompilerResult)
 		read_var(dsd.end_pc, tempfile);
 		
 		read_boundedcont(dsd.script_d_init, tempfile);
+		read_boundedcont(dsd.script_d_exports, tempfile);
 		
 		zasmCompilerResult.theScripts[str] = dsd;
 	}
@@ -441,6 +469,7 @@ void write_compile_data(const ZScript::ZasmCompilerResult& zasmCompilerResult)
 		write_var(v.end_pc, tempfile);
 		
 		write_boundedcont(v.script_d_init, tempfile);
+		write_boundedcont(v.script_d_exports, tempfile);
 	}
 	
 	dummy = zasmCompilerResult.zasm.size();
@@ -650,8 +679,8 @@ string zasm_meta::get_meta() const
 	}
 	for(auto q = 0; q < 8; ++q)
 	{
-		if(initd[q].size())
-			oss << "\n#INITD_" << q << " = " << initd[q];
+		if(initd_label[q].size())
+			oss << "\n#INITD_" << q << " = " << initd_label[q];
 		if(initd_help[q].size())
 			oss << "\n#INITD_HELP_" << q << " = "
 				<< util::escape_characters(initd_help[q]);
@@ -854,7 +883,7 @@ bool zasm_meta::parse_meta(const char *buffer)
 		byte ind = cmd.at(7) - '0';
 		if (ind < 8)
 		{
-			initd[ind] = val;
+			initd_label[ind] = val;
 		}
 		else return false;
 	}

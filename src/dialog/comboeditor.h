@@ -40,7 +40,6 @@ private:
 	ComboEditorDialog(newcombo const& ref, int32_t index);
 	ComboEditorDialog(int32_t index);
 	
-	void refreshScript();
 	void loadComboType();
 	void loadComboFlag();
 	void updateCSet();
@@ -53,11 +52,8 @@ private:
 	void add_combo_trigger(size_t pos, bool copied = false);
 	
 	std::shared_ptr<GUI::Window> window;
-	std::shared_ptr<GUI::TextField> tf_initd[8];
-	std::shared_ptr<GUI::Label> l_initds[8];
 	std::shared_ptr<GUI::Label> l_attributes[NUM_COMBO_ATTRIBUTES];
 	std::shared_ptr<GUI::Checkbox> l_flags[16];
-	std::shared_ptr<GUI::Button> ib_initds[8];
 	std::shared_ptr<GUI::Button> ib_attributes[NUM_COMBO_ATTRIBUTES];
 	std::shared_ptr<GUI::Button> ib_flags[16];
 	std::shared_ptr<GUI::Button> wizardButton, warnbtn;
@@ -72,8 +68,8 @@ private:
 		trigbtnDelete, trigbtnPasteNewCursor, trigbtnPasteNewEnd, trigbtnPaste, trigbtnUp,
 		trigbtnDown, trigbtnSummarize, trigbtnSummarizeAll;
 	
-	string h_initd[8], h_attribute[NUM_COMBO_ATTRIBUTES], h_flag[16];
-	string l_initd[8], l_attribute[NUM_COMBO_ATTRIBUTES], l_flag[16];
+	string h_attribute[NUM_COMBO_ATTRIBUTES], h_flag[16];
+	string l_attribute[NUM_COMBO_ATTRIBUTES], l_flag[16];
 	
 	vector<string> warnings;
 	
