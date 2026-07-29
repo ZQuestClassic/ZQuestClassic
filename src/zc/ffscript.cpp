@@ -1733,7 +1733,7 @@ static void set_current_script_engine_data(ScriptEngineData& data, ScriptType ty
 			// Note: the below works, but is more expensive than just setting the correct stack size when writing to D4.
 			// int stack_size = zasm_debug_data.getFunctionAdditionalStackSize(zasm_debug_data.resolveFunctionScope(ri->pc));
 			int stack_size = 0;
-			ri->debugger_stack_frames.push_back(DebuggerStackFrame{
+			debugger_stack_frame_store(*ri, DebuggerStackFrame{
 				.stack_frame_base = (uint16_t)(ri->sp - stack_size),
 				.this_ptr = ri->thiskey,
 			});
@@ -2301,6 +2301,7 @@ void FFScript::deallocateAllScriptOwned()
 {
 	script_object_ids_by_type.clear();
 	script_objects.clear();
+	script_array_cache_clear();
 	next_script_object_id_freelist.clear();
 
 	if (!ZScriptVersion::gc_arrays())
@@ -2943,7 +2944,7 @@ void retstack_push(int32_t val)
 		// Note: the below works, but is more expensive than just setting the correct stack size when writing to D4.
 		// int stack_size = zasm_debug_data.getFunctionAdditionalStackSize(zasm_debug_data.resolveFunctionScope(ri->pc));
 		int stack_size = 0;
-		ri->debugger_stack_frames.push_back(DebuggerStackFrame{
+		debugger_stack_frame_store(*ri, DebuggerStackFrame{
 			.stack_frame_base = (uint16_t)(ri->sp - stack_size),
 			.this_ptr = ri->thiskey,
 		});
@@ -2955,8 +2956,8 @@ optional<int32_t> retstack_pop()
 	if(!ri->retsp)
 		return nullopt; //return from root, so, QUIT
 
-	if (!script_is_within_debugger_vm)
-		ri->debugger_stack_frames.pop_back();
+	// The top debugger stack frame is implicitly dropped by the retsp
+	// decrement (see debugger_stack_frame_store).
 	return (*ret_stack)[--ri->retsp];
 }
 
@@ -3017,7 +3018,10 @@ void do_set(int reg, int value)
 	if (reg == D(4))
 	{
 		if (!script_is_within_debugger_vm)
-			ri->debugger_stack_frames.back().stack_frame_base = value;
+		{
+			if (auto* frame = debugger_stack_frame_top(*ri))
+				frame->stack_frame_base = value;
+		}
 		set_register(reg, value);
 		return;
 	}
@@ -14407,6 +14411,7 @@ void FFScript::shutdown()
 	scriptEngineDatas.clear();
 	objectRAM.clear();
 	script_objects.clear();
+	script_array_cache_clear();
 	script_object_ids_by_type.clear();
 	next_script_object_id_freelist.clear();
 }

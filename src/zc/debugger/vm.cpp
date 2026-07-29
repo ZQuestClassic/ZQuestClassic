@@ -109,8 +109,9 @@ int32_t VM::readStack(int32_t offset)
 		return 0;
 
 	auto ri = &current_data->ref;
-	int index = ri->debugger_stack_frames.size() - current_frame_index - 1;
-	if (index < 0 || index >= ri->debugger_stack_frames.size())
+	int frame_count = ri->retsp + 1;
+	int index = frame_count - current_frame_index - 1;
+	if (index < 0 || index >= frame_count || index >= (int)ri->debugger_stack_frames.size())
 	{
 		DCHECK(false);
 		return 0;
@@ -303,8 +304,9 @@ void VM::writeStack(int32_t offset, int32_t value)
 		return;
 
 	auto ri = &current_data->ref;
-	int index = ri->debugger_stack_frames.size() - current_frame_index - 1;
-	if (index < 0 || index >= ri->debugger_stack_frames.size())
+	int frame_count = ri->retsp + 1;
+	int index = frame_count - current_frame_index - 1;
+	if (index < 0 || index >= frame_count || index >= (int)ri->debugger_stack_frames.size())
 	{
 		DCHECK(false);
 		return;
@@ -490,8 +492,11 @@ int32_t VM::getThisPointer()
 		return 0;
 
 	auto ri = &current_data->ref;
-	int index = ri->debugger_stack_frames.size() - current_frame_index - 1;
-	if (index < 0 || index >= ri->debugger_stack_frames.size())
+	// debugger_stack_frames is an arena indexed by retsp; the live frame count
+	// is retsp + 1 (see debugger_stack_frame_store).
+	int frame_count = ri->retsp + 1;
+	int index = frame_count - current_frame_index - 1;
+	if (index < 0 || index >= frame_count || index >= (int)ri->debugger_stack_frames.size())
 	{
 		DCHECK(false);
 		return 0;

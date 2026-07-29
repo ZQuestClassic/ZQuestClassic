@@ -326,6 +326,31 @@ optional<int32_t> retstack_pop();
 int32_t run_script_jit_sequence(JittedScriptInstance* j_instance, pc_t pc, uint32_t sp, int32_t count);
 int32_t run_script_jit_one(JittedScriptInstance* j_instance, pc_t pc, uint32_t sp);
 int32_t run_script_jit_until_call_or_return(JittedScriptInstance* j_instance, pc_t pc, uint32_t sp);
+
+// ri->debugger_stack_frames is an arena indexed by ri->retsp, not a stack:
+// frames[0] is the script's base frame, frames[retsp] is the current top, and
+// the live frame count is retsp + 1. This makes recording a call frame two
+// stores and "popping" free (retsp-- already does it) - important because it
+// happens on every script function call, debugger attached or not, so that
+// attaching mid-play always sees complete stacks. Entries above retsp are
+// stale leftovers and must never be read.
+inline void debugger_stack_frame_store(refInfo& ri, DebuggerStackFrame frame)
+{
+	auto& frames = ri.debugger_stack_frames;
+	if (frames.size() <= ri.retsp)
+		frames.resize(ri.retsp + 1);
+	frames[ri.retsp] = frame;
+}
+
+// The current top frame, or null if it was skipped (frames recorded while
+// inside the debugger's own expression VM are not stored).
+inline DebuggerStackFrame* debugger_stack_frame_top(refInfo& ri)
+{
+	auto& frames = ri.debugger_stack_frames;
+	if (ri.retsp < frames.size())
+		return &frames[ri.retsp];
+	return nullptr;
+}
 int32_t run_script_int(JittedScriptInstance* j_instance = nullptr);
 
 void clearConsole();

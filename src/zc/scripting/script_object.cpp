@@ -14,6 +14,7 @@
 
 // TODO: make these static.
 std::map<uint32_t, std::unique_ptr<script_object_base>> script_objects;
+
 std::map<script_object_type, std::vector<uint32_t>> script_object_ids_by_type;
 std::vector<uint32_t> script_object_autorelease_pool;
 std::vector<uint32_t> next_script_object_id_freelist;
@@ -138,6 +139,7 @@ void init_script_objects()
 	for (uint32_t id = 61000; id >= 60001; id--)
 		next_script_object_id_freelist.push_back(id);
 	script_objects.clear();
+	script_array_cache_clear();
 	script_object_ids_by_type.clear();
 	script_object_autorelease_pool.clear();
 	script_object_autorelease_pool_index.clear();
@@ -395,6 +397,7 @@ void delete_script_object(uint32_t id, bool remove_refs)
 	object->ref_count--;
 
 	util::remove_if_exists(script_object_ids_by_type[object->type], id);
+	script_array_cache_invalidate(id);
 	script_objects.erase(it);
 	deallocations_since_last_gc++;
 

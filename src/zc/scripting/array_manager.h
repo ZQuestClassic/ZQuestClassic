@@ -8,6 +8,21 @@
 #include <functional>
 #include <string>
 
+// A tiny cache of the most recent id -> script_array resolutions, consulted
+// by ArrayManager on every script array access (see array_manager.cpp). Ids
+// are reused after deletion, so it must be invalidated on every script object
+// deletion and container reset.
+struct ScriptArrayCache
+{
+	struct Entry { uint32_t id; script_array* array; };
+	static constexpr size_t MAX = 8;
+	Entry entries[MAX];
+	size_t cursor;
+};
+extern ScriptArrayCache script_array_cache;
+void script_array_cache_invalidate(uint32_t id);
+void script_array_cache_clear();
+
 class ArrayManager
 {
 public:

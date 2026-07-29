@@ -5,9 +5,45 @@
 #include "zc/scripting/arrays.h"
 #include "zc/scripting/script_object.h"
 #include "zc/zscriptversion.h"
+#include "base/zapp.h"
+#include <algorithm>
 #include <cstdint>
 
 extern bool can_neg_array;
+
+namespace {
+
+// Scripts overwhelmingly hammer one or two arrays at a time, and every element access resolves the
+// array id from scratch (a map lookup in checkArray), so memoize the last few id -> script_array
+// resolutions. Ids are reused after deletion, so the cache must be invalidated on every script
+// object deletion and container reset (script_array_cache_invalidate/_clear, called from the
+// deletion/clear paths).
+size_t array_cache_n()
+{
+	static size_t n = std::min<size_t>(ScriptArrayCache::MAX, std::max<int64_t>(0, get_flag_int("-array-cache-n").value_or(4)));
+	return n;
+}
+
+script_array* check_array_cached(uint32_t id)
+{
+	size_t n = array_cache_n();
+	// Entries are zero-initialized and id 0 is never a valid object id.
+	for (size_t i = 0; i < n; i++)
+	{
+		if (script_array_cache.entries[i].id == id)
+			return script_array_cache.entries[i].array;
+	}
+
+	script_array* array = checkArray(id);
+	if (array && n)
+	{
+		script_array_cache.entries[script_array_cache.cursor] = {id, array};
+		script_array_cache.cursor = (script_array_cache.cursor + 1) % n;
+	}
+	return array;
+}
+
+} // namespace
 
 namespace {
 
@@ -167,6 +203,24 @@ int32_t legacy_sz_int_arr(const int32_t ptr)
 
 }; // namespace
 
+ScriptArrayCache script_array_cache;
+
+void script_array_cache_invalidate(uint32_t id)
+{
+	for (auto& entry : script_array_cache.entries)
+	{
+		if (entry.id == id)
+			entry = {};
+	}
+}
+
+void script_array_cache_clear()
+{
+	for (auto& entry : script_array_cache.entries)
+		entry = {};
+	script_array_cache.cursor = 0;
+}
+
 ArrayManager::ArrayManager(int32_t ptr, bool neg) : negAccess(neg)
 {
 	_invalid = false;
@@ -176,7 +230,7 @@ ArrayManager::ArrayManager(int32_t ptr, bool neg) : negAccess(neg)
 
 	if (ZScriptVersion::gc_arrays())
 	{
-		if (auto* array = checkArray(ptr))
+		if (auto* array = check_array_cached(ptr))
 		{
 			script_array_object = array;
 

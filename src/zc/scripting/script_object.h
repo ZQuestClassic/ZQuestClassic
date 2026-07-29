@@ -95,11 +95,9 @@ struct UserDataContainer
 
 	T* check(uint32_t id, bool skipError = false)
 	{
-		if (util::contains(script_object_ids_by_type[type], id))
-		{
-			auto& t = script_objects.at(id);
-			return static_cast<T*>(t.get());
-		}
+		auto it = script_objects.find(id);
+		if (it != script_objects.end() && it->second->type == type)
+			return static_cast<T*>(it->second.get());
 
 		if (skipError) return NULL;
 

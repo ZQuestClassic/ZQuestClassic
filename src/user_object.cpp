@@ -351,7 +351,7 @@ void scr_func_exec::execute()
 		ri = &newRI;
 		ri->pc = pc;
 		ri->thiskey = thiskey;
-		ri->debugger_stack_frames.push_back({
+		debugger_stack_frame_store(*ri, {
 			.stack_frame_base = (uint16_t)(ri->sp),
 			.this_ptr = ri->thiskey,
 		});

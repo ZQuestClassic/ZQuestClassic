@@ -1265,7 +1265,7 @@ public:
 	int32_t d[8]; //d registers
 	uint32_t sp = MAX_STACK_SIZE; //stack pointer for current script
 	uint32_t retsp; //stack pointer for the return stack
-	std::vector<DebuggerStackFrame> debugger_stack_frames;
+	std::vector<DebuggerStackFrame> debugger_stack_frames; // an arena indexed by retsp (see debugger_stack_frame_store).
 
 	uint32_t ffcref;
 	int32_t itemdataref;

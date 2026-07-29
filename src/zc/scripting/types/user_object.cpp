@@ -103,7 +103,10 @@ static void do_constructclass(ScriptType type, word script, int32_t i)
 		obj->ctor_pc = ri->pc;
 
 		if (!script_is_within_debugger_vm)
-			ri->debugger_stack_frames.back().this_ptr = obj->id;
+		{
+			if (auto* frame = debugger_stack_frame_top(*ri))
+				frame->this_ptr = obj->id;
+		}
 	}
 	else set_register(sarg1, 0);
 }
