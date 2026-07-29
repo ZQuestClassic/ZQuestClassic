@@ -78,7 +78,7 @@ int32_t combodata_get_register(int32_t reg)
 		case COMBODANIMFLAGS:		GET_COMBO_VAR_BYTE(animflags); break;				//C
 		case COMBODASPEED:		GET_COMBO_VAR_BYTE(speed); break;					//char
 		case COMBODATAID: 		ret = (GET_REF(combodataref)*10000); break;
-		case COMBODATASCRIPT:			GET_COMBO_VAR_DWORD(script); break;						//W
+		case COMBODATASCRIPT:			GET_COMBO_VAR_DWORD(scrconfig.script); break;						//W
 		case COMBODCSET:
 		{
 			if(!checkComboRef())
@@ -777,7 +777,7 @@ void combodata_set_register(int32_t reg, int32_t value)
 		case COMBODAKIMANIMY:	SET_COMBO_VAR_BYTE(skipanimy); break;					//C
 		case COMBODANIMFLAGS:	SET_COMBO_VAR_BYTE(animflags); break;					//C
 		case COMBODASPEED:	SET_COMBO_VAR_BYTE(speed); break;						//char
-		case COMBODATASCRIPT:	SET_COMBO_VAR_DWORD(script); break;						//word
+		case COMBODATASCRIPT:	SET_COMBO_VAR_DWORD(scrconfig.script); break;						//word
 		case COMBODCSET:
 		{
 			if (!checkComboRef()) break;
@@ -1424,14 +1424,14 @@ static ArrayRegistrar COMBODUSRFLAGARR_registrar(COMBODUSRFLAGARR, []{
 static ArrayRegistrar COMBODATAINITD_registrar(COMBODATAINITD, []{
 	static ScriptingArray_ObjectComputed<newcombo, int> impl(
 		[](newcombo* cmb){
-			return comptime_array_size(cmb->initd);
+			return cmb->scrconfig.run_args.size();
 		},
 		[](newcombo* cmb, int index) -> int {
-			return cmb->initd[index] * (get_qr(qr_COMBODATA_INITD_MULT_TENK) ? 10000 : 1);
+			return cmb->scrconfig.run_args[index] * (get_qr(qr_COMBODATA_INITD_MULT_TENK) ? 10000 : 1);
 		},
 		[](newcombo* cmb, int index, int value){
 			// TODO: Not sure why this compat qr multiplies by 10000, should probably divide?
-			cmb->initd[index] = value * ( get_qr(qr_COMBODATA_INITD_MULT_TENK) ? 10000 : 1);
+			cmb->scrconfig.run_args[index] = value * ( get_qr(qr_COMBODATA_INITD_MULT_TENK) ? 10000 : 1);
 		}
 	);
 	impl.setMul10000(false);

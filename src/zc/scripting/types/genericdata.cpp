@@ -20,7 +20,9 @@ void user_genscript::clear()
 	exitState = 0;
 	reloadState = 0;
 	eventstate = 0;
-	initd.clear();
+	auto ind = scrconfig.script;
+	scrconfig.clear();
+	scrconfig.script = ind;
 	data.clear();
 	quit();
 }
@@ -36,10 +38,7 @@ void user_genscript::launch()
 
 void user_genscript::quit()
 {
-	if(indx > -1)
-	{
-		FFCore.reset_script_engine_data(ScriptType::Generic, indx);
-	}
+	FFCore.reset_script_engine_data(ScriptType::Generic, scrconfig.script);
 	_doscript = false;
 }
 
@@ -57,7 +56,7 @@ user_genscript& user_genscript::get(int ind)
 {
 	if(ind < 1 || ind >= NUMSCRIPTSGENERIC)
 		ind = 0;
-	user_scripts[ind].indx = ind;
+	user_scripts[ind].scrconfig.script = ind;
 	return user_scripts[ind];
 }
 user_genscript user_genscript::user_scripts[NUMSCRIPTSGENERIC];
@@ -150,7 +149,7 @@ static ArrayRegistrar GENDATARELOADSTATE_registrar(GENDATARELOADSTATE, []{
 }());
 
 static ArrayRegistrar GENDATAINITD_registrar(GENDATAINITD, []{
-	static ScriptingArray_ObjectMemberContainer<user_genscript, &user_genscript::initd> impl;
+	static ScriptingArray_ObjectSubMemberContainer<user_genscript, &user_genscript::scrconfig, &script_config::run_args> impl;
 	impl.setMul10000(false);
 	return &impl;
 }());

@@ -102,7 +102,7 @@ int32_t weapondata_get_register(int32_t reg)
 			break;
 		case WEAPDATA_SCRIPT:
 			if (data)
-				ret = 10000 * data->script;
+				ret = 10000 * data->scrconfig.script;
 			break;
 		case WEAPDATA_PIERCE:
 			if (data)
@@ -227,10 +227,10 @@ void weapondata_set_register(int32_t reg, int32_t value)
 		case WEAPDATA_SCRIPT:
 			if (data)
 			{
-				data->script = vbound(value/10000,0,NUMSCRIPTWEAPONS-1);
+				data->scrconfig.script = vbound(value/10000,0,NUMSCRIPTWEAPONS-1);
 				if (get_qr(qr_CLEARINITDONSCRIPTCHANGE))
-					for (int q = 0; q < 8; ++q)
-						data->initd[q] = 0;
+					data->scrconfig.run_args.fill(0);
+				data->scrconfig.inst_init.clear();;
 			}
 			break;
 		case WEAPDATA_PIERCE:
@@ -327,7 +327,7 @@ static ArrayRegistrar WEAPDATA_BURN_LIGHTOFFSET_registrar(WEAPDATA_BURN_LIGHTOFF
 }());
 
 static ArrayRegistrar WEAPDATA_INITD_registrar(WEAPDATA_INITD, []{
-	static ScriptingArray_ObjectMemberCArray<weapon_data, &weapon_data::initd> impl;
+	static ScriptingArray_ObjectSubMemberContainer<weapon_data, &weapon_data::scrconfig, &script_config::run_args> impl;
 	impl.setMul10000(false);
 	return &impl;
 }());

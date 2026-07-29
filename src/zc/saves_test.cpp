@@ -119,6 +119,38 @@ TestResults test_saves([[maybe_unused]] bool verbose)
 		}\
 	}
 	
+	#define SAVE_TEST_VECTOR_MAP(field) tr.total++; for (int i = 0; i < game->field.size(); ++i) {\
+		auto& basemap = game->field[i];\
+		auto& savemap = save.game->field[i];\
+		for (auto& [key, val] : basemap)\
+		{\
+			if (!savemap.contains(key))\
+			{\
+				printf("game->%s[%d][%d] != save.game->%s[%d][%d]\n", #field, i, key, #field, i, key);\
+				printf("%s\n", fmt::format("{} != {}", int(val), "null").c_str());\
+				tr.failed++;\
+			}\
+			else\
+			{\
+				if (auto newval = savemap[key]; val != newval)\
+				{\
+					printf("game->%s[%d][%d] != save.game->%s[%d][%d]\n", #field, i, key, #field, i, key);\
+					printf("%s\n", fmt::format("{} != {}", int(val), int(newval)).c_str());\
+					tr.failed++;\
+				}\
+			}\
+		}\
+		for (auto& [key, val] : savemap)\
+		{\
+			if (!basemap.contains(key))\
+			{\
+				printf("game->%s[%d][%d] != save.game->%s[%d][%d]\n", #field, i, key, #field, i, key);\
+				printf("%s\n", fmt::format("{} != {}", "null", int(val)).c_str());\
+				tr.failed++;\
+			}\
+		}\
+	}
+	
 	// For nested bounded_maps with large bounds: compares without materializing
 	// default entries (operator== reads via const get()), and only walks the
 	// populated entries when printing a mismatch.
@@ -222,6 +254,7 @@ TestResults test_saves([[maybe_unused]] bool verbose)
 	SAVE_TEST_VECTOR(gen_exitState);
 	SAVE_TEST_VECTOR(gen_reloadState);
 	SAVE_TEST_VECTOR_2D(gen_initd);
+	SAVE_TEST_VECTOR_MAP(gen_inst_init);
 	SAVE_TEST_VECTOR_2D(gen_data);
 	SAVE_TEST_VECTOR_2D(screen_data);
 	SAVE_TEST_VECTOR(xstates);

@@ -3655,38 +3655,38 @@ RETURNFUNC; Func[void directory::Free()] Body End                               
 POP REFDIRECTORY; Func[void directory::Own()] Body Start                        | 3626 resources/include/bindings/directory.zh:47
 DIRECTORYOWN                                                                    | 3627 resources/include/bindings/directory.zh:47
 RETURNFUNC; Func[void directory::Own()] Body End                                | 3628 resources/include/bindings/directory.zh:47
-POP D2; Func[void dmapdata::GetName(char32[])] Body Start                       | 3629 resources/include/bindings/dmapdata.zh:335
-POP REFDMAPDATA                                                                 | 3630 resources/include/bindings/dmapdata.zh:335
-DMAPDATAGETNAMER D2                                                             | 3631 resources/include/bindings/dmapdata.zh:335
-RETURNFUNC; Func[void dmapdata::GetName(char32[])] Body End                     | 3632 resources/include/bindings/dmapdata.zh:335
-POP D2; Func[void dmapdata::SetName(char32[])] Body Start                       | 3633 resources/include/bindings/dmapdata.zh:343
-POP REFDMAPDATA                                                                 | 3634 resources/include/bindings/dmapdata.zh:343
-DMAPDATASETNAMER D2                                                             | 3635 resources/include/bindings/dmapdata.zh:343
-RETURNFUNC; Func[void dmapdata::SetName(char32[])] Body End                     | 3636 resources/include/bindings/dmapdata.zh:343
-POP D2; Func[void dmapdata::GetTitle(char32[])] Body Start                      | 3637 resources/include/bindings/dmapdata.zh:351
-POP REFDMAPDATA                                                                 | 3638 resources/include/bindings/dmapdata.zh:351
-DMAPDATAGETTITLER D2                                                            | 3639 resources/include/bindings/dmapdata.zh:351
-RETURNFUNC; Func[void dmapdata::GetTitle(char32[])] Body End                    | 3640 resources/include/bindings/dmapdata.zh:351
-POP D2; Func[void dmapdata::SetTitle(char32[])] Body Start                      | 3641 resources/include/bindings/dmapdata.zh:359
-POP REFDMAPDATA                                                                 | 3642 resources/include/bindings/dmapdata.zh:359
-DMAPDATASETTITLER D2                                                            | 3643 resources/include/bindings/dmapdata.zh:359
-RETURNFUNC; Func[void dmapdata::SetTitle(char32[])] Body End                    | 3644 resources/include/bindings/dmapdata.zh:359
-POP D2; Func[void dmapdata::GetIntro(char32[])] Body Start                      | 3645 resources/include/bindings/dmapdata.zh:367
-POP REFDMAPDATA                                                                 | 3646 resources/include/bindings/dmapdata.zh:367
-DMAPDATAGETINTROR D2                                                            | 3647 resources/include/bindings/dmapdata.zh:367
-RETURNFUNC; Func[void dmapdata::GetIntro(char32[])] Body End                    | 3648 resources/include/bindings/dmapdata.zh:367
-POP D2; Func[void dmapdata::SetIntro(char32[])] Body Start                      | 3649 resources/include/bindings/dmapdata.zh:375
-POP REFDMAPDATA                                                                 | 3650 resources/include/bindings/dmapdata.zh:375
-DMAPDATANSETITROR D2                                                            | 3651 resources/include/bindings/dmapdata.zh:375
-RETURNFUNC; Func[void dmapdata::SetIntro(char32[])] Body End                    | 3652 resources/include/bindings/dmapdata.zh:375
-POP D2; Func[void dmapdata::GetMusic(char32[])] Body Start                      | 3653 resources/include/bindings/dmapdata.zh:385
-POP REFDMAPDATA                                                                 | 3654 resources/include/bindings/dmapdata.zh:385
-DMAPDATAGETMUSICR D2                                                            | 3655 resources/include/bindings/dmapdata.zh:385
-RETURNFUNC; Func[void dmapdata::GetMusic(char32[])] Body End                    | 3656 resources/include/bindings/dmapdata.zh:385
-POP D2; Func[void dmapdata::SetMusic(char32[])] Body Start                      | 3657 resources/include/bindings/dmapdata.zh:395
-POP REFDMAPDATA                                                                 | 3658 resources/include/bindings/dmapdata.zh:395
-DMAPDATASETMUSICR D2                                                            | 3659 resources/include/bindings/dmapdata.zh:395
-RETURNFUNC; Func[void dmapdata::SetMusic(char32[])] Body End                    | 3660 resources/include/bindings/dmapdata.zh:395
+POP D2; Func[void dmapdata::GetName(char32[])] Body Start                       | 3629 resources/include/bindings/dmapdata.zh:342
+POP REFDMAPDATA                                                                 | 3630 resources/include/bindings/dmapdata.zh:342
+DMAPDATAGETNAMER D2                                                             | 3631 resources/include/bindings/dmapdata.zh:342
+RETURNFUNC; Func[void dmapdata::GetName(char32[])] Body End                     | 3632 resources/include/bindings/dmapdata.zh:342
+POP D2; Func[void dmapdata::SetName(char32[])] Body Start                       | 3633 resources/include/bindings/dmapdata.zh:350
+POP REFDMAPDATA                                                                 | 3634 resources/include/bindings/dmapdata.zh:350
+DMAPDATASETNAMER D2                                                             | 3635 resources/include/bindings/dmapdata.zh:350
+RETURNFUNC; Func[void dmapdata::SetName(char32[])] Body End                     | 3636 resources/include/bindings/dmapdata.zh:350
+POP D2; Func[void dmapdata::GetTitle(char32[])] Body Start                      | 3637 resources/include/bindings/dmapdata.zh:358
+POP REFDMAPDATA                                                                 | 3638 resources/include/bindings/dmapdata.zh:358
+DMAPDATAGETTITLER D2                                                            | 3639 resources/include/bindings/dmapdata.zh:358
+RETURNFUNC; Func[void dmapdata::GetTitle(char32[])] Body End                    | 3640 resources/include/bindings/dmapdata.zh:358
+POP D2; Func[void dmapdata::SetTitle(char32[])] Body Start                      | 3641 resources/include/bindings/dmapdata.zh:366
+POP REFDMAPDATA                                                                 | 3642 resources/include/bindings/dmapdata.zh:366
+DMAPDATASETTITLER D2                                                            | 3643 resources/include/bindings/dmapdata.zh:366
+RETURNFUNC; Func[void dmapdata::SetTitle(char32[])] Body End                    | 3644 resources/include/bindings/dmapdata.zh:366
+POP D2; Func[void dmapdata::GetIntro(char32[])] Body Start                      | 3645 resources/include/bindings/dmapdata.zh:374
+POP REFDMAPDATA                                                                 | 3646 resources/include/bindings/dmapdata.zh:374
+DMAPDATAGETINTROR D2                                                            | 3647 resources/include/bindings/dmapdata.zh:374
+RETURNFUNC; Func[void dmapdata::GetIntro(char32[])] Body End                    | 3648 resources/include/bindings/dmapdata.zh:374
+POP D2; Func[void dmapdata::SetIntro(char32[])] Body Start                      | 3649 resources/include/bindings/dmapdata.zh:382
+POP REFDMAPDATA                                                                 | 3650 resources/include/bindings/dmapdata.zh:382
+DMAPDATANSETITROR D2                                                            | 3651 resources/include/bindings/dmapdata.zh:382
+RETURNFUNC; Func[void dmapdata::SetIntro(char32[])] Body End                    | 3652 resources/include/bindings/dmapdata.zh:382
+POP D2; Func[void dmapdata::GetMusic(char32[])] Body Start                      | 3653 resources/include/bindings/dmapdata.zh:392
+POP REFDMAPDATA                                                                 | 3654 resources/include/bindings/dmapdata.zh:392
+DMAPDATAGETMUSICR D2                                                            | 3655 resources/include/bindings/dmapdata.zh:392
+RETURNFUNC; Func[void dmapdata::GetMusic(char32[])] Body End                    | 3656 resources/include/bindings/dmapdata.zh:392
+POP D2; Func[void dmapdata::SetMusic(char32[])] Body Start                      | 3657 resources/include/bindings/dmapdata.zh:402
+POP REFDMAPDATA                                                                 | 3658 resources/include/bindings/dmapdata.zh:402
+DMAPDATASETMUSICR D2                                                            | 3659 resources/include/bindings/dmapdata.zh:402
+RETURNFUNC; Func[void dmapdata::SetMusic(char32[])] Body End                    | 3660 resources/include/bindings/dmapdata.zh:402
 POP REFDROPSETDATA; Func[int dropsetdata::Choose()] Body Start                  | 3661 resources/include/bindings/dropsetdata.zh:31
 SETR D2 DROPSETCHOOSE                                                           | 3662 resources/include/bindings/dropsetdata.zh:31
 RETURNFUNC; Func[int dropsetdata::Choose()] Body End                            | 3663 resources/include/bindings/dropsetdata.zh:31
@@ -3909,26 +3909,26 @@ POP D1; Func[int hero::GetOriginalFlip(int, int)] Body Start                    
 POP D0                                                                          | 3880 resources/include/bindings/hero.zh:987
 SETR D2 LINKOFLIP                                                               | 3881 resources/include/bindings/hero.zh:987
 RETURNFUNC; Func[int hero::GetOriginalFlip(int, int)] Body End                  | 3882 resources/include/bindings/hero.zh:987
-POP D2; Func[void itemdata::GetName(char32[])] Body Start                       | 3883 resources/include/bindings/itemdata.zh:959
-POP REFITEMDATA                                                                 | 3884 resources/include/bindings/itemdata.zh:959
-ITEMNAME D2                                                                     | 3885 resources/include/bindings/itemdata.zh:959
-RETURNFUNC; Func[void itemdata::GetName(char32[])] Body End                     | 3886 resources/include/bindings/itemdata.zh:959
-POP D2; Func[void itemdata::GetDisplayName(char32[])] Body Start                | 3887 resources/include/bindings/itemdata.zh:967
-POP REFITEMDATA                                                                 | 3888 resources/include/bindings/itemdata.zh:967
-ITEMGETDISPLAYNAME D2                                                           | 3889 resources/include/bindings/itemdata.zh:967
-RETURNFUNC; Func[void itemdata::GetDisplayName(char32[])] Body End              | 3890 resources/include/bindings/itemdata.zh:967
-POP D2; Func[void itemdata::SetDisplayName(char32[])] Body Start                | 3891 resources/include/bindings/itemdata.zh:975
-POP REFITEMDATA                                                                 | 3892 resources/include/bindings/itemdata.zh:975
-ITEMSETDISPLAYNAME D2                                                           | 3893 resources/include/bindings/itemdata.zh:975
-RETURNFUNC; Func[void itemdata::SetDisplayName(char32[])] Body End              | 3894 resources/include/bindings/itemdata.zh:975
-POP D2; Func[void itemdata::GetShownName(char32[])] Body Start                  | 3895 resources/include/bindings/itemdata.zh:985
-POP REFITEMDATA                                                                 | 3896 resources/include/bindings/itemdata.zh:985
-ITEMGETSHOWNNAME D2                                                             | 3897 resources/include/bindings/itemdata.zh:985
-RETURNFUNC; Func[void itemdata::GetShownName(char32[])] Body End                | 3898 resources/include/bindings/itemdata.zh:985
-POP D2; Func[void itemdata::RunScript(int)] Body Start                          | 3899 resources/include/bindings/itemdata.zh:994
-POP REFITEMDATA                                                                 | 3900 resources/include/bindings/itemdata.zh:994
-RUNITEMSCRIPT D2                                                                | 3901 resources/include/bindings/itemdata.zh:994
-RETURNFUNC; Func[void itemdata::RunScript(int)] Body End                        | 3902 resources/include/bindings/itemdata.zh:994
+POP D2; Func[void itemdata::GetName(char32[])] Body Start                       | 3883 resources/include/bindings/itemdata.zh:971
+POP REFITEMDATA                                                                 | 3884 resources/include/bindings/itemdata.zh:971
+ITEMNAME D2                                                                     | 3885 resources/include/bindings/itemdata.zh:971
+RETURNFUNC; Func[void itemdata::GetName(char32[])] Body End                     | 3886 resources/include/bindings/itemdata.zh:971
+POP D2; Func[void itemdata::GetDisplayName(char32[])] Body Start                | 3887 resources/include/bindings/itemdata.zh:979
+POP REFITEMDATA                                                                 | 3888 resources/include/bindings/itemdata.zh:979
+ITEMGETDISPLAYNAME D2                                                           | 3889 resources/include/bindings/itemdata.zh:979
+RETURNFUNC; Func[void itemdata::GetDisplayName(char32[])] Body End              | 3890 resources/include/bindings/itemdata.zh:979
+POP D2; Func[void itemdata::SetDisplayName(char32[])] Body Start                | 3891 resources/include/bindings/itemdata.zh:987
+POP REFITEMDATA                                                                 | 3892 resources/include/bindings/itemdata.zh:987
+ITEMSETDISPLAYNAME D2                                                           | 3893 resources/include/bindings/itemdata.zh:987
+RETURNFUNC; Func[void itemdata::SetDisplayName(char32[])] Body End              | 3894 resources/include/bindings/itemdata.zh:987
+POP D2; Func[void itemdata::GetShownName(char32[])] Body Start                  | 3895 resources/include/bindings/itemdata.zh:997
+POP REFITEMDATA                                                                 | 3896 resources/include/bindings/itemdata.zh:997
+ITEMGETSHOWNNAME D2                                                             | 3897 resources/include/bindings/itemdata.zh:997
+RETURNFUNC; Func[void itemdata::GetShownName(char32[])] Body End                | 3898 resources/include/bindings/itemdata.zh:997
+POP D2; Func[void itemdata::RunScript(int)] Body Start                          | 3899 resources/include/bindings/itemdata.zh:1006
+POP REFITEMDATA                                                                 | 3900 resources/include/bindings/itemdata.zh:1006
+RUNITEMSCRIPT D2                                                                | 3901 resources/include/bindings/itemdata.zh:1006
+RETURNFUNC; Func[void itemdata::RunScript(int)] Body End                        | 3902 resources/include/bindings/itemdata.zh:1006
 POP D2; Func[void itemsprite::Max(int)] Body Start                              | 3903 resources/include/bindings/itemsprite.zh:145
 POP REFITEM                                                                     | 3904 resources/include/bindings/itemsprite.zh:145
 SETR SPRITEMAXITEM D2                                                           | 3905 resources/include/bindings/itemsprite.zh:145
@@ -7017,6 +7017,7 @@ debug data:
       - int OverlaySubscreen @ Reg[DMAPDATASUBSCRO]
       - int PSubScript @ Reg[DMAPDATAPSUBSCRIPT]
       - int Palette @ Reg[DMAPDATAPALETTE]
+      - untyped[] PassiveSubInitD @ Reg[DMAPDATAPSUBINITD]
       - int PassiveSubscreen @ Reg[DMAPDATASUBSCRP]
       - int Script @ Reg[DMAPSCRIPT]
       - bool Sideview @ Reg[DMAPDATASIDEVIEW]
@@ -9465,6 +9466,7 @@ debug data:
       - int PScript @ Reg[IDATAPSCRIPT]
       - int PString @ Reg[IDATAPSTRING]
       - int Pickup @ Reg[IDATAPICKUP]
+      - untyped[] PickupInitD @ Reg[IDATACOLLECTINITD]
       - int PickupLItemLevel @ Reg[IDATAPICKUPLITEMLEVEL]
       - int PickupLItems @ Reg[IDATAPICKUPLITEMS]
       - int PickupSound @ Reg[IDATAPSOUND]
@@ -9476,6 +9478,7 @@ debug data:
       - int Script @ Reg[IDATASCRIPT]
       - bool SideSwimDisabled @ Reg[IDATASSWIMDISABLED]
       - int SizeFlags @ Reg[IDATAOVERRIDEFL]
+      - untyped[] SpriteInitD @ Reg[IDATASPRITEINITD]
       - int SpriteScript @ Reg[IDATASPRSCRIPT]
       - int[] Sprites @ Reg[IDATASPRITE]
       - int Tile @ Reg[IDATATILE]

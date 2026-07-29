@@ -91,7 +91,7 @@ sprite::sprite(): solid_object()
     for(int32_t i=0; i<32; i++) miscellaneous[i] = 0;
     
     script_no_colldet = 0;
-    script = 0;
+    scrconfig.clear();
     scripttile = -1;
     scriptflip = -1;
     do_animation = true;
@@ -105,10 +105,6 @@ sprite::sprite(): solid_object()
 	script_knockback_speed = 0;
 	screenedge = 0;
 	scriptshadowtile = -1;
-    for ( int32_t q = 0; q < 8; q++ )
-    {
-	    initD[q] = 0;
-    }
 	glowRad = 0;
 	glowShape = 0;
 	glowOffset = 0;
@@ -137,7 +133,7 @@ sprite::sprite(sprite const & other):
     onplatid(other.onplatid), angular(other.angular), can_freeze_from_holdup(other.can_freeze_from_holdup),
     angle(other.angle), lasthit(other.lasthit), lasthitclk(other.lasthitclk),
     drawstyle(other.drawstyle), extend(other.extend), wpnsprite(other.wpnsprite),
-	scriptflag(other.scriptflag), script(other.script),
+	scriptflag(other.scriptflag), scrconfig(other.scrconfig),
 	scripttile(other.scripttile), scriptflip(other.scriptflip),
 	do_animation(other.do_animation), rotation(other.rotation),
 	scale(other.scale), moveflags(other.moveflags), drawflags(other.drawflags),
@@ -180,12 +176,6 @@ sprite::sprite(sprite const & other):
     for(int32_t i=0; i<32; i++) miscellaneous[i] = other.miscellaneous[i];
     
     script_no_colldet = other.script_no_colldet;
-    
-    
-	for (int32_t i=0; i<8; ++i)
-	{
-		initD[i]=other.initD[i];
-	}
 }
 
 sprite::sprite(zfix X,zfix Y,int32_t T,int32_t CS,int32_t F,int32_t Clk,int32_t Yofs):
@@ -212,7 +202,7 @@ sprite::sprite(zfix X,zfix Y,int32_t T,int32_t CS,int32_t F,int32_t Clk,int32_t 
     for(int32_t i=0; i<32; i++) miscellaneous[i] = 0;
     
     script_no_colldet = 0;
-    script = 0;
+    scrconfig.clear();
     scripttile = -1;
     scriptflip = -1;
     rotation = 0;
@@ -243,10 +233,6 @@ sprite::sprite(zfix X,zfix Y,int32_t T,int32_t CS,int32_t F,int32_t Clk,int32_t 
     drownclk = 0;
     drownCombo = 0;
     drawflags = 0;
-    for ( int32_t q = 0; q < 8; q++ ) 
-    {
-        initD[q] = 0;
-    }
 	glowRad = 0;
 	glowShape = 0;
 	glowOffset = 0;

@@ -47,7 +47,7 @@ protected:
 	std::shared_ptr<GUI::TextField> tfs[3];
 	std::shared_ptr<GUI::Checkbox> cbs[4];
 	
-	std::shared_ptr<GUI::Grid> selgs[4];
+	std::shared_ptr<GUI::Grid> selgs[2];
 	std::shared_ptr<GUI::Frame> selframes[3];
 	std::shared_ptr<GUI::TabRef> seltabs[1];
 	std::shared_ptr<GUI::TextField> seltfs[1];
@@ -58,10 +58,7 @@ protected:
 	
 	std::shared_ptr<GUI::List> req_item_list, req_not_item_list,
 		req_floor_list, req_level_list, req_dmap_list, req_map_list, req_screen_list;
-	
-	std::shared_ptr<GUI::Label> geninitd_lbl[8];
-	std::shared_ptr<GUI::Button> geninitd_btn[8];
-	
+		
 	std::shared_ptr<GUI::Button> reqfloor_btn_del, reqfloor_btn_add,
 		reqlevel_btn_del, reqlevel_btn_add,
 		reqdmap_btn_del, reqdmap_btn_add,

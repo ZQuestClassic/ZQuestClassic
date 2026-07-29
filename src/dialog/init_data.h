@@ -54,6 +54,7 @@ private:
 	std::shared_ptr<GUI::Widget> BTN_05(int val);
 };
 
+#ifndef IS_PLAYER
 class InitGenscriptWizard : public GUI::Dialog<InitGenscriptWizard>
 {
 public:
@@ -71,7 +72,7 @@ private:
 	zinitdata& dest_zinit;
 	size_t index;
 	GUI::ListData list_dmaps, list_items;
-	
-	std::shared_ptr<GUI::Widget> GEN_INITD(int ind,zasm_meta const& meta);
 };
+#endif
+
 #endif

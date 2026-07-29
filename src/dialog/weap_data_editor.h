@@ -38,18 +38,12 @@ private:
 	std::shared_ptr<GUI::TextField> glow_field_base, glow_off_field_base, step_tf;
 	std::shared_ptr<GUI::Label> glow_label, glow_off_label;
 	std::shared_ptr<GUI::Checkbox> burn_box, glow_box;
-	std::shared_ptr<GUI::TextField> tf_initd[8];
-	std::shared_ptr<GUI::Label> l_initds[8];
-	std::shared_ptr<GUI::Button> ib_initds[8];
-	string l_initd[8], h_initd[8];
 	GUI::ListData list_sprites, list_weaptype, list_sfx, list_light_shapes,
 		list_deftypes, list_lwpnscripts, list_ewpnscripts;
 	
 	void refresh_burnglow();
-	void refresh_script();
 	
 	std::shared_ptr<GUI::Widget> MoveFlag(move_flags index, string const& str);
-	std::shared_ptr<GUI::Widget> ScriptField(int index);
 	friend void call_weap_data_editor(weapon_data& weap, bool lweapon, bool togglable);
 };
 

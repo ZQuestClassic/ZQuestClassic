@@ -33,16 +33,12 @@ struct dmap
 	bitstring disabled_items;
 	int32_t flags;
 	char sideview;
-	word script;
-	int32_t initD[8];
-	char initD_label[8][65];
-	word active_sub_script;
-	word passive_sub_script;
-	int32_t sub_initD[8];
-	char sub_initD_label[8][65];
-	word onmap_script;
-	int32_t onmap_initD[8];
-	char onmap_initD_label[8][65];
+	
+	script_config active_scrconfig;
+	script_config active_sub_scrconfig;
+	script_config passive_sub_scrconfig;
+	script_config onmap_scrconfig;
+	
 	int16_t mirrorDMap;
 	uint32_t intro_string_id;
 	word music = 0;

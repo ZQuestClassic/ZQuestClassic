@@ -159,11 +159,11 @@ class set_ffc_command : public user_input_command
 public:
 	struct data_t {
 		zfix x, y, vx, vy, ax, ay;
-		int data, cset, delay, link, script;
+		int data, cset, delay, link;
+		script_config scrconfig;
 		int tw, th;
 		int ew, eh;
 		ffc_flags flags;
-		std::array<int, 8> initd;
 		int8_t layer;
 		int32_t viewport_suspend_range;
 		int32_t viewport_despawn_range;

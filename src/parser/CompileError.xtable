@@ -138,5 +138,6 @@ X(	Error,			S,	A,	E,	STR,	VOID,	"%s"								)
 X(	VarNotStatic,			S,	A,	E,	STR,	VOID,	"Variable %s is not static, so cannot be accessed externally.")
 X(	FuncNotStatic,			T,	A,	E,	STR,	VOID,	"Function %s is not static, so cannot be accessed externally.")
 X(	TooManyScriptInstVars,			L,	A,	E,	STR,	STR,	"Script %s has too many non-static variables (%s)."	 						)
+X(	ExportError, S, A, E, STR, VOID, "%s" )
 
 #undef STR

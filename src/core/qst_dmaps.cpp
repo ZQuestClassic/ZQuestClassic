@@ -381,131 +381,89 @@ int32_t read_one_dmap(PACKFILE* f, zquestheader *Header, int s_version, int inde
 		if(s_version < 10) tempDMap.sideview = 0;
 		
 		//Dmap Scripts
-		if(s_version >= 12)
+		if (s_version >= 27)
 		{
-			if(!p_igetw(&tempDMap.script,f))
-			{
+			if (!p_getvar(&tempDMap.active_scrconfig, f))
 				return qe_invalid;
-			}
-			for ( int32_t q = 0; q < 8; q++ )
-			{
-				if(!p_igetl(&tempDMap.initD[q],f))
-				{
-					return qe_invalid;
-				}
-			}
-		}
-		if ( s_version < 12 )
-		{
-			tempDMap.script = 0;
-			for ( int32_t q = 0; q < 8; q++ )
-			{
-				tempDMap.initD[q] = 0;
-			}
-		}
-		
-		if(s_version >= 13)
-		{
-			for ( int32_t q = 0; q < 8; q++ )
-			{
-				for ( int32_t w = 0; w < 65; w++ )
-				{
-					if(!p_getc(&tempDMap.initD_label[q][w],f))
-					{
-						return qe_invalid;
-					} 
-				}
-			}
-		}
-		if ( s_version < 13 )
-		{
-			tempDMap.script = 0;
-			for ( int32_t q = 0; q < 8; q++ )
-			{
-				for ( int32_t w = 0; w < 65; w++ )
-					tempDMap.initD_label[q][w] = 0;
-			}
-		}
-		if(s_version >= 14)
-		{
-			if(!p_igetw(&tempDMap.active_sub_script,f))
-			{
+			if (!p_getvar(&tempDMap.active_sub_scrconfig, f))
 				return qe_invalid;
-			}
-			if(!p_igetw(&tempDMap.passive_sub_script,f))
-			{
+			if (!p_getvar(&tempDMap.passive_sub_scrconfig, f))
 				return qe_invalid;
-			}
-			// These index the fixed-size dmapscripts[NUMSCRIPTSDMAP] table; a
-			// file-controlled out-of-range value would cause an out-of-bounds read
-			// and wild-pointer dereference in consumers, so sanitize here.
-			if(tempDMap.active_sub_script >= NUMSCRIPTSDMAP)
-				tempDMap.active_sub_script = 0;
-			if(tempDMap.passive_sub_script >= NUMSCRIPTSDMAP)
-				tempDMap.passive_sub_script = 0;
-			for ( int32_t q = 0; q < 8; ++q )
-			{
-				if(!p_igetl(&tempDMap.sub_initD[q],f))
-				{
-					return qe_invalid;
-				}
-			}
-			for(int32_t q = 0; q < 8; ++q)
-			{
-				for ( int32_t w = 0; w < 65; ++w )
-				{
-					if(!p_getc(&tempDMap.sub_initD_label[q][w],f))
-					{
-						return qe_invalid;
-					} 
-				}
-			}
+			if (!p_getvar(&tempDMap.onmap_scrconfig, f))
+				return qe_invalid;
 		}
 		else
 		{
-			tempDMap.active_sub_script = 0;
-			tempDMap.passive_sub_script = 0;
-			for(int32_t q = 0; q < 8; ++q)
+			if (s_version >= 12)
 			{
-				tempDMap.sub_initD[q] = 0;
-				for(int32_t w = 0; w < 65; ++w)
-					tempDMap.sub_initD_label[q][w] = 0;
-			}
-		}
-		if(s_version >= 15)
-		{
-			if(!p_igetw(&tempDMap.onmap_script,f))
-			{
-				return qe_invalid;
-			}
-			for ( int32_t q = 0; q < 8; ++q )
-			{
-				if(!p_igetl(&tempDMap.onmap_initD[q],f))
-				{
+				if (!p_igetw(&tempDMap.active_scrconfig.script,f))
 					return qe_invalid;
-				}
-			}
-			for(int32_t q = 0; q < 8; ++q)
-			{
-				for ( int32_t w = 0; w < 65; ++w )
+				for ( int32_t q = 0; q < 8; q++ )
 				{
-					if(!p_getc(&tempDMap.onmap_initD_label[q][w],f))
-					{
+					if(!p_igetl(&tempDMap.active_scrconfig.run_args[q],f))
 						return qe_invalid;
-					} 
 				}
 			}
-		}
-		else
-		{
-			tempDMap.onmap_script = 0;
-			for(int32_t q = 0; q < 8; ++q)
+			else
 			{
-				tempDMap.onmap_initD[q] = 0;
-				for(int32_t w = 0; w < 65; ++w)
+				tempDMap.active_scrconfig.clear();
+			}
+			
+			if(s_version >= 13)
+			{
+				for ( int32_t q = 0; q < 8; q++ )
+					for ( int32_t w = 0; w < 65; w++ )
+						if (!p_getc(&padding,f))
+							return qe_invalid;
+			}
+			else
+			{
+				tempDMap.active_scrconfig.script = 0;
+			}
+			if(s_version >= 14)
+			{
+				if(!p_igetw(&tempDMap.active_sub_scrconfig.script,f))
+					return qe_invalid;
+				if(!p_igetw(&tempDMap.passive_sub_scrconfig.script,f))
+					return qe_invalid;
+				// These index the fixed-size dmapscripts[NUMSCRIPTSDMAP] table; a
+				// file-controlled out-of-range value would cause an out-of-bounds read
+				// and wild-pointer dereference in consumers, so sanitize here.
+				if(tempDMap.active_sub_scrconfig.script >= NUMSCRIPTSDMAP)
+					tempDMap.active_sub_scrconfig.script = 0;
+				if(tempDMap.passive_sub_scrconfig.script >= NUMSCRIPTSDMAP)
+					tempDMap.passive_sub_scrconfig.script = 0;
+				for ( int32_t q = 0; q < 8; ++q )
 				{
-					tempDMap.onmap_initD_label[q][w] = 0;
+					if(!p_igetl(&tempDMap.active_sub_scrconfig.run_args[q],f))
+						return qe_invalid;
+					tempDMap.passive_sub_scrconfig.run_args[q] = tempDMap.active_sub_scrconfig.run_args[q];
 				}
+				for(int32_t q = 0; q < 8; ++q)
+					for ( int32_t w = 0; w < 65; ++w )
+						if(!p_getc(&padding,f))
+							return qe_invalid;
+			}
+			else
+			{
+				tempDMap.active_sub_scrconfig.clear();
+				tempDMap.passive_sub_scrconfig.clear();
+			}
+			if(s_version >= 15)
+			{
+				if(!p_igetw(&tempDMap.onmap_scrconfig.script,f))
+					return qe_invalid;
+				for ( int32_t q = 0; q < 8; ++q )
+					if(!p_igetl(&tempDMap.onmap_scrconfig.run_args[q],f))
+						return qe_invalid;
+				for(int32_t q = 0; q < 8; ++q)
+					for ( int32_t w = 0; w < 65; ++w )
+						if(!p_getc(&padding,f))
+							return qe_invalid;
+			}
+			else
+			{
+				tempDMap.onmap_scrconfig.clear();
 			}
 		}
 		if(s_version >= 16)
@@ -599,9 +557,10 @@ int32_t read_one_dmap(PACKFILE* f, zquestheader *Header, int s_version, int inde
 				tempDMap.map = 0;
 			if(loading_tileset_flags & TILESET_CLEARSCRIPTS)
 			{
-				tempDMap.script = 0;
-				for(int q = 0; q < 8; ++q)
-					tempDMap.initD[q] = 0;
+				tempDMap.active_scrconfig.clear();
+				tempDMap.active_sub_scrconfig.clear();
+				tempDMap.passive_sub_scrconfig.clear();
+				tempDMap.onmap_scrconfig.clear();
 			}
 			DMaps[index] = tempDMap;
 		}

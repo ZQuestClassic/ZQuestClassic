@@ -511,10 +511,10 @@ static ArrayRegistrar SAVEMENU_OPT_FRZSCR_registrar(SAVEMENU_OPT_FRZSCR, []{
 			return menu->options.size();
 		},
 		[](SaveMenu* menu, int index) -> int {
-			return menu->options[index].gen_script;
+			return menu->options[index].gen_scrconfig.script;
 		},
 		[](SaveMenu* menu, int index, int value){
-			menu->options[index].gen_script = value;
+			menu->options[index].gen_scrconfig.script = value;
 		}
 	);
 	impl.setMul10000(true);

@@ -17,9 +17,9 @@ stdout:
   "success": true,
   "diagnostics": [],
   "metadata": {
-    "currentFileSymbols": 4,
+    "currentFileSymbols": 9,
     "symbols": 15,
-    "identifiers": 57,
+    "identifiers": 62,
     "elided": true
   }
 }
@@ -27,29 +27,24 @@ stdout:
 zasm:
 
 QUIT; void run() Body
-PUSHR D0; void run(int, int, int, int, int) Params
-PUSHR D1
-PUSHR D2
-PUSHR D3
-PUSHR D4
-PUSHARGSV 0 0.0002; void run(int, int, int, int, int) Body Start
+PUSHARGSV 0 0.0002; void run() Body Start
 SETR D4 SP2
-LOAD D2 0.0003; if() #8 Test
+SETR D2 SCR4; if() #8 Test
 COMPAREV D2 0
 SETCMP D2 I==
 COMPAREV D2 0
-GOTOCMP 16 ==; Test 'if'
-LOAD D2 0.0006; if() #8 Body Start
-STORE D2 0.0003; if() #8 Body End
+GOTOCMP 11 ==; Test 'if'
+SETR D2 SCR1; if() #8 Body Start
+SETR SCR4 D2; if() #8 Body End
 NOP
-LOAD D2 0.0004; if() #9 Test
+SETR D2 SCR3; if() #9 Test
 COMPAREV D2 0
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 25 ==; Test 'if'
+GOTOCMP 20 ==; Test 'if'
 SETV D3 360; InlineFunc[int Rand(int)] Params AND if() #9 Body Start
 RNDR D2 D3; InlineFunc[int Rand(int)] Body
-STORE D2 0.0004; if() #9 Body End
+SETR SCR3 D2; if() #9 Body End
 NOP
 SETR D2 SCR0
 PUSHR D2
@@ -61,42 +56,41 @@ PUSHR D2
 POP REFSPRITE
 SETR D2 SPRITE_Y
 STORE D2 0
-LOAD D2 0.0004; while(true) #1 Body [Opt:AlwaysOn] Start
+SETR D2 SCR3; while(true) #1 Body [Opt:AlwaysOn] Start
 PUSHR D2
-LOAD D2 0.0005
+SETR D2 SCR2
 POP D3
 ADDR D2 D3
-STORE D2 0.0004
-LOAD D2 0.0004; if() #1 Test
+SETR SCR3 D2
+SETR D2 SCR3; if() #1 Test
 COMPAREV D2 -360
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 51 ==; Test 'if'
-LOAD D2 0.0004; if() #1 Body Start
+GOTOCMP 46 ==; Test 'if'
+SETR D2 SCR3; if() #1 Body Start
 ADDV D2 360
-STORE D2 0.0004
-GOTO 60; if() #1 Body End
-LOAD D2 0.0004; if() #10 Test AND if() #1 Else Start
+SETR SCR3 D2
+GOTO 55; if() #1 Body End
+SETR D2 SCR3; if() #10 Test AND if() #1 Else Start
 COMPAREV D2 360
 SETCMP D2 I>
 COMPAREV D2 0
-GOTOCMP 59 ==; Test 'if'
-LOAD D2 0.0004; if() #10 Body Start
+GOTOCMP 54 ==; Test 'if'
+SETR D2 SCR3; if() #10 Body Start
 SUBV D2 360
-STORE D2 0.0004; if() #10 Body End
+SETR SCR3 D2; if() #10 Body End
 NOP; if() #1 Else End
 NOP
-LOAD D2 0.0002; if() #2 Test
+SETR D2 SCR5; if() #2 Test
 COMPAREV D2 0
 SETCMP D2 I==
 COMPAREV D2 0
-GOTOCMP 105 ==; Test 'if'
+GOTOCMP 98 ==; Test 'if'
 LOAD D2 0.0001; if() #2 Body Start
 PUSHR D2
-LOAD D2 0.0006
+SETR D2 SCR1
 PUSHR D2
-LOAD D2 0.0004; InlineFunc[int Cos(int)] Params Start
-SETR D3 D2; InlineFunc[int Cos(int)] Params End
+SETR D3 SCR3; InlineFunc[int Cos(int)] Params
 COSR D2 D3; InlineFunc[int Cos(int)] Body
 POP D3
 MULTR D2 D3
@@ -112,10 +106,9 @@ POP REFSPRITE
 SETR SPRITE_X D2
 LOAD D2 0
 PUSHR D2
-LOAD D2 0.0003
+SETR D2 SCR4
 PUSHR D2
-LOAD D2 0.0004; InlineFunc[int Sin(int)] Params Start
-SETR D3 D2; InlineFunc[int Sin(int)] Params End
+SETR D3 SCR3; InlineFunc[int Sin(int)] Params
 SINR D2 D3; InlineFunc[int Sin(int)] Body
 POP D3
 MULTR D2 D3
@@ -129,35 +122,31 @@ PUSHR D3
 POP D2
 POP REFSPRITE
 SETR SPRITE_Y D2
-GOTO 188; if() #2 Body End
+GOTO 173; if() #2 Body End
 LOAD D2 0.0001; if() #2 Else Start
 PUSHR D2
-LOAD D2 0.0006
+SETR D2 SCR1
 PUSHR D2
-LOAD D2 0.0004; InlineFunc[int Cos(int)] Params Start
-SETR D3 D2; InlineFunc[int Cos(int)] Params End
+SETR D3 SCR3; InlineFunc[int Cos(int)] Params
 COSR D2 D3; InlineFunc[int Cos(int)] Body
 POP D3
 MULTR D2 D3
 PUSHR D2
-LOAD D2 0.0002; InlineFunc[int Cos(int)] Params Start
-SETR D3 D2; InlineFunc[int Cos(int)] Params End
+SETR D3 SCR5; InlineFunc[int Cos(int)] Params
 COSR D2 D3; InlineFunc[int Cos(int)] Body
 POP D3
 MULTR D2 D3
 POP D3
 ADDR D2 D3
 PUSHR D2
-LOAD D2 0.0003
+SETR D2 SCR4
 PUSHR D2
-LOAD D2 0.0004; InlineFunc[int Sin(int)] Params Start
-SETR D3 D2; InlineFunc[int Sin(int)] Params End
+SETR D3 SCR3; InlineFunc[int Sin(int)] Params
 SINR D2 D3; InlineFunc[int Sin(int)] Body
 POP D3
 MULTR D2 D3
 PUSHR D2
-LOAD D2 0.0002; InlineFunc[int Sin(int)] Params Start
-SETR D3 D2; InlineFunc[int Sin(int)] Params End
+SETR D3 SCR5; InlineFunc[int Sin(int)] Params
 SINR D2 D3; InlineFunc[int Sin(int)] Body
 POP D3
 MULTR D2 D3
@@ -174,32 +163,28 @@ POP REFSPRITE
 SETR SPRITE_X D2
 LOAD D2 0
 PUSHR D2
-LOAD D2 0.0003
+SETR D2 SCR4
 PUSHR D2
-LOAD D2 0.0004; InlineFunc[int Sin(int)] Params Start
-SETR D3 D2; InlineFunc[int Sin(int)] Params End
+SETR D3 SCR3; InlineFunc[int Sin(int)] Params
 SINR D2 D3; InlineFunc[int Sin(int)] Body
 POP D3
 MULTR D2 D3
 PUSHR D2
-LOAD D2 0.0002; InlineFunc[int Cos(int)] Params Start
-SETR D3 D2; InlineFunc[int Cos(int)] Params End
+SETR D3 SCR5; InlineFunc[int Cos(int)] Params
 COSR D2 D3; InlineFunc[int Cos(int)] Body
 POP D3
 MULTR D2 D3
 POP D3
 ADDR D2 D3
 PUSHR D2
-LOAD D2 0.0006
+SETR D2 SCR1
 PUSHR D2
-LOAD D2 0.0004; InlineFunc[int Cos(int)] Params Start
-SETR D3 D2; InlineFunc[int Cos(int)] Params End
+SETR D3 SCR3; InlineFunc[int Cos(int)] Params
 COSR D2 D3; InlineFunc[int Cos(int)] Body
 POP D3
 MULTR D2 D3
 PUSHR D2
-LOAD D2 0.0002; InlineFunc[int Sin(int)] Params Start
-SETR D3 D2; InlineFunc[int Sin(int)] Params End
+SETR D3 SCR5; InlineFunc[int Sin(int)] Params
 SINR D2 D3; InlineFunc[int Sin(int)] Body
 POP D3
 MULTR D2 D3
@@ -215,4 +200,4 @@ POP REFSPRITE
 SETR SPRITE_Y D2; if() #2 Else End
 NOP
 WAITFRAME; InlineFunc[void Waitframe()] Body AND while(true) #1 Body [Opt:AlwaysOn] End
-GOTO 36; while() #1 End AND [Opt:NeverRet] AND void run(int, int, int, int, int) Body End
+GOTO 31; while() #1 End AND [Opt:NeverRet] AND void run() Body End

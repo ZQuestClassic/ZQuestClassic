@@ -959,11 +959,16 @@ int32_t read_weap_data(weapon_data& data, PACKFILE* f)
 	if (!p_igetzf(&(data.lift_height), f))
 		return qe_invalid;
 	
-	if(!p_igetw(&(data.script), f))
-		return qe_invalid;
-	for(uint q = 0; q < 8; ++q)
-		if(!p_igetl(&(data.initd[q]), f))
+	if (v_weapon_data < 5)
+	{
+		if(!p_igetw(&(data.scrconfig.script), f))
 			return qe_invalid;
+		for(uint q = 0; q < 8; ++q)
+			if(!p_igetl(&(data.scrconfig.run_args[q]), f))
+				return qe_invalid;
+	}
+	else if (!p_getvar(&data.scrconfig, f))
+		return qe_invalid;
 	if(!p_igetw(&(data.pierce_count), f))
 		return qe_invalid;
 	
@@ -1818,7 +1823,7 @@ static bool compat_qr_hide_bottom_pixels(const zquestheader& header)
 	{
 		// The bounds check guards the dmapscripts read against dmaps the
 		// current quest didn't define.
-		int script = DMaps[i].active_sub_script;
+		int script = DMaps[i].active_sub_scrconfig.script;
 		if (script > 0 && script < NUMSCRIPTSDMAP && dmapscripts[script] && dmapscripts[script]->valid())
 			return true;
 	}

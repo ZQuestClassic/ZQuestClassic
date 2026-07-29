@@ -21,6 +21,12 @@ void RegBaseVisitor::handle_data_decl_registry(ASTDataDecl& host)
 	DataType const* type = host.resolve_ornull(scope, this);
 	assert(type);
 	
+	if (list && list->was_range_exported && !list->was_exported)
+	{
+		handleError(CompileError::ExportError(&host, "@ExportRange() requires @Export() to function!"));
+		list->was_range_exported = false;
+	}
+	
 	// Don't allow void type.
 	if (type->isVoid())
 	{
@@ -88,7 +94,7 @@ void RegBaseVisitor::handle_data_decl_registry(ASTDataDecl& host)
 			}
 		}
 		
-		if (const_value)
+		if (const_value && !(list && list->was_exported))
 		{
 			if (scope->getLocalDatum(host.getName()))
 			{
@@ -104,6 +110,57 @@ void RegBaseVisitor::handle_data_decl_registry(ASTDataDecl& host)
 	bool is_static = host.is_static();
 	bool is_classvar = parsing_user_class == puc_vars && !is_static;
 	bool is_scriptvar = !is_static && scope->isScript();
+	if (list && list->was_exported)
+	{
+		if (type->isConstant())
+		{
+			handleError(CompileError::ExportError(&host, "@Export() cannot be used on constants!"));
+			return;
+		}
+		if (is_static)
+		{
+			handleError(CompileError::ExportError(&host, "@Export() cannot be used on static variables!"));
+			return;
+		}
+		if (!is_scriptvar)
+		{
+			handleError(CompileError::ExportError(&host, "@Export() can only be used on script-scope instance variables!"));
+			return;
+		}
+		if (type->isArray())
+		{
+			handleError(CompileError::ExportError(&host, "@Export cannot be used on Arrays."));
+			return;
+		}
+		
+		bool isCompatible = false;
+		if (auto const* simpleType = dynamic_cast<DataTypeSimple const*>(type))
+		{
+			auto id = simpleType->getId();
+			if (id >= ZTID_PRIMITIVE_START && id <= ZTID_PRIMITIVE_END)
+				isCompatible = true;
+		}
+		if (!isCompatible)
+		{
+			handleError(CompileError::ExportError(&host, fmt::format("@Export is incompatible with type '{}'", type->getName())));
+			return;
+		}
+		
+		if (type->isBool())
+		{
+			// Mark bool exports as checkboxes!
+			list->export_data.min = 0_zf;
+			list->export_data.max = 0.0001_zf;
+			list->export_data.btn_type = nswapBOOL;
+			
+			if (list->was_range_exported)
+			{
+				handleError(CompileError::ExportError(&host, "@ExportRange() is incompatible with 'bool' variables!"));
+				list->was_range_exported = false;
+			}
+		}
+	}
+	
 	if (is_classvar)
 	{
 		if (host.getInitializer())

@@ -2908,8 +2908,8 @@ void ScriptsData::fillFromAssembler(ScriptAssembler& assembler)
 				it != run->paramNames.end(); ++it)
 			{
 				meta.run_idens[ind] = (**it);
-				if(!meta.initd[ind].size())
-					meta.initd[ind] = meta.run_idens[ind];
+				if(!meta.initd_label[ind].size())
+					meta.initd_label[ind] = meta.run_idens[ind];
 				if (++ind > 7) break; //sanity check
 			}
 			ind = 0;
