@@ -134,29 +134,49 @@ void RegBaseVisitor::handle_data_decl_registry(ASTDataDecl& host)
 		}
 		
 		bool isCompatible = false;
+		int32_t type_id = ZTID_VOID;
 		if (auto const* simpleType = dynamic_cast<DataTypeSimple const*>(type))
 		{
 			auto id = simpleType->getId();
 			if (id >= ZTID_PRIMITIVE_START && id <= ZTID_PRIMITIVE_END)
+			{
 				isCompatible = true;
+				type_id = id;
+			}
 		}
 		if (!isCompatible)
 		{
 			handleError(CompileError::ExportError(&host, fmt::format("@Export is incompatible with type '{}'", type->getName())));
 			return;
 		}
-		
+
 		if (type->isBool())
 		{
 			// Mark bool exports as checkboxes!
 			list->export_data.min = 0_zf;
 			list->export_data.max = 0.0001_zf;
 			list->export_data.btn_type = nswapBOOL;
-			
+
 			if (list->was_range_exported)
 			{
 				handleError(CompileError::ExportError(&host, "@ExportRange() is incompatible with 'bool' variables!"));
 				list->was_range_exported = false;
+			}
+		}
+		else if (list->export_data.btn_type < 0)
+		{
+			// No explicit input field type - default from the variable's type.
+			switch (type_id)
+			{
+				case ZTID_LONG:
+					list->export_data.btn_type = nswapLDEC;
+					break;
+				case ZTID_RGBDATA:
+					list->export_data.btn_type = nswapLHEX;
+					break;
+				default:
+					list->export_data.btn_type = nswapDEC;
+					break;
 			}
 		}
 	}
