@@ -114,6 +114,11 @@ private:
 	int32_t startVal;
 	int32_t fixedPlaces;
 	int32_t lbound, ubound;
+	bool lbound_set, ubound_set;
+	// Bounds only apply once both have been given. Checking `ubound > lbound`
+	// alone misreads a half-set pair as a valid range (the defaults are 0/-1),
+	// clamping the value against a bound that was never set.
+	bool hasBounds() const {return lbound_set && ubound_set && ubound > lbound;}
 	type tfType;
 	int32_t swap_type_start;
 	size_t maxLength;
