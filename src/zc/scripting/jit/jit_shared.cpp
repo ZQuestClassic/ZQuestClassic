@@ -392,6 +392,7 @@ int jit_run_script(JittedScriptInstance* j_instance)
 		.j_instance = j_instance,
 		.registers = j_instance->ri->d,
 		.global_registers = game->global_d,
+		.script_registers = j_instance->ri->script_d.data(),
 		.stack_base = *stack,
 		.sp = j_instance->ri->sp,
 		.pc = j_instance->ri->pc,

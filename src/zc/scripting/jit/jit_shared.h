@@ -40,6 +40,8 @@ struct JittedExecutionContext
 	int32_t ret_code;
 	int32_t* registers;
 	int32_t* global_registers;
+	// ri->script_d - the current script's instance variables.
+	int32_t* script_registers;
 	int32_t* stack_base;
 	uint32_t sp;
 	pc_t pc;

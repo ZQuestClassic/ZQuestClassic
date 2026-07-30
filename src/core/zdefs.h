@@ -1298,7 +1298,11 @@ public:
 	vector<vector<int32_t>> zs_vargs_stack {1};
 	vector<std::set<int32_t>> zs_vargs_pos_is_object {1};
 	
-	bounded_vec<word, int32_t> script_d {MAX_SCRIPT_INST_VARIABLES, 0};
+	// Script instance variables. Sized once per script run (see
+	// reset_script_variables) to the highest SCR register its zasm references,
+	// and never resized while the script runs, so the JIT backends can address
+	// the buffer directly via a stable pointer.
+	std::vector<int32_t> script_d;
 	std::set<uint32_t> script_d_is_object;
 
 	void Clear()
@@ -1669,6 +1673,11 @@ struct zasm_script
 	size_t size;
 	std::vector<ffscript> zasm;
 	std::vector<script_data*> script_datas;
+
+	// One past the highest SCRIPT_INST_VARS register any instruction in this
+	// zasm references. Computed lazily; -1 until then.
+	// See zasm_script_num_instance_variables.
+	int32_t num_instance_variables = -1;
 
 	// TODO: remove the necessity of this terminal command being here.
 	bool valid() const

@@ -97,10 +97,12 @@ struct CompilationState
 	uint8_t l_idx_ret_stack_index;
 	uint8_t l_idx_wait_index;
 	uint32_t l_idx_start_pc;
+	uint8_t l_idx_script_d;
 
 	uint8_t g_idx_j_instance;
 	uint8_t g_idx_ri;
 	uint8_t g_idx_global_d;
+	uint8_t g_idx_script_d;
 	uint8_t g_idx_stack;
 	uint8_t g_idx_ret_stack;
 	uint8_t g_idx_ret_stack_index;
@@ -275,6 +277,7 @@ static void emit_sp_reload(CompilationState& state)
 constexpr uint8_t l_idx_stack_local = 4;
 constexpr uint8_t l_idx_ri_local = 5;
 constexpr uint8_t l_idx_global_d_local = 6;
+constexpr uint8_t l_idx_script_d_local = 7;
 
 static void emit_get_stack_base(CompilationState& state)
 {
@@ -300,6 +303,14 @@ static void emit_get_global_d(CompilationState& state)
 		state.wasm->emitGlobalGet(state.g_idx_global_d);
 }
 
+static void emit_get_script_d(CompilationState& state)
+{
+	if (state.ptr_locals)
+		state.wasm->emitLocalGet(l_idx_script_d_local);
+	else
+		state.wasm->emitGlobalGet(state.g_idx_script_d);
+}
+
 static void emit_ptr_locals_init(CompilationState& state)
 {
 	if (!state.ptr_locals)
@@ -310,6 +321,8 @@ static void emit_ptr_locals_init(CompilationState& state)
 	state.wasm->emitLocalSet(l_idx_ri_local);
 	state.wasm->emitGlobalGet(state.g_idx_global_d);
 	state.wasm->emitLocalSet(l_idx_global_d_local);
+	state.wasm->emitGlobalGet(state.g_idx_script_d);
+	state.wasm->emitLocalSet(l_idx_script_d_local);
 }
 
 static void add_sp(CompilationState& state, int delta)
@@ -372,6 +385,11 @@ static void get_z_register(CompilationState& state, int r)
 	{
 		emit_get_global_d(state);
 		state.wasm->emitI32Load((r - GD(0)) * 4); // game->global_d[]
+	}
+	else if (r >= SCRIPT_INST_VARS(0) && r < SCRIPT_INST_VARS(MAX_SCRIPT_INST_VARIABLES))
+	{
+		emit_get_script_d(state);
+		state.wasm->emitI32Load((r - SCRIPT_INST_VARS(0)) * 4); // ri->script_d[]
 	}
 	else if (r == SP)
 	{
@@ -454,6 +472,12 @@ static void set_z_register(CompilationState& state, int r, F&& fn)
 		emit_get_global_d(state);
 		fn();
 		state.wasm->emitI32Store((r - GD(0)) * 4); // game->global_d[]
+	}
+	else if (r >= SCRIPT_INST_VARS(0) && r < SCRIPT_INST_VARS(MAX_SCRIPT_INST_VARIABLES))
+	{
+		emit_get_script_d(state);
+		fn();
+		state.wasm->emitI32Store((r - SCRIPT_INST_VARS(0)) * 4); // ri->script_d[]
 	}
 	else if (r == SWITCHKEY && state.inline_regs)
 	{
@@ -3199,12 +3223,14 @@ static bool wasm_codegen(zasm_script* script, WasmCodegenResult& out)
 	state.l_idx_ret_stack_index = 5;
 	state.l_idx_wait_index = 6;
 	state.l_idx_start_pc = 7;
+	state.l_idx_script_d = 8;
 	// params ended
 	// Note: if you add another one, also add to the call to declareFunction.
 
 	state.g_idx_j_instance = comp.builder.addGlobal("j_instance");
 	state.g_idx_ri = comp.builder.addGlobal("ri");
 	state.g_idx_global_d = comp.builder.addGlobal("global_d");
+	state.g_idx_script_d = comp.builder.addGlobal("script_d");
 	state.g_idx_stack = comp.builder.addGlobal("stack");
 	state.g_idx_ret_stack = comp.builder.addGlobal("ret_stack");
 	state.g_idx_ret_stack_pc = comp.builder.addGlobal("ret_stack_pc");
@@ -3214,7 +3240,7 @@ static bool wasm_codegen(zasm_script* script, WasmCodegenResult& out)
 	state.g_idx_target_block_id = comp.builder.addGlobal("target_block_id");
 	state.g_idx_start_pc = comp.builder.addGlobal("start_pc");
 
-	pc_t fn_run_idx = comp.builder.declareFunction({WasmValType::I32, WasmValType::I32, WasmValType::I32, WasmValType::I32, WasmValType::I32, WasmValType::I32, WasmValType::I32, WasmValType::I32}, {});
+	pc_t fn_run_idx = comp.builder.declareFunction({WasmValType::I32, WasmValType::I32, WasmValType::I32, WasmValType::I32, WasmValType::I32, WasmValType::I32, WasmValType::I32, WasmValType::I32, WasmValType::I32}, {});
 	comp.builder.exportFunction(fn_run_idx, "run");
 
 	auto yielding_fns = zasm_find_yielding_functions(script, structured_zasm);
@@ -3264,7 +3290,7 @@ static bool wasm_codegen(zasm_script* script, WasmCodegenResult& out)
 	{
 		bool may_yield = true;
 		auto wasm = compile_function(state, script, structured_zasm, yielding_fns, function_id_to_idx, may_yield, &resume_dispatch);
-		comp.builder.defineFunction(fn_yielder_idx, {WasmValType::I32, WasmValType::I32, WasmValType::I32, WasmValType::I32, WasmValType::I32, WasmValType::I32, WasmValType::I32}, wasm.finish());
+		comp.builder.defineFunction(fn_yielder_idx, {WasmValType::I32, WasmValType::I32, WasmValType::I32, WasmValType::I32, WasmValType::I32, WasmValType::I32, WasmValType::I32, WasmValType::I32}, wasm.finish());
 		comp.builder.setFunctionName(fn_yielder_idx, "yielder");
 	}
 
@@ -3286,7 +3312,7 @@ static bool wasm_codegen(zasm_script* script, WasmCodegenResult& out)
 			wasm = compile_function(state, script, structured_zasm, {fn.id}, function_id_to_idx, may_yield);
 		}
 		pc_t fidx = function_id_to_idx.at(fn.id);
-		comp.builder.defineFunction(fidx, {WasmValType::I32, WasmValType::I32, WasmValType::I32, WasmValType::I32, WasmValType::I32, WasmValType::I32, WasmValType::I32}, wasm->finish());
+		comp.builder.defineFunction(fidx, {WasmValType::I32, WasmValType::I32, WasmValType::I32, WasmValType::I32, WasmValType::I32, WasmValType::I32, WasmValType::I32, WasmValType::I32}, wasm->finish());
 		// Note: fn.name() can't be used for the emptiness check - it returns the
 		// placeholder "<empty>" for unnamed functions, which used to end up as
 		// dozens of functions all literally named "<empty>" in the name section.
@@ -3316,6 +3342,8 @@ static bool wasm_codegen(zasm_script* script, WasmCodegenResult& out)
 		}
 		wasm.emitLocalGet(state.l_idx_global_d);
 		wasm.emitGlobalSet(state.g_idx_global_d);
+		wasm.emitLocalGet(state.l_idx_script_d);
+		wasm.emitGlobalSet(state.g_idx_script_d);
 		wasm.emitLocalGet(state.l_idx_stack);
 		wasm.emitGlobalSet(state.g_idx_stack);
 		wasm.emitLocalGet(state.l_idx_ret_stack);
@@ -3660,7 +3688,7 @@ int jit_run_script(JittedScriptInstance* j_instance)
 {
 	extern int32_t(*stack)[MAX_STACK_SIZE];
 
-	uintptr_t ptr[8];
+	uintptr_t ptr[9];
 	ptr[0] = (uintptr_t)&*j_instance;
 	ptr[1] = (uintptr_t)&*j_instance->ri;
 	ptr[2] = (uintptr_t)&game->global_d;
@@ -3669,6 +3697,7 @@ int jit_run_script(JittedScriptInstance* j_instance)
 	ptr[5] = (uintptr_t)&j_instance->call_stack_ret_index;
 	ptr[6] = (uintptr_t)&j_instance->wait_index;
 	ptr[7] = j_instance->script->pc;
+	ptr[8] = (uintptr_t)j_instance->ri->script_d.data();
 
 	jit_wasm_execution_depth++;
 	int return_code = em_poll_wasm_handle(j_instance->handle_id, (uintptr_t)&ptr);

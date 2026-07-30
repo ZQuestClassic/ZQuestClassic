@@ -1400,6 +1400,45 @@ static script_data* get_script_safe(ScriptType type, int script)
 	return nullptr;
 }
 
+// Number of int32 slots needed to back a script's SCRIPT_INST_VARS registers: one past the highest
+// SCR register any instruction in its zasm references.
+//
+// Scanning the zasm guarantees the buffer covers every SCR register compiled code can touch - so
+// that the JIT fast path reads and writes it without bounds checks.
+//
+// In 3.0+ quests all scripts share one zasm chunk, so this is the max across all scripts (a script
+// declaring fewer instance variables over-allocates a little); scripts compiled before instance
+// variables existed reference no SCR registers and allocate nothing.
+//
+// The scan runs once per zasm_script, after the optimizer is done with it (zasm_optimize_sync runs
+// before any script).
+static int32_t zasm_script_num_instance_variables(zasm_script* zs)
+{
+	if (zs->num_instance_variables >= 0)
+		return zs->num_instance_variables;
+
+	int32_t max_idx = -1;
+	for (size_t i = 0; i < zs->size; i++)
+	{
+		const auto& op = zs->zasm[i];
+		const auto* sc = get_script_command(op.command);
+		if (!sc)
+			continue;
+
+		for (int j = 0; j < sc->args; j++)
+		{
+			if (!sc->is_register(j))
+				continue;
+
+			int32_t arg = j == 0 ? op.arg1 : j == 1 ? op.arg2 : op.arg3;
+			if (arg >= SCRIPT_INST_VARS(0) && arg < SCRIPT_INST_VARS(MAX_SCRIPT_INST_VARIABLES))
+				max_idx = std::max(max_idx, arg - SCRIPT_INST_VARS(0));
+		}
+	}
+
+	return zs->num_instance_variables = max_idx + 1;
+}
+
 static void clear_script_variables()
 {
 	vector<int> ids_to_clear;
@@ -1415,9 +1454,17 @@ static void clear_script_variables()
 static void reset_script_variables()
 {
 	clear_script_variables();
+
+	int size = curscript && curscript->zasm_script ?
+		zasm_script_num_instance_variables(curscript->zasm_script.get()) :
+		0;
+	ri->script_d.assign(size, 0);
+
 	for (auto [id, val] : curscript->script_d_init.inner())
 	{
-		if (val)
+		// An id past the end belongs to a variable the zasm never references -
+		// nothing can read it, so the initializer value doesn't matter.
+		if (val && id < ri->script_d.size())
 			ri->script_d[id] = val;
 	}
 }
@@ -1432,10 +1479,19 @@ static void reset_script_variables(script_config const& cfg)
 		// an object-typed one, which must never hold a raw integer.
 		if (!curscript->script_d_exports.inner().contains(id))
 			continue;
-		ri->script_d[id] = val;
+		if (id < ri->script_d.size())
+			ri->script_d[id] = val;
 	}
 
 	memcpy(ri->d, cfg.run_args.data(), 8 * sizeof(int32_t));
+}
+
+// `this` is instance variable 0, but scripts that never reference it (and all
+// scripts from before instance variables existed) have no slot for it.
+static void set_script_this_ref(int32_t val)
+{
+	if (!ri->script_d.empty())
+		ri->script_d[0] = val;
 }
 
 static void set_current_script_engine_data(ScriptEngineData& data, ScriptType type, int script, script_data* sd, int index)
@@ -1471,7 +1527,7 @@ static void set_current_script_engine_data(ScriptEngineData& data, ScriptType ty
 
 			ri->ffcref = ZScriptVersion::ffcRefIsSpriteId() ? ffc->getUID() : index;
 			ri->screenref = ffc->screen_spawned;
-			ri->script_d[0] = ri->ffcref;
+			set_script_this_ref(ri->ffcref);
 		}
 		break;
 		
@@ -1489,7 +1545,7 @@ static void set_current_script_engine_data(ScriptEngineData& data, ScriptType ty
 			
 			ri->npcref = index;
 			ri->screenref = spr->screen_spawned;
-			ri->script_d[0] = ri->npcref;
+			set_script_this_ref(ri->npcref);
 		}
 		break;
 		
@@ -1507,7 +1563,7 @@ static void set_current_script_engine_data(ScriptEngineData& data, ScriptType ty
 			
 			ri->lwpnref = index;
 			ri->screenref = spr->screen_spawned;
-			ri->script_d[0] = ri->lwpnref;
+			set_script_this_ref(ri->lwpnref);
 		}
 		break;
 		
@@ -1525,7 +1581,7 @@ static void set_current_script_engine_data(ScriptEngineData& data, ScriptType ty
 			
 			ri->ewpnref = index;
 			ri->screenref = spr->screen_spawned;
-			ri->script_d[0] = ri->ewpnref;
+			set_script_this_ref(ri->ewpnref);
 		}
 		break;
 		
@@ -1543,7 +1599,7 @@ static void set_current_script_engine_data(ScriptEngineData& data, ScriptType ty
 			
 			ri->itemref = index;
 			ri->screenref = spr->screen_spawned;
-			ri->script_d[0] = ri->itemref;
+			set_script_this_ref(ri->itemref);
 		}
 		break;
 		
@@ -1564,7 +1620,7 @@ static void set_current_script_engine_data(ScriptEngineData& data, ScriptType ty
 			}			
 			//'this' pointer
 			ri->itemdataref = ( collect ) ? new_i : i;
-			ri->script_d[0] = ri->itemdataref;
+			set_script_this_ref(ri->itemdataref);
 		}
 		break;
 		
@@ -1599,7 +1655,7 @@ static void set_current_script_engine_data(ScriptEngineData& data, ScriptType ty
 				data.initialized = true;
 			}
 			ri->genericdataref = script;
-			ri->script_d[0] = ri->genericdataref;
+			set_script_this_ref(ri->genericdataref);
 		}
 		break;
 		
@@ -1613,7 +1669,7 @@ static void set_current_script_engine_data(ScriptEngineData& data, ScriptType ty
 				data.initialized = true;
 			}
 			ri->genericdataref = script;
-			ri->script_d[0] = ri->genericdataref;
+			set_script_this_ref(ri->genericdataref);
 		}
 		break;
 		
@@ -1639,7 +1695,7 @@ static void set_current_script_engine_data(ScriptEngineData& data, ScriptType ty
 				reset_script_variables(DMaps[index].active_scrconfig);
 				data.initialized = true;
 			}
-			ri->script_d[0] = ri->dmapdataref;
+			set_script_this_ref(ri->dmapdataref);
 		}
 		break;
 		
@@ -1652,7 +1708,7 @@ static void set_current_script_engine_data(ScriptEngineData& data, ScriptType ty
 				reset_script_variables(DMaps[index].onmap_scrconfig);
 				data.initialized = true;
 			}
-			ri->script_d[0] = ri->dmapdataref;
+			set_script_this_ref(ri->dmapdataref);
 		}
 		break;
 		
@@ -1665,7 +1721,7 @@ static void set_current_script_engine_data(ScriptEngineData& data, ScriptType ty
 				reset_script_variables(DMaps[index].active_sub_scrconfig);
 				data.initialized = true;
 			}
-			ri->script_d[0] = ri->dmapdataref;
+			set_script_this_ref(ri->dmapdataref);
 		}
 		break;
 		
@@ -1678,7 +1734,7 @@ static void set_current_script_engine_data(ScriptEngineData& data, ScriptType ty
 				reset_script_variables(DMaps[index].passive_sub_scrconfig);
 				data.initialized = true;
 			}
-			ri->script_d[0] = ri->dmapdataref;
+			set_script_this_ref(ri->dmapdataref);
 		}
 		break;
 		case ScriptType::EngineSubscreen:
@@ -1692,7 +1748,7 @@ static void set_current_script_engine_data(ScriptEngineData& data, ScriptType ty
 				reset_script_variables(ptr->scrconfig);
 				data.initialized = true;
 			}
-			ri->script_d[0] = ri->subscreendataref;
+			set_script_this_ref(ri->subscreendataref);
 		}
 		break;
 		
@@ -1726,7 +1782,7 @@ static void set_current_script_engine_data(ScriptEngineData& data, ScriptType ty
 			ri->combodataref = id; //'this' pointer
 			ri->comboposref = index; //used for X(), Y(), Layer(), and so forth.
 			ri->screenref = rpos_handle.screen;
-			ri->script_d[0] = ri->combodataref;
+			set_script_this_ref(ri->combodataref);
 			break;
 		}
 	}
@@ -2803,7 +2859,13 @@ int32_t get_register(int32_t arg)
 		return game->global_d[arg - GD(0)];
 
 	if (arg >= SCRIPT_INST_VARS(0) && arg < SCRIPT_INST_VARS(MAX_SCRIPT_INST_VARIABLES))
-		return ri->script_d[arg - SCRIPT_INST_VARS(0)];
+	{
+		// The zasm scan (zasm_script_num_instance_variables) sizes script_d to
+		// cover every SCR register the zasm references, so this is only out of
+		// bounds for malformed zasm.
+		size_t index = arg - SCRIPT_INST_VARS(0);
+		return index < ri->script_d.size() ? ri->script_d[index] : 0;
+	}
 
 	// Fast paths for the registers measured to dominate in script-heavy quests. Each is identical
 	// to its generic handler below; the array accessors keep the register context set so error logs
@@ -2867,7 +2929,9 @@ void set_register(int32_t arg, int32_t value)
 	}
 	else if (arg >= SCRIPT_INST_VARS(0) && arg < SCRIPT_INST_VARS(MAX_SCRIPT_INST_VARIABLES))
 	{
-		ri->script_d[arg-SCRIPT_INST_VARS(0)] = value;
+		size_t index = arg - SCRIPT_INST_VARS(0);
+		if (index < ri->script_d.size())
+			ri->script_d[index] = value;
 		return;
 	}
 

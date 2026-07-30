@@ -327,6 +327,12 @@ static x86::Gp get_z_register(CompilationState& state, x86::Compiler& cc, int r)
 		cc.mov(address, &game->global_d); // Note: this is only OK b/c the `game` global pointer is never reassigned.
 		cc.mov(val, x86::ptr_32(address, (r - GD(0)) * 4));
 	}
+	else if (r >= SCRIPT_INST_VARS(0) && r < SCRIPT_INST_VARS(MAX_SCRIPT_INST_VARIABLES))
+	{
+		x86::Gp address = cc.newIntPtr();
+		cc.mov(address, x86::ptr(state.ptrCtx, offsetof(JittedExecutionContext, script_registers)));
+		cc.mov(val, x86::ptr_32(address, (r - SCRIPT_INST_VARS(0)) * 4));
+	}
 	else if (r == SP)
 	{
 		flush_stack_cache(state, cc);
@@ -390,6 +396,12 @@ static x86::Gp get_z_register_64(CompilationState& state, x86::Compiler& cc, int
 		x86::Gp address = cc.newIntPtr();
 		cc.mov(address, &game->global_d); // Note: this is only OK b/c the `game` global pointer is never reassigned.
 		cc.movsxd(val, x86::ptr_32(address, (r - GD(0)) * 4));
+	}
+	else if (r >= SCRIPT_INST_VARS(0) && r < SCRIPT_INST_VARS(MAX_SCRIPT_INST_VARIABLES))
+	{
+		x86::Gp address = cc.newIntPtr();
+		cc.mov(address, x86::ptr(state.ptrCtx, offsetof(JittedExecutionContext, script_registers)));
+		cc.movsxd(val, x86::ptr_32(address, (r - SCRIPT_INST_VARS(0)) * 4));
 	}
 	else if (r == SP)
 	{
@@ -456,6 +468,12 @@ static void set_z_register(CompilationState& state, x86::Compiler& cc, int r, T 
 		x86::Gp address = cc.newIntPtr();
 		cc.mov(address, &game->global_d); // Note: this is only OK b/c the `game` global pointer is never reassigned.
 		cc.mov(x86::ptr_32(address, (r - GD(0)) * 4), val);
+	}
+	else if (r >= SCRIPT_INST_VARS(0) && r < SCRIPT_INST_VARS(MAX_SCRIPT_INST_VARIABLES))
+	{
+		x86::Gp address = cc.newIntPtr();
+		cc.mov(address, x86::ptr(state.ptrCtx, offsetof(JittedExecutionContext, script_registers)));
+		cc.mov(x86::ptr_32(address, (r - SCRIPT_INST_VARS(0)) * 4), val);
 	}
 	else if (r == SP || r == SP2)
 	{

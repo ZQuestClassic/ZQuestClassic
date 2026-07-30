@@ -390,6 +390,12 @@ static a64::Gp get_z_register(CompilationState& state, a64::Compiler& cc, int r)
 		cc.mov(address, (uint64_t)&game->global_d); // Note: this is only OK b/c the `game` global pointer is never reassigned.
 		cc.ldr(val, a64::ptr(address, (r - GD(0)) * 4));
 	}
+	else if (r >= SCRIPT_INST_VARS(0) && r < SCRIPT_INST_VARS(MAX_SCRIPT_INST_VARIABLES))
+	{
+		a64::Gp address = cc.newIntPtr();
+		cc.ldr(address, a64::ptr(state.ptrCtx, offsetof(JittedExecutionContext, script_registers)));
+		cc.ldr(val, a64::ptr(address, (r - SCRIPT_INST_VARS(0)) * 4));
+	}
 	else if (r == SP)
 	{
 		cc.mov(val, state.vSp);
@@ -464,6 +470,12 @@ static void set_z_register(CompilationState& state, a64::Compiler& cc, int r, T 
 		a64::Gp address = cc.newIntPtr();
 		cc.mov(address, (uint64_t)&game->global_d); // Note: this is only OK b/c the `game` global pointer is never reassigned.
 		cc.str(val_reg, a64::ptr(address, (r - GD(0)) * 4));
+	}
+	else if (r >= SCRIPT_INST_VARS(0) && r < SCRIPT_INST_VARS(MAX_SCRIPT_INST_VARIABLES))
+	{
+		a64::Gp address = cc.newIntPtr();
+		cc.ldr(address, a64::ptr(state.ptrCtx, offsetof(JittedExecutionContext, script_registers)));
+		cc.str(val_reg, a64::ptr(address, (r - SCRIPT_INST_VARS(0)) * 4));
 	}
 	else if (r == SP || r == SP2)
 	{

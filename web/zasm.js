@@ -187,7 +187,8 @@ export async function pollScriptWasmHandle(handleId, ptr) {
   const f = Module.HEAP32[ptr/4+5];
   const g = Module.HEAP32[ptr/4+6];
   const h = Module.HEAP32[ptr/4+7];
-  const args = [a, b, c, d, e, f, g, h];
+  const i = Module.HEAP32[ptr/4+8];
+  const args = [a, b, c, d, e, f, g, h, i];
   scriptHandle.args = args;
 
   const RUNSCRIPT_OK = 0;

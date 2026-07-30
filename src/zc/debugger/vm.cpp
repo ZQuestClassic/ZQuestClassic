@@ -133,6 +133,8 @@ int32_t VM::readGlobal(int32_t idx)
 int32_t VM::readScript(int32_t idx)
 {
 	auto ri = &current_data->ref;
+	if (unsigned(idx) >= ri->script_d.size())
+		return 0;
 	return ri->script_d[idx];
 }
 
@@ -293,6 +295,8 @@ void VM::writeGlobal(int32_t offset, int32_t value)
 void VM::writeScript(int32_t offset, int32_t value)
 {
 	auto ri = &current_data->ref;
+	if (unsigned(offset) >= ri->script_d.size())
+		return;
 	ri->script_d[offset] = value;
 }
 
