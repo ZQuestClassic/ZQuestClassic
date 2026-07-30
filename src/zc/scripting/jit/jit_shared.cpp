@@ -213,6 +213,10 @@ static JittedScript* init_jitted_script(zasm_script* script)
 	for (ZasmFunction& fn : j_script->structured_zasm.functions)
 		j_script->compiled_functions.push_back({stub_exec_function, fn.id});
 
+	// Zero-initialized: no function may be direct-called until it is compiled
+	// and committed.
+	j_script->direct_entry_table = std::make_unique<uintptr_t[]>(j_script->structured_zasm.functions.size());
+
 	if (DEBUG_JIT_PRINT_ASM)
 		j_script->debug_handle = std::make_unique<ScriptDebugHandle>(script, ScriptDebugHandle::OutputSplit::ByScript, script->name);
 
@@ -281,6 +285,7 @@ static bool exec_script(JittedExecutionContext* ctx)
 				ctx->resume_address = *address;
 		}
 
+		ctx->entry_mode = 0;
 		exec_result = j_fn.exec(ctx);
 	}
 	else
@@ -369,7 +374,13 @@ int jit_run_script(JittedScriptInstance* j_instance)
 			JittedFunction& j_fn = pending.front();
 			j_instance->j_script->pc_to_resume_address.insert(j_fn.pc_to_resume_address.begin(), j_fn.pc_to_resume_address.end());
 			j_fn.pc_to_resume_address.clear();
-			j_instance->j_script->compiled_functions[j_fn.id] = std::move(j_fn);
+			pc_t id = j_fn.id;
+			JittedFunctionImpl exec = j_fn.exec;
+			j_instance->j_script->compiled_functions[id] = std::move(j_fn);
+			// Publish for direct calls only once the function is committed, and
+			// never for functions that can yield (see the field's comment).
+			if (!j_instance->j_script->structured_zasm.functions[id].may_yield)
+				j_instance->j_script->direct_entry_table[id] = (uintptr_t)exec;
 			pending.pop_front();
 		}
 	}
@@ -403,4 +414,37 @@ void jit_release(JittedScript* j_script)
 
 	al_destroy_mutex(j_script->mutex);
 	delete j_script;
+}
+
+// Helpers for direct native calls between compiled functions. The ZASM return stack is maintained
+// around each direct call so that any unwind back to the driver (interpreter bail, quit,
+// driver-path fallback) sees exactly the state a driver-made call would have left.
+//
+// Called at the top of a direct-entered function; the call site left the ZASM return pc in
+// ctx->call_pc. Returns 0 to proceed. Each direct call is a real machine stack frame, so past a
+// depth cap this instead rewrites ctx into a driver-path call (as if the call site had taken the
+// fallback) and returns 1; the callee propagates EXEC_RESULT_CALL without executing.
+int32_t jit_direct_enter(JittedExecutionContext* ctx, int32_t callee_start_pc)
+{
+	extern refInfo *ri;
+
+	int32_t ret_pc = ctx->call_pc;
+	if (ri->retsp >= 256)
+	{
+		ctx->pc = ret_pc - 1;
+		ctx->call_pc = callee_start_pc;
+		return 1;
+	}
+
+	// Mirror the driver, which sets ctx->pc to the call target on every call: an error bail inside
+	// the callee reports its trace from ctx->pc.
+	ctx->pc = callee_start_pc;
+	retstack_push(ret_pc);
+	return 0;
+}
+
+// Called at a direct-entered function's RETURNFUNC (the driver pops for driver-entered functions).
+void jit_direct_retstack_pop()
+{
+	retstack_pop();
 }

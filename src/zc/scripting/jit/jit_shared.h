@@ -51,6 +51,13 @@ struct JittedExecutionContext
 	// always uses this; the a64 backend resumes by either using this (for functions with many
 	// resume points) or by comparing pc instead (for small functions).
 	uintptr_t resume_address;
+	// How the compiled function was entered. 0 = by the driver (pc/
+	// resume_address describe where to resume). 1 = a direct native call from
+	// another compiled function (a64 only): always starts at the function
+	// start, and returns its exec result to the call site instead of the
+	// driver - EXEC_RESULT_RETURN means a normal return, anything else is an
+	// unwind the call site passes through untouched.
+	int32_t entry_mode;
 };
 
 using JittedFunctionImpl = int (*)(JittedExecutionContext* ctx);
@@ -71,6 +78,14 @@ struct JittedScript
 	std::vector<pc_t> function_start_pcs;
 	std::vector<JittedFunction> compiled_functions;
 	std::deque<JittedFunction> pending_compiled_jit_functions;
+	// Native entry per function for direct calls between compiled functions,
+	// indexed by function id. 0 until the function is compiled and committed;
+	// only non-yielding functions ever get an entry (a yield must unwind to
+	// the driver, which a native call frame cannot survive). Call sites load
+	// the slot at runtime and fall back to the driver on 0, so this doubles as
+	// the hot-swap point when a function finishes compiling. (Used by the a64
+	// backend; filling it is backend-neutral.)
+	std::unique_ptr<uintptr_t[]> direct_entry_table;
 	std::unique_ptr<ScriptDebugHandle> debug_handle;
 	ALLEGRO_MUTEX* mutex;
 	std::map<pc_t, uintptr_t> pc_to_resume_address;
@@ -100,5 +115,8 @@ struct JittedScriptInstance
 // Provided by the per-architecture backend (jit_x64.cpp / jit_a64.cpp): compile
 // one function to native code, or std::nullopt if it should stay interpreted.
 std::optional<JittedFunction> jit_backend_compile_function(zasm_script* script, JittedScript* j_script, const ZasmFunction& fn);
+
+int32_t jit_direct_enter(JittedExecutionContext* ctx, int32_t callee_start_pc);
+void jit_direct_retstack_pop();
 
 #endif

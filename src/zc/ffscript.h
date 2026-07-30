@@ -320,6 +320,9 @@ extern bool script_is_within_debugger_vm;
 extern bool suppress_script_error_logging;
 extern bool disable_script_error_logs;
 
+void retstack_push(int32_t val);
+optional<int32_t> retstack_pop();
+
 int32_t run_script_jit_sequence(JittedScriptInstance* j_instance, pc_t pc, uint32_t sp, int32_t count);
 int32_t run_script_jit_one(JittedScriptInstance* j_instance, pc_t pc, uint32_t sp);
 int32_t run_script_jit_until_call_or_return(JittedScriptInstance* j_instance, pc_t pc, uint32_t sp);

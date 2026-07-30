@@ -37,6 +37,7 @@
 //   bool is_command_compiled(int command);
 
 #include "base/util.h"
+#include "base/zapp.h"
 #include "components/zasm/defines.h"
 #include "components/zasm/serialize.h"
 #include "components/zasm/table.h"
@@ -278,6 +279,40 @@ inline std::optional<size_t> jit_function_size_within_cap(zasm_script* script, c
 	}
 
 	return size_no_nops;
+}
+
+// Counts the CALLFUNC sites in a function that would be emitted as direct native calls
+// (callee known and can never yield).
+inline size_t jit_count_direct_call_sites(zasm_script* script, const StructuredZasm& sz, const ZasmFunction& fn)
+{
+	size_t count = 0;
+	for (pc_t i = fn.start_pc; i <= fn.final_pc; i++)
+	{
+		if (script->zasm[i].command != CALLFUNC)
+			continue;
+		auto it = sz.start_pc_to_function.find(script->zasm[i].arg1);
+		if (it != sz.start_pc_to_function.end() && !sz.functions[it->second].may_yield)
+			count += 1;
+	}
+	return count;
+}
+
+// Whether a function with this many direct call sites should emit them as direct calls.
+//
+// Each direct call site is an asmjit InvokeNode plus several virtual registers that live across
+// the call, so the cost of a function's direct calls scales with its call-site count, twice over:
+// register allocation charges superlinearly for the extra nodes (the decompiled 2.50-era global
+// script of "The Adventure of Link and Zelda: Panoply of Calatia" - replay upload
+// 69162522CA4C5DAD4DA0CAEDA505FBFB.qst, ~12.7k call sites - compiles in 44s without direct calls
+// and 206s with), and every call-crossing register needs a spill slot, growing the function's
+// stack frame by hundreds of KB (~400 KB there). asmjit emits
+// no stack probes, so a frame that large skips right past the Windows guard page on entry and
+// faults no matter the stack reserve. Past the cap the function keeps the driver call path -
+// being direct-*entered* is still fine (that costs one entry helper, not per-site nodes).
+inline bool jit_direct_calls_worth_it(size_t direct_call_sites)
+{
+	static int64_t max_sites = get_flag_int("-jit-direct-calls-max-sites").value_or(2000);
+	return (int64_t)direct_call_sites <= max_sites;
 }
 
 // Creates the control flow labels: one per in-function GOTO target, and one

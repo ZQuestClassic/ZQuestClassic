@@ -52,6 +52,16 @@ struct CompilationState
 	pc_t final_pc;
 	CallConvId calling_convention;
 	Label L_End;
+	// Return path for propagating a direct callee's non-RETURN exec result to the driver untouched.
+	// Unlike L_End it must not store vSp (ctx->sp holds the value saved by the function that
+	// actually exited).
+	Label L_PropagateEnd;
+	bool direct_calls;
+	// This function can be the target of direct calls (non-yielding), so its entry pushes the ZASM
+	// return pc and its RETURNFUNC pops it when entered directly (vMode holds ctx->entry_mode as
+	// read at entry).
+	bool direct_entry;
+	a64::Gp vMode;
 	a64::Gp vResult;
 	a64::Gp vSp;
 	a64::Gp vSwitchKey;
@@ -1031,9 +1041,62 @@ static void compile_single_command(CompilationState& state, a64::Compiler& cc, c
 		break;
 		case CALLFUNC:
 		{
+			// If the callee can never yield, call its compiled form directly on the native stack
+			// instead of round-tripping through the driver (which pays a function lookup, a
+			// resume-address lookup and a full prologue re-entry per call - dominant for call-dense
+			// scripts). The ZASM return stack is still maintained (via the helpers) so an unwind -
+			// interpreter bail, quit, or fallback to the driver path - leaves exactly the state a
+			// driver-made call would have.
+			bool emitted_direct = false;
+			const auto& sz = state.j_script->structured_zasm;
+			auto callee_it = sz.start_pc_to_function.find(arg1);
+			if (state.direct_calls && state.pc != state.final_pc &&
+				callee_it != sz.start_pc_to_function.end() && !sz.functions[callee_it->second].may_yield)
+			{
+				emitted_direct = true;
+				if (!state.L_PropagateEnd.isValid())
+					state.L_PropagateEnd = cc.newLabel();
+				Label L_fallback = cc.newLabel();
+
+				if (state.modified_stack)
+					set_ctx_sp(state, cc, state.vSp);
+
+				// The slot is 0 until the callee is compiled and committed.
+				a64::Gp entry = cc.newIntPtr();
+				cc.mov(entry, (uint64_t)&state.j_script->direct_entry_table[callee_it->second]);
+				cc.ldr(entry, a64::ptr(entry));
+				cc.cbz(entry, L_fallback);
+
+				// The callee's entry preamble pushes the ZASM return pc, which
+				// travels in ctx->call_pc (the fallback path below overwrites
+				// it with the call target).
+				set_ctx_call_pc(state, cc, state.pc + 1);
+				cc.str(imm_to_reg(cc, 1), a64::ptr(state.ptrCtx, offsetof(JittedExecutionContext, entry_mode)));
+
+				InvokeNode* callNode;
+				cc.invoke(&callNode, entry, FuncSignature::build<int32_t, JittedExecutionContext*>(state.calling_convention));
+				callNode->setArg(0, state.ptrCtx);
+				callNode->setRet(0, state.vResult);
+
+				// EXEC_RESULT_RETURN is a normal return; anything else unwinds
+				// through this frame untouched (vResult already holds it, and
+				// L_PropagateEnd returns it as-is).
+				cmp_constant(cc, state.vResult, EXEC_RESULT_RETURN);
+				emit_cond_branch(state, cc, a64::CondCode::kNE, state.L_PropagateEnd, state.final_pc - state.pc);
+				// The callee consumed its arguments from the ZASM stack.
+				cc.ldr(state.vSp, a64::ptr(state.ptrCtx, offsetof(JittedExecutionContext, sp)));
+				// Mirror the driver, which sets ctx->pc to the popped return pc
+				// on every return (error traces read it).
+				set_ctx_pc(state, cc, state.pc + 1);
+				cc.b(state.resume_labels[state.pc]);
+
+				cc.bind(L_fallback);
+			}
+
 			set_ctx_pc(state, cc, state.pc);
 			set_ctx_call_pc(state, cc, arg1);
-			if (state.modified_stack)
+			// The direct path already stored sp before probing the entry slot.
+			if (!emitted_direct && state.modified_stack)
 				set_ctx_sp(state, cc, state.vSp);
 			cc.mov(state.vResult, EXEC_RESULT_CALL);
 			cc.b(state.L_End);
@@ -1043,6 +1106,17 @@ static void compile_single_command(CompilationState& state, a64::Compiler& cc, c
 		break;
 		case RETURNFUNC:
 		{
+			if (state.direct_entry)
+			{
+				// When entered by a direct call, the driver never sees this return, so pop the ZASM
+				// return stack here (driver-entered returns are popped by the driver).
+				Label L_driver_return = cc.newLabel();
+				cc.cbz(state.vMode, L_driver_return);
+				InvokeNode* popNode;
+				invoke(cc, &popNode, jit_direct_retstack_pop, FuncSignature::build<void>(state.calling_convention));
+				(void)popNode;
+				cc.bind(L_driver_return);
+			}
 			if (state.modified_stack)
 				set_ctx_sp(state, cc, state.vSp);
 			cc.mov(state.vResult, EXEC_RESULT_RETURN);
@@ -1854,16 +1928,22 @@ std::optional<JittedFunction> jit_backend_compile_function(zasm_script* script, 
 		return std::nullopt;
 	size_t size_no_nops = *size_no_nops_opt;
 
+	size_t direct_call_sites = jit_count_direct_call_sites(script, j_script->structured_zasm, fn);
+
 	std::chrono::steady_clock::time_point start_time, end_time;
 	start_time = std::chrono::steady_clock::now();
 
 	bool runtime_debugging = script_debug_is_runtime_debugging() == 2;
+
+	static bool direct_calls = get_flag_bool("-jit-direct-calls").value_or(true);
 
 	CompilationState state{
 		.script = script,
 		.j_script = j_script,
 		.start_pc = start_pc,
 		.final_pc = final_pc,
+		.direct_calls = direct_calls && jit_direct_calls_worth_it(direct_call_sites),
+		.direct_entry = direct_calls && !fn.may_yield,
 		.runtime_debugging = runtime_debugging,
 		// Emitted code averages well under 100 bytes per ZASM instruction, so
 		// this keeps every possibly-far branch comfortably within b.cond's
@@ -1965,18 +2045,48 @@ std::optional<JittedFunction> jit_backend_compile_function(zasm_script* script, 
 	static bool annotated_resume = get_flag_bool("-jit-a64-annotated-resume").value_or(false);
 	constexpr size_t max_linear_resume_points = 32;
 	bool use_annotated_resume = annotated_resume || state.resume_labels.size() > max_linear_resume_points;
+
+	// Direct-entry preamble. A direct native call always enters at the
+	// function start with the ZASM return pc in ctx->call_pc: push it (via
+	// the helper, which also enforces the native depth cap - past it the ctx
+	// is rewritten into a driver-path call for this callee and we propagate
+	// EXEC_RESULT_CALL without executing), and skip the resume dispatch,
+	// whose ctx->pc / ctx->resume_address are stale for this entry mode.
+	Label L_after_entry = cc.newLabel();
+	if (state.direct_entry)
+	{
+		state.vMode = cc.newInt32("entry_mode");
+		cc.ldr(state.vMode, a64::ptr(state.ptrCtx, offsetof(JittedExecutionContext, entry_mode)));
+
+		Label L_driver_entry = cc.newLabel();
+		cc.cbz(state.vMode, L_driver_entry);
+
+		InvokeNode* enterNode;
+		invoke(cc, &enterNode, jit_direct_enter, FuncSignature::build<int32_t, JittedExecutionContext*, int32_t>(state.calling_convention));
+		enterNode->setArg(0, state.ptrCtx);
+		enterNode->setArg(1, (int)start_pc);
+		a64::Gp enter_rc = cc.newInt32();
+		enterNode->setRet(0, enter_rc);
+		cc.cbz(enter_rc, L_after_entry);
+
+		if (!state.L_PropagateEnd.isValid())
+			state.L_PropagateEnd = cc.newLabel();
+		cc.mov(state.vResult, EXEC_RESULT_CALL);
+		cc.b(state.L_PropagateEnd);
+
+		cc.bind(L_driver_entry);
+	}
+
 	if (use_annotated_resume && !state.resume_labels.empty())
 	{
 		JumpAnnotation* annotation = cc.newJumpAnnotation();
 		for (auto& [k, label] : state.resume_labels)
 			annotation->addLabel(label);
 
-		Label L_normal_entry = cc.newLabel();
 		a64::Gp resume_addr_reg = cc.newIntPtr("resume_address");
 		cc.ldr(resume_addr_reg, a64::ptr(state.ptrCtx, offsetof(JittedExecutionContext, resume_address)));
-		cc.cbz(resume_addr_reg, L_normal_entry); // If it's zero, this is a normal function start.
+		cc.cbz(resume_addr_reg, L_after_entry); // If it's zero, this is a normal function start.
 		cc.br(resume_addr_reg, annotation);
-		cc.bind(L_normal_entry);
 	}
 	else if (!state.resume_labels.empty())
 	{
@@ -1988,6 +2098,7 @@ std::optional<JittedFunction> jit_backend_compile_function(zasm_script* script, 
 			emit_cond_branch(state, cc, a64::CondCode::kEQ, label, k + 1 - start_pc);
 		}
 	}
+	cc.bind(L_after_entry);
 
 	// cc.setInlineComment does not make a copy of the string, so we need to keep
 	// comment strings around a bit longer than the invocation.
@@ -2027,6 +2138,15 @@ std::optional<JittedFunction> jit_backend_compile_function(zasm_script* script, 
 		set_ctx_sp(state, cc, state.vSp);
 
 	cc.ret(state.vResult);
+
+	// Unwind path for direct native calls: pass the callee's exec result up
+	// unchanged, and crucially do NOT store this function's vSp - ctx holds
+	// the pc/sp saved by the function that actually exited.
+	if (state.L_PropagateEnd.isValid())
+	{
+		cc.bind(state.L_PropagateEnd);
+		cc.ret(state.vResult);
+	}
 
 	// Optional gate on the virtual register count, bailing to the interpreter
 	// before finalize. Off by default: the failure modes that once made
