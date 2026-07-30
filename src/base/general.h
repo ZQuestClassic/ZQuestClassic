@@ -575,7 +575,8 @@ struct exported_variable
 {
 	std::string name;
 	std::string helptext;
-	int8_t btn_type = nswapDEC;
+	// -1 = unset; defaulted from the variable's type at compile time.
+	int8_t btn_type = -1;
 	zfix min = -214748.3648_zf, max = 214748.3647_zf;
 	bool operator==(const exported_variable& other) const = default;
 };

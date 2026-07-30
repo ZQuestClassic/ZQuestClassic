@@ -402,6 +402,15 @@ generic script scopes
 	int SCRIPT_SCOPED_GLOBAL = 123;
 	nonstatic int script_scoped_local = 456;
 
+	// Exported variables with input field types defaulted from the variable
+	// type (int -> D, long -> LD, rgb -> LH). Verified by parser_test.cpp.
+	@Export("Exported Int")
+	nonstatic int exported_int = 3;
+	@Export("Exported Long")
+	nonstatic long exported_long = 5L;
+	@Export("Exported Color")
+	nonstatic rgb exported_rgb;
+
 	int scriptFunction()
 	{
 		// Avoid any possible optimization.

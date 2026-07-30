@@ -2927,6 +2927,9 @@ void ScriptsData::fillFromAssembler(ScriptAssembler& assembler)
 					case ZTID_LONG:
 						ty = nswapLDEC;
 						break;
+					case ZTID_RGBDATA:
+						ty = nswapLHEX;
+						break;
 					case ZTID_FLOAT:
 					case ZTID_UNTYPED:
 						ty = nswapDEC;

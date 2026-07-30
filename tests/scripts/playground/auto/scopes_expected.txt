@@ -17,9 +17,9 @@ stdout:
   "success": true,
   "diagnostics": [],
   "metadata": {
-    "currentFileSymbols": 126,
-    "symbols": 207,
-    "identifiers": 453,
+    "currentFileSymbols": 129,
+    "symbols": 210,
+    "identifiers": 456,
     "elided": true
   }
 }
@@ -654,214 +654,214 @@ GAMERELOAD; InlineFunc[void Game::Reload()] Body AND if() #393 Body End         
 NOP                                                                             | 625 tests/scripts/playground/auto/global_objects.zs:119
 CALLFUNC 0.2690; UsrFunc[void End()] Call AND [Opt:NeverRet]                    | 626 tests/scripts/playground/auto/global_objects.zs:126
 REF_REMOVE 0; [Opt:NeverRet] AND void run() Body End                            | 627 tests/scripts/playground/auto/global_objects.zs:31
-SETR D4 SP2; void run() Body Start                                              | 628 tests/scripts/playground/auto/scopes.zs:411
-PUSHR D4                                                                        | 629 tests/scripts/playground/auto/scopes.zs:413
-PUSHV 0; UsrFunc[void Init(int)] Params                                         | 630 tests/scripts/playground/auto/scopes.zs:413
-CALLFUNC 0.2668; UsrFunc[void Init(int)] Call                                   | 631 tests/scripts/playground/auto/scopes.zs:413
-POP D4                                                                          | 632 tests/scripts/playground/auto/scopes.zs:413
-SETR D2 SCR1                                                                    | 633 tests/scripts/playground/auto/scopes.zs:415
-ADDV D2 1                                                                       | 634 tests/scripts/playground/auto/scopes.zs:415
-SETR SCR1 D2                                                                    | 635 tests/scripts/playground/auto/scopes.zs:415
-PUSHARGSR D4 0.0002; UsrFunc[void AssertEqual(int, int)] Params Start           | 636 tests/scripts/playground/auto/scopes.zs:418
-CALLFUNC 0.1834; UsrFunc[int scriptFunction()] Call                             | 637 tests/scripts/playground/auto/scopes.zs:418
-POP D4                                                                          | 638 tests/scripts/playground/auto/scopes.zs:418
-PUSHR D2                                                                        | 639 tests/scripts/playground/auto/scopes.zs:418
-PUSHV 100; UsrFunc[void AssertEqual(int, int)] Params End                       | 640 tests/scripts/playground/auto/scopes.zs:418
-CALLFUNC 0.2697; UsrFunc[void AssertEqual(int, int)] Call                       | 641 tests/scripts/playground/auto/scopes.zs:418
+SETR D4 SP2; void run() Body Start                                              | 628 tests/scripts/playground/auto/scopes.zs:420
+PUSHR D4                                                                        | 629 tests/scripts/playground/auto/scopes.zs:422
+PUSHV 0; UsrFunc[void Init(int)] Params                                         | 630 tests/scripts/playground/auto/scopes.zs:422
+CALLFUNC 0.2668; UsrFunc[void Init(int)] Call                                   | 631 tests/scripts/playground/auto/scopes.zs:422
+POP D4                                                                          | 632 tests/scripts/playground/auto/scopes.zs:422
+SETR D2 SCR1                                                                    | 633 tests/scripts/playground/auto/scopes.zs:424
+ADDV D2 1                                                                       | 634 tests/scripts/playground/auto/scopes.zs:424
+SETR SCR1 D2                                                                    | 635 tests/scripts/playground/auto/scopes.zs:424
+PUSHARGSR D4 0.0002; UsrFunc[void AssertEqual(int, int)] Params Start           | 636 tests/scripts/playground/auto/scopes.zs:427
+CALLFUNC 0.1834; UsrFunc[int scriptFunction()] Call                             | 637 tests/scripts/playground/auto/scopes.zs:427
+POP D4                                                                          | 638 tests/scripts/playground/auto/scopes.zs:427
+PUSHR D2                                                                        | 639 tests/scripts/playground/auto/scopes.zs:427
+PUSHV 100; UsrFunc[void AssertEqual(int, int)] Params End                       | 640 tests/scripts/playground/auto/scopes.zs:427
+CALLFUNC 0.2697; UsrFunc[void AssertEqual(int, int)] Call                       | 641 tests/scripts/playground/auto/scopes.zs:427
 PEEK D4
-PUSHR GD12; UsrFunc[void AssertEqual(int, int)] Params Start                    | 643 tests/scripts/playground/auto/scopes.zs:419
-PUSHV 123; UsrFunc[void AssertEqual(int, int)] Params End                       | 644 tests/scripts/playground/auto/scopes.zs:419
-CALLFUNC 0.2697; UsrFunc[void AssertEqual(int, int)] Call                       | 645 tests/scripts/playground/auto/scopes.zs:419
+PUSHR GD12; UsrFunc[void AssertEqual(int, int)] Params Start                    | 643 tests/scripts/playground/auto/scopes.zs:428
+PUSHV 123; UsrFunc[void AssertEqual(int, int)] Params End                       | 644 tests/scripts/playground/auto/scopes.zs:428
+CALLFUNC 0.2697; UsrFunc[void AssertEqual(int, int)] Call                       | 645 tests/scripts/playground/auto/scopes.zs:428
 PEEK D4
-PUSHR SCR1; UsrFunc[void AssertEqual(int, int)] Params Start                    | 647 tests/scripts/playground/auto/scopes.zs:420
-PUSHV 457; UsrFunc[void AssertEqual(int, int)] Params End                       | 648 tests/scripts/playground/auto/scopes.zs:420
-CALLFUNC 0.2697; UsrFunc[void AssertEqual(int, int)] Call                       | 649 tests/scripts/playground/auto/scopes.zs:420
+PUSHR SCR1; UsrFunc[void AssertEqual(int, int)] Params Start                    | 647 tests/scripts/playground/auto/scopes.zs:429
+PUSHV 457; UsrFunc[void AssertEqual(int, int)] Params End                       | 648 tests/scripts/playground/auto/scopes.zs:429
+CALLFUNC 0.2697; UsrFunc[void AssertEqual(int, int)] Call                       | 649 tests/scripts/playground/auto/scopes.zs:429
 PEEK D4
-PUSHR D4; UsrFunc[void AssertEqual(int, int)] Params Start                      | 651 tests/scripts/playground/auto/scopes.zs:421
-CALLFUNC 0.1834; UsrFunc[int scriptFunction()] Call                             | 652 tests/scripts/playground/auto/scopes.zs:421
-POP D4                                                                          | 653 tests/scripts/playground/auto/scopes.zs:421
-PUSHR D2                                                                        | 654 tests/scripts/playground/auto/scopes.zs:421
-PUSHV 100; UsrFunc[void AssertEqual(int, int)] Params End                       | 655 tests/scripts/playground/auto/scopes.zs:421
-CALLFUNC 0.2697; UsrFunc[void AssertEqual(int, int)] Call                       | 656 tests/scripts/playground/auto/scopes.zs:421
+PUSHR D4; UsrFunc[void AssertEqual(int, int)] Params Start                      | 651 tests/scripts/playground/auto/scopes.zs:430
+CALLFUNC 0.1834; UsrFunc[int scriptFunction()] Call                             | 652 tests/scripts/playground/auto/scopes.zs:430
+POP D4                                                                          | 653 tests/scripts/playground/auto/scopes.zs:430
+PUSHR D2                                                                        | 654 tests/scripts/playground/auto/scopes.zs:430
+PUSHV 100; UsrFunc[void AssertEqual(int, int)] Params End                       | 655 tests/scripts/playground/auto/scopes.zs:430
+CALLFUNC 0.2697; UsrFunc[void AssertEqual(int, int)] Call                       | 656 tests/scripts/playground/auto/scopes.zs:430
 PEEK D4
-PUSHR D4; UsrFunc[void AssertEqual(int, int)] Params Start                      | 658 tests/scripts/playground/auto/scopes.zs:422
-CALLFUNC 0.1834; UsrFunc[int scriptFunction()] Call                             | 659 tests/scripts/playground/auto/scopes.zs:422
-POP D4                                                                          | 660 tests/scripts/playground/auto/scopes.zs:422
-PUSHR D2                                                                        | 661 tests/scripts/playground/auto/scopes.zs:422
-PUSHV 100; UsrFunc[void AssertEqual(int, int)] Params End                       | 662 tests/scripts/playground/auto/scopes.zs:422
-CALLFUNC 0.2697; UsrFunc[void AssertEqual(int, int)] Call                       | 663 tests/scripts/playground/auto/scopes.zs:422
+PUSHR D4; UsrFunc[void AssertEqual(int, int)] Params Start                      | 658 tests/scripts/playground/auto/scopes.zs:431
+CALLFUNC 0.1834; UsrFunc[int scriptFunction()] Call                             | 659 tests/scripts/playground/auto/scopes.zs:431
+POP D4                                                                          | 660 tests/scripts/playground/auto/scopes.zs:431
+PUSHR D2                                                                        | 661 tests/scripts/playground/auto/scopes.zs:431
+PUSHV 100; UsrFunc[void AssertEqual(int, int)] Params End                       | 662 tests/scripts/playground/auto/scopes.zs:431
+CALLFUNC 0.2697; UsrFunc[void AssertEqual(int, int)] Call                       | 663 tests/scripts/playground/auto/scopes.zs:431
 PEEK D4
-PUSHARGSV 123 0.0002; UsrFunc[void AssertEqual(int, int)] Params Start AND UsrFunc[void AssertEqual(int, int)] Params End | 665 tests/scripts/playground/auto/scopes.zs:424
-CALLFUNC 0.2697; UsrFunc[void AssertEqual(int, int)] Call                       | 666 tests/scripts/playground/auto/scopes.zs:424
+PUSHARGSV 123 0.0002; UsrFunc[void AssertEqual(int, int)] Params Start AND UsrFunc[void AssertEqual(int, int)] Params End | 665 tests/scripts/playground/auto/scopes.zs:433
+CALLFUNC 0.2697; UsrFunc[void AssertEqual(int, int)] Call                       | 666 tests/scripts/playground/auto/scopes.zs:433
 PEEK D4
-PUSHARGSV 123 0.0002; UsrFunc[void AssertEqual(int, int)] Params Start AND UsrFunc[void AssertEqual(int, int)] Params End | 668 tests/scripts/playground/auto/scopes.zs:425
-CALLFUNC 0.2697; UsrFunc[void AssertEqual(int, int)] Call                       | 669 tests/scripts/playground/auto/scopes.zs:425
+PUSHARGSV 123 0.0002; UsrFunc[void AssertEqual(int, int)] Params Start AND UsrFunc[void AssertEqual(int, int)] Params End | 668 tests/scripts/playground/auto/scopes.zs:434
+CALLFUNC 0.2697; UsrFunc[void AssertEqual(int, int)] Call                       | 669 tests/scripts/playground/auto/scopes.zs:434
 PEEK D4
-CALLFUNC 0.1768; UsrFunc[void AccessScriptScopedMembers()] Call                 | 671 tests/scripts/playground/auto/scopes.zs:426
+CALLFUNC 0.1768; UsrFunc[void AccessScriptScopedMembers()] Call                 | 671 tests/scripts/playground/auto/scopes.zs:435
 PEEK D4
-PUSHARGSV 1 0.0002; UsrFunc[void AssertEqual(int, int)] Params Start AND UsrFunc[void AssertEqual(int, int)] Params End | 673 tests/scripts/playground/auto/scopes.zs:427
-CALLFUNC 0.2697; UsrFunc[void AssertEqual(int, int)] Call                       | 674 tests/scripts/playground/auto/scopes.zs:427
+PUSHARGSV 1 0.0002; UsrFunc[void AssertEqual(int, int)] Params Start AND UsrFunc[void AssertEqual(int, int)] Params End | 673 tests/scripts/playground/auto/scopes.zs:436
+CALLFUNC 0.2697; UsrFunc[void AssertEqual(int, int)] Call                       | 674 tests/scripts/playground/auto/scopes.zs:436
 PEEK D4
-PUSHR GD16; UsrFunc[void Assert(Thing[])] Params                                | 676 tests/scripts/playground/auto/scopes.zs:429
-CALLFUNC 0.2889; UsrFunc[void Assert(Thing[])] Call                             | 677 tests/scripts/playground/auto/scopes.zs:429
+PUSHR GD16; UsrFunc[void Assert(Thing[])] Params                                | 676 tests/scripts/playground/auto/scopes.zs:438
+CALLFUNC 0.2889; UsrFunc[void Assert(Thing[])] Call                             | 677 tests/scripts/playground/auto/scopes.zs:438
 PEEK D4
-PUSHV 10; UsrFunc[void A_fn(int)] Params                                        | 679 tests/scripts/playground/auto/scopes.zs:430
-CALLFUNC 0.0928; UsrFunc[void A_fn(int)] Call                                   | 680 tests/scripts/playground/auto/scopes.zs:430
+PUSHV 10; UsrFunc[void A_fn(int)] Params                                        | 679 tests/scripts/playground/auto/scopes.zs:439
+CALLFUNC 0.0928; UsrFunc[void A_fn(int)] Call                                   | 680 tests/scripts/playground/auto/scopes.zs:439
 PEEK D4
-CALLFUNC 0.0937; UsrFunc[void B_fn()] Call                                      | 682 tests/scripts/playground/auto/scopes.zs:431
+CALLFUNC 0.0937; UsrFunc[void B_fn()] Call                                      | 682 tests/scripts/playground/auto/scopes.zs:440
 PEEK D4
-CALLFUNC 0.1179; UsrFunc[void using_namespace_statement()] Call                 | 684 tests/scripts/playground/auto/scopes.zs:432
+CALLFUNC 0.1179; UsrFunc[void using_namespace_statement()] Call                 | 684 tests/scripts/playground/auto/scopes.zs:441
 PEEK D4
-CALLFUNC 0.1172; UsrFunc[void trace()] Call                                     | 686 tests/scripts/playground/auto/scopes.zs:433
-POP D4                                                                          | 687 tests/scripts/playground/auto/scopes.zs:433
-PUSHR CLASS_THISKEY                                                             | 688 tests/scripts/playground/auto/scopes.zs:434
-PUSHR D4                                                                        | 689 tests/scripts/playground/auto/scopes.zs:434
-PUSHR CLASS_THISKEY; ClassFunc[void CL::trace()] Params Start                   | 690 tests/scripts/playground/auto/scopes.zs:434
-PUSHR D4                                                                        | 691 tests/scripts/playground/auto/scopes.zs:434
-CALLFUNC 0.1059; ClassFunc[CL CL::CL()] Constructor Call                        | 692 tests/scripts/playground/auto/scopes.zs:434
-POP D4                                                                          | 693 tests/scripts/playground/auto/scopes.zs:434
-POP CLASS_THISKEY                                                               | 694 tests/scripts/playground/auto/scopes.zs:434
-SETR CLASS_THISKEY D2; ClassFunc[void CL::trace()] Params End                   | 695 tests/scripts/playground/auto/scopes.zs:434
-CALLFUNC 0.1153; ClassFunc[void CL::trace()] Call                               | 696 tests/scripts/playground/auto/scopes.zs:434
-POP D4                                                                          | 697 tests/scripts/playground/auto/scopes.zs:434
-POP CLASS_THISKEY                                                               | 698 tests/scripts/playground/auto/scopes.zs:434
-PUSHR D4                                                                        | 699 tests/scripts/playground/auto/scopes.zs:435
-PUSHARGSV 1337 0.0002; UsrFunc[void template_fn(int, int)] Params Start AND UsrFunc[void template_fn(int, int)] Params End | 700 tests/scripts/playground/auto/scopes.zs:435
-CALLFUNC 0.1191; UsrFunc[void template_fn(int, int)] Call                       | 701 tests/scripts/playground/auto/scopes.zs:435
+CALLFUNC 0.1172; UsrFunc[void trace()] Call                                     | 686 tests/scripts/playground/auto/scopes.zs:442
+POP D4                                                                          | 687 tests/scripts/playground/auto/scopes.zs:442
+PUSHR CLASS_THISKEY                                                             | 688 tests/scripts/playground/auto/scopes.zs:443
+PUSHR D4                                                                        | 689 tests/scripts/playground/auto/scopes.zs:443
+PUSHR CLASS_THISKEY; ClassFunc[void CL::trace()] Params Start                   | 690 tests/scripts/playground/auto/scopes.zs:443
+PUSHR D4                                                                        | 691 tests/scripts/playground/auto/scopes.zs:443
+CALLFUNC 0.1059; ClassFunc[CL CL::CL()] Constructor Call                        | 692 tests/scripts/playground/auto/scopes.zs:443
+POP D4                                                                          | 693 tests/scripts/playground/auto/scopes.zs:443
+POP CLASS_THISKEY                                                               | 694 tests/scripts/playground/auto/scopes.zs:443
+SETR CLASS_THISKEY D2; ClassFunc[void CL::trace()] Params End                   | 695 tests/scripts/playground/auto/scopes.zs:443
+CALLFUNC 0.1153; ClassFunc[void CL::trace()] Call                               | 696 tests/scripts/playground/auto/scopes.zs:443
+POP D4                                                                          | 697 tests/scripts/playground/auto/scopes.zs:443
+POP CLASS_THISKEY                                                               | 698 tests/scripts/playground/auto/scopes.zs:443
+PUSHR D4                                                                        | 699 tests/scripts/playground/auto/scopes.zs:444
+PUSHARGSV 1337 0.0002; UsrFunc[void template_fn(int, int)] Params Start AND UsrFunc[void template_fn(int, int)] Params End | 700 tests/scripts/playground/auto/scopes.zs:444
+CALLFUNC 0.1191; UsrFunc[void template_fn(int, int)] Call                       | 701 tests/scripts/playground/auto/scopes.zs:444
 PEEK D4
-ALLOCATEMEMV D2 6 0; UsrFunc[void template_fn(char32[], int)] Params Start      | 703 tests/scripts/playground/auto/scopes.zs:436
-WRITEPODSTRING D2 "hello"                                                       | 704 tests/scripts/playground/auto/scopes.zs:436
-PUSHR D2                                                                        | 705 tests/scripts/playground/auto/scopes.zs:436
-PUSHV 1337; UsrFunc[void template_fn(char32[], int)] Params End                 | 706 tests/scripts/playground/auto/scopes.zs:436
-CALLFUNC 0.1218; UsrFunc[void template_fn(char32[], int)] Call                  | 707 tests/scripts/playground/auto/scopes.zs:436
+ALLOCATEMEMV D2 6 0; UsrFunc[void template_fn(char32[], int)] Params Start      | 703 tests/scripts/playground/auto/scopes.zs:445
+WRITEPODSTRING D2 "hello"                                                       | 704 tests/scripts/playground/auto/scopes.zs:445
+PUSHR D2                                                                        | 705 tests/scripts/playground/auto/scopes.zs:445
+PUSHV 1337; UsrFunc[void template_fn(char32[], int)] Params End                 | 706 tests/scripts/playground/auto/scopes.zs:445
+CALLFUNC 0.1218; UsrFunc[void template_fn(char32[], int)] Call                  | 707 tests/scripts/playground/auto/scopes.zs:445
 PEEK D4
-PUSHV 0.0001; UsrFunc[bool Above(sprite)] Params                                | 709 tests/scripts/playground/auto/scopes.zs:437
-CALLFUNC 0.2653; UsrFunc[bool Above(sprite)] Call                               | 710 tests/scripts/playground/auto/scopes.zs:437
+PUSHV 0.0001; UsrFunc[bool Above(sprite)] Params                                | 709 tests/scripts/playground/auto/scopes.zs:446
+CALLFUNC 0.2653; UsrFunc[bool Above(sprite)] Call                               | 710 tests/scripts/playground/auto/scopes.zs:446
 PEEK D4
-PUSHR GD11; UsrFunc[void AssertEqual(int, int)] Params Start                    | 712 tests/scripts/playground/auto/scopes.zs:438
-PUSHV 0; UsrFunc[void AssertEqual(int, int)] Params End                         | 713 tests/scripts/playground/auto/scopes.zs:438
-CALLFUNC 0.2697; UsrFunc[void AssertEqual(int, int)] Call                       | 714 tests/scripts/playground/auto/scopes.zs:438
+PUSHR GD11; UsrFunc[void AssertEqual(int, int)] Params Start                    | 712 tests/scripts/playground/auto/scopes.zs:447
+PUSHV 0; UsrFunc[void AssertEqual(int, int)] Params End                         | 713 tests/scripts/playground/auto/scopes.zs:447
+CALLFUNC 0.2697; UsrFunc[void AssertEqual(int, int)] Call                       | 714 tests/scripts/playground/auto/scopes.zs:447
 PEEK D4
-CALLFUNC 0.1186; UsrFunc[void has_constant()] Call                              | 716 tests/scripts/playground/auto/scopes.zs:439
+CALLFUNC 0.1186; UsrFunc[void has_constant()] Call                              | 716 tests/scripts/playground/auto/scopes.zs:448
 PEEK D4
-PUSHV 1; UsrFunc[void trace_all(int, ...int[])] Params Start                    | 718 tests/scripts/playground/auto/scopes.zs:440
-MAKEVARGARRAY 0; Allocate Vargs array                                           | 719 tests/scripts/playground/auto/scopes.zs:440
-PUSHR D2; Push the Vargs array pointer AND UsrFunc[void trace_all(int, ...int[])] Params End | 720 tests/scripts/playground/auto/scopes.zs:440
-CALLFUNC 0.1249; UsrFunc[void trace_all(int, ...int[])] Call                    | 721 tests/scripts/playground/auto/scopes.zs:440
+PUSHV 1; UsrFunc[void trace_all(int, ...int[])] Params Start                    | 718 tests/scripts/playground/auto/scopes.zs:449
+MAKEVARGARRAY 0; Allocate Vargs array                                           | 719 tests/scripts/playground/auto/scopes.zs:449
+PUSHR D2; Push the Vargs array pointer AND UsrFunc[void trace_all(int, ...int[])] Params End | 720 tests/scripts/playground/auto/scopes.zs:449
+CALLFUNC 0.1249; UsrFunc[void trace_all(int, ...int[])] Call                    | 721 tests/scripts/playground/auto/scopes.zs:449
 PEEK D4
-PUSHV 1; UsrFunc[void trace_all(int, ...int[])] Params Start                    | 723 tests/scripts/playground/auto/scopes.zs:441
-PUSHVARGV 2                                                                     | 724 tests/scripts/playground/auto/scopes.zs:441
-PUSHVARGV 3                                                                     | 725 tests/scripts/playground/auto/scopes.zs:441
-MAKEVARGARRAY 0; Allocate Vargs array                                           | 726 tests/scripts/playground/auto/scopes.zs:441
-PUSHR D2; Push the Vargs array pointer AND UsrFunc[void trace_all(int, ...int[])] Params End | 727 tests/scripts/playground/auto/scopes.zs:441
-CALLFUNC 0.1249; UsrFunc[void trace_all(int, ...int[])] Call                    | 728 tests/scripts/playground/auto/scopes.zs:441
+PUSHV 1; UsrFunc[void trace_all(int, ...int[])] Params Start                    | 723 tests/scripts/playground/auto/scopes.zs:450
+PUSHVARGV 2                                                                     | 724 tests/scripts/playground/auto/scopes.zs:450
+PUSHVARGV 3                                                                     | 725 tests/scripts/playground/auto/scopes.zs:450
+MAKEVARGARRAY 0; Allocate Vargs array                                           | 726 tests/scripts/playground/auto/scopes.zs:450
+PUSHR D2; Push the Vargs array pointer AND UsrFunc[void trace_all(int, ...int[])] Params End | 727 tests/scripts/playground/auto/scopes.zs:450
+CALLFUNC 0.1249; UsrFunc[void trace_all(int, ...int[])] Call                    | 728 tests/scripts/playground/auto/scopes.zs:450
 PEEK D4
-PUSHVARGV 1; UsrFunc[void trace_all_2(...int[])] Params Start                   | 730 tests/scripts/playground/auto/scopes.zs:442
-PUSHVARGV 2                                                                     | 731 tests/scripts/playground/auto/scopes.zs:442
-PUSHVARGV 3                                                                     | 732 tests/scripts/playground/auto/scopes.zs:442
-MAKEVARGARRAY 0; Allocate Vargs array                                           | 733 tests/scripts/playground/auto/scopes.zs:442
-PUSHR D2; Push the Vargs array pointer AND UsrFunc[void trace_all_2(...int[])] Params End | 734 tests/scripts/playground/auto/scopes.zs:442
-CALLFUNC 0.1259; UsrFunc[void trace_all_2(...int[])] Call                       | 735 tests/scripts/playground/auto/scopes.zs:442
+PUSHVARGV 1; UsrFunc[void trace_all_2(...int[])] Params Start                   | 730 tests/scripts/playground/auto/scopes.zs:451
+PUSHVARGV 2                                                                     | 731 tests/scripts/playground/auto/scopes.zs:451
+PUSHVARGV 3                                                                     | 732 tests/scripts/playground/auto/scopes.zs:451
+MAKEVARGARRAY 0; Allocate Vargs array                                           | 733 tests/scripts/playground/auto/scopes.zs:451
+PUSHR D2; Push the Vargs array pointer AND UsrFunc[void trace_all_2(...int[])] Params End | 734 tests/scripts/playground/auto/scopes.zs:451
+CALLFUNC 0.1259; UsrFunc[void trace_all_2(...int[])] Call                       | 735 tests/scripts/playground/auto/scopes.zs:451
 PEEK D4
-PUSHV 0.0001; UsrFunc[void num_fn(long)] Params                                 | 737 tests/scripts/playground/auto/scopes.zs:443
-CALLFUNC 0.1267; UsrFunc[void num_fn(long)] Call                                | 738 tests/scripts/playground/auto/scopes.zs:443
+PUSHV 0.0001; UsrFunc[void num_fn(long)] Params                                 | 737 tests/scripts/playground/auto/scopes.zs:452
+CALLFUNC 0.1267; UsrFunc[void num_fn(long)] Call                                | 738 tests/scripts/playground/auto/scopes.zs:452
 PEEK D4
-PUSHV 1; UsrFunc[void num_fn(int)] Params                                       | 740 tests/scripts/playground/auto/scopes.zs:444
-CALLFUNC 0.1272; UsrFunc[void num_fn(int)] Call                                 | 741 tests/scripts/playground/auto/scopes.zs:444
+PUSHV 1; UsrFunc[void num_fn(int)] Params                                       | 740 tests/scripts/playground/auto/scopes.zs:453
+CALLFUNC 0.1272; UsrFunc[void num_fn(int)] Call                                 | 741 tests/scripts/playground/auto/scopes.zs:453
 PEEK D4
-PUSHV 1; UsrFunc[void long_fn(long)] Params                                     | 743 tests/scripts/playground/auto/scopes.zs:445
-CALLFUNC 0.1277; UsrFunc[void long_fn(long)] Call                               | 744 tests/scripts/playground/auto/scopes.zs:445
+PUSHV 1; UsrFunc[void long_fn(long)] Params                                     | 743 tests/scripts/playground/auto/scopes.zs:454
+CALLFUNC 0.1277; UsrFunc[void long_fn(long)] Call                               | 744 tests/scripts/playground/auto/scopes.zs:454
 PEEK D4
-PUSHV 0; UsrFunc[Enum enum_fn(const Enum)] Params                               | 746 tests/scripts/playground/auto/scopes.zs:446
-CALLFUNC 0.1282; UsrFunc[Enum enum_fn(const Enum)] Call                         | 747 tests/scripts/playground/auto/scopes.zs:446
+PUSHV 0; UsrFunc[Enum enum_fn(const Enum)] Params                               | 746 tests/scripts/playground/auto/scopes.zs:455
+CALLFUNC 0.1282; UsrFunc[Enum enum_fn(const Enum)] Call                         | 747 tests/scripts/playground/auto/scopes.zs:455
 PEEK D4
-CALLFUNC 0.1286; UsrFunc[void loop_fn()] Call                                   | 749 tests/scripts/playground/auto/scopes.zs:447
+CALLFUNC 0.1286; UsrFunc[void loop_fn()] Call                                   | 749 tests/scripts/playground/auto/scopes.zs:456
 PEEK D4
-CALLFUNC 0.1306; UsrFunc[void do_fn()] Call                                     | 751 tests/scripts/playground/auto/scopes.zs:448
+CALLFUNC 0.1306; UsrFunc[void do_fn()] Call                                     | 751 tests/scripts/playground/auto/scopes.zs:457
 PEEK D4
-CALLFUNC 0.1325; UsrFunc[void range_loop_fn()] Call                             | 753 tests/scripts/playground/auto/scopes.zs:449
+CALLFUNC 0.1325; UsrFunc[void range_loop_fn()] Call                             | 753 tests/scripts/playground/auto/scopes.zs:458
 PEEK D4
-PUSHV 1; UsrFunc[int DebugAddOne(int)] Params                                   | 755 tests/scripts/playground/auto/scopes.zs:450
-CALLFUNC 0.0923; UsrFunc[int DebugAddOne(int)] Call                             | 756 tests/scripts/playground/auto/scopes.zs:450
+PUSHV 1; UsrFunc[int DebugAddOne(int)] Params                                   | 755 tests/scripts/playground/auto/scopes.zs:459
+CALLFUNC 0.0923; UsrFunc[int DebugAddOne(int)] Call                             | 756 tests/scripts/playground/auto/scopes.zs:459
 PEEK D4
-PUSHV 0; UsrFunc[int DebugAdd(int)] Params                                      | 758 tests/scripts/playground/auto/scopes.zs:451
-CALLFUNC 0.1368; UsrFunc[int DebugAdd(int)] Call                                | 759 tests/scripts/playground/auto/scopes.zs:451
+PUSHV 0; UsrFunc[int DebugAdd(int)] Params                                      | 758 tests/scripts/playground/auto/scopes.zs:460
+CALLFUNC 0.1368; UsrFunc[int DebugAdd(int)] Call                                | 759 tests/scripts/playground/auto/scopes.zs:460
 PEEK D4
-PUSHV 0; UsrFunc[int DebugAdd(int)] Params                                      | 761 tests/scripts/playground/auto/scopes.zs:452
-CALLFUNC 0.1368; UsrFunc[int DebugAdd(int)] Call                                | 762 tests/scripts/playground/auto/scopes.zs:452
+PUSHV 0; UsrFunc[int DebugAdd(int)] Params                                      | 761 tests/scripts/playground/auto/scopes.zs:461
+CALLFUNC 0.1368; UsrFunc[int DebugAdd(int)] Call                                | 762 tests/scripts/playground/auto/scopes.zs:461
 PEEK D4
-PUSHARGSV 0 0.0002; UsrFunc[int DebugAdd(int, int)] Params Start AND UsrFunc[int DebugAdd(int, int)] Params End | 764 tests/scripts/playground/auto/scopes.zs:453
-CALLFUNC 0.1373; UsrFunc[int DebugAdd(int, int)] Call                           | 765 tests/scripts/playground/auto/scopes.zs:453
+PUSHARGSV 0 0.0002; UsrFunc[int DebugAdd(int, int)] Params Start AND UsrFunc[int DebugAdd(int, int)] Params End | 764 tests/scripts/playground/auto/scopes.zs:462
+CALLFUNC 0.1373; UsrFunc[int DebugAdd(int, int)] Call                           | 765 tests/scripts/playground/auto/scopes.zs:462
 PEEK D4
-PUSHARGSV 0 0.0002; UsrFunc[int DebugAdd(int, long)] Params Start AND UsrFunc[int DebugAdd(int, long)] Params End | 767 tests/scripts/playground/auto/scopes.zs:454
-CALLFUNC 0.1381; UsrFunc[int DebugAdd(int, long)] Call                          | 768 tests/scripts/playground/auto/scopes.zs:454
+PUSHARGSV 0 0.0002; UsrFunc[int DebugAdd(int, long)] Params Start AND UsrFunc[int DebugAdd(int, long)] Params End | 767 tests/scripts/playground/auto/scopes.zs:463
+CALLFUNC 0.1381; UsrFunc[int DebugAdd(int, long)] Call                          | 768 tests/scripts/playground/auto/scopes.zs:463
 PEEK D4
-PUSHARGSV 0 0.0002; UsrFunc[int DebugAdd(long, int)] Params Start AND UsrFunc[int DebugAdd(long, int)] Params End | 770 tests/scripts/playground/auto/scopes.zs:455
-CALLFUNC 0.1390; UsrFunc[int DebugAdd(long, int)] Call                          | 771 tests/scripts/playground/auto/scopes.zs:455
+PUSHARGSV 0 0.0002; UsrFunc[int DebugAdd(long, int)] Params Start AND UsrFunc[int DebugAdd(long, int)] Params End | 770 tests/scripts/playground/auto/scopes.zs:464
+CALLFUNC 0.1390; UsrFunc[int DebugAdd(long, int)] Call                          | 771 tests/scripts/playground/auto/scopes.zs:464
 PEEK D4
-PUSHR GD15; UsrFunc[void DebugPrintCL(const CL)] Params                         | 773 tests/scripts/playground/auto/scopes.zs:458
-CALLFUNC 0.1399; UsrFunc[void DebugPrintCL(const CL)] Call                      | 774 tests/scripts/playground/auto/scopes.zs:458
+PUSHR GD15; UsrFunc[void DebugPrintCL(const CL)] Params                         | 773 tests/scripts/playground/auto/scopes.zs:467
+CALLFUNC 0.1399; UsrFunc[void DebugPrintCL(const CL)] Call                      | 774 tests/scripts/playground/auto/scopes.zs:467
 PEEK D4
-CALLFUNC 0.1407; UsrFunc[void DebugArrays()] Call                               | 776 tests/scripts/playground/auto/scopes.zs:459
+CALLFUNC 0.1407; UsrFunc[void DebugArrays()] Call                               | 776 tests/scripts/playground/auto/scopes.zs:468
 PEEK D4
-CALLFUNC 0.1496; UsrFunc[void DebugInternalObjects()] Call                      | 778 tests/scripts/playground/auto/scopes.zs:460
+CALLFUNC 0.1496; UsrFunc[void DebugInternalObjects()] Call                      | 778 tests/scripts/playground/auto/scopes.zs:469
 PEEK D4
-PUSHV 2; UsrFunc[int DebugFrames1(int, int)] Params Start                       | 780 tests/scripts/playground/auto/scopes.zs:461
-PUSHV 5; UsrFunc[int DebugFrames1(int, int)] Params End                         | 781 tests/scripts/playground/auto/scopes.zs:461
-CALLFUNC 0.1608; UsrFunc[int DebugFrames1(int, int)] Call                       | 782 tests/scripts/playground/auto/scopes.zs:461
+PUSHV 2; UsrFunc[int DebugFrames1(int, int)] Params Start                       | 780 tests/scripts/playground/auto/scopes.zs:470
+PUSHV 5; UsrFunc[int DebugFrames1(int, int)] Params End                         | 781 tests/scripts/playground/auto/scopes.zs:470
+CALLFUNC 0.1608; UsrFunc[int DebugFrames1(int, int)] Call                       | 782 tests/scripts/playground/auto/scopes.zs:470
 PEEK D4
-CALLFUNC 0.1644; UsrFunc[void DebugFunctionCallsWaitframe1()] Call              | 784 tests/scripts/playground/auto/scopes.zs:462
+CALLFUNC 0.1644; UsrFunc[void DebugFunctionCallsWaitframe1()] Call              | 784 tests/scripts/playground/auto/scopes.zs:471
 PEEK D4
-PUSHV 0; UsrFunc[void DebugFunctionInfiniteLoop(bool)] Params                   | 786 tests/scripts/playground/auto/scopes.zs:463
-CALLFUNC 0.1656; UsrFunc[void DebugFunctionInfiniteLoop(bool)] Call             | 787 tests/scripts/playground/auto/scopes.zs:463
+PUSHV 0; UsrFunc[void DebugFunctionInfiniteLoop(bool)] Params                   | 786 tests/scripts/playground/auto/scopes.zs:472
+CALLFUNC 0.1656; UsrFunc[void DebugFunctionInfiniteLoop(bool)] Call             | 787 tests/scripts/playground/auto/scopes.zs:472
 PEEK D4
-CALLFUNC 0.1681; UsrFunc[void DebugFunctionDefaultCtor1()] Call                 | 789 tests/scripts/playground/auto/scopes.zs:464
+CALLFUNC 0.1681; UsrFunc[void DebugFunctionDefaultCtor1()] Call                 | 789 tests/scripts/playground/auto/scopes.zs:473
 PEEK D4
-PUSHV 1; UsrFunc[int DebugFunctionVarargs(int, ...int[])] Params Start          | 791 tests/scripts/playground/auto/scopes.zs:465
-PUSHVARGV 2                                                                     | 792 tests/scripts/playground/auto/scopes.zs:465
-PUSHVARGV 3                                                                     | 793 tests/scripts/playground/auto/scopes.zs:465
-MAKEVARGARRAY 0; Allocate Vargs array                                           | 794 tests/scripts/playground/auto/scopes.zs:465
-PUSHR D2; Push the Vargs array pointer AND UsrFunc[int DebugFunctionVarargs(int, ...int[])] Params End | 795 tests/scripts/playground/auto/scopes.zs:465
-CALLFUNC 0.1733; UsrFunc[int DebugFunctionVarargs(int, ...int[])] Call          | 796 tests/scripts/playground/auto/scopes.zs:465
+PUSHV 1; UsrFunc[int DebugFunctionVarargs(int, ...int[])] Params Start          | 791 tests/scripts/playground/auto/scopes.zs:474
+PUSHVARGV 2                                                                     | 792 tests/scripts/playground/auto/scopes.zs:474
+PUSHVARGV 3                                                                     | 793 tests/scripts/playground/auto/scopes.zs:474
+MAKEVARGARRAY 0; Allocate Vargs array                                           | 794 tests/scripts/playground/auto/scopes.zs:474
+PUSHR D2; Push the Vargs array pointer AND UsrFunc[int DebugFunctionVarargs(int, ...int[])] Params End | 795 tests/scripts/playground/auto/scopes.zs:474
+CALLFUNC 0.1733; UsrFunc[int DebugFunctionVarargs(int, ...int[])] Call          | 796 tests/scripts/playground/auto/scopes.zs:474
 PEEK D4
-PUSHR CLASS_THISKEY; UsrFunc[void AssertEqual(int, int)] Params Start           | 798 tests/scripts/playground/auto/scopes.zs:466
-PUSHR D4                                                                        | 799 tests/scripts/playground/auto/scopes.zs:466
-PUSHV 3; ClassFunc[int DataBag::sum(int, ...int[])] Params Start                | 800 tests/scripts/playground/auto/scopes.zs:466
-PUSHVARGV 4                                                                     | 801 tests/scripts/playground/auto/scopes.zs:466
-PUSHVARGV 5                                                                     | 802 tests/scripts/playground/auto/scopes.zs:466
-PUSHVARGV 6                                                                     | 803 tests/scripts/playground/auto/scopes.zs:466
-MAKEVARGARRAY 0; Allocate Vargs array                                           | 804 tests/scripts/playground/auto/scopes.zs:466
-PUSHR D2; Push the Vargs array pointer                                          | 805 tests/scripts/playground/auto/scopes.zs:466
-PUSHR CLASS_THISKEY                                                             | 806 tests/scripts/playground/auto/scopes.zs:466
-PUSHR D4                                                                        | 807 tests/scripts/playground/auto/scopes.zs:466
-CALLFUNC 0.0976; ClassFunc[DataBag DataBag::DataBag()] Constructor Call         | 808 tests/scripts/playground/auto/scopes.zs:466
-POP D4                                                                          | 809 tests/scripts/playground/auto/scopes.zs:466
-POP CLASS_THISKEY                                                               | 810 tests/scripts/playground/auto/scopes.zs:466
-SETR CLASS_THISKEY D2; ClassFunc[int DataBag::sum(int, ...int[])] Params End    | 811 tests/scripts/playground/auto/scopes.zs:466
-CALLFUNC 0.1014; ClassFunc[int DataBag::sum(int, ...int[])] Call                | 812 tests/scripts/playground/auto/scopes.zs:466
-POP D4                                                                          | 813 tests/scripts/playground/auto/scopes.zs:466
-POP CLASS_THISKEY                                                               | 814 tests/scripts/playground/auto/scopes.zs:466
-PUSHR D2                                                                        | 815 tests/scripts/playground/auto/scopes.zs:466
-PUSHV 21; UsrFunc[void AssertEqual(int, int)] Params End                        | 816 tests/scripts/playground/auto/scopes.zs:466
-CALLFUNC 0.2697; UsrFunc[void AssertEqual(int, int)] Call                       | 817 tests/scripts/playground/auto/scopes.zs:466
+PUSHR CLASS_THISKEY; UsrFunc[void AssertEqual(int, int)] Params Start           | 798 tests/scripts/playground/auto/scopes.zs:475
+PUSHR D4                                                                        | 799 tests/scripts/playground/auto/scopes.zs:475
+PUSHV 3; ClassFunc[int DataBag::sum(int, ...int[])] Params Start                | 800 tests/scripts/playground/auto/scopes.zs:475
+PUSHVARGV 4                                                                     | 801 tests/scripts/playground/auto/scopes.zs:475
+PUSHVARGV 5                                                                     | 802 tests/scripts/playground/auto/scopes.zs:475
+PUSHVARGV 6                                                                     | 803 tests/scripts/playground/auto/scopes.zs:475
+MAKEVARGARRAY 0; Allocate Vargs array                                           | 804 tests/scripts/playground/auto/scopes.zs:475
+PUSHR D2; Push the Vargs array pointer                                          | 805 tests/scripts/playground/auto/scopes.zs:475
+PUSHR CLASS_THISKEY                                                             | 806 tests/scripts/playground/auto/scopes.zs:475
+PUSHR D4                                                                        | 807 tests/scripts/playground/auto/scopes.zs:475
+CALLFUNC 0.0976; ClassFunc[DataBag DataBag::DataBag()] Constructor Call         | 808 tests/scripts/playground/auto/scopes.zs:475
+POP D4                                                                          | 809 tests/scripts/playground/auto/scopes.zs:475
+POP CLASS_THISKEY                                                               | 810 tests/scripts/playground/auto/scopes.zs:475
+SETR CLASS_THISKEY D2; ClassFunc[int DataBag::sum(int, ...int[])] Params End    | 811 tests/scripts/playground/auto/scopes.zs:475
+CALLFUNC 0.1014; ClassFunc[int DataBag::sum(int, ...int[])] Call                | 812 tests/scripts/playground/auto/scopes.zs:475
+POP D4                                                                          | 813 tests/scripts/playground/auto/scopes.zs:475
+POP CLASS_THISKEY                                                               | 814 tests/scripts/playground/auto/scopes.zs:475
+PUSHR D2                                                                        | 815 tests/scripts/playground/auto/scopes.zs:475
+PUSHV 21; UsrFunc[void AssertEqual(int, int)] Params End                        | 816 tests/scripts/playground/auto/scopes.zs:475
+CALLFUNC 0.2697; UsrFunc[void AssertEqual(int, int)] Call                       | 817 tests/scripts/playground/auto/scopes.zs:475
 PEEK D4
-CALLFUNC 0.1788; UsrFunc[void DebugStaticClassFunction()] Call                  | 819 tests/scripts/playground/auto/scopes.zs:467
+CALLFUNC 0.1788; UsrFunc[void DebugStaticClassFunction()] Call                  | 819 tests/scripts/playground/auto/scopes.zs:476
 PEEK D4
-SETR D2 SCR0; UsrFunc[void Assert(bool)] Params Start                           | 821 tests/scripts/playground/auto/scopes.zs:468
-PUSHR D2                                                                        | 822 tests/scripts/playground/auto/scopes.zs:468
-POP REFGENERICDATA                                                              | 823 tests/scripts/playground/auto/scopes.zs:468
-PUSHR GENDATARUNNING; UsrFunc[void Assert(bool)] Params End                     | 824 tests/scripts/playground/auto/scopes.zs:468
-CALLFUNC 0.2831; UsrFunc[void Assert(bool)] Call                                | 825 tests/scripts/playground/auto/scopes.zs:468
-POP D4                                                                          | 826 tests/scripts/playground/auto/scopes.zs:468
-GC; InlineFunc[void GC()] Body                                                  | 827 tests/scripts/playground/auto/scopes.zs:470
-PUSHR CLASS_THISKEY                                                             | 828 tests/scripts/playground/auto/scopes.zs:471
-PUSHR D4                                                                        | 829 tests/scripts/playground/auto/scopes.zs:471
-CALLFUNC 0.1059; ClassFunc[CL CL::CL()] Constructor Call                        | 830 tests/scripts/playground/auto/scopes.zs:471
-POP D4                                                                          | 831 tests/scripts/playground/auto/scopes.zs:471
-POP CLASS_THISKEY                                                               | 832 tests/scripts/playground/auto/scopes.zs:471
-WAITFRAME; InlineFunc[void Waitframe()] Body                                    | 833 tests/scripts/playground/auto/scopes.zs:473
-GC; InlineFunc[void GC()] Body                                                  | 834 tests/scripts/playground/auto/scopes.zs:474
-CALLFUNC 0.2690; UsrFunc[void End()] Call AND [Opt:NeverRet] AND [Opt:NeverRet] AND void run() Body End | 835 tests/scripts/playground/auto/scopes.zs:476
+SETR D2 SCR0; UsrFunc[void Assert(bool)] Params Start                           | 821 tests/scripts/playground/auto/scopes.zs:477
+PUSHR D2                                                                        | 822 tests/scripts/playground/auto/scopes.zs:477
+POP REFGENERICDATA                                                              | 823 tests/scripts/playground/auto/scopes.zs:477
+PUSHR GENDATARUNNING; UsrFunc[void Assert(bool)] Params End                     | 824 tests/scripts/playground/auto/scopes.zs:477
+CALLFUNC 0.2831; UsrFunc[void Assert(bool)] Call                                | 825 tests/scripts/playground/auto/scopes.zs:477
+POP D4                                                                          | 826 tests/scripts/playground/auto/scopes.zs:477
+GC; InlineFunc[void GC()] Body                                                  | 827 tests/scripts/playground/auto/scopes.zs:479
+PUSHR CLASS_THISKEY                                                             | 828 tests/scripts/playground/auto/scopes.zs:480
+PUSHR D4                                                                        | 829 tests/scripts/playground/auto/scopes.zs:480
+CALLFUNC 0.1059; ClassFunc[CL CL::CL()] Constructor Call                        | 830 tests/scripts/playground/auto/scopes.zs:480
+POP D4                                                                          | 831 tests/scripts/playground/auto/scopes.zs:480
+POP CLASS_THISKEY                                                               | 832 tests/scripts/playground/auto/scopes.zs:480
+WAITFRAME; InlineFunc[void Waitframe()] Body                                    | 833 tests/scripts/playground/auto/scopes.zs:482
+GC; InlineFunc[void GC()] Body                                                  | 834 tests/scripts/playground/auto/scopes.zs:483
+CALLFUNC 0.2690; UsrFunc[void End()] Call AND [Opt:NeverRet] AND [Opt:NeverRet] AND void run() Body End | 835 tests/scripts/playground/auto/scopes.zs:485
 POP D2; Func[void Audio::PlaySound(int)] Body Start                             | 836 resources/include/bindings/audio.zh:150
 PLAYSOUNDR D2                                                                   | 837 resources/include/bindings/audio.zh:150
 RETURNFUNC; Func[void Audio::PlaySound(int)] Body End                           | 838 resources/include/bindings/audio.zh:150
@@ -1859,14 +1859,14 @@ POP D4                                                                          
 REF_REMOVE 0                                                                    | 1830 tests/scripts/playground/auto/scopes.zs:388
 POP D5                                                                          | 1831 tests/scripts/playground/auto/scopes.zs:397
 RETURNFUNC; Func[void DebugStaticClassFunction()] Body End                      | 1832 tests/scripts/playground/auto/scopes.zs:397
-SETR D4 SP2; Func[int scriptFunction()] Body Start                              | 1833 tests/scripts/playground/auto/scopes.zs:405
-SETR D2 ACTIVESSSPEED; return Start                                             | 1834 tests/scripts/playground/auto/scopes.zs:408
-COMPAREV D2 0                                                                   | 1835 tests/scripts/playground/auto/scopes.zs:408
-GOTOCMP 1840 ==                                                                 | 1836 tests/scripts/playground/auto/scopes.zs:408
-SETV D2 100                                                                     | 1837 tests/scripts/playground/auto/scopes.zs:408
-GOTO 1841                                                                       | 1838 tests/scripts/playground/auto/scopes.zs:408
-SETV D2 0                                                                       | 1839 tests/scripts/playground/auto/scopes.zs:408
-RETURNFUNC; return End AND Func[int scriptFunction()] Body End                  | 1840 tests/scripts/playground/auto/scopes.zs:408
+SETR D4 SP2; Func[int scriptFunction()] Body Start                              | 1833 tests/scripts/playground/auto/scopes.zs:414
+SETR D2 ACTIVESSSPEED; return Start                                             | 1834 tests/scripts/playground/auto/scopes.zs:417
+COMPAREV D2 0                                                                   | 1835 tests/scripts/playground/auto/scopes.zs:417
+GOTOCMP 1840 ==                                                                 | 1836 tests/scripts/playground/auto/scopes.zs:417
+SETV D2 100                                                                     | 1837 tests/scripts/playground/auto/scopes.zs:417
+GOTO 1841                                                                       | 1838 tests/scripts/playground/auto/scopes.zs:417
+SETV D2 0                                                                       | 1839 tests/scripts/playground/auto/scopes.zs:417
+RETURNFUNC; return End AND Func[int scriptFunction()] Body End                  | 1840 tests/scripts/playground/auto/scopes.zs:417
 SETR D2 INCQST; Func[int Game::IncrementQuest()] Body Start                     | 1841 resources/include/bindings/game.zh:870
 RETURNFUNC; Func[int Game::IncrementQuest()] Body End                           | 1842 resources/include/bindings/game.zh:870
 SETR D2 SPRITEMAXNPC; Func[int Game::MaxNPCs()] Body Start                      | 1843 resources/include/bindings/game.zh:876
@@ -13149,6 +13149,9 @@ debug data:
     [SCRIPT] scopes <IDX:1043>
       - const genericdata this @ ScriptField[0]
       - int SCRIPT_SCOPED_GLOBAL @ Global[12]
+      - int exported_int @ ScriptField[2]
+      - long exported_long @ ScriptField[3]
+      - rgb exported_rgb @ ScriptField[4]
       - int script_scoped_local @ ScriptField[1]
       [FUNCTION] run <PC:628-835 IDX:1044>
       [FUNCTION] int scriptFunction <PC:1833-1840 IDX:1045>

@@ -145,6 +145,27 @@ TestResults test_parser([[maybe_unused]] bool verbose)
 		return tr;
 	}
 
+	TEST("export metadata", tr, [&]{
+		// tests/scripts/playground/auto/scopes.zs exports three instance
+		// variables in the `scopes` script. Instance slots: `this` = 0,
+		// script_scoped_local = 1, then the exports in declaration order.
+		auto& dsd = results->zasmCompilerResult.theScripts.at("scopes");
+		auto const& exports = dsd.script_d_exports.inner();
+		assertSize(exports, 3);
+
+		// Input field types default from the variable's type.
+		assertEqual((int)exports.at(2).btn_type, (int)nswapDEC);  // int
+		assertEqual((int)exports.at(3).btn_type, (int)nswapLDEC); // long
+		assertEqual((int)exports.at(4).btn_type, (int)nswapLHEX); // rgb
+		assertEqual(exports.at(2).name, "Exported Int"s);
+
+		// Initializers land in script_d_init (raw zslong values).
+		assertEqual(dsd.script_d_init.get(2), 30000);
+		assertEqual(dsd.script_d_init.get(3), 5);
+
+		return true;
+	});
+
 	TEST("debug data scopes", tr, [&]{
 		// Roundtrip.
 		auto encoded_debug_data = results->zasmCompilerResult.debugData.encode();
