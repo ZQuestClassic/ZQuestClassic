@@ -115,6 +115,14 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 20.x
+
+      # --ignore-scripts skips the postinstall that installs the client/server
+      # packages, which the grammar check doesn't need.
+      - run: npm ci --ignore-scripts
+        working-directory: vscode-extension
+      - run: npm run check-zscript-grammar
+        working-directory: vscode-extension
+
       - run: npm add mime-types
       # puppeteer caches Chrome in ~/.ccache/puppeteer, but only on npm install. Which means
       # restored caches from actions/setup-node will never install Chrome.

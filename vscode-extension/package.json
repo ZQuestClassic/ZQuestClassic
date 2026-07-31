@@ -97,6 +97,7 @@
 		"compile": "tsc -b",
 		"watch": "tsc -b -w",
 		"lint": "eslint ./client/src ./server/src --ext .ts,.tsx",
+		"check-zscript-grammar": "node scripts/check-zscript-grammar.mjs",
 		"postinstall": "cd client && npm install && cd ../server && npm install && cd ..",
 		"test": "sh ./scripts/e2e.sh"
 	},
@@ -109,6 +110,7 @@
 		"eslint": "^9.13.0",
 		"mocha": "^10.3.0",
 		"mocha-expect-snapshot": "^7.1.0",
+		"shiki": "^3.23.0",
 		"typescript": "^5.7.3",
 		"typescript-eslint": "^8.22.0"
 	}

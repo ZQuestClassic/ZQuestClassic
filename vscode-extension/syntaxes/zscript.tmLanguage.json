@@ -31,7 +31,7 @@
 				},
 				{
 					"name": "constant.language.annotation.zscript",
-					"match": "@(Author|Attribute(Help)?[0-9]|Flag(Help)?[0-9]|Flag(Help)?1[0-5]|Attribyte(Help)?[0-7]|Attrishort(Help)?[0-7]|InitD(Help|Type)?[0-7]|InitScript|AlwaysRunEndpoint|Export|ExportRange)"
+					"match": "@(Author|Attribute(Help)?(1[0-9]|2[0-3]|[0-9])|Flag(Help)?1[0-5]|Flag(Help)?[0-9]|Attribyte(Help)?[0-7]|Attrishort(Help)?[0-7]|InitD(Help|Type)?[0-7]|InitScript|AlwaysRunEndpoint|ExportInitD[0-7]|ExportRange|Export|Increment|Bitflags)\\b"
 				},
 				{
 					"name": "invalid.illegal",
@@ -100,12 +100,18 @@
 				{
 					"begin": "(\\[)(?=[^\\[\\]\\(\\)]*?\\))|(\\()(?=[^\\[\\]\\(\\)]*?\\])",
 					"beginCaptures": {
-						"1": { "name": "string.unquoted.range.bracket.zscript" },
-						"2": { "name": "string.unquoted.range.bracket.zscript" }
+						"1": {
+							"name": "string.unquoted.range.bracket.zscript"
+						},
+						"2": {
+							"name": "string.unquoted.range.bracket.zscript"
+						}
 					},
 					"end": "(\\]|\\))",
 					"endCaptures": {
-						"1": { "name": "string.unquoted.range.bracket.zscript" }
+						"1": {
+							"name": "string.unquoted.range.bracket.zscript"
+						}
 					},
 					"name": "meta.range.halfopen.zscript",
 					"patterns": [
@@ -192,7 +198,7 @@
 				},
 				{
 					"name": "meta.identifier.zscript",
-					"match": "(?<![_a-zA-Z0-9])([_a-zA-Z][_a-zA-Z0-9]*)(?![_a-zA-Z0-9])"
+					"match": "\\b([_a-zA-Z][_a-zA-Z0-9]*)\\b"
 				},
 				{
 					"name": "meta.whitespace",
@@ -245,22 +251,56 @@
 			"end": "\n",
 			"patterns": [
 				{
-					"name": "meta.preprocessor.keyword.zscript",
+					"match": "\\b(option)([ \\t]+)(NO_LOGGING|TRUNCATE_DIVISION_BY_LITERAL_BUG|SHORT_CIRCUIT|BOOL_TRUE_RETURN_DECIMAL|HEADER_GUARD|NO_ERROR_HALT|TRUE_INT_SIZE|BINARY_32BIT|APPROX_EQUAL_MARGIN|STRING_SWITCH_CASE_INSENSITIVE|WARN_DEPRECATED|ON_MISSING_RETURN|LEGACY_ARRAYS|DEFAULT_STATIC_SCRIPT_MEMBERS)\\b",
+					"captures": {
+						"1": {
+							"name": "keyword.control.directive.zscript"
+						},
+						"3": {
+							"name": "support.constant.option.zscript"
+						}
+					}
+				},
+				{
+					"match": "\\b(option)([ \\t]+)([a-zA-Z0-9_]+)",
+					"captures": {
+						"1": {
+							"name": "keyword.control.directive.zscript"
+						},
+						"3": {
+							"name": "invalid.illegal"
+						}
+					}
+				},
+				{
+					"match": "\\b(define)([ \\t]+)([a-zA-Z_][a-zA-Z0-9_]*)",
+					"captures": {
+						"1": {
+							"name": "keyword.control.directive.zscript"
+						},
+						"3": {
+							"name": "entity.name.function.preprocessor.zscript"
+						}
+					}
+				},
+				{
+					"name": "keyword.control.directive.zscript",
 					"match": "\\b(option|ignore error|ignore warning|IGNORE ERROR|IGNORE WARNING|define|include|includepath|includeif)\\b"
 				},
 				{
-					"name": "meta.preprocessor.option.zscript",
-					"match": "\\b(NO_LOGGING|TRUNCATE_DIVISION_BY_LITERAL_BUG|SHORT_CIRCUIT|BOOL_TRUE_RETURN_DECIMAL|HEADER_GUARD|NO_ERROR_HALT|TRUE_INT_SIZE|FORCE_INLINE|BINARY_32BIT|APPROX_EQUAL_MARGIN|STRING_SWITCH_CASE_INSENSITIVE|WARN_DEPRECATED|ON_MISSING_RETURN|LEGACY_ARRAYS)\\b"
-				},
-				{
-					"name": "invalid.illegal",
-					"match": "(?<=option[ \t]+)[a-zA-Z0-9_]+"
-				},
-				{
-					"name": "meta.preprocessor.constant.zscript",
+					"name": "constant.language.zscript",
 					"match": "\\b(default|inherit|on|off|warn|error)\\b"
+				},
+				{
+					"match": "\"[^\"\\n]*\"",
+					"name": "string.quoted.double.zscript"
 				}
-			]
+			],
+			"beginCaptures": {
+				"0": {
+					"name": "keyword.control.directive.zscript"
+				}
+			}
 		}
 	},
 	"scopeName": "source.zscript"
