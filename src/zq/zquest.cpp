@@ -10584,7 +10584,7 @@ void domouse()
 						draw_rc_menu.add_sep();
 						draw_rc_menu.add({ txt_ffc_edit, [&]()
 							{
-								ffdata tempdat;
+								ffdata tempdat {};
 								// x, y are ints on ffdata (but ffc x, y are zfix), so *10000
 								tempdat.x = ((int((x-startxint)/mapscreen_single_scale)&(~0x0007)) % 256) * 10000;
 								tempdat.y = ((int((y-startyint)/mapscreen_single_scale)&(~0x0007)) % 176) * 10000;
