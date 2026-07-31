@@ -123,7 +123,7 @@ std::shared_ptr<GUI::Widget> ScriptDataDialog::view()
 		initd_grid->add(help.empty() ? DINFOBTN() : INFOBTN(help));
 		initd_grid->add(TextField(
 			fitParent = true, minwidth = 8_em,
-			type = GUI::TextField::type::SWAP_ZSINT,
+			type = GUI::TextField::type::SWAP_ZSINT2,
 			swap_type = swp,
 			val = local_ref.run_args[ind],
 			onValChangedFunc = [&, ind](GUI::TextField::type,std::string_view,int32_t val)
