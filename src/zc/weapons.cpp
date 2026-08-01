@@ -3995,7 +3995,7 @@ bool weapon::animate([[maybe_unused]] int32_t index)
 			if(!get_qr(qr_OLD_WEAPON_REFLECTION))
 				do_mirror();
 			if ( ScriptGenerated && !isLWeapon ) break; //Return early for eweapons. We handle those elsewhere. 
-			if ( valid_item_id(parentitem) || (isLWeapon && ScriptGenerated) )
+			if ( valid_item_id(parentitem) || isLWeapon )
 			{
 				if(runscript_do_earlyret(run_script(MODE_NORMAL))) return false;
 			}
