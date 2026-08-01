@@ -102,11 +102,11 @@ jobs:
 
       - run: mkdir -p .tmp
 
-      - name: Install Node.js 20.x
+      - name: Install Node.js 22.x
         if: ${{ matrix.shard_index == 1 && inputs.from-ci-workflow }}
         uses: actions/setup-node@v3
         with:
-          node-version: 20.x
+          node-version: 22.x
 
       - name: Download Artifacts
         uses: actions/download-artifact@v6
