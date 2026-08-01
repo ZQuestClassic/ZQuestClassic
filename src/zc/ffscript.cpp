@@ -1812,9 +1812,11 @@ void load_genscript(const gamedata& gd)
 		gen.reloadState = gd.gen_reloadState.get(q);
 		gen.eventstate = gd.gen_eventstate.get(q);
 		gen.data = gd.gen_data.get(q);
+		// Old builds wrote saves with initd vecs bounded below 8; don't
+		// index past what's actually stored.
 		auto const& run_args = gd.gen_initd.get(q);
-		for (int q = 0; q < 8; ++q)
-			gen.scrconfig.run_args[q] = run_args.get(q);
+		for (int i = 0; i < 8; ++i)
+			gen.scrconfig.run_args[i] = i < run_args.size() ? run_args.get(i) : 0;
 		gen.scrconfig.inst_init = gd.gen_inst_init.get(q);
 	}
 }
@@ -1830,8 +1832,8 @@ void load_genscript(const zinitdata& zd)
 		gen.eventstate = zd.gen_eventstate.get(q);
 		gen.data = zd.gen_data.get(q);
 		auto const& run_args = zd.gen_initd.get(q);
-		for (int q = 0; q < 8; ++q)
-			gen.scrconfig.run_args[q] = run_args.get(q);
+		for (int i = 0; i < 8; ++i)
+			gen.scrconfig.run_args[i] = i < run_args.size() ? run_args.get(i) : 0;
 		gen.scrconfig.inst_init = zd.gen_inst_init.get(q);
 	}
 }

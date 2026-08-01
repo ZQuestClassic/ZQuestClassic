@@ -285,5 +285,27 @@ TestResults test_saves([[maybe_unused]] bool verbose)
 	}
 #endif
 
+	// Old builds wrote saves whose gen_initd vecs were bounded below 8
+	// (the save-file split migration stamped default-constructed state).
+	// Loading such a save must not throw, and normalize() must heal the
+	// bounds without losing the stored args.
+	tr.total++;
+	{
+		gamedata* bad = new gamedata();
+		bad->gen_initd[7] = bounded_vec<byte,int32_t>{3};
+		bad->gen_initd[7][0] = 1234;
+		bool threw = false;
+		extern void load_genscript(const gamedata& gd);
+		try { load_genscript(*bad); }
+		catch (std::exception const&) { threw = true; }
+		bad->normalize();
+		if (threw || bad->gen_initd[7].size() != 8 || bad->gen_initd[7][0] != 1234)
+		{
+			printf("failed short-bounded gen_initd test\n");
+			tr.failed++;
+		}
+		delete bad;
+	}
+
 	return tr;
 }

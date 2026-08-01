@@ -112,6 +112,16 @@ struct zinitdata
 	{
 		level_keys.normalize();
 		flags.normalize();
+		// The gen bounds are serialized, so a file written by an old build
+		// can carry wrong ones - reassert the fixed sizes.
+		gen_exitState.resize(NUMSCRIPTSGENERIC);
+		gen_reloadState.resize(NUMSCRIPTSGENERIC);
+		gen_initd.resize(NUMSCRIPTSGENERIC);
+		for (auto& [ind, initd] : gen_initd.mut_inner())
+			initd.resize(8);
+		gen_inst_init.resize(NUMSCRIPTSGENERIC);
+		gen_eventstate.resize(NUMSCRIPTSGENERIC);
+		gen_data.resize(NUMSCRIPTSGENERIC);
 		gen_doscript.normalize();
 		gen_exitState.normalize();
 		gen_reloadState.normalize();

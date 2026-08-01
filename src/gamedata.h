@@ -420,6 +420,17 @@ public:
 		guys.normalize();
 		item_messages_played.normalize();
 		screen_d.normalize();
+		// The gen bounds are serialized, so a file written by an old build
+		// can carry wrong ones (the save-file split migration once wrote
+		// initd vecs bounded at 0) - reassert the fixed sizes.
+		gen_exitState.resize(NUMSCRIPTSGENERIC);
+		gen_reloadState.resize(NUMSCRIPTSGENERIC);
+		gen_initd.resize(NUMSCRIPTSGENERIC);
+		for (auto& [ind, initd] : gen_initd.mut_inner())
+			initd.resize(8);
+		gen_inst_init.resize(NUMSCRIPTSGENERIC);
+		gen_eventstate.resize(NUMSCRIPTSGENERIC);
+		gen_data.resize(NUMSCRIPTSGENERIC);
 		gen_doscript.normalize();
 		gen_exitState.normalize();
 		gen_reloadState.normalize();

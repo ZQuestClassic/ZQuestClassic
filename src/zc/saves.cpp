@@ -1270,14 +1270,19 @@ static int32_t read_saves(ReadMode read_mode, PACKFILE* f, std::vector<save_t>& 
 	return 0;
 }
 
-static int32_t write_save(PACKFILE* f, save_t* save)
+static int32_t write_save(PACKFILE* f, save_t* save, bool is_active_game)
 {
 	gamedata& game = *save->game;
 
 	int32_t section_id=ID_SAVEGAME;
 	int32_t section_version=V_SAVEGAME;
 	int32_t section_size=0;
-	save_genscript(game); //read the values into the save object
+	// Only the actively played save gets the runtime generic script state
+	// read into it. Stamping every save written here poisoned saves that
+	// weren't being played - worst was the save-file split migration, which
+	// ran before any game loaded and wiped the stored state.
+	if (is_active_game)
+		save_genscript(game);
 	game.normalize();
 	
 	//section id
@@ -1705,7 +1710,7 @@ static int32_t write_save(PACKFILE* f, save_t* save)
 	return 0;
 }
 
-bool _write_save(save_t* save, std::string& err)
+bool _write_save(save_t* save, std::string& err, bool is_active_game)
 {
 	if (!save->write_to_disk)
 		return true;
@@ -1727,7 +1732,7 @@ bool _write_save(save_t* save, std::string& err)
 		return false;
 	}
 
-	if (int ret = write_save(f, save); ret)
+	if (int ret = write_save(f, save, is_active_game); ret)
 	{
 		pack_fclose(f);
 		delete_file(tmp_filename.c_str());
@@ -2268,7 +2273,7 @@ static bool do_save_games(std::string& err)
 		std::string prefix = "zc_frame_" + std::to_string(replay_get_frame());
 		saves[currgame].path = util::create_new_file_path(dir, prefix, ".sav");
 		saves[currgame].write_to_disk = true;
-		if (!_write_save(&saves[currgame], err))
+		if (!_write_save(&saves[currgame], err, true))
 			return false;
 	}
 
@@ -2284,7 +2289,7 @@ static bool do_save_games(std::string& err)
 		if (!save.header || !save.game)
 			continue;
 
-		if (!_write_save(&save, err))
+		if (!_write_save(&save, err, currgame >= 0 && &save == &saves[currgame]))
 			return false;
 	}
 

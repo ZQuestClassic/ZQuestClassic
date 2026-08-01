@@ -86,7 +86,7 @@ enum class ReadMode
 	Size,
 };
 
-bool _write_save(save_t* save, std::string& err);
+bool _write_save(save_t* save, std::string& err, bool is_active_game = false);
 bool _load_from_save_file_expect_one(ReadMode read_mode, fs::path path, save_t& out_save, std::string& err);
 
 #endif
