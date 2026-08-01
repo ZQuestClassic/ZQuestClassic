@@ -4308,7 +4308,7 @@ bool weapon::animate(int32_t index)
 		{
 			if ( ScriptGenerated && !isLWeapon ) break; //Return early for eweapons. We handle those elsewhere. 
 			//Z_scripterrlog("Script LWeapon Type (%d) has a weapon script of: %d\n", id, weaponscript);
-			if ( parentitem > -1 || (isLWeapon && ScriptGenerated) )
+			if ( parentitem > -1 || isLWeapon )
 			{
 				//Z_scripterrlog("Script LWeapon Type (%d) has a weapon script of: %d\n", id, weaponscript);
 				if(runscript_do_earlyret(run_script(MODE_NORMAL))) return false;
