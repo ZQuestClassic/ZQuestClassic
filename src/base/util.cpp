@@ -295,50 +295,6 @@ namespace util
 		return ext;
 	}
 	
-	static bool valid_single_dir(string const& path)
-	{
-		if(path.find_first_of("<>|?*&^$#\"") != string::npos) return false; //Contains invalid chars
-		size_t nonslash_pos = path.find_last_not_of("/\\");
-		if(nonslash_pos == string::npos) return false; //blank or all slashes
-		if(path[0] == '/' || path[0] == '\\') return false; //multiple consecutive slashes
-		if(path.find("..") == 0) return false; //cannot begin with >1 dot
-		if(path.find("...") != string::npos) return false; //cannot contain >2 consecutive dots
-		return true;
-	}
-	
-	bool valid_dir(string const& path)
-	{
-		size_t pos = path.find_first_not_of("/\\");
-		if(pos == string::npos) return true;
-		while(pos < path.length())
-		{
-			size_t next_slash = path.find_first_of("/\\",pos);
-			if(next_slash == string::npos) break;
-			if(!valid_single_dir(path.substr(pos,next_slash-pos))) return false;
-			pos = next_slash+1;
-		}
-		return true;
-	}
-	
-	bool valid_file(string const& path)
-	{
-		if(path.find_first_of("<>|?*&^$#\"") != string::npos) return false; //Contains invalid chars
-		size_t last_slash_pos = path.find_last_of("/\\");
-		if(last_slash_pos == string::npos) last_slash_pos = 0;
-		else
-		{
-			if(!valid_dir(path.substr(0,last_slash_pos))) return false;
-			++last_slash_pos;
-		}
-		if(last_slash_pos == path.length() - 1) return false; //Ends in slash; empty filename
-		string fname = path.substr(last_slash_pos);
-		if(fname.find_first_of(":") != string::npos) return false; //invalid char
-		if(fname.find_first_not_of(".") == string::npos) return false; //empty filename
-		if(fname.find("..") == 0) return false; //cannot begin with >1 dot
-		if(fname.find("...") != string::npos) return false; //cannot contain >2 consecutive dots
-		return true;
-	}
-	
 	void regulate_path(char* buf)
 	{
 		for(int32_t q = 0; buf[q]; ++q)

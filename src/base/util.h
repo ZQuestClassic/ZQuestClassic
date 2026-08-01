@@ -111,8 +111,6 @@ namespace util
 	void replchar(char* buf, char from, char to);
 	void removechar(std::string& str, char to_delete);
 	std::string get_ext(std::string const& path);
-	bool valid_dir(std::string const& path);
-	bool valid_file(std::string const& path);
 	void regulate_path(char* buf);
 	void regulate_path(std::string& buf);
 	bool make_dirs_for_file(std::string& path);
