@@ -211,19 +211,38 @@ namespace util
 		replstr(temp, "\v", "\\v");
 		return temp;
 	}
+	// Like `unescape_characters`, but the escapes for control characters are
+	// dropped rather than turned back into the character. Must be a single pass
+	// for the same reason - see the comment there.
 	std::string disallow_escapes(std::string const& str)
 	{
-		std::string temp = str;
-		replstr(temp, "\\\\", "\\");
-		replstr(temp, "\\\"", "\"");
-		replstr(temp, "\\'", "'");
-		replstr(temp, "\\a", "");
-		replstr(temp, "\\b", "");
-		replstr(temp, "\\f", "");
-		replstr(temp, "\\n", "");
-		replstr(temp, "\\r", "");
-		replstr(temp, "\\t", "");
-		replstr(temp, "\\v", "");
+		std::string temp;
+		temp.reserve(str.size());
+		for(size_t q = 0; q < str.size(); ++q)
+		{
+			if(str[q] != '\\' || q+1 == str.size())
+			{
+				temp += str[q];
+				continue;
+			}
+
+			switch(str[++q])
+			{
+				case '\\': temp += '\\'; break;
+				case '"': temp += '"'; break;
+				case '\'': temp += '\''; break;
+				case 'a':
+				case 'b':
+				case 'f':
+				case 'n':
+				case 'r':
+				case 't':
+				case 'v':
+					break;
+				// Not an escape this understands - leave it alone.
+				default: temp += '\\'; temp += str[q]; break;
+			}
+		}
 		return temp;
 	}
 	// Undoes `escape_characters`. This has to consume the string in one pass -
@@ -560,36 +579,7 @@ namespace util
 	
 	string escape_string(char const* str)
 	{
-		ostringstream oss;
-		oss << "\"";
-		size_t len = strlen(str);
-		for(size_t q = 0; q < len; ++q)
-		{
-			char c = str[q];
-			if(c < ' ' || c > '~')
-			{
-				switch(c)
-				{
-					case '\n': oss << "\\n"; break;
-					case '\t': oss << "\\t"; break;
-					case '\a': oss << "\\a"; break;
-					case '\b': oss << "\\b"; break;
-					case '\f': oss << "\\f"; break;
-					case '\r': oss << "\\r"; break;
-					case '\v': oss << "\\v"; break;
-					case '"': oss << "\\\""; break;
-					case '\\': oss << "\\\\"; break;
-					default:
-					{
-						oss << "\\x" << std::setfill('0') << std::setw(2) << std::hex << c;
-						break;
-					}
-				}
-			}
-			else oss << c;
-		}
-		oss << "\"";
-		return oss.str();
+		return escape_string(string(str));
 	}
 	string escape_string(string const& str)
 	{
