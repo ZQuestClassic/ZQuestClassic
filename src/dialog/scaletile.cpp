@@ -25,7 +25,7 @@ std::shared_ptr<GUI::Widget> ScaleTileDialog::view()
 				Label(text = "Dest Hei:"),
 				TextField(
 					type = GUI::TextField::type::INT_DECIMAL,
-					maxLength = 3, low = 1, high = 20,
+					maxLength = 3, bounds = {1, 20},
 					val = swid,
 					focused = true,
 					onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
@@ -34,7 +34,7 @@ std::shared_ptr<GUI::Widget> ScaleTileDialog::view()
 					}),
 				TextField(
 					type = GUI::TextField::type::INT_DECIMAL,
-					maxLength = 3, low = 1, high = 20,
+					maxLength = 3, bounds = {1, 20},
 					val = shei,
 					onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 					{

@@ -1163,7 +1163,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 					tfs[0] = TextField(
 						fitParent = true, minwidth = 8_em,
 						type = GUI::TextField::type::SWAP_SSHORT,
-						low = -32768, high = 32767, val = x1,
+						bounds = {-32768, 32767}, val = x1,
 						onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 						{
 							x1 = val;
@@ -1180,7 +1180,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 					tfs[1] = TextField(
 						fitParent = true, minwidth = 8_em,
 						type = GUI::TextField::type::SWAP_SSHORT,
-						low = -32768, high = 32767, val = y1,
+						bounds = {-32768, 32767}, val = y1,
 						onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 						{
 							y1 = val;
@@ -1191,7 +1191,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 					tfs[2] = TextField(
 						fitParent = true, minwidth = 8_em,
 						type = GUI::TextField::type::SWAP_SSHORT,
-						low = -32768, high = 32767, val = x2,
+						bounds = {-32768, 32767}, val = x2,
 						onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 						{
 							x2 = val;
@@ -1202,7 +1202,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 					tfs[3] = TextField(
 						fitParent = true, minwidth = 8_em,
 						type = GUI::TextField::type::SWAP_SSHORT,
-						low = -32768, high = 32767, val = y2,
+						bounds = {-32768, 32767}, val = y2,
 						onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 						{
 							y2 = val;
@@ -1679,7 +1679,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 						tfs[0] = TextField(
 							fitParent = true, minwidth = 8_em,
 							type = GUI::TextField::type::SWAP_BYTE,
-							low = 1, high = 255, val = flipp_level,
+							bounds = {1, 255}, val = flipp_level,
 							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 							{
 								flipp_level = val;
@@ -1773,7 +1773,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 						tfs[3] = TextField(
 							fitParent = true, minwidth = 8_em,
 							type = GUI::TextField::type::SWAP_BYTE,
-							low = 0, high = 255, val = hp_delay,
+							bounds = {0, 255}, val = hp_delay,
 							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 							{
 								hp_delay = val;
@@ -1793,7 +1793,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 						tfs[4] = TextField(
 							fitParent = true, minwidth = 8_em,
 							type = GUI::TextField::type::SWAP_BYTE,
-							low = 1, high = 255, val = req_it_lvl,
+							bounds = {1, 255}, val = req_it_lvl,
 							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 							{
 								req_it_lvl = val;
@@ -2151,7 +2151,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 								tfs[0] = TextField(
 									fitParent = true, minwidth = 8_em,
 									type = GUI::TextField::type::SWAP_SSHORT,
-									low = -32768, high = 32767, val = damage,
+									bounds = {-32768, 32767}, val = damage,
 									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 									{
 										damage = val;
@@ -2173,7 +2173,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 								tfs[3] = TextField(
 									fitParent = true, minwidth = 8_em,
 									type = GUI::TextField::type::SWAP_SSHORT,
-									low = 0, high = 32767, val = rate,
+									bounds = {0, 32767}, val = rate,
 									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 									{
 										rate = val;
@@ -2192,7 +2192,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 								tfs[4] = TextField(
 									fitParent = true, minwidth = 8_em,
 									type = GUI::TextField::type::SWAP_SSHORT,
-									low = 0, high = 32767, val = high_rate,
+									bounds = {0, 32767}, val = high_rate,
 									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 									{
 										high_rate = val;
@@ -2211,7 +2211,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 								tfs[5] = TextField(
 									fitParent = true, minwidth = 8_em,
 									type = GUI::TextField::type::SWAP_ZSINT,
-									low = 0, val = prox.getZLong(), disabled = !(local_ref.usrflags&cflag4),
+									val = prox.getZLong(), disabled = !(local_ref.usrflags&cflag4),
 									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 									{
 										prox = zslongToFix(val);
@@ -2250,7 +2250,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 								tfs[6] = TextField(
 									fitParent = true, minwidth = 8_em,
 									type = GUI::TextField::type::SWAP_BYTE,
-									low = 2, high = 255, val = shot_count,
+									bounds = {2, 255}, val = shot_count,
 									disabled = !(local_ref.usrflags&cflag7),
 									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 									{
@@ -2450,7 +2450,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 						tfs[0] = TextField(
 							fitParent = true, minwidth = 8_em,
 							type = GUI::TextField::type::SWAP_ZSINT_NO_DEC,
-							low = 1, high = 214748, val = damage,
+							bounds = {1, 214748}, val = damage,
 							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 							{
 								damage = val;
@@ -2545,7 +2545,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 					TextField(
 						fitParent = true, minwidth = 8_em,
 						type = GUI::TextField::type::SWAP_BYTE,
-						low = 0, high = 255, val = radius,
+						bounds = {0, 255}, val = radius,
 						onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 						{
 							radius = val;
@@ -2572,7 +2572,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 					TextField(
 						fitParent = true, minwidth = 8_em,
 						type = GUI::TextField::type::INT_DECIMAL,
-						low = -255, high = 255, val = offset,
+						bounds = {-255, 255}, val = offset,
 						onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 						{
 							offset = val;
@@ -2755,7 +2755,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 						TextField(
 							fitParent = true, minwidth = 8_em,
 							type = GUI::TextField::type::SWAP_BYTE,
-							low = 0, high = 255, val = start_spd,
+							bounds = {0, 255}, val = start_spd,
 							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 							{
 								start_spd = val;
@@ -2765,7 +2765,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 						TextField(
 							fitParent = true, minwidth = 8_em,
 							type = GUI::TextField::type::SWAP_BYTE,
-							low = 0, high = 255, val = leeway_frames,
+							bounds = {0, 255}, val = leeway_frames,
 							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 							{
 								leeway_frames = val;
@@ -2775,7 +2775,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 						TextField(
 							fitParent = true, minwidth = 8_em,
 							type = GUI::TextField::type::SWAP_ZSINT,
-							low = 0, high = SWAP_MAX, val = accel,
+							bounds = {0, SWAP_MAX}, val = accel,
 							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 							{
 								accel = val;
@@ -2785,7 +2785,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 						TextField(
 							fitParent = true, minwidth = 8_em,
 							type = GUI::TextField::type::SWAP_ZSINT,
-							low = 0, high = SWAP_MAX, val = decel,
+							bounds = {0, SWAP_MAX}, val = decel,
 							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 							{
 								decel = val;
@@ -2795,7 +2795,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 						TextField(
 							fitParent = true, minwidth = 8_em,
 							type = GUI::TextField::type::SWAP_ZSINT,
-							low = 0, high = SWAP_MAX, val = max_spd,
+							bounds = {0, SWAP_MAX}, val = max_spd,
 							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 							{
 								max_spd = val;
@@ -3515,7 +3515,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 							fitParent = true, minwidth = 8_em,
 							type = GUI::TextField::type::SWAP_BYTE,
 							val = exstate, disabled = radmode0 == 0,
-							high = 31,
+							bounds = {0, 31},
 							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 							{
 								exstate = val;
@@ -3660,7 +3660,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 									tfs[1] = TextField(
 										fitParent = true, minwidth = 8_em,
 										type = GUI::TextField::type::SWAP_SSHORT,
-										low = -32768, high = 32767, val = def_prompt_xoff,
+										bounds = {-32768, 32767}, val = def_prompt_xoff,
 										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 										{
 											prompt_xoff = val;
@@ -3671,7 +3671,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 									tfs[2] = TextField(
 										fitParent = true, minwidth = 8_em,
 										type = GUI::TextField::type::SWAP_SSHORT,
-										low = -32768, high = 32767, val = def_prompt_yoff,
+										bounds = {-32768, 32767}, val = def_prompt_yoff,
 										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 										{
 											prompt_yoff = val;
@@ -3793,7 +3793,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 									tfs[3] = TextField(
 										fitParent = true, minwidth = 8_em,
 										type = GUI::TextField::type::SWAP_ZSINT_NO_DEC,
-										low = 1, high = 65535, val = amount,
+										bounds = {1, 65535}, val = amount,
 										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 										{
 											amount = val;
@@ -3972,7 +3972,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 							fitParent = true, minwidth = 8_em,
 							type = GUI::TextField::type::SWAP_BYTE,
 							val = exstate, disabled = radmode0 == 0,
-							high = 31,
+							bounds = {0, 31},
 							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 							{
 								exstate = val;
@@ -4140,7 +4140,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 									tfs[1] = TextField(
 										fitParent = true, minwidth = 8_em,
 										type = GUI::TextField::type::SWAP_SSHORT,
-										low = -32768, high = 32767, val = def_prompt_xoff,
+										bounds = {-32768, 32767}, val = def_prompt_xoff,
 										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 										{
 											prompt_xoff = val;
@@ -4151,7 +4151,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 									tfs[2] = TextField(
 										fitParent = true, minwidth = 8_em,
 										type = GUI::TextField::type::SWAP_SSHORT,
-										low = -32768, high = 32767, val = def_prompt_yoff,
+										bounds = {-32768, 32767}, val = def_prompt_yoff,
 										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 										{
 											prompt_yoff = val;
@@ -4273,7 +4273,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 									tfs[3] = TextField(
 										fitParent = true, minwidth = 8_em,
 										type = GUI::TextField::type::SWAP_ZSINT_NO_DEC,
-										low = 1, high = 65535, val = amount,
+										bounds = {1, 65535}, val = amount,
 										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 										{
 											amount = val;
@@ -4523,7 +4523,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 									tfs[1] = TextField(
 										fitParent = true, minwidth = 8_em,
 										type = GUI::TextField::type::SWAP_SSHORT,
-										low = -32768, high = 32767, val = def_prompt_xoff,
+										bounds = {-32768, 32767}, val = def_prompt_xoff,
 										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 										{
 											prompt_xoff = val;
@@ -4534,7 +4534,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 									tfs[2] = TextField(
 										fitParent = true, minwidth = 8_em,
 										type = GUI::TextField::type::SWAP_SSHORT,
-										low = -32768, high = 32767, val = def_prompt_yoff,
+										bounds = {-32768, 32767}, val = def_prompt_yoff,
 										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 										{
 											prompt_yoff = val;
@@ -4590,7 +4590,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 						tfs[0] = TextField(
 							fitParent = true, minwidth = 8_em,
 							type = GUI::TextField::type::SWAP_BYTE,
-							low = 0, high = 255, val = crumble_sens,
+							bounds = {0, 255}, val = crumble_sens,
 							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 							{
 								crumble_sens = val;
@@ -4602,7 +4602,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 						tfs[1] = TextField(
 							fitParent = true, minwidth = 8_em,
 							type = GUI::TextField::type::SWAP_SSHORT,
-							low = 0, high = 32767, val = crumble_time,
+							bounds = {0, 32767}, val = crumble_time,
 							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 							{
 								crumble_time = val;
@@ -4616,7 +4616,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 						tfs[2] = TextField(
 							fitParent = true, minwidth = 8_em,
 							type = GUI::TextField::type::SWAP_SSHORT,
-							low = -32768, high = 32767, val = reset_change,
+							bounds = {-32768, 32767}, val = reset_change,
 							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 							{
 								reset_change = val;
@@ -4927,7 +4927,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 					tfs[0] = TextField(
 						fitParent = true, minwidth = 8_em,
 						type = GUI::TextField::type::SWAP_BYTE,
-						low = 0, high = 100, val = heal_hp,
+						bounds = {0, 100}, val = heal_hp,
 						disabled = !(local_ref.usrflags&cflag1),
 						onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 						{
@@ -4944,7 +4944,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 					tfs[1] = TextField(
 						fitParent = true, minwidth = 8_em,
 						type = GUI::TextField::type::SWAP_BYTE,
-						low = 0, high = 100, val = heal_mp,
+						bounds = {0, 100}, val = heal_mp,
 						disabled = !(local_ref.usrflags&cflag2),
 						onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 						{

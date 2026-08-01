@@ -85,7 +85,7 @@ std::shared_ptr<GUI::Widget> PitConvertDialog::view()
 					fitParent = true,
 					minwidth = 8_em,
 					type = GUI::TextField::type::SWAP_SSHORT,
-					low=0, high=65535,
+					bounds = {0, 65535},
 					val=damage,
 					onValChangedFunc = [&](GUI::TextField::type, std::string_view, int32_t val)
 					{
@@ -98,7 +98,7 @@ std::shared_ptr<GUI::Widget> PitConvertDialog::view()
 					fitParent = true,
 					minwidth = 8_em,
 					type = GUI::TextField::type::SWAP_SSHORT,
-					low=0, high=65279,
+					bounds = {0, 65279},
 					val=lowcombo,
 					onValChangedFunc = [&](GUI::TextField::type, std::string_view, int32_t val)
 					{
@@ -111,7 +111,7 @@ std::shared_ptr<GUI::Widget> PitConvertDialog::view()
 					fitParent = true,
 					minwidth = 8_em,
 					type = GUI::TextField::type::SWAP_SSHORT,
-					low=0, high=65279,
+					bounds = {0, 65279},
 					val=highcombo,
 					onValChangedFunc = [&](GUI::TextField::type, std::string_view, int32_t val)
 					{

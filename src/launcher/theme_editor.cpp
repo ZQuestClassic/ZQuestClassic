@@ -54,21 +54,21 @@ int32_t ThemeEditor::theme_edit_on_tick()
 Label(text = "RGB " + std::to_string(ind) + ":"), \
 tf_red.add(TextField(fitParent = true, \
 	type = GUI::TextField::type::INT_DECIMAL, \
-	low = 0, high = 255, val = work_colors[ind][0], \
+	bounds = {0, 255}, val = work_colors[ind][0], \
 	onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val) \
 	{ \
 		work_colors[ind][0] = val; \
 	})), \
 tf_green.add(TextField(fitParent = true, \
 	type = GUI::TextField::type::INT_DECIMAL, \
-	low = 0, high = 255, val = work_colors[ind][1], \
+	bounds = {0, 255}, val = work_colors[ind][1], \
 	onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val) \
 	{ \
 		work_colors[ind][1] = val; \
 	})), \
 tf_blue.add(TextField(fitParent = true, \
 	type = GUI::TextField::type::INT_DECIMAL, \
-	low = 0, high = 255, val = work_colors[ind][2], \
+	bounds = {0, 255}, val = work_colors[ind][2], \
 	onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val) \
 	{ \
 		work_colors[ind][2] = val; \
@@ -79,7 +79,7 @@ ColorSel(read_only = true, val = ind, width = 4.5_em)
 Label(text = #jc_const), \
 tf_jc.add(TextField(fitParent = true, minwidth = 2_em, \
 	type = GUI::TextField::type::INT_DECIMAL, \
-	low = 1, high = 8, val = r_dvc(jwin_pal[jc_const]), \
+	bounds = {1, 8}, val = r_dvc(jwin_pal[jc_const]), \
 	onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val) \
 	{ \
 		jwin_pal[jc_const] = dvc(val); \

@@ -334,7 +334,7 @@ std::shared_ptr<GUI::Widget> AutoComboDialog::view()
 									type = GUI::TextField::type::INT_DECIMAL,
 									minwidth = 1_em,
 									minheight = 1_em,
-									low = 1, high = 9,
+									bounds = {1, 9},
 									val = temp_autocombo.getArg() + 1,
 									onValChangedFunc = [&](GUI::TextField::type, std::string_view, int32_t val)
 									{
@@ -379,7 +379,7 @@ std::shared_ptr<GUI::Widget> AutoComboDialog::view()
 									type = GUI::TextField::type::INT_DECIMAL,
 									minwidth = 1_em,
 									minheight = 1_em,
-									low = 1, high = 9,
+									bounds = {1, 9},
 									val = temp_autocombo.getArg() + 1,
 									onValChangedFunc = [&](GUI::TextField::type, std::string_view, int32_t val)
 									{
@@ -394,7 +394,7 @@ std::shared_ptr<GUI::Widget> AutoComboDialog::view()
 							TextField(
 								type = GUI::TextField::type::INT_DECIMAL,
 								minwidth = 2.5_em,
-								low = 1, high = 8,
+								bounds = {1, 8},
 								val = (temp_autocombo.getArg() & 0xF) + 1,
 								onValChangedFunc = [&](GUI::TextField::type, std::string_view, int32_t val)
 								{
@@ -406,7 +406,7 @@ std::shared_ptr<GUI::Widget> AutoComboDialog::view()
 							TextField(
 								type = GUI::TextField::type::INT_DECIMAL,
 								minwidth = 2.5_em,
-								low = 1, high = 8,
+								bounds = {1, 8},
 								val = ((temp_autocombo.getArg() >> 4) & 0xF) + 1,
 								onValChangedFunc = [&](GUI::TextField::type, std::string_view, int32_t val)
 								{

@@ -6,7 +6,7 @@
 TextField( \
 	fitParent = true, \
 	type = GUI::TextField::type::INT_DECIMAL, \
-	low = _min, high = _max, val = var, \
+	bounds = {_min, _max}, val = var, \
 	onValChangedFunc = [=, this](GUI::TextField::type,std::string_view,int32_t val) \
 	{ \
 		var = val; \
@@ -16,7 +16,7 @@ TextField( \
 TextField( \
 	fitParent = true, \
 	type = GUI::TextField::type::INT_DECIMAL, \
-	low = _min, high = _max, val = var+offs, \
+	bounds = {_min, _max}, val = var+offs, \
 	onValChangedFunc = [=, this](GUI::TextField::type,std::string_view,int32_t val) \
 	{ \
 		var = val-offs; \
@@ -114,7 +114,7 @@ Rows<3>( \
 	TextField( \
 		fitParent = true, \
 		type = GUI::TextField::type::INT_DECIMAL, \
-		low = 0, high = 13, val = seltileinfo.cset>>4, \
+		bounds = {0, 13}, val = seltileinfo.cset>>4, \
 		onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val) \
 		{ \
 			word c2 = seltileinfo.cset&0x0F; \

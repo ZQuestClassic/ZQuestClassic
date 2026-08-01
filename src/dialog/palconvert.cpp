@@ -85,7 +85,7 @@ std::shared_ptr<GUI::Widget> PaletteConvertDialog::view()
 					fitParent = true,
 					minwidth = 8_em,
 					type = GUI::TextField::type::SWAP_SSHORT,
-					low=0, high=0x1FF,
+					bounds = {0, 0x1FF},
 					val=lowpal,
 					onValChangedFunc = [&](GUI::TextField::type, std::string_view, int32_t val)
 					{
@@ -98,7 +98,7 @@ std::shared_ptr<GUI::Widget> PaletteConvertDialog::view()
 					fitParent = true,
 					minwidth = 8_em,
 					type = GUI::TextField::type::SWAP_SSHORT,
-					low=0, high=0x1FF,
+					bounds = {0, 0x1FF},
 					val=highpal,
 					onValChangedFunc = [&](GUI::TextField::type, std::string_view, int32_t val)
 					{

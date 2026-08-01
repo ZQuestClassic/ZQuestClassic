@@ -75,7 +75,7 @@ static const GUI::ListData list_region_mapping
 
 #define BYTE_FIELD(member) \
 TextField(maxLength = 3, type = GUI::TextField::type::INT_DECIMAL, \
-	high = 255, val = local_zinit.member, \
+	bounds = {0, 255}, val = local_zinit.member, \
 	fitParent = true, \
 	onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val) \
 	{ \
@@ -89,7 +89,7 @@ VAL_FIELD_IMPL<t>(minval, maxval, &local_zinit.member, dis)
 #define ZTHRESH_FIELD(name, idx) \
 Label(text = name, hAlign = 0.0), \
 TextField(maxLength = 11, type = GUI::TextField::type::INT_DECIMAL, \
-	hAlign = 1.0, low = -1, high = 65534, \
+	hAlign = 1.0, bounds = {-1, 65534}, \
 	val = (local_zinit.sprite_z_thresholds[idx] == word(-1) ? -1 : local_zinit.sprite_z_thresholds[idx]), \
 	width = 4.5_em, \
 	fitParent = true, \
@@ -102,7 +102,7 @@ TextField(maxLength = 11, type = GUI::TextField::type::INT_DECIMAL, \
 #define DEC_VAL_FIELD(name, minval, maxval, numPlaces, member, dis) \
 Label(text = name, hAlign = 0.0), \
 TextField(disabled = dis, maxLength = 11, type = GUI::TextField::type::FIXED_DECIMAL, \
-	hAlign = 1.0, low = minval, high = maxval, val = local_zinit.member, \
+	hAlign = 1.0, bounds = {minval, maxval}, val = local_zinit.member, \
 	width = 4.5_em, places = numPlaces, \
 	fitParent = true, \
 	onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val) \
@@ -113,7 +113,7 @@ TextField(disabled = dis, maxLength = 11, type = GUI::TextField::type::FIXED_DEC
 #define ZFIX_VAL_FIELD(name, minval, maxval, member, dis) \
 Label(text = name, hAlign = 0.0), \
 TextField(disabled = dis, maxLength = 11, type = GUI::TextField::type::FIXED_DECIMAL, \
-	hAlign = 1.0, low = minval, high = maxval, val = local_zinit.member.getZLong(), \
+	hAlign = 1.0, bounds = {minval, maxval}, val = local_zinit.member.getZLong(), \
 	width = 4.5_em, places = 4, \
 	fitParent = true, \
 	onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val) \
@@ -152,7 +152,7 @@ std::shared_ptr<GUI::Widget> InitDataDialog::WORD_FIELD(word* member)
 	using namespace GUI::Props;
 	
 	return TextField(maxLength = 5, type = GUI::TextField::type::INT_DECIMAL,
-		high = 65535, val = *member,
+		bounds = {0, 65535}, val = *member,
 		fitParent = true,
 		onValChangedFunc = [member](GUI::TextField::type,std::string_view,int32_t val)
 		{
@@ -182,7 +182,7 @@ std::shared_ptr<GUI::Widget> InitDataDialog::VAL_FIELD_IMPL(T minval, T maxval, 
 	using namespace GUI::Props;
 
 	return TextField(disabled = dis, maxLength = 11, type = GUI::TextField::type::INT_DECIMAL,
-		hAlign = 1.0, low = minval, high = maxval, val = *member,
+		hAlign = 1.0, bounds = {minval, maxval}, val = *member,
 		width = 4.5_em,
 		fitParent = true,
 		onValChangedFunc = [member](GUI::TextField::type,std::string_view,int32_t val)
@@ -373,7 +373,7 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 						Label(hAlign = 0.5, bottomPadding = 0_px, text = "Max"),
 						Label(hAlign = 1.0, bottomPadding = 0_px, text = "On Continue"),
 						TextField(maxLength = 5, type = GUI::TextField::type::INT_DECIMAL,
-							high = 65535, val = local_zinit.counter[crLIFE] / HEART_FACTOR,
+							bounds = {0, 65535}, val = local_zinit.counter[crLIFE] / HEART_FACTOR,
 							fitParent = true,
 							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 							{
@@ -381,7 +381,7 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 							}
 						),
 						TextField(maxLength = 5, type = GUI::TextField::type::INT_DECIMAL,
-							high = 65535, val = local_zinit.mcounter[crLIFE] / HEART_FACTOR,
+							bounds = {0, 65535}, val = local_zinit.mcounter[crLIFE] / HEART_FACTOR,
 							fitParent = true,
 							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 							{
@@ -389,7 +389,7 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 							}
 						),
 						TextField(maxLength = 5, type = GUI::TextField::type::INT_DECIMAL,
-							high = 65535, val = local_zinit.cont_heart / HEART_FACTOR2,
+							bounds = {0, 65535}, val = local_zinit.cont_heart / HEART_FACTOR2,
 							fitParent = true,
 							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 							{
@@ -453,7 +453,7 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 							read_only = local_zinit.bomb_ratio
 						),
 						TextField(maxLength = 5, type = GUI::TextField::type::INT_DECIMAL,
-							high = 255, val = local_zinit.bomb_ratio, disabled = isZC,
+							bounds = {0, 255}, val = local_zinit.bomb_ratio, disabled = isZC,
 							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 							{
 								local_zinit.bomb_ratio = val;
@@ -467,7 +467,7 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 						Label(hAlign = 1.0, bottomPadding = 0_px, text = "Max"),
 						WORD_FIELD(&local_zinit.counter[crBOMBS]),
 						TextField(maxLength = 5, type = GUI::TextField::type::INT_DECIMAL,
-							high = 65535, val = local_zinit.mcounter[crBOMBS],
+							bounds = {0, 65535}, val = local_zinit.mcounter[crBOMBS],
 							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 							{
 								local_zinit.mcounter[crBOMBS] = val;
@@ -524,7 +524,7 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 					SETFLAG(local_zinit.litems[ind+levelsOffset], (1 << li), state);
 				}));
 		litem_grid->add(l_keys[ind] = TextField(maxLength = 3, type = GUI::TextField::type::INT_DECIMAL,
-			val = local_zinit.level_keys.get(ind+levelsOffset), high = 255, padding = 0_px,
+			val = local_zinit.level_keys.get(ind+levelsOffset), bounds = {0, 255}, padding = 0_px,
 			onValChangedFunc = [&, ind](GUI::TextField::type,std::string_view,int32_t val)
 			{
 				local_zinit.level_keys[ind+levelsOffset] = val;
@@ -971,7 +971,7 @@ std::shared_ptr<GUI::Widget> InitGenscriptWizard::view()
 					Label(text = "Data Size:"),
 					TextField(
 						type = GUI::TextField::type::SWAP_ZSINT_NO_DEC,
-						low = 0, high = 214748,
+						bounds = {0, 214748},
 						val = local_zinit.gen_data.get(index).size(),
 						onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 						{

@@ -59,7 +59,7 @@ std::shared_ptr<GUI::Widget> SubscrGridDialog::view()
 					Label(text = "X Size:"),
 					TextField(
 						type = GUI::TextField::type::INT_DECIMAL,
-						low = 1, high = 256,
+						bounds = {1, 256},
 						val = grid_x,
 						fitParent = true,
 						onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
@@ -70,7 +70,7 @@ std::shared_ptr<GUI::Widget> SubscrGridDialog::view()
 					Label(text = "Y Size:"),
 					TextField(
 						type = GUI::TextField::type::INT_DECIMAL,
-						low = 1, high = 256,
+						bounds = {1, 256},
 						val = grid_y,
 						fitParent = true,
 						onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
@@ -81,7 +81,7 @@ std::shared_ptr<GUI::Widget> SubscrGridDialog::view()
 					Label(text = "X Offset:"),
 					TextField(
 						type = GUI::TextField::type::INT_DECIMAL,
-						low = -256, high = 256,
+						bounds = {-256, 256},
 						val = grid_xofs,
 						fitParent = true,
 						onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
@@ -92,7 +92,7 @@ std::shared_ptr<GUI::Widget> SubscrGridDialog::view()
 					Label(text = "Y Offset:"),
 					TextField(
 						type = GUI::TextField::type::INT_DECIMAL,
-						low = -256, high = 256,
+						bounds = {-256, 256},
 						val = grid_yofs,
 						fitParent = true,
 						onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)

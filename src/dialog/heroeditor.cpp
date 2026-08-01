@@ -212,8 +212,7 @@ std::shared_ptr<GUI::Widget> HeroEditorDialog::view()
 						type = GUI::TextField::type::INT_DECIMAL,
 						maxLength = 5,
 						val = liftspeed,
-						low = 1,
-						high = 255,
+						bounds = {1, 255},
 						fitParent = true,
 						onValChangedFunc = [&](GUI::TextField::type, std::string_view, int32_t val)
 						{
@@ -232,8 +231,7 @@ std::shared_ptr<GUI::Widget> HeroEditorDialog::view()
 						type = GUI::TextField::type::INT_DECIMAL,
 						maxLength = 3,
 						val = liftSwatch[0]->getFrames(),
-						low = 1,
-						high = 255,
+						bounds = {1, 255},
 						fitParent = true,
 						onValChangedFunc = [&](GUI::TextField::type, std::string_view, int32_t val)
 						{
@@ -245,8 +243,7 @@ std::shared_ptr<GUI::Widget> HeroEditorDialog::view()
 						type = GUI::TextField::type::INT_DECIMAL,
 						maxLength = 3,
 						val = liftSwatch[1]->getFrames(),
-						low = 1,
-						high = 255,
+						bounds = {1, 255},
 						fitParent = true,
 						onValChangedFunc = [&](GUI::TextField::type, std::string_view, int32_t val)
 						{
@@ -264,8 +261,7 @@ std::shared_ptr<GUI::Widget> HeroEditorDialog::view()
 						type = GUI::TextField::type::INT_DECIMAL,
 						maxLength = 3,
 						val = liftSwatch[2]->getFrames(),
-						low = 1,
-						high = 255,
+						bounds = {1, 255},
 						fitParent = true,
 						onValChangedFunc = [&](GUI::TextField::type, std::string_view, int32_t val)
 						{
@@ -277,8 +273,7 @@ std::shared_ptr<GUI::Widget> HeroEditorDialog::view()
 						type = GUI::TextField::type::INT_DECIMAL,
 						maxLength = 3,
 						val = liftSwatch[3]->getFrames(),
-						low = 1,
-						high = 255,
+						bounds = {1, 255},
 						fitParent = true,
 						onValChangedFunc = [&](GUI::TextField::type, std::string_view, int32_t val)
 						{
@@ -934,7 +929,7 @@ std::shared_ptr<GUI::Widget> HeroEditorDialog::view()
 				Label(text = "X Offset:"),
 				TextField(fitParent = true,
 					type = GUI::TextField::type::INT_DECIMAL,
-					low = -128, high = 127,
+					bounds = {-128, 127},
 					val = zinit.hero_itembox_xofs,
 					onValChangedFunc = [&](GUI::TextField::type, std::string_view, int32_t val)
 					{
@@ -944,7 +939,7 @@ std::shared_ptr<GUI::Widget> HeroEditorDialog::view()
 				Label(text = "Y Offset:"),
 				TextField(fitParent = true,
 					type = GUI::TextField::type::INT_DECIMAL,
-					low = -128, high = 127,
+					bounds = {-128, 127},
 					val = zinit.hero_itembox_yofs,
 					onValChangedFunc = [&](GUI::TextField::type, std::string_view, int32_t val)
 					{
@@ -954,7 +949,7 @@ std::shared_ptr<GUI::Widget> HeroEditorDialog::view()
 				Label(text = "Width:"),
 				TextField(fitParent = true,
 					type = GUI::TextField::type::INT_DECIMAL,
-					low = 0, high = 255,
+					bounds = {0, 255},
 					val = zinit.hero_itembox_width,
 					onValChangedFunc = [&](GUI::TextField::type, std::string_view, int32_t val)
 					{
@@ -964,7 +959,7 @@ std::shared_ptr<GUI::Widget> HeroEditorDialog::view()
 				Label(text = "Height:"),
 				TextField(fitParent = true,
 					type = GUI::TextField::type::INT_DECIMAL,
-					low = 0, high = 255,
+					bounds = {0, 255},
 					val = zinit.hero_itembox_height,
 					onValChangedFunc = [&](GUI::TextField::type, std::string_view, int32_t val)
 					{

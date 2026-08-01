@@ -588,8 +588,7 @@ void EnemyEditorDialog::loadEnemyType()
 		l_attributes[q]->setText(l_attribute[q]);
 		ib_attributes[q]->setDisabled(h_attribute[q].empty());
 		pbtn_attributes[q]->setDisabled(!plist_attributes[q]);
-		tf_attributes[q]->setLowBound(-999999);
-		tf_attributes[q]->setHighBound(999999);
+		tf_attributes[q]->setBounds({-999999, 999999});
 		sw_attributes[q]->switchTo(SW_TEXTFIELD);
 
 		if (q > 15)
@@ -971,8 +970,7 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::NumberField(auto* data, int32_t 
 		disabled = _disabled,
 		hAlign = 1.0, fitParent = true,
 		val = *data,
-		low = _min,
-		high = _max,
+		bounds = {_min, _max},
 		onValChangedFunc = [data](GUI::TextField::type, std::string_view, int32_t val)
 		{
 			*data = val;
@@ -1164,8 +1162,7 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 				hAlign = 0.0,
 				type = GUI::TextField::type::INT_DECIMAL,
 				maxLength = 7,
-				low = -999999,
-				high = 999999,
+				bounds = {-999999, 999999},
 				val = local_guyref.attributes[q],
 				fitParent = true,
 				onValChangedFunc = [&, q](GUI::TextField::type, std::string_view, int32_t val)

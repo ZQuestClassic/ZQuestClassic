@@ -216,7 +216,7 @@ std::shared_ptr<GUI::Widget> SaveMenuDialog::view()
 							Label(text = "Option X:", hAlign = 1.0),
 							TextField(
 								type = GUI::TextField::type::INT_DECIMAL, fitParent = true,
-								low = 0, high = 255, val = local_ref.opt_x,
+								bounds = {0, 255}, val = local_ref.opt_x,
 								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 								{
 									local_ref.opt_x = val;
@@ -225,7 +225,7 @@ std::shared_ptr<GUI::Widget> SaveMenuDialog::view()
 							Label(text = "Option Y:", hAlign = 1.0),
 							TextField(
 								type = GUI::TextField::type::INT_DECIMAL, fitParent = true,
-								low = 0, high = 255, val = local_ref.opt_y,
+								bounds = {0, 255}, val = local_ref.opt_y,
 								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 								{
 									local_ref.opt_y = val;
@@ -234,7 +234,7 @@ std::shared_ptr<GUI::Widget> SaveMenuDialog::view()
 							Label(text = "HSpace:", hAlign = 1.0),
 							TextField(
 								type = GUI::TextField::type::INT_DECIMAL, fitParent = true,
-								low = 0, high = 255, val = local_ref.hspace,
+								bounds = {0, 255}, val = local_ref.hspace,
 								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 								{
 									local_ref.hspace = val;
@@ -243,7 +243,7 @@ std::shared_ptr<GUI::Widget> SaveMenuDialog::view()
 							Label(text = "VSpace:", hAlign = 1.0),
 							TextField(
 								type = GUI::TextField::type::INT_DECIMAL, fitParent = true,
-								low = 0, high = 255, val = local_ref.vspace,
+								bounds = {0, 255}, val = local_ref.vspace,
 								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 								{
 									local_ref.vspace = val;
@@ -253,7 +253,7 @@ std::shared_ptr<GUI::Widget> SaveMenuDialog::view()
 							Label(text = "Close Frames:", hAlign = 1.0),
 							TextField(
 								type = GUI::TextField::type::INT_DECIMAL, fitParent = true,
-								low = 0, high = 65535, val = local_ref.close_frames,
+								bounds = {0, 65535}, val = local_ref.close_frames,
 								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 								{
 									local_ref.close_frames = val;
@@ -262,7 +262,7 @@ std::shared_ptr<GUI::Widget> SaveMenuDialog::view()
 							Label(text = "Close Flash Rate:", hAlign = 1.0),
 							TextField(
 								type = GUI::TextField::type::INT_DECIMAL, fitParent = true,
-								low = 0, high = 255, val = local_ref.close_flash_rate,
+								bounds = {0, 255}, val = local_ref.close_flash_rate,
 								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 								{
 									local_ref.close_flash_rate = val;
@@ -300,14 +300,14 @@ std::shared_ptr<GUI::Widget> SaveMenuDialog::view()
 								Row(
 									TextField(
 										type = GUI::TextField::type::INT_DECIMAL, fitParent = true,
-										low = 1, high = 16, val = local_ref.bg_tw,
+										bounds = {1, 16}, val = local_ref.bg_tw,
 										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 										{
 											local_ref.bg_tw = val;
 										}),
 									TextField(
 										type = GUI::TextField::type::INT_DECIMAL, fitParent = true,
-										low = 1, high = 16, val = local_ref.bg_th,
+										bounds = {1, 16}, val = local_ref.bg_th,
 										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 										{
 											local_ref.bg_th = val;

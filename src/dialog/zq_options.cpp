@@ -431,7 +431,7 @@ Button(forceFitH = true, text = "?", \
 Label(text = optlabel, hAlign = 0.0), \
 TextField(type = GUI::TextField::type::INT_DECIMAL, \
 	fitParent = true, \
-	hAlign = 1.0, low = minval, high = maxval, val = opts[optind], \
+	hAlign = 1.0, bounds = {minval, maxval}, val = opts[optind], \
 	minwidth = 4.5_em, \
 	onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val) \
 	{ \
@@ -444,7 +444,7 @@ DummyWidget()
 Label(text = optlabel, hAlign = 0.0), \
 TextField(type = GUI::TextField::type::INT_DECIMAL, \
 	fitParent = true, \
-	hAlign = 1.0, low = minval, high = maxval, val = opts[optind], \
+	hAlign = 1.0, bounds = {minval, maxval}, val = opts[optind], \
 	minwidth = 4.5_em, \
 	onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val) \
 	{ \
@@ -462,7 +462,7 @@ Button(forceFitH = true, text = "?", \
 Label(text = optlabel, hAlign = 0.0), \
 TextField(type = GUI::TextField::type::FIXED_DECIMAL, places = 4, \
 	fitParent = true, maxLength = 8, \
-	hAlign = 1.0, low = minval*10000, high = maxval*10000, val = opts[optind], \
+	hAlign = 1.0, bounds = {minval*10000, maxval*10000}, val = opts[optind], \
 	minwidth = 4.5_em, \
 	onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val) \
 	{ \
@@ -475,7 +475,7 @@ DummyWidget()
 Label(text = optlabel, hAlign = 0.0), \
 TextField(type = GUI::TextField::type::FIXED_DECIMAL, places = 4, \
 	fitParent = true, maxLength = 8, \
-	hAlign = 1.0, low = minval*10000, high = maxval*10000, val = opts[optind], \
+	hAlign = 1.0, bounds = {minval*10000, maxval*10000}, val = opts[optind], \
 	minwidth = 4.5_em, \
 	onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val) \
 	{ \
@@ -546,7 +546,7 @@ Button(text = "Prev", \
 	}), \
 TextField(type = GUI::TextField::type::INT_DECIMAL, \
 	fitParent = true, \
-	hAlign = 1.0, low = 1, high = maxscale, val = opts[scaleind], \
+	hAlign = 1.0, bounds = {1, maxscale}, val = opts[scaleind], \
 	minwidth = 4.5_em, \
 	onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val) \
 	{ \

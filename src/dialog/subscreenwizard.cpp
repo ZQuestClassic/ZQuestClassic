@@ -645,7 +645,7 @@ std::shared_ptr<GUI::Widget> SubscreenWizardDialog::view()
 						tfs[0] = TextField(
 							fitParent = true, minwidth = 3_em,
 							type = GUI::TextField::type::INT_DECIMAL,
-							low = 0, high = 254, val = 0
+							bounds = {0, 254}, val = 0
 						),
 						INFOBTN("The first selector position used by the grid. It will use as many positions in order as there are items, unless it's Non-Selectable."),
 						Label(text = "X:", hAlign = 1.0),
@@ -653,41 +653,41 @@ std::shared_ptr<GUI::Widget> SubscreenWizardDialog::view()
 							colSpan = 2,
 							fitParent = true, minwidth = 3_em,
 							type = GUI::TextField::type::INT_DECIMAL,
-							low = -15, high = 256, val = basex
+							bounds = {-15, 256}, val = basex
 						),
 						Label(text = "Y:", hAlign = 1.0),
 						tfs[2] = TextField(
 							colSpan = 2,
 							fitParent = true, minwidth = 3_em,
 							type = GUI::TextField::type::INT_DECIMAL,
-							low = -15, high = 176, val = basey
+							bounds = {-15, 176}, val = basey
 						),
 						Label(text = "Width:", hAlign = 1.0),
 						tfs[3] = TextField(
 							fitParent = true, minwidth = 3_em,
 							type = GUI::TextField::type::INT_DECIMAL,
-							low = 1, high = 16, val = 5
+							bounds = {1, 16}, val = 5
 						),
 						INFOBTN("Sets the number of items in the grid along the X-axis"),
 						Label(text = "Height:", hAlign = 1.0),
 						tfs[4] = TextField(
 							fitParent = true, minwidth = 3_em,
 							type = GUI::TextField::type::INT_DECIMAL,
-							low = 1, high = 16, val = 3
+							bounds = {1, 16}, val = 3
 						),
 						INFOBTN("Sets the number of items in the grid along the Y-axis"),
 						Label(text = "X Spacing:", hAlign = 1.0),
 						tfs[5] = TextField(
 							fitParent = true, minwidth = 3_em,
 							type = GUI::TextField::type::INT_DECIMAL,
-							low = 1, high = 32, val = 16
+							bounds = {1, 32}, val = 16
 						),
 						INFOBTN("Sets the space in pixels between each item in the grid on the X-axis"),
 						Label(text = "Y Spacing:", hAlign = 1.0),
 						tfs[6] = TextField(
 							fitParent = true, minwidth = 3_em,
 							type = GUI::TextField::type::INT_DECIMAL,
-							low = 1, high = 32, val = 16
+							bounds = {1, 32}, val = 16
 						),
 						INFOBTN("Sets the space in pixels between each item in the grid on the Y-axis"),
 						cboxes[0] = Checkbox(
@@ -750,28 +750,28 @@ std::shared_ptr<GUI::Widget> SubscreenWizardDialog::view()
 							tfs[0] = TextField(
 								fitParent = true, minwidth = 3_em,
 								type = GUI::TextField::type::INT_DECIMAL,
-								low = -16, high = 256, val = basex
+								bounds = {-16, 256}, val = basex
 							),
 							DummyWidget(),
 							Label(text = "Y:", hAlign = 1.0),
 							tfs[1] = TextField(
 								fitParent = true, minwidth = 3_em,
 								type = GUI::TextField::type::INT_DECIMAL,
-								low = -16, high = 176, val = basey
+								bounds = {-16, 176}, val = basey
 							),
 							DummyWidget(),
 							Label(text = "Count:", hAlign = 1.0),
 							tfs[2] = TextField(
 								fitParent = true, minwidth = 3_em,
 								type = GUI::TextField::type::INT_DECIMAL,
-								low = 2, high = 32, val = 4
+								bounds = {2, 32}, val = 4
 							),
 							INFOBTN("How many counters to create"),
 							Label(text = "Spacing:", hAlign = 1.0),
 							tfs[3] = TextField(
 								fitParent = true, minwidth = 3_em,
 								type = GUI::TextField::type::INT_DECIMAL,
-								low = -8, high = 255, val = 0
+								bounds = {-8, 255}, val = 0
 							),
 							INFOBTN("How spaced apart the counters should be"),
 							Label(text = "Tile:", hAlign = 1.0),
@@ -798,7 +798,7 @@ std::shared_ptr<GUI::Widget> SubscreenWizardDialog::view()
 							tfs[5] = TextField(
 								fitParent = true, minwidth = 3_em,
 								val = 0,
-								low = 0, high = 5,
+								bounds = {0, 5},
 								type = GUI::TextField::type::INT_DECIMAL
 							),
 							DummyWidget(),
@@ -813,7 +813,7 @@ std::shared_ptr<GUI::Widget> SubscreenWizardDialog::view()
 							tfs[7] = TextField(
 								fitParent = true, minwidth = 3_em,
 								val = 3,
-								low = 0, high = 5,
+								bounds = {0, 5},
 								type = GUI::TextField::type::INT_DECIMAL
 							),
 							DummyWidget()
@@ -861,7 +861,7 @@ std::shared_ptr<GUI::Widget> SubscreenWizardDialog::view()
 							tfs[1] = TextField(
 								fitParent = true, minwidth = 3_em,
 								type = GUI::TextField::type::INT_DECIMAL,
-								low = -15, high = 256, val = basex,
+								bounds = {-15, 256}, val = basex,
 								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 								{
 									basex = val;
@@ -873,7 +873,7 @@ std::shared_ptr<GUI::Widget> SubscreenWizardDialog::view()
 							tfs[3] = TextField(
 								fitParent = true, minwidth = 3_em,
 								type = GUI::TextField::type::INT_DECIMAL,
-								low = 1, high = 16, val = tf_values[wizard_index][6],
+								bounds = {1, 16}, val = tf_values[wizard_index][6],
 								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 								{
 									tf_values[wizard_index][6] = val;
@@ -886,7 +886,7 @@ std::shared_ptr<GUI::Widget> SubscreenWizardDialog::view()
 							tfs[2] = TextField(
 								fitParent = true, minwidth = 3_em,
 								type = GUI::TextField::type::INT_DECIMAL,
-								low = -15, high = 176, val = basey,
+								bounds = {-15, 176}, val = basey,
 								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 								{
 									basey = val;
@@ -898,7 +898,7 @@ std::shared_ptr<GUI::Widget> SubscreenWizardDialog::view()
 							tfs[4] = TextField(
 								fitParent = true, minwidth = 3_em,
 								type = GUI::TextField::type::INT_DECIMAL,
-								low = 1, high = 8, val = tf_values[wizard_index][7],
+								bounds = {1, 8}, val = tf_values[wizard_index][7],
 								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 								{
 									tf_values[wizard_index][7] = val;
@@ -910,7 +910,7 @@ std::shared_ptr<GUI::Widget> SubscreenWizardDialog::view()
 							tfs[7] = TextField(
 								fitParent = true, minwidth = 3_em,
 								type = GUI::TextField::type::INT_DECIMAL,
-								low = 1, high = map_count, val = tf_values[wizard_index][3],
+								bounds = {1, map_count}, val = tf_values[wizard_index][3],
 								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 								{
 									tf_values[wizard_index][3] = val;
@@ -922,7 +922,7 @@ std::shared_ptr<GUI::Widget> SubscreenWizardDialog::view()
 							tfs[5] = TextField(
 								fitParent = true, minwidth = 3_em,
 								type = GUI::TextField::type::INT_DECIMAL,
-								low = 1, high = 32, val = tf_values[wizard_index][1],
+								bounds = {1, 32}, val = tf_values[wizard_index][1],
 								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 								{
 									tf_values[wizard_index][1] = val;
@@ -935,7 +935,7 @@ std::shared_ptr<GUI::Widget> SubscreenWizardDialog::view()
 								fitParent = true, minwidth = 3_em,
 								type = GUI::TextField::type::SWAP_ZSINT_NO_DEC,
 								swap_type = nswapHEX,
-								low = 0, high = MAPSCRSNORMAL-1, val = tf_values[wizard_index][4],
+								bounds = {0, MAPSCRSNORMAL-1}, val = tf_values[wizard_index][4],
 								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 								{
 									tf_values[wizard_index][4] = val;
@@ -948,7 +948,7 @@ std::shared_ptr<GUI::Widget> SubscreenWizardDialog::view()
 							tfs[6] = TextField(
 								fitParent = true, minwidth = 3_em,
 								type = GUI::TextField::type::INT_DECIMAL,
-								low = 1, high = 32, val = tf_values[wizard_index][2],
+								bounds = {1, 32}, val = tf_values[wizard_index][2],
 								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 								{
 									tf_values[wizard_index][2] = val;
@@ -960,7 +960,7 @@ std::shared_ptr<GUI::Widget> SubscreenWizardDialog::view()
 							tfs[9] = TextField(
 								fitParent = true, minwidth = 3_em,
 								type = GUI::TextField::type::INT_DECIMAL,
-								low = -1, high = MAXLEVELS-1, val = tf_values[wizard_index][5],
+								bounds = {-1, MAXLEVELS-1}, val = tf_values[wizard_index][5],
 								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 								{
 									tf_values[wizard_index][5] = val;
@@ -993,7 +993,7 @@ std::shared_ptr<GUI::Widget> SubscreenWizardDialog::view()
 							tfs[0] = TextField(
 								fitParent = true, minwidth = 3_em,
 								type = GUI::TextField::type::INT_DECIMAL,
-								low = 0, high = 254, val = tf_values[wizard_index][0],
+								bounds = {0, 254}, val = tf_values[wizard_index][0],
 								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 								{
 									tf_values[wizard_index][0] = val;
@@ -1227,7 +1227,7 @@ std::shared_ptr<GUI::Widget> SubscreenWizardDialog::view()
 								TextField(
 									fitParent = true, minwidth = 3_em,
 									type = GUI::TextField::type::INT_DECIMAL,
-									low = -1, high = 255, val = tileblock_sets[idx].required_floor,
+									bounds = {-1, 255}, val = tileblock_sets[idx].required_floor,
 									onValChangedFunc = [&, idx](GUI::TextField::type,std::string_view,int32_t val)
 									{
 										tileblock_sets[idx].required_floor = val;
@@ -1238,7 +1238,7 @@ std::shared_ptr<GUI::Widget> SubscreenWizardDialog::view()
 								TextField(
 									fitParent = true, minwidth = 3_em,
 									type = GUI::TextField::type::INT_DECIMAL,
-									low = -1, high = MAXLEVELS-1, val = tileblock_sets[idx].required_level,
+									bounds = {-1, MAXLEVELS-1}, val = tileblock_sets[idx].required_level,
 									onValChangedFunc = [&, idx](GUI::TextField::type,std::string_view,int32_t val)
 									{
 										tileblock_sets[idx].required_level = val;

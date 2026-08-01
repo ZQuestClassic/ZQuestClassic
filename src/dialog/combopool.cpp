@@ -199,7 +199,7 @@ std::shared_ptr<GUI::Widget> ComboPoolDialog::view()
 					Label(text = "Weight:",padding = 0_px),
 					widg.weight_txt = TextField(
 						type = GUI::TextField::type::INT_DECIMAL,
-						low = 0, high = 65535, val = entry.quant,
+						bounds = {0, 65535}, val = entry.quant,
 						onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 						{
 							entry.quant = val;

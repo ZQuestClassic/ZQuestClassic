@@ -185,7 +185,7 @@ std::shared_ptr<GUI::Widget> CompileSettingsDlg::view()
 						Label(text = "Timeout Seconds", hAlign = 1.0),
 						TextField(type = GUI::TextField::type::INT_DECIMAL,
 							forceFitW = true,
-							hAlign = 1.0, low = 0, high = 3600, val = timeout_secs,
+							hAlign = 1.0, bounds = {0, 3600}, val = timeout_secs,
 							minwidth = 4.5_em,
 							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 							{

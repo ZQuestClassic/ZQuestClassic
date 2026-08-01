@@ -47,7 +47,7 @@ std::shared_ptr<GUI::Widget> WarpCheatPicker::view()
 					fitParent = true,
 					type = GUI::TextField::type::SWAP_BYTE,
 					swap_type = nswapHEX,
-					low = 0, high = 0x7F, val = dest_screen,
+					bounds = {0, 0x7F}, val = dest_screen,
 					onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 					{
 						dest_screen = val;

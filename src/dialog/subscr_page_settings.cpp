@@ -122,7 +122,7 @@ std::shared_ptr<GUI::Widget> SubscrPageSettings::view()
 							pgtfs[idx] = TextField(
 								fitParent = true,
 								type = GUI::TextField::type::INT_DECIMAL,
-								low = 1, high = MAX_SUBSCR_PAGES, val = TRANSITION.pg_targ+1,
+								bounds = {1, MAX_SUBSCR_PAGES}, val = TRANSITION.pg_targ+1,
 								onValChangedFunc = [&, idx](GUI::TextField::type,std::string_view,int32_t val)
 								{
 									TRANSITION.pg_targ = val-1;

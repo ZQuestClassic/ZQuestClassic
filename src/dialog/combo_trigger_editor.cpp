@@ -314,7 +314,7 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 										fitParent = true,
 										vPadding = 0_px,
 										type = GUI::TextField::type::INT_DECIMAL,
-										low = 0, high = 214748, val = local_ref.triggerlevel,
+										bounds = {0, 214748}, val = local_ref.triggerlevel,
 										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 										{
 											local_ref.triggerlevel = val;
@@ -462,7 +462,7 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 									fitParent = true,
 									bottomPadding = 0_px,
 									type = GUI::TextField::type::INT_DECIMAL,
-									low = 0, high = 255, val = local_ref.triggerbtn,
+									bounds = {0, 255}, val = local_ref.triggerbtn,
 									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 									{
 										local_ref.triggerbtn = val;
@@ -521,7 +521,7 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 								fitParent = true,
 								bottomPadding = 0_px,
 								type = GUI::TextField::type::INT_DECIMAL,
-								low = -32768, high = 32767, val = local_ref.prompt_x,
+								bounds = {-32768, 32767}, val = local_ref.prompt_x,
 								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 								{
 									local_ref.prompt_x = val;
@@ -532,7 +532,7 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 								fitParent = true,
 								bottomPadding = 0_px,
 								type = GUI::TextField::type::INT_DECIMAL,
-								low = -32768, high = 32767, val = local_ref.prompt_y,
+								bounds = {-32768, 32767}, val = local_ref.prompt_y,
 								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 								{
 									local_ref.prompt_y = val;
@@ -545,7 +545,7 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 								fitParent = true,
 								vPadding = 0_px,
 								type = GUI::TextField::type::INT_DECIMAL,
-								low = 0, high = 32, val = local_ref.triglbeam,
+								bounds = {0, 32}, val = local_ref.triglbeam,
 								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 								{
 									local_ref.triglbeam = (byte)val;
@@ -558,7 +558,7 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 								fitParent = true,
 								vPadding = 0_px,
 								type = GUI::TextField::type::INT_DECIMAL,
-								low = 0, high = 65535, val = local_ref.trigtimer,
+								bounds = {0, 65535}, val = local_ref.trigtimer,
 								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 								{
 									local_ref.trigtimer = val;
@@ -570,7 +570,7 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 								fitParent = true,
 								vPadding = 0_px,
 								type = GUI::TextField::type::INT_DECIMAL,
-								low = 0, high = 255, val = local_ref.trig_pushtime,
+								bounds = {0, 255}, val = local_ref.trig_pushtime,
 								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 								{
 									local_ref.trig_pushtime = val;
@@ -689,7 +689,7 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 											fitParent = true,
 											vPadding = 0_px,
 											type = GUI::TextField::type::INT_DECIMAL,
-											low = -65535, high = 65535, val = local_ref.trigchange,
+											bounds = {-65535, 65535}, val = local_ref.trigchange,
 											onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 											{
 												local_ref.trigchange = val;
@@ -704,7 +704,7 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 											fitParent = true,
 											vPadding = 0_px,
 											type = GUI::TextField::type::INT_DECIMAL,
-											low = -15, high = 15, val = local_ref.trigcschange,
+											bounds = {-15, 15}, val = local_ref.trigcschange,
 											onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 											{
 												local_ref.trigcschange = val;
@@ -899,7 +899,7 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 												fitParent = true,
 												vPadding = 0_px,
 												type = GUI::TextField::type::INT_DECIMAL,
-												low = -2, high = MAX_ZSCRIPT_INT, val = local_ref.trig_swjinxtime,
+												bounds = {-2, MAX_ZSCRIPT_INT}, val = local_ref.trig_swjinxtime,
 												onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 												{
 													local_ref.trig_swjinxtime = val;
@@ -915,7 +915,7 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 												fitParent = true,
 												vPadding = 0_px,
 												type = GUI::TextField::type::INT_DECIMAL,
-												low = -2, high = MAX_ZSCRIPT_INT, val = local_ref.trig_itmjinxtime,
+												bounds = {-2, MAX_ZSCRIPT_INT}, val = local_ref.trig_itmjinxtime,
 												onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 												{
 													local_ref.trig_itmjinxtime = val;
@@ -931,7 +931,7 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 												fitParent = true,
 												vPadding = 0_px,
 												type = GUI::TextField::type::INT_DECIMAL,
-												low = -2, high = MAX_ZSCRIPT_INT, val = local_ref.trig_shieldjinxtime,
+												bounds = {-2, MAX_ZSCRIPT_INT}, val = local_ref.trig_shieldjinxtime,
 												onValChangedFunc = [&](GUI::TextField::type, std::string_view, int32_t val)
 												{
 													local_ref.trig_shieldjinxtime = val;
@@ -947,7 +947,7 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 												fitParent = true,
 												vPadding = 0_px,
 												type = GUI::TextField::type::INT_DECIMAL,
-												low = -2, high = MAX_ZSCRIPT_INT, val = local_ref.trig_stuntime,
+												bounds = {-2, MAX_ZSCRIPT_INT}, val = local_ref.trig_stuntime,
 												onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 												{
 													local_ref.trig_stuntime = val;
@@ -963,7 +963,7 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 												fitParent = true,
 												vPadding = 0_px,
 												type = GUI::TextField::type::INT_DECIMAL,
-												low = -2, high = MAX_ZSCRIPT_INT, val = local_ref.trig_bunnytime,
+												bounds = {-2, MAX_ZSCRIPT_INT}, val = local_ref.trig_bunnytime,
 												onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 												{
 													local_ref.trig_bunnytime = val;
@@ -1057,7 +1057,7 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 									TextField(
 										fitParent = true, vPadding = 0_px,
 										type = GUI::TextField::type::INT_DECIMAL,
-										low = -1, high = 255, val = local_ref.sfx_pan,
+										bounds = {-1, 255}, val = local_ref.sfx_pan,
 										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 										{
 											local_ref.sfx_pan = (int16_t)val;
@@ -1068,7 +1068,7 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 									TextField(
 										fitParent = true, vPadding = 0_px,
 										type = GUI::TextField::type::INT_DECIMAL,
-										low = 0, high = 255, val = local_ref.sfx_volume,
+										bounds = {0, 255}, val = local_ref.sfx_volume,
 										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 										{
 											local_ref.sfx_volume = (byte)val;
@@ -1078,7 +1078,7 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 									TextField(
 										fitParent = true, vPadding = 0_px,
 										type = GUI::TextField::type::INT_DECIMAL,
-										low = -1, high = MAX_ZSCRIPT_INT, val = local_ref.sfx_frequency,
+										bounds = {-1, MAX_ZSCRIPT_INT}, val = local_ref.sfx_frequency,
 										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 										{
 											local_ref.sfx_frequency = val;
@@ -1110,7 +1110,7 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 												fitParent = true,
 												vPadding = 0_px,
 												type = GUI::TextField::type::INT_DECIMAL,
-												low = -5000, high = 5000, val = local_ref.viewport_cond_range,
+												bounds = {-5000, 5000}, val = local_ref.viewport_cond_range,
 												onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 												{
 													local_ref.viewport_cond_range = (int16_t)val;
@@ -1121,7 +1121,7 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 												fitParent = true,
 												vPadding = 0_px,
 												type = GUI::TextField::type::INT_DECIMAL,
-												low = 0, high = 255, val = local_ref.trigcooldown,
+												bounds = {0, 255}, val = local_ref.trigcooldown,
 												onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 												{
 													local_ref.trigcooldown = val;
@@ -1135,7 +1135,7 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 												TextField(
 													fitParent = true,
 													type = GUI::TextField::type::INT_DECIMAL,
-													low = 0, high = 214748, val = local_ref.chance_numerator,
+													bounds = {0, 214748}, val = local_ref.chance_numerator,
 													onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 													{
 														local_ref.chance_numerator = val;
@@ -1144,7 +1144,7 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 												TextField(
 													fitParent = true,
 													type = GUI::TextField::type::INT_DECIMAL,
-													low = 1, high = 214748, val = local_ref.chance_denominator,
+													bounds = {1, 214748}, val = local_ref.chance_denominator,
 													onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 													{
 														local_ref.chance_denominator = val;
@@ -1255,7 +1255,7 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 										fitParent = true,
 										vPadding = 0_px,
 										type = GUI::TextField::type::INT_DECIMAL,
-										low = 0, high = 5000, val = local_ref.trigprox,
+										bounds = {0, 5000}, val = local_ref.trigprox,
 										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 										{
 											local_ref.trigprox = (word)val;
@@ -1310,7 +1310,7 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 										fitParent = true,
 										vPadding = 0_px,
 										type = GUI::TextField::type::INT_DECIMAL,
-										low = -65535, high = 65535, val = local_ref.trigctramnt,
+										bounds = {-65535, 65535}, val = local_ref.trigctramnt,
 										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 										{
 											local_ref.trigctramnt = val;
@@ -1348,7 +1348,7 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 										fitParent = true,
 										vPadding = 0_px,
 										type = GUI::TextField::type::INT_DECIMAL,
-										low = 0, high = 511, val = local_ref.spawnenemy,
+										bounds = {0, 511}, val = local_ref.spawnenemy,
 										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 										{
 											local_ref.spawnenemy = val;
@@ -1395,7 +1395,7 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 										fitParent = true,
 										vPadding = 0_px,
 										type = GUI::TextField::type::INT_DECIMAL,
-										low = -(MAXITEMDROPSETS-1), high = MAXITEMS, val = local_ref.spawnitem,
+										bounds = {-(MAXITEMDROPSETS-1), MAXITEMS}, val = local_ref.spawnitem,
 										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 										{
 											local_ref.spawnitem = val;
@@ -1472,7 +1472,7 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 								fitParent = true,
 								vPadding = 0_px,
 								type = GUI::TextField::type::INT_DECIMAL,
-								low = -1, high = 31, val = local_ref.exstate,
+								bounds = {-1, 31}, val = local_ref.exstate,
 								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 								{
 									local_ref.exstate = val;
@@ -1488,7 +1488,7 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 								fitParent = true,
 								vPadding = 0_px,
 								type = GUI::TextField::type::INT_DECIMAL,
-								low = 0, high = 255, val = local_ref.trigcopycat,
+								bounds = {0, 255}, val = local_ref.trigcopycat,
 								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 								{
 									local_ref.trigcopycat = val;
@@ -1503,7 +1503,7 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 								fitParent = true,
 								vPadding = 0_px,
 								type = GUI::TextField::type::INT_DECIMAL,
-								low = 0, high = 31, val = local_ref.trig_lstate,
+								bounds = {0, 31}, val = local_ref.trig_lstate,
 								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 								{
 									local_ref.trig_lstate = val;
@@ -1517,7 +1517,7 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 								fitParent = true,
 								vPadding = 0_px,
 								type = GUI::TextField::type::INT_DECIMAL,
-								low = 0, high = 255, val = local_ref.trig_gstate,
+								bounds = {0, 255}, val = local_ref.trig_gstate,
 								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 								{
 									local_ref.trig_gstate = val;
@@ -1531,7 +1531,7 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 								fitParent = true,
 								vPadding = 0_px,
 								type = GUI::TextField::type::INT_DECIMAL,
-								low = 0, high = 214748, val = local_ref.trig_statetime,
+								bounds = {0, 214748}, val = local_ref.trig_statetime,
 								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 								{
 									local_ref.trig_statetime = val;
@@ -1547,7 +1547,7 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 								fitParent = true,
 								vPadding = 0_px,
 								type = GUI::TextField::type::INT_DECIMAL,
-								low = 0, high = 255, val = local_ref.trig_group,
+								bounds = {0, 255}, val = local_ref.trig_group,
 								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 								{
 									local_ref.trig_group = val;
@@ -1561,7 +1561,7 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 								fitParent = true,
 								vPadding = 0_px,
 								type = GUI::TextField::type::INT_DECIMAL,
-								low = 0, high = 65535, val = local_ref.trig_group_val,
+								bounds = {0, 65535}, val = local_ref.trig_group_val,
 								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 								{
 									local_ref.trig_group_val = val;
@@ -1629,7 +1629,7 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 										fitParent = true,
 										vPadding = 0_px,
 										type = GUI::TextField::type::INT_DECIMAL,
-										low = 0, high = 255, val = local_ref.large_combo_copycat,
+										bounds = {0, 255}, val = local_ref.large_combo_copycat,
 										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 										{
 											local_ref.large_combo_copycat = val;
@@ -1694,7 +1694,7 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 									fitParent = true, padding = 0_px,
 									type = GUI::TextField::type::NOSWAP_ZSINT,
 									swap_type = nswapLDEC,
-									low = -255, high = 255, val = local_ref.trigtint[0],
+									bounds = {-255, 255}, val = local_ref.trigtint[0],
 									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 									{
 										local_ref.trigtint[0] = val;
@@ -1703,7 +1703,7 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 									fitParent = true, padding = 0_px,
 									type = GUI::TextField::type::NOSWAP_ZSINT,
 									swap_type = nswapLDEC,
-									low = -255, high = 255, val = local_ref.trigtint[1],
+									bounds = {-255, 255}, val = local_ref.trigtint[1],
 									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 									{
 										local_ref.trigtint[1] = val;
@@ -1712,7 +1712,7 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 									fitParent = true, padding = 0_px,
 									type = GUI::TextField::type::NOSWAP_ZSINT,
 									swap_type = nswapLDEC,
-									low = -255, high = 255, val = local_ref.trigtint[2],
+									bounds = {-255, 255}, val = local_ref.trigtint[2],
 									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 									{
 										local_ref.trigtint[2] = val;
@@ -1731,7 +1731,7 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 							fitParent = true, padding = 0_px,
 							type = GUI::TextField::type::SWAP_SSHORT,
 							swap_type = nswapHEX,
-							low = -2, high = 512, val = local_ref.triglvlpalette,
+							bounds = {-2, 512}, val = local_ref.triglvlpalette,
 							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 							{
 								local_ref.triglvlpalette = val;
@@ -1744,7 +1744,7 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 							fitParent = true, padding = 0_px,
 							type = GUI::TextField::type::SWAP_SSHORT,
 							swap_type = nswapDEC,
-							low = -1, high = 29, val = local_ref.trigbosspalette,
+							bounds = {-1, 29}, val = local_ref.trigbosspalette,
 							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 							{
 								local_ref.trigbosspalette = val;
@@ -1758,7 +1758,7 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 							fitParent = true, padding = 0_px,
 							type = GUI::TextField::type::NOSWAP_ZSINT,
 							swap_type = nswapLDEC,
-							low = -1, high = 999999, val = local_ref.trigquaketime,
+							bounds = {-1, 999999}, val = local_ref.trigquaketime,
 							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 							{
 								local_ref.trigquaketime = val;
@@ -1771,7 +1771,7 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 							fitParent = true, padding = 0_px,
 							type = GUI::TextField::type::NOSWAP_ZSINT,
 							swap_type = nswapLDEC,
-							low = -1, high = 999999, val = local_ref.trigwavytime,
+							bounds = {-1, 999999}, val = local_ref.trigwavytime,
 							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 							{
 								local_ref.trigwavytime = val;
@@ -1789,7 +1789,7 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 									fitParent = true,
 									vPadding = 0_px,
 									type = GUI::TextField::type::INT_DECIMAL,
-									low = -1, high = MAXLEVELS - 1, val = local_ref.trigdmlevel,
+									bounds = {-1, MAXLEVELS - 1}, val = local_ref.trigdmlevel,
 									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 									{
 										local_ref.trigdmlevel = val;
@@ -1805,7 +1805,7 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 											fitParent = true,
 											vPadding = 0_px,
 											type = GUI::TextField::type::INT_DECIMAL,
-											low = 0, high = LI_ALL, val = local_ref.trig_levelitems,
+											bounds = {0, LI_ALL}, val = local_ref.trig_levelitems,
 											onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 											{
 												local_ref.trig_levelitems = val;
@@ -1884,7 +1884,7 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 								TextField(
 									fitParent = true, vPadding = 0_px,
 									type = GUI::TextField::type::INT_DECIMAL,
-									low = 0, high = map_count,
+									bounds = {0, map_count},
 									val = local_ref.trigstatemap, minwidth = 4_em,
 									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 									{
@@ -1893,7 +1893,7 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 								TextField(
 									fitParent = true, vPadding = 0_px,
 									type = GUI::TextField::type::SWAP_ZSINT_NO_DEC,
-									low = 0, high = MAPSCRSNORMAL-1,
+									bounds = {0, MAPSCRSNORMAL-1},
 									val = local_ref.trigstatescreen, swap_type = nswapHEX,
 									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 									{
@@ -2084,7 +2084,7 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 									fitParent = true,
 									vPadding = 0_px,
 									type = GUI::TextField::type::INT_DECIMAL,
-									low = 0, high = 7, val = local_ref.combopos_state,
+									bounds = {0, 7}, val = local_ref.combopos_state,
 									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 									{
 										local_ref.combopos_state = val;

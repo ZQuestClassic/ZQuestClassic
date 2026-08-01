@@ -68,9 +68,15 @@ public:
 	 */
 	int32_t getVal();
 	
-	void setLowBound(int32_t low);
-	void setHighBound(int32_t high);
-	
+	struct Bounds
+	{
+		int32_t low, high;
+	};
+
+	/* Set the range values are clamped to. A pair with high <= low means 'no bounds'.
+	 */
+	void setBounds(Bounds bounds);
+
 	/* Set the maximum length of the text, not including the null terminator.
 	 */
 	void setMaxLength(size_t newMax);
@@ -114,13 +120,8 @@ private:
 	int32_t startVal;
 	int32_t fixedPlaces;
 	int32_t lbound, ubound;
-	bool ubound_set;
-	// Bounds only apply once the high bound has been given; a low bound alone
-	// does nothing (many dialogs set only `high`, relying on the low default
-	// of 0). Checking `ubound > lbound` alone misreads a lone negative low
-	// bound as a valid range against the default ubound of -1, clamping the
-	// value against a bound that was never set.
-	bool hasBounds() const {return ubound_set && ubound > lbound;}
+	bool bounds_set;
+	bool hasBounds() const {return bounds_set && ubound > lbound;}
 	type tfType;
 	int32_t swap_type_start;
 	size_t maxLength;

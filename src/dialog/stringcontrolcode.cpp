@@ -147,7 +147,7 @@ TextField( \
 	maxheight = 24_px, \
 	type = GUI::TextField::type::SWAP_ZSINT, \
 	swap_type = nswapDEC, \
-	low = zfix(_min).getZLong(), high = zfix(_max).getZLong(), val = v.getZLong(), \
+	bounds = {zfix(_min).getZLong(), zfix(_max).getZLong()}, val = v.getZLong(), \
 	onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val) \
 	{ \
 		v = zslongToFix(val); \
@@ -159,7 +159,7 @@ TextField( \
 	maxheight = 24_px, \
 	type = GUI::TextField::type::SWAP_ZSINT_NO_DEC, \
 	swap_type = nswapDEC, \
-	low = _min, high = _max, val = v.getTrunc(), \
+	bounds = {_min, _max}, val = v.getTrunc(), \
 	onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val) \
 	{ \
 		v = zfix(val); \
@@ -171,7 +171,7 @@ TextField( \
 	maxheight = 24_px, \
 	type = GUI::TextField::type::SWAP_ZSINT_NO_DEC, \
 	swap_type = nswapHEX, \
-	low = _min, high = _max, val = v.getTrunc(), \
+	bounds = {_min, _max}, val = v.getTrunc(), \
 	onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val) \
 	{ \
 		v = zfix(val); \
@@ -1705,7 +1705,7 @@ std::shared_ptr<GUI::Widget> SCCDialog::view()
 				row->add(TextField(
 					fitParent = true, minwidth = 8_em,
 					type = GUI::TextField::type::SWAP_ZSINT,
-					low = MIN_SCC_ARG.getZLong(), high = MAX_SCC_ARG.getZLong(),
+					bounds = {MIN_SCC_ARG.getZLong(), MAX_SCC_ARG.getZLong()},
 					val = cur_args[2+ind].getZLong(),
 					swap_type = meta.initd_type[ind],
 					onValChangedFunc = [&, ind](GUI::TextField::type,std::string_view,int32_t val)

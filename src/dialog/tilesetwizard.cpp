@@ -168,7 +168,7 @@ std::shared_ptr<GUI::Widget> TilesetWizard::view()
 					Label(text = "Map Count", hAlign = 1.0),
 					TextField(
 						type = GUI::TextField::type::INT_DECIMAL,
-						low = 1, high = 255,
+						bounds = {1, 255},
 						val = new_map_count,
 						onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 						{

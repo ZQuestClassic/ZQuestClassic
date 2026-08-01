@@ -81,7 +81,7 @@ StringEditorDialog::StringEditorDialog(size_t ind, int32_t templateID, int32_t a
 #define NUM_FIELD(member,_min,_max) \
 TextField( \
 	type = GUI::TextField::type::INT_DECIMAL, fitParent = true, \
-	low = _min, high = _max, val = tmpMsgStr.member, \
+	bounds = {_min, _max}, val = tmpMsgStr.member, \
 	onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val) \
 	{ \
 		tmpMsgStr.member = val; \
@@ -89,7 +89,7 @@ TextField( \
 #define NUM_FIELD_V(member,_min,_max) \
 TextField( \
 	type = GUI::TextField::type::INT_DECIMAL, fitParent = true, \
-	low = _min, high = _max, val = member, \
+	bounds = {_min, _max}, val = member, \
 	onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val) \
 	{ \
 		member = val; \
@@ -489,7 +489,7 @@ std::shared_ptr<GUI::Widget> StringEditorDialog::view()
 						Label(text = "X:"),
 						TextField(
 							type = GUI::TextField::type::INT_DECIMAL, fitParent = true,
-							low = -32768, high = 32767, val = icon->x,
+							bounds = {-32768, 32767}, val = icon->x,
 							onValChangedFunc = [&, icon](GUI::TextField::type,std::string_view,int32_t val)
 							{
 								icon->x = val;
@@ -498,7 +498,7 @@ std::shared_ptr<GUI::Widget> StringEditorDialog::view()
 						Label(text = "Y:"),
 						TextField(
 							type = GUI::TextField::type::INT_DECIMAL, fitParent = true,
-							low = -32768, high = 32767, val = icon->y,
+							bounds = {-32768, 32767}, val = icon->y,
 							onValChangedFunc = [&, icon](GUI::TextField::type,std::string_view,int32_t val)
 							{
 								icon->y = val;

@@ -221,7 +221,7 @@ TextField( \
 	fitParent = true, \
 	type = GUI::TextField::type::NOSWAP_ZSINT, \
 	swap_type = nswapLDEC, minwidth = 3_em, \
-	low = 0, high = map_count, val = local_info.autolayers[lyr-1], \
+	bounds = {0, map_count}, val = local_info.autolayers[lyr-1], \
 	onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val) \
 	{ \
 		local_info.autolayers[lyr-1] = val; \

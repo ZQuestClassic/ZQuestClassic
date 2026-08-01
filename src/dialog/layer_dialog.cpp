@@ -26,7 +26,7 @@ enum
 Label(text = to_string(lyr)), \
 TextField( \
 	type = GUI::TextField::type::INT_DECIMAL, \
-	low = 0, high = map_count, \
+	bounds = {0, map_count}, \
 	val = local_ref.layermap[lyr-1], minwidth = 4_em, \
 	onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val) \
 	{ \
@@ -34,7 +34,7 @@ TextField( \
 	}), \
 TextField( \
 	type = GUI::TextField::type::SWAP_ZSINT_NO_DEC, \
-	low = 0, high = MAPSCRS-1, \
+	bounds = {0, MAPSCRS-1}, \
 	val = local_ref.layerscreen[lyr-1], swap_type = nswapHEX, \
 	onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val) \
 	{ \
@@ -110,7 +110,7 @@ std::shared_ptr<GUI::Widget> LayerDialog::view()
 						Label(text = fmt::format("Map for layer {}:", autolayer)),
 						TextField(
 							type = GUI::TextField::type::SWAP_ZSINT_NO_DEC,
-							low = 0, high = map_count,
+							bounds = {0, map_count},
 							val = temp_autolayer_data.first, minwidth = 4_em,
 							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 							{

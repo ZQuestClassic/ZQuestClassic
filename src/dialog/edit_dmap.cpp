@@ -165,7 +165,7 @@ std::shared_ptr<GUI::Widget> EditDMapDialog::view()
 							TextField(
 								fitParent = true, minwidth = 3_em,
 								type = GUI::TextField::type::INT_DECIMAL,
-								low = 0, high = 511, val = local_dmap.level,
+								bounds = {0, 511}, val = local_dmap.level,
 								onValChangedFunc = [&](GUI::TextField::type, std::string_view, int32_t val)
 								{
 									local_dmap.level = val;
@@ -174,7 +174,7 @@ std::shared_ptr<GUI::Widget> EditDMapDialog::view()
 							TextField(
 								fitParent = true, minwidth = 3_em,
 								type = GUI::TextField::type::INT_DECIMAL,
-								low = 0, high = 255, val = local_dmap.floor,
+								bounds = {0, 255}, val = local_dmap.floor,
 								onValChangedFunc = [&](GUI::TextField::type, std::string_view, int32_t val)
 								{
 									local_dmap.floor = val;
@@ -224,7 +224,7 @@ std::shared_ptr<GUI::Widget> EditDMapDialog::view()
 									hAlign = 0.0,
 									minwidth = 3_em,
 									type = GUI::TextField::type::INT_DECIMAL,
-									low = -1, high = 511, val = local_dmap.mirrorDMap,
+									bounds = {-1, 511}, val = local_dmap.mirrorDMap,
 									onValChangedFunc = [&](GUI::TextField::type, std::string_view, int32_t val)
 									{
 										local_dmap.mirrorDMap = val;
@@ -248,7 +248,7 @@ std::shared_ptr<GUI::Widget> EditDMapDialog::view()
 										hAlign = 0.0,
 										fitParent = true, minwidth = 2_em,
 										type = GUI::TextField::type::INT_HEX,
-										low = 0, high = 127, val = local_dmap.cont,
+										bounds = {0, 127}, val = local_dmap.cont,
 										onValChangedFunc = [&](GUI::TextField::type, std::string_view, int32_t val)
 										{
 											dmap_grid->setContinueScreen(val);
@@ -274,7 +274,7 @@ std::shared_ptr<GUI::Widget> EditDMapDialog::view()
 										hAlign = 0.0,
 										fitParent = true, minwidth = 2_em,
 										type = GUI::TextField::type::INT_HEX,
-										low = 0x00, high = 0x7F, val = local_dmap.compass,
+										bounds = {0x00, 0x7F}, val = local_dmap.compass,
 										onValChangedFunc = [&](GUI::TextField::type, std::string_view, int32_t val)
 										{
 											dmap_grid->setCompassScreen(val);

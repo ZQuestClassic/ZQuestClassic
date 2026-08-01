@@ -2245,8 +2245,7 @@ std::shared_ptr<GUI::Widget> QRDialog::view()
 									type = GUI::TextField::type::INT_DECIMAL,
 									maxLength = 3,
 									text = std::to_string(map_count),
-									low = 1, high = 255
-								),
+									bounds = {1, 255}),
 								INFOBTN_T("Map Count","The number of 'maps' available in the quest file. The higher this value is,"
 									" the larger your quest file will be, and the more memory it takes to keep your quest loaded;"
 									" so it is generally suggested to only set this to a number of maps you will actually be "

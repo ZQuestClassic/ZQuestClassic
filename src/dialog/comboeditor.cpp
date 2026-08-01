@@ -2239,8 +2239,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::ANIM_FIELD_IMPL(byte* data, byte
 		type = GUI::TextField::type::INT_DECIMAL,
 		maxLength = 5,
 		val = *data,
-		low = min,
-		high = max,
+		bounds = {min, max},
 		fitParent = true,
 		onValChangedFunc = [&, data](GUI::TextField::type,std::string_view,int32_t val)
 		{
@@ -2494,7 +2493,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 						TextField(
 							fitParent = true,
 							type = GUI::TextField::type::INT_DECIMAL,
-							low = -8, high = 7, val = (local_comboref.csets&8) ? ((local_comboref.csets&0xF)|~int32_t(0xF)) : (local_comboref.csets&0xF),
+							bounds = {-8, 7}, val = (local_comboref.csets&8) ? ((local_comboref.csets&0xF)|~int32_t(0xF)) : (local_comboref.csets&0xF),
 							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 							{
 								local_comboref.csets &= ~0xF;
@@ -3069,7 +3068,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 							Label(text = "Damage:", hAlign = 1.0),
 							TextField(
 								type = GUI::TextField::type::INT_DECIMAL,
-								low = 0, high = 255, val = local_comboref.liftdmg,
+								bounds = {0, 255}, val = local_comboref.liftdmg,
 								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 								{
 									local_comboref.liftdmg = val;
@@ -3079,7 +3078,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 							Label(text = "Lift Level:", hAlign = 1.0),
 							TextField(
 								type = GUI::TextField::type::INT_DECIMAL,
-								low = 0, high = 255, val = local_comboref.liftlvl,
+								bounds = {0, 255}, val = local_comboref.liftlvl,
 								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 								{
 									local_comboref.liftlvl = val;
@@ -3089,7 +3088,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 							Label(text = "Item Drop:"),
 							TextField(
 								type = GUI::TextField::type::INT_DECIMAL,
-								low = 0, high = 255, val = local_comboref.liftitm,
+								bounds = {0, 255}, val = local_comboref.liftitm,
 								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 								{
 									local_comboref.liftitm = val;
@@ -3100,7 +3099,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 							Label(text = "Lift Height"),
 							TextField(
 								type = GUI::TextField::type::INT_DECIMAL,
-								low = 0, high = 255, val = local_comboref.lifthei,
+								bounds = {0, 255}, val = local_comboref.lifthei,
 								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 								{
 									local_comboref.lifthei = val;
@@ -3110,7 +3109,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 							Label(text = "Lift Time"),
 							TextField(
 								type = GUI::TextField::type::INT_DECIMAL,
-								low = 0, high = 255, val = local_comboref.lifttime,
+								bounds = {0, 255}, val = local_comboref.lifttime,
 								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 								{
 									local_comboref.lifttime = val;
@@ -3151,7 +3150,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 								Rows<3>(
 									Label(text = "Multiplier:", hAlign = 1.0),
 									TextField(type = GUI::TextField::type::INT_DECIMAL,
-										hAlign = 1.0, low = 0, high = 255, val = local_comboref.speed_mult,
+										hAlign = 1.0, bounds = {0, 255}, val = local_comboref.speed_mult,
 										fitParent = true,
 										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 										{
@@ -3161,7 +3160,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 									//
 									Label(text = "Divisor:", hAlign = 1.0),
 									TextField(type = GUI::TextField::type::INT_DECIMAL,
-										hAlign = 1.0, low = 0, high = 255, val = local_comboref.speed_div,
+										hAlign = 1.0, bounds = {0, 255}, val = local_comboref.speed_div,
 										fitParent = true,
 										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 										{
@@ -3242,7 +3241,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 										fitParent = true, maxLength = 11,
 										type = GUI::TextField::type::FIXED_DECIMAL, places = 4,
 										val = local_comboref.z_step_height.getZLong(),
-										low = 0, high = MAX_SIGNED_32,
+										bounds = {0, MAX_SIGNED_32},
 										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 										{
 											local_comboref.z_step_height = zslongToFix(val);
@@ -3254,7 +3253,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 									TextField(maxLength = 3, type = GUI::TextField::type::NOSWAP_ZSINT,
 										val = local_comboref.dive_under_level,
 										swap_type = nswapLDEC, fitParent = true,
-										low = 0, high = 255,
+										bounds = {0, 255},
 										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 										{
 											local_comboref.dive_under_level = byte(val);

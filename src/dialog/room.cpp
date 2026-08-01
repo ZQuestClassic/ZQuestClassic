@@ -171,7 +171,7 @@ std::shared_ptr<GUI::Widget> RoomDialog::view()
 			fitParent = true,
 			type = GUI::TextField::type::INT_DECIMAL,
 			maxLength = 6, val = local_mapref.catchall,
-			low = 0, high = 65535, hAlign = 0.0,
+			bounds = {0, 65535}, hAlign = 0.0,
 			onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 			{
 				local_mapref.catchall = val;

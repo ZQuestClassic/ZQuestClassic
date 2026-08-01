@@ -128,7 +128,7 @@ FFCDialog::FFCDialog(mapscr* scr, int32_t screen, int32_t ffind, ffdata const& i
 Label(text = str, hAlign = 1.0), \
 TextField( \
 	type = GUI::TextField::type::SWAP_ZSINT, \
-	low = lb, high = hb, val = mem, \
+	bounds = {lb, hb}, val = mem, \
 	leftPadding = 0_px, fitParent = true, \
 	onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val) \
 	{ \
@@ -235,7 +235,7 @@ std::shared_ptr<GUI::Widget> FFCDialog::view()
 						Label(text = "Combo W:", hAlign = 1.0),
 						TextField(
 							type = GUI::TextField::type::INT_DECIMAL,
-							low = 1, high = 64, val = ffc.fwid+1,
+							bounds = {1, 64}, val = ffc.fwid+1,
 							leftPadding = 0_px, fitParent = true,
 							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 							{
@@ -246,7 +246,7 @@ std::shared_ptr<GUI::Widget> FFCDialog::view()
 						Label(text = "Combo H:", hAlign = 1.0),
 						TextField(
 							type = GUI::TextField::type::INT_DECIMAL,
-							low = 1, high = 64, val = ffc.fhei+1,
+							bounds = {1, 64}, val = ffc.fhei+1,
 							leftPadding = 0_px, fitParent = true,
 							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 							{
@@ -258,7 +258,7 @@ std::shared_ptr<GUI::Widget> FFCDialog::view()
 						Label(text = "Tile W:", hAlign = 1.0),
 						TextField(
 							type = GUI::TextField::type::INT_DECIMAL,
-							low = 1, high = 4, val = ffc.twid+1,
+							bounds = {1, 4}, val = ffc.twid+1,
 							leftPadding = 0_px, fitParent = true,
 							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 							{
@@ -272,7 +272,7 @@ std::shared_ptr<GUI::Widget> FFCDialog::view()
 						Label(text = "Tile H:", hAlign = 1.0),
 						TextField(
 							type = GUI::TextField::type::INT_DECIMAL,
-							low = 1, high = 4, val = ffc.thei+1,
+							bounds = {1, 4}, val = ffc.thei+1,
 							leftPadding = 0_px, fitParent = true,
 							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 							{
@@ -290,7 +290,7 @@ std::shared_ptr<GUI::Widget> FFCDialog::view()
 						Label(text = "A. Delay:", hAlign = 1.0),
 						TextField(
 							type = GUI::TextField::type::INT_DECIMAL,
-							low = 0, high = 9999, val = ffc.delay,
+							bounds = {0, 9999}, val = ffc.delay,
 							leftPadding = 0_px, fitParent = true,
 							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 							{
@@ -300,7 +300,7 @@ std::shared_ptr<GUI::Widget> FFCDialog::view()
 						Label(text = "Layer:", hAlign = 1.0),
 						TextField(
 							type = GUI::TextField::type::INT_DECIMAL,
-							low = -7, high = 7, val = ffc.layer,
+							bounds = {-7, 7}, val = ffc.layer,
 							leftPadding = 0_px, fitParent = true,
 							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 							{
@@ -312,7 +312,7 @@ std::shared_ptr<GUI::Widget> FFCDialog::view()
 						Label(text = "Link to:", hAlign = 1.0),
 						TextField(
 							type = GUI::TextField::type::INT_DECIMAL,
-							low = 0, high = MAXFFCS, val = ffc.link,
+							bounds = {0, MAXFFCS}, val = ffc.link,
 							leftPadding = 0_px, fitParent = true,
 							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 							{
@@ -326,7 +326,7 @@ std::shared_ptr<GUI::Widget> FFCDialog::view()
 						//
 						TextField(
 							type = GUI::TextField::type::INT_DECIMAL,
-							low = 0, high = 214747, val = ffc.viewport_suspend_range,
+							bounds = {0, 214747}, val = ffc.viewport_suspend_range,
 							leftPadding = 0_px, fitParent = true,
 							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 							{
@@ -335,7 +335,7 @@ std::shared_ptr<GUI::Widget> FFCDialog::view()
 						INFOBTN_T("Suspend Range", "Distance outside the viewport the FFC suspends its behavior. Disabled if 0."),
 						TextField(
 							type = GUI::TextField::type::INT_DECIMAL,
-							low = 0, high = 214747, val = ffc.viewport_despawn_range,
+							bounds = {0, 214747}, val = ffc.viewport_despawn_range,
 							leftPadding = 0_px, fitParent = true,
 							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 							{

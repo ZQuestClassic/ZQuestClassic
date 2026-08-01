@@ -528,7 +528,7 @@ std::shared_ptr<GUI::Widget> ItemWizardDialog::view()
 					TextField(
 						fitParent = true, minwidth = 8_em,
 						type = GUI::TextField::type::SWAP_BYTE,
-						low = 0, high = 255, val = radius,
+						bounds = {0, 255}, val = radius,
 						onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 						{
 							radius = val;
@@ -546,7 +546,7 @@ std::shared_ptr<GUI::Widget> ItemWizardDialog::view()
 					TextField(
 						fitParent = true, minwidth = 8_em,
 						type = GUI::TextField::type::INT_DECIMAL,
-						low = -255, high = 255, val = offset,
+						bounds = {-255, 255}, val = offset,
 						onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 						{
 							offset = val;
@@ -574,7 +574,7 @@ std::shared_ptr<GUI::Widget> ItemWizardDialog::view()
 					Label(text = "Count:", hAlign = 1.0),
 					TextField(type = GUI::TextField::type::INT_DECIMAL,
 						fitParent = true, val = count,
-						low = 1, high = 214748,
+						bounds = {1, 214748},
 						onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 						{
 							count = val;

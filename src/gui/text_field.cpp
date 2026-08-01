@@ -179,7 +179,7 @@ namespace GUI
 {
 
 TextField::TextField(): buffer(nullptr), startVal(0), fixedPlaces(4),
-	lbound(0), ubound(-1), ubound_set(false),
+	lbound(0), ubound(-1), bounds_set(false),
 	tfType(type::TEXT), swap_type_start(0), maxLength(0),
 	forced_length(false), last_applied_vis(true), last_applied_dis(false), onEnterMsg(-1),
 	onValueChangedMsg(-1), valSet(false)
@@ -346,17 +346,11 @@ std::string_view TextField::getText()
 	else
 		return std::string_view("", 1);
 }
-void TextField::setLowBound(int32_t low)
+void TextField::setBounds(Bounds bounds)
 {
-	lbound = low;
-	if(hasBounds())
-		startVal = vbound(startVal, lbound, ubound);
-	check_len(1);
-}
-void TextField::setHighBound(int32_t high)
-{
-	ubound = high;
-	ubound_set = true;
+	lbound = bounds.low;
+	ubound = bounds.high;
+	bounds_set = true;
 	if(hasBounds())
 		startVal = vbound(startVal, lbound, ubound);
 	check_len(1);

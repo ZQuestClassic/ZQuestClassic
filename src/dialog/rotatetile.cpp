@@ -24,7 +24,7 @@ std::shared_ptr<GUI::Widget> RotateTileDialog::view()
 				TextField(
 					type = GUI::TextField::type::NOSWAP_ZSINT,
 					swap_type = nswapDEC,
-					low = -3600000, high = 3600000, val = tr.getZLong(), focused = true,
+					bounds = {-3600000, 3600000}, val = tr.getZLong(), focused = true,
 					onValChangedFunc = [&](GUI::TextField::type, std::string_view, int32_t val)
 					{
 						tr = zslongToFix(val);

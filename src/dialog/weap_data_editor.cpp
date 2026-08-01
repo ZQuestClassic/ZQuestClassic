@@ -51,7 +51,7 @@ std::shared_ptr<GUI::Widget> WeaponDataDialog::MoveFlag(move_flags index, string
 #define NUM_FIELD(member,_min,_max) \
 TextField( \
 	type = GUI::TextField::type::INT_DECIMAL, fitParent = true, \
-	low = _min, high = _max, val = local_ref.member, \
+	bounds = {_min, _max}, val = local_ref.member, \
 	onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val) \
 	{ \
 		local_ref.member = val; \
@@ -407,7 +407,7 @@ std::shared_ptr<GUI::Widget> WeaponDataDialog::view()
 						TextField(fitParent = true,
 							val = local_ref.hxofs,
 							type = GUI::TextField::type::INT_DECIMAL,
-							low = -214748, high = 214748,
+							bounds = {-214748, 214748},
 							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 							{
 								local_ref.hxofs = val;
@@ -426,7 +426,7 @@ std::shared_ptr<GUI::Widget> WeaponDataDialog::view()
 						TextField(fitParent = true,
 							val = local_ref.hyofs,
 							type = GUI::TextField::type::INT_DECIMAL,
-							low = -214748, high = 214748,
+							bounds = {-214748, 214748},
 							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 							{
 								local_ref.hyofs = val;
@@ -445,7 +445,7 @@ std::shared_ptr<GUI::Widget> WeaponDataDialog::view()
 						TextField(fitParent = true,
 							val = local_ref.hxsz,
 							type = GUI::TextField::type::INT_DECIMAL,
-							high = 214748,
+							bounds = {0, 214748},
 							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 							{
 								local_ref.hxsz = val;
@@ -464,7 +464,7 @@ std::shared_ptr<GUI::Widget> WeaponDataDialog::view()
 						TextField(fitParent = true,
 							val = local_ref.hysz,
 							type = GUI::TextField::type::INT_DECIMAL,
-							high = 214748,
+							bounds = {0, 214748},
 							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 							{
 								local_ref.hysz = val;
@@ -483,7 +483,7 @@ std::shared_ptr<GUI::Widget> WeaponDataDialog::view()
 						TextField(fitParent = true,
 							val = local_ref.hzsz,
 							type = GUI::TextField::type::INT_DECIMAL,
-							high = 214748,
+							bounds = {0, 214748},
 							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 							{
 								local_ref.hzsz = val;
@@ -502,7 +502,7 @@ std::shared_ptr<GUI::Widget> WeaponDataDialog::view()
 						TextField(fitParent = true,
 							val = local_ref.tilew,
 							type = GUI::TextField::type::INT_DECIMAL,
-							high = 32,
+							bounds = {0, 32},
 							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 							{
 								local_ref.tilew = val;
@@ -521,7 +521,7 @@ std::shared_ptr<GUI::Widget> WeaponDataDialog::view()
 						TextField(fitParent = true,
 							val = local_ref.tileh,
 							type = GUI::TextField::type::INT_DECIMAL,
-							high = 32,
+							bounds = {0, 32},
 							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 							{
 								local_ref.tileh = val;
@@ -540,7 +540,7 @@ std::shared_ptr<GUI::Widget> WeaponDataDialog::view()
 						TextField(fitParent = true,
 							val = local_ref.xofs,
 							type = GUI::TextField::type::INT_DECIMAL,
-							low = -214748, high = 214748,
+							bounds = {-214748, 214748},
 							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 							{
 								local_ref.xofs = val;
@@ -559,7 +559,7 @@ std::shared_ptr<GUI::Widget> WeaponDataDialog::view()
 						TextField(fitParent = true,
 							val = local_ref.yofs,
 							type = GUI::TextField::type::INT_DECIMAL,
-							low = -214748, high = 214748,
+							bounds = {-214748, 214748},
 							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 							{
 								local_ref.yofs = val;
@@ -632,7 +632,7 @@ std::shared_ptr<GUI::Widget> WeaponDataDialog::view()
 								fitParent = true,
 								maxLength = 11, type = GUI::TextField::type::NOSWAP_ZSINT,
 								swap_type = nswapDEC,
-								low = 0, high = MAX_SIGNED_32,
+								bounds = {0, MAX_SIGNED_32},
 								val = local_ref.bounce_mult.getZLong(),
 								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 								{

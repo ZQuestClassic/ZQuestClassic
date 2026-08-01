@@ -392,7 +392,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 			g1->add(TextField(
 				fitParent = true,
 				type = GUI::TextField::type::INT_DECIMAL,
-				low = 0, high = 999, val = loadw,
+				bounds = {0, 999}, val = loadw,
 				onValChangedFunc = [=, this](GUI::TextField::type,std::string_view,int32_t val)
 				{
 					local_subref->w = val;
@@ -402,7 +402,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 			g1->add(TextField(
 				fitParent = true,
 				type = GUI::TextField::type::INT_DECIMAL,
-				low = 0, high = 999, val = loadh,
+				bounds = {0, 999}, val = loadh,
 				onValChangedFunc = [=, this](GUI::TextField::type,std::string_view,int32_t val)
 				{
 					local_subref->h = val;
@@ -949,7 +949,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 								TextField(
 									fitParent = true,
 									type = GUI::TextField::type::INT_DECIMAL,
-									low = 1, high = 256, val = w->unit_per_frame+1,
+									bounds = {1, 256}, val = w->unit_per_frame+1,
 									onValChangedFunc = [&, w](GUI::TextField::type,std::string_view,int32_t val)
 									{
 										w->unit_per_frame = val-1;
@@ -971,7 +971,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 								TextField(
 									fitParent = true,
 									type = GUI::TextField::type::INT_DECIMAL,
-									low = 1, high = 999, val = w->frames,
+									bounds = {1, 999}, val = w->frames,
 									onValChangedFunc = [&, w](GUI::TextField::type,std::string_view,int32_t val)
 									{
 										w->frames = val;
@@ -993,7 +993,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 								TextField(
 									fitParent = true,
 									type = GUI::TextField::type::INT_DECIMAL,
-									low = 1, high = 32, val = w->gauge_wid+1,
+									bounds = {1, 32}, val = w->gauge_wid+1,
 									onValChangedFunc = [&, w](GUI::TextField::type,std::string_view,int32_t val)
 									{
 										w->gauge_wid = val-1;
@@ -1004,7 +1004,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 								TextField(
 									fitParent = true,
 									type = GUI::TextField::type::INT_DECIMAL,
-									low = 1, high = 32, val = w->gauge_hei+1,
+									bounds = {1, 32}, val = w->gauge_hei+1,
 									onValChangedFunc = [&, w](GUI::TextField::type,std::string_view,int32_t val)
 									{
 										w->gauge_hei = val-1;
@@ -1750,7 +1750,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 									seltfs[0] = TextField(
 										fitParent = true,
 										type = GUI::TextField::type::INT_DECIMAL,
-										low = 1, high = MAX_SUBSCR_PAGES, val = local_subref->pg_targ+1,
+										bounds = {1, MAX_SUBSCR_PAGES}, val = local_subref->pg_targ+1,
 										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 										{
 											local_subref->pg_targ = val-1;
@@ -2000,7 +2000,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 									condtfs[1] = TextField(
 										fitParent = true,
 										type = GUI::TextField::type::INT_DECIMAL,
-										low = 0, high = 255, val = *req_dmap_floor,
+										bounds = {0, 255}, val = *req_dmap_floor,
 										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 										{
 											update_dmap_floor(val, false);
@@ -2060,7 +2060,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 									condtfs[2] = TextField(
 										fitParent = true,
 										type = GUI::TextField::type::INT_DECIMAL,
-										low = 0, high = MAXLEVELS-1, val = *req_dmap_level,
+										bounds = {0, MAXLEVELS-1}, val = *req_dmap_level,
 										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 										{
 											update_dmap_level(val, false);
@@ -2175,7 +2175,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 									fitParent = true,
 									vPadding = 0_px,
 									type = GUI::TextField::type::INT_DECIMAL,
-									low = -1, high = MAXLEVELS, val = local_subref->req_litem_level,
+									bounds = {-1, MAXLEVELS}, val = local_subref->req_litem_level,
 									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 									{
 										local_subref->req_litem_level = val;
@@ -2223,7 +2223,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 									fitParent = true,
 									vPadding = 0_px,
 									type = GUI::TextField::type::INT_DECIMAL,
-									low = -1, high = MAXLEVELS, val = local_subref->req_lstate_level,
+									bounds = {-1, MAXLEVELS}, val = local_subref->req_lstate_level,
 									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 									{
 										local_subref->req_lstate_level = val;
@@ -2282,7 +2282,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 									condtfs[3] = TextField(
 										fitParent = true,
 										type = GUI::TextField::type::INT_DECIMAL,
-										low = 1, high = map_count, val = *req_map,
+										bounds = {1, map_count}, val = *req_map,
 										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 										{
 											update_req_map(val, false);
@@ -2343,7 +2343,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 										fitParent = true,
 										type = GUI::TextField::type::SWAP_ZSINT_NO_DEC,
 										swap_type = nswapHEX,
-										low = 0, high = MAPSCRSNORMAL, val = *req_screen,
+										bounds = {0, MAPSCRSNORMAL}, val = *req_screen,
 										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 										{
 											update_req_screen(val, false);
@@ -2390,7 +2390,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 								Label(text = "Map:"),
 								TextField(
 									type = GUI::TextField::type::SWAP_ZSINT_NO_DEC,
-									low = 0, high = map_count,
+									bounds = {0, map_count},
 									val = local_subref->req_scrstate_map, minwidth = 4_em,
 									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 									{
@@ -2399,7 +2399,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 								Label(text = "Screen:"),
 								TextField(
 									type = GUI::TextField::type::SWAP_ZSINT_NO_DEC,
-									low = -1, high = MAPSCRSNORMAL-1,
+									bounds = {-1, MAPSCRSNORMAL-1},
 									val = local_subref->req_scrstate_scr, swap_type = nswapHEX,
 									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 									{
@@ -2479,7 +2479,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 								TextField(
 									fitParent = true,
 									type = GUI::TextField::type::INT_DECIMAL,
-									low = 0, high = 65535, val = local_subref->req_counter_val,
+									bounds = {0, 65535}, val = local_subref->req_counter_val,
 									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 									{
 										local_subref->req_counter_val = val;

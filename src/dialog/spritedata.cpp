@@ -22,7 +22,7 @@ SpriteDataDialog::SpriteDataDialog(int32_t index):
 #define NUM_FIELD(member,_min,_max) \
 TextField( \
 	type = GUI::TextField::type::INT_DECIMAL, fitParent = true, \
-	low = _min, high = _max, val = tempSprite.member, \
+	bounds = {_min, _max}, val = tempSprite.member, \
 	onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val) \
 	{ \
 		tempSprite.member = val; \
@@ -31,7 +31,7 @@ TextField( \
 #define ANIM_NUM_FIELD(member,_min,_max) \
 TextField( \
 	type = GUI::TextField::type::INT_DECIMAL, fitParent = true, \
-	low = _min, high = _max, val = tempSprite.member, \
+	bounds = {_min, _max}, val = tempSprite.member, \
 	onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val) \
 	{ \
 		tempSprite.member = val; \
@@ -82,7 +82,7 @@ std::shared_ptr<GUI::Widget> SpriteDataDialog::view()
 				Label(text = "Flash CSet", hAlign = 0.0),
 				TextField(
 					type = GUI::TextField::type::INT_DECIMAL, fitParent = true,
-					low = 0, high = 15, val = (tempSprite.csets>>4),
+					bounds = {0, 15}, val = (tempSprite.csets>>4),
 					onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 					{
 						tempSprite.csets &= 0x0F;

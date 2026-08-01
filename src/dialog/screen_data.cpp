@@ -463,7 +463,7 @@ std::shared_ptr<GUI::Widget> ScreenDataDialog::view()
 						TextField(
 							fitParent = true,
 							type = GUI::TextField::type::INT_DECIMAL,
-							low = 1, high = 8,
+							bounds = {1, 8},
 							val = local_scr.csensitive,
 							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 							{
@@ -593,7 +593,7 @@ std::shared_ptr<GUI::Widget> ScreenDataDialog::view()
 					twarp_only_tics = TextField(
 						fitParent = true, colSpan = 3,
 						type = GUI::TextField::type::INT_DECIMAL,
-						low = 0, high = 65535,
+						bounds = {0, 65535},
 						val = local_scr.timedwarptics,
 						onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 						{
@@ -607,7 +607,7 @@ std::shared_ptr<GUI::Widget> ScreenDataDialog::view()
 					twarp_mins = TextField(
 						fitParent = true,
 						type = GUI::TextField::type::INT_DECIMAL,
-						low = 0, high = 65535 / TICS_PER_MINUTE,
+						bounds = {0, 65535 / TICS_PER_MINUTE},
 						val = local_scr.timedwarptics / TICS_PER_MINUTE,
 						onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 						{
@@ -618,7 +618,7 @@ std::shared_ptr<GUI::Widget> ScreenDataDialog::view()
 					twarp_secs = TextField(
 						fitParent = true,
 						type = GUI::TextField::type::INT_DECIMAL,
-						low = 0, high = 59,
+						bounds = {0, 59},
 						val = (local_scr.timedwarptics % TICS_PER_MINUTE) / TICS_PER_SECOND,
 						onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 						{
@@ -632,7 +632,7 @@ std::shared_ptr<GUI::Widget> ScreenDataDialog::view()
 					twarp_tics = TextField(
 						fitParent = true,
 						type = GUI::TextField::type::INT_DECIMAL,
-						low = 0, high = 59,
+						bounds = {0, 59},
 						val = local_scr.timedwarptics % 60,
 						onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 						{
@@ -654,7 +654,7 @@ std::shared_ptr<GUI::Widget> ScreenDataDialog::view()
 						Label(text = "Data Size:"),
 						TextField(
 							type = GUI::TextField::type::SWAP_ZSINT_NO_DEC,
-							low = 0, high = 214748,
+							bounds = {0, 214748},
 							val = screen_misc_data.size(),
 							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 							{

@@ -38,7 +38,7 @@ std::shared_ptr<GUI::Widget> ScreenSaverDialog::view()
 					}),
 				Label(text = "Idle Time (Seconds):", hAlign = 1.0),
 				TextField(type = GUI::TextField::type::INT_DECIMAL,
-					low = 1, high = INT_MAX/60, val = seconds < 0 ? 60*5 : seconds,
+					bounds = {1, INT_MAX/60}, val = seconds < 0 ? 60*5 : seconds,
 					fitParent = true,
 					onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 					{

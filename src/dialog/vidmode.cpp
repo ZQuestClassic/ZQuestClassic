@@ -33,14 +33,14 @@ std::shared_ptr<GUI::Widget> VidModeDialog::view()
 				Label(text = "New Res:"),
 				rx = TextField(
 					type = GUI::TextField::type::INT_DECIMAL,
-					low = zq_screen_w, high = 20000, val = resx,
+					bounds = {zq_screen_w, 20000}, val = resx,
 					onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 					{
 						resx = val;
 					}),
 				ry = TextField(
 					type = GUI::TextField::type::INT_DECIMAL,
-					low = zq_screen_h, high = 20000, val = resy,
+					bounds = {zq_screen_h, 20000}, val = resy,
 					onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 					{
 						resy = val;

@@ -95,7 +95,7 @@ std::shared_ptr<GUI::Widget> TestQstDialog::view()
 				TextField(
 					fitParent = true, minwidth = 4_em,
 					type = GUI::TextField::type::SWAP_BYTE,
-					low = 0x00, high = 0x7F, val = test_start_screen,
+					bounds = {0x00, 0x7F}, val = test_start_screen,
 					swap_type = 1,
 					onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 					{

@@ -151,7 +151,7 @@ std::shared_ptr<GUI::Widget> SubscrTransitionDialog::view()
 				TextField(maxLength = 13, type = GUI::TextField::type::NOSWAP_ZSINT,
 					hAlign = 1.0, val = args[sstrSLIDE][1],
 					swap_type = nswapDEC, fitParent = true,
-					low = 5000, high = 9990000,
+					bounds = {5000, 9990000},
 					onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 					{
 						args[sstrSLIDE][1] = val;
@@ -172,7 +172,7 @@ std::shared_ptr<GUI::Widget> SubscrTransitionDialog::view()
 				Label(text = "Duration:", hAlign = 1.0),
 				TextField(type = GUI::TextField::type::INT_DECIMAL,
 					val = args[sstrPIXEL][1], fitParent = true,
-					low = 1, high = 60*60,
+					bounds = {1, 60*60},
 					onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 					{
 						args[sstrPIXEL][1] = val;
@@ -181,7 +181,7 @@ std::shared_ptr<GUI::Widget> SubscrTransitionDialog::view()
 				Label(text = "Pattern XOffset:", hAlign = 1.0),
 				TextField(type = GUI::TextField::type::INT_DECIMAL,
 					val = args[sstrPIXEL][2], fitParent = true,
-					low = -99999, high = 99999,
+					bounds = {-99999, 99999},
 					onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 					{
 						args[sstrPIXEL][2] = val;
@@ -190,7 +190,7 @@ std::shared_ptr<GUI::Widget> SubscrTransitionDialog::view()
 				Label(text = "Pattern YOffset:", hAlign = 1.0),
 				TextField(type = GUI::TextField::type::INT_DECIMAL,
 					val = args[sstrPIXEL][3], fitParent = true,
-					low = -99999, high = 99999,
+					bounds = {-99999, 99999},
 					onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 					{
 						args[sstrPIXEL][3] = val;

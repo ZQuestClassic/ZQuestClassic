@@ -94,7 +94,7 @@ std::shared_ptr<GUI::Widget> DitherPickDialog::view()
 	wingrid->add(Label(text = "Arg: ", hAlign = 1.0));
 	wingrid->add(TextField(
 		type = GUI::TextField::type::INT_DECIMAL, fitParent = true,
-		low = 0, high = 255, val = darg,
+		bounds = {0, 255}, val = darg,
 		onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 		{
 			darg = val;

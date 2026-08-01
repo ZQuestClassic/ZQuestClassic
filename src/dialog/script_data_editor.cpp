@@ -203,8 +203,7 @@ std::shared_ptr<GUI::Widget> ScriptDataDialog::view()
 						});
 					if (expdata.min < expdata.max && !(expdata.min == -214748.3648_zf && expdata.max == 214748.3647_zf))
 					{
-						tf->setLowBound(expdata.min.getZLong());
-						tf->setHighBound(expdata.max.getZLong());
+						tf->setBounds({expdata.min.getZLong(), expdata.max.getZLong()});
 					}
 					reset_btn->setOnPress([&, idx, tf, scrdata, reset_btn]()
 						{

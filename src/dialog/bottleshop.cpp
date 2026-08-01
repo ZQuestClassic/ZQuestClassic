@@ -22,7 +22,7 @@ BottleShopDialog::BottleShopDialog(int32_t index):
 #define NUM_FIELD(member,_min,_max) \
 TextField( \
 	type = GUI::TextField::type::INT_DECIMAL, \
-	low = _min, high = _max, val = tempBottleShop.member, \
+	bounds = {_min, _max}, val = tempBottleShop.member, \
 	onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val) \
 	{ \
 		tempBottleShop.member = val; \

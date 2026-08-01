@@ -219,7 +219,7 @@ std::shared_ptr<GUI::Widget> EditMusicDialog::view()
 									fitParent = true, hAlign = 0.0,
 									type = GUI::TextField::type::FIXED_DECIMAL,
 									disabled = disableEnhancedMusic(true),
-									low = 0, high = 2147483647,
+									bounds = {0, 2147483647},
 									val = local_music.enhanced.loop_start,
 									onValChangedFunc = [&](GUI::TextField::type, std::string_view, int32_t val)
 									{
@@ -231,7 +231,7 @@ std::shared_ptr<GUI::Widget> EditMusicDialog::view()
 									type = GUI::TextField::type::FIXED_DECIMAL,
 									disabled = disableEnhancedMusic(true),
 									val = local_music.enhanced.loop_end,
-									low = 0, high = 2147483647,
+									bounds = {0, 2147483647},
 									onValChangedFunc = [&](GUI::TextField::type, std::string_view, int32_t val)
 									{
 										local_music.enhanced.loop_end = val;
@@ -244,7 +244,7 @@ std::shared_ptr<GUI::Widget> EditMusicDialog::view()
 									type = GUI::TextField::type::INT_DECIMAL,
 									disabled = disableEnhancedMusic(),
 									val = local_music.enhanced.xfade_in,
-									low = 0, high = 65535,
+									bounds = {0, 65535},
 									onValChangedFunc = [&](GUI::TextField::type, std::string_view, int32_t val)
 									{
 										local_music.enhanced.xfade_in = val;
@@ -255,7 +255,7 @@ std::shared_ptr<GUI::Widget> EditMusicDialog::view()
 									type = GUI::TextField::type::INT_DECIMAL,
 									disabled = disableEnhancedMusic(),
 									val = local_music.enhanced.xfade_out,
-									low = 0, high = 65535,
+									bounds = {0, 65535},
 									onValChangedFunc = [&](GUI::TextField::type, std::string_view, int32_t val)
 									{
 										local_music.enhanced.xfade_out = val;
