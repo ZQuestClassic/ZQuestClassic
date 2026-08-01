@@ -2316,10 +2316,10 @@ RETURNFUNC; Func[int Graphics::GetTilePixel(int, int, int, int)] Body End       
 SETTILEPIXEL; Func[void Graphics::SetTilePixel(int, int, int, int)] Body Start  | 2287 resources/include/bindings/graphics.zh:149
 POPARGS D5 0.0004                                                               | 2288 resources/include/bindings/graphics.zh:149
 RETURNFUNC; Func[void Graphics::SetTilePixel(int, int, int, int)] Body End      | 2289 resources/include/bindings/graphics.zh:149
-POP D2; Func[bool ffc::Trigger(int)] Body Start                                 | 2290 resources/include/bindings/ffc.zh:176
-POP REFFFC                                                                      | 2291 resources/include/bindings/ffc.zh:176
-FFCTRIGGER D2                                                                   | 2292 resources/include/bindings/ffc.zh:176
-RETURNFUNC; Func[bool ffc::Trigger(int)] Body End                               | 2293 resources/include/bindings/ffc.zh:176
+POP D2; Func[bool ffc::Trigger(int)] Body Start                                 | 2290 resources/include/bindings/ffc.zh:182
+POP REFFFC                                                                      | 2291 resources/include/bindings/ffc.zh:182
+FFCTRIGGER D2                                                                   | 2292 resources/include/bindings/ffc.zh:182
+RETURNFUNC; Func[bool ffc::Trigger(int)] Body End                               | 2293 resources/include/bindings/ffc.zh:182
 POP D2; Func[void ZInfo::GetItemType(char32[], int)] Body Start                 | 2294 resources/include/bindings/zinfo.zh:14
 POP D3                                                                          | 2295 resources/include/bindings/zinfo.zh:14
 MODULEGETIC D3 D2                                                               | 2296 resources/include/bindings/zinfo.zh:14

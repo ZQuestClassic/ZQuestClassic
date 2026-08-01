@@ -2023,7 +2023,8 @@ static ArrayRegistrar MAPDATAFFLINK_registrar(MAPDATAFFLINK, []{
 	impl.compatSetDefaultValue(-10000);
 	impl.setMul10000(true);
 	impl.skipIndexCheck();
-	impl.setValueTransform(transforms::validate<0, MAXFFCS>);
+	// Link is a 1-indexed same-screen ffc number, so MAXFFCS itself is valid.
+	impl.setValueTransform(transforms::validate<0, MAXFFCS + 1>);
 	return &impl;
 }());
 

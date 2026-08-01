@@ -3716,16 +3716,17 @@ void update_freeform_combos()
 				});
 			}
 
-			// Some quests hold out-of-range link values (only possible via
-			// bugged editors); treat those as not linked rather than crashing.
+			// An ffc's link is the 1-indexed number of an ffc on its own
+			// screen. Out-of-range values (only possible via bugged editors)
+			// are treated as not linked.
 			ffcdata* linked_ffc = nullptr;
-			if (thisffc.link && (thisffc.link - 1) / MAXFFCS < cur_region.screen_count)
-				linked_ffc = get_ffc_handle(thisffc.link - 1).ffc;
+			if (thisffc.link && thisffc.link <= MAXFFCS)
+				linked_ffc = &scr->getFFC(thisffc.link - 1);
 			if (linked_ffc ? !linked_ffc->delay : !thisffc.delay)
 			{
 				thisffc.prev_changer_x = thisffc.x.getZLong();
 				thisffc.prev_changer_y = thisffc.y.getZLong();
-				if(linked_ffc && (thisffc.link-1) != ffc_handle.ffc_id)
+				if(linked_ffc && linked_ffc != &thisffc)
 				{
 					if (!linked_ffc->is_beyond_viewport_suspend_range())
 					{
@@ -3755,7 +3756,7 @@ void update_freeform_combos()
 			}
 			else
 			{
-				if(!linked_ffc || (thisffc.link-1) == ffc_handle.ffc_id)
+				if(!linked_ffc || linked_ffc == &thisffc)
 					thisffc.delay--;
 			}
 			

@@ -128,8 +128,7 @@ void ffc_set_register(int32_t reg, int32_t value)
 			ffc->hit_width = (value/10000);
 			break;
 		case FFLINK:
-			(ffc->link)=vbound(value/10000, 0, MAXFFCS-1); // Allow "ffc->Link = 0" to unlink ffc.
-			//0 is none, setting this before made it impssible to clear it. -Z
+			ffc->link = vbound(value/10000, 0, MAXFFCS);
 			break;
 		case FFSCRIPT:
 		{

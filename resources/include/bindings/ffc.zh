@@ -149,7 +149,13 @@ class ffc {
 	// @zasm_var FFCHEIGHT
 	internal int EffectHeight;
 
-	// Represents the ID of another FFC this one is 'linked' to.
+	// The number of another FFC on the same screen that this one is 'linked'
+	// to (1 to 128), or 0 if not linked. While linked, this FFC moves with
+	// the linked FFC's velocity instead of its own.
+	//
+	// Note: this is the FFC's 1-indexed position within its own screen (one
+	// more than [ScreenFFCIndex]), not an [ID] - the two only coincide for
+	// the first screen of a region.
 	//
 	// @zasm_var FFLINK
 	internal int Link;
