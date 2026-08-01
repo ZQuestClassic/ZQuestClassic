@@ -114,11 +114,13 @@ private:
 	int32_t startVal;
 	int32_t fixedPlaces;
 	int32_t lbound, ubound;
-	bool lbound_set, ubound_set;
-	// Bounds only apply once both have been given. Checking `ubound > lbound`
-	// alone misreads a half-set pair as a valid range (the defaults are 0/-1),
-	// clamping the value against a bound that was never set.
-	bool hasBounds() const {return lbound_set && ubound_set && ubound > lbound;}
+	bool ubound_set;
+	// Bounds only apply once the high bound has been given; a low bound alone
+	// does nothing (many dialogs set only `high`, relying on the low default
+	// of 0). Checking `ubound > lbound` alone misreads a lone negative low
+	// bound as a valid range against the default ubound of -1, clamping the
+	// value against a bound that was never set.
+	bool hasBounds() const {return ubound_set && ubound > lbound;}
 	type tfType;
 	int32_t swap_type_start;
 	size_t maxLength;
