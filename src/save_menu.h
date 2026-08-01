@@ -13,7 +13,7 @@ enum save_menu_flags : uint16_t
 	SMENU_CANCEL_B        = F(1),
 	SMENU_DONT_KILL_MUSIC = F(2),
 	SMENU_REPEAT_BG       = F(3),
-	SMENU_DONT_KILL_SFX = F(4),
+	SMENU_DONT_KILL_SFX   = F(4),
 };
 enum save_menu_option_flags : uint16_t
 {
@@ -24,7 +24,8 @@ enum save_menu_option_flags : uint16_t
 	SMENU_OPT_CANCEL      = F(4),
 };
 } // ends namespace
-#define SMENU_FLAG_COUNT 3
+#define SMENU_FLAG_COUNT 5
+#define SMENU_OPTION_FLAG_COUNT 5
 struct SaveMenuOption
 {
 	string text;
