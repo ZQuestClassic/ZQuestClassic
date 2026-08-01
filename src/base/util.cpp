@@ -1003,6 +1003,17 @@ namespace util
 		return path.filename().string();
 	}
 
+	fs::path nearest_existing_directory(const fs::path& dir)
+	{
+		std::error_code ec;
+		fs::path result = dir;
+
+		while (!result.empty() && result != result.parent_path() && !fs::is_directory(result, ec))
+			result = result.parent_path();
+
+		return fs::is_directory(result, ec) ? result : fs::path();
+	}
+
 	void open_web_link(std::string url)
 	{
 #ifdef __EMSCRIPTEN__

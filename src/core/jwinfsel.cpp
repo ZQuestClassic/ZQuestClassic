@@ -6,6 +6,7 @@
 #include "zalleg/zalleg.h"
 #include <allegro/alcompat.h>
 
+#include "base/util.h"
 #include "gui/jwin.h"
 #include "core/jwinfsel.h"
 #include "zalleg/zsys.h"
@@ -894,6 +895,29 @@ void enlarge_file_selector(int32_t width, int32_t height)
     jwin_center_dialog(file_selector);
 }
 
+/* fix_missing_directory:
+  *  If the path lives in a directory that doesn't exist, the file list comes
+  *  up empty - without even a ".." entry to navigate out of. Back up to the
+  *  nearest existing ancestor so there's always something to browse.
+  */
+static void fix_missing_directory(char *path, int32_t size)
+{
+    char canonical[1024];
+    canonicalize_filename(canonical, path, sizeof(canonical));
+
+    fs::path dir = fs::path(canonical).parent_path();
+    std::error_code ec;
+
+    if(dir.empty() || fs::is_directory(dir, ec))
+        return;
+
+    fs::path existing = util::nearest_existing_directory(dir);
+    if(existing.empty())
+        return;
+
+    ustrzcpy(path, size, (existing / fs::path(canonical).filename()).string().c_str());
+}
+
 /* jwin_file_select_ex:
   *  NOTE: do not call directly, see base/files.h
   *
@@ -964,6 +988,8 @@ int32_t jwin_file_select_ex(AL_CONST char *message, char *path, AL_CONST char *e
     {
         get_root_path(path, size);
     }
+    
+    fix_missing_directory(path, size);
     
     clear_keybuf();
     
@@ -1167,6 +1193,8 @@ int32_t jwin_dfile_select_ex(AL_CONST char *message, char *path, AL_CONST char *
         get_root_path(path, size);
     }
     
+    fix_missing_directory(path, size);
+    
     clear_keybuf();
     
     do
@@ -1353,6 +1381,8 @@ int32_t jwin_file_browse_ex(AL_CONST char *message, char *path, EXT_LIST *list, 
     {
         get_root_path(path, size);
     }
+    
+    fix_missing_directory(path, size);
     
     clear_keybuf();
     

@@ -140,6 +140,9 @@ namespace util
 	std::string create_temp_file_path(std::string final_destination);
 	bool is_subpath_of(const fs::path& base, const fs::path& sub);
 	std::string get_filename(const fs::path& path);
+	// Walks up from `dir` until it finds a directory that exists. Returns an
+	// empty path if none of its ancestors do either.
+	fs::path nearest_existing_directory(const fs::path& dir);
 	void open_web_link(std::string url);
 	std::array<uint8_t, 16> md5_hash_bytes(const std::string& data);
 

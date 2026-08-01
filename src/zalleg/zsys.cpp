@@ -188,9 +188,11 @@ void chop_path(char *path)
 {
     int32_t p = (int32_t)strlen(path);
     int32_t f = (int32_t)strlen(get_filename(path));
-    
-    if(f<p)
-        path[p-f]=0;
+
+    // When the path is nothing but a filename there is no directory to keep,
+    // so this clears it. Leaving it be would let a stray filename persist in
+    // the config forever, since it survives every future chop.
+    path[p-f]=0;
 }
 
 //There is some hardcore constant truncation here...

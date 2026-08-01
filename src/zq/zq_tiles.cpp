@@ -1,5 +1,6 @@
 #include <cstring>
 #include <cmath>
+#include <filesystem>
 
 #include "allegro/color.h"
 #include "zalleg/files.h"
@@ -9772,7 +9773,7 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 				{
 					std::string initial_path = "tileset.png";
 					if (strlen(datapath))
-						initial_path = fmt::format("{}/{}", datapath, initial_path);
+						initial_path = (std::filesystem::path(datapath) / initial_path).string();
 					if(prompt_for_new_file_compat("Export Tile Page (.png)","png",NULL,initial_path,true))
 					{
 						PALETTE temppal;
