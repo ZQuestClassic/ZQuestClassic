@@ -3,6 +3,7 @@
 #include "tiles.h"
 #include "zc/zc_sys.h"
 #include "advanced_music.h"
+#include "drawing.h"
 
 #ifdef IS_PLAYER
 #include "zc/zelda.h"
@@ -330,16 +331,22 @@ void SaveMenu::draw(BITMAP* dest, optional<byte> cursor, word clk) const
 				break;
 		}
 		auto color = opt.color;
+		auto shadow_color = opt.shadow_color;
 		if (cursor && ind == *cursor) // currently selected
 		{
 			if (!clk || !close_flash_rate || (clk % (close_flash_rate*2)) < close_flash_rate) // not flashing, or not currently flashed
+			{
 				color = opt.picked_color;
+				shadow_color = opt.picked_shadow_color;
+			}
 			overtile16(dest, cursor_tile, x - 16 - hspace, y + (h/2) - 8, cursor_cset, 0);
 		}
 #ifndef IS_PLAYER
 		color = zq_fix_ui_color(color);
+		shadow_color = zq_fix_ui_color(shadow_color);
 #endif
-		textout_ex(dest, optfont, opt.text.c_str(), x, y, color, -1);
+		textout_styled_aligned_ex(dest, optfont, opt.text.c_str(), x, y,
+			opt.shadow_type, ALIGN_LEFT, color, shadow_color, -1);
 		y += vspace + h;
 		++ind;
 	}

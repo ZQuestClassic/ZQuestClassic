@@ -166,16 +166,20 @@ GUI::ListData GUI::ZCListData::ss_counters(bool numbered, bool skipNone)
 	return ls;
 }
 
-GUI::ListData GUI::ZCListData::shadow_types()
+GUI::ListData GUI::ZCListData::shadow_types(bool numbered)
 {
-	std::vector<std::string> strings;
+	GUI::ListData ls;
 
-	for(auto q = 0; q < sstsMAX; ++q)
+	for (auto q = 0; q < sstsMAX; ++q)
 	{
-		strings.push_back(shadowstyle_str[q]);
+		string name = shadowstyle_str[q];
+		if (numbered)
+			name = fmt::format("{} ({:03})", name, q);
+		
+		ls.add(name, q);
 	}
 
-	return GUI::ListData(strings);
+	return ls;
 }
 
 GUI::ListData GUI::ZCListData::enemies(bool numbered, bool defaultFilter)

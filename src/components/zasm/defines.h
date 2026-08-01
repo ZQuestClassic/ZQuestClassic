@@ -3489,6 +3489,10 @@ enum ASM_DEFINE
 #define IDATASPRITEINITD                      0x170F
 #define DMAPDATAPSUBINITD                     0x1710
 
+#define SAVEMENU_OPT_SHADOW_TYPE              0x1711
+#define SAVEMENU_OPT_COLOR_SHADOW             0x1712
+#define SAVEMENU_OPT_COLOR_SHADOW_PICKED      0x1713
+
 // fill in gap here
 
 #define SCRIPT_INST_VARS(d)      ((0x1800) + d) // 256; 0x1800 -> 0x1900

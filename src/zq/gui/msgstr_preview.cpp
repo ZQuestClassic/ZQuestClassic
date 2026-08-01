@@ -10,6 +10,7 @@
 #include "subscr.h"
 #include "tiles.h"
 #include <utility>
+#include "drawing.h"
 
 extern char namebuf[9];
 

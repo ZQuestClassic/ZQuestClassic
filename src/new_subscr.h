@@ -226,12 +226,6 @@ extern const std::string subscr_names[sstMAX];
 extern const std::string subscr_infos[sstMAX];
 
 //Misc constants
-enum //text styles
-{
-	sstsNORMAL, sstsSHADOW, sstsSHADOWU, sstsOUTLINE8, sstsOUTLINEPLUS,
-	sstsOUTLINEX, sstsSHADOWED, sstsSHADOWEDU, sstsOUTLINED8, sstsOUTLINEDPLUS,
-	sstsOUTLINEDX, sstsMAX
-};
 enum //subscreen fonts
 { 
 	ssfZELDA, ssfSS1, ssfSS2, ssfSS3, ssfSS4, ssfZTIME, ssfSMALL, ssfSMALLPROP, ssfZ3SMALL,

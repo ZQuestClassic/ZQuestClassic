@@ -1193,3 +1193,163 @@ vector<byte> getColors(BITMAP* bmp, int maxCount)
 	return ret;
 }
 
+void textout_styled_aligned_ex(BITMAP *bmp, const FONT *f, const char *s, int32_t x, int32_t y, int32_t textstyle, int32_t alignment, int32_t color, int32_t shadow, int32_t bg)
+{
+	switch(alignment)
+	{
+	case ALIGN_RIGHT:
+		switch(textstyle)
+		{
+		case sstsSHADOW:
+			textout_shadow_right_ex(bmp, f, s, x, y, shadow, bg);
+			break;
+			
+		case sstsSHADOWU:
+			textout_shadow_right_u_ex(bmp, f, s, x, y, shadow, bg);
+			break;
+			
+		case sstsOUTLINE8:
+			textout_shadow_right_o_ex(bmp, f, s, x, y, shadow, bg);
+			break;
+			
+		case sstsOUTLINEPLUS:
+			textout_shadow_right_plus_ex(bmp, f, s, x, y, shadow, bg);
+			break;
+			
+		case sstsOUTLINEX:
+			textout_shadow_right_x_ex(bmp, f, s, x, y, shadow, bg);
+			break;
+			
+		case sstsSHADOWED:
+			textout_shadowed_right_ex(bmp, f, s, x, y, color, shadow, bg);
+			break;
+			
+		case sstsSHADOWEDU:
+			textout_shadowed_right_u_ex(bmp, f, s, x, y, color, shadow, bg);
+			break;
+			
+		case sstsOUTLINED8:
+			textout_shadowed_right_o_ex(bmp, f, s, x, y, color, shadow, bg);
+			break;
+			
+		case sstsOUTLINEDPLUS:
+			textout_shadowed_right_plus_ex(bmp, f, s, x, y, color, shadow, bg);
+			break;
+			
+		case sstsOUTLINEDX:
+			textout_shadowed_right_x_ex(bmp, f, s, x, y, color, shadow, bg);
+			break;
+			
+		case sstsNORMAL:
+		default:
+			textout_right_ex(bmp, f, s, x, y, color, bg);
+			break;
+		}
+		
+		break;
+		
+	case ALIGN_CENTER:
+		switch(textstyle)
+		{
+		case sstsSHADOW:
+			textout_shadow_center_ex(bmp, f, s, x, y, shadow, bg);
+			break;
+			
+		case sstsSHADOWU:
+			textout_shadow_center_u_ex(bmp, f, s, x, y, shadow, bg);
+			break;
+			
+		case sstsOUTLINE8:
+			textout_shadow_center_o_ex(bmp, f, s, x, y, shadow, bg);
+			break;
+			
+		case sstsOUTLINEPLUS:
+			textout_shadow_center_plus_ex(bmp, f, s, x, y, shadow, bg);
+			break;
+			
+		case sstsOUTLINEX:
+			textout_shadow_center_x_ex(bmp, f, s, x, y, shadow, bg);
+			break;
+			
+		case sstsSHADOWED:
+			textout_shadowed_center_ex(bmp, f, s, x, y, color, shadow, bg);
+			break;
+			
+		case sstsSHADOWEDU:
+			textout_shadowed_center_u_ex(bmp, f, s, x, y, color, shadow, bg);
+			break;
+			
+		case sstsOUTLINED8:
+			textout_shadowed_center_o_ex(bmp, f, s, x, y, color, shadow, bg);
+			break;
+			
+		case sstsOUTLINEDPLUS:
+			textout_shadowed_center_plus_ex(bmp, f, s, x, y, color, shadow, bg);
+			break;
+			
+		case sstsOUTLINEDX:
+			textout_shadowed_center_x_ex(bmp, f, s, x, y, color, shadow, bg);
+			break;
+			
+		case sstsNORMAL:
+		default:
+			textout_centre_ex(bmp, f, s, x, y, color, bg);
+			break;
+		}
+		
+		break;
+		
+	case ALIGN_LEFT:
+	default:
+		switch(textstyle)
+		{
+		case sstsSHADOW:
+			textout_shadow_ex(bmp, f, s, x, y, shadow, bg);
+			break;
+			
+		case sstsSHADOWU:
+			textout_shadow_u_ex(bmp, f, s, x, y, shadow, bg);
+			break;
+			
+		case sstsOUTLINE8:
+			textout_shadow_o_ex(bmp, f, s, x, y, shadow, bg);
+			break;
+			
+		case sstsOUTLINEPLUS:
+			textout_shadow_plus_ex(bmp, f, s, x, y, shadow, bg);
+			break;
+			
+		case sstsOUTLINEX:
+			textout_shadow_x_ex(bmp, f, s, x, y, shadow, bg);
+			break;
+			
+		case sstsSHADOWED:
+			textout_shadowed_ex(bmp, f, s, x, y, color, shadow, bg);
+			break;
+			
+		case sstsSHADOWEDU:
+			textout_shadowed_u_ex(bmp, f, s, x, y, color, shadow, bg);
+			break;
+			
+		case sstsOUTLINED8:
+			textout_shadowed_o_ex(bmp, f, s, x, y, color, shadow, bg);
+			break;
+			
+		case sstsOUTLINEDPLUS:
+			textout_shadowed_plus_ex(bmp, f, s, x, y, color, shadow, bg);
+			break;
+			
+		case sstsOUTLINEDX:
+			textout_shadowed_x_ex(bmp, f, s, x, y, color, shadow, bg);
+			break;
+			
+		case sstsNORMAL:
+		default:
+			textout_ex(bmp, f, s, x, y, color, bg);
+			break;
+		}
+		
+		break;
+	}
+}
+
