@@ -20,6 +20,7 @@ enum class help_page
 	homepage,
 	tile_combo_swatches,
 	corner_swatches,
+	color_swatches,
 	terms,
 	main_view_help,
 };
@@ -514,7 +515,8 @@ std::shared_ptr<GUI::Widget> EditorHelpDialog::view()
 						Label(text = "GUI Help:"),
 						Columns<5>(
 							TRAVERSE_BTN("Tile && Combo Swatches", help_page::tile_combo_swatches),
-							TRAVERSE_BTN("Corner Swatches", help_page::corner_swatches)
+							TRAVERSE_BTN("Corner Swatches", help_page::corner_swatches),
+							TRAVERSE_BTN("Color Swatches", help_page::color_swatches)
 						)
 					);
 					break;
@@ -599,6 +601,26 @@ std::shared_ptr<GUI::Widget> EditorHelpDialog::view()
 				CornerSwatch(val = 0xF, color = vc(11)),
 				CornerSwatch(val = 0x3, color = vc(10)),
 				CornerSwatch(val = 0xC, color = vc(9))
+			));
+			break;
+		}
+		case help_page::color_swatches:
+		{
+			dlg_title = "Editor Help: Color Swatches";
+			page_count = 1;
+			body->add(Label(maxwidth = body_width, textAlign = 1,
+				text = fmt::format("Color Swatches are used to select a color"
+				" index."
+				"\nClicking on the swatch opens the color selector, on whatever color"
+				" that swatch was set to previously."
+				"\n{}+Clicking on the swatch opens the color selector, on whatever"
+				" color was last selected in any color swatch.",
+				ctrl_cmd)));
+			body->add(Columns<2>(
+				ColorSel(val = 0x0, width = 60_px),
+				ColorSel(val = 0xF, width = 60_px),
+				ColorSel(val = BLACK, width = 60_px),
+				ColorSel(val = WHITE, width = 60_px)
 			));
 			break;
 		}

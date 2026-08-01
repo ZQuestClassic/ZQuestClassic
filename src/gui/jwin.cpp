@@ -6694,18 +6694,22 @@ int32_t jwin_color_swatch(int32_t msg, DIALOG *d, [[maybe_unused]] int32_t c)
 			selcolor_dlg[0].dp2 = get_zc_font(font_lfont);
 			selcolor_dlg[3].bg = scheme[jcBOXFG];
 			selcolor_dlg[3].fg = scheme[jcBOX];
-			selcolor_dlg[3].d1 = d->d1;
+			static int color = -1;
+			bool ctrl = (key_shifts & KB_CTRL_CMD_FLAG) != 0;
+			if (color < 0 || !ctrl)
+				color = d->d1;
+			selcolor_dlg[3].d1 = color;
 			selcolor_dlg[3].d2 = d->d2;
 			large_dialog(selcolor_dlg);
 			
-			while(gui_mouse_b()) rest(1); //wait for mouseup
+			while (gui_mouse_b()) rest(1); //wait for mouseup
 			
 			//!TODO Move this out of jwin, and do better palette management.
 			//!TODO Allow loading different level palettes, sprite palettes, etc via buttons
 			PALETTE oldpal;
 			get_palette(oldpal);
-			bool alt = d->d2 > 16;
-			if(!alt)
+			bool alternate = d->d2 > 16;
+			if (!alternate)
 			{
 				PALETTE foopal;
 				get_palette(foopal);
@@ -6719,13 +6723,13 @@ int32_t jwin_color_swatch(int32_t msg, DIALOG *d, [[maybe_unused]] int32_t c)
 			ret = D_REDRAW;
 			
 			zc_set_palette(oldpal);
-			if(val == 1 || val == 3)
+			if (val == 1 || val == 3)
 			{
-				d->d1 = selcolor_dlg[3].d1;
+				d->d1 = color = selcolor_dlg[3].d1;
 				GUI_EVENT(d, geCHANGE_VALUE);
 				ret |= D_REDRAWME;
 			}
-			if(d->flags & D_EXIT)
+			if (d->flags & D_EXIT)
 				return D_CLOSE;
 			break;
 		}
