@@ -1166,6 +1166,8 @@ constexpr EngineSubsystem getEngineSubsystemForRegister(int reg)
 		case SAVEMENU_NUM_OPTIONS:
 		case SAVEMENU_OPTX:
 		case SAVEMENU_OPTY:
+		case SAVEMENU_SEL_OPT_OFFSET_X:
+		case SAVEMENU_SEL_OPT_OFFSET_Y:
 		case SAVEMENU_SFX_CHOOSE:
 		case SAVEMENU_SFX_CURSOR:
 		case SAVEMENU_TEXT_ALIGN:

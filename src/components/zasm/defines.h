@@ -3492,6 +3492,8 @@ enum ASM_DEFINE
 #define SAVEMENU_OPT_SHADOW_TYPE              0x1711
 #define SAVEMENU_OPT_COLOR_SHADOW             0x1712
 #define SAVEMENU_OPT_COLOR_SHADOW_PICKED      0x1713
+#define SAVEMENU_SEL_OPT_OFFSET_X             0x1714
+#define SAVEMENU_SEL_OPT_OFFSET_Y             0x1715
 
 // fill in gap here
 

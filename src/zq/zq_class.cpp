@@ -7967,6 +7967,12 @@ int32_t writemisc(PACKFILE *f, zquestheader *Header)
 			if (!p_putc(menu.bg_th, f))
 				new_return(49);
 			
+			if (!p_iputw(menu.opt_sel_x_offset, f))
+				new_return(62);
+			
+			if (!p_iputw(menu.opt_sel_y_offset, f))
+				new_return(63);
+			
 			byte opt_count = zc_min(menu.options.size(), MAX_SAVEMENU_OPTIONS);
 			if (!p_putc(opt_count, f))
 				new_return(50);

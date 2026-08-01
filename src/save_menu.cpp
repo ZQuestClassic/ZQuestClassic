@@ -320,34 +320,42 @@ void SaveMenu::draw(BITMAP* dest, optional<byte> cursor, word clk) const
 		FONT* optfont = get_zc_font(opt.font);
 		auto h = text_height(optfont);
 		auto w = text_length(optfont, opt.text.c_str());
-		auto x = txbox_x;
+		auto tx = txbox_x;
+		auto ty = y;
 		switch (text_align)
 		{
 			case ALIGN_CENTER:
-				x = (x + txbox_w / 2) - (w / 2);
+				tx = (tx + txbox_w / 2) - (w / 2);
 				break;
 			case ALIGN_RIGHT:
-				x = (x + txbox_w) - w;
+				tx = (tx + txbox_w) - w;
 				break;
 		}
 		auto color = opt.color;
 		auto shadow_color = opt.shadow_color;
 		if (cursor && ind == *cursor) // currently selected
 		{
+			// Color the selected option, except during blinks while closing
 			if (!clk || !close_flash_rate || (clk % (close_flash_rate*2)) < close_flash_rate) // not flashing, or not currently flashed
 			{
 				color = opt.picked_color;
 				shadow_color = opt.picked_shadow_color;
 			}
-			overtile16(dest, cursor_tile, x - 16 - hspace, y + (h/2) - 8, cursor_cset, 0);
+			// Offset the option + cursor position
+			tx += opt_sel_x_offset;
+			ty += opt_sel_y_offset;
+			overtile16(dest, cursor_tile, tx - 16 - hspace, ty + (h/2) - 8, cursor_cset, 0);
 		}
 #ifndef IS_PLAYER
 		color = zq_fix_ui_color(color);
 		shadow_color = zq_fix_ui_color(shadow_color);
 #endif
-		textout_styled_aligned_ex(dest, optfont, opt.text.c_str(), x, y,
+		textout_styled_aligned_ex(dest, optfont, opt.text.c_str(), tx, ty,
 			opt.shadow_type, ALIGN_LEFT, color, shadow_color, -1);
+		
+		// Increment y to next line pos (ignoring offsets applied to ty)
 		y += vspace + h;
+		// Increment index counter
 		++ind;
 	}
 	set_clip_rect(dest, clipx1, clipy1, clipx2, clipy2);

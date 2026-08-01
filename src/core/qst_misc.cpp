@@ -978,6 +978,15 @@ int32_t readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
 			if (!p_getc(&menu.bg_th, f))
 				return qe_invalid;
 			
+			if (s_version >= 23)
+			{
+				if (!p_igetw(&menu.opt_sel_x_offset, f))
+					return qe_invalid;
+				
+				if (!p_igetw(&menu.opt_sel_y_offset, f))
+					return qe_invalid;
+			}
+			
 			byte opt_count;
 			if (!p_getc(&opt_count, f))
 				return qe_invalid;
