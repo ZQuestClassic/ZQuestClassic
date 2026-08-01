@@ -26146,10 +26146,16 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 			y=pity;
 		}
 		
-		type1 = combobuf[MAPCOMBO(x,y-16)].type;
-		type2 = combobuf[MAPCOMBO(x,y)].type;
-		type3 = combobuf[MAPCOMBO(x,y+16)].type;
-		
+		// Old replays sampled these with screen-local coords, which reads the wrong
+		// screen in a region (cave exit animations only played on the origin screen).
+		bool cave_check_world_coords = replay_version_check(64);
+		if (!cave_check_world_coords)
+		{
+			type1 = combobuf[MAPCOMBO(x,y-16)].type;
+			type2 = combobuf[MAPCOMBO(x,y)].type;
+			type3 = combobuf[MAPCOMBO(x,y+16)].type;
+		}
+
 		warp_hero_auto_face((int32_t)x, (int32_t)y, -1, false);
 
 		x += region_scr_dx * 256;
@@ -26157,9 +26163,16 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 		x = vbound(x.getInt(), 0, world_w-16);
 		y = vbound(y.getInt(), 0, world_h-16);
 		update_viewport();
-		
+
+		if (cave_check_world_coords)
+		{
+			type1 = combobuf[MAPCOMBO(x,y-16)].type;
+			type2 = combobuf[MAPCOMBO(x,y)].type;
+			type3 = combobuf[MAPCOMBO(x,y+16)].type;
+		}
+
 		markBmap(dir^1, current_screen);
-		
+
 		int32_t checkwater = iswaterex_z3(MAPCOMBO(x,y+8), -1, x,y+(bigHitbox?8:12)); //iswaterex can be intensive, so let's avoid as many calls as we can.
 		
 		if(checkwater && _walkflag(x,y+(bigHitbox?8:12),0,get_standing_z_state()) && current_item(itype_flippers) > 0 && current_item(itype_flippers) >= combobuf[checkwater].c_attributes[8] && (!(combobuf[checkwater].usrflags&cflag1) || (itemsbuf.get(current_item_id(itype_flippers)).flags & item_flag3)))
@@ -26295,10 +26308,16 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 				y=pity;
 			}
 				
-			type1 = combobuf[MAPCOMBO(x,y-16)].type;
-			type2 = combobuf[MAPCOMBO(x,y)].type;
-			type3 = combobuf[MAPCOMBO(x,y+16)].type;
-			
+			// Old replays sampled these with screen-local coords, which reads the wrong
+			// screen in a region (cave exit animations only played on the origin screen).
+			bool cave_check_world_coords = replay_version_check(64);
+			if (!cave_check_world_coords)
+			{
+				type1 = combobuf[MAPCOMBO(x,y-16)].type;
+				type2 = combobuf[MAPCOMBO(x,y)].type;
+				type3 = combobuf[MAPCOMBO(x,y+16)].type;
+			}
+
 			warp_hero_auto_face((int32_t)x, (int32_t)y, -1, false);
 
 			x += region_scr_dx * 256;
@@ -26306,7 +26325,14 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 			x = vbound(x.getInt(), 0, world_w-16);
 			y = vbound(y.getInt(), 0, world_h-16);
 			update_viewport();
-			
+
+			if (cave_check_world_coords)
+			{
+				type1 = combobuf[MAPCOMBO(x,y-16)].type;
+				type2 = combobuf[MAPCOMBO(x,y)].type;
+				type3 = combobuf[MAPCOMBO(x,y+16)].type;
+			}
+
 			markBmap(dir^1, current_screen);
 			
 			if(iswaterex_z3(MAPCOMBO(x,y+8), -1, x,y+8) && _walkflag(x,y+8,0,get_standing_z_state()) && current_item(itype_flippers))
