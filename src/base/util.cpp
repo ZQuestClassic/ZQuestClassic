@@ -547,10 +547,9 @@ namespace util
 
 		if(stat( path, &info ) != 0)
 			return false;
-		else
-		{
-			return is_dir ? (info.st_mode & S_IFDIR)!=0 : (info.st_mode & S_IFDIR)==0;
-		}
+
+		mode_t type = info.st_mode & S_IFMT;
+		return is_dir ? type == S_IFDIR : type == S_IFREG;
 	}
 
 	bool zc_isalpha(int c)
