@@ -189,19 +189,37 @@ namespace util
 		replstr(temp, "\\v", "");
 		return temp;
 	}
+	// Undoes `escape_characters`. This has to consume the string in one pass -
+	// replacing each escape in turn would let the backslash freed by "\\\\" be
+	// eaten by a later pass, turning `C:\new` into `C:<newline>ew`.
 	std::string unescape_characters(std::string const& str)
 	{
-		std::string temp = str;
-		replstr(temp, "\\\\", "\\");
-		replstr(temp, "\\\"", "\"");
-		replstr(temp, "\\'", "'");
-		replstr(temp, "\\a", "\a");
-		replstr(temp, "\\b", "\b");
-		replstr(temp, "\\f", "\f");
-		replstr(temp, "\\n", "\n");
-		replstr(temp, "\\r", "\r");
-		replstr(temp, "\\t", "\t");
-		replstr(temp, "\\v", "\v");
+		std::string temp;
+		temp.reserve(str.size());
+		for(size_t q = 0; q < str.size(); ++q)
+		{
+			if(str[q] != '\\' || q+1 == str.size())
+			{
+				temp += str[q];
+				continue;
+			}
+
+			switch(str[++q])
+			{
+				case '\\': temp += '\\'; break;
+				case '"': temp += '"'; break;
+				case '\'': temp += '\''; break;
+				case 'a': temp += '\a'; break;
+				case 'b': temp += '\b'; break;
+				case 'f': temp += '\f'; break;
+				case 'n': temp += '\n'; break;
+				case 'r': temp += '\r'; break;
+				case 't': temp += '\t'; break;
+				case 'v': temp += '\v'; break;
+				// Not an escape this understands - leave it alone.
+				default: temp += '\\'; temp += str[q]; break;
+			}
+		}
 		return temp;
 	}
 	
