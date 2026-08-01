@@ -1012,6 +1012,18 @@ int32_t readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
 					if (!p_igetw(&opt.gen_scrconfig.script, f))
 						return qe_invalid;
 				}
+				
+				if (s_version >= 23)
+				{
+					if (!p_getc(&opt.shadow_type, f))
+						return qe_invalid;
+					
+					if (!p_getc(&opt.shadow_color, f))
+						return qe_invalid;
+					
+					if (!p_getc(&opt.picked_shadow_color, f))
+						return qe_invalid;
+				}
 			}
 		}
 		

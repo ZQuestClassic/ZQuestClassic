@@ -470,6 +470,7 @@ static ArrayRegistrar SAVEMENU_OPT_COLOR_TEXT_registrar(SAVEMENU_OPT_COLOR_TEXT,
 		}
 	);
 	impl.setMul10000(true);
+	impl.setValueTransform(transforms::validate<256>);
 	return &impl;
 }());
 
@@ -486,6 +487,58 @@ static ArrayRegistrar SAVEMENU_OPT_COLOR_PICKED_registrar(SAVEMENU_OPT_COLOR_PIC
 		}
 	);
 	impl.setMul10000(true);
+	impl.setValueTransform(transforms::validate<256>);
+	return &impl;
+}());
+
+static ArrayRegistrar SAVEMENU_OPT_SHADOW_TYPE_registrar(SAVEMENU_OPT_SHADOW_TYPE, []{
+	static ScriptingArray_ObjectComputed<SaveMenu, int> impl(
+		[](SaveMenu* menu){
+			return menu->options.size();
+		},
+		[](SaveMenu* menu, int index) -> int {
+			return menu->options[index].shadow_type;
+		},
+		[](SaveMenu* menu, int index, int value){
+			menu->options[index].shadow_type = value;
+		}
+	);
+	impl.setMul10000(true);
+	impl.setValueTransform(transforms::validate<sstsMAX>);
+	return &impl;
+}());
+
+static ArrayRegistrar SAVEMENU_OPT_COLOR_SHADOW_registrar(SAVEMENU_OPT_COLOR_SHADOW, []{
+	static ScriptingArray_ObjectComputed<SaveMenu, int> impl(
+		[](SaveMenu* menu){
+			return menu->options.size();
+		},
+		[](SaveMenu* menu, int index) -> int {
+			return menu->options[index].shadow_color;
+		},
+		[](SaveMenu* menu, int index, int value){
+			menu->options[index].shadow_color = value;
+		}
+	);
+	impl.setMul10000(true);
+	impl.setValueTransform(transforms::validate<256>);
+	return &impl;
+}());
+
+static ArrayRegistrar SAVEMENU_OPT_COLOR_SHADOW_PICKED_registrar(SAVEMENU_OPT_COLOR_SHADOW_PICKED, []{
+	static ScriptingArray_ObjectComputed<SaveMenu, int> impl(
+		[](SaveMenu* menu){
+			return menu->options.size();
+		},
+		[](SaveMenu* menu, int index) -> int {
+			return menu->options[index].picked_shadow_color;
+		},
+		[](SaveMenu* menu, int index, int value){
+			menu->options[index].picked_shadow_color = value;
+		}
+	);
+	impl.setMul10000(true);
+	impl.setValueTransform(transforms::validate<256>);
 	return &impl;
 }());
 

@@ -458,9 +458,15 @@ enum cutscene_effect_types : byte
 	CUTEFF_MAX
 };
 
-enum //subscreen text alignment
+enum //text alignment
 {
 	ALIGN_LEFT, ALIGN_CENTER, ALIGN_RIGHT, ALIGN_MAX
+};
+enum //text styles ('shadow types')
+{
+	sstsNORMAL, sstsSHADOW, sstsSHADOWU, sstsOUTLINE8, sstsOUTLINEPLUS,
+	sstsOUTLINEX, sstsSHADOWED, sstsSHADOWEDU, sstsOUTLINED8, sstsOUTLINEDPLUS,
+	sstsOUTLINEDX, sstsMAX
 };
 
 //Music Update States

@@ -11,6 +11,7 @@
 #include "zc/ffscript.h"
 #include "zc/guys.h"
 #include "items.h"
+#include "drawing.h"
 
 using namespace msgstr;
 

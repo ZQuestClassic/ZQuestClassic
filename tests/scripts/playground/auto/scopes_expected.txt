@@ -11489,8 +11489,11 @@ debug data:
       - const int NumOptions @ Reg[SAVEMENU_NUM_OPTIONS]
       - SaveMenuOptionFlags[] OptionFlags @ Reg[SAVEMENU_OPT_FLAGS]
       - int[] PickedColors @ Reg[SAVEMENU_OPT_COLOR_PICKED]
+      - int[] PickedShadowColors @ Reg[SAVEMENU_OPT_COLOR_SHADOW_PICKED]
       - int SFXChoose @ Reg[SAVEMENU_SFX_CHOOSE]
       - int SFXCursor @ Reg[SAVEMENU_SFX_CURSOR]
+      - int[] ShadowColors @ Reg[SAVEMENU_OPT_COLOR_SHADOW]
+      - ShadowType[] ShadowTypes @ Reg[SAVEMENU_OPT_SHADOW_TYPE]
       - TextAlignment TextAlign @ Reg[SAVEMENU_TEXT_ALIGN]
       - TextAlignment TextBoxAlign @ Reg[SAVEMENU_TEXT_BOX_ALIGN]
       - int VSpace @ Reg[SAVEMENU_VSPACE]
@@ -14560,134 +14563,135 @@ Types:
 378: SaveMenuOptionFlags
 379: const SaveMenuOptionFlags
 380: SaveMenuOptionFlags[]
-381: const save_menu
-382: const savedportal
-383: DrawOrigin
-384: const DrawOrigin
-385: PolygonRenderMode
-386: const PolygonRenderMode
-387: RenderTarget
-388: const RenderTarget
-389: ScreenEnemyFlagGroup
-390: const ScreenEnemyFlagGroup
-391: ScreenEnemyFlagList1
-392: const ScreenEnemyFlagList1
-393: ScreenEnemyFlagList2
-394: const ScreenEnemyFlagList2
-395: ScreenEnemyFlagSpawn
-396: const ScreenEnemyFlagSpawn
-397: ScreenFlag
-398: const ScreenFlag
-399: ScreenFlagCombos
-400: const ScreenFlagCombos
-401: ScreenFlagFFC
-402: const ScreenFlagFFC
-403: ScreenFlagGroup
-404: const ScreenFlagGroup
-405: ScreenFlagItems
-406: const ScreenFlagItems
-407: ScreenFlagMisc
-408: const ScreenFlagMisc
-409: ScreenFlagRoomType
-410: const ScreenFlagRoomType
-411: ScreenFlagSave
-412: const ScreenFlagSave
-413: ScreenFlagSecrets
-414: const ScreenFlagSecrets
-415: ScreenFlagView
-416: const ScreenFlagView
-417: ScreenFlagWarp
-418: const ScreenFlagWarp
-419: ScreenFlagWhistle
-420: const ScreenFlagWhistle
-421: SpriteList
-422: const SpriteList
-423: WipeEffect
-424: const WipeEffect
-425: screendata
-426: const screendata
-427: eweapon[]
-428: const eweapon[]
-429: ffc[]
-430: const ffc[]
-431: itemsprite[]
-432: const itemsprite[]
-433: lweapon[]
-434: const lweapon[]
-435: npc[]
-436: const npc[]
-437: portal[]
-438: const portal[]
-439: SpriteDataFlag
-440: const SpriteDataFlag
-441: const stack
-442: SubscreenPageMode
-443: const SubscreenPageMode
-444: SubscreenWidgetGenFlag
-445: const SubscreenWidgetGenFlag
-446: SubscreenWidgetType
-447: const SubscreenWidgetType
-448: TransitionFlag
-449: const TransitionFlag
-450: subscreenpage
-451: subscreenpage[]
-452: const subscreenpage[]
-453: const subscreendata
-454: MoveSubscreenSelectorBitflags
-455: const MoveSubscreenSelectorBitflags
-456: subscreenwidget[]
-457: const subscreenwidget[]
-458: const subscreenpage
-459: ConditionType
-460: const ConditionType
-461: SubscreenItemButton
-462: const SubscreenItemButton
-463: const subscreenwidget
-464: Text
-465: const Text
-466: ViewportMode
-467: const ViewportMode
-468: Viewport
-469: const Viewport
-470: WeapDataFlag
-471: const WeapDataFlag
-472: WebsocketState
-473: const WebsocketState
-474: WebsocketType
-475: const WebsocketType
-476: const char32[]
-477: const websocket
-478: ZInfo
-479: const ZInfo
-480: const Enum
-481: AimType
-482: const AimType
-483: Dir2
-484: const Dir2
-485: DitherType
-486: const DitherType
-487: HeroMoveFlag
-488: const HeroMoveFlag
-489: ItemspriteMoveFlag
-490: const ItemspriteMoveFlag
-491: NPCMoveFlag
-492: const NPCMoveFlag
-493: WeaponMoveFlag
-494: const WeaponMoveFlag
-495: const char32
-496: Thing[]
-497: const Counter
-498: Counter[]
-499: const Thing
-500: const CL
-501: const DataBag
-502: const DebugClassDefaultCtor
-503: CL[]
-504: stack
+381: ShadowType[]
+382: const save_menu
+383: const savedportal
+384: DrawOrigin
+385: const DrawOrigin
+386: PolygonRenderMode
+387: const PolygonRenderMode
+388: RenderTarget
+389: const RenderTarget
+390: ScreenEnemyFlagGroup
+391: const ScreenEnemyFlagGroup
+392: ScreenEnemyFlagList1
+393: const ScreenEnemyFlagList1
+394: ScreenEnemyFlagList2
+395: const ScreenEnemyFlagList2
+396: ScreenEnemyFlagSpawn
+397: const ScreenEnemyFlagSpawn
+398: ScreenFlag
+399: const ScreenFlag
+400: ScreenFlagCombos
+401: const ScreenFlagCombos
+402: ScreenFlagFFC
+403: const ScreenFlagFFC
+404: ScreenFlagGroup
+405: const ScreenFlagGroup
+406: ScreenFlagItems
+407: const ScreenFlagItems
+408: ScreenFlagMisc
+409: const ScreenFlagMisc
+410: ScreenFlagRoomType
+411: const ScreenFlagRoomType
+412: ScreenFlagSave
+413: const ScreenFlagSave
+414: ScreenFlagSecrets
+415: const ScreenFlagSecrets
+416: ScreenFlagView
+417: const ScreenFlagView
+418: ScreenFlagWarp
+419: const ScreenFlagWarp
+420: ScreenFlagWhistle
+421: const ScreenFlagWhistle
+422: SpriteList
+423: const SpriteList
+424: WipeEffect
+425: const WipeEffect
+426: screendata
+427: const screendata
+428: eweapon[]
+429: const eweapon[]
+430: ffc[]
+431: const ffc[]
+432: itemsprite[]
+433: const itemsprite[]
+434: lweapon[]
+435: const lweapon[]
+436: npc[]
+437: const npc[]
+438: portal[]
+439: const portal[]
+440: SpriteDataFlag
+441: const SpriteDataFlag
+442: const stack
+443: SubscreenPageMode
+444: const SubscreenPageMode
+445: SubscreenWidgetGenFlag
+446: const SubscreenWidgetGenFlag
+447: SubscreenWidgetType
+448: const SubscreenWidgetType
+449: TransitionFlag
+450: const TransitionFlag
+451: subscreenpage
+452: subscreenpage[]
+453: const subscreenpage[]
+454: const subscreendata
+455: MoveSubscreenSelectorBitflags
+456: const MoveSubscreenSelectorBitflags
+457: subscreenwidget[]
+458: const subscreenwidget[]
+459: const subscreenpage
+460: ConditionType
+461: const ConditionType
+462: SubscreenItemButton
+463: const SubscreenItemButton
+464: const subscreenwidget
+465: Text
+466: const Text
+467: ViewportMode
+468: const ViewportMode
+469: Viewport
+470: const Viewport
+471: WeapDataFlag
+472: const WeapDataFlag
+473: WebsocketState
+474: const WebsocketState
+475: WebsocketType
+476: const WebsocketType
+477: const char32[]
+478: const websocket
+479: ZInfo
+480: const ZInfo
+481: const Enum
+482: AimType
+483: const AimType
+484: Dir2
+485: const Dir2
+486: DitherType
+487: const DitherType
+488: HeroMoveFlag
+489: const HeroMoveFlag
+490: ItemspriteMoveFlag
+491: const ItemspriteMoveFlag
+492: NPCMoveFlag
+493: const NPCMoveFlag
+494: WeaponMoveFlag
+495: const WeaponMoveFlag
+496: const char32
+497: Thing[]
+498: const Counter
+499: Counter[]
+500: const Thing
+501: const CL
+502: const DataBag
+503: const DebugClassDefaultCtor
+504: CL[]
 505: stack
-506: const stack
-507: char32[][]
-508: char32[][][]
-509: int[][]
+506: stack
+507: const stack
+508: char32[][]
+509: char32[][][]
+510: int[][]
 
 

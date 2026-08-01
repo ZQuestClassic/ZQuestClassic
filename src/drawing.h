@@ -101,4 +101,6 @@ int32_t countColor(BITMAP* src, BITMAP* mask, int32_t x, int32_t y, int32_t chec
 
 vector<byte> getColors(BITMAP* bmp, int maxCount);
 
+void textout_styled_aligned_ex(BITMAP *bmp, const FONT *f, const char *s, int32_t x, int32_t y, int32_t textstyle, int32_t alignment, int32_t color, int32_t shadow, int32_t bg);
+
 #endif

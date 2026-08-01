@@ -23,7 +23,8 @@ SaveMenuDialog::SaveMenuDialog(SaveMenu& dest):
 	list_music(GUI::ZCListData::music_names(true, false)),
 	list_aligns(GUI::ZCListData::alignments()),
 	list_font(GUI::ZCListData::fonts(false,true,true)),
-	list_genscr(GUI::ZCListData::generic_script())
+	list_genscr(GUI::ZCListData::generic_script()),
+	list_shadow_types(GUI::ZCListData::shadow_types(true))
 {}
 
 static size_t savemenu_tabs[2];
@@ -76,96 +77,129 @@ std::shared_ptr<GUI::Widget> SaveMenuDialog::view()
 							refresh_dlg();
 						})
 				),
-				Columns<2>(
-					Rows<3>(
-						Label(text = "Text:", hAlign = 1.0),
-						TextField(
-							fitParent = true,
-							type = GUI::TextField::type::TEXT,
-							maxLength = SAVEMENU_STRING_LENGTH,
-							text = local_ref.options[idx].text,
-							onValChangedFunc = [&, idx](GUI::TextField::type, std::string_view text, int32_t)
-							{
-								local_ref.options[idx].text.assign(text);
-							}
+				Row(
+					Column(
+						Rows<3>(hAlign = 1.0,
+							Label(text = "Text:", hAlign = 1.0),
+							TextField(
+								fitParent = true,
+								type = GUI::TextField::type::TEXT,
+								maxLength = SAVEMENU_STRING_LENGTH,
+								text = local_ref.options[idx].text,
+								onValChangedFunc = [&, idx](GUI::TextField::type, std::string_view text, int32_t)
+								{
+									local_ref.options[idx].text.assign(text);
+								}
+							),
+							INFOBTN("The text for this option."),
+							//
+							Label(text = "Font:", hAlign = 1.0),
+							DropDownList(data = list_font,
+								fitParent = true, selectedValue = local_ref.options[idx].font,
+								onSelectFunc = [&, idx](int32_t val)
+								{
+									local_ref.options[idx].font = val;
+								}),
+							INFOBTN("The font to draw this option in."),
+							//
+							Label(text = "Shadow Type:", hAlign = 1.0),
+							DropDownList(data = list_shadow_types,
+								fitParent = true, selectedValue = local_ref.options[idx].shadow_type,
+								onSelectFunc = [&, idx](int32_t val)
+								{
+									local_ref.options[idx].shadow_type = val;
+								}),
+							INFOBTN("The shadow style to draw the options with.")
 						),
-						INFOBTN("The text for this option."),
-						//
-						Label(text = "Text Color:", hAlign = 1.0),
-						ColorSel(val = local_ref.options[idx].color,
-							fitParent = true,
-							onValChangedFunc = [&, idx](byte val)
-							{
-								local_ref.options[idx].color = val;
-							}),
-						INFOBTN("The color of the text when not selected. Also used when flashing after choosing an option."),
-						Label(text = "Selected Color:", hAlign = 1.0),
-						ColorSel(val = local_ref.options[idx].picked_color,
-							fitParent = true,
-							onValChangedFunc = [&, idx](byte val)
-							{
-								local_ref.options[idx].picked_color = val;
-							}),
-						INFOBTN("The color of the text when selected. Also used when flashing after choosing an option.")
+						Rows<4>(hAlign = 1.0,
+							_d,
+							Label(text = "Normal"),
+							Label(text = "Selected"),
+							INFOBTN("'Selected' values are used for the option the cursor is currently hovering over."
+								" While flashing before closing, the chosen option blinks between"
+								" 'Selected' and 'Non-Selected' values."),
+							//
+							Label(text = "Text Color:", hAlign = 1.0),
+							ColorSel(val = local_ref.options[idx].color,
+								width = 120_px,
+								onValChangedFunc = [&, idx](byte val)
+								{
+									local_ref.options[idx].color = val;
+								}),
+							ColorSel(val = local_ref.options[idx].picked_color,
+								width = 120_px,
+								onValChangedFunc = [&, idx](byte val)
+								{
+									local_ref.options[idx].picked_color = val;
+								}),
+							INFOBTN("The color of the text."),
+							//
+							Label(text = "Shadow Color:", hAlign = 1.0),
+							ColorSel(val = local_ref.options[idx].shadow_color,
+								width = 120_px,
+								onValChangedFunc = [&, idx](byte val)
+								{
+									local_ref.options[idx].shadow_color = val;
+								}),
+							ColorSel(val = local_ref.options[idx].picked_shadow_color,
+								width = 120_px,
+								onValChangedFunc = [&, idx](byte val)
+								{
+									local_ref.options[idx].picked_shadow_color = val;
+								}),
+							INFOBTN("The color of the shadow/outline.")
+						)
 					),
-					Rows<3>(
-						Label(text = "Font:", hAlign = 1.0),
-						DropDownList(data = list_font,
-							fitParent = true, selectedValue = local_ref.options[idx].font,
-							onSelectFunc = [&, idx](int32_t val)
-							{
-								local_ref.options[idx].font = val;
-							}),
-						INFOBTN("The font to draw this option in."),
-						//
-						Button(colSpan = 2,
-							text = "Script Setup",
-							height = 2_em,
-							onPressFunc = [&, idx]()
-							{
-								ScriptDataDialog("Save Menu Choice Generic Script Setup",
-									local_ref.options[idx].gen_scrconfig, list_genscr, genericscripts).show();
-							}
-						),
-						INFOBTN("A generic script to run in Frozen mode when the option is selected.")
-					),
-					Rows<2>(rowSpan = 2,
-						Checkbox(_EX_RBOX, text = "Exit",
-							checked = local_ref.options[idx].flags & SMENU_OPT_EXIT,
-							onToggleFunc = [&, idx](bool state)
-							{
-								SETFLAG(local_ref.options[idx].flags, SMENU_OPT_EXIT, state);
-							}),
-						INFOBTN("When chosen, the game will be exited to the save menu. If 'Reload' is set, it takes priority."),
-						Checkbox(_EX_RBOX, text = "Continue",
-							checked = local_ref.options[idx].flags & SMENU_OPT_CONTINUE,
-							onToggleFunc = [&, idx](bool state)
-							{
-								SETFLAG(local_ref.options[idx].flags, SMENU_OPT_CONTINUE, state);
-							}),
-						INFOBTN("When chosen, the game will be continued from the continue point. If 'Exit' or 'Reload' are set, they take priority."),
-						Checkbox(_EX_RBOX, text = "Reload",
-							checked = local_ref.options[idx].flags & SMENU_OPT_RELOAD,
-							onToggleFunc = [&, idx](bool state)
-							{
-								SETFLAG(local_ref.options[idx].flags, SMENU_OPT_RELOAD, state);
-							}),
-						INFOBTN("When chosen, the game will be reloaded from the previous save."),
-						Checkbox(_EX_RBOX, text = "Save",
-							checked = local_ref.options[idx].flags & SMENU_OPT_SAVE,
-							onToggleFunc = [&, idx](bool state)
-							{
-								SETFLAG(local_ref.options[idx].flags, SMENU_OPT_SAVE, state);
-							}),
-						INFOBTN("When chosen, the game will be saved."),
-						Checkbox(_EX_RBOX, text = "Cancel",
-							checked = local_ref.options[idx].flags & SMENU_OPT_CANCEL,
-							onToggleFunc = [&, idx](bool state)
-							{
-								SETFLAG(local_ref.options[idx].flags, SMENU_OPT_CANCEL, state);
-							}),
-						INFOBTN("When chosen, the menu will be exited, leaving the player where they were before it opened."
-							"\nHas no effect when used on a 'Game Over' menu.")
+					Frame(title = "Actions", info = "What to do when this option is chosen",
+						Rows<2>(rowSpan = 2,
+							Checkbox(_EX_RBOX, text = "Exit",
+								checked = local_ref.options[idx].flags & SMENU_OPT_EXIT,
+								onToggleFunc = [&, idx](bool state)
+								{
+									SETFLAG(local_ref.options[idx].flags, SMENU_OPT_EXIT, state);
+								}),
+							INFOBTN("The game will be exited to the save menu. If 'Reload' is set, it takes priority."),
+							Checkbox(_EX_RBOX, text = "Continue",
+								checked = local_ref.options[idx].flags & SMENU_OPT_CONTINUE,
+								onToggleFunc = [&, idx](bool state)
+								{
+									SETFLAG(local_ref.options[idx].flags, SMENU_OPT_CONTINUE, state);
+								}),
+							INFOBTN("The game will be continued from the continue point. If 'Exit' or 'Reload' are set, they take priority."),
+							Checkbox(_EX_RBOX, text = "Reload",
+								checked = local_ref.options[idx].flags & SMENU_OPT_RELOAD,
+								onToggleFunc = [&, idx](bool state)
+								{
+									SETFLAG(local_ref.options[idx].flags, SMENU_OPT_RELOAD, state);
+								}),
+							INFOBTN("The game will be reloaded from the previous save."),
+							Checkbox(_EX_RBOX, text = "Save",
+								checked = local_ref.options[idx].flags & SMENU_OPT_SAVE,
+								onToggleFunc = [&, idx](bool state)
+								{
+									SETFLAG(local_ref.options[idx].flags, SMENU_OPT_SAVE, state);
+								}),
+							INFOBTN("The game will be saved."),
+							Checkbox(_EX_RBOX, text = "Cancel",
+								checked = local_ref.options[idx].flags & SMENU_OPT_CANCEL,
+								onToggleFunc = [&, idx](bool state)
+								{
+									SETFLAG(local_ref.options[idx].flags, SMENU_OPT_CANCEL, state);
+								}),
+							INFOBTN("The menu will be exited, leaving the player where they were before it opened."
+								"\nHas no effect when used on a 'Game Over' menu."),
+							//
+							Button(hAlign = 1.0,
+								text = "Frozen Script",
+								height = 2_em,
+								onPressFunc = [&, idx]()
+								{
+									ScriptDataDialog("Save Menu Choice Generic Frozen Script Setup",
+										local_ref.options[idx].gen_scrconfig, list_genscr, genericscripts).show();
+								}
+							),
+							INFOBTN("This generic script will run in Frozen mode.")
+						)
 					)
 				)
 			)

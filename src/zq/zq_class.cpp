@@ -7992,6 +7992,15 @@ int32_t writemisc(PACKFILE *f, zquestheader *Header)
 				
 				if (!p_putvar(opt.gen_scrconfig, f))
 					new_return(56);
+				
+				if (!p_putc(opt.shadow_type, f))
+					new_return(59);
+				
+				if (!p_putc(opt.shadow_color, f))
+					new_return(60);
+				
+				if (!p_putc(opt.picked_shadow_color, f))
+					new_return(61);
 			}
 		}
 		

@@ -227,6 +227,21 @@ class save_menu
 	// @zasm_var SAVEMENU_OPT_COLOR_PICKED
 	internal int PickedColors[];
 
+	// The shadow types for each option.
+	//
+	// @zasm_var SAVEMENU_OPT_SHADOW_TYPE
+	internal ShadowType ShadowTypes[];
+
+	// The shadow colors for each option.
+	//
+	// @zasm_var SAVEMENU_OPT_COLOR_SHADOW
+	internal int ShadowColors[];
+
+	// The shadow colors for each option which are used when the option is selected.
+	//
+	// @zasm_var SAVEMENU_OPT_COLOR_SHADOW_PICKED
+	internal int PickedShadowColors[];
+
 	// The Font IDs for each option.
 	//
 	// @zasm_var SAVEMENU_OPT_FONTS
