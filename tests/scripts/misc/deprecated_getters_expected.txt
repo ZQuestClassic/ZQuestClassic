@@ -1,0 +1,415 @@
+stderr:
+
+Compiling 'deprecated_getters.zs'
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+Pass 4: Analyzing Code
+deprecated_getters.zs Line 16 @ Columns 23-41 - Warning S094: Function 'Game::GetCurScreen()' is deprecated, and should not be used.
+
+14    void plain_getters()
+15    {
+16        printf("%d %d %d\n", Game->GetCurScreen(), Game->GetCurDMap(), Game->GetCurLevel());
+                               ^~~~~~~~~~~~~~~~~~
+
+
+INFO: Use CurScreen instead!
+deprecated_getters.zs Line 16 @ Columns 45-61 - Warning S094: Function 'Game::GetCurDMap()' is deprecated, and should not be used.
+
+14    void plain_getters()
+15    {
+16        printf("%d %d %d\n", Game->GetCurScreen(), Game->GetCurDMap(), Game->GetCurLevel());
+                                                     ^~~~~~~~~~~~~~~~
+
+
+INFO: Use CurDMap instead!
+deprecated_getters.zs Line 16 @ Columns 65-82 - Warning S094: Function 'Game::GetCurLevel()' is deprecated, and should not be used.
+
+14    void plain_getters()
+15    {
+16        printf("%d %d %d\n", Game->GetCurScreen(), Game->GetCurDMap(), Game->GetCurLevel());
+                                                                         ^~~~~~~~~~~~~~~~~
+
+
+INFO: Use CurLevel instead!
+deprecated_getters.zs Line 17 @ Columns 23-41 - Warning S094: Function 'Graphics::NumDraws()' is deprecated, and should not be used.
+
+15    {
+16        printf("%d %d %d\n", Game->GetCurScreen(), Game->GetCurDMap(), Game->GetCurLevel());
+17        printf("%d %d %d\n", Graphics->NumDraws(), Graphics->MaxDraws(), Screen->NumItems());
+                               ^~~~~~~~~~~~~~~~~~
+
+
+INFO: Use NumDraws instead!
+deprecated_getters.zs Line 17 @ Columns 45-63 - Warning S094: Function 'Graphics::MaxDraws()' is deprecated, and should not be used.
+
+15    {
+16        printf("%d %d %d\n", Game->GetCurScreen(), Game->GetCurDMap(), Game->GetCurLevel());
+17        printf("%d %d %d\n", Graphics->NumDraws(), Graphics->MaxDraws(), Screen->NumItems());
+                                                     ^~~~~~~~~~~~~~~~~~
+
+
+INFO: Use MaxDraws instead!
+deprecated_getters.zs Line 17 @ Columns 67-83 - Warning S094: Function 'screendata::NumItems()' is deprecated, and should not be used.
+
+15    {
+16        printf("%d %d %d\n", Game->GetCurScreen(), Game->GetCurDMap(), Game->GetCurLevel());
+17        printf("%d %d %d\n", Graphics->NumDraws(), Graphics->MaxDraws(), Screen->NumItems());
+                                                                           ^~~~~~~~~~~~~~~~
+
+
+INFO: Use NumItems instead!
+deprecated_getters.zs Line 10 @ Columns 26-32 - Warning S094: Function 'npc::Max()' is deprecated, and should not be used.
+
+ 8    void refvar_getters(npc n, lweapon lw, eweapon ew, itemsprite it, combodata cd, messagedata md)
+ 9    {
+10        printf("%d %d %d %d\n", n->Max(), lw->Max(), ew->Max(), it->Max());
+                                  ^~~~~~
+
+
+INFO: Use Max instead!
+deprecated_getters.zs Line 10 @ Columns 36-43 - Warning S094: Function 'lweapon::Max()' is deprecated, and should not be used.
+
+ 8    void refvar_getters(npc n, lweapon lw, eweapon ew, itemsprite it, combodata cd, messagedata md)
+ 9    {
+10        printf("%d %d %d %d\n", n->Max(), lw->Max(), ew->Max(), it->Max());
+                                            ^~~~~~~
+
+
+INFO: Use Max instead!
+deprecated_getters.zs Line 10 @ Columns 47-54 - Warning S094: Function 'eweapon::Max()' is deprecated, and should not be used.
+
+ 8    void refvar_getters(npc n, lweapon lw, eweapon ew, itemsprite it, combodata cd, messagedata md)
+ 9    {
+10        printf("%d %d %d %d\n", n->Max(), lw->Max(), ew->Max(), it->Max());
+                                                       ^~~~~~~
+
+
+INFO: Use Max instead!
+deprecated_getters.zs Line 10 @ Columns 58-65 - Warning S094: Function 'itemsprite::Max()' is deprecated, and should not be used.
+
+ 8    void refvar_getters(npc n, lweapon lw, eweapon ew, itemsprite it, combodata cd, messagedata md)
+ 9    {
+10        printf("%d %d %d %d\n", n->Max(), lw->Max(), ew->Max(), it->Max());
+                                                                  ^~~~~~~
+
+
+INFO: Use Max instead!
+deprecated_getters.zs Line 11 @ Columns 26-34 - Warning S094: Function 'combodata::PosX()' is deprecated, and should not be used.
+
+ 9    {
+10        printf("%d %d %d %d\n", n->Max(), lw->Max(), ew->Max(), it->Max());
+11        printf("%d %d %d %d\n", cd->PosX(), cd->PosY(), cd->Layer(), md->TextWidth());
+                                  ^~~~~~~~
+
+
+INFO: Use X instead!
+deprecated_getters.zs Line 11 @ Columns 38-46 - Warning S094: Function 'combodata::PosY()' is deprecated, and should not be used.
+
+ 9    {
+10        printf("%d %d %d %d\n", n->Max(), lw->Max(), ew->Max(), it->Max());
+11        printf("%d %d %d %d\n", cd->PosX(), cd->PosY(), cd->Layer(), md->TextWidth());
+                                              ^~~~~~~~
+
+
+INFO: Use Y instead!
+deprecated_getters.zs Line 11 @ Columns 50-59 - Warning S094: Function 'combodata::Layer()' is deprecated, and should not be used.
+
+ 9    {
+10        printf("%d %d %d %d\n", n->Max(), lw->Max(), ew->Max(), it->Max());
+11        printf("%d %d %d %d\n", cd->PosX(), cd->PosY(), cd->Layer(), md->TextWidth());
+                                                          ^~~~~~~~~
+
+
+INFO: Use Layer instead!
+deprecated_getters.zs Line 11 @ Columns 63-76 - Warning S094: Function 'messagedata::TextWidth()' is deprecated, and should not be used.
+
+ 9    {
+10        printf("%d %d %d %d\n", n->Max(), lw->Max(), ew->Max(), it->Max());
+11        printf("%d %d %d %d\n", cd->PosX(), cd->PosY(), cd->Layer(), md->TextWidth());
+                                                                       ^~~~~~~~~~~~~
+
+
+INFO: Use TextWidth instead!
+Pass 5: Checking code paths
+Pass 6: Generating object code
+Pass 7: Assembling
+Success!
+Compile finished with exit code '0' (success)
+
+stdout:
+
+{
+  "success": true,
+  "diagnostics": [
+    {
+      "range": {
+        "start": {
+          "line": 15,
+          "character": 22
+        },
+        "end": {
+          "line": 15,
+          "character": 40
+        }
+      },
+      "severity": 2,
+      "message": "S094: Function 'Game::GetCurScreen()' is deprecated, and should not be used.\nUse CurScreen instead!"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 15,
+          "character": 44
+        },
+        "end": {
+          "line": 15,
+          "character": 60
+        }
+      },
+      "severity": 2,
+      "message": "S094: Function 'Game::GetCurDMap()' is deprecated, and should not be used.\nUse CurDMap instead!"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 15,
+          "character": 64
+        },
+        "end": {
+          "line": 15,
+          "character": 81
+        }
+      },
+      "severity": 2,
+      "message": "S094: Function 'Game::GetCurLevel()' is deprecated, and should not be used.\nUse CurLevel instead!"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 16,
+          "character": 22
+        },
+        "end": {
+          "line": 16,
+          "character": 40
+        }
+      },
+      "severity": 2,
+      "message": "S094: Function 'Graphics::NumDraws()' is deprecated, and should not be used.\nUse NumDraws instead!"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 16,
+          "character": 44
+        },
+        "end": {
+          "line": 16,
+          "character": 62
+        }
+      },
+      "severity": 2,
+      "message": "S094: Function 'Graphics::MaxDraws()' is deprecated, and should not be used.\nUse MaxDraws instead!"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 16,
+          "character": 66
+        },
+        "end": {
+          "line": 16,
+          "character": 82
+        }
+      },
+      "severity": 2,
+      "message": "S094: Function 'screendata::NumItems()' is deprecated, and should not be used.\nUse NumItems instead!"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 9,
+          "character": 25
+        },
+        "end": {
+          "line": 9,
+          "character": 31
+        }
+      },
+      "severity": 2,
+      "message": "S094: Function 'npc::Max()' is deprecated, and should not be used.\nUse Max instead!"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 9,
+          "character": 35
+        },
+        "end": {
+          "line": 9,
+          "character": 42
+        }
+      },
+      "severity": 2,
+      "message": "S094: Function 'lweapon::Max()' is deprecated, and should not be used.\nUse Max instead!"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 9,
+          "character": 46
+        },
+        "end": {
+          "line": 9,
+          "character": 53
+        }
+      },
+      "severity": 2,
+      "message": "S094: Function 'eweapon::Max()' is deprecated, and should not be used.\nUse Max instead!"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 9,
+          "character": 57
+        },
+        "end": {
+          "line": 9,
+          "character": 64
+        }
+      },
+      "severity": 2,
+      "message": "S094: Function 'itemsprite::Max()' is deprecated, and should not be used.\nUse Max instead!"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 10,
+          "character": 25
+        },
+        "end": {
+          "line": 10,
+          "character": 33
+        }
+      },
+      "severity": 2,
+      "message": "S094: Function 'combodata::PosX()' is deprecated, and should not be used.\nUse X instead!"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 10,
+          "character": 37
+        },
+        "end": {
+          "line": 10,
+          "character": 45
+        }
+      },
+      "severity": 2,
+      "message": "S094: Function 'combodata::PosY()' is deprecated, and should not be used.\nUse Y instead!"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 10,
+          "character": 49
+        },
+        "end": {
+          "line": 10,
+          "character": 58
+        }
+      },
+      "severity": 2,
+      "message": "S094: Function 'combodata::Layer()' is deprecated, and should not be used.\nUse Layer instead!"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 10,
+          "character": 62
+        },
+        "end": {
+          "line": 10,
+          "character": 75
+        }
+      },
+      "severity": 2,
+      "message": "S094: Function 'messagedata::TextWidth()' is deprecated, and should not be used.\nUse TextWidth instead!"
+    }
+  ],
+  "metadata": {
+    "currentFileSymbols": 4,
+    "symbols": 39,
+    "identifiers": 54,
+    "elided": true
+  }
+}
+
+zasm:
+
+QUIT; void run() Body
+SETR D4 SP2; void run() Body Start
+PUSHR D4
+PUSHARGSV 0 0.0006; UsrFunc[void refvar_getters(npc, lweapon, eweapon, itemsprite, combodata, messagedata)] Params Start AND UsrFunc[void refvar_getters(npc, lweapon, eweapon, itemsprite, combodata, messagedata)] Params End
+CALLFUNC 0.0010; UsrFunc[void refvar_getters(npc, lweapon, eweapon, itemsprite, combodata, messagedata)] Call
+PEEK D4
+CALLFUNC 0.0047; UsrFunc[void plain_getters()] Call
+POP D4
+RETURNFUNC; void run() Body End
+SETR D4 SP2; Func[void refvar_getters(npc, lweapon, eweapon, itemsprite, combodata, messagedata)] Body Start
+ALLOCATEMEMV D2 13 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
+WRITEPODSTRING D2 "%d %d %d %d\n"
+PUSHR D2
+LOAD D2 0.0005; InlineFunc[int npc::Max()] Params Start
+SETR REFNPC D2; InlineFunc[int npc::Max()] Params End
+PUSHVARGR SPRITEMAXNPC
+LOAD D2 0.0004; InlineFunc[int lweapon::Max()] Params Start
+SETR REFLWPN D2; InlineFunc[int lweapon::Max()] Params End
+PUSHVARGR SPRITEMAXLWPN
+LOAD D2 0.0003; InlineFunc[int eweapon::Max()] Params Start
+SETR REFEWPN D2; InlineFunc[int eweapon::Max()] Params End
+PUSHVARGR SPRITEMAXEWPN
+LOAD D2 0.0002; InlineFunc[int itemsprite::Max()] Params Start
+SETR REFITEM D2; InlineFunc[int itemsprite::Max()] Params End
+PUSHVARGR SPRITEMAXITEM; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
+ALLOCATEMEMV D2 13 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
+WRITEPODSTRING D2 "%d %d %d %d\n"
+PUSHR D2
+LOAD D2 0.0001; InlineFunc[const int combodata::PosX()] Params Start
+SETR REFCOMBODATA D2; InlineFunc[const int combodata::PosX()] Params End
+PUSHVARGR COMBOXR
+LOAD D2 0.0001; InlineFunc[const int combodata::PosY()] Params Start
+SETR REFCOMBODATA D2; InlineFunc[const int combodata::PosY()] Params End
+PUSHVARGR COMBOYR
+LOAD D2 0.0001; InlineFunc[const int combodata::Layer()] Params Start
+SETR REFCOMBODATA D2; InlineFunc[const int combodata::Layer()] Params End
+PUSHVARGR COMBOLAYERR
+LOAD D2 0; InlineFunc[const int messagedata::TextWidth()] Params Start
+SETR REFMSGDATA D2; InlineFunc[const int messagedata::TextWidth()] Params End
+PUSHVARGR MESSAGEDATATEXTWID; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
+POPARGS D5 0.0006
+RETURNFUNC; Func[void refvar_getters(npc, lweapon, eweapon, itemsprite, combodata, messagedata)] Body End
+SETR D4 SP2; Func[void plain_getters()] Body Start
+ALLOCATEMEMV D2 10 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
+WRITEPODSTRING D2 "%d %d %d\n"
+PUSHR D2
+PUSHVARGR CURSCR
+PUSHVARGR CURDMAP
+PUSHVARGR CURLEVEL; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
+ALLOCATEMEMV D2 10 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
+WRITEPODSTRING D2 "%d %d %d\n"
+PUSHR D2
+PUSHVARGR NUMDRAWS
+PUSHVARGR MAXDRAWS
+PUSHVARGR ITEMCOUNT; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
+RETURNFUNC; Func[void plain_getters()] Body End

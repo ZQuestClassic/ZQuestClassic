@@ -352,10 +352,10 @@ void RegBaseVisitor::initInternalVar(ASTDataDeclList* node)
 			}
 
 			std::string getter_name = *deprecated_getter;
-			std::vector<const DataType*> params;
-			if (refvar != NUL)
-				params.push_back(user_class->getType());
-			Function* fn = scope->addFunction(var_type, getter_name, params, {}, FUNCFLAG_DEPRECATED|FUNCFLAG_INTERNAL);
+			// No parameter for the object: bindings never declare the left-hand
+			// side of the arrow, it's pushed by the call site instead (and
+			// getVariable skips even that when there's no ref variable).
+			Function* fn = scope->addFunction(var_type, getter_name, {}, {}, FUNCFLAG_DEPRECATED|FUNCFLAG_INTERNAL);
 			fn->setExternalScope(scope->makeChild());
 			fn->data_decl_source_node = decl;
 			fn->setInfo(fmt::format("Use {} instead!", decl->getName()));
