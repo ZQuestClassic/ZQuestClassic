@@ -470,15 +470,24 @@ namespace util
 		return neg ? -val : val;
 	}
 	
+	// Reads the integer portion of a numeric string, saturating instead of
+	// overflowing on inputs too large for the type.
+	static int32_t parse_bounded_int(std::string const& str)
+	{
+		long long val = strtoll(str.c_str(), nullptr, 10);
+		if (val < -214748) return -214748;
+		if (val > 214748) return 214748;
+		return (int32_t)val;
+	}
+
 	int32_t ffparse2(const char *string, bool do_except) //if not 'do_except', bounds result safely between -214748.3648 and +214748.3647
 	{
-		char tempstring1[32] = {0};
-		strcpy(tempstring1, string);
-		
+		std::string tempstring1 = string;
+
 		if(do_except)
 		{
 			bool dec = false;
-			for(int q = 0; tempstring1[q]; ++q)
+			for(size_t q = 0; q < tempstring1.size(); ++q)
 			{
 				char c = tempstring1[q];
 				if(c == '.')
@@ -491,36 +500,37 @@ namespace util
 					throw std::invalid_argument(fmt::format("String contains invalid characters ('{}')", c));
 			}
 		}
-		
-		char *ptr=strchr(tempstring1, '.');
-		if(!ptr)
+
+		size_t dot = tempstring1.find('.');
+		if(dot == std::string::npos)
 		{
-			int val = atoi(tempstring1);
-			if(do_except && (val < -214748 || val > 214748))
-				throw std::out_of_range("Value out of 32bit range");
-			return vbound(val,-214748,214748)*10000;
+			if(do_except)
+			{
+				long long val = strtoll(tempstring1.c_str(), nullptr, 10);
+				if(val < -214748 || val > 214748)
+					throw std::out_of_range("Value out of 32bit range");
+			}
+			return parse_bounded_int(tempstring1)*10000;
 		}
-		
+
 		int32_t ret=0;
-		
-		ptr=strchr(tempstring1, '.');
-		*ptr=0;
-		ret=atoi(tempstring1);
-		if(do_except && (ret < -214748 || ret > 214748))
-			throw std::out_of_range("Value out of 32bit range");
-		ret=vbound(ret,-214748,214748)*10000;
-		
-		++ptr;
-		char *ptr2=ptr;
-		ptr2+=4;
-		if(do_except && *ptr2)
-			throw std::out_of_range("Value has too many decimal places! Only 4 positions are supported!");
-		for(int q = 0; q < 4; ++q)
-			if(!ptr[q])
-				ptr[q] = '0';
-		*ptr2=0;
-		
-		int32_t decval = abs(atoi(ptr));
+
+		std::string intpart = tempstring1.substr(0, dot);
+		std::string decpart = tempstring1.substr(dot+1);
+		if(do_except)
+		{
+			long long val = strtoll(intpart.c_str(), nullptr, 10);
+			if(val < -214748 || val > 214748)
+				throw std::out_of_range("Value out of 32bit range");
+			if(decpart.size() > 4)
+				throw std::out_of_range("Value has too many decimal places! Only 4 positions are supported!");
+		}
+		ret=parse_bounded_int(intpart)*10000;
+
+		// Pad (or truncate) to exactly 4 decimal places.
+		decpart.resize(4, '0');
+
+		int32_t decval = abs(atoi(decpart.c_str()));
 		if(tempstring1[0] == '-')
 		{
 			if(ret == -2147480000)
@@ -548,52 +558,6 @@ namespace util
 	{
 		return ffparse2(str.c_str(), do_except);
 	}
-	int32_t ffparseX(const char *string) //hex before '.', bounds result safely between -214748.3648 and +214748.3647
-	{
-		char tempstring1[32] = {0};
-		strcpy(tempstring1, string);
-		
-		char *ptr=strchr(tempstring1, '.');
-		if(!ptr)
-		{
-			return vbound(zc_xtoi(tempstring1),-214748,214748)*10000;
-		}
-		
-		int32_t ret=0;
-
-		strcpy(tempstring1, string);
-		
-		for(int32_t i=0; i<4; ++i)
-		{
-			tempstring1[strlen(string)+i]='0';
-		}
-		
-		ptr=strchr(tempstring1, '.');
-		*ptr=0;
-		ret=vbound(zc_xtoi(tempstring1),-214748,214748)*10000;
-		
-		++ptr;
-		char *ptr2=ptr;
-		ptr2+=4;
-		*ptr2=0;
-		
-		int32_t decval = abs(atoi(ptr));
-		if(tempstring1[0] == '-')
-		{
-			if(ret == -2147480000)
-				decval = vbound(decval, 0, 3648);
-			ret-=decval;
-		}
-		else
-		{
-			if(ret == 2147480000)
-				decval = vbound(decval, 0, 3647);
-			ret+=decval;
-		}
-		
-		return ret;
-	}
-	
 	int32_t zc_chmod(const char* path, mode_t mode)
 	{
 #ifdef _WIN32
@@ -867,18 +831,17 @@ namespace util
 				break;
 			else if(in_str)
 			{
-				char buf[16] = {0};
-				size_t ind = 0;
+				string buf;
 				while(str[q] == ',' && q+1 < len) ++q;
 				for(char c = str[q]; c != ',' && c != '}' && q+1 < len; c = str[++q])
 				{
-					buf[ind++] = c;
+					buf += c;
 				}
-				if(buf[0])
+				if(buf.size())
 				{
 					if(dec)
-						vec.push_back(ffparse2(buf));
-					else vec.push_back(atoi(buf));
+						vec.push_back(ffparse2(buf.c_str()));
+					else vec.push_back(atoi(buf.c_str()));
 				}
 				if(str[q] == '}') break;
 			}
@@ -886,33 +849,7 @@ namespace util
 	}
 	void unstringify_vector(vector<int32_t>& vec, char const* str, bool dec)
 	{
-		vec.clear();
-		bool in_str = false;
-		size_t len = strlen(str);
-		for(size_t q = 0; q < len; ++q)
-		{
-			if(str[q] == '{')
-				in_str = true;
-			else if(str[q] == '}' && in_str)
-				break;
-			else if(in_str)
-			{
-				char buf[16] = {0};
-				size_t ind = 0;
-				while(str[q] == ',' && q+1 < len) ++q;
-				for(char c = str[q]; c != ',' && c != '}' && q+1 < len; c = str[++q])
-				{
-					buf[ind++] = c;
-				}
-				if(buf[0])
-				{
-					if(dec)
-						vec.push_back(ffparse2(buf));
-					else vec.push_back(atoi(buf));
-				}
-				if(str[q] == '}') break;
-			}
-		}
+		unstringify_vector(vec, string(str), dec);
 	}
 	size_t vecstr_size(char const* str)
 	{
