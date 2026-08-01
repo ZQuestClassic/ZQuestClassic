@@ -20,7 +20,7 @@ class itemsprite {
 
 	// Max number of itemsprites currently allowed.
 	//
-	// @deprecated_getter
+	// @deprecated_getter Max
 	// @zasm_var SPRITEMAXITEM
 	internal int Max;
 

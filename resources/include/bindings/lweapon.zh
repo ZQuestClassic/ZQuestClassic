@@ -73,7 +73,7 @@ class lweapon {
 
 	// Returns the max number of weapons currently allowed.
 	//
-	// @deprecated_getter SPRITEMAXLWPN
+	// @deprecated_getter Max
 	// @zasm_var SPRITEMAXLWPN
 	internal int Max;
 
