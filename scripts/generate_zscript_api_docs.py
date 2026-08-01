@@ -313,7 +313,9 @@ def add_comment(symbol):
         add('.. container:: classref-comment')
         add('')
         # Sort 'deprecated' tags to the end
-        for tag, value in sorted(symbol.comment.tags, key=lambda s: 'deprecated' in s[0]):
+        for tag, value in sorted(
+            symbol.comment.tags, key=lambda s: 'deprecated' in s[0]
+        ):
             if tag in [
                 'versionadded',
                 'versionchanged',
@@ -334,12 +336,28 @@ def add_comment(symbol):
                 add(format_comment(indent(value, 3)))
                 add('')
                 add('')
+            elif tag == 'deprecated_getter':
+                # Printed after the comment text instead, see below.
+                pass
             elif tag in interesting_tags:
                 add(format_comment(f'`{tag}` ' + value))
                 add('')
                 add('')
         add('')
         add(format_comment(symbol.comment.text))
+
+        # This variable also has an older function form, ex. the variable
+        # `Game->CurScreen` and the function `Game->GetCurScreen()`. Only the
+        # variable gets an entry of its own, so the function is called out here.
+        if deprecated_getter := symbol.comment.get_tag_single('deprecated_getter'):
+            add('')
+            add(
+                format_comment(
+                    f'Note: There is also a deprecated getter function `->{deprecated_getter}()`, which'
+                    ' returns the same value. Prefer this variable.'
+                )
+            )
+
         add('')
 
 
