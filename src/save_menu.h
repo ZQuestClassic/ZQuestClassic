@@ -52,6 +52,7 @@ struct SaveMenu
 	word cursor_sfx = WAV_CHINK, choose_sfx = WAV_CHINK;
 	byte hspace = 6, vspace = 16;
 	byte opt_x = 128, opt_y = 32;
+	int16_t opt_sel_x_offset = 0, opt_sel_y_offset = 0;
 	byte text_align = ALIGN_LEFT, textbox_align = ALIGN_CENTER;
 	word close_frames = 30;
 	byte close_flash_rate = 5;

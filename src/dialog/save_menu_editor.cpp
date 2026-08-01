@@ -27,7 +27,7 @@ SaveMenuDialog::SaveMenuDialog(SaveMenu& dest):
 	list_shadow_types(GUI::ZCListData::shadow_types(true))
 {}
 
-static size_t savemenu_tabs[2];
+static size_t savemenu_tabs[3];
 std::shared_ptr<GUI::Widget> SaveMenuDialog::view()
 {
 	using namespace GUI::Builder;
@@ -220,238 +220,267 @@ std::shared_ptr<GUI::Widget> SaveMenuDialog::view()
 		title = fmt::format("Save Menu \"{}\"", local_ref.name),
 		onClose = message::CANCEL,
 		Column(
+			Row(
+				Label(text = "Name:", hAlign = 1.0),
+				TextField(
+					fitParent = true,
+					type = GUI::TextField::type::TEXT,
+					maxLength = SAVEMENU_NAME_LENGTH,
+					text = local_ref.name,
+					onValChangedFunc = [&](GUI::TextField::type, std::string_view text, int32_t)
+					{
+						local_ref.name.assign(text);
+					}
+				),
+				INFOBTN("The name of this menu. Not used in-game, though scripts can read it.")
+			),
 			TabPanel(ptr = &savemenu_tabs[0],
 				TabRef(name = "Settings",
-					Rows<2>(
-						Row(colSpan = 2,
-							Label(text = "Name:", hAlign = 1.0),
-							TextField(
-								fitParent = true,
-								type = GUI::TextField::type::TEXT,
-								maxLength = SAVEMENU_NAME_LENGTH,
-								text = local_ref.name,
-								onValChangedFunc = [&](GUI::TextField::type, std::string_view text, int32_t)
-								{
-									local_ref.name.assign(text);
-								}
-							),
-							INFOBTN("The name of this menu. Not used in-game, though scripts can read it.")
-						),
-						Rows<3>(
-							Label(text = "BG Color:", hAlign = 1.0),
-							ColorSel(val = local_ref.bg_color,
-								fitParent = true,
-								onValChangedFunc = [&](byte val)
-								{
-									local_ref.bg_color = val;
-								}),
-							INFOBTN("The background color of the menu."),
-							//
-							Label(text = "Option X:", hAlign = 1.0),
-							TextField(
-								type = GUI::TextField::type::INT_DECIMAL, fitParent = true,
-								bounds = {0, 255}, val = local_ref.opt_x,
-								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-								{
-									local_ref.opt_x = val;
-								}),
-							INFOBTN("The X-position the text will be drawn at. How it is drawn is determined by the 'Text Align'."),
-							Label(text = "Option Y:", hAlign = 1.0),
-							TextField(
-								type = GUI::TextField::type::INT_DECIMAL, fitParent = true,
-								bounds = {0, 255}, val = local_ref.opt_y,
-								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-								{
-									local_ref.opt_y = val;
-								}),
-							INFOBTN("The Y-position the top option will be drawn at."),
-							Label(text = "HSpace:", hAlign = 1.0),
-							TextField(
-								type = GUI::TextField::type::INT_DECIMAL, fitParent = true,
-								bounds = {0, 255}, val = local_ref.hspace,
-								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-								{
-									local_ref.hspace = val;
-								}),
-							INFOBTN("The horizontal space, in pixels, between the options and the cursor."),
-							Label(text = "VSpace:", hAlign = 1.0),
-							TextField(
-								type = GUI::TextField::type::INT_DECIMAL, fitParent = true,
-								bounds = {0, 255}, val = local_ref.vspace,
-								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-								{
-									local_ref.vspace = val;
-								}),
-							INFOBTN("The vertical space, in pixels, between each option."),
-							//
-							Label(text = "Close Frames:", hAlign = 1.0),
-							TextField(
-								type = GUI::TextField::type::INT_DECIMAL, fitParent = true,
-								bounds = {0, 65535}, val = local_ref.close_frames,
-								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-								{
-									local_ref.close_frames = val;
-								}),
-							INFOBTN("The time in frames after the user selects an option that the menu remains open."),
-							Label(text = "Close Flash Rate:", hAlign = 1.0),
-							TextField(
-								type = GUI::TextField::type::INT_DECIMAL, fitParent = true,
-								bounds = {0, 255}, val = local_ref.close_flash_rate,
-								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-								{
-									local_ref.close_flash_rate = val;
-								}),
-							INFOBTN("The rate in frames that the selected option flashes between it's two colors after being selected.")
-						),
-						Column(
-							Rows<6>(
-								Label(text = "Cursor Tile:", hAlign = 1.0),
-								SelTileSwatch(
-									tile = local_ref.cursor_tile,
-									cset = local_ref.cursor_cset,
-									showvals = false,
-									onSelectFunc = [&](int32_t t, int32_t c, int32_t, int32_t)
-									{
-										local_ref.cursor_tile = t;
-										local_ref.cursor_cset = c;
-									}),
-								INFOBTN("The tile used for the cursor. Is drawn to the left of the selected option, vertically centered."),
-								Label(text = "BG Tile:", hAlign = 1.0),
-								SelTileSwatch(
-									tile = local_ref.bg_tile,
-									cset = local_ref.bg_cset,
-									showvals = false,
-									onSelectFunc = [&](int32_t t, int32_t c, int32_t, int32_t)
-									{
-										local_ref.bg_tile = t;
-										local_ref.bg_cset = c;
-									}),
-								INFOBTN("The tile used for the background, drawn at the top-left corner."
-									"\nIf 'Repeat Tile BG' is checked, will fill the whole screen by repeating the tiles."
-									"\nIf 0, no tile background is drawn."),
-								DummyWidget(colSpan = 3),
-								Label(text = "W/H:", hAlign = 1.0),
-								Row(
-									TextField(
-										type = GUI::TextField::type::INT_DECIMAL, fitParent = true,
-										bounds = {1, 16}, val = local_ref.bg_tw,
-										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+					TabPanel(ptr = &savemenu_tabs[2],
+						TabRef(name = "1",
+							Column(
+								Rows<6>(
+									Label(text = "Cursor Tile:", hAlign = 1.0),
+									SelTileSwatch(
+										tile = local_ref.cursor_tile,
+										cset = local_ref.cursor_cset,
+										showvals = false,
+										onSelectFunc = [&](int32_t t, int32_t c, int32_t, int32_t)
 										{
-											local_ref.bg_tw = val;
+											local_ref.cursor_tile = t;
+											local_ref.cursor_cset = c;
 										}),
+									INFOBTN("The tile used for the cursor. Is drawn to the left of the selected option, vertically centered."),
+									Label(text = "BG Tile:", hAlign = 1.0),
+									SelTileSwatch(
+										tile = local_ref.bg_tile,
+										cset = local_ref.bg_cset,
+										showvals = false,
+										onSelectFunc = [&](int32_t t, int32_t c, int32_t, int32_t)
+										{
+											local_ref.bg_tile = t;
+											local_ref.bg_cset = c;
+										}),
+									INFOBTN("The tile used for the background, drawn at the top-left corner."
+										"\nIf 'Repeat Tile BG' is checked, will fill the whole screen by repeating the tiles."
+										"\nIf 0, no tile background is drawn."),
+									DummyWidget(colSpan = 3),
+									Label(text = "W/H:", hAlign = 1.0),
+									Row(
+										TextField(
+											type = GUI::TextField::type::INT_DECIMAL, fitParent = true,
+											bounds = {1, 16}, val = local_ref.bg_tw,
+											onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+											{
+												local_ref.bg_tw = val;
+											}),
+										TextField(
+											type = GUI::TextField::type::INT_DECIMAL, fitParent = true,
+											bounds = {1, 16}, val = local_ref.bg_th,
+											onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+											{
+												local_ref.bg_th = val;
+											})
+									),
+									INFOBTN("The tile width and height of the 'BG Tile'.")
+								),
+								Rows_Columns<3, 5>(
+									Label(text = "Option X:", hAlign = 1.0),
 									TextField(
 										type = GUI::TextField::type::INT_DECIMAL, fitParent = true,
-										bounds = {1, 16}, val = local_ref.bg_th,
+										bounds = {0, 255}, val = local_ref.opt_x,
 										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 										{
-											local_ref.bg_th = val;
+											local_ref.opt_x = val;
+										}),
+									INFOBTN("The X-position the text will be drawn at. How it is drawn is determined by the 'Text Align'."),
+									Label(text = "Option Y:", hAlign = 1.0),
+									TextField(
+										type = GUI::TextField::type::INT_DECIMAL, fitParent = true,
+										bounds = {0, 255}, val = local_ref.opt_y,
+										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+										{
+											local_ref.opt_y = val;
+										}),
+									INFOBTN("The Y-position the top option will be drawn at."),
+									
+									Label(text = "HSpace:", hAlign = 1.0),
+									TextField(
+										type = GUI::TextField::type::INT_DECIMAL, fitParent = true,
+										bounds = {0, 255}, val = local_ref.hspace,
+										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+										{
+											local_ref.hspace = val;
+										}),
+									INFOBTN("The horizontal space, in pixels, between the options and the cursor."),
+									Label(text = "VSpace:", hAlign = 1.0),
+									TextField(
+										type = GUI::TextField::type::INT_DECIMAL, fitParent = true,
+										bounds = {0, 255}, val = local_ref.vspace,
+										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+										{
+											local_ref.vspace = val;
+										}),
+									INFOBTN("The vertical space, in pixels, between each option."),
+									
+									Label(text = "BG Color:", hAlign = 1.0),
+									ColorSel(val = local_ref.bg_color,
+										fitParent = true,
+										onValChangedFunc = [&](byte val)
+										{
+											local_ref.bg_color = val;
+										}),
+									INFOBTN("The background color of the menu."),
+									//
+									Label(text = "Selected Offset X:", hAlign = 1.0),
+									TextField(
+										type = GUI::TextField::type::INT_DECIMAL, fitParent = true,
+										bounds = {-32768, 32767}, val = local_ref.opt_sel_x_offset,
+										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+										{
+											local_ref.opt_sel_x_offset = val;
+										}),
+									INFOBTN("An offset to the X-position of the currently selected option and cursor."
+										"\nCan be used to ex. indent / shift the selected option."),
+									Label(text = "Selected Offset Y:", hAlign = 1.0),
+									TextField(
+										type = GUI::TextField::type::INT_DECIMAL, fitParent = true,
+										bounds = {-32768, 32767}, val = local_ref.opt_sel_y_offset,
+										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+										{
+											local_ref.opt_sel_y_offset = val;
+										}),
+									INFOBTN("An offset to the Y-position of the currently selected option and cursor."
+										"\nCan be used to ex. indent / shift the selected option."),
+									
+									Label(text = "Close Frames:", hAlign = 1.0),
+									TextField(
+										type = GUI::TextField::type::INT_DECIMAL, fitParent = true,
+										bounds = {0, 65535}, val = local_ref.close_frames,
+										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+										{
+											local_ref.close_frames = val;
+										}),
+									INFOBTN("The time in frames after the user selects an option that the menu remains open."),
+									Label(text = "Close Flash Rate:", hAlign = 1.0),
+									TextField(
+										type = GUI::TextField::type::INT_DECIMAL, fitParent = true,
+										bounds = {0, 255}, val = local_ref.close_flash_rate,
+										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+										{
+											local_ref.close_flash_rate = val;
+										}),
+									INFOBTN("The rate in frames that the selected option flashes between it's two colors after being selected.")
+									//
+									
+								)
+							)
+						),
+						TabRef(name = "2",
+							Row(
+								Rows<2>(
+									INFOBTN("If checked, the 'A' button can be used to select a menu choice. (The 'Start' button can always be used)"),
+									Checkbox(text = "'A' chooses",
+										hAlign = 0.0,
+										checked = local_ref.flags & SMENU_CONFIRM_A,
+										onToggleFunc = [&](bool state)
+										{
+											SETFLAG(local_ref.flags, SMENU_CONFIRM_A, state);
+										}),
+									INFOBTN("If checked, the 'B' button can be used to cancel out of the menu. (This does not work when being used as a 'Game Over' menu)"),
+									Checkbox(text = "'B' cancels",
+										hAlign = 0.0,
+										checked = local_ref.flags & SMENU_CANCEL_B,
+										onToggleFunc = [&](bool state)
+										{
+											SETFLAG(local_ref.flags, SMENU_CANCEL_B, state);
+										}),
+									INFOBTN("If checked, the 'Tile BG' will be repeated to fill the whole screen."),
+									Checkbox(text = "Repeat Tile BG",
+										hAlign = 0.0,
+										checked = local_ref.flags & SMENU_REPEAT_BG,
+										onToggleFunc = [&](bool state)
+										{
+											SETFLAG(local_ref.flags, SMENU_REPEAT_BG, state);
+										}),
+									INFOBTN("If checked, the music will not be killed by the menu. This means that the set 'Music' will be ignored as well."),
+									Checkbox(text = "Don't Kill Music",
+										hAlign = 0.0,
+										checked = local_ref.flags & SMENU_DONT_KILL_MUSIC,
+										onToggleFunc = [&](bool state)
+										{
+											SETFLAG(local_ref.flags, SMENU_DONT_KILL_MUSIC, state);
+											midi_ddl->setDisabled(state);
+										}),
+									INFOBTN("If checked, SFX will not be killed by the menu."),
+									Checkbox(text = "Don't Kill SFX",
+										hAlign = 0.0,
+										checked = local_ref.flags & SMENU_DONT_KILL_SFX,
+										onToggleFunc = [&](bool state)
+										{
+											SETFLAG(local_ref.flags, SMENU_DONT_KILL_SFX, state);
 										})
 								),
-								INFOBTN("The tile width and height of the 'BG Tile'.")
-							),
-							Rows<4>(
-								Label(text = "Cursor SFX:", hAlign = 1.0),
-								DropDownList(data = list_sfx,
-									fitParent = true, selectedValue = local_ref.cursor_sfx,
-									onSelectFunc = [&](int32_t val)
-									{
-										local_ref.cursor_sfx = val;
-									}),
-								INFOBTN("The SFX to play when the selected choice changes."),
-								DummyWidget(),
-								
-								Label(text = "Choose SFX:", hAlign = 1.0),
-								DropDownList(data = list_sfx,
-									fitParent = true, selectedValue = local_ref.choose_sfx,
-									onSelectFunc = [&](int32_t val)
-									{
-										local_ref.choose_sfx = val;
-									}),
-								INFOBTN("The SFX to play when a choice is selected."),
-								DummyWidget(),
-								
-								Label(text = "Text Align:", hAlign = 1.0),
-								DropDownList(data = list_aligns,
-									fitParent = true, selectedValue = local_ref.text_align,
-									onSelectFunc = [&](int32_t val)
-									{
-										local_ref.text_align = val;
-									}),
-								INFOBTN("The alignment of the text, relative to the other text."),
-								DummyWidget(),
-								
-								Label(text = "Textbox Align:", hAlign = 1.0),
-								DropDownList(data = list_aligns,
-									fitParent = true, selectedValue = local_ref.textbox_align,
-									onSelectFunc = [&](int32_t val)
-									{
-										local_ref.textbox_align = val;
-									}),
-								INFOBTN("The alignment of the text, relative to 'Option X'."),
-								DummyWidget(),
-								
-								Label(text = "Music:", hAlign = 1.0),
-								midi_ddl = DropDownList(data = list_music,
-									fitParent = true,
-									selectedValue = local_ref.music,
-									disabled = local_ref.flags & SMENU_DONT_KILL_MUSIC,
-									onSelectFunc = [&](int32_t val)
-									{
-										local_ref.music = val;
-									}),
-								INFOBTN("The music to play during the save menu."),
-								Button(text = "Edit Music",
-									forceFitH = true,
-									onPressFunc = [&]()
-									{
-										call_music_dialog(local_ref.music);
-										list_music = GUI::ZCListData::music_names(true, false);
-										refresh_dlg();
-									})
-							),
-							Rows_Columns<2,3>(
-								Checkbox(text = "'A' chooses",
-									hAlign = 0.0,
-									checked = local_ref.flags & SMENU_CONFIRM_A,
-									onToggleFunc = [&](bool state)
-									{
-										SETFLAG(local_ref.flags, SMENU_CONFIRM_A, state);
-									}),
-								INFOBTN("If checked, the 'A' button can be used to select a menu choice. (The 'Start' button can always be used)"),
-								Checkbox(text = "'B' cancels",
-									hAlign = 0.0,
-									checked = local_ref.flags & SMENU_CANCEL_B,
-									onToggleFunc = [&](bool state)
-									{
-										SETFLAG(local_ref.flags, SMENU_CANCEL_B, state);
-									}),
-								INFOBTN("If checked, the 'B' button can be used to cancel out of the menu. (This does not work when being used as a 'Game Over' menu)"),
-								Checkbox(text = "Repeat Tile BG",
-									hAlign = 0.0,
-									checked = local_ref.flags & SMENU_REPEAT_BG,
-									onToggleFunc = [&](bool state)
-									{
-										SETFLAG(local_ref.flags, SMENU_REPEAT_BG, state);
-									}),
-								INFOBTN("If checked, the 'Tile BG' will be repeated to fill the whole screen."),
-								Checkbox(text = "Don't Kill Music",
-									hAlign = 0.0,
-									checked = local_ref.flags & SMENU_DONT_KILL_MUSIC,
-									onToggleFunc = [&](bool state)
-									{
-										SETFLAG(local_ref.flags, SMENU_DONT_KILL_MUSIC, state);
-										midi_ddl->setDisabled(state);
-									}),
-								INFOBTN("If checked, the music will not be killed by the menu. This means that the set 'Music' will be ignored as well."),
-								Checkbox(text = "Don't Kill SFX",
-									hAlign = 0.0,
-									checked = local_ref.flags & SMENU_DONT_KILL_SFX,
-									onToggleFunc = [&](bool state)
-									{
-										SETFLAG(local_ref.flags, SMENU_DONT_KILL_SFX, state);
-									}),
-								INFOBTN("If checked, SFX will not be killed by the menu.")
-								
+								Rows<4>(
+									Label(text = "Cursor SFX:", hAlign = 1.0),
+									DropDownList(data = list_sfx,
+										fitParent = true, selectedValue = local_ref.cursor_sfx,
+										onSelectFunc = [&](int32_t val)
+										{
+											local_ref.cursor_sfx = val;
+										}),
+									INFOBTN("The SFX to play when the selected choice changes."),
+									DummyWidget(),
+									
+									Label(text = "Choose SFX:", hAlign = 1.0),
+									DropDownList(data = list_sfx,
+										fitParent = true, selectedValue = local_ref.choose_sfx,
+										onSelectFunc = [&](int32_t val)
+										{
+											local_ref.choose_sfx = val;
+										}),
+									INFOBTN("The SFX to play when a choice is selected."),
+									DummyWidget(),
+									
+									Label(text = "Text Align:", hAlign = 1.0),
+									DropDownList(data = list_aligns,
+										fitParent = true, selectedValue = local_ref.text_align,
+										onSelectFunc = [&](int32_t val)
+										{
+											local_ref.text_align = val;
+										}),
+									INFOBTN("The alignment of the text, relative to the other text."),
+									DummyWidget(),
+									
+									Label(text = "Textbox Align:", hAlign = 1.0),
+									DropDownList(data = list_aligns,
+										fitParent = true, selectedValue = local_ref.textbox_align,
+										onSelectFunc = [&](int32_t val)
+										{
+											local_ref.textbox_align = val;
+										}),
+									INFOBTN("The alignment of the text, relative to 'Option X'."),
+									DummyWidget(),
+									
+									Label(text = "Music:", hAlign = 1.0),
+									midi_ddl = DropDownList(data = list_music,
+										fitParent = true,
+										selectedValue = local_ref.music,
+										disabled = local_ref.flags & SMENU_DONT_KILL_MUSIC,
+										onSelectFunc = [&](int32_t val)
+										{
+											local_ref.music = val;
+										}),
+									INFOBTN("The music to play during the save menu."),
+									Button(text = "Edit Music",
+										forceFitH = true,
+										onPressFunc = [&]()
+										{
+											call_music_dialog(local_ref.music);
+											list_music = GUI::ZCListData::music_names(true, false);
+											refresh_dlg();
+										})
+								)
 							)
 						)
 					)

@@ -148,6 +148,20 @@ int32_t savemenu_get_register(int32_t reg)
 			else ret = -10000L;
 			break;
 		}
+		case SAVEMENU_SEL_OPT_OFFSET_X:
+		{
+			if (menu)
+				ret = menu->opt_sel_x_offset * 10000L;
+			else ret = -10000L;
+			break;
+		}
+		case SAVEMENU_SEL_OPT_OFFSET_Y:
+		{
+			if (menu)
+				ret = menu->opt_sel_y_offset * 10000L;
+			else ret = -10000L;
+			break;
+		}
 		case SAVEMENU_MUSIC:
 		{
 			if (menu)
@@ -293,6 +307,18 @@ void savemenu_set_register(int32_t reg, int32_t value)
 		{
 			if (menu)
 				menu->close_flash_rate = vbound(value / 10000L, 0, 255);
+			break;
+		}
+		case SAVEMENU_SEL_OPT_OFFSET_X:
+		{
+			if (menu)
+				menu->opt_sel_x_offset = vbound(value / 10000L, -32768, 32767);
+			break;
+		}
+		case SAVEMENU_SEL_OPT_OFFSET_Y:
+		{
+			if (menu)
+				menu->opt_sel_y_offset = vbound(value / 10000L, -32768, 32767);
 			break;
 		}
 		case SAVEMENU_MUSIC:

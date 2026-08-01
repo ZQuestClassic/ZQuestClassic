@@ -4319,29 +4319,29 @@ POP D2; Func[void save_menu::SetName(char32[])] Body Start                      
 POP REFSAVEMENU                                                                 | 4290 resources/include/bindings/save_menu.zh:62
 SAVEMENU_SETNAME D2                                                             | 4291 resources/include/bindings/save_menu.zh:62
 RETURNFUNC; Func[void save_menu::SetName(char32[])] Body End                    | 4292 resources/include/bindings/save_menu.zh:62
-POP D2; Func[void save_menu::RemoveOption(int)] Body Start                      | 4293 resources/include/bindings/save_menu.zh:172
-POP REFSAVEMENU                                                                 | 4294 resources/include/bindings/save_menu.zh:172
-SAVEMENU_REMOVE_OPT D2                                                          | 4295 resources/include/bindings/save_menu.zh:172
-RETURNFUNC; Func[void save_menu::RemoveOption(int)] Body End                    | 4296 resources/include/bindings/save_menu.zh:172
-POP D2; Func[void save_menu::AddOption(int)] Body Start                         | 4297 resources/include/bindings/save_menu.zh:180
-POP REFSAVEMENU                                                                 | 4298 resources/include/bindings/save_menu.zh:180
-SAVEMENU_ADD_OPT D2                                                             | 4299 resources/include/bindings/save_menu.zh:180
-RETURNFUNC; Func[void save_menu::AddOption(int)] Body End                       | 4300 resources/include/bindings/save_menu.zh:180
-POP D3; Func[void save_menu::SwapOptions(int, int)] Body Start                  | 4301 resources/include/bindings/save_menu.zh:189
-POP D2                                                                          | 4302 resources/include/bindings/save_menu.zh:189
-POP REFSAVEMENU                                                                 | 4303 resources/include/bindings/save_menu.zh:189
-SAVEMENU_SWAP_OPT D2 D3                                                         | 4304 resources/include/bindings/save_menu.zh:189
-RETURNFUNC; Func[void save_menu::SwapOptions(int, int)] Body End                | 4305 resources/include/bindings/save_menu.zh:189
-POP D3; Func[void save_menu::GetString(int, char32[])] Body Start               | 4306 resources/include/bindings/save_menu.zh:198
-POP D2                                                                          | 4307 resources/include/bindings/save_menu.zh:198
-POP REFSAVEMENU                                                                 | 4308 resources/include/bindings/save_menu.zh:198
-SAVEMENU_OPT_GET_STRING D2 D3                                                   | 4309 resources/include/bindings/save_menu.zh:198
-RETURNFUNC; Func[void save_menu::GetString(int, char32[])] Body End             | 4310 resources/include/bindings/save_menu.zh:198
-POP D3; Func[void save_menu::SetString(int, char32[])] Body Start               | 4311 resources/include/bindings/save_menu.zh:207
-POP D2                                                                          | 4312 resources/include/bindings/save_menu.zh:207
-POP REFSAVEMENU                                                                 | 4313 resources/include/bindings/save_menu.zh:207
-SAVEMENU_OPT_SET_STRING D2 D3                                                   | 4314 resources/include/bindings/save_menu.zh:207
-RETURNFUNC; Func[void save_menu::SetString(int, char32[])] Body End             | 4315 resources/include/bindings/save_menu.zh:207
+POP D2; Func[void save_menu::RemoveOption(int)] Body Start                      | 4293 resources/include/bindings/save_menu.zh:182
+POP REFSAVEMENU                                                                 | 4294 resources/include/bindings/save_menu.zh:182
+SAVEMENU_REMOVE_OPT D2                                                          | 4295 resources/include/bindings/save_menu.zh:182
+RETURNFUNC; Func[void save_menu::RemoveOption(int)] Body End                    | 4296 resources/include/bindings/save_menu.zh:182
+POP D2; Func[void save_menu::AddOption(int)] Body Start                         | 4297 resources/include/bindings/save_menu.zh:190
+POP REFSAVEMENU                                                                 | 4298 resources/include/bindings/save_menu.zh:190
+SAVEMENU_ADD_OPT D2                                                             | 4299 resources/include/bindings/save_menu.zh:190
+RETURNFUNC; Func[void save_menu::AddOption(int)] Body End                       | 4300 resources/include/bindings/save_menu.zh:190
+POP D3; Func[void save_menu::SwapOptions(int, int)] Body Start                  | 4301 resources/include/bindings/save_menu.zh:199
+POP D2                                                                          | 4302 resources/include/bindings/save_menu.zh:199
+POP REFSAVEMENU                                                                 | 4303 resources/include/bindings/save_menu.zh:199
+SAVEMENU_SWAP_OPT D2 D3                                                         | 4304 resources/include/bindings/save_menu.zh:199
+RETURNFUNC; Func[void save_menu::SwapOptions(int, int)] Body End                | 4305 resources/include/bindings/save_menu.zh:199
+POP D3; Func[void save_menu::GetString(int, char32[])] Body Start               | 4306 resources/include/bindings/save_menu.zh:208
+POP D2                                                                          | 4307 resources/include/bindings/save_menu.zh:208
+POP REFSAVEMENU                                                                 | 4308 resources/include/bindings/save_menu.zh:208
+SAVEMENU_OPT_GET_STRING D2 D3                                                   | 4309 resources/include/bindings/save_menu.zh:208
+RETURNFUNC; Func[void save_menu::GetString(int, char32[])] Body End             | 4310 resources/include/bindings/save_menu.zh:208
+POP D3; Func[void save_menu::SetString(int, char32[])] Body Start               | 4311 resources/include/bindings/save_menu.zh:217
+POP D2                                                                          | 4312 resources/include/bindings/save_menu.zh:217
+POP REFSAVEMENU                                                                 | 4313 resources/include/bindings/save_menu.zh:217
+SAVEMENU_OPT_SET_STRING D2 D3                                                   | 4314 resources/include/bindings/save_menu.zh:217
+RETURNFUNC; Func[void save_menu::SetString(int, char32[])] Body End             | 4315 resources/include/bindings/save_menu.zh:217
 POP REFSAVPORTAL; Func[void savedportal::Remove()] Body Start                   | 4316 resources/include/bindings/savedportal.zh:43
 SAVEDPORTALREMOVE                                                               | 4317 resources/include/bindings/savedportal.zh:43
 RETURNFUNC; Func[void savedportal::Remove()] Body End                           | 4318 resources/include/bindings/savedportal.zh:43
@@ -11492,6 +11492,8 @@ debug data:
       - int[] PickedShadowColors @ Reg[SAVEMENU_OPT_COLOR_SHADOW_PICKED]
       - int SFXChoose @ Reg[SAVEMENU_SFX_CHOOSE]
       - int SFXCursor @ Reg[SAVEMENU_SFX_CURSOR]
+      - int SelectedXOffset @ Reg[SAVEMENU_SEL_OPT_OFFSET_X]
+      - int SelectedYOffset @ Reg[SAVEMENU_SEL_OPT_OFFSET_Y]
       - int[] ShadowColors @ Reg[SAVEMENU_OPT_COLOR_SHADOW]
       - ShadowType[] ShadowTypes @ Reg[SAVEMENU_OPT_SHADOW_TYPE]
       - TextAlignment TextAlign @ Reg[SAVEMENU_TEXT_ALIGN]

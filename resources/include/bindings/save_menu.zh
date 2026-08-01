@@ -125,6 +125,16 @@ class save_menu
 	// 
 	// @zasm_var SAVEMENU_OPTY
 	internal int Y;
+	
+	// The X Offset applied to the Selected option and cursor
+	//
+	// @zasm_var SAVEMENU_SEL_OPT_OFFSET_X
+	internal int SelectedXOffset;
+	
+	// The Y Offset applied to the Selected option and cursor
+	//
+	// @zasm_var SAVEMENU_SEL_OPT_OFFSET_Y
+	internal int SelectedYOffset;
 
 	// The alignment of the text within the textbox
 	// 
