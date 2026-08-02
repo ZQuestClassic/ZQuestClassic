@@ -93,10 +93,11 @@
 class ZasmArrayManager
 {
 public:
-	void registerArray(int zasm_var, IScriptingArray* impl)
+	void registerArray(int zasm_var, IScriptingArray* impl, std::optional<int> ref_register)
 	{
 		DCHECK(!m_arrays[zasm_var]);
 		m_arrays[zasm_var] = impl;
+		m_refOverrides[zasm_var] = ref_register;
 	}
 
 	bool isRegistered(int zasm_var)
@@ -173,15 +174,41 @@ public:
 		return false;
 	}
 
+	const IScriptingArray* getArray(int zasm_var) const
+	{
+		return m_arrays[zasm_var];
+	}
+
+	std::optional<int> getRefRegister(int zasm_var) const
+	{
+		// One impl can serve two registers with different refs (lweapon and
+		// eweapon), so a registration may override what the type says.
+		if (m_refOverrides[zasm_var])
+			return m_refOverrides[zasm_var];
+		auto impl = m_arrays[zasm_var];
+		return impl ? impl->getRefRegister() : std::nullopt;
+	}
+
 private:
 	IScriptingArray* m_arrays[NUMVARIABLES];
+	std::optional<int> m_refOverrides[NUMVARIABLES];
 };
 
 static ZasmArrayManager g_arrayManager;
 
-ArrayRegistrar::ArrayRegistrar(int zasm_var, IScriptingArray* arrayImpl)
+ArrayRegistrar::ArrayRegistrar(int zasm_var, IScriptingArray* arrayImpl, std::optional<int> ref_register)
 {
-	g_arrayManager.registerArray(zasm_var, arrayImpl);
+	g_arrayManager.registerArray(zasm_var, arrayImpl, ref_register);
+}
+
+const IScriptingArray* zasm_array_get(int zasm_var)
+{
+	return g_arrayManager.getArray(zasm_var);
+}
+
+std::optional<int> zasm_array_ref_register(int zasm_var)
+{
+	return g_arrayManager.getRefRegister(zasm_var);
 }
 
 int zasm_array_size(int zasm_var, int ref)
@@ -209,7 +236,7 @@ bool zasm_array_supports(int zasm_var)
 	return g_arrayManager.isRegistered(zasm_var);
 }
 
-void zasm_array_register(int zasm_var, IScriptingArray* impl)
+void zasm_array_register(int zasm_var, IScriptingArray* impl, std::optional<int> ref_register)
 {
-	g_arrayManager.registerArray(zasm_var, impl);
+	g_arrayManager.registerArray(zasm_var, impl, ref_register);
 }

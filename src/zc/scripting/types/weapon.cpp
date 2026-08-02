@@ -5,10 +5,12 @@
 
 struct WeaponArrayRegistrar
 {
+	// The same array serves lweapon and eweapon, so each registration says which
+	// ref register resolves its object.
 	WeaponArrayRegistrar(int zasm_var_1, int zasm_var_2, IScriptingArray* arrayImpl)
 	{
-		zasm_array_register(zasm_var_1, arrayImpl);
-		zasm_array_register(zasm_var_2, arrayImpl);
+		zasm_array_register(zasm_var_1, arrayImpl, REFLWPN);
+		zasm_array_register(zasm_var_2, arrayImpl, REFEWPN);
 	}
 };
 

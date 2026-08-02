@@ -3,6 +3,7 @@
 
 // See arrays.cpp for how to define scripting arrays.
 
+#include "components/zasm/defines.h"
 #include "core/combo.h"
 #include "base/general.h"
 #include "core/qrs.h"
@@ -220,6 +221,79 @@ T* resolveScriptingObject(int ref)
 		static_assert(always_false<T>::value, "Unhandled type in 'resolveScriptingObject' function");
 }
 
+// The ZASM register an object array resolves its object from - `npcdata->Flags[]`
+// resolves via REFNPCDATA, and so on. This is derived from the object type rather
+// than declared per-array so that it can't be forgotten: a new object type won't
+// compile until it is listed here, and zasm_array_validate_ref_registers() checks
+// the generated table in components/zasm agrees with what these say.
+template <typename T>
+constexpr std::optional<int> ref_register_for()
+{
+	if constexpr (std::is_same<T, user_genscript>::value)
+		return REFGENERICDATA;
+	else if constexpr (std::is_same<T, sprite>::value)
+		return REFSPRITE;
+	else if constexpr (std::is_same<T, ffcdata>::value)
+		return REFFFC;
+	else if constexpr (std::is_same<T, enemy>::value)
+		return REFNPC;
+	else if constexpr (std::is_same<T, guydata>::value)
+		return REFNPCDATA;
+	else if constexpr (std::is_same<T, item>::value)
+		return REFITEM;
+	else if constexpr (std::is_same<T, itemdata>::value)
+		return REFITEMDATA;
+	else if constexpr (std::is_same<T, newcombo>::value)
+		return REFCOMBODATA;
+	else if constexpr (std::is_same<T, combo_trigger>::value)
+		return REFCOMBOTRIGGER;
+	else if constexpr (std::is_same<T, dmap>::value)
+		return REFDMAPDATA;
+	else if constexpr (std::is_same<T, mapdata>::value)
+		return REFMAPDATA;
+	else if constexpr (std::is_same<T, mapscr>::value)
+		return REFMAPDATA;
+	else if constexpr (std::is_same<T, user_paldata>::value)
+		return REFPALDATA;
+	else if constexpr (std::is_same<T, user_websocket>::value)
+		return REFWEBSOCKET;
+	else if constexpr (std::is_same<T, screendata>::value)
+		return REFSCREEN;
+	else if constexpr (std::is_same<T, ZCSubscreen>::value)
+		return REFSUBSCREENDATA;
+	else if constexpr (std::is_same<T, ZCSubscreenActive>::value)
+		return REFSUBSCREENDATA;
+	else if constexpr (std::is_same<T, SubscrWidget>::value)
+		return REFSUBSCREENWIDG;
+	else if constexpr (std::is_same<T, SubscrWidgetActive>::value)
+		return REFSUBSCREENWIDG;
+	else if constexpr (std::is_same<T, bottletype>::value)
+		return REFBOTTLETYPE;
+	else if constexpr (std::is_same<T, bottleshoptype>::value)
+		return REFBOTTLESHOP;
+	else if constexpr (std::is_same<T, item_drop_object>::value)
+		return REFDROPSETDATA;
+	else if constexpr (std::is_same<T, sprite_data>::value)
+		return REFSPRITEDATA;
+	else if constexpr (std::is_same<T, MsgStr>::value)
+		return REFMSGDATA;
+	else if constexpr (std::is_same<T, SaveMenu>::value)
+		return REFSAVEMENU;
+	else if constexpr (std::is_same<T, weapon_data>::value)
+		return REFWEAPDATA;
+	// lweapon and eweapon share one array impl, registered under both LWPN* and
+	// EWPN*; the eweapon registration passes REFEWPN explicitly.
+	else if constexpr (std::is_same<T, weapon>::value)
+		return REFLWPN;
+	// Singletons - resolved without consulting a ref register.
+	else if constexpr (std::is_same<T, gamedata>::value)
+		return std::nullopt;
+	else if constexpr (std::is_same<T, HeroClass>::value)
+		return std::nullopt;
+	else
+		static_assert(always_false<T>::value, "Unhandled type in 'ref_register_for' - add the REF register this object's arrays resolve from");
+}
+
 class IScriptingArray
 {
 public:
@@ -229,6 +303,13 @@ public:
 	virtual std::vector<int> getAll(int ref) const;
 	virtual int getElement(int ref, int index) const = 0;
 	virtual bool setElement(int ref, int index, int value) = 0;
+	// Whether this array resolves a context object from a ref register. Only
+	// these can state which register that is; "Global" arrays may still consume
+	// the ref integer themselves (see SDD), so they make no claim.
+	virtual bool resolvesObject() const { return false; }
+	// Which ref register the object is resolved from - nullopt for singletons
+	// (Game, Hero), which need no ref. Only meaningful if resolvesObject().
+	virtual std::optional<int> getRefRegister() const { return std::nullopt; }
 
 	// Note: Do not use for new arrays.
 	void compatSetDefaultValue(int defaultValue) { m_defaultValue = defaultValue; }
@@ -551,6 +632,8 @@ template<typename T_Object, auto T_MemberPtr>
 class ScriptingArray_ObjectMemberCArray : public IScriptingArray
 {
 public:
+	bool resolvesObject() const override { return true; }
+	std::optional<int> getRefRegister() const override { return ref_register_for<T_Object>(); }
 	using MemberType = field_type<T_MemberPtr>::type;
 	using ElementType = std::remove_extent<MemberType>::type;
 	using N = std::extent<MemberType>;
@@ -622,6 +705,8 @@ template<typename T_Object, auto T_MemberPtr, auto T_SubMemberPtr>
 class ScriptingArray_ObjectSubMemberCArray : public IScriptingArray
 {
 public:
+	bool resolvesObject() const override { return true; }
+	std::optional<int> getRefRegister() const override { return ref_register_for<T_Object>(); }
 	using MemberType = field_type<T_SubMemberPtr>::type;
 	using ElementType = std::remove_extent<MemberType>::type;
 	using N = std::extent<MemberType>;
@@ -675,6 +760,8 @@ template<typename T_Object, typename T_Element>
 class ScriptingArray_ObjectComputed : public IScriptingArray
 {
 public:
+	bool resolvesObject() const override { return true; }
+	std::optional<int> getRefRegister() const override { return ref_register_for<T_Object>(); }
 	using SizeFunc = std::function<size_t(T_Object* obj)>;
 	using GetFunc = std::function<T_Element(T_Object* obj, int index)>;
 	using SetFunc = std::function<void(T_Object* obj, int index, T_Element value)>;
@@ -792,6 +879,8 @@ template<typename T_Object, auto T_MemberPtr, size_t N>
 class ScriptingArray_ObjectMemberBitwiseFlags : public IScriptingArray
 {
 public:
+	bool resolvesObject() const override { return true; }
+	std::optional<int> getRefRegister() const override { return ref_register_for<T_Object>(); }
 	using MemberType = field_type<T_MemberPtr>::type;
 
 	size_t getSize(int) const override { return N; }
@@ -842,6 +931,8 @@ template<typename T_Object, auto T_MemberPtr, auto T_SubMemberPtr, size_t N>
 class ScriptingArray_ObjectSubMemberBitwiseFlags : public IScriptingArray
 {
 public:
+	bool resolvesObject() const override { return true; }
+	std::optional<int> getRefRegister() const override { return ref_register_for<T_Object>(); }
 	using MemberType = field_type<T_SubMemberPtr>::type;
 
 	size_t getSize(int) const override { return N; }
@@ -892,6 +983,8 @@ template<typename T_Object, auto T_MemberPtr, size_t N>
 class ScriptingArray_ObjectMemberBitstring : public IScriptingArray
 {
 public:
+	bool resolvesObject() const override { return true; }
+	std::optional<int> getRefRegister() const override { return ref_register_for<T_Object>(); }
 	using MemberType = field_type<T_MemberPtr>::type;
 
 	size_t getSize(int) const override { return N; }
@@ -941,6 +1034,8 @@ template<typename T_Object, auto T_MemberPtr, size_t N>
 class ScriptingArray_ObjectMemberSet : public IScriptingArray
 {
 public:
+	bool resolvesObject() const override { return true; }
+	std::optional<int> getRefRegister() const override { return ref_register_for<T_Object>(); }
 	using MemberType = field_type<T_MemberPtr>::type;
 
 	size_t getSize(int) const override { return N; }
@@ -993,6 +1088,8 @@ template<typename T_Object, auto T_MemberPtr>
 class ScriptingArray_ObjectMemberContainer : public IScriptingArray
 {
 public:
+	bool resolvesObject() const override { return true; }
+	std::optional<int> getRefRegister() const override { return ref_register_for<T_Object>(); }
 	using ContainerType = field_type<T_MemberPtr>::type;
 	using ElementType = ContainerType::value_type;
 
@@ -1054,6 +1151,8 @@ template<typename T_Object, auto T_MemberPtr, auto T_SubMemberPtr>
 class ScriptingArray_ObjectSubMemberContainer : public IScriptingArray
 {
 public:
+	bool resolvesObject() const override { return true; }
+	std::optional<int> getRefRegister() const override { return ref_register_for<T_Object>(); }
 	using MemberType = field_type<T_MemberPtr>::type;
 	using ContainerType = field_type<T_SubMemberPtr>::type;
 	using ElementType = ContainerType::value_type;
@@ -1117,6 +1216,8 @@ template<typename T_Object, auto T_MemberPtr, auto T_SubMemberPtr, auto T_SubSub
 class ScriptingArray_ObjectSubSubMemberContainer : public IScriptingArray
 {
 public:
+	bool resolvesObject() const override { return true; }
+	std::optional<int> getRefRegister() const override { return ref_register_for<T_Object>(); }
 	using MemberType = field_type<T_MemberPtr>::type;
 	using SubMemberType = field_type<T_SubMemberPtr>::type;
 	using ContainerType = field_type<T_SubSubMemberPtr>::type;
@@ -1180,9 +1281,18 @@ private:
 
 struct ArrayRegistrar
 {
-	ArrayRegistrar(int zasm_var, IScriptingArray* arrayImpl);
+	ArrayRegistrar(int zasm_var, IScriptingArray* arrayImpl, std::optional<int> ref_register = std::nullopt);
 };
 
-void zasm_array_register(int zasm_var, IScriptingArray* impl);
+void zasm_array_register(int zasm_var, IScriptingArray* impl, std::optional<int> ref_register = std::nullopt);
+
+// The array registered for a ZASM register, if any.
+const IScriptingArray* zasm_array_get(int zasm_var);
+
+// The ref register the array's object resolves from: the registration's
+// override if one was given (lweapon/eweapon), else what the object type says.
+// Only meaningful for arrays whose resolvesObject() is true; test_arrays checks
+// the generated zasm table agrees with this.
+std::optional<int> zasm_array_ref_register(int zasm_var);
 
 #endif
