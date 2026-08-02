@@ -4034,182 +4034,182 @@ RETURNFUNC; Func[void musicdata::SetName(char32[])] Body End                    
 POP REFMUSIC; Func[void musicdata::Play()] Body Start                           | 4005 resources/include/bindings/musicdata.zh:107
 PLAY_MUSIC REFMUSIC                                                             | 4006 resources/include/bindings/musicdata.zh:107
 RETURNFUNC; Func[void musicdata::Play()] Body End                               | 4007 resources/include/bindings/musicdata.zh:107
-POP D2; Func[void npc::Max(int)] Body Start                                     | 4008 resources/include/bindings/npc.zh:632
-POP REFNPC                                                                      | 4009 resources/include/bindings/npc.zh:632
-SETR SPRITEMAXNPC D2                                                            | 4010 resources/include/bindings/npc.zh:632
-RETURNFUNC; Func[void npc::Max(int)] Body End                                   | 4011 resources/include/bindings/npc.zh:632
-POP D2; Func[bool npc::isValid()] Body Start                                    | 4012 resources/include/bindings/npc.zh:640
-ISVALIDNPC D2                                                                   | 4013 resources/include/bindings/npc.zh:640
-RETURNFUNC; Func[bool npc::isValid()] Body End                                  | 4014 resources/include/bindings/npc.zh:640
-POP D2; Func[void npc::Explode(int)] Body Start                                 | 4015 resources/include/bindings/npc.zh:648
-POP REFNPC                                                                      | 4016 resources/include/bindings/npc.zh:648
-NPCEXPLODER D2                                                                  | 4017 resources/include/bindings/npc.zh:648
-RETURNFUNC; Func[void npc::Explode(int)] Body End                               | 4018 resources/include/bindings/npc.zh:648
-POP REFNPC; Func[bool npc::Submerged()] Body Start                              | 4019 resources/include/bindings/npc.zh:655
-SETR D2 NPCSUBMERGED                                                            | 4020 resources/include/bindings/npc.zh:655
-RETURNFUNC; Func[bool npc::Submerged()] Body End                                | 4021 resources/include/bindings/npc.zh:655
-POP D2; Func[void npc::GetName(char32[])] Body Start                            | 4022 resources/include/bindings/npc.zh:661
-POP REFNPC                                                                      | 4023 resources/include/bindings/npc.zh:661
-NPCNAME D2                                                                      | 4024 resources/include/bindings/npc.zh:661
-RETURNFUNC; Func[void npc::GetName(char32[])] Body End                          | 4025 resources/include/bindings/npc.zh:661
-POP D2; Func[void npc::BreakShield()] Body Start                                | 4026 resources/include/bindings/npc.zh:666
-BREAKSHIELD D2                                                                  | 4027 resources/include/bindings/npc.zh:666
-RETURNFUNC; Func[void npc::BreakShield()] Body End                              | 4028 resources/include/bindings/npc.zh:666
-POP D2; Func[void npc::RepairShield()] Body Start                               | 4029 resources/include/bindings/npc.zh:672
-REPAIRSHIELD D2                                                                 | 4030 resources/include/bindings/npc.zh:672
-RETURNFUNC; Func[void npc::RepairShield()] Body End                             | 4031 resources/include/bindings/npc.zh:672
-POP REFNPC; Func[bool npc::isDead()] Body Start                                 | 4032 resources/include/bindings/npc.zh:679
-NPCDEAD D2                                                                      | 4033 resources/include/bindings/npc.zh:679
-RETURNFUNC; Func[bool npc::isDead()] Body End                                   | 4034 resources/include/bindings/npc.zh:679
-POP REFNPC; Func[bool npc::CanSlide()] Body Start                               | 4035 resources/include/bindings/npc.zh:686
-NPCCANSLIDE D2                                                                  | 4036 resources/include/bindings/npc.zh:686
-RETURNFUNC; Func[bool npc::CanSlide()] Body End                                 | 4037 resources/include/bindings/npc.zh:686
-POP REFNPC; Func[bool npc::Slide()] Body Start                                  | 4038 resources/include/bindings/npc.zh:704
-NPCSLIDE D2                                                                     | 4039 resources/include/bindings/npc.zh:704
-RETURNFUNC; Func[bool npc::Slide()] Body End                                    | 4040 resources/include/bindings/npc.zh:704
-POP REFNPC; Func[void npc::Remove()] Body Start                                 | 4041 resources/include/bindings/npc.zh:718
-NPCKICKBUCKET                                                                   | 4042 resources/include/bindings/npc.zh:718
-RETURNFUNC; Func[void npc::Remove()] Body End                                   | 4043 resources/include/bindings/npc.zh:718
-POP REFNPC; Func[void npc::StopBGSFX()] Body Start                              | 4044 resources/include/bindings/npc.zh:725
-NPCSTOPBGSFX                                                                    | 4045 resources/include/bindings/npc.zh:725
-RETURNFUNC; Func[void npc::StopBGSFX()] Body End                                | 4046 resources/include/bindings/npc.zh:725
-POP REFNPC; Func[void npc::Attack()] Body Start                                 | 4047 resources/include/bindings/npc.zh:732
-NPCATTACK                                                                       | 4048 resources/include/bindings/npc.zh:732
-RETURNFUNC; Func[void npc::Attack()] Body End                                   | 4049 resources/include/bindings/npc.zh:732
-POP D2; Func[void npc::NewDir(int)] Body Start                                  | 4050 resources/include/bindings/npc.zh:744
-POP REFNPC                                                                      | 4051 resources/include/bindings/npc.zh:744
-NPCNEWDIR D2                                                                    | 4052 resources/include/bindings/npc.zh:744
-RETURNFUNC; Func[void npc::NewDir(int)] Body End                                | 4053 resources/include/bindings/npc.zh:744
-POP D2; Func[void npc::ConstantWalk(int)] Body Start                            | 4054 resources/include/bindings/npc.zh:758
-POP REFNPC                                                                      | 4055 resources/include/bindings/npc.zh:758
-NPCCONSTWALK D2                                                                 | 4056 resources/include/bindings/npc.zh:758
-RETURNFUNC; Func[void npc::ConstantWalk(int)] Body End                          | 4057 resources/include/bindings/npc.zh:758
-POP D2; Func[void npc::ConstantWalk8(int)] Body Start                           | 4058 resources/include/bindings/npc.zh:768
-POP REFNPC                                                                      | 4059 resources/include/bindings/npc.zh:768
-NPCCONSTWALK8 D2                                                                | 4060 resources/include/bindings/npc.zh:768
-RETURNFUNC; Func[void npc::ConstantWalk8(int)] Body End                         | 4061 resources/include/bindings/npc.zh:768
-POP D2; Func[void npc::VariableWalk(int)] Body Start                            | 4062 resources/include/bindings/npc.zh:778
-POP REFNPC                                                                      | 4063 resources/include/bindings/npc.zh:778
-NPCVARWALK D2                                                                   | 4064 resources/include/bindings/npc.zh:778
-RETURNFUNC; Func[void npc::VariableWalk(int)] Body End                          | 4065 resources/include/bindings/npc.zh:778
-POP D2; Func[void npc::VariableWalk8(int)] Body Start                           | 4066 resources/include/bindings/npc.zh:791
-POP REFNPC                                                                      | 4067 resources/include/bindings/npc.zh:791
-NPCVARWALK8 D2                                                                  | 4068 resources/include/bindings/npc.zh:791
-RETURNFUNC; Func[void npc::VariableWalk8(int)] Body End                         | 4069 resources/include/bindings/npc.zh:791
-POP D2; Func[void npc::HaltingWalk(int)] Body Start                             | 4070 resources/include/bindings/npc.zh:801
-POP REFNPC                                                                      | 4071 resources/include/bindings/npc.zh:801
-NPCHALTWALK D2                                                                  | 4072 resources/include/bindings/npc.zh:801
-RETURNFUNC; Func[void npc::HaltingWalk(int)] Body End                           | 4073 resources/include/bindings/npc.zh:801
-POP D2; Func[void npc::HaltingWalk8(int)] Body Start                            | 4074 resources/include/bindings/npc.zh:812
-POP REFNPC                                                                      | 4075 resources/include/bindings/npc.zh:812
-NPCHALTWALK8 D2                                                                 | 4076 resources/include/bindings/npc.zh:812
-RETURNFUNC; Func[void npc::HaltingWalk8(int)] Body End                          | 4077 resources/include/bindings/npc.zh:812
-POP D2; Func[void npc::FloatingWalk(int)] Body Start                            | 4078 resources/include/bindings/npc.zh:820
-POP REFNPC                                                                      | 4079 resources/include/bindings/npc.zh:820
-NPCFLOATWALK D2                                                                 | 4080 resources/include/bindings/npc.zh:820
-RETURNFUNC; Func[void npc::FloatingWalk(int)] Body End                          | 4081 resources/include/bindings/npc.zh:820
-POP D2; Func[void npc::BreathAttack(bool)] Body Start                           | 4082 resources/include/bindings/npc.zh:828
-POP REFNPC                                                                      | 4083 resources/include/bindings/npc.zh:828
-NPCFIREBREATH D2                                                                | 4084 resources/include/bindings/npc.zh:828
-RETURNFUNC; Func[void npc::BreathAttack(bool)] Body End                         | 4085 resources/include/bindings/npc.zh:828
-POP D2; Func[void npc::NewDir8(int)] Body Start                                 | 4086 resources/include/bindings/npc.zh:840
-POP REFNPC                                                                      | 4087 resources/include/bindings/npc.zh:840
-NPCNEWDIR8 D2                                                                   | 4088 resources/include/bindings/npc.zh:840
-RETURNFUNC; Func[void npc::NewDir8(int)] Body End                               | 4089 resources/include/bindings/npc.zh:840
-POP D1; Func[bool npc::Collision(int, untyped)] Body Start                      | 4090 resources/include/bindings/npc.zh:859
-POP D0                                                                          | 4091 resources/include/bindings/npc.zh:859
-POP REFNPC                                                                      | 4092 resources/include/bindings/npc.zh:859
-SETR D2 NPCCOLLISION                                                            | 4093 resources/include/bindings/npc.zh:859
-RETURNFUNC; Func[bool npc::Collision(int, untyped)] Body End                    | 4094 resources/include/bindings/npc.zh:859
-POP D1; Func[int npc::LinedUp(int, bool)] Body Start                            | 4095 resources/include/bindings/npc.zh:872
-POP D0                                                                          | 4096 resources/include/bindings/npc.zh:872
-POP REFNPC                                                                      | 4097 resources/include/bindings/npc.zh:872
-SETR D2 NPCLINEDUP                                                              | 4098 resources/include/bindings/npc.zh:872
-RETURNFUNC; Func[int npc::LinedUp(int, bool)] Body End                          | 4099 resources/include/bindings/npc.zh:872
-POP D2; Func[bool npc::LinkInRange(int)] Body Start                             | 4100 resources/include/bindings/npc.zh:880
-POP REFNPC                                                                      | 4101 resources/include/bindings/npc.zh:880
-NPCLINKINRANGE D2                                                               | 4102 resources/include/bindings/npc.zh:880
-RETURNFUNC; Func[bool npc::LinkInRange(int)] Body End                           | 4103 resources/include/bindings/npc.zh:880
-POP D2; Func[bool npc::CanMove(int)] Body Start                                 | 4104 resources/include/bindings/npc.zh:900
-POP REFNPC                                                                      | 4105 resources/include/bindings/npc.zh:900
-NPCCANMOVE D2                                                                   | 4106 resources/include/bindings/npc.zh:900
-RETURNFUNC; Func[bool npc::CanMove(int)] Body End                               | 4107 resources/include/bindings/npc.zh:900
-POP D2; Func[bool npc::SimulateHit(int)] Body Start                             | 4108 resources/include/bindings/npc.zh:919
-POP REFNPC                                                                      | 4109 resources/include/bindings/npc.zh:919
-NPCHITWITH D2                                                                   | 4110 resources/include/bindings/npc.zh:919
-RETURNFUNC; Func[bool npc::SimulateHit(int)] Body End                           | 4111 resources/include/bindings/npc.zh:919
-POP D2; Func[npc npc::Create(int)] Body Start                                   | 4112 resources/include/bindings/npc.zh:943
-POP REFNPC                                                                      | 4113 resources/include/bindings/npc.zh:943
-NPCADD D2                                                                       | 4114 resources/include/bindings/npc.zh:943
-RETURNFUNC; Func[npc npc::Create(int)] Body End                                 | 4115 resources/include/bindings/npc.zh:943
-POP D0; Func[bool npc::Knockback(int, int, int)] Body Start                     | 4116 resources/include/bindings/npc.zh:954
-POP D3                                                                          | 4117 resources/include/bindings/npc.zh:954
-POP D2                                                                          | 4118 resources/include/bindings/npc.zh:954
-POP REFNPC                                                                      | 4119 resources/include/bindings/npc.zh:954
-NPCKNOCKBACK D2 D3                                                              | 4120 resources/include/bindings/npc.zh:954
-RETURNFUNC; Func[bool npc::Knockback(int, int, int)] Body End                   | 4121 resources/include/bindings/npc.zh:954
-POP D2; Func[bool npc::Switch(int)] Body Start                                  | 4122 resources/include/bindings/npc.zh:964
-POP REFNPC                                                                      | 4123 resources/include/bindings/npc.zh:964
-SWITCHNPC D2                                                                    | 4124 resources/include/bindings/npc.zh:964
-RETURNFUNC; Func[bool npc::Switch(int)] Body End                                | 4125 resources/include/bindings/npc.zh:964
-POP REFNPC; Func[bool npc::MovePaused()] Body Start                             | 4126 resources/include/bindings/npc.zh:972
-NPCMOVEPAUSED                                                                   | 4127 resources/include/bindings/npc.zh:972
-RETURNFUNC; Func[bool npc::MovePaused()] Body End                               | 4128 resources/include/bindings/npc.zh:972
-POP D2; Func[bool npc::Move(int, int, int)] Body Start                          | 4129 resources/include/bindings/npc.zh:983
-POP D3                                                                          | 4130 resources/include/bindings/npc.zh:983
-POP D0                                                                          | 4131 resources/include/bindings/npc.zh:983
-POP REFNPC                                                                      | 4132 resources/include/bindings/npc.zh:983
-NPCMOVE                                                                         | 4133 resources/include/bindings/npc.zh:983
-RETURNFUNC; Func[bool npc::Move(int, int, int)] Body End                        | 4134 resources/include/bindings/npc.zh:983
-POP D2; Func[bool npc::MoveAtAngle(int, int, int)] Body Start                   | 4135 resources/include/bindings/npc.zh:994
-POP D3                                                                          | 4136 resources/include/bindings/npc.zh:994
-POP D0                                                                          | 4137 resources/include/bindings/npc.zh:994
-POP REFNPC                                                                      | 4138 resources/include/bindings/npc.zh:994
-NPCMOVEANGLE                                                                    | 4139 resources/include/bindings/npc.zh:994
-RETURNFUNC; Func[bool npc::MoveAtAngle(int, int, int)] Body End                 | 4140 resources/include/bindings/npc.zh:994
-POP D2; Func[bool npc::MoveXY(int, int, int)] Body Start                        | 4141 resources/include/bindings/npc.zh:1005
-POP D3                                                                          | 4142 resources/include/bindings/npc.zh:1005
-POP D0                                                                          | 4143 resources/include/bindings/npc.zh:1005
-POP REFNPC                                                                      | 4144 resources/include/bindings/npc.zh:1005
-NPCMOVEXY                                                                       | 4145 resources/include/bindings/npc.zh:1005
-RETURNFUNC; Func[bool npc::MoveXY(int, int, int)] Body End                      | 4146 resources/include/bindings/npc.zh:1005
-POP D2; Func[bool npc::CanMove(int, int, int)] Body Start                       | 4147 resources/include/bindings/npc.zh:1016
-POP D3                                                                          | 4148 resources/include/bindings/npc.zh:1016
-POP D0                                                                          | 4149 resources/include/bindings/npc.zh:1016
-POP REFNPC                                                                      | 4150 resources/include/bindings/npc.zh:1016
-NPCCANMOVEDIR                                                                   | 4151 resources/include/bindings/npc.zh:1016
-RETURNFUNC; Func[bool npc::CanMove(int, int, int)] Body End                     | 4152 resources/include/bindings/npc.zh:1016
-POP D2; Func[bool npc::CanMoveAtAngle(int, int, int)] Body Start                | 4153 resources/include/bindings/npc.zh:1027
-POP D3                                                                          | 4154 resources/include/bindings/npc.zh:1027
-POP D0                                                                          | 4155 resources/include/bindings/npc.zh:1027
-POP REFNPC                                                                      | 4156 resources/include/bindings/npc.zh:1027
-NPCCANMOVEANGLE                                                                 | 4157 resources/include/bindings/npc.zh:1027
-RETURNFUNC; Func[bool npc::CanMoveAtAngle(int, int, int)] Body End              | 4158 resources/include/bindings/npc.zh:1027
-POP D2; Func[bool npc::CanMoveXY(int, int, int)] Body Start                     | 4159 resources/include/bindings/npc.zh:1038
-POP D3                                                                          | 4160 resources/include/bindings/npc.zh:1038
-POP D0                                                                          | 4161 resources/include/bindings/npc.zh:1038
-POP REFNPC                                                                      | 4162 resources/include/bindings/npc.zh:1038
-NPCCANMOVEXY                                                                    | 4163 resources/include/bindings/npc.zh:1038
-RETURNFUNC; Func[bool npc::CanMoveXY(int, int, int)] Body End                   | 4164 resources/include/bindings/npc.zh:1038
-NPCCANPLACE; Func[bool npc::CanPlace(int, int, int, bool, int, int)] Body Start | 4165 resources/include/bindings/npc.zh:1058
-POPARGS D5 0.0007                                                               | 4166 resources/include/bindings/npc.zh:1058
-RETURNFUNC; Func[bool npc::CanPlace(int, int, int, bool, int, int)] Body End    | 4167 resources/include/bindings/npc.zh:1058
-POP REFNPC; Func[bool npc::isFlickerFrame()] Body Start                         | 4168 resources/include/bindings/npc.zh:1067
-NPCISFLICKERFRAME                                                               | 4169 resources/include/bindings/npc.zh:1067
-RETURNFUNC; Func[bool npc::isFlickerFrame()] Body End                           | 4170 resources/include/bindings/npc.zh:1067
-POP D2; Func[npc npc::SummonMinion(int, int)] Body Start                        | 4171 resources/include/bindings/npc.zh:1093
-POP D3                                                                          | 4172 resources/include/bindings/npc.zh:1093
-POP REFNPC                                                                      | 4173 resources/include/bindings/npc.zh:1093
-NPC_SUMMON_MINION D2 D3                                                         | 4174 resources/include/bindings/npc.zh:1093
-RETURNFUNC; Func[npc npc::SummonMinion(int, int)] Body End                      | 4175 resources/include/bindings/npc.zh:1093
-POP D2; Func[npc npc::SummonMinionFromLayer(int)] Body Start                    | 4176 resources/include/bindings/npc.zh:1105
-POP REFNPC                                                                      | 4177 resources/include/bindings/npc.zh:1105
-NPC_SUMMON_MINION_LAYER D2                                                      | 4178 resources/include/bindings/npc.zh:1105
-RETURNFUNC; Func[npc npc::SummonMinionFromLayer(int)] Body End                  | 4179 resources/include/bindings/npc.zh:1105
-POP D2; Func[void npcdata::GetName(char32[])] Body Start                        | 4180 resources/include/bindings/npcdata.zh:548
-POP REFNPCDATA                                                                  | 4181 resources/include/bindings/npcdata.zh:548
-NPCDATAGETNAME D2                                                               | 4182 resources/include/bindings/npcdata.zh:548
-RETURNFUNC; Func[void npcdata::GetName(char32[])] Body End                      | 4183 resources/include/bindings/npcdata.zh:548
+POP D2; Func[void npc::Max(int)] Body Start                                     | 4008 resources/include/bindings/npc.zh:641
+POP REFNPC                                                                      | 4009 resources/include/bindings/npc.zh:641
+SETR SPRITEMAXNPC D2                                                            | 4010 resources/include/bindings/npc.zh:641
+RETURNFUNC; Func[void npc::Max(int)] Body End                                   | 4011 resources/include/bindings/npc.zh:641
+POP D2; Func[bool npc::isValid()] Body Start                                    | 4012 resources/include/bindings/npc.zh:649
+ISVALIDNPC D2                                                                   | 4013 resources/include/bindings/npc.zh:649
+RETURNFUNC; Func[bool npc::isValid()] Body End                                  | 4014 resources/include/bindings/npc.zh:649
+POP D2; Func[void npc::Explode(int)] Body Start                                 | 4015 resources/include/bindings/npc.zh:657
+POP REFNPC                                                                      | 4016 resources/include/bindings/npc.zh:657
+NPCEXPLODER D2                                                                  | 4017 resources/include/bindings/npc.zh:657
+RETURNFUNC; Func[void npc::Explode(int)] Body End                               | 4018 resources/include/bindings/npc.zh:657
+POP REFNPC; Func[bool npc::Submerged()] Body Start                              | 4019 resources/include/bindings/npc.zh:664
+SETR D2 NPCSUBMERGED                                                            | 4020 resources/include/bindings/npc.zh:664
+RETURNFUNC; Func[bool npc::Submerged()] Body End                                | 4021 resources/include/bindings/npc.zh:664
+POP D2; Func[void npc::GetName(char32[])] Body Start                            | 4022 resources/include/bindings/npc.zh:670
+POP REFNPC                                                                      | 4023 resources/include/bindings/npc.zh:670
+NPCNAME D2                                                                      | 4024 resources/include/bindings/npc.zh:670
+RETURNFUNC; Func[void npc::GetName(char32[])] Body End                          | 4025 resources/include/bindings/npc.zh:670
+POP D2; Func[void npc::BreakShield()] Body Start                                | 4026 resources/include/bindings/npc.zh:675
+BREAKSHIELD D2                                                                  | 4027 resources/include/bindings/npc.zh:675
+RETURNFUNC; Func[void npc::BreakShield()] Body End                              | 4028 resources/include/bindings/npc.zh:675
+POP D2; Func[void npc::RepairShield()] Body Start                               | 4029 resources/include/bindings/npc.zh:681
+REPAIRSHIELD D2                                                                 | 4030 resources/include/bindings/npc.zh:681
+RETURNFUNC; Func[void npc::RepairShield()] Body End                             | 4031 resources/include/bindings/npc.zh:681
+POP REFNPC; Func[bool npc::isDead()] Body Start                                 | 4032 resources/include/bindings/npc.zh:688
+NPCDEAD D2                                                                      | 4033 resources/include/bindings/npc.zh:688
+RETURNFUNC; Func[bool npc::isDead()] Body End                                   | 4034 resources/include/bindings/npc.zh:688
+POP REFNPC; Func[bool npc::CanSlide()] Body Start                               | 4035 resources/include/bindings/npc.zh:695
+NPCCANSLIDE D2                                                                  | 4036 resources/include/bindings/npc.zh:695
+RETURNFUNC; Func[bool npc::CanSlide()] Body End                                 | 4037 resources/include/bindings/npc.zh:695
+POP REFNPC; Func[bool npc::Slide()] Body Start                                  | 4038 resources/include/bindings/npc.zh:713
+NPCSLIDE D2                                                                     | 4039 resources/include/bindings/npc.zh:713
+RETURNFUNC; Func[bool npc::Slide()] Body End                                    | 4040 resources/include/bindings/npc.zh:713
+POP REFNPC; Func[void npc::Remove()] Body Start                                 | 4041 resources/include/bindings/npc.zh:727
+NPCKICKBUCKET                                                                   | 4042 resources/include/bindings/npc.zh:727
+RETURNFUNC; Func[void npc::Remove()] Body End                                   | 4043 resources/include/bindings/npc.zh:727
+POP REFNPC; Func[void npc::StopBGSFX()] Body Start                              | 4044 resources/include/bindings/npc.zh:734
+NPCSTOPBGSFX                                                                    | 4045 resources/include/bindings/npc.zh:734
+RETURNFUNC; Func[void npc::StopBGSFX()] Body End                                | 4046 resources/include/bindings/npc.zh:734
+POP REFNPC; Func[void npc::Attack()] Body Start                                 | 4047 resources/include/bindings/npc.zh:741
+NPCATTACK                                                                       | 4048 resources/include/bindings/npc.zh:741
+RETURNFUNC; Func[void npc::Attack()] Body End                                   | 4049 resources/include/bindings/npc.zh:741
+POP D2; Func[void npc::NewDir(int)] Body Start                                  | 4050 resources/include/bindings/npc.zh:753
+POP REFNPC                                                                      | 4051 resources/include/bindings/npc.zh:753
+NPCNEWDIR D2                                                                    | 4052 resources/include/bindings/npc.zh:753
+RETURNFUNC; Func[void npc::NewDir(int)] Body End                                | 4053 resources/include/bindings/npc.zh:753
+POP D2; Func[void npc::ConstantWalk(int)] Body Start                            | 4054 resources/include/bindings/npc.zh:767
+POP REFNPC                                                                      | 4055 resources/include/bindings/npc.zh:767
+NPCCONSTWALK D2                                                                 | 4056 resources/include/bindings/npc.zh:767
+RETURNFUNC; Func[void npc::ConstantWalk(int)] Body End                          | 4057 resources/include/bindings/npc.zh:767
+POP D2; Func[void npc::ConstantWalk8(int)] Body Start                           | 4058 resources/include/bindings/npc.zh:777
+POP REFNPC                                                                      | 4059 resources/include/bindings/npc.zh:777
+NPCCONSTWALK8 D2                                                                | 4060 resources/include/bindings/npc.zh:777
+RETURNFUNC; Func[void npc::ConstantWalk8(int)] Body End                         | 4061 resources/include/bindings/npc.zh:777
+POP D2; Func[void npc::VariableWalk(int)] Body Start                            | 4062 resources/include/bindings/npc.zh:787
+POP REFNPC                                                                      | 4063 resources/include/bindings/npc.zh:787
+NPCVARWALK D2                                                                   | 4064 resources/include/bindings/npc.zh:787
+RETURNFUNC; Func[void npc::VariableWalk(int)] Body End                          | 4065 resources/include/bindings/npc.zh:787
+POP D2; Func[void npc::VariableWalk8(int)] Body Start                           | 4066 resources/include/bindings/npc.zh:800
+POP REFNPC                                                                      | 4067 resources/include/bindings/npc.zh:800
+NPCVARWALK8 D2                                                                  | 4068 resources/include/bindings/npc.zh:800
+RETURNFUNC; Func[void npc::VariableWalk8(int)] Body End                         | 4069 resources/include/bindings/npc.zh:800
+POP D2; Func[void npc::HaltingWalk(int)] Body Start                             | 4070 resources/include/bindings/npc.zh:810
+POP REFNPC                                                                      | 4071 resources/include/bindings/npc.zh:810
+NPCHALTWALK D2                                                                  | 4072 resources/include/bindings/npc.zh:810
+RETURNFUNC; Func[void npc::HaltingWalk(int)] Body End                           | 4073 resources/include/bindings/npc.zh:810
+POP D2; Func[void npc::HaltingWalk8(int)] Body Start                            | 4074 resources/include/bindings/npc.zh:821
+POP REFNPC                                                                      | 4075 resources/include/bindings/npc.zh:821
+NPCHALTWALK8 D2                                                                 | 4076 resources/include/bindings/npc.zh:821
+RETURNFUNC; Func[void npc::HaltingWalk8(int)] Body End                          | 4077 resources/include/bindings/npc.zh:821
+POP D2; Func[void npc::FloatingWalk(int)] Body Start                            | 4078 resources/include/bindings/npc.zh:829
+POP REFNPC                                                                      | 4079 resources/include/bindings/npc.zh:829
+NPCFLOATWALK D2                                                                 | 4080 resources/include/bindings/npc.zh:829
+RETURNFUNC; Func[void npc::FloatingWalk(int)] Body End                          | 4081 resources/include/bindings/npc.zh:829
+POP D2; Func[void npc::BreathAttack(bool)] Body Start                           | 4082 resources/include/bindings/npc.zh:837
+POP REFNPC                                                                      | 4083 resources/include/bindings/npc.zh:837
+NPCFIREBREATH D2                                                                | 4084 resources/include/bindings/npc.zh:837
+RETURNFUNC; Func[void npc::BreathAttack(bool)] Body End                         | 4085 resources/include/bindings/npc.zh:837
+POP D2; Func[void npc::NewDir8(int)] Body Start                                 | 4086 resources/include/bindings/npc.zh:849
+POP REFNPC                                                                      | 4087 resources/include/bindings/npc.zh:849
+NPCNEWDIR8 D2                                                                   | 4088 resources/include/bindings/npc.zh:849
+RETURNFUNC; Func[void npc::NewDir8(int)] Body End                               | 4089 resources/include/bindings/npc.zh:849
+POP D1; Func[bool npc::Collision(int, untyped)] Body Start                      | 4090 resources/include/bindings/npc.zh:868
+POP D0                                                                          | 4091 resources/include/bindings/npc.zh:868
+POP REFNPC                                                                      | 4092 resources/include/bindings/npc.zh:868
+SETR D2 NPCCOLLISION                                                            | 4093 resources/include/bindings/npc.zh:868
+RETURNFUNC; Func[bool npc::Collision(int, untyped)] Body End                    | 4094 resources/include/bindings/npc.zh:868
+POP D1; Func[int npc::LinedUp(int, bool)] Body Start                            | 4095 resources/include/bindings/npc.zh:881
+POP D0                                                                          | 4096 resources/include/bindings/npc.zh:881
+POP REFNPC                                                                      | 4097 resources/include/bindings/npc.zh:881
+SETR D2 NPCLINEDUP                                                              | 4098 resources/include/bindings/npc.zh:881
+RETURNFUNC; Func[int npc::LinedUp(int, bool)] Body End                          | 4099 resources/include/bindings/npc.zh:881
+POP D2; Func[bool npc::LinkInRange(int)] Body Start                             | 4100 resources/include/bindings/npc.zh:889
+POP REFNPC                                                                      | 4101 resources/include/bindings/npc.zh:889
+NPCLINKINRANGE D2                                                               | 4102 resources/include/bindings/npc.zh:889
+RETURNFUNC; Func[bool npc::LinkInRange(int)] Body End                           | 4103 resources/include/bindings/npc.zh:889
+POP D2; Func[bool npc::CanMove(int)] Body Start                                 | 4104 resources/include/bindings/npc.zh:909
+POP REFNPC                                                                      | 4105 resources/include/bindings/npc.zh:909
+NPCCANMOVE D2                                                                   | 4106 resources/include/bindings/npc.zh:909
+RETURNFUNC; Func[bool npc::CanMove(int)] Body End                               | 4107 resources/include/bindings/npc.zh:909
+POP D2; Func[bool npc::SimulateHit(int)] Body Start                             | 4108 resources/include/bindings/npc.zh:928
+POP REFNPC                                                                      | 4109 resources/include/bindings/npc.zh:928
+NPCHITWITH D2                                                                   | 4110 resources/include/bindings/npc.zh:928
+RETURNFUNC; Func[bool npc::SimulateHit(int)] Body End                           | 4111 resources/include/bindings/npc.zh:928
+POP D2; Func[npc npc::Create(int)] Body Start                                   | 4112 resources/include/bindings/npc.zh:952
+POP REFNPC                                                                      | 4113 resources/include/bindings/npc.zh:952
+NPCADD D2                                                                       | 4114 resources/include/bindings/npc.zh:952
+RETURNFUNC; Func[npc npc::Create(int)] Body End                                 | 4115 resources/include/bindings/npc.zh:952
+POP D0; Func[bool npc::Knockback(int, int, int)] Body Start                     | 4116 resources/include/bindings/npc.zh:963
+POP D3                                                                          | 4117 resources/include/bindings/npc.zh:963
+POP D2                                                                          | 4118 resources/include/bindings/npc.zh:963
+POP REFNPC                                                                      | 4119 resources/include/bindings/npc.zh:963
+NPCKNOCKBACK D2 D3                                                              | 4120 resources/include/bindings/npc.zh:963
+RETURNFUNC; Func[bool npc::Knockback(int, int, int)] Body End                   | 4121 resources/include/bindings/npc.zh:963
+POP D2; Func[bool npc::Switch(int)] Body Start                                  | 4122 resources/include/bindings/npc.zh:973
+POP REFNPC                                                                      | 4123 resources/include/bindings/npc.zh:973
+SWITCHNPC D2                                                                    | 4124 resources/include/bindings/npc.zh:973
+RETURNFUNC; Func[bool npc::Switch(int)] Body End                                | 4125 resources/include/bindings/npc.zh:973
+POP REFNPC; Func[bool npc::MovePaused()] Body Start                             | 4126 resources/include/bindings/npc.zh:981
+NPCMOVEPAUSED                                                                   | 4127 resources/include/bindings/npc.zh:981
+RETURNFUNC; Func[bool npc::MovePaused()] Body End                               | 4128 resources/include/bindings/npc.zh:981
+POP D2; Func[bool npc::Move(int, int, int)] Body Start                          | 4129 resources/include/bindings/npc.zh:992
+POP D3                                                                          | 4130 resources/include/bindings/npc.zh:992
+POP D0                                                                          | 4131 resources/include/bindings/npc.zh:992
+POP REFNPC                                                                      | 4132 resources/include/bindings/npc.zh:992
+NPCMOVE                                                                         | 4133 resources/include/bindings/npc.zh:992
+RETURNFUNC; Func[bool npc::Move(int, int, int)] Body End                        | 4134 resources/include/bindings/npc.zh:992
+POP D2; Func[bool npc::MoveAtAngle(int, int, int)] Body Start                   | 4135 resources/include/bindings/npc.zh:1003
+POP D3                                                                          | 4136 resources/include/bindings/npc.zh:1003
+POP D0                                                                          | 4137 resources/include/bindings/npc.zh:1003
+POP REFNPC                                                                      | 4138 resources/include/bindings/npc.zh:1003
+NPCMOVEANGLE                                                                    | 4139 resources/include/bindings/npc.zh:1003
+RETURNFUNC; Func[bool npc::MoveAtAngle(int, int, int)] Body End                 | 4140 resources/include/bindings/npc.zh:1003
+POP D2; Func[bool npc::MoveXY(int, int, int)] Body Start                        | 4141 resources/include/bindings/npc.zh:1014
+POP D3                                                                          | 4142 resources/include/bindings/npc.zh:1014
+POP D0                                                                          | 4143 resources/include/bindings/npc.zh:1014
+POP REFNPC                                                                      | 4144 resources/include/bindings/npc.zh:1014
+NPCMOVEXY                                                                       | 4145 resources/include/bindings/npc.zh:1014
+RETURNFUNC; Func[bool npc::MoveXY(int, int, int)] Body End                      | 4146 resources/include/bindings/npc.zh:1014
+POP D2; Func[bool npc::CanMove(int, int, int)] Body Start                       | 4147 resources/include/bindings/npc.zh:1025
+POP D3                                                                          | 4148 resources/include/bindings/npc.zh:1025
+POP D0                                                                          | 4149 resources/include/bindings/npc.zh:1025
+POP REFNPC                                                                      | 4150 resources/include/bindings/npc.zh:1025
+NPCCANMOVEDIR                                                                   | 4151 resources/include/bindings/npc.zh:1025
+RETURNFUNC; Func[bool npc::CanMove(int, int, int)] Body End                     | 4152 resources/include/bindings/npc.zh:1025
+POP D2; Func[bool npc::CanMoveAtAngle(int, int, int)] Body Start                | 4153 resources/include/bindings/npc.zh:1036
+POP D3                                                                          | 4154 resources/include/bindings/npc.zh:1036
+POP D0                                                                          | 4155 resources/include/bindings/npc.zh:1036
+POP REFNPC                                                                      | 4156 resources/include/bindings/npc.zh:1036
+NPCCANMOVEANGLE                                                                 | 4157 resources/include/bindings/npc.zh:1036
+RETURNFUNC; Func[bool npc::CanMoveAtAngle(int, int, int)] Body End              | 4158 resources/include/bindings/npc.zh:1036
+POP D2; Func[bool npc::CanMoveXY(int, int, int)] Body Start                     | 4159 resources/include/bindings/npc.zh:1047
+POP D3                                                                          | 4160 resources/include/bindings/npc.zh:1047
+POP D0                                                                          | 4161 resources/include/bindings/npc.zh:1047
+POP REFNPC                                                                      | 4162 resources/include/bindings/npc.zh:1047
+NPCCANMOVEXY                                                                    | 4163 resources/include/bindings/npc.zh:1047
+RETURNFUNC; Func[bool npc::CanMoveXY(int, int, int)] Body End                   | 4164 resources/include/bindings/npc.zh:1047
+NPCCANPLACE; Func[bool npc::CanPlace(int, int, int, bool, int, int)] Body Start | 4165 resources/include/bindings/npc.zh:1067
+POPARGS D5 0.0007                                                               | 4166 resources/include/bindings/npc.zh:1067
+RETURNFUNC; Func[bool npc::CanPlace(int, int, int, bool, int, int)] Body End    | 4167 resources/include/bindings/npc.zh:1067
+POP REFNPC; Func[bool npc::isFlickerFrame()] Body Start                         | 4168 resources/include/bindings/npc.zh:1076
+NPCISFLICKERFRAME                                                               | 4169 resources/include/bindings/npc.zh:1076
+RETURNFUNC; Func[bool npc::isFlickerFrame()] Body End                           | 4170 resources/include/bindings/npc.zh:1076
+POP D2; Func[npc npc::SummonMinion(int, int)] Body Start                        | 4171 resources/include/bindings/npc.zh:1102
+POP D3                                                                          | 4172 resources/include/bindings/npc.zh:1102
+POP REFNPC                                                                      | 4173 resources/include/bindings/npc.zh:1102
+NPC_SUMMON_MINION D2 D3                                                         | 4174 resources/include/bindings/npc.zh:1102
+RETURNFUNC; Func[npc npc::SummonMinion(int, int)] Body End                      | 4175 resources/include/bindings/npc.zh:1102
+POP D2; Func[npc npc::SummonMinionFromLayer(int)] Body Start                    | 4176 resources/include/bindings/npc.zh:1114
+POP REFNPC                                                                      | 4177 resources/include/bindings/npc.zh:1114
+NPC_SUMMON_MINION_LAYER D2                                                      | 4178 resources/include/bindings/npc.zh:1114
+RETURNFUNC; Func[npc npc::SummonMinionFromLayer(int)] Body End                  | 4179 resources/include/bindings/npc.zh:1114
+POP D2; Func[void npcdata::GetName(char32[])] Body Start                        | 4180 resources/include/bindings/npcdata.zh:557
+POP REFNPCDATA                                                                  | 4181 resources/include/bindings/npcdata.zh:557
+NPCDATAGETNAME D2                                                               | 4182 resources/include/bindings/npcdata.zh:557
+RETURNFUNC; Func[void npcdata::GetName(char32[])] Body End                      | 4183 resources/include/bindings/npcdata.zh:557
 CREATEPALDATA; Func[paldata paldata::paldata()] Body Start                      | 4184 resources/include/bindings/paldata.zh:9
 RETURNFUNC; Func[paldata paldata::paldata()] Body End                           | 4185 resources/include/bindings/paldata.zh:9
 POP D2; Func[paldata paldata::paldata(rgb)] Body Start                          | 4186 resources/include/bindings/paldata.zh:14
@@ -10405,6 +10405,7 @@ debug data:
       - int WeaponDamage @ Reg[NPCWDP]
       - const weapondata WeaponData @ Reg[NPC_WEAPONDATA]
       - int WeaponSFX @ Reg[NPCFIRESFX]
+      - int WeaponSecondarySFX @ Reg[NPCFIRESFXSECONDARY]
       - int WeaponSprite @ Reg[NPCWEAPSPRITE]
       [FUNCTION] Attack <PC:4047-4049 IDX:656> <INTERNAL>
         - const npc this @ Stack[0] <HIDDEN>
@@ -10770,6 +10771,7 @@ debug data:
       - bool[] WeaponMoveFlags @ Reg[NPCDATAWMOVEFLAGS] <DEPRECATED>
       - int WeaponSFX @ Reg[NPCDATAFIRESFX]
       - int WeaponScript @ Reg[NPCDATAWEAPONSCRIPT] <DEPRECATED>
+      - int WeaponSecondarySFX @ Reg[NPCDATAFIRESFXSECONDARY]
       - int WeaponSprite @ Reg[NPCDATAWPNSPRITE]
       - int Width @ Reg[NPCDATAWIDTH]
       [FUNCTION] GetName <PC:4180-4183 IDX:706> <INTERNAL>

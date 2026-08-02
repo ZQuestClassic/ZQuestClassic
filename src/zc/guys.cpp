@@ -447,6 +447,7 @@ enemy::enemy(zfix X,zfix Y,int32_t Id,int32_t Clk) : sprite()
 	parentCore = 0; //t.b.a
 	
 	firesfx = d->firesfx;
+	firesfx_secondary = d->firesfx_secondary;
 	for ( int32_t q = 0; q < 32; q++ ) movement[q] = d->movement[q];
 	for ( int32_t q = 0; q < 32; q++ ) new_weapon[q] = d->new_weapon[q];
 	
@@ -10708,7 +10709,8 @@ bool eStalfos::animate(int32_t index)
 				((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~move_can_pitfall; //No falling in pits
 				addEwpn(x,y,z,wpn2,0,dmisc4,r_down, getUID(), 0, fakez);
 				((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~move_can_pitfall; //No falling in pits
-				sfx(firesfx,pan(x));
+				// A weapon other than the enemy's own, so it has its own sound.
+				sfx(firesfx_secondary,pan(x));
 			}
 		}
 		

@@ -1576,6 +1576,11 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 					INFOBTN("Plays when this weapon is fired."
 						"\nNote: that explosions and boomerangs use the Special SFX"),
 					//
+					Label(text = "Secondary Fire Sound:", hAlign = 1.0, rightPadding = 0_px),
+					DropDownField(&local_guyref.firesfx_secondary, list_sfx),
+					INFOBTN("Plays when a weapon other than the one above is fired."
+						"\nUsed by the 'Fire Octo' death effect, whose weapon is set by 'Weapon Offset'."),
+					//
 					Label(text = "Special Sound:", hAlign = 1.0, rightPadding = 0_px),
 					DropDownField(&local_guyref.specialsfx, list_sfx),
 					INFOBTN("Special Sound used for only specific weapons.")

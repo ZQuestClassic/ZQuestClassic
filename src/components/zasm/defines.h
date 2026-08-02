@@ -3510,6 +3510,9 @@ enum ASM_DEFINE
 #define SAVEMENU_MISCTEXT_Y                   0x171C
 #define SAVEMENU_MISCTEXT_TEXT_ALIGN          0x171D
 
+#define NPCFIRESFXSECONDARY                   0x171E
+#define NPCDATAFIRESFXSECONDARY               0x171F
+
 // fill in gap here
 
 #define SCRIPT_INST_VARS(d)      ((0x1800) + d) // 256; 0x1800 -> 0x1900

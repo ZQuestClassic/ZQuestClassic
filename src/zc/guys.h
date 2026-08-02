@@ -79,6 +79,7 @@ public:
 	
 	int32_t hitby[NUM_HIT_TYPES_USED];
 	int16_t firesfx;
+	int16_t firesfx_secondary;
 	bool isCore;
 	int16_t parentCore;
 	
