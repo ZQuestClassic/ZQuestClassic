@@ -7322,17 +7322,19 @@ waves2:
 		tile+=2*f4;
 		if(clk2>0 && anim == a4FRM8DIRFB)                         //stopped to fire
 		{
-			tile+=80;
-			
+			// The 8 walking directions of a big enemy span 8 tile rows
+			// (160 tiles); the fire tiles are offset past all of them.
+			tile+=160;
+
 			if(clk2<17)                                           //firing
 			{
-				tile+=80;
+				tile+=160;
 			}
 		}
 		ignore_extend = true;
 	}
 	break;
-	
+
 	case a4FRM4DIRB:
 	case a4FRM4DIRFB:
 	{
@@ -7341,11 +7343,13 @@ waves2:
 		tile+=2*f4;
 		if(clk2>0 && anim == a4FRM4DIRFB)                         //stopped to fire
 		{
-			tile+=40;
-			
+			// The 4 walking directions of a big enemy span 4 tile rows
+			// (80 tiles); the fire tiles are offset past all of them.
+			tile+=80;
+
 			if(clk2<17)                                           //firing
 			{
-				tile+=40;
+				tile+=80;
 			}
 		}
 		ignore_extend = true;
@@ -22060,6 +22064,31 @@ void roaming_item()
 	}
 }
 
+// The '*B' (big) animation styles read from a tile layout hardcoded to a 2x2
+// arrangement: each frame is 2 tiles wide x 2 tall. The directional styles
+// have 4 frames per direction, two directions sharing each pair of tile rows.
+// For the 4-dir styles (offsets from `tiledir_big`; the frame step is
+// `tile += 2*f4`):
+//
+//              cols 0-7    cols 8-15
+//   rows 0-1   walk up     walk down     (up +0, down +8)
+//   rows 2-3   walk left   walk right    (left +40, right +48)
+//
+// so the walking block is always exactly 4 rows = 80 tiles (the 8-dir styles
+// add the diagonals at +80..128, rows 4-7, for 160 total). The 'Firing'
+// variants continue the same arrangement below: attack pose at +80 (8-dir:
+// +160) and firing frames at double that, each a full block past the last.
+//
+// These offsets are absolute tile counts - `update_enemy_frame` sets
+// `ignore_extend = true` for the *B styles, so the enemy's extend/txsz/tysz
+// never affect which anchor tile is picked, only how many tiles get blitted
+// from it (`sprite::draw` reads a txsz by tysz block at the anchor). A non-2x2
+// enemy using these styles anchors on the same fixed grid and simply samples
+// into neighboring frames, since frames sit 2 tiles apart. Applying the
+// extend-scaling block at the bottom of `update_enemy_frame` to these styles
+// is the old broken behavior kept behind qr_BROKEN_BIG_ENEMY_ANIMATION: the
+// *B cases leave `basetile` at `o_tile`, so `change` includes the direction
+// and frame offsets and scaling it relocates even the walking frames.
 bool enemy::IsBigAnim()
 {
 	return (anim == a2FRMB || anim == a4FRM8EYEB || anim == a4FRM4EYEB
