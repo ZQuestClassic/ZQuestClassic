@@ -187,6 +187,13 @@ int32_t savemenu_get_register(int32_t reg)
 			else ret = -10000L;
 			break;
 		}
+		case SAVEMENU_NUM_MISCTEXTS:
+		{
+			if (menu)
+				ret = menu->misc_texts.size() * 10000L;
+			else ret = -10000L;
+			break;
+		}
 		case SAVEMENU_ID:
 		{
 			if (menu)
@@ -384,6 +391,11 @@ std::optional<int32_t> savemenu_run_command(word command)
 		{
 			if (SaveMenu* menu = checkSaveMenu(GET_REF(savemenuref)))
 			{
+				if (menu->options.size() >= MAX_SAVEMENU_OPTIONS)
+				{
+					scripting_log_error_with_context("Save menu {} already has {} options, no more can be added!", ri->savemenuref, menu->options.size());
+					break;
+				}
 				auto opt_idx = get_register(sarg1) / 10000L;
 				if (unsigned(opt_idx) >= menu->options.size())
 					menu->options.emplace_back();
@@ -436,7 +448,87 @@ std::optional<int32_t> savemenu_run_command(word command)
 				{
 					SaveMenuOption& opt = menu->options[opt_idx];
 					auto arrayptr = get_register(sarg2);
-					ArrayH::getString(arrayptr, opt.text, SAVEMENU_STRING_LENGTH);
+					ArrayH::getString(arrayptr, opt.text, SAVEMENU_OPTION_TEXT_LENGTH);
+				}
+			}
+			break;
+		}
+		case SAVEMENU_REMOVE_MISCTEXT:
+		{
+			if (SaveMenu* menu = checkSaveMenu(GET_REF(savemenuref)))
+			{
+				auto misc_text_idx = get_register(sarg1) / 10000L;
+				if (unsigned(misc_text_idx) < menu->misc_texts.size())
+				{
+					auto it = menu->misc_texts.begin();
+					std::advance(it, misc_text_idx);
+					menu->misc_texts.erase(it);
+				}
+			}
+			break;
+		}
+		case SAVEMENU_ADD_MISCTEXT:
+		{
+			if (SaveMenu* menu = checkSaveMenu(GET_REF(savemenuref)))
+			{
+				if (menu->misc_texts.size() >= MAX_SAVEMENU_MISC_TEXTS)
+				{
+					scripting_log_error_with_context("Save menu {} already has {} misc texts, no more can be added!", ri->savemenuref, menu->misc_texts.size());
+					break;
+				}
+				auto misc_text_idx = get_register(sarg1) / 10000L;
+				if (unsigned(misc_text_idx) >= menu->misc_texts.size())
+					menu->misc_texts.emplace_back();
+				else
+				{
+					auto it = menu->misc_texts.begin();
+					std::advance(it, misc_text_idx);
+					menu->misc_texts.insert(it, {});
+				}
+			}
+			break;
+		}
+		case SAVEMENU_SWAP_MISCTEXT:
+		{
+			if (SaveMenu* menu = checkSaveMenu(GET_REF(savemenuref)))
+			{
+				auto misc_text_idx = get_register(sarg1) / 10000L;
+				auto misc_text_idx2 = get_register(sarg2) / 10000L;
+				if (unsigned(misc_text_idx) >= menu->misc_texts.size())
+					break;
+				if (unsigned(misc_text_idx2) >= menu->misc_texts.size())
+					break;
+				if (misc_text_idx == misc_text_idx2)
+					break;
+				zc_swap(menu->misc_texts[misc_text_idx], menu->misc_texts[misc_text_idx2]);
+			}
+			break;
+		}
+		case SAVEMENU_MISCTEXT_GET_STRING:
+		{
+			if (SaveMenu* menu = checkSaveMenu(GET_REF(savemenuref)))
+			{
+				auto misc_text_idx = get_register(sarg1) / 10000L;
+				if (unsigned(misc_text_idx) < menu->misc_texts.size())
+				{
+					auto& misc_text = menu->misc_texts[misc_text_idx];
+					auto arrayptr = get_register(sarg2);
+					if (ArrayH::setArray(arrayptr, misc_text.text, true) == SH::_Overflow)
+						Z_scripterrlog("Array supplied to 'SaveMenu->GetMiscTextString()' not large enough, and couldn't be resized!\n");
+				}
+			}
+			break;
+		}
+		case SAVEMENU_MISCTEXT_SET_STRING:
+		{
+			if (SaveMenu* menu = checkSaveMenu(GET_REF(savemenuref)))
+			{
+				auto misc_text_idx = get_register(sarg1) / 10000L;
+				if (unsigned(misc_text_idx) < menu->misc_texts.size())
+				{
+					auto& misc_text = menu->misc_texts[misc_text_idx];
+					auto arrayptr = get_register(sarg2);
+					ArrayH::getString(arrayptr, misc_text.text, SAVEMENU_MISC_TEXT_LENGTH);
 				}
 			}
 			break;
@@ -599,3 +691,122 @@ static ArrayRegistrar SAVEMENU_OPT_FRZSCR_registrar(SAVEMENU_OPT_FRZSCR, []{
 	impl.setMul10000(true);
 	return &impl;
 }());
+
+static ArrayRegistrar SAVEMENU_MISCTEXT_COLOR_registrar(SAVEMENU_MISCTEXT_COLOR, []{
+	static ScriptingArray_ObjectComputed<SaveMenu, int> impl(
+		[](SaveMenu* menu){
+			return menu->misc_texts.size();
+		},
+		[](SaveMenu* menu, int index) -> int {
+			return menu->misc_texts[index].color;
+		},
+		[](SaveMenu* menu, int index, int value){
+			menu->misc_texts[index].color = value;
+		}
+	);
+	impl.setMul10000(true);
+	impl.setValueTransform(transforms::validate<256>);
+	return &impl;
+}());
+
+static ArrayRegistrar SAVEMENU_MISCTEXT_SHADOW_TYPE_registrar(SAVEMENU_MISCTEXT_SHADOW_TYPE, []{
+	static ScriptingArray_ObjectComputed<SaveMenu, int> impl(
+		[](SaveMenu* menu){
+			return menu->misc_texts.size();
+		},
+		[](SaveMenu* menu, int index) -> int {
+			return menu->misc_texts[index].shadow_type;
+		},
+		[](SaveMenu* menu, int index, int value){
+			menu->misc_texts[index].shadow_type = value;
+		}
+	);
+	impl.setMul10000(true);
+	impl.setValueTransform(transforms::validate<sstsMAX>);
+	return &impl;
+}());
+
+static ArrayRegistrar SAVEMENU_MISCTEXT_SHADOW_COLOR_registrar(SAVEMENU_MISCTEXT_SHADOW_COLOR, []{
+	static ScriptingArray_ObjectComputed<SaveMenu, int> impl(
+		[](SaveMenu* menu){
+			return menu->misc_texts.size();
+		},
+		[](SaveMenu* menu, int index) -> int {
+			return menu->misc_texts[index].shadow_color;
+		},
+		[](SaveMenu* menu, int index, int value){
+			menu->misc_texts[index].shadow_color = value;
+		}
+	);
+	impl.setMul10000(true);
+	impl.setValueTransform(transforms::validate<256>);
+	return &impl;
+}());
+
+static ArrayRegistrar SAVEMENU_MISCTEXT_FONT_registrar(SAVEMENU_MISCTEXT_FONT, []{
+	static ScriptingArray_ObjectComputed<SaveMenu, int> impl(
+		[](SaveMenu* menu){
+			return menu->misc_texts.size();
+		},
+		[](SaveMenu* menu, int index) -> int {
+			return menu->misc_texts[index].font;
+		},
+		[](SaveMenu* menu, int index, int value){
+			menu->misc_texts[index].font = value;
+		}
+	);
+	impl.setMul10000(true);
+	return &impl;
+}());
+
+static ArrayRegistrar SAVEMENU_MISCTEXT_X_registrar(SAVEMENU_MISCTEXT_X, []{
+	static ScriptingArray_ObjectComputed<SaveMenu, int> impl(
+		[](SaveMenu* menu){
+			return menu->misc_texts.size();
+		},
+		[](SaveMenu* menu, int index) -> int {
+			return menu->misc_texts[index].x;
+		},
+		[](SaveMenu* menu, int index, int value){
+			menu->misc_texts[index].x = value;
+		}
+	);
+	impl.setMul10000(true);
+	impl.setValueTransform(transforms::validate<256>);
+	return &impl;
+}());
+
+static ArrayRegistrar SAVEMENU_MISCTEXT_Y_registrar(SAVEMENU_MISCTEXT_Y, []{
+	static ScriptingArray_ObjectComputed<SaveMenu, int> impl(
+		[](SaveMenu* menu){
+			return menu->misc_texts.size();
+		},
+		[](SaveMenu* menu, int index) -> int {
+			return menu->misc_texts[index].y;
+		},
+		[](SaveMenu* menu, int index, int value){
+			menu->misc_texts[index].y = value;
+		}
+	);
+	impl.setMul10000(true);
+	impl.setValueTransform(transforms::validate<256>);
+	return &impl;
+}());
+
+static ArrayRegistrar SAVEMENU_MISCTEXT_TEXT_ALIGN_registrar(SAVEMENU_MISCTEXT_TEXT_ALIGN, []{
+	static ScriptingArray_ObjectComputed<SaveMenu, int> impl(
+		[](SaveMenu* menu){
+			return menu->misc_texts.size();
+		},
+		[](SaveMenu* menu, int index) -> int {
+			return menu->misc_texts[index].text_align;
+		},
+		[](SaveMenu* menu, int index, int value){
+			menu->misc_texts[index].text_align = value;
+		}
+	);
+	impl.setMul10000(true);
+	impl.setValueTransform(transforms::validate<ALIGN_MAX>);
+	return &impl;
+}());
+

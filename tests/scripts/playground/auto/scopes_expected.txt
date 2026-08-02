@@ -4342,152 +4342,175 @@ POP D2                                                                          
 POP REFSAVEMENU                                                                 | 4313 resources/include/bindings/save_menu.zh:217
 SAVEMENU_OPT_SET_STRING D2 D3                                                   | 4314 resources/include/bindings/save_menu.zh:217
 RETURNFUNC; Func[void save_menu::SetString(int, char32[])] Body End             | 4315 resources/include/bindings/save_menu.zh:217
-POP REFSAVPORTAL; Func[void savedportal::Remove()] Body Start                   | 4316 resources/include/bindings/savedportal.zh:43
-SAVEDPORTALREMOVE                                                               | 4317 resources/include/bindings/savedportal.zh:43
-RETURNFUNC; Func[void savedportal::Remove()] Body End                           | 4318 resources/include/bindings/savedportal.zh:43
-POP REFSAVPORTAL; Func[portal savedportal::Generate()] Body Start               | 4319 resources/include/bindings/savedportal.zh:48
-SAVEDPORTALGENERATE                                                             | 4320 resources/include/bindings/savedportal.zh:48
-RETURNFUNC; Func[portal savedportal::Generate()] Body End                       | 4321 resources/include/bindings/savedportal.zh:48
-LOADSTACK; Func[stack stack::stack()] Body Start                                | 4322 resources/include/bindings/stack.zh:5
-RETURNFUNC; Func[stack stack::stack()] Body End                                 | 4323 resources/include/bindings/stack.zh:5
-POP REFSTACK; Func[void stack::Free()] Body Start                               | 4324 resources/include/bindings/stack.zh:27
-STACKFREE                                                                       | 4325 resources/include/bindings/stack.zh:27
-RETURNFUNC; Func[void stack::Free()] Body End                                   | 4326 resources/include/bindings/stack.zh:27
-POP REFSTACK; Func[void stack::Own()] Body Start                                | 4327 resources/include/bindings/stack.zh:37
-STACKOWN                                                                        | 4328 resources/include/bindings/stack.zh:37
-RETURNFUNC; Func[void stack::Own()] Body End                                    | 4329 resources/include/bindings/stack.zh:37
-POP REFSTACK; Func[void stack::Clear()] Body Start                              | 4330 resources/include/bindings/stack.zh:44
-STACKCLEAR                                                                      | 4331 resources/include/bindings/stack.zh:44
-RETURNFUNC; Func[void stack::Clear()] Body End                                  | 4332 resources/include/bindings/stack.zh:44
-POP D2; Func[void stack::PushBack(T)] Body Start                                | 4333 resources/include/bindings/stack.zh:54
-POP REFSTACK                                                                    | 4334 resources/include/bindings/stack.zh:54
-STACKPUSHBACK D2 0                                                              | 4335 resources/include/bindings/stack.zh:54
-RETURNFUNC; Func[void stack::PushBack(T)] Body End                              | 4336 resources/include/bindings/stack.zh:54
-POP D2; Func[void stack::PushFront(T)] Body Start                               | 4337 resources/include/bindings/stack.zh:64
-POP REFSTACK                                                                    | 4338 resources/include/bindings/stack.zh:64
-STACKPUSHFRONT D2 0                                                             | 4339 resources/include/bindings/stack.zh:64
-RETURNFUNC; Func[void stack::PushFront(T)] Body End                             | 4340 resources/include/bindings/stack.zh:64
-POP REFSTACK; Func[T stack::PopBack()] Body Start                               | 4341 resources/include/bindings/stack.zh:73
-STACKPOPBACK D2                                                                 | 4342 resources/include/bindings/stack.zh:73
-RETURNFUNC; Func[T stack::PopBack()] Body End                                   | 4343 resources/include/bindings/stack.zh:73
-POP REFSTACK; Func[T stack::PopFront()] Body Start                              | 4344 resources/include/bindings/stack.zh:82
-STACKPOPFRONT D2                                                                | 4345 resources/include/bindings/stack.zh:82
-RETURNFUNC; Func[T stack::PopFront()] Body End                                  | 4346 resources/include/bindings/stack.zh:82
-POP REFSTACK; Func[T stack::PeekBack()] Body Start                              | 4347 resources/include/bindings/stack.zh:91
-STACKPEEKBACK D2                                                                | 4348 resources/include/bindings/stack.zh:91
-RETURNFUNC; Func[T stack::PeekBack()] Body End                                  | 4349 resources/include/bindings/stack.zh:91
-POP REFSTACK; Func[T stack::PeekFront()] Body Start                             | 4350 resources/include/bindings/stack.zh:100
-STACKPEEKFRONT D2                                                               | 4351 resources/include/bindings/stack.zh:100
-RETURNFUNC; Func[T stack::PeekFront()] Body End                                 | 4352 resources/include/bindings/stack.zh:100
-POP D2; Func[T stack::Get(long)] Body Start                                     | 4353 resources/include/bindings/stack.zh:109
-POP REFSTACK                                                                    | 4354 resources/include/bindings/stack.zh:109
-STACKGET D2                                                                     | 4355 resources/include/bindings/stack.zh:109
-RETURNFUNC; Func[T stack::Get(long)] Body End                                   | 4356 resources/include/bindings/stack.zh:109
-POP D3; Func[void stack::Set(long, T)] Body Start                               | 4357 resources/include/bindings/stack.zh:120
-POP D2                                                                          | 4358 resources/include/bindings/stack.zh:120
-POP REFSTACK                                                                    | 4359 resources/include/bindings/stack.zh:120
-STACKSET D2 D3 0                                                                | 4360 resources/include/bindings/stack.zh:120
-RETURNFUNC; Func[void stack::Set(long, T)] Body End                             | 4361 resources/include/bindings/stack.zh:120
-POP D2; Func[void subscreendata::GetName(char32[])] Body Start                  | 4362 resources/include/bindings/subscreendata.zh:693
-POP REFSUBSCREENDATA                                                            | 4363 resources/include/bindings/subscreendata.zh:693
-SUBDATA_GET_NAME D2                                                             | 4364 resources/include/bindings/subscreendata.zh:693
-RETURNFUNC; Func[void subscreendata::GetName(char32[])] Body End                | 4365 resources/include/bindings/subscreendata.zh:693
-POP D2; Func[void subscreendata::SetName(char32[])] Body Start                  | 4366 resources/include/bindings/subscreendata.zh:701
-POP REFSUBSCREENDATA                                                            | 4367 resources/include/bindings/subscreendata.zh:701
-SUBDATA_SET_NAME D2                                                             | 4368 resources/include/bindings/subscreendata.zh:701
-RETURNFUNC; Func[void subscreendata::SetName(char32[])] Body End                | 4369 resources/include/bindings/subscreendata.zh:701
-SUBDATA_SWAP_PAGES; Func[void subscreendata::SwapPages(int, int)] Body Start    | 4370 resources/include/bindings/subscreendata.zh:708
-POPARGS D5 0.0003                                                               | 4371 resources/include/bindings/subscreendata.zh:708
-RETURNFUNC; Func[void subscreendata::SwapPages(int, int)] Body End              | 4372 resources/include/bindings/subscreendata.zh:708
-POP REFSUBSCREENDATA; Func[void subscreendata::Open()] Body Start               | 4373 resources/include/bindings/subscreendata.zh:717
-SUBDATA_OPEN                                                                    | 4374 resources/include/bindings/subscreendata.zh:717
-RETURNFUNC; Func[void subscreendata::Open()] Body End                           | 4375 resources/include/bindings/subscreendata.zh:717
-POP REFSUBSCREENDATA; Func[void subscreendata::Close()] Body Start              | 4376 resources/include/bindings/subscreendata.zh:727
-SUBDATA_CLOSE                                                                   | 4377 resources/include/bindings/subscreendata.zh:727
-RETURNFUNC; Func[void subscreendata::Close()] Body End                          | 4378 resources/include/bindings/subscreendata.zh:727
-SUBPAGE_FIND_WIDGET_BY_LABEL; Func[subscreenwidget subscreenpage::GetWidget(char32[])] Body Start | 4379 resources/include/bindings/subscreenpage.zh:48
-POPARGS D5 0.0002                                                               | 4380 resources/include/bindings/subscreenpage.zh:48
-RETURNFUNC; Func[subscreenwidget subscreenpage::GetWidget(char32[])] Body End   | 4381 resources/include/bindings/subscreenpage.zh:48
-SUBPAGE_NEW_WIDG; Func[subscreenwidget subscreenpage::CreateWidget(int)] Body Start | 4382 resources/include/bindings/subscreenpage.zh:57
-POPARGS D5 0.0002                                                               | 4383 resources/include/bindings/subscreenpage.zh:57
-RETURNFUNC; Func[subscreenwidget subscreenpage::CreateWidget(int)] Body End     | 4384 resources/include/bindings/subscreenpage.zh:57
-SUBPAGE_SWAP_WIDG; Func[void subscreenpage::SwapWidgets(int, int)] Body Start   | 4385 resources/include/bindings/subscreenpage.zh:64
-POPARGS D5 0.0003                                                               | 4386 resources/include/bindings/subscreenpage.zh:64
-RETURNFUNC; Func[void subscreenpage::SwapWidgets(int, int)] Body End            | 4387 resources/include/bindings/subscreenpage.zh:64
-SUBPAGE_FIND_WIDGET; Func[subscreenwidget subscreenpage::FindWidget(int)] Body Start | 4388 resources/include/bindings/subscreenpage.zh:72
-POPARGS D5 0.0002                                                               | 4389 resources/include/bindings/subscreenpage.zh:72
-RETURNFUNC; Func[subscreenwidget subscreenpage::FindWidget(int)] Body End       | 4390 resources/include/bindings/subscreenpage.zh:72
-SUBPAGE_MOVE_SEL; Func[int subscreenpage::SelectorMove(int, int, int)] Body Start | 4391 resources/include/bindings/subscreenpage.zh:82
-POPARGS D5 0.0004                                                               | 4392 resources/include/bindings/subscreenpage.zh:82
-RETURNFUNC; Func[int subscreenpage::SelectorMove(int, int, int)] Body End       | 4393 resources/include/bindings/subscreenpage.zh:82
-POP REFSUBSCREENPAGE; Func[void subscreenpage::Delete()] Body Start             | 4394 resources/include/bindings/subscreenpage.zh:91
-SUBPAGE_DELETE                                                                  | 4395 resources/include/bindings/subscreenpage.zh:91
-RETURNFUNC; Func[void subscreenpage::Delete()] Body End                         | 4396 resources/include/bindings/subscreenpage.zh:91
-POP D2; Func[void subscreenwidget::GetSelTextOverride(char32[])] Body Start     | 4397 resources/include/bindings/subscreenwidget.zh:1024
-POP REFSUBSCREENWIDG                                                            | 4398 resources/include/bindings/subscreenwidget.zh:1024
-SUBWIDG_GET_SELTEXT_OVERRIDE D2                                                 | 4399 resources/include/bindings/subscreenwidget.zh:1024
-RETURNFUNC; Func[void subscreenwidget::GetSelTextOverride(char32[])] Body End   | 4400 resources/include/bindings/subscreenwidget.zh:1024
-POP D2; Func[void subscreenwidget::SetSelTextOverride(char32[])] Body Start     | 4401 resources/include/bindings/subscreenwidget.zh:1034
-POP REFSUBSCREENWIDG                                                            | 4402 resources/include/bindings/subscreenwidget.zh:1034
-SUBWIDG_SET_SELTEXT_OVERRIDE D2                                                 | 4403 resources/include/bindings/subscreenwidget.zh:1034
-RETURNFUNC; Func[void subscreenwidget::SetSelTextOverride(char32[])] Body End   | 4404 resources/include/bindings/subscreenwidget.zh:1034
-POP D2; Func[void subscreenwidget::GetLabel(char32[])] Body Start               | 4405 resources/include/bindings/subscreenwidget.zh:1045
-POP REFSUBSCREENWIDG                                                            | 4406 resources/include/bindings/subscreenwidget.zh:1045
-SUBWIDG_GET_LABEL D2                                                            | 4407 resources/include/bindings/subscreenwidget.zh:1045
-RETURNFUNC; Func[void subscreenwidget::GetLabel(char32[])] Body End             | 4408 resources/include/bindings/subscreenwidget.zh:1045
-POP D2; Func[void subscreenwidget::SetLabel(char32[])] Body Start               | 4409 resources/include/bindings/subscreenwidget.zh:1053
-POP REFSUBSCREENWIDG                                                            | 4410 resources/include/bindings/subscreenwidget.zh:1053
-SUBWIDG_SET_LABEL D2                                                            | 4411 resources/include/bindings/subscreenwidget.zh:1053
-RETURNFUNC; Func[void subscreenwidget::SetLabel(char32[])] Body End             | 4412 resources/include/bindings/subscreenwidget.zh:1053
-POP D2; Func[void subscreenwidget::GetText(char32[])] Body Start                | 4413 resources/include/bindings/subscreenwidget.zh:1068
-POP REFSUBSCREENWIDG                                                            | 4414 resources/include/bindings/subscreenwidget.zh:1068
-SUBWIDG_TY_GETTEXT D2                                                           | 4415 resources/include/bindings/subscreenwidget.zh:1068
-RETURNFUNC; Func[void subscreenwidget::GetText(char32[])] Body End              | 4416 resources/include/bindings/subscreenwidget.zh:1068
-POP D2; Func[void subscreenwidget::SetText(char32[])] Body Start                | 4417 resources/include/bindings/subscreenwidget.zh:1079
-POP REFSUBSCREENWIDG                                                            | 4418 resources/include/bindings/subscreenwidget.zh:1079
-SUBWIDG_TY_SETTEXT D2                                                           | 4419 resources/include/bindings/subscreenwidget.zh:1079
-RETURNFUNC; Func[void subscreenwidget::SetText(char32[])] Body End              | 4420 resources/include/bindings/subscreenwidget.zh:1079
-POP REFSUBSCREENWIDG; Func[bool subscreenwidget::CheckConditions()] Body Start  | 4421 resources/include/bindings/subscreenwidget.zh:1088
-SUBWIDG_CHECK_CONDITIONS D2                                                     | 4422 resources/include/bindings/subscreenwidget.zh:1088
-RETURNFUNC; Func[bool subscreenwidget::CheckConditions()] Body End              | 4423 resources/include/bindings/subscreenwidget.zh:1088
-POP REFSUBSCREENWIDG; Func[bool subscreenwidget::CheckVisible()] Body Start     | 4424 resources/include/bindings/subscreenwidget.zh:1096
-SUBWIDG_CHECK_VISIBLE D2                                                        | 4425 resources/include/bindings/subscreenwidget.zh:1096
-RETURNFUNC; Func[bool subscreenwidget::CheckVisible()] Body End                 | 4426 resources/include/bindings/subscreenwidget.zh:1096
-CREATEWEAPDATA; Func[weapondata weapondata::weapondata()] Body Start            | 4427 resources/include/bindings/weapondata.zh:23
-RETURNFUNC; Func[weapondata weapondata::weapondata()] Body End                  | 4428 resources/include/bindings/weapondata.zh:23
-POP D2; Func[void weapondata::CopyTo(weapondata)] Body Start                    | 4429 resources/include/bindings/weapondata.zh:233
-POP REFWEAPDATA                                                                 | 4430 resources/include/bindings/weapondata.zh:233
-WEAPDATA_COPY D2                                                                | 4431 resources/include/bindings/weapondata.zh:233
-RETURNFUNC; Func[void weapondata::CopyTo(weapondata)] Body End                  | 4432 resources/include/bindings/weapondata.zh:233
-POP D2; Func[void weapondata::ApplyTo(lweapon)] Body Start                      | 4433 resources/include/bindings/weapondata.zh:241
-POP REFWEAPDATA                                                                 | 4434 resources/include/bindings/weapondata.zh:241
-WEAPDATA_APPLY D2                                                               | 4435 resources/include/bindings/weapondata.zh:241
-RETURNFUNC; Func[void weapondata::ApplyTo(lweapon)] Body End                    | 4436 resources/include/bindings/weapondata.zh:241
-POP D2; Func[void weapondata::ApplyTo(eweapon)] Body Start                      | 4437 resources/include/bindings/weapondata.zh:249
-POP REFWEAPDATA                                                                 | 4438 resources/include/bindings/weapondata.zh:249
-WEAPDATA_APPLY D2                                                               | 4439 resources/include/bindings/weapondata.zh:249
-RETURNFUNC; Func[void weapondata::ApplyTo(eweapon)] Body End                    | 4440 resources/include/bindings/weapondata.zh:249
-POP D2; Func[websocket websocket::websocket(char32[])] Body Start               | 4441 resources/include/bindings/websocket.zh:22
-WEBSOCKET_LOAD D2                                                               | 4442 resources/include/bindings/websocket.zh:22
-RETURNFUNC; Func[websocket websocket::websocket(char32[])] Body End             | 4443 resources/include/bindings/websocket.zh:22
-POP D2; Func[void websocket::GetError(char32[])] Body Start                     | 4444 resources/include/bindings/websocket.zh:46
-POP REFWEBSOCKET                                                                | 4445 resources/include/bindings/websocket.zh:46
-WEBSOCKET_ERROR D2                                                              | 4446 resources/include/bindings/websocket.zh:46
-RETURNFUNC; Func[void websocket::GetError(char32[])] Body End                   | 4447 resources/include/bindings/websocket.zh:46
-POP D2; Func[void websocket::Send(char32[], WebsocketType)] Body Start          | 4448 resources/include/bindings/websocket.zh:55
-POP D3                                                                          | 4449 resources/include/bindings/websocket.zh:55
-POP REFWEBSOCKET                                                                | 4450 resources/include/bindings/websocket.zh:55
-WEBSOCKET_SEND D2 D3                                                            | 4451 resources/include/bindings/websocket.zh:55
-RETURNFUNC; Func[void websocket::Send(char32[], WebsocketType)] Body End        | 4452 resources/include/bindings/websocket.zh:55
-POP REFWEBSOCKET; Func[untyped[] websocket::Receive()] Body Start               | 4453 resources/include/bindings/websocket.zh:65
-WEBSOCKET_RECEIVE D2                                                            | 4454 resources/include/bindings/websocket.zh:65
-RETURNFUNC; Func[untyped[] websocket::Receive()] Body End                       | 4455 resources/include/bindings/websocket.zh:65
-POP REFWEBSOCKET; Func[void websocket::Free()] Body Start                       | 4456 resources/include/bindings/websocket.zh:83
-WEBSOCKET_FREE                                                                  | 4457 resources/include/bindings/websocket.zh:83
-RETURNFUNC; Func[void websocket::Free()] Body End                               | 4458 resources/include/bindings/websocket.zh:83
-POP REFWEBSOCKET; Func[void websocket::Own()] Body Start                        | 4459 resources/include/bindings/websocket.zh:95
-WEBSOCKET_OWN                                                                   | 4460 resources/include/bindings/websocket.zh:95
-RETURNFUNC; Func[void websocket::Own()] Body End                                | 4461 resources/include/bindings/websocket.zh:95
+POP D2; Func[void save_menu::RemoveMiscText(int)] Body Start                    | 4316 resources/include/bindings/save_menu.zh:276
+POP REFSAVEMENU                                                                 | 4317 resources/include/bindings/save_menu.zh:276
+SAVEMENU_REMOVE_MISCTEXT D2                                                     | 4318 resources/include/bindings/save_menu.zh:276
+RETURNFUNC; Func[void save_menu::RemoveMiscText(int)] Body End                  | 4319 resources/include/bindings/save_menu.zh:276
+POP D2; Func[void save_menu::AddMiscText(int)] Body Start                       | 4320 resources/include/bindings/save_menu.zh:284
+POP REFSAVEMENU                                                                 | 4321 resources/include/bindings/save_menu.zh:284
+SAVEMENU_ADD_MISCTEXT D2                                                        | 4322 resources/include/bindings/save_menu.zh:284
+RETURNFUNC; Func[void save_menu::AddMiscText(int)] Body End                     | 4323 resources/include/bindings/save_menu.zh:284
+POP D3; Func[void save_menu::SwapMiscTexts(int, int)] Body Start                | 4324 resources/include/bindings/save_menu.zh:293
+POP D2                                                                          | 4325 resources/include/bindings/save_menu.zh:293
+POP REFSAVEMENU                                                                 | 4326 resources/include/bindings/save_menu.zh:293
+SAVEMENU_SWAP_MISCTEXT D2 D3                                                    | 4327 resources/include/bindings/save_menu.zh:293
+RETURNFUNC; Func[void save_menu::SwapMiscTexts(int, int)] Body End              | 4328 resources/include/bindings/save_menu.zh:293
+POP D3; Func[void save_menu::GetMiscTextString(int, char32[])] Body Start       | 4329 resources/include/bindings/save_menu.zh:302
+POP D2                                                                          | 4330 resources/include/bindings/save_menu.zh:302
+POP REFSAVEMENU                                                                 | 4331 resources/include/bindings/save_menu.zh:302
+SAVEMENU_MISCTEXT_GET_STRING D2 D3                                              | 4332 resources/include/bindings/save_menu.zh:302
+RETURNFUNC; Func[void save_menu::GetMiscTextString(int, char32[])] Body End     | 4333 resources/include/bindings/save_menu.zh:302
+POP D3; Func[void save_menu::SetMiscTextString(int, char32[])] Body Start       | 4334 resources/include/bindings/save_menu.zh:311
+POP D2                                                                          | 4335 resources/include/bindings/save_menu.zh:311
+POP REFSAVEMENU                                                                 | 4336 resources/include/bindings/save_menu.zh:311
+SAVEMENU_MISCTEXT_SET_STRING D2 D3                                              | 4337 resources/include/bindings/save_menu.zh:311
+RETURNFUNC; Func[void save_menu::SetMiscTextString(int, char32[])] Body End     | 4338 resources/include/bindings/save_menu.zh:311
+POP REFSAVPORTAL; Func[void savedportal::Remove()] Body Start                   | 4339 resources/include/bindings/savedportal.zh:43
+SAVEDPORTALREMOVE                                                               | 4340 resources/include/bindings/savedportal.zh:43
+RETURNFUNC; Func[void savedportal::Remove()] Body End                           | 4341 resources/include/bindings/savedportal.zh:43
+POP REFSAVPORTAL; Func[portal savedportal::Generate()] Body Start               | 4342 resources/include/bindings/savedportal.zh:48
+SAVEDPORTALGENERATE                                                             | 4343 resources/include/bindings/savedportal.zh:48
+RETURNFUNC; Func[portal savedportal::Generate()] Body End                       | 4344 resources/include/bindings/savedportal.zh:48
+LOADSTACK; Func[stack stack::stack()] Body Start                                | 4345 resources/include/bindings/stack.zh:5
+RETURNFUNC; Func[stack stack::stack()] Body End                                 | 4346 resources/include/bindings/stack.zh:5
+POP REFSTACK; Func[void stack::Free()] Body Start                               | 4347 resources/include/bindings/stack.zh:27
+STACKFREE                                                                       | 4348 resources/include/bindings/stack.zh:27
+RETURNFUNC; Func[void stack::Free()] Body End                                   | 4349 resources/include/bindings/stack.zh:27
+POP REFSTACK; Func[void stack::Own()] Body Start                                | 4350 resources/include/bindings/stack.zh:37
+STACKOWN                                                                        | 4351 resources/include/bindings/stack.zh:37
+RETURNFUNC; Func[void stack::Own()] Body End                                    | 4352 resources/include/bindings/stack.zh:37
+POP REFSTACK; Func[void stack::Clear()] Body Start                              | 4353 resources/include/bindings/stack.zh:44
+STACKCLEAR                                                                      | 4354 resources/include/bindings/stack.zh:44
+RETURNFUNC; Func[void stack::Clear()] Body End                                  | 4355 resources/include/bindings/stack.zh:44
+POP D2; Func[void stack::PushBack(T)] Body Start                                | 4356 resources/include/bindings/stack.zh:54
+POP REFSTACK                                                                    | 4357 resources/include/bindings/stack.zh:54
+STACKPUSHBACK D2 0                                                              | 4358 resources/include/bindings/stack.zh:54
+RETURNFUNC; Func[void stack::PushBack(T)] Body End                              | 4359 resources/include/bindings/stack.zh:54
+POP D2; Func[void stack::PushFront(T)] Body Start                               | 4360 resources/include/bindings/stack.zh:64
+POP REFSTACK                                                                    | 4361 resources/include/bindings/stack.zh:64
+STACKPUSHFRONT D2 0                                                             | 4362 resources/include/bindings/stack.zh:64
+RETURNFUNC; Func[void stack::PushFront(T)] Body End                             | 4363 resources/include/bindings/stack.zh:64
+POP REFSTACK; Func[T stack::PopBack()] Body Start                               | 4364 resources/include/bindings/stack.zh:73
+STACKPOPBACK D2                                                                 | 4365 resources/include/bindings/stack.zh:73
+RETURNFUNC; Func[T stack::PopBack()] Body End                                   | 4366 resources/include/bindings/stack.zh:73
+POP REFSTACK; Func[T stack::PopFront()] Body Start                              | 4367 resources/include/bindings/stack.zh:82
+STACKPOPFRONT D2                                                                | 4368 resources/include/bindings/stack.zh:82
+RETURNFUNC; Func[T stack::PopFront()] Body End                                  | 4369 resources/include/bindings/stack.zh:82
+POP REFSTACK; Func[T stack::PeekBack()] Body Start                              | 4370 resources/include/bindings/stack.zh:91
+STACKPEEKBACK D2                                                                | 4371 resources/include/bindings/stack.zh:91
+RETURNFUNC; Func[T stack::PeekBack()] Body End                                  | 4372 resources/include/bindings/stack.zh:91
+POP REFSTACK; Func[T stack::PeekFront()] Body Start                             | 4373 resources/include/bindings/stack.zh:100
+STACKPEEKFRONT D2                                                               | 4374 resources/include/bindings/stack.zh:100
+RETURNFUNC; Func[T stack::PeekFront()] Body End                                 | 4375 resources/include/bindings/stack.zh:100
+POP D2; Func[T stack::Get(long)] Body Start                                     | 4376 resources/include/bindings/stack.zh:109
+POP REFSTACK                                                                    | 4377 resources/include/bindings/stack.zh:109
+STACKGET D2                                                                     | 4378 resources/include/bindings/stack.zh:109
+RETURNFUNC; Func[T stack::Get(long)] Body End                                   | 4379 resources/include/bindings/stack.zh:109
+POP D3; Func[void stack::Set(long, T)] Body Start                               | 4380 resources/include/bindings/stack.zh:120
+POP D2                                                                          | 4381 resources/include/bindings/stack.zh:120
+POP REFSTACK                                                                    | 4382 resources/include/bindings/stack.zh:120
+STACKSET D2 D3 0                                                                | 4383 resources/include/bindings/stack.zh:120
+RETURNFUNC; Func[void stack::Set(long, T)] Body End                             | 4384 resources/include/bindings/stack.zh:120
+POP D2; Func[void subscreendata::GetName(char32[])] Body Start                  | 4385 resources/include/bindings/subscreendata.zh:693
+POP REFSUBSCREENDATA                                                            | 4386 resources/include/bindings/subscreendata.zh:693
+SUBDATA_GET_NAME D2                                                             | 4387 resources/include/bindings/subscreendata.zh:693
+RETURNFUNC; Func[void subscreendata::GetName(char32[])] Body End                | 4388 resources/include/bindings/subscreendata.zh:693
+POP D2; Func[void subscreendata::SetName(char32[])] Body Start                  | 4389 resources/include/bindings/subscreendata.zh:701
+POP REFSUBSCREENDATA                                                            | 4390 resources/include/bindings/subscreendata.zh:701
+SUBDATA_SET_NAME D2                                                             | 4391 resources/include/bindings/subscreendata.zh:701
+RETURNFUNC; Func[void subscreendata::SetName(char32[])] Body End                | 4392 resources/include/bindings/subscreendata.zh:701
+SUBDATA_SWAP_PAGES; Func[void subscreendata::SwapPages(int, int)] Body Start    | 4393 resources/include/bindings/subscreendata.zh:708
+POPARGS D5 0.0003                                                               | 4394 resources/include/bindings/subscreendata.zh:708
+RETURNFUNC; Func[void subscreendata::SwapPages(int, int)] Body End              | 4395 resources/include/bindings/subscreendata.zh:708
+POP REFSUBSCREENDATA; Func[void subscreendata::Open()] Body Start               | 4396 resources/include/bindings/subscreendata.zh:717
+SUBDATA_OPEN                                                                    | 4397 resources/include/bindings/subscreendata.zh:717
+RETURNFUNC; Func[void subscreendata::Open()] Body End                           | 4398 resources/include/bindings/subscreendata.zh:717
+POP REFSUBSCREENDATA; Func[void subscreendata::Close()] Body Start              | 4399 resources/include/bindings/subscreendata.zh:727
+SUBDATA_CLOSE                                                                   | 4400 resources/include/bindings/subscreendata.zh:727
+RETURNFUNC; Func[void subscreendata::Close()] Body End                          | 4401 resources/include/bindings/subscreendata.zh:727
+SUBPAGE_FIND_WIDGET_BY_LABEL; Func[subscreenwidget subscreenpage::GetWidget(char32[])] Body Start | 4402 resources/include/bindings/subscreenpage.zh:48
+POPARGS D5 0.0002                                                               | 4403 resources/include/bindings/subscreenpage.zh:48
+RETURNFUNC; Func[subscreenwidget subscreenpage::GetWidget(char32[])] Body End   | 4404 resources/include/bindings/subscreenpage.zh:48
+SUBPAGE_NEW_WIDG; Func[subscreenwidget subscreenpage::CreateWidget(int)] Body Start | 4405 resources/include/bindings/subscreenpage.zh:57
+POPARGS D5 0.0002                                                               | 4406 resources/include/bindings/subscreenpage.zh:57
+RETURNFUNC; Func[subscreenwidget subscreenpage::CreateWidget(int)] Body End     | 4407 resources/include/bindings/subscreenpage.zh:57
+SUBPAGE_SWAP_WIDG; Func[void subscreenpage::SwapWidgets(int, int)] Body Start   | 4408 resources/include/bindings/subscreenpage.zh:64
+POPARGS D5 0.0003                                                               | 4409 resources/include/bindings/subscreenpage.zh:64
+RETURNFUNC; Func[void subscreenpage::SwapWidgets(int, int)] Body End            | 4410 resources/include/bindings/subscreenpage.zh:64
+SUBPAGE_FIND_WIDGET; Func[subscreenwidget subscreenpage::FindWidget(int)] Body Start | 4411 resources/include/bindings/subscreenpage.zh:72
+POPARGS D5 0.0002                                                               | 4412 resources/include/bindings/subscreenpage.zh:72
+RETURNFUNC; Func[subscreenwidget subscreenpage::FindWidget(int)] Body End       | 4413 resources/include/bindings/subscreenpage.zh:72
+SUBPAGE_MOVE_SEL; Func[int subscreenpage::SelectorMove(int, int, int)] Body Start | 4414 resources/include/bindings/subscreenpage.zh:82
+POPARGS D5 0.0004                                                               | 4415 resources/include/bindings/subscreenpage.zh:82
+RETURNFUNC; Func[int subscreenpage::SelectorMove(int, int, int)] Body End       | 4416 resources/include/bindings/subscreenpage.zh:82
+POP REFSUBSCREENPAGE; Func[void subscreenpage::Delete()] Body Start             | 4417 resources/include/bindings/subscreenpage.zh:91
+SUBPAGE_DELETE                                                                  | 4418 resources/include/bindings/subscreenpage.zh:91
+RETURNFUNC; Func[void subscreenpage::Delete()] Body End                         | 4419 resources/include/bindings/subscreenpage.zh:91
+POP D2; Func[void subscreenwidget::GetSelTextOverride(char32[])] Body Start     | 4420 resources/include/bindings/subscreenwidget.zh:1024
+POP REFSUBSCREENWIDG                                                            | 4421 resources/include/bindings/subscreenwidget.zh:1024
+SUBWIDG_GET_SELTEXT_OVERRIDE D2                                                 | 4422 resources/include/bindings/subscreenwidget.zh:1024
+RETURNFUNC; Func[void subscreenwidget::GetSelTextOverride(char32[])] Body End   | 4423 resources/include/bindings/subscreenwidget.zh:1024
+POP D2; Func[void subscreenwidget::SetSelTextOverride(char32[])] Body Start     | 4424 resources/include/bindings/subscreenwidget.zh:1034
+POP REFSUBSCREENWIDG                                                            | 4425 resources/include/bindings/subscreenwidget.zh:1034
+SUBWIDG_SET_SELTEXT_OVERRIDE D2                                                 | 4426 resources/include/bindings/subscreenwidget.zh:1034
+RETURNFUNC; Func[void subscreenwidget::SetSelTextOverride(char32[])] Body End   | 4427 resources/include/bindings/subscreenwidget.zh:1034
+POP D2; Func[void subscreenwidget::GetLabel(char32[])] Body Start               | 4428 resources/include/bindings/subscreenwidget.zh:1045
+POP REFSUBSCREENWIDG                                                            | 4429 resources/include/bindings/subscreenwidget.zh:1045
+SUBWIDG_GET_LABEL D2                                                            | 4430 resources/include/bindings/subscreenwidget.zh:1045
+RETURNFUNC; Func[void subscreenwidget::GetLabel(char32[])] Body End             | 4431 resources/include/bindings/subscreenwidget.zh:1045
+POP D2; Func[void subscreenwidget::SetLabel(char32[])] Body Start               | 4432 resources/include/bindings/subscreenwidget.zh:1053
+POP REFSUBSCREENWIDG                                                            | 4433 resources/include/bindings/subscreenwidget.zh:1053
+SUBWIDG_SET_LABEL D2                                                            | 4434 resources/include/bindings/subscreenwidget.zh:1053
+RETURNFUNC; Func[void subscreenwidget::SetLabel(char32[])] Body End             | 4435 resources/include/bindings/subscreenwidget.zh:1053
+POP D2; Func[void subscreenwidget::GetText(char32[])] Body Start                | 4436 resources/include/bindings/subscreenwidget.zh:1068
+POP REFSUBSCREENWIDG                                                            | 4437 resources/include/bindings/subscreenwidget.zh:1068
+SUBWIDG_TY_GETTEXT D2                                                           | 4438 resources/include/bindings/subscreenwidget.zh:1068
+RETURNFUNC; Func[void subscreenwidget::GetText(char32[])] Body End              | 4439 resources/include/bindings/subscreenwidget.zh:1068
+POP D2; Func[void subscreenwidget::SetText(char32[])] Body Start                | 4440 resources/include/bindings/subscreenwidget.zh:1079
+POP REFSUBSCREENWIDG                                                            | 4441 resources/include/bindings/subscreenwidget.zh:1079
+SUBWIDG_TY_SETTEXT D2                                                           | 4442 resources/include/bindings/subscreenwidget.zh:1079
+RETURNFUNC; Func[void subscreenwidget::SetText(char32[])] Body End              | 4443 resources/include/bindings/subscreenwidget.zh:1079
+POP REFSUBSCREENWIDG; Func[bool subscreenwidget::CheckConditions()] Body Start  | 4444 resources/include/bindings/subscreenwidget.zh:1088
+SUBWIDG_CHECK_CONDITIONS D2                                                     | 4445 resources/include/bindings/subscreenwidget.zh:1088
+RETURNFUNC; Func[bool subscreenwidget::CheckConditions()] Body End              | 4446 resources/include/bindings/subscreenwidget.zh:1088
+POP REFSUBSCREENWIDG; Func[bool subscreenwidget::CheckVisible()] Body Start     | 4447 resources/include/bindings/subscreenwidget.zh:1096
+SUBWIDG_CHECK_VISIBLE D2                                                        | 4448 resources/include/bindings/subscreenwidget.zh:1096
+RETURNFUNC; Func[bool subscreenwidget::CheckVisible()] Body End                 | 4449 resources/include/bindings/subscreenwidget.zh:1096
+CREATEWEAPDATA; Func[weapondata weapondata::weapondata()] Body Start            | 4450 resources/include/bindings/weapondata.zh:23
+RETURNFUNC; Func[weapondata weapondata::weapondata()] Body End                  | 4451 resources/include/bindings/weapondata.zh:23
+POP D2; Func[void weapondata::CopyTo(weapondata)] Body Start                    | 4452 resources/include/bindings/weapondata.zh:233
+POP REFWEAPDATA                                                                 | 4453 resources/include/bindings/weapondata.zh:233
+WEAPDATA_COPY D2                                                                | 4454 resources/include/bindings/weapondata.zh:233
+RETURNFUNC; Func[void weapondata::CopyTo(weapondata)] Body End                  | 4455 resources/include/bindings/weapondata.zh:233
+POP D2; Func[void weapondata::ApplyTo(lweapon)] Body Start                      | 4456 resources/include/bindings/weapondata.zh:241
+POP REFWEAPDATA                                                                 | 4457 resources/include/bindings/weapondata.zh:241
+WEAPDATA_APPLY D2                                                               | 4458 resources/include/bindings/weapondata.zh:241
+RETURNFUNC; Func[void weapondata::ApplyTo(lweapon)] Body End                    | 4459 resources/include/bindings/weapondata.zh:241
+POP D2; Func[void weapondata::ApplyTo(eweapon)] Body Start                      | 4460 resources/include/bindings/weapondata.zh:249
+POP REFWEAPDATA                                                                 | 4461 resources/include/bindings/weapondata.zh:249
+WEAPDATA_APPLY D2                                                               | 4462 resources/include/bindings/weapondata.zh:249
+RETURNFUNC; Func[void weapondata::ApplyTo(eweapon)] Body End                    | 4463 resources/include/bindings/weapondata.zh:249
+POP D2; Func[websocket websocket::websocket(char32[])] Body Start               | 4464 resources/include/bindings/websocket.zh:22
+WEBSOCKET_LOAD D2                                                               | 4465 resources/include/bindings/websocket.zh:22
+RETURNFUNC; Func[websocket websocket::websocket(char32[])] Body End             | 4466 resources/include/bindings/websocket.zh:22
+POP D2; Func[void websocket::GetError(char32[])] Body Start                     | 4467 resources/include/bindings/websocket.zh:46
+POP REFWEBSOCKET                                                                | 4468 resources/include/bindings/websocket.zh:46
+WEBSOCKET_ERROR D2                                                              | 4469 resources/include/bindings/websocket.zh:46
+RETURNFUNC; Func[void websocket::GetError(char32[])] Body End                   | 4470 resources/include/bindings/websocket.zh:46
+POP D2; Func[void websocket::Send(char32[], WebsocketType)] Body Start          | 4471 resources/include/bindings/websocket.zh:55
+POP D3                                                                          | 4472 resources/include/bindings/websocket.zh:55
+POP REFWEBSOCKET                                                                | 4473 resources/include/bindings/websocket.zh:55
+WEBSOCKET_SEND D2 D3                                                            | 4474 resources/include/bindings/websocket.zh:55
+RETURNFUNC; Func[void websocket::Send(char32[], WebsocketType)] Body End        | 4475 resources/include/bindings/websocket.zh:55
+POP REFWEBSOCKET; Func[untyped[] websocket::Receive()] Body Start               | 4476 resources/include/bindings/websocket.zh:65
+WEBSOCKET_RECEIVE D2                                                            | 4477 resources/include/bindings/websocket.zh:65
+RETURNFUNC; Func[untyped[] websocket::Receive()] Body End                       | 4478 resources/include/bindings/websocket.zh:65
+POP REFWEBSOCKET; Func[void websocket::Free()] Body Start                       | 4479 resources/include/bindings/websocket.zh:83
+WEBSOCKET_FREE                                                                  | 4480 resources/include/bindings/websocket.zh:83
+RETURNFUNC; Func[void websocket::Free()] Body End                               | 4481 resources/include/bindings/websocket.zh:83
+POP REFWEBSOCKET; Func[void websocket::Own()] Body Start                        | 4482 resources/include/bindings/websocket.zh:95
+WEBSOCKET_OWN                                                                   | 4483 resources/include/bindings/websocket.zh:95
+RETURNFUNC; Func[void websocket::Own()] Body End                                | 4484 resources/include/bindings/websocket.zh:95
 
 debug data:
 
@@ -11485,7 +11508,15 @@ debug data:
       - int HSpace @ Reg[SAVEMENU_HSPACE]
       - const int ID @ Reg[SAVEMENU_ID]
       - int MIDI @ Reg[SAVEMENU_MIDI] <DEPRECATED>
+      - int[] MiscTextAlign @ Reg[SAVEMENU_MISCTEXT_TEXT_ALIGN]
+      - int[] MiscTextColors @ Reg[SAVEMENU_MISCTEXT_COLOR]
+      - int[] MiscTextFonts @ Reg[SAVEMENU_MISCTEXT_FONT]
+      - int[] MiscTextShadowColors @ Reg[SAVEMENU_MISCTEXT_SHADOW_COLOR]
+      - int[] MiscTextShadowTypes @ Reg[SAVEMENU_MISCTEXT_SHADOW_TYPE]
+      - int[] MiscTextX @ Reg[SAVEMENU_MISCTEXT_X]
+      - int[] MiscTextY @ Reg[SAVEMENU_MISCTEXT_Y]
       - musicdata Music @ Reg[SAVEMENU_MUSIC]
+      - const int NumMiscTexts @ Reg[SAVEMENU_NUM_MISCTEXTS]
       - const int NumOptions @ Reg[SAVEMENU_NUM_OPTIONS]
       - SaveMenuOptionFlags[] OptionFlags @ Reg[SAVEMENU_OPT_FLAGS]
       - int[] PickedColors @ Reg[SAVEMENU_OPT_COLOR_PICKED]
@@ -11501,34 +11532,52 @@ debug data:
       - int VSpace @ Reg[SAVEMENU_VSPACE]
       - int X @ Reg[SAVEMENU_OPTX]
       - int Y @ Reg[SAVEMENU_OPTY]
-      [FUNCTION] AddOption <PC:4297-4300 IDX:758> <INTERNAL>
+      [FUNCTION] AddMiscText <PC:4320-4323 IDX:758> <INTERNAL>
         - const save_menu this @ Stack[1] <HIDDEN>
         - int index @ Stack[0]
-      [FUNCTION] GetName <PC:4285-4288 IDX:759> <INTERNAL>
+      [FUNCTION] AddOption <PC:4297-4300 IDX:759> <INTERNAL>
         - const save_menu this @ Stack[1] <HIDDEN>
-        - char32[] buffer @ Stack[0]
-      [FUNCTION] GetString <PC:4306-4310 IDX:760> <INTERNAL>
+        - int index @ Stack[0]
+      [FUNCTION] GetMiscTextString <PC:4329-4333 IDX:760> <INTERNAL>
         - const save_menu this @ Stack[2] <HIDDEN>
         - int index @ Stack[1]
         - char32[] buffer @ Stack[0]
-      [FUNCTION] int Open <PC:4282-4284 IDX:761> <INTERNAL>
+      [FUNCTION] GetName <PC:4285-4288 IDX:761> <INTERNAL>
+        - const save_menu this @ Stack[1] <HIDDEN>
+        - char32[] buffer @ Stack[0]
+      [FUNCTION] GetString <PC:4306-4310 IDX:762> <INTERNAL>
+        - const save_menu this @ Stack[2] <HIDDEN>
+        - int index @ Stack[1]
+        - char32[] buffer @ Stack[0]
+      [FUNCTION] int Open <PC:4282-4284 IDX:763> <INTERNAL>
         - const save_menu this @ Stack[0] <HIDDEN>
-      [FUNCTION] RemoveOption <PC:4293-4296 IDX:762> <INTERNAL>
+      [FUNCTION] RemoveMiscText <PC:4316-4319 IDX:764> <INTERNAL>
         - const save_menu this @ Stack[1] <HIDDEN>
         - int index @ Stack[0]
-      [FUNCTION] SetName <PC:4289-4292 IDX:763> <INTERNAL>
+      [FUNCTION] RemoveOption <PC:4293-4296 IDX:765> <INTERNAL>
         - const save_menu this @ Stack[1] <HIDDEN>
-        - char32[] buffer @ Stack[0]
-      [FUNCTION] SetString <PC:4311-4315 IDX:764> <INTERNAL>
+        - int index @ Stack[0]
+      [FUNCTION] SetMiscTextString <PC:4334-4338 IDX:766> <INTERNAL>
         - const save_menu this @ Stack[2] <HIDDEN>
         - int index @ Stack[1]
         - char32[] buffer @ Stack[0]
-      [FUNCTION] SwapOptions <PC:4301-4305 IDX:765> <INTERNAL>
+      [FUNCTION] SetName <PC:4289-4292 IDX:767> <INTERNAL>
+        - const save_menu this @ Stack[1] <HIDDEN>
+        - char32[] buffer @ Stack[0]
+      [FUNCTION] SetString <PC:4311-4315 IDX:768> <INTERNAL>
+        - const save_menu this @ Stack[2] <HIDDEN>
+        - int index @ Stack[1]
+        - char32[] buffer @ Stack[0]
+      [FUNCTION] SwapMiscTexts <PC:4324-4328 IDX:769> <INTERNAL>
         - const save_menu this @ Stack[2] <HIDDEN>
         - int index_1 @ Stack[1]
         - int index_2 @ Stack[0]
-  [FILE] resources/include/bindings/savedportal.zh <IDX:766>
-    [CLASS] savedportal <IDX:767>
+      [FUNCTION] SwapOptions <PC:4301-4305 IDX:770> <INTERNAL>
+        - const save_menu this @ Stack[2] <HIDDEN>
+        - int index_1 @ Stack[1]
+        - int index_2 @ Stack[0]
+  [FILE] resources/include/bindings/savedportal.zh <IDX:771>
+    [CLASS] savedportal <IDX:772>
       - int DestDMap @ Reg[SAVEDPORTALDESTDMAP]
       - int DestScreen @ Reg[SAVEDPORTALDSTSCREEN]
       - portal Portal @ Reg[SAVEDPORTALPORTAL]
@@ -11539,14 +11588,14 @@ debug data:
       - int WarpSFX @ Reg[SAVEDPORTALWARPSFX]
       - int X @ Reg[SAVEDPORTALX]
       - int Y @ Reg[SAVEDPORTALY]
-      [FUNCTION] portal Generate <PC:4319-4321 IDX:768> <INTERNAL>
+      [FUNCTION] portal Generate <PC:4342-4344 IDX:773> <INTERNAL>
         - const savedportal this @ Stack[0] <HIDDEN>
-      [FUNCTION] Remove <PC:4316-4318 IDX:769> <INTERNAL>
+      [FUNCTION] Remove <PC:4339-4341 IDX:774> <INTERNAL>
         - const savedportal this @ Stack[0] <HIDDEN>
-  [FILE] resources/include/bindings/screendata.zh <IDX:770>
+  [FILE] resources/include/bindings/screendata.zh <IDX:775>
     - const int NUM_COMBO_POS @ Reg[REGION_NUM_COMBOS]
     - const screendata Screen @ Reg[REFSCREEN]
-    [ENUM] int DrawOrigin <IDX:771>
+    [ENUM] int DrawOrigin <IDX:776>
       - const DrawOrigin DRAW_ORIGIN_DEFAULT @ Constant[0]
       - const DrawOrigin DRAW_ORIGIN_PLAYING_FIELD @ Constant[1]
       - const DrawOrigin DRAW_ORIGIN_SCREEN @ Constant[2]
@@ -11554,7 +11603,7 @@ debug data:
       - const DrawOrigin DRAW_ORIGIN_REGION_SCROLLING_NEW @ Constant[4]
       - const DrawOrigin DRAW_ORIGIN_REGION_SCROLLING_OLD @ Constant[5]
       - const DrawOrigin DRAW_ORIGIN_SPRITE @ Constant[6]
-    [ENUM] int PolygonRenderMode <IDX:772>
+    [ENUM] int PolygonRenderMode <IDX:777>
       - const PolygonRenderMode PT_FLAT @ Constant[0]
       - const PolygonRenderMode PT_FLATSHADED @ Constant[10000]
       - const PolygonRenderMode PT_COLSHADED @ Constant[20000]
@@ -11570,7 +11619,7 @@ debug data:
       - const PolygonRenderMode PT_TRANSPTEXTURE @ Constant[120000]
       - const PolygonRenderMode PT_MASKTRANSTEXTURE @ Constant[130000]
       - const PolygonRenderMode PT_MASKTRANSPTEXTURE @ Constant[140000]
-    [ENUM] int RenderTarget <IDX:773>
+    [ENUM] int RenderTarget <IDX:778>
       - const RenderTarget RT_CURRENT @ Constant[-20000]
       - const RenderTarget RT_SCREEN @ Constant[-10000]
       - const RenderTarget RT_BITMAP0 @ Constant[0]
@@ -11580,32 +11629,32 @@ debug data:
       - const RenderTarget RT_BITMAP4 @ Constant[40000]
       - const RenderTarget RT_BITMAP5 @ Constant[50000]
       - const RenderTarget RT_BITMAP6 @ Constant[60000]
-    [ENUM] int ScreenEnemyFlagGroup <IDX:774>
+    [ENUM] int ScreenEnemyFlagGroup <IDX:779>
       - const ScreenEnemyFlagGroup SEF_SPAWN @ Constant[0]
       - const ScreenEnemyFlagGroup SEF_LIST1 @ Constant[10000]
       - const ScreenEnemyFlagGroup SEF_LIST2 @ Constant[20000]
-    [ENUM] int ScreenEnemyFlagList1 <IDX:775>
+    [ENUM] int ScreenEnemyFlagList1 <IDX:780>
       - const ScreenEnemyFlagList1 SEFL1_RINGLEADER @ Constant[0]
       - const ScreenEnemyFlagList1 SEFL1_CARRYITEM @ Constant[10000]
       - const ScreenEnemyFlagList1 SEFL1_INVIS @ Constant[20000]
       - const ScreenEnemyFlagList1 SEFL1_BOSS @ Constant[30000]
       - const ScreenEnemyFlagList1 SEFL1_TRAPS_IGNORE_SOLID @ Constant[40000]
       - const ScreenEnemyFlagList1 SEFL1_LAST @ Constant[50000]
-    [ENUM] int ScreenEnemyFlagList2 <IDX:776>
+    [ENUM] int ScreenEnemyFlagList2 <IDX:781>
       - const ScreenEnemyFlagList2 SEFL2_ALWAYSRET @ Constant[0]
       - const ScreenEnemyFlagList2 SEFL2_ENEMIES_ITEM @ Constant[10000]
       - const ScreenEnemyFlagList2 SEFL2_ENEMEIS_SECRET @ Constant[20000]
       - const ScreenEnemyFlagList2 SEFL2_ENEMIES_SECRET_PERM @ Constant[30000]
       - const ScreenEnemyFlagList2 SEFL2_CHAIN_ENEMIES_TRIGGERS @ Constant[40000]
       - const ScreenEnemyFlagList2 SEFL2_LAST @ Constant[50000]
-    [ENUM] int ScreenEnemyFlagSpawn <IDX:777>
+    [ENUM] int ScreenEnemyFlagSpawn <IDX:782>
       - const ScreenEnemyFlagSpawn SEFSP_ZORA @ Constant[0]
       - const ScreenEnemyFlagSpawn SEFSP_CORNERTRAP @ Constant[10000]
       - const ScreenEnemyFlagSpawn SEFSP_MIDDLETRAP @ Constant[20000]
       - const ScreenEnemyFlagSpawn SEFSP_ROCK @ Constant[30000]
       - const ScreenEnemyFlagSpawn SEFSP_SHOOTER @ Constant[40000]
       - const ScreenEnemyFlagSpawn SEFSP_LAST @ Constant[50000]
-    [ENUM] int ScreenFlag <IDX:778>
+    [ENUM] int ScreenFlag <IDX:783>
       - const ScreenFlag SFL_INTERIOR @ Constant[400000]
       - const ScreenFlag SFL_DUNGEON @ Constant[410000]
       - const ScreenFlag SFL_SIDEVIEW @ Constant[510000]
@@ -11682,17 +11731,17 @@ debug data:
       - const ScreenFlag SFL_SCRIPT_4 @ Constant[590000]
       - const ScreenFlag SFL_SCRIPT_5 @ Constant[600000]
       - const ScreenFlag SFL_CUSTOM_GRAV @ Constant[740000]
-    [ENUM] int ScreenFlagCombos <IDX:779>
+    [ENUM] int ScreenFlagCombos <IDX:784>
       - const ScreenFlagCombos SFC_MIDAIR @ Constant[0]
       - const ScreenFlagCombos SFC_CYCLEINIT @ Constant[10000]
       - const ScreenFlagCombos SFC_IGNOREBOOTS @ Constant[20000]
       - const ScreenFlagCombos SFC_TOGGLERINGS @ Constant[30000]
       - const ScreenFlagCombos SFC_LAST @ Constant[40000]
-    [ENUM] int ScreenFlagFFC <IDX:780>
+    [ENUM] int ScreenFlagFFC <IDX:785>
       - const ScreenFlagFFC SFF_WRAP @ Constant[0]
       - const ScreenFlagFFC SFF_NOCARRYOVER @ Constant[10000]
       - const ScreenFlagFFC SFF_LAST @ Constant[20000]
-    [ENUM] int ScreenFlagGroup <IDX:781>
+    [ENUM] int ScreenFlagGroup <IDX:786>
       - const ScreenFlagGroup SF_ROOMTYPE @ Constant[0]
       - const ScreenFlagGroup SF_VIEW @ Constant[10000]
       - const ScreenFlagGroup SF_SECRETS @ Constant[20000]
@@ -11704,7 +11753,7 @@ debug data:
       - const ScreenFlagGroup SF_WHISTLE @ Constant[80000]
       - const ScreenFlagGroup SF_MISC @ Constant[90000]
       - const ScreenFlagGroup SF_LAST @ Constant[100000]
-    [ENUM] int ScreenFlagItems <IDX:782>
+    [ENUM] int ScreenFlagItems <IDX:787>
       - const ScreenFlagItems SFI_HOLDUP @ Constant[0]
       - const ScreenFlagItems SFI_FALLS @ Constant[10000]
       - const ScreenFlagItems SFI_SECRETSITEM @ Constant[20000]
@@ -11713,7 +11762,7 @@ debug data:
       - const ScreenFlagItems SFI_ITEMRETURNS @ Constant[50000]
       - const ScreenFlagItems SFI_SPECIALITEMRETURNS @ Constant[60000]
       - const ScreenFlagItems SFI_LAST @ Constant[70000]
-    [ENUM] int ScreenFlagMisc <IDX:783>
+    [ENUM] int ScreenFlagMisc <IDX:788>
       - const ScreenFlagMisc SFM_ALLOW_LADDER @ Constant[0]
       - const ScreenFlagMisc SFM_NO_DIVING @ Constant[10000]
       - const ScreenFlagMisc SFM_SCRIPT1 @ Constant[20000]
@@ -11722,24 +11771,24 @@ debug data:
       - const ScreenFlagMisc SFM_SCRIPT4 @ Constant[50000]
       - const ScreenFlagMisc SFM_SCRIPT5 @ Constant[60000]
       - const ScreenFlagMisc SFM_LAST @ Constant[70000]
-    [ENUM] int ScreenFlagRoomType <IDX:784>
+    [ENUM] int ScreenFlagRoomType <IDX:789>
       - const ScreenFlagRoomType SFR_INTERIOR @ Constant[0]
       - const ScreenFlagRoomType SFR_DUNGEON @ Constant[10000]
       - const ScreenFlagRoomType SFR_SIDEVIEW @ Constant[20000]
       - const ScreenFlagRoomType SFR_LAST @ Constant[30000]
-    [ENUM] int ScreenFlagSave <IDX:785>
+    [ENUM] int ScreenFlagSave <IDX:790>
       - const ScreenFlagSave SFSV_SAVECONTHERE @ Constant[0]
       - const ScreenFlagSave SFSV_SAVEONENTRY @ Constant[10000]
       - const ScreenFlagSave SFSV_CONTHERE @ Constant[20000]
       - const ScreenFlagSave SFSV_NOCONTINUEWARP @ Constant[30000]
       - const ScreenFlagSave SFSV_LAST @ Constant[40000]
-    [ENUM] int ScreenFlagSecrets <IDX:786>
+    [ENUM] int ScreenFlagSecrets <IDX:791>
       - const ScreenFlagSecrets SFS_BLOCKSHUT @ Constant[0]
       - const ScreenFlagSecrets SFS_TEMPSECRETS @ Constant[10000]
       - const ScreenFlagSecrets SFS_TRIGPERM @ Constant[20000]
       - const ScreenFlagSecrets SFS_ALLTRIGFLAGS @ Constant[30000]
       - const ScreenFlagSecrets SFS_LAST @ Constant[40000]
-    [ENUM] int ScreenFlagView <IDX:787>
+    [ENUM] int ScreenFlagView <IDX:792>
       - const ScreenFlagView SFV_INVISLINK @ Constant[0]
       - const ScreenFlagView SFV_NOLINKMARKER @ Constant[10000]
       - const ScreenFlagView SFV_NOSUBSCREEN @ Constant[20000]
@@ -11750,7 +11799,7 @@ debug data:
       - const ScreenFlagView SFV_DARK_DITHER @ Constant[70000]
       - const ScreenFlagView SFV_DARK_TRANS @ Constant[80000]
       - const ScreenFlagView SFV_LAST @ Constant[90000]
-    [ENUM] int ScreenFlagWarp <IDX:788>
+    [ENUM] int ScreenFlagWarp <IDX:793>
       - const ScreenFlagWarp SFW_AUTODIRECT @ Constant[0]
       - const ScreenFlagWarp SFW_SENDSIRECT @ Constant[10000]
       - const ScreenFlagWarp SFW_MAZEPATHS @ Constant[20000]
@@ -11760,26 +11809,26 @@ debug data:
       - const ScreenFlagWarp SFW_MAZE_CAN_GET_LOST @ Constant[60000]
       - const ScreenFlagWarp SFW_MAZE_LOOPY @ Constant[70000]
       - const ScreenFlagWarp SFW_LAST @ Constant[80000]
-    [ENUM] int ScreenFlagWhistle <IDX:789>
+    [ENUM] int ScreenFlagWhistle <IDX:794>
       - const ScreenFlagWhistle SFWH_STAIRS @ Constant[0]
       - const ScreenFlagWhistle SFWH_PALCHANGE @ Constant[10000]
       - const ScreenFlagWhistle SFWH_DRYLAKE @ Constant[20000]
       - const ScreenFlagWhistle SFWH_LAST @ Constant[30000]
-    [ENUM] int SpriteList <IDX:790>
+    [ENUM] int SpriteList <IDX:795>
       - const SpriteList SL_GUYS @ Constant[0]
       - const SpriteList SL_ITEMS @ Constant[10000]
       - const SpriteList SL_EWPNS @ Constant[20000]
       - const SpriteList SL_LWPNS @ Constant[30000]
       - const SpriteList SL_DECORATIONS @ Constant[40000]
       - const SpriteList SL_PARTICLES @ Constant[50000]
-    [ENUM] int WipeEffect <IDX:791>
+    [ENUM] int WipeEffect <IDX:796>
       - const WipeEffect WIPE_CIRCLE @ Constant[0]
       - const WipeEffect WIPE_OVAL @ Constant[10000]
       - const WipeEffect WIPE_TRIANGLE @ Constant[20000]
       - const WipeEffect WIPE_SMAS @ Constant[30000]
       - const WipeEffect WIPE_FADEBLACK @ Constant[40000]
       - const WipeEffect WIPE_MAX @ Constant[50000]
-    [CLASS] screendata <IDX:792>
+    [CLASS] screendata <IDX:797>
       - int AmbientSFX @ Reg[SCREENDATAOCEANSFX]
       - int BossSFX @ Reg[SCREENDATABOSSSFX]
       - int CSensitive @ Reg[SCREENDATACSENSITIVE]
@@ -11899,7 +11948,7 @@ debug data:
       - int[] WarpReturnX @ Reg[SCREENDATAWARPRETX]
       - int[] WarpReturnY @ Reg[SCREENDATAWARPRETY]
       - int Wavy @ Reg[WAVY]
-      [FUNCTION] Arc <PC:2333-2335 IDX:793> <INTERNAL>
+      [FUNCTION] Arc <PC:2333-2335 IDX:798> <INTERNAL>
         - const screendata this @ Reg[CLASS_THISKEY] <HIDDEN>
         - int layer @ Stack[13]
         - int x @ Stack[12]
@@ -11915,7 +11964,7 @@ debug data:
         - bool closed @ Stack[2]
         - bool fill @ Stack[1]
         - int opacity @ Stack[0]
-      [FUNCTION] Circle <PC:2330-2332 IDX:794> <INTERNAL>
+      [FUNCTION] Circle <PC:2330-2332 IDX:799> <INTERNAL>
         - const screendata this @ Reg[CLASS_THISKEY] <HIDDEN>
         - int layer @ Stack[10]
         - int x @ Stack[9]
@@ -11928,15 +11977,15 @@ debug data:
         - int rot_degrees @ Stack[2]
         - bool fill @ Stack[1]
         - int opacity @ Stack[0]
-      [FUNCTION] ClearSprites <PC:2323-2326 IDX:795> <INTERNAL>
+      [FUNCTION] ClearSprites <PC:2323-2326 IDX:800> <INTERNAL>
         - const screendata this @ Reg[CLASS_THISKEY] <HIDDEN>
         - int spritelist @ Stack[0]
-      [FUNCTION] ClosingWipe <PC:2475-2476 IDX:796> <INTERNAL>
+      [FUNCTION] ClosingWipe <PC:2475-2476 IDX:801> <INTERNAL>
         - const screendata this @ Reg[CLASS_THISKEY] <HIDDEN>
-      [FUNCTION] ClosingWipe <PC:2480-2482 IDX:797> <INTERNAL>
+      [FUNCTION] ClosingWipe <PC:2480-2482 IDX:802> <INTERNAL>
         - const screendata this @ Reg[CLASS_THISKEY] <HIDDEN>
         - int effect @ Stack[0]
-      [FUNCTION] ComboBlit <PC:2423-2425 IDX:798> <INTERNAL>
+      [FUNCTION] ComboBlit <PC:2423-2425 IDX:803> <INTERNAL>
         - const screendata this @ Reg[CLASS_THISKEY] <HIDDEN>
         - int layer @ Stack[16]
         - int combo @ Stack[15]
@@ -11955,25 +12004,25 @@ debug data:
         - int mode @ Stack[2]
         - int lit @ Stack[1]
         - bool mask @ Stack[0]
-      [FUNCTION] eweapon CreateEWeapon <PC:2446-2449 IDX:799> <INTERNAL>
+      [FUNCTION] eweapon CreateEWeapon <PC:2446-2449 IDX:804> <INTERNAL>
         - const screendata this @ Reg[CLASS_THISKEY] <HIDDEN>
         - int type @ Stack[0]
-      [FUNCTION] itemsprite CreateItem <PC:2303-2306 IDX:800> <INTERNAL>
+      [FUNCTION] itemsprite CreateItem <PC:2303-2306 IDX:805> <INTERNAL>
         - const screendata this @ Reg[CLASS_THISKEY] <HIDDEN>
         - int id @ Stack[0]
-      [FUNCTION] lweapon CreateLWeapon <PC:2437-2440 IDX:801> <INTERNAL>
+      [FUNCTION] lweapon CreateLWeapon <PC:2437-2440 IDX:806> <INTERNAL>
         - const screendata this @ Reg[CLASS_THISKEY] <HIDDEN>
         - int type @ Stack[0]
-      [FUNCTION] lweapon CreateLWeaponDx <PC:2523-2526 IDX:802> <INTERNAL>
+      [FUNCTION] lweapon CreateLWeaponDx <PC:2523-2526 IDX:807> <INTERNAL>
         - const screendata this @ Reg[CLASS_THISKEY] <HIDDEN>
         - int type @ Stack[1]
         - int baseitem @ Stack[0]
-      [FUNCTION] npc CreateNPC <PC:2319-2322 IDX:803> <INTERNAL>
+      [FUNCTION] npc CreateNPC <PC:2319-2322 IDX:808> <INTERNAL>
         - const screendata this @ Reg[CLASS_THISKEY] <HIDDEN>
         - int id @ Stack[0]
-      [FUNCTION] portal CreatePortal <PC:2499-2500 IDX:804> <INTERNAL>
+      [FUNCTION] portal CreatePortal <PC:2499-2500 IDX:809> <INTERNAL>
         - const screendata this @ Reg[CLASS_THISKEY] <HIDDEN>
-      [FUNCTION] DrawBitmap <PC:2414-2416 IDX:805> <INTERNAL>
+      [FUNCTION] DrawBitmap <PC:2414-2416 IDX:810> <INTERNAL>
         - const screendata this @ Reg[CLASS_THISKEY] <HIDDEN>
         - int layer @ Stack[11]
         - int bitmap_id @ Stack[10]
@@ -11987,7 +12036,7 @@ debug data:
         - int dest_h @ Stack[2]
         - int rotation @ Stack[1]
         - bool mask @ Stack[0]
-      [FUNCTION] DrawBitmapEx <PC:2417-2419 IDX:806> <INTERNAL>
+      [FUNCTION] DrawBitmapEx <PC:2417-2419 IDX:811> <INTERNAL>
         - const screendata this @ Reg[CLASS_THISKEY] <HIDDEN>
         - int layer @ Stack[15]
         - int bitmap_id @ Stack[14]
@@ -12005,7 +12054,7 @@ debug data:
         - int mode @ Stack[2]
         - int lit @ Stack[1]
         - bool mask @ Stack[0]
-      [FUNCTION] DrawCharacter <PC:2360-2362 IDX:807> <INTERNAL>
+      [FUNCTION] DrawCharacter <PC:2360-2362 IDX:812> <INTERNAL>
         - const screendata this @ Reg[CLASS_THISKEY] <HIDDEN>
         - int layer @ Stack[9]
         - int x @ Stack[8]
@@ -12017,7 +12066,7 @@ debug data:
         - int height @ Stack[2]
         - char32 c @ Stack[1]
         - int opacity @ Stack[0]
-      [FUNCTION] DrawCombo <PC:2375-2377 IDX:808> <INTERNAL>
+      [FUNCTION] DrawCombo <PC:2375-2377 IDX:813> <INTERNAL>
         - const screendata this @ Reg[CLASS_THISKEY] <HIDDEN>
         - int layer @ Stack[15]
         - int x @ Stack[14]
@@ -12035,7 +12084,7 @@ debug data:
         - int flip @ Stack[2]
         - bool transparency @ Stack[1]
         - int opacity @ Stack[0]
-      [FUNCTION] DrawComboCloaked <PC:2378-2380 IDX:809> <INTERNAL>
+      [FUNCTION] DrawComboCloaked <PC:2378-2380 IDX:814> <INTERNAL>
         - const screendata this @ Reg[CLASS_THISKEY] <HIDDEN>
         - int layer @ Stack[6]
         - int x @ Stack[5]
@@ -12044,11 +12093,11 @@ debug data:
         - int tilewidth @ Stack[2]
         - int tileheight @ Stack[1]
         - int flip @ Stack[0]
-      [FUNCTION] DrawCombos <PC:2354-2356 IDX:810> <INTERNAL>
+      [FUNCTION] DrawCombos <PC:2354-2356 IDX:815> <INTERNAL>
         - const screendata this @ Reg[CLASS_THISKEY] <HIDDEN>
         - int layer @ Stack[1]
         - int ptr @ Stack[0]
-      [FUNCTION] DrawFrame <PC:2486-2488 IDX:811> <INTERNAL>
+      [FUNCTION] DrawFrame <PC:2486-2488 IDX:816> <INTERNAL>
         - const screendata this @ Reg[CLASS_THISKEY] <HIDDEN>
         - int layer @ Stack[8]
         - int x @ Stack[7]
@@ -12059,7 +12108,7 @@ debug data:
         - int height @ Stack[2]
         - bool overlay @ Stack[1]
         - int opacity @ Stack[0]
-      [FUNCTION] DrawInteger <PC:2363-2365 IDX:812> <INTERNAL>
+      [FUNCTION] DrawInteger <PC:2363-2365 IDX:817> <INTERNAL>
         - const screendata this @ Reg[CLASS_THISKEY] <HIDDEN>
         - int layer @ Stack[10]
         - int x @ Stack[9]
@@ -12072,7 +12121,7 @@ debug data:
         - int value @ Stack[2]
         - int num_decimal_places @ Stack[1]
         - int opacity @ Stack[0]
-      [FUNCTION] DrawLayer <PC:2405-2407 IDX:813> <INTERNAL>
+      [FUNCTION] DrawLayer <PC:2405-2407 IDX:818> <INTERNAL>
         - const screendata this @ Reg[CLASS_THISKEY] <HIDDEN>
         - int layer @ Stack[7]
         - int source_map @ Stack[6]
@@ -12082,7 +12131,7 @@ debug data:
         - int y @ Stack[2]
         - int rotation @ Stack[1]
         - int opacity @ Stack[0]
-      [FUNCTION] DrawLightCircle <PC:2504-2506 IDX:814> <INTERNAL>
+      [FUNCTION] DrawLightCircle <PC:2504-2506 IDX:819> <INTERNAL>
         - const screendata this @ Reg[CLASS_THISKEY] <HIDDEN>
         - int cx @ Stack[6]
         - int cy @ Stack[5]
@@ -12091,7 +12140,7 @@ debug data:
         - int dith_rad @ Stack[2]
         - int dith_type @ Stack[1]
         - int dith_arg @ Stack[0]
-      [FUNCTION] DrawLightCone <PC:2507-2509 IDX:815> <INTERNAL>
+      [FUNCTION] DrawLightCone <PC:2507-2509 IDX:820> <INTERNAL>
         - const screendata this @ Reg[CLASS_THISKEY] <HIDDEN>
         - int cx @ Stack[7]
         - int cy @ Stack[6]
@@ -12101,7 +12150,7 @@ debug data:
         - int dith_rad @ Stack[2]
         - int dith_type @ Stack[1]
         - int dith_arg @ Stack[0]
-      [FUNCTION] DrawLightSquare <PC:2501-2503 IDX:816> <INTERNAL>
+      [FUNCTION] DrawLightSquare <PC:2501-2503 IDX:821> <INTERNAL>
         - const screendata this @ Reg[CLASS_THISKEY] <HIDDEN>
         - int cx @ Stack[6]
         - int cy @ Stack[5]
@@ -12110,14 +12159,14 @@ debug data:
         - int dith_rad @ Stack[2]
         - int dith_type @ Stack[1]
         - int dith_arg @ Stack[0]
-      [FUNCTION] DrawMapdata <PC:2411-2413 IDX:817> <INTERNAL>
+      [FUNCTION] DrawMapdata <PC:2411-2413 IDX:822> <INTERNAL>
         - const screendata this @ Reg[CLASS_THISKEY] <HIDDEN>
         - int layer @ Stack[4]
         - mapdata source @ Stack[3]
         - int x @ Stack[2]
         - int y @ Stack[1]
         - int opacity @ Stack[0]
-      [FUNCTION] DrawMiniTile <PC:2369-2371 IDX:818> <INTERNAL>
+      [FUNCTION] DrawMiniTile <PC:2369-2371 IDX:823> <INTERNAL>
         - const screendata this @ Reg[CLASS_THISKEY] <HIDDEN>
         - int layer @ Stack[6]
         - int x @ Stack[5]
@@ -12126,7 +12175,7 @@ debug data:
         - CornerIndex quarter @ Stack[2]
         - int cset @ Stack[1]
         - int opacity @ Stack[0]
-      [FUNCTION] DrawScreen <PC:2408-2410 IDX:819> <INTERNAL>
+      [FUNCTION] DrawScreen <PC:2408-2410 IDX:824> <INTERNAL>
         - const screendata this @ Reg[CLASS_THISKEY] <HIDDEN>
         - int layer @ Stack[5]
         - int map @ Stack[4]
@@ -12134,7 +12183,7 @@ debug data:
         - int x @ Stack[2]
         - int y @ Stack[1]
         - int rotation @ Stack[0]
-      [FUNCTION] DrawString <PC:2399-2401 IDX:820> <INTERNAL>
+      [FUNCTION] DrawString <PC:2399-2401 IDX:825> <INTERNAL>
         - const screendata this @ Reg[CLASS_THISKEY] <HIDDEN>
         - int layer @ Stack[8]
         - int x @ Stack[7]
@@ -12145,7 +12194,7 @@ debug data:
         - int format @ Stack[2]
         - char32[] str @ Stack[1]
         - int opacity @ Stack[0]
-      [FUNCTION] DrawString <PC:2402-2404 IDX:821> <INTERNAL>
+      [FUNCTION] DrawString <PC:2402-2404 IDX:826> <INTERNAL>
         - const screendata this @ Reg[CLASS_THISKEY] <HIDDEN>
         - int layer @ Stack[10]
         - int x @ Stack[9]
@@ -12158,7 +12207,7 @@ debug data:
         - int opacity @ Stack[2]
         - int shadow_type @ Stack[1]
         - int shadow_color @ Stack[0]
-      [FUNCTION] DrawTile <PC:2366-2368 IDX:822> <INTERNAL>
+      [FUNCTION] DrawTile <PC:2366-2368 IDX:827> <INTERNAL>
         - const screendata this @ Reg[CLASS_THISKEY] <HIDDEN>
         - int layer @ Stack[14]
         - int x @ Stack[13]
@@ -12175,7 +12224,7 @@ debug data:
         - int flip @ Stack[2]
         - bool transparency @ Stack[1]
         - int opacity @ Stack[0]
-      [FUNCTION] DrawTileCloaked <PC:2372-2374 IDX:823> <INTERNAL>
+      [FUNCTION] DrawTileCloaked <PC:2372-2374 IDX:828> <INTERNAL>
         - const screendata this @ Reg[CLASS_THISKEY] <HIDDEN>
         - int layer @ Stack[6]
         - int x @ Stack[5]
@@ -12184,11 +12233,11 @@ debug data:
         - int blockw @ Stack[2]
         - int blockh @ Stack[1]
         - int flip @ Stack[0]
-      [FUNCTION] DrawTiles <PC:2351-2353 IDX:824> <INTERNAL>
+      [FUNCTION] DrawTiles <PC:2351-2353 IDX:829> <INTERNAL>
         - const screendata this @ Reg[CLASS_THISKEY] <HIDDEN>
         - int layer @ Stack[1]
         - int ptr @ Stack[0]
-      [FUNCTION] Ellipse <PC:2336-2338 IDX:825> <INTERNAL>
+      [FUNCTION] Ellipse <PC:2336-2338 IDX:830> <INTERNAL>
         - const screendata this @ Reg[CLASS_THISKEY] <HIDDEN>
         - int layer @ Stack[11]
         - int x @ Stack[10]
@@ -12202,7 +12251,7 @@ debug data:
         - int rot_degrees @ Stack[2]
         - bool fill @ Stack[1]
         - int opacity @ Stack[0]
-      [FUNCTION] FastCombo <PC:2396-2398 IDX:826> <INTERNAL>
+      [FUNCTION] FastCombo <PC:2396-2398 IDX:831> <INTERNAL>
         - const screendata this @ Reg[CLASS_THISKEY] <HIDDEN>
         - int layer @ Stack[5]
         - int x @ Stack[4]
@@ -12210,7 +12259,7 @@ debug data:
         - int combo @ Stack[2]
         - int cset @ Stack[1]
         - int opacity @ Stack[0]
-      [FUNCTION] FastTile <PC:2393-2395 IDX:827> <INTERNAL>
+      [FUNCTION] FastTile <PC:2393-2395 IDX:832> <INTERNAL>
         - const screendata this @ Reg[CLASS_THISKEY] <HIDDEN>
         - int layer @ Stack[5]
         - int x @ Stack[4]
@@ -12218,35 +12267,35 @@ debug data:
         - int tile @ Stack[2]
         - int cset @ Stack[1]
         - int opacity @ Stack[0]
-      [FUNCTION] bool GetExDoor <PC:2510-2512 IDX:828> <INTERNAL>
+      [FUNCTION] bool GetExDoor <PC:2510-2512 IDX:833> <INTERNAL>
         - const screendata this @ Reg[CLASS_THISKEY] <HIDDEN>
         - int dir @ Stack[1]
         - int index @ Stack[0]
-      [FUNCTION] int GetSideWarpDMap <PC:2545-2547 IDX:829> <INTERNAL> <DEPRECATED>
+      [FUNCTION] int GetSideWarpDMap <PC:2545-2547 IDX:834> <INTERNAL> <DEPRECATED>
         - const screendata this @ Reg[CLASS_THISKEY] <HIDDEN>
         - int warp_id @ Stack[0]
-      [FUNCTION] int GetSideWarpScreen <PC:2548-2550 IDX:830> <INTERNAL> <DEPRECATED>
+      [FUNCTION] int GetSideWarpScreen <PC:2548-2550 IDX:835> <INTERNAL> <DEPRECATED>
         - const screendata this @ Reg[CLASS_THISKEY] <HIDDEN>
         - int warp_id @ Stack[0]
-      [FUNCTION] int GetSideWarpType <PC:2551-2553 IDX:831> <INTERNAL> <DEPRECATED>
+      [FUNCTION] int GetSideWarpType <PC:2551-2553 IDX:836> <INTERNAL> <DEPRECATED>
         - const screendata this @ Reg[CLASS_THISKEY] <HIDDEN>
         - int warp_id @ Stack[0]
-      [FUNCTION] int GetTileWarpDMap <PC:2554-2556 IDX:832> <INTERNAL> <DEPRECATED>
+      [FUNCTION] int GetTileWarpDMap <PC:2554-2556 IDX:837> <INTERNAL> <DEPRECATED>
         - const screendata this @ Reg[CLASS_THISKEY] <HIDDEN>
         - int warp_id @ Stack[0]
-      [FUNCTION] int GetTileWarpScreen <PC:2557-2559 IDX:833> <INTERNAL> <DEPRECATED>
+      [FUNCTION] int GetTileWarpScreen <PC:2557-2559 IDX:838> <INTERNAL> <DEPRECATED>
         - const screendata this @ Reg[CLASS_THISKEY] <HIDDEN>
         - int warp_id @ Stack[0]
-      [FUNCTION] int GetTileWarpType <PC:2560-2562 IDX:834> <INTERNAL> <DEPRECATED>
+      [FUNCTION] int GetTileWarpType <PC:2560-2562 IDX:839> <INTERNAL> <DEPRECATED>
         - const screendata this @ Reg[CLASS_THISKEY] <HIDDEN>
         - int warp_id @ Stack[0]
-      [FUNCTION] int LayerMap <PC:2539-2541 IDX:835> <INTERNAL> <DEPRECATED>
+      [FUNCTION] int LayerMap <PC:2539-2541 IDX:840> <INTERNAL> <DEPRECATED>
         - const screendata this @ Reg[CLASS_THISKEY] <HIDDEN>
         - int layer @ Stack[0]
-      [FUNCTION] int LayerScreen <PC:2542-2544 IDX:836> <INTERNAL> <DEPRECATED>
+      [FUNCTION] int LayerScreen <PC:2542-2544 IDX:841> <INTERNAL> <DEPRECATED>
         - const screendata this @ Reg[CLASS_THISKEY] <HIDDEN>
         - int layer @ Stack[0]
-      [FUNCTION] Line <PC:2339-2341 IDX:837> <INTERNAL>
+      [FUNCTION] Line <PC:2339-2341 IDX:842> <INTERNAL>
         - const screendata this @ Reg[CLASS_THISKEY] <HIDDEN>
         - int layer @ Stack[10]
         - int x @ Stack[9]
@@ -12259,57 +12308,57 @@ debug data:
         - int ry @ Stack[2]
         - int rot_degrees @ Stack[1]
         - int opacity @ Stack[0]
-      [FUNCTION] Lines <PC:2357-2359 IDX:838> <INTERNAL>
+      [FUNCTION] Lines <PC:2357-2359 IDX:843> <INTERNAL>
         - const screendata this @ Reg[CLASS_THISKEY] <HIDDEN>
         - int layer @ Stack[1]
         - int ptr @ Stack[0]
-      [FUNCTION] eweapon LoadEWeapon <PC:2441-2445 IDX:839> <INTERNAL>
+      [FUNCTION] eweapon LoadEWeapon <PC:2441-2445 IDX:844> <INTERNAL>
         - const screendata this @ Reg[CLASS_THISKEY] <HIDDEN>
         - int n @ Stack[0]
-      [FUNCTION] eweapon LoadEWeaponByUID <PC:2535-2538 IDX:840> <INTERNAL> <DEPRECATED>
+      [FUNCTION] eweapon LoadEWeaponByUID <PC:2535-2538 IDX:845> <INTERNAL> <DEPRECATED>
         - const screendata this @ Reg[CLASS_THISKEY] <HIDDEN>
         - int uid @ Stack[0]
-      [FUNCTION] ffc LoadFFC <PC:2307-2309 IDX:841> <INTERNAL>
+      [FUNCTION] ffc LoadFFC <PC:2307-2309 IDX:846> <INTERNAL>
         - const screendata this @ Reg[CLASS_THISKEY] <HIDDEN>
         - int id @ Stack[0]
-      [FUNCTION] ffc LoadFFC <PC:2310-2313 IDX:842> <INTERNAL>
+      [FUNCTION] ffc LoadFFC <PC:2310-2313 IDX:847> <INTERNAL>
         - const screendata this @ Reg[CLASS_THISKEY] <HIDDEN>
         - int screen @ Stack[1]
         - int index @ Stack[0]
-      [FUNCTION] itemsprite LoadItem <PC:2298-2302 IDX:843> <INTERNAL>
+      [FUNCTION] itemsprite LoadItem <PC:2298-2302 IDX:848> <INTERNAL>
         - const screendata this @ Reg[CLASS_THISKEY] <HIDDEN>
         - int n @ Stack[0]
-      [FUNCTION] lweapon LoadLWeapon <PC:2432-2436 IDX:844> <INTERNAL>
+      [FUNCTION] lweapon LoadLWeapon <PC:2432-2436 IDX:849> <INTERNAL>
         - const screendata this @ Reg[CLASS_THISKEY] <HIDDEN>
         - int n @ Stack[0]
-      [FUNCTION] lweapon LoadLWeaponByUID <PC:2531-2534 IDX:845> <INTERNAL> <DEPRECATED>
+      [FUNCTION] lweapon LoadLWeaponByUID <PC:2531-2534 IDX:850> <INTERNAL> <DEPRECATED>
         - const screendata this @ Reg[CLASS_THISKEY] <HIDDEN>
         - int uid @ Stack[0]
-      [FUNCTION] npc LoadNPC <PC:2314-2318 IDX:846> <INTERNAL>
+      [FUNCTION] npc LoadNPC <PC:2314-2318 IDX:851> <INTERNAL>
         - const screendata this @ Reg[CLASS_THISKEY] <HIDDEN>
         - int n @ Stack[0]
-      [FUNCTION] npc LoadNPCByUID <PC:2527-2530 IDX:847> <INTERNAL> <DEPRECATED>
+      [FUNCTION] npc LoadNPCByUID <PC:2527-2530 IDX:852> <INTERNAL> <DEPRECATED>
         - const screendata this @ Reg[CLASS_THISKEY] <HIDDEN>
         - int uid @ Stack[0]
-      [FUNCTION] portal LoadPortal <PC:2496-2498 IDX:848> <INTERNAL>
+      [FUNCTION] portal LoadPortal <PC:2496-2498 IDX:853> <INTERNAL>
         - const screendata this @ Reg[CLASS_THISKEY] <HIDDEN>
         - int n @ Stack[0]
-      [FUNCTION] Message <PC:2429-2431 IDX:849> <INTERNAL>
+      [FUNCTION] Message <PC:2429-2431 IDX:854> <INTERNAL>
         - const screendata this @ Reg[CLASS_THISKEY] <HIDDEN>
         - int message_id @ Stack[0]
-      [FUNCTION] OpeningWipe <PC:2473-2474 IDX:850> <INTERNAL>
+      [FUNCTION] OpeningWipe <PC:2473-2474 IDX:855> <INTERNAL>
         - const screendata this @ Reg[CLASS_THISKEY] <HIDDEN>
-      [FUNCTION] OpeningWipe <PC:2477-2479 IDX:851> <INTERNAL>
+      [FUNCTION] OpeningWipe <PC:2477-2479 IDX:856> <INTERNAL>
         - const screendata this @ Reg[CLASS_THISKEY] <HIDDEN>
         - int effect @ Stack[0]
-      [FUNCTION] Polygon <PC:2483-2485 IDX:852> <INTERNAL>
+      [FUNCTION] Polygon <PC:2483-2485 IDX:857> <INTERNAL>
         - const screendata this @ Reg[CLASS_THISKEY] <HIDDEN>
         - int layer @ Stack[4]
         - int num_points @ Stack[3]
         - int vertices @ Stack[2]
         - int color @ Stack[1]
         - int opacity @ Stack[0]
-      [FUNCTION] PutPixel <PC:2345-2347 IDX:853> <INTERNAL>
+      [FUNCTION] PutPixel <PC:2345-2347 IDX:858> <INTERNAL>
         - const screendata this @ Reg[CLASS_THISKEY] <HIDDEN>
         - int layer @ Stack[7]
         - int x @ Stack[6]
@@ -12319,14 +12368,14 @@ debug data:
         - int ry @ Stack[2]
         - int rot_degrees @ Stack[1]
         - int opacity @ Stack[0]
-      [FUNCTION] PutPixels <PC:2348-2350 IDX:854> <INTERNAL>
+      [FUNCTION] PutPixels <PC:2348-2350 IDX:859> <INTERNAL>
         - const screendata this @ Reg[CLASS_THISKEY] <HIDDEN>
         - int layer @ Stack[4]
         - int ptr @ Stack[3]
         - int rx @ Stack[2]
         - int ry @ Stack[1]
         - int rot_degrees @ Stack[0]
-      [FUNCTION] Quad <PC:2381-2383 IDX:855> <INTERNAL>
+      [FUNCTION] Quad <PC:2381-2383 IDX:860> <INTERNAL>
         - const screendata this @ Reg[CLASS_THISKEY] <HIDDEN>
         - int layer @ Stack[14]
         - int x1 @ Stack[13]
@@ -12343,7 +12392,7 @@ debug data:
         - int flip @ Stack[2]
         - int texture @ Stack[1]
         - int render_mode @ Stack[0]
-      [FUNCTION] Quad3D <PC:2387-2389 IDX:856> <INTERNAL>
+      [FUNCTION] Quad3D <PC:2387-2389 IDX:861> <INTERNAL>
         - const screendata this @ Reg[CLASS_THISKEY] <HIDDEN>
         - int layer @ Stack[7]
         - int[] pos @ Stack[6]
@@ -12353,7 +12402,7 @@ debug data:
         - int flip @ Stack[2]
         - int texture @ Stack[1]
         - int render_mode @ Stack[0]
-      [FUNCTION] Rectangle <PC:2327-2329 IDX:857> <INTERNAL>
+      [FUNCTION] Rectangle <PC:2327-2329 IDX:862> <INTERNAL>
         - const screendata this @ Reg[CLASS_THISKEY] <HIDDEN>
         - int layer @ Stack[11]
         - int x @ Stack[10]
@@ -12367,29 +12416,29 @@ debug data:
         - int rot_degrees @ Stack[2]
         - bool fill @ Stack[1]
         - int opacity @ Stack[0]
-      [FUNCTION] SetExDoor <PC:2513-2516 IDX:858> <INTERNAL>
+      [FUNCTION] SetExDoor <PC:2513-2516 IDX:863> <INTERNAL>
         - const screendata this @ Reg[CLASS_THISKEY] <HIDDEN>
         - int dir @ Stack[2]
         - int index @ Stack[1]
         - bool state @ Stack[0]
-      [FUNCTION] SetRenderTarget <PC:2426-2428 IDX:859> <INTERNAL>
+      [FUNCTION] SetRenderTarget <PC:2426-2428 IDX:864> <INTERNAL>
         - const screendata this @ Reg[CLASS_THISKEY] <HIDDEN>
         - int rt @ Stack[0]
-      [FUNCTION] SetSideWarp <PC:2517-2519 IDX:860> <INTERNAL>
+      [FUNCTION] SetSideWarp <PC:2517-2519 IDX:865> <INTERNAL>
         - const screendata this @ Reg[CLASS_THISKEY] <HIDDEN>
         - int warp_id @ Stack[3]
         - int screen @ Stack[2]
         - int dmap @ Stack[1]
         - int type @ Stack[0]
-      [FUNCTION] SetTileWarp <PC:2520-2522 IDX:861> <INTERNAL>
+      [FUNCTION] SetTileWarp <PC:2520-2522 IDX:866> <INTERNAL>
         - const screendata this @ Reg[CLASS_THISKEY] <HIDDEN>
         - int warp_id @ Stack[3]
         - int screen @ Stack[2]
         - int dmap @ Stack[1]
         - int type @ Stack[0]
-      [FUNCTION] bool SpawnScreenEnemies <PC:2489-2490 IDX:862> <INTERNAL>
+      [FUNCTION] bool SpawnScreenEnemies <PC:2489-2490 IDX:867> <INTERNAL>
         - const screendata this @ Reg[CLASS_THISKEY] <HIDDEN>
-      [FUNCTION] Spline <PC:2342-2344 IDX:863> <INTERNAL>
+      [FUNCTION] Spline <PC:2342-2344 IDX:868> <INTERNAL>
         - const screendata this @ Reg[CLASS_THISKEY] <HIDDEN>
         - int layer @ Stack[10]
         - int x1 @ Stack[9]
@@ -12402,7 +12451,7 @@ debug data:
         - int y4 @ Stack[2]
         - int color @ Stack[1]
         - int opacity @ Stack[0]
-      [FUNCTION] TileBlit <PC:2420-2422 IDX:864> <INTERNAL>
+      [FUNCTION] TileBlit <PC:2420-2422 IDX:869> <INTERNAL>
         - const screendata this @ Reg[CLASS_THISKEY] <HIDDEN>
         - int layer @ Stack[16]
         - int tile @ Stack[15]
@@ -12421,7 +12470,7 @@ debug data:
         - int mode @ Stack[2]
         - int lit @ Stack[1]
         - bool mask @ Stack[0]
-      [FUNCTION] Triangle <PC:2384-2386 IDX:865> <INTERNAL>
+      [FUNCTION] Triangle <PC:2384-2386 IDX:870> <INTERNAL>
         - const screendata this @ Reg[CLASS_THISKEY] <HIDDEN>
         - int layer @ Stack[12]
         - int x1 @ Stack[11]
@@ -12436,7 +12485,7 @@ debug data:
         - int flip @ Stack[2]
         - int texture @ Stack[1]
         - int render_mode @ Stack[0]
-      [FUNCTION] Triangle3D <PC:2390-2392 IDX:866> <INTERNAL>
+      [FUNCTION] Triangle3D <PC:2390-2392 IDX:871> <INTERNAL>
         - const screendata this @ Reg[CLASS_THISKEY] <HIDDEN>
         - int layer @ Stack[7]
         - int[] pos @ Stack[6]
@@ -12446,49 +12495,49 @@ debug data:
         - int flip @ Stack[2]
         - int tile @ Stack[1]
         - int polytype @ Stack[0]
-      [FUNCTION] bool TriggerCombo <PC:2491-2495 IDX:867> <INTERNAL>
+      [FUNCTION] bool TriggerCombo <PC:2491-2495 IDX:872> <INTERNAL>
         - const screendata this @ Reg[CLASS_THISKEY] <HIDDEN>
         - int layer @ Stack[2]
         - int pos @ Stack[1]
         - int trig_index @ Stack[0]
-      [FUNCTION] TriggerSecrets <PC:2459-2460 IDX:868> <INTERNAL>
+      [FUNCTION] TriggerSecrets <PC:2459-2460 IDX:873> <INTERNAL>
         - const screendata this @ Reg[CLASS_THISKEY] <HIDDEN>
-      [FUNCTION] TriggerSecrets <PC:2461-2463 IDX:869> <INTERNAL>
+      [FUNCTION] TriggerSecrets <PC:2461-2463 IDX:874> <INTERNAL>
         - const screendata this @ Reg[CLASS_THISKEY] <HIDDEN>
         - int screen @ Stack[0]
-      [FUNCTION] WavyIn <PC:2469-2470 IDX:870> <INTERNAL>
+      [FUNCTION] WavyIn <PC:2469-2470 IDX:875> <INTERNAL>
         - const screendata this @ Reg[CLASS_THISKEY] <HIDDEN>
-      [FUNCTION] WavyOut <PC:2471-2472 IDX:871> <INTERNAL>
+      [FUNCTION] WavyOut <PC:2471-2472 IDX:876> <INTERNAL>
         - const screendata this @ Reg[CLASS_THISKEY] <HIDDEN>
-      [FUNCTION] ZapIn <PC:2464-2466 IDX:872> <INTERNAL>
+      [FUNCTION] ZapIn <PC:2464-2466 IDX:877> <INTERNAL>
         - const screendata this @ Reg[CLASS_THISKEY] <HIDDEN>
-      [FUNCTION] ZapOut <PC:2467-2468 IDX:873> <INTERNAL>
+      [FUNCTION] ZapOut <PC:2467-2468 IDX:878> <INTERNAL>
         - const screendata this @ Reg[CLASS_THISKEY] <HIDDEN>
-      [FUNCTION] bool isSolid <PC:2450-2453 IDX:874> <INTERNAL>
+      [FUNCTION] bool isSolid <PC:2450-2453 IDX:879> <INTERNAL>
         - const screendata this @ Reg[CLASS_THISKEY] <HIDDEN>
         - int x @ Stack[1]
         - int y @ Stack[0]
-      [FUNCTION] bool isSolidLayer <PC:2454-2458 IDX:875> <INTERNAL>
+      [FUNCTION] bool isSolidLayer <PC:2454-2458 IDX:880> <INTERNAL>
         - const screendata this @ Reg[CLASS_THISKEY] <HIDDEN>
         - int x @ Stack[2]
         - int y @ Stack[1]
         - int layer @ Stack[0]
-  [FILE] resources/include/bindings/shopdata.zh <IDX:876>
-    [CLASS] shopdata <IDX:877>
+  [FILE] resources/include/bindings/shopdata.zh <IDX:881>
+    [CLASS] shopdata <IDX:882>
       - bool[] HasItem @ Reg[SHOPDATAHASITEM]
       - int[] Item @ Reg[SHOPDATAITEM]
       - int[] Price @ Reg[SHOPDATAPRICE]
       - int[] String @ Reg[SHOPDATASTRING]
       - const int Type @ Reg[SHOPDATATYPE]
-  [FILE] resources/include/bindings/spritedata.zh <IDX:878>
-    [ENUM] int SpriteDataFlag <IDX:879>
+  [FILE] resources/include/bindings/spritedata.zh <IDX:883>
+    [ENUM] int SpriteDataFlag <IDX:884>
       - const SpriteDataFlag SPRFL_AUTOFLASH @ Constant[0]
       - const SpriteDataFlag SPRFL_2PFLASH @ Constant[10000]
       - const SpriteDataFlag SPRFL_HFLIP @ Constant[20000]
       - const SpriteDataFlag SPRFL_VFLIP @ Constant[30000]
       - const SpriteDataFlag SPRFL_BEHIND @ Constant[40000]
       - const SpriteDataFlag NUM_SPRFL @ Constant[50000]
-    [CLASS] spritedata <IDX:880>
+    [CLASS] spritedata <IDX:885>
       - int CSet @ Reg[SPRITEDATACSETS]
       - bool[] Flags @ Reg[SPRITEDATAFLAGS]
       - int FlashCSet @ Reg[SPRITEDATAFLCSET]
@@ -12498,40 +12547,40 @@ debug data:
       - int Speed @ Reg[SPRITEDATASPEED]
       - int Tile @ Reg[SPRITEDATATILE]
       - int Type @ Reg[SPRITEDATATYPE]
-  [FILE] resources/include/bindings/stack.zh <IDX:881>
-    [CLASS] stack <IDX:882>
+  [FILE] resources/include/bindings/stack.zh <IDX:886>
+    [CLASS] stack <IDX:887>
       - const bool Full @ Reg[STACKFULL]
       - const long Size @ Reg[STACKSIZE]
-      [FUNCTION] stack stack <PC:4322-4323 IDX:883> <INTERNAL>
+      [FUNCTION] stack stack <PC:4345-4346 IDX:888> <INTERNAL>
         - const stack this @ Stack[0] <HIDDEN>
-      [FUNCTION] Clear <PC:4330-4332 IDX:884> <INTERNAL>
+      [FUNCTION] Clear <PC:4353-4355 IDX:889> <INTERNAL>
         - const stack this @ Stack[0] <HIDDEN>
-      [FUNCTION] Free <PC:4324-4326 IDX:885> <INTERNAL> <DEPRECATED>
+      [FUNCTION] Free <PC:4347-4349 IDX:890> <INTERNAL> <DEPRECATED>
         - const stack this @ Stack[0] <HIDDEN>
-      [FUNCTION] T Get <PC:4353-4356 IDX:886> <INTERNAL>
+      [FUNCTION] T Get <PC:4376-4379 IDX:891> <INTERNAL>
         - const stack this @ Stack[1] <HIDDEN>
         - long ind @ Stack[0]
-      [FUNCTION] Own <PC:4327-4329 IDX:887> <INTERNAL>
+      [FUNCTION] Own <PC:4350-4352 IDX:892> <INTERNAL>
         - const stack this @ Stack[0] <HIDDEN>
-      [FUNCTION] T PeekBack <PC:4347-4349 IDX:888> <INTERNAL>
+      [FUNCTION] T PeekBack <PC:4370-4372 IDX:893> <INTERNAL>
         - const stack this @ Stack[0] <HIDDEN>
-      [FUNCTION] T PeekFront <PC:4350-4352 IDX:889> <INTERNAL>
+      [FUNCTION] T PeekFront <PC:4373-4375 IDX:894> <INTERNAL>
         - const stack this @ Stack[0] <HIDDEN>
-      [FUNCTION] T PopBack <PC:4341-4343 IDX:890> <INTERNAL>
+      [FUNCTION] T PopBack <PC:4364-4366 IDX:895> <INTERNAL>
         - const stack this @ Stack[0] <HIDDEN>
-      [FUNCTION] T PopFront <PC:4344-4346 IDX:891> <INTERNAL>
+      [FUNCTION] T PopFront <PC:4367-4369 IDX:896> <INTERNAL>
         - const stack this @ Stack[0] <HIDDEN>
-      [FUNCTION] PushBack <PC:4333-4336 IDX:892> <INTERNAL>
+      [FUNCTION] PushBack <PC:4356-4359 IDX:897> <INTERNAL>
         - const stack this @ Stack[1] <HIDDEN>
         - T val @ Stack[0]
-      [FUNCTION] PushFront <PC:4337-4340 IDX:893> <INTERNAL>
+      [FUNCTION] PushFront <PC:4360-4363 IDX:898> <INTERNAL>
         - const stack this @ Stack[1] <HIDDEN>
         - T val @ Stack[0]
-      [FUNCTION] Set <PC:4357-4361 IDX:894> <INTERNAL>
+      [FUNCTION] Set <PC:4380-4384 IDX:899> <INTERNAL>
         - const stack this @ Stack[2] <HIDDEN>
         - long ind @ Stack[1]
         - T val @ Stack[0]
-  [FILE] resources/include/bindings/subscreendata.zh <IDX:895>
+  [FILE] resources/include/bindings/subscreendata.zh <IDX:900>
     - const int SSFL_ACTIVE_MAX @ Constant[20000]
     - const int SSFL_ACTIVE_NOPAGEWRAP @ Constant[0]
     - const int SSFL_ACTIVE_OVERRIDE_SELECTOR @ Constant[10000]
@@ -12700,14 +12749,14 @@ debug data:
     - const int TRANS_TY_MAX @ Constant[30000]
     - const int TRANS_TY_PIXEL @ Constant[20000]
     - const int TRANS_TY_SLIDE @ Constant[10000]
-    [ENUM] int SubscreenPageMode <IDX:896>
+    [ENUM] int SubscreenPageMode <IDX:901>
       - const SubscreenPageMode SUB_PGMODE_NONE @ Constant[0]
       - const SubscreenPageMode SUB_PGMODE_NEXT @ Constant[10000]
       - const SubscreenPageMode SUB_PGMODE_PREV @ Constant[20000]
       - const SubscreenPageMode SUB_PGMODE_TARG @ Constant[30000]
       - const SubscreenPageMode SUB_PGMODE_CURRENT @ Constant[40000]
       - const SubscreenPageMode SUB_PGMODE_MAX @ Constant[50000]
-    [ENUM] int SubscreenWidgetGenFlag <IDX:897>
+    [ENUM] int SubscreenWidgetGenFlag <IDX:902>
       - const SubscreenWidgetGenFlag SUBW_GENFL_SELECTABLE @ Constant[0]
       - const SubscreenWidgetGenFlag SUBW_GENFL_PGMODE_NOWRAP @ Constant[10000]
       - const SubscreenWidgetGenFlag SUBW_GENFL_SELECTOR_OVERRIDE @ Constant[20000]
@@ -12722,7 +12771,7 @@ debug data:
       - const SubscreenWidgetGenFlag SUBW_GENFL_REQ_INVERT_LSTATE @ Constant[110000]
       - const SubscreenWidgetGenFlag SUBW_GENFL_REQ_ANY_LSTATE @ Constant[120000]
       - const SubscreenWidgetGenFlag SUBW_GENFL_MAX @ Constant[130000]
-    [ENUM] int SubscreenWidgetType <IDX:898>
+    [ENUM] int SubscreenWidgetType <IDX:903>
       - const SubscreenWidgetType SUBWIDG_NULL @ Constant[0]
       - const SubscreenWidgetType SUBWIDG_FRAME @ Constant[10000]
       - const SubscreenWidgetType SUBWIDG_TEXT @ Constant[20000]
@@ -12754,10 +12803,10 @@ debug data:
       - const SubscreenWidgetType SUBWIDG_ITEMCOOLDOWNGAUGE @ Constant[280000]
       - const SubscreenWidgetType SUBWIDG_ITEMCOOLDOWNTEXT @ Constant[290000]
       - const SubscreenWidgetType SUBWIDG_MAX @ Constant[300000]
-    [ENUM] int TransitionFlag <IDX:899>
+    [ENUM] int TransitionFlag <IDX:904>
       - const TransitionFlag TRANSFLAG_NO_HIDE_SELECTOR @ Constant[0]
       - const TransitionFlag TRANSFLAG_MAX @ Constant[10000]
-    [CLASS] subscreendata <IDX:900>
+    [CLASS] subscreendata <IDX:905>
       - bool[] BtnPageLeft @ Reg[SUBDATABTNLEFT]
       - bool[] BtnPageRight @ Reg[SUBDATABTNRIGHT]
       - int CurPage @ Reg[SUBDATACURPG]
@@ -12794,52 +12843,52 @@ debug data:
       - int TransToPage @ Reg[SUBDATATRANSTOPG]
       - int TransType @ Reg[SUBDATATRANSTY]
       - const int Type @ Reg[SUBDATATYPE]
-      [FUNCTION] Close <PC:4376-4378 IDX:901> <INTERNAL>
+      [FUNCTION] Close <PC:4399-4401 IDX:906> <INTERNAL>
         - const subscreendata this @ Stack[0] <HIDDEN>
-      [FUNCTION] GetName <PC:4362-4365 IDX:902> <INTERNAL>
+      [FUNCTION] GetName <PC:4385-4388 IDX:907> <INTERNAL>
         - const subscreendata this @ Stack[1] <HIDDEN>
         - char32[] buf @ Stack[0]
-      [FUNCTION] Open <PC:4373-4375 IDX:903> <INTERNAL>
+      [FUNCTION] Open <PC:4396-4398 IDX:908> <INTERNAL>
         - const subscreendata this @ Stack[0] <HIDDEN>
-      [FUNCTION] SetName <PC:4366-4369 IDX:904> <INTERNAL>
+      [FUNCTION] SetName <PC:4389-4392 IDX:909> <INTERNAL>
         - const subscreendata this @ Stack[1] <HIDDEN>
         - char32[] buf @ Stack[0]
-      [FUNCTION] SwapPages <PC:4370-4372 IDX:905> <INTERNAL>
+      [FUNCTION] SwapPages <PC:4393-4395 IDX:910> <INTERNAL>
         - const subscreendata this @ Stack[2] <HIDDEN>
         - int index1 @ Stack[1]
         - int index2 @ Stack[0]
-  [FILE] resources/include/bindings/subscreenpage.zh <IDX:906>
-    [ENUM] int MoveSubscreenSelectorBitflags <IDX:907>
+  [FILE] resources/include/bindings/subscreenpage.zh <IDX:911>
+    [ENUM] int MoveSubscreenSelectorBitflags <IDX:912>
       - const MoveSubscreenSelectorBitflags SUBSEL_FLAG_NO_NONEQUIP @ Constant[10000]
       - const MoveSubscreenSelectorBitflags SUBSEL_FLAG_NEED_ITEM @ Constant[20000]
-    [CLASS] subscreenpage <IDX:908>
+    [CLASS] subscreenpage <IDX:913>
       - int CursorPos @ Reg[SUBPGCURSORPOS]
       - const int Index @ Reg[SUBPGINDEX]
       - const int NumWidgets @ Reg[SUBPGNUMWIDG]
       - const subscreendata SubData @ Reg[SUBPGSUBDATA]
       - const subscreenwidget[] Widgets @ Reg[SUBPGWIDGETS]
-      [FUNCTION] subscreenwidget CreateWidget <PC:4382-4384 IDX:909> <INTERNAL>
+      [FUNCTION] subscreenwidget CreateWidget <PC:4405-4407 IDX:914> <INTERNAL>
         - const subscreenpage this @ Stack[1] <HIDDEN>
         - int type @ Stack[0]
-      [FUNCTION] Delete <PC:4394-4396 IDX:910> <INTERNAL>
+      [FUNCTION] Delete <PC:4417-4419 IDX:915> <INTERNAL>
         - const subscreenpage this @ Stack[0] <HIDDEN>
-      [FUNCTION] subscreenwidget FindWidget <PC:4388-4390 IDX:911> <INTERNAL>
+      [FUNCTION] subscreenwidget FindWidget <PC:4411-4413 IDX:916> <INTERNAL>
         - const subscreenpage this @ Stack[1] <HIDDEN>
         - int cursor_pos @ Stack[0]
-      [FUNCTION] subscreenwidget GetWidget <PC:4379-4381 IDX:912> <INTERNAL>
+      [FUNCTION] subscreenwidget GetWidget <PC:4402-4404 IDX:917> <INTERNAL>
         - const subscreenpage this @ Stack[1] <HIDDEN>
         - char32[] label @ Stack[0]
-      [FUNCTION] int SelectorMove <PC:4391-4393 IDX:913> <INTERNAL>
+      [FUNCTION] int SelectorMove <PC:4414-4416 IDX:918> <INTERNAL>
         - const subscreenpage this @ Stack[3] <HIDDEN>
         - int cursor_pos @ Stack[2]
         - int dir @ Stack[1]
         - int flags @ Stack[0]
-      [FUNCTION] SwapWidgets <PC:4385-4387 IDX:914> <INTERNAL>
+      [FUNCTION] SwapWidgets <PC:4408-4410 IDX:919> <INTERNAL>
         - const subscreenpage this @ Stack[2] <HIDDEN>
         - int index1 @ Stack[1]
         - int index2 @ Stack[0]
-  [FILE] resources/include/bindings/subscreenwidget.zh <IDX:915>
-    [ENUM] int ConditionType <IDX:916>
+  [FILE] resources/include/bindings/subscreenwidget.zh <IDX:920>
+    [ENUM] int ConditionType <IDX:921>
       - const ConditionType CONDTY_NONE @ Constant[0]
       - const ConditionType CONDTY_EQ @ Constant[10000]
       - const ConditionType CONDTY_NEQ @ Constant[20000]
@@ -12848,14 +12897,14 @@ debug data:
       - const ConditionType CONDTY_LESS @ Constant[50000]
       - const ConditionType CONDTY_LESSEQ @ Constant[60000]
       - const ConditionType NUM_CONDTY @ Constant[70000]
-    [ENUM] int SubscreenItemButton <IDX:917>
+    [ENUM] int SubscreenItemButton <IDX:922>
       - const SubscreenItemButton ITMBTN_NONE @ Constant[-10000]
       - const SubscreenItemButton ITMBTN_A @ Constant[0]
       - const SubscreenItemButton ITMBTN_B @ Constant[10000]
       - const SubscreenItemButton ITMBTN_X @ Constant[20000]
       - const SubscreenItemButton ITMBTN_Y @ Constant[30000]
       - const SubscreenItemButton NUM_ITMBTN @ Constant[40000]
-    [CLASS] subscreenwidget <IDX:918>
+    [CLASS] subscreenwidget <IDX:923>
       - int Align @ Reg[SUBWIDGTY_ALIGN]
       - int AnimVal @ Reg[SUBWIDGTY_ANIMVAL]
       - bool[] BtnPageChange @ Reg[SUBWIDGBTNPG]
@@ -12967,74 +13016,74 @@ debug data:
       - int W @ Reg[SUBWIDGW]
       - int X @ Reg[SUBWIDGX]
       - int Y @ Reg[SUBWIDGY]
-      [FUNCTION] bool CheckConditions <PC:4421-4423 IDX:919> <INTERNAL>
+      [FUNCTION] bool CheckConditions <PC:4444-4446 IDX:924> <INTERNAL>
         - const subscreenwidget this @ Stack[0] <HIDDEN>
-      [FUNCTION] bool CheckVisible <PC:4424-4426 IDX:920> <INTERNAL>
+      [FUNCTION] bool CheckVisible <PC:4447-4449 IDX:925> <INTERNAL>
         - const subscreenwidget this @ Stack[0] <HIDDEN>
-      [FUNCTION] GetLabel <PC:4405-4408 IDX:921> <INTERNAL>
+      [FUNCTION] GetLabel <PC:4428-4431 IDX:926> <INTERNAL>
         - const subscreenwidget this @ Stack[1] <HIDDEN>
         - char32[] buf @ Stack[0]
-      [FUNCTION] GetSelTextOverride <PC:4397-4400 IDX:922> <INTERNAL>
+      [FUNCTION] GetSelTextOverride <PC:4420-4423 IDX:927> <INTERNAL>
         - const subscreenwidget this @ Stack[1] <HIDDEN>
         - char32[] buf @ Stack[0]
-      [FUNCTION] GetText <PC:4413-4416 IDX:923> <INTERNAL>
+      [FUNCTION] GetText <PC:4436-4439 IDX:928> <INTERNAL>
         - const subscreenwidget this @ Stack[1] <HIDDEN>
         - char32[] buf @ Stack[0]
-      [FUNCTION] SetLabel <PC:4409-4412 IDX:924> <INTERNAL>
+      [FUNCTION] SetLabel <PC:4432-4435 IDX:929> <INTERNAL>
         - const subscreenwidget this @ Stack[1] <HIDDEN>
         - char32[] str @ Stack[0]
-      [FUNCTION] SetSelTextOverride <PC:4401-4404 IDX:925> <INTERNAL>
+      [FUNCTION] SetSelTextOverride <PC:4424-4427 IDX:930> <INTERNAL>
         - const subscreenwidget this @ Stack[1] <HIDDEN>
         - char32[] str @ Stack[0]
-      [FUNCTION] SetText <PC:4417-4420 IDX:926> <INTERNAL>
+      [FUNCTION] SetText <PC:4440-4443 IDX:931> <INTERNAL>
         - const subscreenwidget this @ Stack[1] <HIDDEN>
         - char32[] str @ Stack[0]
-  [FILE] resources/include/bindings/text.zh <IDX:927>
+  [FILE] resources/include/bindings/text.zh <IDX:932>
     - const Text Text @ Constant[0]
-    [CLASS] Text <IDX:928>
-      [FUNCTION] int CharHeight <PC:2614-2617 IDX:929> <INTERNAL>
+    [CLASS] Text <IDX:933>
+      [FUNCTION] int CharHeight <PC:2614-2617 IDX:934> <INTERNAL>
         - const Text this @ Reg[CLASS_THISKEY] <HIDDEN>
         - char32 c @ Stack[1]
         - int font @ Stack[0]
-      [FUNCTION] int CharWidth <PC:2606-2609 IDX:930> <INTERNAL>
+      [FUNCTION] int CharWidth <PC:2606-2609 IDX:935> <INTERNAL>
         - const Text this @ Reg[CLASS_THISKEY] <HIDDEN>
         - char32 c @ Stack[1]
         - int font @ Stack[0]
-      [FUNCTION] int FontHeight <PC:2618-2620 IDX:931> <INTERNAL>
+      [FUNCTION] int FontHeight <PC:2618-2620 IDX:936> <INTERNAL>
         - const Text this @ Reg[CLASS_THISKEY] <HIDDEN>
         - int font @ Stack[0]
-      [FUNCTION] int MessageHeight <PC:2624-2626 IDX:932> <INTERNAL>
+      [FUNCTION] int MessageHeight <PC:2624-2626 IDX:937> <INTERNAL>
         - const Text this @ Reg[CLASS_THISKEY] <HIDDEN>
         - int msg @ Stack[0]
-      [FUNCTION] int MessageWidth <PC:2621-2623 IDX:933> <INTERNAL>
+      [FUNCTION] int MessageWidth <PC:2621-2623 IDX:938> <INTERNAL>
         - const Text this @ Reg[CLASS_THISKEY] <HIDDEN>
         - int msg @ Stack[0]
-      [FUNCTION] int StringHeight <PC:2610-2613 IDX:934> <INTERNAL>
+      [FUNCTION] int StringHeight <PC:2610-2613 IDX:939> <INTERNAL>
         - const Text this @ Reg[CLASS_THISKEY] <HIDDEN>
         - char32[] s @ Stack[1]
         - int font @ Stack[0]
-      [FUNCTION] int StringWidth <PC:2602-2605 IDX:935> <INTERNAL>
+      [FUNCTION] int StringWidth <PC:2602-2605 IDX:940> <INTERNAL>
         - const Text this @ Reg[CLASS_THISKEY] <HIDDEN>
         - char32[] s @ Stack[1]
         - int font @ Stack[0]
-  [FILE] resources/include/bindings/viewport.zh <IDX:936>
+  [FILE] resources/include/bindings/viewport.zh <IDX:941>
     - const Viewport Viewport @ Constant[0]
-    [ENUM] int ViewportMode <IDX:937>
+    [ENUM] int ViewportMode <IDX:942>
       - const ViewportMode VIEW_MODE_CENTER_AND_BOUND @ Constant[0]
       - const ViewportMode VIEW_MODE_CENTER @ Constant[1]
       - const ViewportMode VIEW_MODE_SCRIPT @ Constant[2]
-    [CLASS] Viewport <IDX:938>
+    [CLASS] Viewport <IDX:943>
       - const int Height @ Reg[VIEWPORT_HEIGHT]
       - ViewportMode Mode @ Reg[VIEWPORT_MODE]
       - sprite Target @ Reg[VIEWPORT_TARGET]
       - const int Width @ Reg[VIEWPORT_WIDTH]
       - int X @ Reg[VIEWPORT_X]
       - int Y @ Reg[VIEWPORT_Y]
-  [FILE] resources/include/bindings/weapondata.zh <IDX:939>
-    [ENUM] int WeapDataFlag <IDX:940>
+  [FILE] resources/include/bindings/weapondata.zh <IDX:944>
+    [ENUM] int WeapDataFlag <IDX:945>
       - const WeapDataFlag WDATA_GLOW_RAD @ Constant[0]
       - const WeapDataFlag WDATA_SET_STEP @ Constant[10000]
-    [CLASS] weapondata <IDX:941>
+    [CLASS] weapondata <IDX:946>
       - int BounceAdd @ Reg[WEAPDATA_BOUNCE_ADD]
       - int BounceMult @ Reg[WEAPDATA_BOUNCE_MULT]
       - int[] BurnLightOffset @ Reg[WEAPDATA_BURN_LIGHTOFFSET]
@@ -13068,147 +13117,147 @@ debug data:
       - int ViewportDespawnRange @ Reg[WEAPDATA_VIEWPORT_DESPAWN_RANGE]
       - int ViewportSuspendRange @ Reg[WEAPDATA_VIEWPORT_SUSPEND_RANGE]
       - int Weapon @ Reg[WEAPDATA_USEWEAPON]
-      [FUNCTION] weapondata weapondata <PC:4427-4428 IDX:942> <INTERNAL>
+      [FUNCTION] weapondata weapondata <PC:4450-4451 IDX:947> <INTERNAL>
         - const weapondata this @ Stack[0] <HIDDEN>
-      [FUNCTION] ApplyTo <PC:4437-4440 IDX:943> <INTERNAL>
+      [FUNCTION] ApplyTo <PC:4460-4463 IDX:948> <INTERNAL>
         - const weapondata this @ Stack[1] <HIDDEN>
         - eweapon weap @ Stack[0]
-      [FUNCTION] ApplyTo <PC:4433-4436 IDX:944> <INTERNAL>
+      [FUNCTION] ApplyTo <PC:4456-4459 IDX:949> <INTERNAL>
         - const weapondata this @ Stack[1] <HIDDEN>
         - lweapon weap @ Stack[0]
-      [FUNCTION] CopyTo <PC:4429-4432 IDX:945> <INTERNAL>
+      [FUNCTION] CopyTo <PC:4452-4455 IDX:950> <INTERNAL>
         - const weapondata this @ Stack[1] <HIDDEN>
         - weapondata target @ Stack[0]
-  [FILE] resources/include/bindings/websocket.zh <IDX:946>
-    [ENUM] int WebsocketState <IDX:947>
+  [FILE] resources/include/bindings/websocket.zh <IDX:951>
+    [ENUM] int WebsocketState <IDX:952>
       - const WebsocketState WEBSOCKET_STATE_CONNECTING @ Constant[0]
       - const WebsocketState WEBSOCKET_STATE_OPEN @ Constant[1]
       - const WebsocketState WEBSOCKET_STATE_CLOSING @ Constant[2]
       - const WebsocketState WEBSOCKET_STATE_CLOSED @ Constant[3]
-    [ENUM] int WebsocketType <IDX:948>
+    [ENUM] int WebsocketType <IDX:953>
       - const WebsocketType WEBSOCKET_MESSAGE_TYPE_TEXT @ Constant[1]
       - const WebsocketType WEBSOCKET_MESSAGE_TYPE_BINARY @ Constant[2]
-    [CLASS] websocket <IDX:949>
+    [CLASS] websocket <IDX:954>
       - const bool HasMessage @ Reg[WEBSOCKET_HAS_MESSAGE]
       - const WebsocketType MessageType @ Reg[WEBSOCKET_MESSAGE_TYPE]
       - const WebsocketState State @ Reg[WEBSOCKET_STATE]
       - const char32[] URL @ Reg[WEBSOCKET_URL]
-      [FUNCTION] websocket websocket <PC:4441-4443 IDX:950> <INTERNAL>
+      [FUNCTION] websocket websocket <PC:4464-4466 IDX:955> <INTERNAL>
         - const websocket this @ Stack[1] <HIDDEN>
         - char32[] url @ Stack[0]
-      [FUNCTION] Free <PC:4456-4458 IDX:951> <INTERNAL> <DEPRECATED>
+      [FUNCTION] Free <PC:4479-4481 IDX:956> <INTERNAL> <DEPRECATED>
         - const websocket this @ Stack[0] <HIDDEN>
-      [FUNCTION] GetError <PC:4444-4447 IDX:952> <INTERNAL>
+      [FUNCTION] GetError <PC:4467-4470 IDX:957> <INTERNAL>
         - const websocket this @ Stack[1] <HIDDEN>
         - char32[] buf @ Stack[0]
-      [FUNCTION] Own <PC:4459-4461 IDX:953> <INTERNAL>
+      [FUNCTION] Own <PC:4482-4484 IDX:958> <INTERNAL>
         - const websocket this @ Stack[0] <HIDDEN>
-      [FUNCTION] untyped[] Receive <PC:4453-4455 IDX:954> <INTERNAL>
+      [FUNCTION] untyped[] Receive <PC:4476-4478 IDX:959> <INTERNAL>
         - const websocket this @ Stack[0] <HIDDEN>
-      [FUNCTION] Send <PC:4448-4452 IDX:955> <INTERNAL>
+      [FUNCTION] Send <PC:4471-4475 IDX:960> <INTERNAL>
         - const websocket this @ Stack[2] <HIDDEN>
         - char32[] buf @ Stack[1]
         - WebsocketType type @ Stack[0]
-  [FILE] resources/include/bindings/zinfo.zh <IDX:956>
+  [FILE] resources/include/bindings/zinfo.zh <IDX:961>
     - const ZInfo Module @ Constant[0]
     - const ZInfo ZInfo @ Constant[0]
-    [CLASS] ZInfo <IDX:957>
-      [FUNCTION] GetItemType <PC:2294-2297 IDX:958> <INTERNAL>
+    [CLASS] ZInfo <IDX:962>
+      [FUNCTION] GetItemType <PC:2294-2297 IDX:963> <INTERNAL>
         - const ZInfo this @ Reg[CLASS_THISKEY] <HIDDEN>
         - char32[] buffer @ Stack[1]
         - int itemclass_id @ Stack[0]
-  [FILE] tests/scripts/playground/auto/scopes.zs <IDX:959>
+  [FILE] tests/scripts/playground/auto/scopes.zs <IDX:964>
     - const int CONST_GLOBAL_VAR @ Constant[10000]
     - bool GLOBAL_BOOL @ Global[7]
     - int GLOBAL_VAR @ Global[6]
     - int GLOBAL_VAR_NEVER_SHADOWED @ Global[5]
-    [ENUM] int Enum <IDX:960>
+    [ENUM] int Enum <IDX:965>
       - const Enum Enum_A @ Constant[0]
       - const Enum Enum_B @ Constant[10000]
-    [NAMESPACE] A <IDX:1016>
+    [NAMESPACE] A <IDX:1021>
       - int A_var @ Global[9]
       - int GLOBAL_VAR @ Global[8]
       - CL cl @ Global[15]
-      [NAMESPACE] B <IDX:1017>
+      [NAMESPACE] B <IDX:1022>
         - int B_var @ Global[10]
-        [FUNCTION] B_fn <PC:936-960 IDX:1018>
-          [BLOCK] <PC:946-957 IDX:1019>
+        [FUNCTION] B_fn <PC:936-960 IDX:1023>
+          [BLOCK] <PC:946-957 IDX:1024>
             - int GLOBAL_VAR @ Stack[0]
-      [CLASS] CL <IDX:1020>
+      [CLASS] CL <IDX:1025>
         - int A_var @ ClassField[0]
         - int[] arr @ ClassField[2]
         - untyped[] arr_untyped @ ClassField[3]
         - CL this_ptr @ ClassField[1]
-        [FUNCTION] CL CL <PC:1058-1139 IDX:1021>
+        [FUNCTION] CL CL <PC:1058-1139 IDX:1026>
           - const CL this @ Reg[CLASS_THISKEY] <HIDDEN>
-          [BLOCK] <PC:1066-1131 IDX:1022>
+          [BLOCK] <PC:1066-1131 IDX:1027>
             - CL ptr @ Stack[1]
             - DataBag d @ Stack[0]
-        [FUNCTION] ~CL <PC:1140-1151 IDX:1023>
+        [FUNCTION] ~CL <PC:1140-1151 IDX:1028>
           - const CL this @ Reg[CLASS_THISKEY] <HIDDEN>
-          [BLOCK] <PC:1143-1149 IDX:1024>
+          [BLOCK] <PC:1143-1149 IDX:1029>
             - int a @ Stack[0]
-        [FUNCTION] int getVar <PC:1166-1170 IDX:1025>
+        [FUNCTION] int getVar <PC:1166-1170 IDX:1030>
           - const CL this @ Reg[CLASS_THISKEY] <HIDDEN>
-        [FUNCTION] trace <PC:1152-1165 IDX:1026>
+        [FUNCTION] trace <PC:1152-1165 IDX:1031>
           - const CL this @ Reg[CLASS_THISKEY] <HIDDEN>
-      [CLASS] DataBag <IDX:1027>
+      [CLASS] DataBag <IDX:1032>
         - int var1 @ ClassField[0]
         - int var2 @ ClassField[1]
-        [FUNCTION] DataBag DataBag <PC:975-989 IDX:1028>
+        [FUNCTION] DataBag DataBag <PC:975-989 IDX:1033>
           - const DataBag this @ Reg[CLASS_THISKEY] <HIDDEN>
-        [FUNCTION] int StaticClassFunction <PC:961-966 IDX:1029>
-        [FUNCTION] int StaticGetDouble <PC:967-974 IDX:1030>
+        [FUNCTION] int StaticClassFunction <PC:961-966 IDX:1034>
+        [FUNCTION] int StaticGetDouble <PC:967-974 IDX:1035>
           - int x @ Stack[1]
-          [BLOCK] <PC:969-973 IDX:1031>
+          [BLOCK] <PC:969-973 IDX:1036>
             - int doubled @ Stack[0]
-        [FUNCTION] dosomething <PC:990-1012 IDX:1032>
+        [FUNCTION] dosomething <PC:990-1012 IDX:1037>
           - const DataBag this @ Reg[CLASS_THISKEY] <HIDDEN>
-          [BLOCK] <PC:993-1009 IDX:1033>
+          [BLOCK] <PC:993-1009 IDX:1038>
             - int v1 @ Stack[1]
             - int v2 @ Stack[0]
-        [FUNCTION] int sum <PC:1013-1057 IDX:1034>
+        [FUNCTION] int sum <PC:1013-1057 IDX:1039>
           - const DataBag this @ Reg[CLASS_THISKEY] <HIDDEN>
           - int a @ Stack[3]
           - int[] rest @ Stack[2] <VARARG>
-          [BLOCK] <PC:1018-1054 IDX:1035>
+          [BLOCK] <PC:1018-1054 IDX:1040>
             - int sum @ Stack[1]
-            [BLOCK] <PC:1028-1052 IDX:1036>
+            [BLOCK] <PC:1028-1052 IDX:1041>
               - int i @ Stack[0]
-      [FUNCTION] A_fn <PC:927-935 IDX:1037>
+      [FUNCTION] A_fn <PC:927-935 IDX:1042>
         - int GLOBAL_VAR @ Stack[0]
-      [FUNCTION] int DebugAddOne <PC:922-926 IDX:1038>
+      [FUNCTION] int DebugAddOne <PC:922-926 IDX:1043>
         - int a @ Stack[0]
-      [FUNCTION] trace <PC:1171-1177 IDX:1039>
-    [NAMESPACE] D <IDX:1040>
+      [FUNCTION] trace <PC:1171-1177 IDX:1044>
+    [NAMESPACE] D <IDX:1045>
       - int D_var @ Global[11]
-    [CLASS] DebugClassDefaultCtor <IDX:1041>
+    [CLASS] DebugClassDefaultCtor <IDX:1046>
       - int data @ ClassField[0]
-      [FUNCTION] DebugClassDefaultCtor DebugClassDefaultCtor <PC:1668-1679 IDX:1042>
+      [FUNCTION] DebugClassDefaultCtor DebugClassDefaultCtor <PC:1668-1679 IDX:1047>
         - const DebugClassDefaultCtor this @ Reg[CLASS_THISKEY] <HIDDEN>
-    [SCRIPT] scopes <IDX:1043>
+    [SCRIPT] scopes <IDX:1048>
       - const genericdata this @ ScriptField[0]
       - int SCRIPT_SCOPED_GLOBAL @ Global[12]
       - int exported_int @ ScriptField[2]
       - long exported_long @ ScriptField[3]
       - rgb exported_rgb @ ScriptField[4]
       - int script_scoped_local @ ScriptField[1]
-      [FUNCTION] run <PC:628-835 IDX:1044>
-      [FUNCTION] int scriptFunction <PC:1833-1840 IDX:1045>
-    [FUNCTION] AccessScriptScopedMembers <PC:1767-1780 IDX:1046>
-    [FUNCTION] int DebugAdd <PC:1367-1371 IDX:1047>
+      [FUNCTION] run <PC:628-835 IDX:1049>
+      [FUNCTION] int scriptFunction <PC:1833-1840 IDX:1050>
+    [FUNCTION] AccessScriptScopedMembers <PC:1767-1780 IDX:1051>
+    [FUNCTION] int DebugAdd <PC:1367-1371 IDX:1052>
       - int a @ Stack[0]
-    [FUNCTION] int DebugAdd <PC:1372-1379 IDX:1048>
+    [FUNCTION] int DebugAdd <PC:1372-1379 IDX:1053>
       - int a @ Stack[1]
       - int b @ Stack[0]
-    [FUNCTION] int DebugAdd <PC:1380-1388 IDX:1049>
+    [FUNCTION] int DebugAdd <PC:1380-1388 IDX:1054>
       - int a @ Stack[1]
       - long b @ Stack[0]
-    [FUNCTION] int DebugAdd <PC:1389-1397 IDX:1050>
+    [FUNCTION] int DebugAdd <PC:1389-1397 IDX:1055>
       - long a @ Stack[1]
       - int b @ Stack[0]
-    [FUNCTION] DebugArrays <PC:1406-1494 IDX:1051>
-      [BLOCK] <PC:1408-1484 IDX:1052>
+    [FUNCTION] DebugArrays <PC:1406-1494 IDX:1056>
+      [BLOCK] <PC:1408-1484 IDX:1057>
         - const bitmap b @ Stack[7]
         - int[] arr1 @ Stack[6]
         - int[] arr2 @ Stack[5]
@@ -13217,36 +13266,36 @@ debug data:
         - CL[] arr5 @ Stack[2]
         - untyped[] arr6 @ Stack[1]
         - const int[] arr7 @ Stack[0]
-    [FUNCTION] int DebugFrames1 <PC:1607-1631 IDX:1053>
+    [FUNCTION] int DebugFrames1 <PC:1607-1631 IDX:1058>
       - int a @ Stack[3]
       - int b @ Stack[2]
-      [BLOCK] <PC:1609-1630 IDX:1054>
+      [BLOCK] <PC:1609-1630 IDX:1059>
         - int c @ Stack[1]
         - int d @ Stack[0]
-    [FUNCTION] int DebugFrames2 <PC:1632-1642 IDX:1055>
+    [FUNCTION] int DebugFrames2 <PC:1632-1642 IDX:1060>
       - int a @ Stack[2]
       - int b @ Stack[1]
-      [BLOCK] <PC:1634-1641 IDX:1056>
+      [BLOCK] <PC:1634-1641 IDX:1061>
         - int c @ Stack[0]
-    [FUNCTION] DebugFunctionCallsWaitframe1 <PC:1643-1647 IDX:1057>
-    [FUNCTION] DebugFunctionCallsWaitframe2 <PC:1648-1654 IDX:1058>
-    [FUNCTION] DebugFunctionDefaultCtor1 <PC:1680-1716 IDX:1059>
-      [BLOCK] <PC:1682-1712 IDX:1060>
+    [FUNCTION] DebugFunctionCallsWaitframe1 <PC:1643-1647 IDX:1062>
+    [FUNCTION] DebugFunctionCallsWaitframe2 <PC:1648-1654 IDX:1063>
+    [FUNCTION] DebugFunctionDefaultCtor1 <PC:1680-1716 IDX:1064>
+      [BLOCK] <PC:1682-1712 IDX:1065>
         - DebugClassDefaultCtor c @ Stack[1]
         - untyped[] a @ Stack[0]
-    [FUNCTION] DebugFunctionDefaultCtor2 <PC:1717-1731 IDX:1061>
+    [FUNCTION] DebugFunctionDefaultCtor2 <PC:1717-1731 IDX:1066>
       - untyped[] c @ Stack[0]
-    [FUNCTION] DebugFunctionInfiniteLoop <PC:1655-1667 IDX:1062>
+    [FUNCTION] DebugFunctionInfiniteLoop <PC:1655-1667 IDX:1067>
       - bool forever @ Stack[0]
-    [FUNCTION] int DebugFunctionVarargs <PC:1732-1766 IDX:1063>
+    [FUNCTION] int DebugFunctionVarargs <PC:1732-1766 IDX:1068>
       - int first @ Stack[3]
       - int[] rest @ Stack[2] <VARARG>
-      [BLOCK] <PC:1736-1764 IDX:1064>
+      [BLOCK] <PC:1736-1764 IDX:1069>
         - int sum @ Stack[1]
-        [BLOCK] <PC:1738-1762 IDX:1065>
+        [BLOCK] <PC:1738-1762 IDX:1070>
           - int i @ Stack[0]
-    [FUNCTION] DebugInternalObjects <PC:1495-1606 IDX:1066>
-      [BLOCK] <PC:1497-1598 IDX:1067>
+    [FUNCTION] DebugInternalObjects <PC:1495-1606 IDX:1071>
+      [BLOCK] <PC:1497-1598 IDX:1072>
         - const ffc f @ Stack[7]
         - const npc n @ Stack[6]
         - const bitmap b @ Stack[5]
@@ -13255,67 +13304,67 @@ debug data:
         - stack stk_i @ Stack[2]
         - const stack stk_b @ Stack[1]
         - stack stk_u @ Stack[0]
-    [FUNCTION] DebugPrintCL <PC:1398-1405 IDX:1068>
+    [FUNCTION] DebugPrintCL <PC:1398-1405 IDX:1073>
       - const CL cl @ Stack[0]
-    [FUNCTION] DebugStaticClassFunction <PC:1787-1832 IDX:1069>
-      [BLOCK] <PC:1789-1829 IDX:1070>
+    [FUNCTION] DebugStaticClassFunction <PC:1787-1832 IDX:1074>
+      [BLOCK] <PC:1789-1829 IDX:1075>
         - DataBag bag @ Stack[0]
-    [FUNCTION] do_fn <PC:1305-1323 IDX:1071>
-      [BLOCK] <PC:1307-1321 IDX:1072>
+    [FUNCTION] do_fn <PC:1305-1323 IDX:1076>
+      [BLOCK] <PC:1307-1321 IDX:1077>
         - int i @ Stack[1]
-        [BLOCK] <PC:1308-1314 IDX:1073>
+        [BLOCK] <PC:1308-1314 IDX:1078>
           - int j @ Stack[0]
-    [FUNCTION] Enum enum_fn <PC:1281-1284 IDX:1074>
+    [FUNCTION] Enum enum_fn <PC:1281-1284 IDX:1079>
       - const Enum e @ Stack[0]
-    [FUNCTION] has_constant <PC:1185-1189 IDX:1075>
-      [BLOCK] <PC:1187-1187 IDX:1076>
+    [FUNCTION] has_constant <PC:1185-1189 IDX:1080>
+      [BLOCK] <PC:1187-1187 IDX:1081>
         - const int constant_int @ Constant[10000]
-    [FUNCTION] long_fn <PC:1276-1280 IDX:1077>
+    [FUNCTION] long_fn <PC:1276-1280 IDX:1082>
       - long a @ Stack[0]
-    [FUNCTION] loop_fn <PC:1285-1304 IDX:1078>
-      [BLOCK] <PC:1287-1299 IDX:1079>
+    [FUNCTION] loop_fn <PC:1285-1304 IDX:1083>
+      [BLOCK] <PC:1287-1299 IDX:1084>
         - int i @ Stack[0]
-      [BLOCK] <PC:1300-1302 IDX:1080>
+      [BLOCK] <PC:1300-1302 IDX:1085>
         - int x @ Stack[0]
-      [BLOCK] <PC:0-0 IDX:1081>
+      [BLOCK] <PC:0-0 IDX:1086>
         - int y @ Stack[0]
-      [BLOCK] <PC:0-0 IDX:1082>
+      [BLOCK] <PC:0-0 IDX:1087>
         - int z @ Stack[0]
-    [FUNCTION] num_fn <PC:1271-1275 IDX:1083>
+    [FUNCTION] num_fn <PC:1271-1275 IDX:1088>
       - int a @ Stack[0]
-    [FUNCTION] num_fn <PC:1266-1270 IDX:1084>
+    [FUNCTION] num_fn <PC:1266-1270 IDX:1089>
       - long a @ Stack[0]
-    [FUNCTION] range_loop_fn <PC:1324-1366 IDX:1085>
-      [BLOCK] <PC:1326-1363 IDX:1086>
+    [FUNCTION] range_loop_fn <PC:1324-1366 IDX:1090>
+      [BLOCK] <PC:1326-1363 IDX:1091>
         - int[] arr @ Stack[4]
-        [BLOCK] <PC:1331-1355 IDX:1087>
+        [BLOCK] <PC:1331-1355 IDX:1092>
           - int __LOOP_ITER @ Stack[3] <HIDDEN>
           - int[] __LOOP_ARR @ Stack[2] <HIDDEN>
           - int x @ Stack[1]
-          [BLOCK] <PC:1344-1354 IDX:1088>
+          [BLOCK] <PC:1344-1354 IDX:1093>
             - int y @ Stack[0]
-        [BLOCK] <PC:1356-1362 IDX:1089>
+        [BLOCK] <PC:1356-1362 IDX:1094>
           - int z @ Stack[3]
-    [FUNCTION] int returnOne <PC:1781-1786 IDX:1090>
-    [FUNCTION] template_fn <PC:1217-1247 IDX:1091>
+    [FUNCTION] int returnOne <PC:1781-1786 IDX:1095>
+    [FUNCTION] template_fn <PC:1217-1247 IDX:1096>
       - char32[] val1 @ Stack[2]
       - int val2 @ Stack[1]
-      [BLOCK] <PC:1221-1243 IDX:1092>
+      [BLOCK] <PC:1221-1243 IDX:1097>
         - char32[][][] double_arr @ Stack[0]
-    [FUNCTION] template_fn <PC:1190-1216 IDX:1093>
+    [FUNCTION] template_fn <PC:1190-1216 IDX:1098>
       - int val1 @ Stack[2]
       - int val2 @ Stack[1]
-      [BLOCK] <PC:1192-1213 IDX:1094>
+      [BLOCK] <PC:1192-1213 IDX:1099>
         - int[][] double_arr @ Stack[0]
-    [FUNCTION] trace_all <PC:1248-1257 IDX:1095>
+    [FUNCTION] trace_all <PC:1248-1257 IDX:1100>
       - int a @ Stack[1]
       - int[] b @ Stack[0] <VARARG>
-    [FUNCTION] trace_all_2 <PC:1258-1265 IDX:1096>
+    [FUNCTION] trace_all_2 <PC:1258-1265 IDX:1101>
       - int[] a @ Stack[0] <VARARG>
-    [FUNCTION] using_namespace_statement <PC:1178-1184 IDX:1097>
-      [BLOCK] <PC:1179-1183 IDX:1098>
-  [FILE] resources/include/std.zh <IDX:961>
-  [FILE] resources/include/std_zh/std.cfg <IDX:962>
+    [FUNCTION] using_namespace_statement <PC:1178-1184 IDX:1102>
+      [BLOCK] <PC:1179-1183 IDX:1103>
+  [FILE] resources/include/std.zh <IDX:966>
+  [FILE] resources/include/std_zh/std.cfg <IDX:967>
     - const int MAX_HIGHEST_LEVEL_ITEM_CHECK @ Constant[2550000]
     - const int MAX_NOACTION_INPUT @ Constant[140000]
     - const int NOACTION_SKIP_MAP @ Constant[0]
@@ -13329,12 +13378,12 @@ debug data:
     - const int STD_EMULATE_ENGINE_COLLISION @ Constant[0]
     - const int STD_FORCE_OLD_DISTANCE @ Constant[10000]
     - const int STD_NEVER_USE_SAFESQRT @ Constant[10000]
-  [FILE] resources/include/std_zh/std_extension.zh <IDX:963>
-  [FILE] resources/include/std_zh/std_functions.zh <IDX:964>
-    [NAMESPACE] std <IDX:975>
-    [FUNCTION] bool Above <PC:2652-2666 IDX:976>
+  [FILE] resources/include/std_zh/std_extension.zh <IDX:968>
+  [FILE] resources/include/std_zh/std_functions.zh <IDX:969>
+    [NAMESPACE] std <IDX:980>
+    [FUNCTION] bool Above <PC:2652-2666 IDX:981>
       - sprite s @ Stack[0]
-  [FILE] resources/include/std_zh/std_constants.zh <IDX:965>
+  [FILE] resources/include/std_zh/std_constants.zh <IDX:970>
     - const int BIT_INTBTN_A @ Constant[10000]
     - const int BIT_INTBTN_B @ Constant[20000]
     - const int BIT_INTBTN_EX1 @ Constant[160000]
@@ -13645,7 +13694,7 @@ debug data:
     - const int SUBSCREEN_BOTTOM @ Constant[-10000]
     - const int SUBSCREEN_TOP @ Constant[-560000]
     - const int TERMINAL_VELOCITY @ Constant[32000]
-    [ENUM] int AimType <IDX:966>
+    [ENUM] int AimType <IDX:971>
       - const AimType AT_NONE @ Constant[0]
       - const AimType AT_4DIR @ Constant[10000]
       - const AimType AT_8DIR @ Constant[20000]
@@ -13653,7 +13702,7 @@ debug data:
       - const AimType AT_RAND4DIR @ Constant[40000]
       - const AimType AT_RAND8DIR @ Constant[50000]
       - const AimType AT_RANDANGULAR @ Constant[60000]
-    [ENUM] int Dir2 <IDX:967>
+    [ENUM] int Dir2 <IDX:972>
       - const Dir2 DIR2_UP @ Constant[80000]
       - const Dir2 DIR2_RIGHTUP @ Constant[90000]
       - const Dir2 DIR2_RIGHT @ Constant[100000]
@@ -13666,7 +13715,7 @@ debug data:
       - const Dir2 DIR2_DOWNRIGHT @ Constant[110000]
       - const Dir2 DIR2_DOWNLEFT @ Constant[130000]
       - const Dir2 DIR2_UPLEFT @ Constant[150000]
-    [ENUM] int DitherType <IDX:968>
+    [ENUM] int DitherType <IDX:973>
       - const DitherType DITH_CHECKER @ Constant[0]
       - const DitherType DITH_CHECKER_INV @ Constant[10000]
       - const DitherType DITH_CRISS_CROSS @ Constant[20000]
@@ -13696,17 +13745,17 @@ debug data:
       - const DitherType DITH_DOTS4 @ Constant[260000]
       - const DitherType DITH_DOTS4_INV @ Constant[270000]
       - const DitherType DITH_MAX @ Constant[280000]
-    [ENUM] int HeroMoveFlag <IDX:969>
+    [ENUM] int HeroMoveFlag <IDX:974>
       - const HeroMoveFlag HEROMV_OBEYS_GRAVITY @ Constant[0]
       - const HeroMoveFlag HEROMV_CAN_PITFALL @ Constant[10000]
       - const HeroMoveFlag HEROMV_NO_FAKE_Z @ Constant[80000]
       - const HeroMoveFlag HEROMV_NO_REAL_Z @ Constant[90000]
-    [ENUM] int ItemspriteMoveFlag <IDX:970>
+    [ENUM] int ItemspriteMoveFlag <IDX:975>
       - const ItemspriteMoveFlag ITEMMV_OBEYS_GRAVITY @ Constant[0]
       - const ItemspriteMoveFlag ITEMMV_CAN_PITFALL @ Constant[10000]
       - const ItemspriteMoveFlag ITEMMV_NO_FAKE_Z @ Constant[80000]
       - const ItemspriteMoveFlag ITEMMV_NO_REAL_Z @ Constant[90000]
-    [ENUM] int NPCMoveFlag <IDX:971>
+    [ENUM] int NPCMoveFlag <IDX:976>
       - const NPCMoveFlag NPCMV_OBEYS_GRAVITY @ Constant[0]
       - const NPCMoveFlag NPCMV_CAN_PITFALL @ Constant[10000]
       - const NPCMoveFlag NPCMV_CAN_PIT_WALK @ Constant[20000]
@@ -13723,12 +13772,12 @@ debug data:
       - const NPCMoveFlag NPCMV_IGNORE_SCREENEDGE @ Constant[130000]
       - const NPCMoveFlag NPCMV_USE_SCRIPTED_MOVEMENT_ENGINE @ Constant[140000]
       - const NPCMoveFlag NPCMV_NOT_PUSHABLE_BY_SOLIDS @ Constant[150000]
-    [ENUM] int WeaponMoveFlag <IDX:972>
+    [ENUM] int WeaponMoveFlag <IDX:977>
       - const WeaponMoveFlag WPNMV_OBEYS_GRAVITY @ Constant[0]
       - const WeaponMoveFlag WPNMV_CAN_PITFALL @ Constant[10000]
       - const WeaponMoveFlag WPNMV_NO_FAKE_Z @ Constant[80000]
       - const WeaponMoveFlag WPNMV_NO_REAL_Z @ Constant[90000]
-  [FILE] resources/include/std_zh/limits.zh <IDX:973>
+  [FILE] resources/include/std_zh/limits.zh <IDX:978>
     - const int BYTE_MAX @ Constant[2550000]
     - const int BYTE_MIN @ Constant[0]
     - const int CHAR_MAX @ Constant[1270000]
@@ -13755,7 +13804,7 @@ debug data:
     - const int USHRT_MIN @ Constant[0]
     - const int WORD_MAX @ Constant[655350000]
     - const int WORD_MIN @ Constant[0]
-  [FILE] resources/include/std_zh/script_runners.zh <IDX:974>
+  [FILE] resources/include/std_zh/script_runners.zh <IDX:979>
     - const int FFCS_INVISIBLE_COMBO @ Constant[10000]
     - const int FFCS_MAX_FFC @ Reg[MAX_FFC_ID]
     - const int FFCS_MIN_FFC @ Constant[10000]
@@ -13771,18 +13820,18 @@ debug data:
     - const int MIN_ITEMSPRITESCRIPT @ Constant[10000]
     - const int MIN_LWEAPONSCRIPT @ Constant[10000]
     - const int MIN_NPCSCRIPT @ Constant[10000]
-  [FILE] resources/include/std_zh/std_time.zh <IDX:977>
-    [NAMESPACE] time <IDX:978>
+  [FILE] resources/include/std_zh/std_time.zh <IDX:982>
+    [NAMESPACE] time <IDX:983>
       - const int FRAMES_PER_SECOND @ Constant[600000]
       - const int MINUTES_PER_HOUR @ Constant[600000]
       - const int SECONDS_PER_MINUTE @ Constant[600000]
       - const long TIME_FRAME @ Constant[1]
-  [FILE] resources/include/std_zh/ghostBasedMovement.zh <IDX:979>
-    [NAMESPACE] GhostBasedMovement <IDX:980>
-  [FILE] resources/include/std_zh/std_sideview.zh <IDX:981>
+  [FILE] resources/include/std_zh/ghostBasedMovement.zh <IDX:984>
+    [NAMESPACE] GhostBasedMovement <IDX:985>
+  [FILE] resources/include/std_zh/std_sideview.zh <IDX:986>
     - const bool ONSIDEVIEWPLATFORM_CHECK_OBJ_WIDTH @ Constant[10000]
     - const int ONSIDEVIEWPLATFORM_OVERHANG_DEPTH @ Constant[40000]
-  [FILE] resources/include/std_zh/string/string_constants.zh <IDX:982>
+  [FILE] resources/include/std_zh/string/string_constants.zh <IDX:987>
     - const char32 CHAR_0 @ Constant[480000]
     - const char32 CHAR_0_SUPER @ Constant[1860000]
     - const char32 CHAR_1 @ Constant[490000]
@@ -14073,8 +14122,8 @@ debug data:
     - const int MF_PTR @ Constant[50000]
     - const int MF_STRING @ Constant[10000]
     - const char32 MSGC_LINEFEED @ Constant[100000]
-  [FILE] resources/include/std_zh/string/string_functions.zh <IDX:983>
-  [FILE] resources/include/std_zh/std_keyboard.zh <IDX:984>
+  [FILE] resources/include/std_zh/string/string_functions.zh <IDX:988>
+  [FILE] resources/include/std_zh/std_keyboard.zh <IDX:989>
     - const char32 CHAR_ARROW_D @ Constant[-5120000]
     - const char32 CHAR_ARROW_L @ Constant[-2560000]
     - const char32 CHAR_ARROW_R @ Constant[-10240000]
@@ -14095,64 +14144,64 @@ debug data:
     - const int KEYBOARD_REPEAT_RATE @ Constant[60000]
     - const int KEYBOARD_TYPE @ Constant[0]
     - const int ___KEY_TIMER @ Constant[2550000]
-  [FILE] tests/scripts/playground/auto/test_runner.zs <IDX:985>
-    [NAMESPACE] Test <IDX:986>
+  [FILE] tests/scripts/playground/auto/test_runner.zs <IDX:990>
+    [NAMESPACE] Test <IDX:991>
       - const int TestingDmap @ Constant[50000]
-      [FUNCTION] Assert <PC:2902-2915 IDX:987>
+      [FUNCTION] Assert <PC:2902-2915 IDX:992>
         - CL actual @ Stack[0]
-      [FUNCTION] Assert <PC:2888-2901 IDX:988>
+      [FUNCTION] Assert <PC:2888-2901 IDX:993>
         - Thing[] actual @ Stack[0]
-      [FUNCTION] Assert <PC:2874-2887 IDX:989>
+      [FUNCTION] Assert <PC:2874-2887 IDX:994>
         - bitmap actual @ Stack[0]
-      [FUNCTION] Assert <PC:2863-2873 IDX:990>
+      [FUNCTION] Assert <PC:2863-2873 IDX:995>
         - npc actual @ Stack[0]
-      [FUNCTION] Assert <PC:2852-2862 IDX:991>
+      [FUNCTION] Assert <PC:2852-2862 IDX:996>
         - ffc actual @ Stack[0]
-      [FUNCTION] Assert <PC:2841-2851 IDX:992>
+      [FUNCTION] Assert <PC:2841-2851 IDX:997>
         - int actual @ Stack[0]
-      [FUNCTION] Assert <PC:2830-2840 IDX:993>
+      [FUNCTION] Assert <PC:2830-2840 IDX:998>
         - bool actual @ Stack[0]
-      [FUNCTION] Assert <PC:2945-2957 IDX:994>
+      [FUNCTION] Assert <PC:2945-2957 IDX:999>
         - untyped actual @ Stack[1]
         - char32[] error @ Stack[0]
-      [FUNCTION] Assert <PC:2929-2944 IDX:995>
+      [FUNCTION] Assert <PC:2929-2944 IDX:1000>
         - Thing actual @ Stack[1]
         - char32[] error @ Stack[0]
-      [FUNCTION] Assert <PC:2916-2928 IDX:996>
+      [FUNCTION] Assert <PC:2916-2928 IDX:1001>
         - bool actual @ Stack[1]
         - char32[] error @ Stack[0]
-      [FUNCTION] AssertEqual <PC:2696-2717 IDX:997>
+      [FUNCTION] AssertEqual <PC:2696-2717 IDX:1002>
         - int actual @ Stack[1]
         - int expected @ Stack[0]
-      [FUNCTION] AssertEqual <PC:2802-2829 IDX:998>
+      [FUNCTION] AssertEqual <PC:2802-2829 IDX:1003>
         - long actual @ Stack[2]
         - long expected @ Stack[1]
         - char32[] error @ Stack[0]
-      [FUNCTION] AssertEqual <PC:2774-2801 IDX:999>
+      [FUNCTION] AssertEqual <PC:2774-2801 IDX:1004>
         - untyped actual @ Stack[2]
         - untyped expected @ Stack[1]
         - char32[] error @ Stack[0]
-      [FUNCTION] AssertEqual <PC:2746-2773 IDX:1000>
+      [FUNCTION] AssertEqual <PC:2746-2773 IDX:1005>
         - bool actual @ Stack[2]
         - bool expected @ Stack[1]
         - char32[] error @ Stack[0]
-      [FUNCTION] AssertEqual <PC:2718-2745 IDX:1001>
+      [FUNCTION] AssertEqual <PC:2718-2745 IDX:1006>
         - int actual @ Stack[2]
         - int expected @ Stack[1]
         - char32[] error @ Stack[0]
-      [FUNCTION] End <PC:2689-2695 IDX:1002>
-      [FUNCTION] Fail <PC:2958-2983 IDX:1003>
+      [FUNCTION] End <PC:2689-2695 IDX:1007>
+      [FUNCTION] Fail <PC:2958-2983 IDX:1008>
         - char32[] error @ Stack[0]
-      [FUNCTION] Init <PC:2667-2688 IDX:1004>
+      [FUNCTION] Init <PC:2667-2688 IDX:1009>
         - int screen @ Stack[0]
-    [SCRIPT] TestRunner <IDX:1005>
+    [SCRIPT] TestRunner <IDX:1010>
       - const dmapdata this @ ScriptField[0]
-      [FUNCTION] run <PC:38-90 IDX:1006>
-        [BLOCK] <PC:40-89 IDX:1007>
+      [FUNCTION] run <PC:38-90 IDX:1011>
+        [BLOCK] <PC:40-89 IDX:1012>
           - char32[] name @ Stack[2]
           - int script_id @ Stack[1]
           - genericdata gd @ Stack[0]
-  [FILE] tests/scripts/playground/auto/global_objects.zs <IDX:1008>
+  [FILE] tests/scripts/playground/auto/global_objects.zs <IDX:1013>
     - Thing globalThing @ Global[13]
     - Thing[] globalThings @ Global[16]
     - untyped[] globalUntypedThings @ Global[17]
@@ -14162,25 +14211,25 @@ debug data:
     - Thing[] thingsNotGlobalized @ Global[18]
     - int untypedThingGlobalized @ Global[2]
     - int untypedThingNotGlobalized @ Global[3]
-    [CLASS] Counter <IDX:1009>
+    [CLASS] Counter <IDX:1014>
       - int field @ ClassField[0]
-      [FUNCTION] Counter Counter <PC:2640-2651 IDX:1010>
+      [FUNCTION] Counter Counter <PC:2640-2651 IDX:1015>
         - const Counter this @ Reg[CLASS_THISKEY] <HIDDEN>
-    [CLASS] Thing <IDX:1011>
+    [CLASS] Thing <IDX:1016>
       - bitmap a_bitmap @ ClassField[1]
       - Counter not_globalized @ ClassField[2]
       - Thing otherThing @ ClassField[0]
       - Counter[] someCounters @ ClassField[3]
-      [FUNCTION] Thing Thing <PC:2627-2639 IDX:1012>
+      [FUNCTION] Thing Thing <PC:2627-2639 IDX:1017>
         - const Thing this @ Reg[CLASS_THISKEY] <HIDDEN>
-    [SCRIPT] global_objects <IDX:1013>
+    [SCRIPT] global_objects <IDX:1018>
       - const genericdata this @ ScriptField[0]
-      [FUNCTION] run <PC:91-627 IDX:1014>
-        [BLOCK] <PC:93-626 IDX:1015>
+      [FUNCTION] run <PC:91-627 IDX:1019>
+        [BLOCK] <PC:93-626 IDX:1020>
           - bool firstTime @ Stack[1]
           - Thing thing @ Stack[0]
-  [SCRIPT] ~Init <IDX:1099>
-    [FUNCTION] run <PC:0-37 IDX:1100>
+  [SCRIPT] ~Init <IDX:1104>
+    [FUNCTION] run <PC:0-37 IDX:1105>
 
 Types:
 

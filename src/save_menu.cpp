@@ -294,6 +294,19 @@ void SaveMenu::draw(BITMAP* dest, optional<byte> cursor, word clk) const
 		else overtileblock16(dest, bg_tile, 0, 0, bg_tw, bg_th, bg_cset, 0, 0);
 	}
 	
+	for (auto const& misc_text : misc_texts)
+	{
+		FONT* misc_font = get_zc_font(misc_text.font);
+		auto color = misc_text.color;
+		auto shadow_color = misc_text.shadow_color;
+#ifndef IS_PLAYER
+		color = zq_fix_ui_color(color);
+		shadow_color = zq_fix_ui_color(shadow_color);
+#endif
+		textout_styled_aligned_ex(dest, misc_font, misc_text.text.c_str(), misc_text.x, misc_text.y,
+			misc_text.shadow_type, misc_text.text_align, color, shadow_color, -1);
+	}
+	
 	int y = opt_y;
 	size_t ind = 0;
 	int txbox_w = 0;
