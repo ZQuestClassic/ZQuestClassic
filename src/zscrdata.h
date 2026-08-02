@@ -308,6 +308,8 @@ void write_meta(zasm_meta const& meta, FILE* f)
 	write_var(meta.compiler_v4, f);
 	write_str(meta.script_name, f);
 	write_str(meta.author, f);
+	write_str(meta.script_info, f);
+	write_str(meta.script_setup, f);
 	for(auto q = 0; q < NUM_ZMETA_ATTRIBUTES; ++q)
 		write_str(meta.attributes[q], f);
 	for(auto q = 0; q < 16; ++q)
@@ -345,6 +347,8 @@ void read_meta(zasm_meta& meta, FILE* f)
 	read_var(meta.compiler_v4, f);
 	read_str(meta.script_name, f);
 	read_str(meta.author, f);
+	read_str(meta.script_info, f);
+	read_str(meta.script_setup, f);
 	for(auto q = 0; q < NUM_ZMETA_ATTRIBUTES; ++q)
 		read_str(meta.attributes[q], f);
 	for(auto q = 0; q < 16; ++q)
@@ -646,8 +650,12 @@ string zasm_meta::get_meta() const
 		<< "\n#METADATA_VERSION = " << meta_v
 		<< "\n#FFSCRIPT_VERSION = " << ffscript_v
 		<< "\n#SCRIPT_NAME = " << script_name;
-	if(author.size())
+	if (author.size())
 		oss << "\n#AUTHOR = " << author;
+	if (script_info.size())
+		oss << "\n#SCRIPT_INFO = " << script_info;
+	if (script_setup.size())
+		oss << "\n#SCRIPT_SETUP = " << script_setup;
 	oss << "\n#SCRIPT_TYPE = " << get_script_name(script_type).c_str()
 		<< "\n#AUTO_GEN = " << ((flags & ZMETA_AUTOGEN) ? "TRUE" : "FALSE")
 		<< "\n#COMPILER_V1 = " << compiler_v1
@@ -723,14 +731,22 @@ bool zasm_meta::parse_meta(const char *buffer)
 		util::upperstr(val);
 		script_type = get_script_type(val);
 	}
-	else if(cmd == "#SCRIPT_NAME")
+	else if (cmd == "#SCRIPT_NAME")
 	{
 		util::replchar(val, ' ', '_');
 		script_name = val;
 	}
-	else if(cmd == "#AUTHOR")
+	else if (cmd == "#AUTHOR")
 	{
 		author = val;
+	}
+	else if (cmd == "#SCRIPT_INFO")
+	{
+		script_info = val;
+	}
+	else if (cmd == "#SCRIPT_SETUP")
+	{
+		script_setup = val;
 	}
 	else if(cmd == "#AUTO_GEN")
 	{

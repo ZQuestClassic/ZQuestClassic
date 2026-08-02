@@ -16881,176 +16881,79 @@ static DIALOG assignscript_dlg[] =
     
 };
 
-int32_t txtout(BITMAP* dest, const char* txt, int32_t x, int32_t y, bool disabled)
+void showScriptInfo(zasm_meta const& meta)
 {
-	if(disabled)
+	if (!meta.valid())
 	{
-		gui_textout_ln(dest, font, txt, x+1, y+1, scheme[jcLIGHT], scheme[jcBOX], 0);
-		return gui_textout_ln(dest, font, txt, x, y, scheme[jcMEDDARK], -1, 0);
+		InfoDialog("Error", "Invalid ZASM metadata found!").show();
+		return;
 	}
-	else
+	std::ostringstream oss;
+	oss << "ZASM Version: " << int(meta.zasm_v) << "\n";
+	oss << "Metadata Version: " << int(meta.meta_v) << "\n";
+	oss << "FFScript Version: " << int(meta.ffscript_v) << "\n";
+	oss << "Script Name: " << meta.script_name << "\n";
+	oss << "Author: " << meta.author << "\n";
+	oss << "Script Type: " << get_script_name(meta.script_type) << "\n";
+	for(auto q = 0; q < NUM_ZMETA_ATTRIBUTES; ++q)
 	{
-		return gui_textout_ln(dest, font, txt, x, y, scheme[jcBOXFG], scheme[jcBOX], 0);
+		if(!meta.attributes[q].size())
+			continue;
+		oss << "Attributes[" << int(q) << "]: " << meta.attributes[q] << "\n";
 	}
-}
-
-int32_t jwin_zmeta_proc(int32_t msg, DIALOG *d, int32_t )
-{
-	int32_t ret = D_O_K;
-    ASSERT(d);
-    
-	BITMAP* target = (msg==MSG_START ? NULL : screen);
-    switch(msg)
-    {
-		case MSG_START:
-		case MSG_DRAW:
-		{
-			FONT *oldfont = font;
-			
-			if(d->dp2)
-			{
-				font = (FONT*)d->dp2;
-			}
-			
-			bool disabled = (d->flags & D_DISABLED) != 0;
-			if(d->dp)
-			{
-				zasm_meta const& meta = *((zasm_meta*)d->dp);
-				int32_t ind = -1;
-				d->w = 0;
-				if(!meta.valid())
-				{
-					d->w = txtout(target, "Invalid ZASM metadata found!", d->x, d->y, disabled);
-					++ind;
-				}
-				
-				int32_t t_w = 0;
-				char buf[1024];
-				memset(buf, 0, sizeof(buf));
-				snprintf(buf, sizeof(buf), "ZASM Version: %d", meta.zasm_v);
-				t_w = txtout(target, buf, d->x, d->y + ((++ind)*(text_height(font) + 3)), disabled);
-				d->w = zc_max(d->w, t_w);
-				memset(buf, 0, sizeof(buf));
-				snprintf(buf, sizeof(buf), "Metadata Version: %d", meta.meta_v);
-				t_w = txtout(target, buf, d->x, d->y + ((++ind)*(text_height(font) + 3)), disabled);
-				d->w = zc_max(d->w, t_w);
-				memset(buf, 0, sizeof(buf));
-				snprintf(buf, sizeof(buf), "FFScript Version: %d", meta.ffscript_v);
-				t_w = txtout(target, buf, d->x, d->y + ((++ind)*(text_height(font) + 3)), disabled);
-				d->w = zc_max(d->w, t_w);
-				memset(buf, 0, sizeof(buf));
-				snprintf(buf, sizeof(buf), "Script Name: %s", meta.script_name.c_str());
-				t_w = txtout(target, buf, d->x, d->y + ((++ind)*(text_height(font) + 3)), disabled);
-				d->w = zc_max(d->w, t_w);
-				memset(buf, 0, sizeof(buf));
-				snprintf(buf, sizeof(buf), "Author: %s", meta.author.c_str());
-				t_w = txtout(target, buf, d->x, d->y + ((++ind)*(text_height(font) + 3)), disabled);
-				d->w = zc_max(d->w, t_w);
-				memset(buf, 0, sizeof(buf));
-				snprintf(buf, sizeof(buf), "Script Type: %s", get_script_name(meta.script_type).c_str());
-				t_w = txtout(target, buf, d->x, d->y + ((++ind)*(text_height(font) + 3)), disabled);
-				d->w = zc_max(d->w, t_w);
-				for(auto q = 0; q < NUM_ZMETA_ATTRIBUTES; ++q)
-				{
-					if(!meta.attributes[q].size())
-						continue;
-					memset(buf, 0, sizeof(buf));
-					snprintf(buf, sizeof(buf), "Attributes[%d]: %s", q, meta.attributes[q].c_str());
-					t_w = txtout(target, buf, d->x, d->y + ((++ind)*(text_height(font) + 3)), disabled);
-					d->w = zc_max(d->w, t_w);
-				}
-				bool indentrun = false;
-				int32_t run_indent = txtout(NULL, "void run(", 0, 0, false);
-				std::ostringstream oss;
-				oss << "void run(";
-				for(int32_t q = 0; q < 8; ++q)
-				{
-					if(!meta.run_idens[q].size() || meta.run_types[q] == ZMETA_NULL_TYPE) continue;
-					if(q > 0)
-						oss << ", ";
-					string type_name = ZScript::getDataTypeName(meta.run_types[q]);
-					util::lowerstr(type_name); //all lowercase for this output
-					if(oss.str().size() > unsigned(indentrun ? 41 : 50))
-					{
-						memset(buf, 0, sizeof(buf));
-						snprintf(buf, sizeof(buf), "%s", oss.str().c_str());
-						t_w = txtout(target, buf, d->x + (indentrun ? run_indent : 0), d->y + ((++ind)*(text_height(font) + 3)), disabled) + (indentrun ? run_indent : 0);
-						d->w = zc_max(d->w, t_w);
-						oss.str("");
-						indentrun = true;
-					}
-					oss << type_name.c_str() << " " << meta.run_idens[q];
-				}
-				oss << ");";
-				memset(buf, 0, sizeof(buf));
-				snprintf(buf, sizeof(buf), "%s", oss.str().c_str());
-				t_w = txtout(target, buf, d->x + (indentrun ? run_indent : 0), d->y + ((++ind)*(text_height(font) + 3)), disabled) + (indentrun ? run_indent : 0);
-				d->w = zc_max(d->w, t_w);
-				memset(buf, 0, sizeof(buf));
-				snprintf(buf, sizeof(buf), "Compiler Version: %d.%d.%d.%d", meta.compiler_v1, meta.compiler_v2, meta.compiler_v3, meta.compiler_v4);
-				t_w = txtout(target, buf, d->x, d->y + ((++ind)*(text_height(font) + 3)), disabled);
-				d->w = zc_max(d->w, t_w);
-				memset(buf, 0, sizeof(buf));
-				snprintf(buf, sizeof(buf), "Parser-generated: %s", (meta.flags & ZMETA_AUTOGEN)!=0 ? "TRUE" : "FALSE");
-				t_w = txtout(target, buf, d->x, d->y + ((++ind)*(text_height(font) + 3)), disabled);
-				d->w = zc_max(d->w, t_w);
-				d->h = (++ind) * (text_height(font) + 3) -3;
-			}
-			else
-			{
-				d->w = txtout(target, "No ZASM metadata found!", d->x, d->y, disabled);
-				d->h = text_height(font);
-			}
-			
-			if(d->dp3) //function trigger
-			{
-				typedef void (*funcType)(void);
-				funcType func=reinterpret_cast<funcType>(d->dp3);
-				func();
-			}
-			
-			font = oldfont;
-			break;
-		}
-    }
-    
-    return ret;
-}
-
-void resize_scriptinfo_dlg();
-
-static DIALOG scriptinfo_dlg[] =
-{
-	//                    x     y       w       h        fg       bg   key    flags    d1    d2    dp
-	{ jwin_win_proc,      0,    0,    200,    150,    vc(14),  vc(1),    0,  D_EXIT,    0,    0,   (void *) "Script Metadata", NULL, NULL },
-	{ d_dummy_proc,       6,   25, 330-12,    130,         0,      0,    0,       0,    0,    0,   assignscript_tabs, NULL, NULL },
-	{ jwin_button_proc,  70,  120,     60,     20,    vc(14),  vc(1),  'k',  D_EXIT,    0,    0,   (void *) "Done", NULL, NULL },
-	{ jwin_zmeta_proc,   50,   30,    100,    100,    vc(14),  vc(1),    0,       0,    0,    0,   NULL, NULL, (void*)resize_scriptinfo_dlg },
+	oss << "void run(";
+	for(int32_t q = 0; q < 8; ++q)
+	{
+		if(!meta.run_idens[q].size() || meta.run_types[q] == ZMETA_NULL_TYPE) continue;
+		if(q > 0)
+			oss << ", ";
+		string type_name = ZScript::getDataTypeName(meta.run_types[q]);
+		util::lowerstr(type_name); //all lowercase for this output
+		oss << type_name << " " << meta.run_idens[q];
+	}
+	oss << ");\n";
+	oss << "Compiler Version: " << int(meta.compiler_v1) << "." << int(meta.compiler_v2) << "."
+	                            << int(meta.compiler_v3) << "." << int(meta.compiler_v4) << "\n";
+	oss << "Parser-generated: " << ((meta.flags & ZMETA_AUTOGEN)!=0 ? "TRUE" : "FALSE");
 	
-	{ NULL,               0,    0,      0,      0,         0,      0,    0,       0,    0,    0,   NULL, NULL, NULL }
-};
-
-void resize_scriptinfo_dlg()
-{
-	DIALOG *meta_proc = &scriptinfo_dlg[3], *window = &scriptinfo_dlg[0], *ok_button = &scriptinfo_dlg[2];
-	int32_t bmargin = 15, hmargins = 30;
-	jwin_ulalign_dialog(scriptinfo_dlg);
-	window->w = hmargins*2 + meta_proc->w;
-	meta_proc->x = hmargins;
-	window->h = meta_proc->y + meta_proc->h + ok_button->h + bmargin*2;
-	ok_button->x = (window->w/2)-(ok_button->w/2);
-	ok_button->y = meta_proc->y + meta_proc->h + bmargin;
-	jwin_center_dialog(scriptinfo_dlg);
-}
-
-void showScriptInfo(zasm_meta const* meta)
-{
-	scriptinfo_dlg[3].dp = (void*)meta;
-	scriptinfo_dlg[0].dp2 = get_zc_font(font_lfont);
-	large_dialog(scriptinfo_dlg);
-	jwin_zmeta_proc(MSG_START,&scriptinfo_dlg[3],0); //Calculate size before calling dialog
-	jwin_center_dialog(scriptinfo_dlg);
-	do_zqdialog(scriptinfo_dlg,2);
+	auto meta_dlg = InfoDialog("Script Metadata", oss.str());
+	auto info_dlg = InfoDialog("Script Info", meta.script_info);
+	auto setup_dlg = InfoDialog("Script Setup", meta.script_setup);
+	
+	vector<string> buttonNames {};
+	vector<std::function<bool()>> buttonProcs {};
+	
+	buttonNames.emplace_back("Metadata");
+	buttonProcs.emplace_back([&]()
+		{
+			meta_dlg.show();
+			return false;
+		});
+	
+	if (!meta.script_info.empty())
+	{
+		buttonNames.emplace_back("Info / Summary");
+		buttonProcs.emplace_back([&]()
+			{
+				info_dlg.show();
+				return false;
+			});
+	}
+	if (!meta.script_setup.empty())
+	{
+		buttonNames.emplace_back("Setup Instructions");
+		buttonProcs.emplace_back([&]()
+			{
+				setup_dlg.show();
+				return false;
+			});
+	}
+	
+	buttonNames.emplace_back("Exit");
+	buttonProcs.emplace_back(nullptr);
+	
+	AlertFuncDialog("Script Info", "")
+		.add_buttons(buttonNames.size()-1, buttonNames, buttonProcs).show();
 }
 
 void write_includepaths();
@@ -18177,7 +18080,7 @@ bool do_slots(ZScript::ZasmCompilerResult& zasmCompilerResult, int assign_mode)
 					}
 				}
 				if(target)
-					showScriptInfo(&target->meta);
+					showScriptInfo(target->meta);
 				break;
 			}
 		
@@ -18281,7 +18184,7 @@ bool do_slots(ZScript::ZasmCompilerResult& zasmCompilerResult, int assign_mode)
 					}
 				}
 				if(target)
-					showScriptInfo(&target->meta);
+					showScriptInfo(target->meta);
 				break;
 			}
 			

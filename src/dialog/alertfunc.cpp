@@ -13,14 +13,14 @@ AlertFuncDialog::AlertFuncDialog(string const& title, vector<string> const& line
 {}
 
 AlertFuncDialog& AlertFuncDialog::add_buttons(uint32_t focused_button,
-	std::initializer_list<string> buttonNames,
-	std::initializer_list<std::function<bool()>> buttonProcs)
+	std::vector<string> const& buttonNames,
+	std::vector<std::function<bool()>> const& buttonProcs)
 {
 	initButtons(buttonNames, buttonProcs, focused_button);
 	return *this;
 }
 AlertFuncDialog& AlertFuncDialog::add_buttons(uint32_t focused_button,
-	std::initializer_list<string> buttonNames, int& chosen)
+	std::vector<string> const& buttonNames, int& chosen)
 {
 	std::vector<std::function<bool()>> buttonProcs;
 	for(size_t q = 0; q < buttonNames.size(); ++q)
@@ -78,8 +78,8 @@ std::shared_ptr<GUI::Widget> AlertFuncDialog::view()
 	return window;
 }
 
-void AlertFuncDialog::initButtons(std::initializer_list<string> buttonNames,
-	std::vector<std::function<bool()>> buttonProcs,
+void AlertFuncDialog::initButtons(std::vector<string> const& buttonNames,
+	std::vector<std::function<bool()>> const& buttonProcs,
 	uint32_t focused_button)
 {
 	using namespace GUI::Builder;

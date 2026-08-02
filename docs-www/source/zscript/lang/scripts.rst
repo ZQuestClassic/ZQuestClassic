@@ -154,6 +154,12 @@ These annotations take a single value:
 	|                                         |                 | always be merged this way, using `0` as the   |
 	|                                         |                 | value if this annotation is not provided.     |
 	+-----------------------------------------+-----------------+-----------------------------------------------+
+	| `@ScriptInfo`                           | String (65535)  | Sets an info / summary / description of the   |
+	|                                         |                 | script, shown in the editor UI.               |
+	+-----------------------------------------+-----------------+-----------------------------------------------+
+	| `@ScriptSetup`                          | String (65535)  | Sets a 'setup instructions' string, shown in  |
+	|                                         |                 | the editor UI.                                |
+	+-----------------------------------------+-----------------+-----------------------------------------------+
 
 These annotations take a varying amount of values.
 A value in [square brackets] indicates an 'optional' value.
