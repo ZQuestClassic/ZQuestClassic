@@ -7979,7 +7979,7 @@ int32_t writemisc(PACKFILE *f, zquestheader *Header)
 			
 			for (size_t q = 0; q < opt_count; ++q)
 			{
-				SaveMenuOption const& opt = menu.options[q];
+				auto const& opt = menu.options[q];
 				
 				if (!p_putcstr(opt.text, f))
 					new_return(51);
@@ -8007,6 +8007,39 @@ int32_t writemisc(PACKFILE *f, zquestheader *Header)
 				
 				if (!p_putc(opt.picked_shadow_color, f))
 					new_return(61);
+			}
+			
+			byte misc_text_count = zc_min(menu.misc_texts.size(), MAX_SAVEMENU_MISC_TEXTS);
+			if (!p_putc(misc_text_count, f))
+				new_return(64);
+			
+			for (size_t q = 0; q < misc_text_count; ++q)
+			{
+				auto const& misc_text = menu.misc_texts[q];
+				
+				if (!p_putcstr(misc_text.text, f))
+					new_return(65);
+				
+				if (!p_putc(misc_text.color, f))
+					new_return(66);
+				
+				if (!p_putc(misc_text.shadow_type, f))
+					new_return(67);
+				
+				if (!p_putc(misc_text.shadow_color, f))
+					new_return(68);
+				
+				if (!p_iputl(misc_text.font, f))
+					new_return(69);
+				
+				if (!p_putc(misc_text.x, f))
+					new_return(70);
+				
+				if (!p_putc(misc_text.y, f))
+					new_return(71);
+				
+				if (!p_putc(misc_text.text_align, f))
+					new_return(72);
 			}
 		}
 		

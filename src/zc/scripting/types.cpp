@@ -1164,6 +1164,7 @@ constexpr EngineSubsystem getEngineSubsystemForRegister(int reg)
 		case SAVEMENU_MIDI:
 		case SAVEMENU_MUSIC:
 		case SAVEMENU_NUM_OPTIONS:
+		case SAVEMENU_NUM_MISCTEXTS:
 		case SAVEMENU_OPTX:
 		case SAVEMENU_OPTY:
 		case SAVEMENU_SEL_OPT_OFFSET_X:

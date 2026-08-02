@@ -27,13 +27,14 @@ SaveMenuDialog::SaveMenuDialog(SaveMenu& dest):
 	list_shadow_types(GUI::ZCListData::shadow_types(true))
 {}
 
-static size_t savemenu_tabs[3];
+static size_t savemenu_tabs[4] = {0};
 std::shared_ptr<GUI::Widget> SaveMenuDialog::view()
 {
 	using namespace GUI::Builder;
 	using namespace GUI::Props;
 	
 	std::shared_ptr<GUI::TabPanel> option_tabs = TabPanel(ptr = &savemenu_tabs[1]);
+	std::shared_ptr<GUI::TabPanel> misc_text_tabs = TabPanel(ptr = &savemenu_tabs[3], topPadding = DEFAULT_PADDING + 4_px);
 	
 	const auto btnsz = 32_px;
 	for (size_t idx = 0; idx < local_ref.options.size(); ++idx)
@@ -84,7 +85,7 @@ std::shared_ptr<GUI::Widget> SaveMenuDialog::view()
 							TextField(
 								fitParent = true,
 								type = GUI::TextField::type::TEXT,
-								maxLength = SAVEMENU_STRING_LENGTH,
+								maxLength = SAVEMENU_OPTION_TEXT_LENGTH,
 								text = local_ref.options[idx].text,
 								onValChangedFunc = [&, idx](GUI::TextField::type, std::string_view text, int32_t)
 								{
@@ -216,6 +217,147 @@ std::shared_ptr<GUI::Widget> SaveMenuDialog::view()
 				})
 		));
 	}
+	
+	for (size_t idx = 0; idx < local_ref.misc_texts.size(); ++idx)
+	{
+		misc_text_tabs->add(TabRef(name = to_string(idx),
+			Column(
+				Row(
+					Button(type = GUI::Button::type::ICON,
+						icon = BTNICON_ARROW_LEFT,
+						disabled = (idx <= 0),
+						width = btnsz, height = btnsz,
+						onPressFunc = [&, idx]()
+						{
+							zc_swap(local_ref.misc_texts[idx], local_ref.misc_texts[idx-1]);
+							--savemenu_tabs[3];
+							refresh_dlg();
+						}),
+					Button(type = GUI::Button::type::ICON,
+						icon = BTNICON_TRASH,
+						width = btnsz, height = btnsz,
+						onPressFunc = [&, idx]()
+						{
+							if (!alert_confirm("Are you sure?", fmt::format("This misc text '{}'"
+								" will be erased.", local_ref.misc_texts[idx].text)))
+								return;
+							auto it = local_ref.misc_texts.begin();
+							std::advance(it, idx);
+							local_ref.misc_texts.erase(it);
+							if (idx > 0)
+								--savemenu_tabs[3];
+							refresh_dlg();
+						}),
+					Button(type = GUI::Button::type::ICON,
+						icon = BTNICON_ARROW_RIGHT,
+						disabled = (idx >= local_ref.misc_texts.size()-1),
+						width = btnsz, height = btnsz,
+						onPressFunc = [&, idx]()
+						{
+							zc_swap(local_ref.misc_texts[idx], local_ref.misc_texts[idx+1]);
+							++savemenu_tabs[3];
+							refresh_dlg();
+						})
+				),
+				Row(
+					Column(
+						Rows<3>(hAlign = 1.0,
+							Label(text = "Text:", hAlign = 1.0),
+							TextField(
+								fitParent = true,
+								type = GUI::TextField::type::TEXT,
+								maxLength = SAVEMENU_MISC_TEXT_LENGTH,
+								text = local_ref.misc_texts[idx].text,
+								onValChangedFunc = [&, idx](GUI::TextField::type, std::string_view text, int32_t)
+								{
+									local_ref.misc_texts[idx].text.assign(text);
+								}
+							),
+							INFOBTN("The text for this misc text."),
+							//
+							Label(text = "Font:", hAlign = 1.0),
+							DropDownList(data = list_font,
+								fitParent = true, selectedValue = local_ref.misc_texts[idx].font,
+								onSelectFunc = [&, idx](int32_t val)
+								{
+									local_ref.misc_texts[idx].font = val;
+								}),
+							INFOBTN("The font to draw this misc text in."),
+							//
+							Label(text = "Text Align:", hAlign = 1.0),
+							DropDownList(data = list_aligns,
+								fitParent = true, selectedValue = local_ref.misc_texts[idx].text_align,
+								onSelectFunc = [&](int32_t val)
+								{
+									local_ref.misc_texts[idx].text_align = val;
+								}),
+							INFOBTN("The alignment of the text, relative to the specified Text X."),
+							//
+							Label(text = "Shadow Type:", hAlign = 1.0),
+							DropDownList(data = list_shadow_types,
+								fitParent = true, selectedValue = local_ref.misc_texts[idx].shadow_type,
+								onSelectFunc = [&, idx](int32_t val)
+								{
+									local_ref.misc_texts[idx].shadow_type = val;
+								}),
+							INFOBTN("The shadow style to draw the misc text with.")
+						),
+						Rows<3>(hAlign = 1.0,
+							Label(text = "Text Color:", hAlign = 1.0),
+							ColorSel(val = local_ref.misc_texts[idx].color,
+								width = 120_px,
+								onValChangedFunc = [&, idx](byte val)
+								{
+									local_ref.misc_texts[idx].color = val;
+								}),
+							INFOBTN("The color of the text."),
+							//
+							Label(text = "Shadow Color:", hAlign = 1.0),
+							ColorSel(val = local_ref.misc_texts[idx].shadow_color,
+								width = 120_px,
+								onValChangedFunc = [&, idx](byte val)
+								{
+									local_ref.misc_texts[idx].shadow_color = val;
+								}),
+							INFOBTN("The color of the shadow/outline.")
+						)
+					),
+					Rows<3>(
+						Label(text = "Text X:", hAlign = 1.0),
+						TextField(
+							type = GUI::TextField::type::INT_DECIMAL, fitParent = true,
+							bounds = {0, 255}, val = local_ref.misc_texts[idx].x,
+							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+							{
+								local_ref.misc_texts[idx].x = val;
+							}),
+						INFOBTN("The X-position the text will be drawn at. How it is drawn is determined by the 'Text Align'."),
+						Label(text = "Text Y:", hAlign = 1.0),
+						TextField(
+							type = GUI::TextField::type::INT_DECIMAL, fitParent = true,
+							bounds = {0, 255}, val = local_ref.misc_texts[idx].y,
+							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+							{
+								local_ref.misc_texts[idx].y = val;
+							}),
+						INFOBTN("The Y-position the text will be drawn at. Corresponds to the top of the text.")
+					)
+				)
+			)
+		));
+	}
+	if (local_ref.misc_texts.size() < MAX_SAVEMENU_MISC_TEXTS)
+	{
+		misc_text_tabs->add(TabRef(name = "+",
+			Button(text = "Add Misc Text",
+				onPressFunc = [&]()
+				{
+					local_ref.misc_texts.emplace_back();
+					refresh_dlg();
+				})
+		));
+	}
+	
 	return Window(
 		title = fmt::format("Save Menu \"{}\"", local_ref.name),
 		onClose = message::CANCEL,
@@ -487,6 +629,12 @@ std::shared_ptr<GUI::Widget> SaveMenuDialog::view()
 				),
 				TabRef(name = "Options",
 					option_tabs
+				),
+				TabRef(name = "Misc Texts",
+					Frame(info = "Extra text to draw on the menu. This could be flavor text, a 'menu title', etc.",
+						fitParent = true,
+						misc_text_tabs
+					)
 				)
 			),
 			Row(

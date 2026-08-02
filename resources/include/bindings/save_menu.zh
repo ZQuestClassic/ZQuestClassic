@@ -261,4 +261,87 @@ class save_menu
 	//
 	// @zasm_var SAVEMENU_OPT_FRZSCR
 	internal int FrozenScripts[];
+	
+	// The number of Misc Texts that exist for this menu.
+	//
+	// @zasm_var SAVEMENU_NUM_MISCTEXTS
+	internal const int NumMiscTexts;
+
+	// Deletes the misc text at [index].
+	//
+	// @zasm
+	//   POP D2
+	//   POP REFSAVEMENU
+	//   SAVEMENU_REMOVE_MISCTEXT D2
+	internal void RemoveMiscText(int index);
+
+	// Adds a new misc text at [index]. Negative index adds at the end.
+	//
+	// @zasm
+	//   POP D2
+	//   POP REFSAVEMENU
+	//   SAVEMENU_ADD_MISCTEXT D2
+	internal void AddMiscText(int index = -1);
+
+	// Swaps the misc texts at [index_1] and [index_2].
+	//
+	// @zasm
+	//   POP D3
+	//   POP D2
+	//   POP REFSAVEMENU
+	//   SAVEMENU_SWAP_MISCTEXT D2 D3
+	internal void SwapMiscTexts(int index_1, int index_2);
+
+	// Fills the buffer with the string for misc text [index]
+	//
+	// @zasm
+	//   POP D3
+	//   POP D2
+	//   POP REFSAVEMENU
+	//   SAVEMENU_MISCTEXT_GET_STRING D2 D3
+	internal void GetMiscTextString(int index, char32[] buffer);
+
+	// Sets the string for misc text [index] to the contents of the buffer
+	//
+	// @zasm
+	//   POP D3
+	//   POP D2
+	//   POP REFSAVEMENU
+	//   SAVEMENU_MISCTEXT_SET_STRING D2 D3
+	internal void SetMiscTextString(int index, char32[] buffer);
+	
+	// The text colors for each misc text.
+	//
+	// @zasm_var SAVEMENU_MISCTEXT_COLOR
+	internal int MiscTextColors[];
+	
+	// The shadow type for each misc text.
+	//
+	// @zasm_var SAVEMENU_MISCTEXT_SHADOW_TYPE
+	internal int MiscTextShadowTypes[];
+	
+	// The shadow color for each misc text.
+	//
+	// @zasm_var SAVEMENU_MISCTEXT_SHADOW_COLOR
+	internal int MiscTextShadowColors[];
+	
+	// The font for each misc text.
+	//
+	// @zasm_var SAVEMENU_MISCTEXT_FONT
+	internal int MiscTextFonts[];
+	
+	// The x for each misc text.
+	//
+	// @zasm_var SAVEMENU_MISCTEXT_X
+	internal int MiscTextX[];
+	
+	// The y for each misc text.
+	//
+	// @zasm_var SAVEMENU_MISCTEXT_Y
+	internal int MiscTextY[];
+	
+	// The text alignment for each misc text.
+	//
+	// @zasm_var SAVEMENU_MISCTEXT_TEXT_ALIGN
+	internal int MiscTextAlign[];
 }
