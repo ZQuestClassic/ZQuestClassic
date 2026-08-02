@@ -4378,6 +4378,8 @@ std::optional<int> get_register_ref_dependency(int reg)
 		case MESSAGEDATA_ADVSFX:
 		case MESSAGEDATA_MENUMOVE_SFX:
 		case MESSAGEDATA_MENUCLOSE_SFX:
+		case MESSAGEDATAFLAGSARR:
+		case MESSAGEDATAMARGINS:
 			return REFMSGDATA;
 
 		case MUSICDATA_ID:
@@ -4549,6 +4551,15 @@ std::optional<int> get_register_ref_dependency(int reg)
 		case NPCDSHADOWSPR:
 		case NPCDSPAWNSPR:
 		case NPCDATA_WEAPONDATA:
+		case NPCDATAATTRIBUTE:
+		case NPCDATABEHAVIOUR:
+		case NPCDATADEFENSE:
+		case NPCDATAFLAG:
+		case NPCDATAINITD:
+		case NPCDATAMOVEFLAGS:
+		case NPCDATASHIELD:
+		case NPCDATAWEAPONINITD:
+		case NPCDATAWMOVEFLAGS:
 			return REFNPCDATA;
 
 		case PALDATAB:
