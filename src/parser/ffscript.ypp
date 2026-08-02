@@ -1326,6 +1326,24 @@ Annotated_Script :
 					script->init_weight = p1->intval.getZLong();
 				return true;
 			}
+			else if (key == "ScriptInfo")
+			{
+				if(annot_sig_check_1(ANNTY_STR, data))
+				{
+					annot_trunc_str(p1->val, 65535);
+					script->metadata.script_info = p1->val;
+				}
+				return true;
+			}
+			else if (key == "ScriptSetup")
+			{
+				if(annot_sig_check_1(ANNTY_STR, data))
+				{
+					annot_trunc_str(p1->val, 65535);
+					script->metadata.script_setup = p1->val;
+				}
+				return true;
+			}
 			else if((key.size() == 5 || key.size() == 6) && !key.compare(0,4,"Flag"))
 			{
 				byte c = key[4]-'0';

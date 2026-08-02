@@ -1335,7 +1335,7 @@ const char* ScriptTypeToString(ScriptType type);
 #define SCRIPT_FORMAT_DISASSEMBLED	2
 #define SCRIPT_FORMAT_ZASM			3
 
-#define METADATA_V			6
+#define METADATA_V			7
 #define V_COMPILER_FIRST	BUILDTM_YEAR
 #define V_COMPILER_SECOND	BUILDTM_MONTH
 #define V_COMPILER_THIRD	BUILDTM_DAY
@@ -1352,8 +1352,8 @@ struct zasm_meta
 	byte run_types[8];
 	byte flags;
 	word compiler_v1, compiler_v2, compiler_v3, compiler_v4;
-	std::string script_name;
-	std::string author;
+	std::string script_name, author;
+	std::string script_info, script_setup;
 	std::string attributes[NUM_ZMETA_ATTRIBUTES];
 	std::string usrflags[16];
 	std::string attributes_help[NUM_ZMETA_ATTRIBUTES];
@@ -1409,6 +1409,8 @@ struct zasm_meta
 		}
 		script_name.clear();
 		author.clear();
+		script_info.clear();
+		script_setup.clear();
 	}
 	void autogen(bool clears = true)
 	{
@@ -1457,6 +1459,8 @@ struct zasm_meta
 		compiler_v4 = other.compiler_v4;
 		script_name = other.script_name;
 		author = other.author;
+		script_info = other.script_info;
+		script_setup = other.script_setup;
 		return *this;
 	}
 	bool operator==(zasm_meta const& other) const
@@ -1493,9 +1497,13 @@ struct zasm_meta
 			if(run_types[q] != other.run_types[q])
 				return false;
 		}
-		if(script_name.compare(other.script_name))
+		if (script_name.compare(other.script_name))
 			return false;
-		if(author.compare(other.author))
+		if (author.compare(other.author))
+			return false;
+		if (script_info.compare(other.script_info))
+			return false;
+		if (script_setup.compare(other.script_setup))
 			return false;
 		return true;
 	}

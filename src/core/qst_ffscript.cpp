@@ -159,6 +159,13 @@ int32_t read_one_zmeta(PACKFILE *f, zasm_meta& temp_meta, word zmeta_version)
 		return qe_invalid;
 		if(!p_getcstr(&temp_meta.author,f))
 			return qe_invalid;
+		if (zmeta_version >= 7)
+		{
+			if (!p_getwstr(&temp_meta.script_info, f))
+				return qe_invalid;
+			if (!p_getwstr(&temp_meta.script_setup, f))
+				return qe_invalid;
+		}
 		word num_meta_attrib = (zmeta_version < 5 ? 4 : 10);
 		string tmpstr;
 		if (zmeta_version < 6)

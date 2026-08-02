@@ -12104,10 +12104,14 @@ int32_t write_one_ffscript_meta(PACKFILE *f, zasm_meta const& tmeta)
 	if(!p_iputw(tmeta.compiler_v4,f))
 		new_return(11);
 	
-	if(!p_putcstr(tmeta.script_name,f))
+	if (!p_putcstr(tmeta.script_name,f))
 		new_return(12);
-	if(!p_putcstr(tmeta.author,f))
+	if (!p_putcstr(tmeta.author,f))
 		new_return(13);
+	if (!p_putwstr(tmeta.script_info,f))
+		new_return(14);
+	if (!p_putwstr(tmeta.script_setup,f))
+		new_return(15);
 	
 	if (!p_iputw(NUM_ZMETA_ATTRIBUTES, f))
 		new_return(27);

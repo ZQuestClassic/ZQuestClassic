@@ -23,6 +23,14 @@ std::shared_ptr<GUI::Widget> ScriptDataDialog::view()
 	using namespace GUI::Props;
 	using namespace GUI::Key;
 	
+	script_data const* scrdata = nullptr;
+	zasm_meta const* meta = nullptr;
+	if (local_ref.script)
+	{
+		scrdata = scrdatas[local_ref.script];
+		meta = &scrdata->meta;
+	}
+	
 	auto initd_grid = Rows<3>(spacing = 2_px, topPadding = 10_px);
 	auto instvar_grid = Rows<4>(spacing = 2_px, padding = 0_px);
 	
@@ -41,6 +49,25 @@ std::shared_ptr<GUI::Widget> ScriptDataDialog::view()
 				{
 					local_ref.script = val;
 					refresh_dlg();
+				}
+			)
+		));
+	if (!list_scriptchoices.empty() || (meta && !(meta->script_info.empty() && meta->script_setup.empty())))
+		main_column->add(Row(
+			Button(text = "Info",
+				height = 2_em,
+				disabled = !meta || meta->script_info.empty(),
+				onPressFunc = [&, meta]()
+				{
+					InfoDialog(fmt::format("'{}' Script Info", meta->script_name), meta->script_info).show();
+				}
+			),
+			Button(text = "Setup Instructions",
+				height = 2_em,
+				disabled = !meta || meta->script_setup.empty(),
+				onPressFunc = [&, meta]()
+				{
+					InfoDialog(fmt::format("'{}' Setup Instructions", meta->script_name), meta->script_setup).show();
 				}
 			)
 		));
@@ -98,23 +125,19 @@ std::shared_ptr<GUI::Widget> ScriptDataDialog::view()
 		)
 	);
 	
-	script_data const* scrdata = nullptr;
-	if (local_ref.script)
-		scrdata = scrdatas[local_ref.script];
 	for (int ind = 0; ind < 8; ++ind) // InitD[]
 	{
 		string label = fmt::format("InitD[{}]", ind);
 		byte swp = nswapDEC;
 		string help;
-		if (scrdata)
+		if (meta)
 		{
-			auto& meta = scrdata->meta;
-			if (!meta.initd_label[ind].empty())
-				label = meta.initd_label[ind];
-			if (!meta.initd_help[ind].empty())
-				help = meta.initd_help[ind];
-			if (unsigned(meta.initd_type[ind]) < nswapMAX)
-				swp = meta.initd_type[ind];
+			if (!meta->initd_label[ind].empty())
+				label = meta->initd_label[ind];
+			if (!meta->initd_help[ind].empty())
+				help = meta->initd_help[ind];
+			if (unsigned(meta->initd_type[ind]) < nswapMAX)
+				swp = meta->initd_type[ind];
 		}
 		
 		initd_grid->add(Label(
