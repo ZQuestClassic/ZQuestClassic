@@ -336,7 +336,14 @@ def add_comment(symbol):
                 add(format_comment(indent(value, 3)))
                 add('')
                 add('')
-            elif tag == 'deprecated_getter':
+            elif tag == 'deprecated_future':
+                add(format_comment('.. admonition:: Deprecated in a future version'))
+                add(format_comment(indent(':class: note', 3)))
+                add('')
+                add(format_comment(indent(value, 3)))
+                add('')
+                add('')
+            elif tag in ['alias', 'deprecated_alias', 'deprecated_getter']:
                 # Printed after the comment text instead, see below.
                 pass
             elif tag in interesting_tags:
@@ -345,6 +352,29 @@ def add_comment(symbol):
                 add('')
         add('')
         add(format_comment(symbol.comment.text))
+
+        # Aliases are just other names for this same symbol, so they don't get
+        # an entry of their own. Call them out here instead.
+        def alias_names(names: list[str]) -> str:
+            suffix = '()' if isinstance(symbol, Function) else ''
+            return ', '.join(f'`{name}{suffix}`' for name in names)
+
+        if aliases := symbol.comment.get_tag_many('alias'):
+            add('')
+            add(format_comment(f'Note: Also available as {alias_names(aliases)}.'))
+
+        if aliases := symbol.comment.get_tag_many('deprecated_alias'):
+            tail = (
+                'but that name is deprecated'
+                if len(aliases) == 1
+                else 'but those names are deprecated'
+            )
+            add('')
+            add(
+                format_comment(
+                    f'Note: Also available as {alias_names(aliases)}, {tail}.'
+                )
+            )
 
         # This variable also has an older function form, ex. the variable
         # `Game->CurScreen` and the function `Game->GetCurScreen()`. Only the

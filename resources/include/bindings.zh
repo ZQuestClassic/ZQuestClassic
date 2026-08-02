@@ -46,6 +46,10 @@
 //
 //   Same as deprecated, but the compiler never shows a deprecation message. Only the documentation site will.
 //
+// @deprecated_future <message>
+//
+//   Mark as planned to be deprecated later. Only the documentation site shows this.
+//
 // @exit
 //
 //   Mark that the function exits the script.
