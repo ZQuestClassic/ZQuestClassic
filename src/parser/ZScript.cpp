@@ -260,16 +260,52 @@ void UserScript::register_instance_var(Variable* v, optional<int32_t> value)
 {
 	if (!v) return;
 	if (v->is_static) return;
-	assert(!v->registerId);
-	auto id = getUniqueInstanceID();
-	v->registerId = SCRIPT_INST_VARS(id);
+	assert(!v->getRegisterId());
 	
-	if (value)
-		script_d_init[id] = *value;
+	instance_var_data.emplace_back(v, value);
+}
+static bool compare_inst_var_data(UserScript::InstanceVarData const& s1, UserScript::InstanceVarData const& s2)
+{
+	auto* v1 = s1.first;
+	auto* v2 = s2.first;
+	DCHECK(v1 && v1->getNode());
+	DCHECK(v2 && v2->getNode());
+	auto& loc1 = v1->getNode()->location;
+	auto& loc2 = v2->getNode()->location;
+	// comparing the location fname is not required, since instance vars
+	// are always in the same file as others in the same instance.
+	if (loc1.first_line < loc2.first_line)
+		return true;
+	if (loc2.first_line < loc1.first_line)
+		return false;
+	if (loc1.first_column < loc2.first_column)
+		return true;
+	if (loc2.first_column < loc1.first_column)
+		return false;
+	return false;
+}
+void UserScript::process_instance_vars()
+{
+	if (instance_var_data.empty())
+		return;
 	
-	auto* decl_list = v->node.list;
-	if (decl_list && decl_list->was_exported)
-		script_d_exports[id] = decl_list->export_data;
+	sort(instance_var_data.begin(), instance_var_data.end(), compare_inst_var_data);
+	for (auto& [v, value] : instance_var_data)
+	{
+		assert(v && !v->is_static && !v->registerId);
+		auto id = getUniqueInstanceID();
+		v->registerId = SCRIPT_INST_VARS(id);
+		
+		if (value)
+			script_d_init[id] = *value;
+		
+		auto* decl_list = v->node.list;
+		if (decl_list && decl_list->was_exported)
+			script_d_exports[id] = decl_list->export_data;
+	}
+	// no need to hang onto this data
+	// and clearing it makes sure we don't ever re-process these too
+	instance_var_data.clear();
 }
 void UserScript::apply_data(disassembled_script_data& dest)
 {
