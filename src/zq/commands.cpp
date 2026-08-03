@@ -716,8 +716,8 @@ void do_dev_qrs_zscript_command(std::string const& fname)
 			if (!qr_const_names.contains(ref.value))
 				missing_qrs << ref.value << " [" << ref.text << "]\n";
 			auto info = ref.info;
-			auto info_hints = parse_hint_text(info);
-			for (auto& val : info_hints[INFOHINT_T_QR])
+			auto data = parse_hint_text(info);
+			for (auto& val : data.hints[INFOHINT_T_QR])
 				if (!qrs.hasKey(val) && !qr_const_names.contains(val))
 					missing_qrs << val << " [Unknown; from '" << ref.text << "'s info hint]\n";
 			return true;
@@ -757,11 +757,11 @@ void do_dev_qrs_zscript_command(std::string const& fname)
 		}
 		else info = "@deprecated";
 		
-		auto const info_hints = parse_hint_text(info);
+		auto const data = parse_hint_text(info);
 		
 		vector<string> info_lines = wrap_qr_info(info);
 		
-		for (auto& [ty, vals] : info_hints)
+		for (auto& [ty, vals] : data.hints)
 		{
 			if (vals.empty()) continue;
 			switch (ty)

@@ -173,10 +173,16 @@ char const* get_snap_str();
 
 void clear_clip_rect(BITMAP* bitmap);
 
+struct InfoTextHintData
+{
+	std::map<uint8_t, std::set<int>> hints;
+	std::vector<std::pair<std::string, std::string>> urls;
+};
 std::string QRHINT(std::vector<int> qrs);
 std::string RULETMPL_HINT(std::vector<int> tmpls);
+std::string INFO_URL(std::string const& text, std::string const& url);
 void erase_hint_text(std::string& str);
-std::map<uint8_t, std::set<int>> parse_hint_text(std::string& str);
+InfoTextHintData parse_hint_text(std::string& str);
 enum //special insert types
 {
 	INFOHINT_T_QR,
