@@ -5,13 +5,18 @@ import subprocess
 import sys
 import tempfile
 
+# Everything in this script is relative to this branch, never the current
+# HEAD - running from the main checkout must give the same answers as
+# running from the 2.55 worktree.
+TARGET_BRANCH = "releases/2.55"
+
 
 def get_cherrypicked_shas():
     """Return the set of full SHAs already on releases/2.55 (directly or as cherry-pick sources)."""
     excluded = set()
     try:
         output = subprocess.check_output(
-            ["git", "log", "2.55.0..releases/2.55", "--format=%H%n%b"],
+            ["git", "log", f"2.55.0..{TARGET_BRANCH}", "--format=%H%n%b"],
             text=True,
             stderr=subprocess.DEVNULL,
         )
@@ -34,10 +39,36 @@ def get_cherrypicked_shas():
     return excluded
 
 
+def get_missing_paths(sha):
+    """Paths touched by `sha` that don't exist on TARGET_BRANCH. A cherry-pick
+    can still apply "cleanly" around these (silently creating the file, or
+    patching lookalike context), so they deserve a loud warning."""
+    try:
+        paths = subprocess.check_output(
+            ["git", "show", "--format=", "--name-only", sha],
+            text=True,
+            stderr=subprocess.DEVNULL,
+        ).split()
+    except subprocess.CalledProcessError:
+        return []
+
+    missing = []
+    for path in paths:
+        result = subprocess.run(
+            ["git", "cat-file", "-e", f"{TARGET_BRANCH}:{path}"],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
+        if result.returncode != 0:
+            missing.append(path)
+    return missing
+
+
 def check_cherrypick_conflicts(full_shas):
     """
-    Return the subset of full_shas that can be cherry-picked onto HEAD without conflicts.
-    Uses a single temporary worktree so the real index/worktree are never touched.
+    Return the subset of full_shas that can be cherry-picked onto the tip of
+    TARGET_BRANCH without conflicts. Uses a single temporary worktree so the
+    real index/worktree are never touched.
     """
     clean = set()
     if not full_shas:
@@ -46,11 +77,16 @@ def check_cherrypick_conflicts(full_shas):
     with tempfile.TemporaryDirectory() as tmpdir:
         try:
             subprocess.check_call(
-                ["git", "worktree", "add", "--detach", tmpdir, "HEAD"],
+                ["git", "worktree", "add", "--detach", tmpdir, TARGET_BRANCH],
                 stdout=subprocess.DEVNULL,
                 stderr=subprocess.DEVNULL,
             )
         except subprocess.CalledProcessError:
+            print(
+                f"Error: could not create a worktree for {TARGET_BRANCH}; "
+                "conflict checking skipped.",
+                file=sys.stderr,
+            )
             return clean
 
         try:
@@ -169,10 +205,18 @@ def main():
 
     clean_commits = [(sha, msg) for _, sha, msg in commits if sha in clean_shas]
     if clean_commits:
-        print("\n--- conflict-free cherry-picks ---")
+        print(f"\n--- conflict-free cherry-picks (onto {TARGET_BRANCH}) ---")
+        print("--- NOTE: 'applies cleanly' is not 'compiles'; build each pick ---")
         clean_commits.reverse()
         for full_sha, message in clean_commits:
             print(f"git cherry-pick -x {full_sha}  # {message}")
+            missing = get_missing_paths(full_sha)
+            if missing:
+                print(
+                    f"#   WARNING: touches paths missing on {TARGET_BRANCH}: "
+                    f"{', '.join(missing)}. The pick may create them or remap "
+                    "them via rename detection - inspect what it actually did."
+                )
 
 
 if __name__ == "__main__":
