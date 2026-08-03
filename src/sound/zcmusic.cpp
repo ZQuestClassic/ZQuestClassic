@@ -965,7 +965,22 @@ int32_t poll_gme_file(GMEFILE* gme)
         memset(p,0,4*samples);
         uint16_t *q=(uint16_t*) p;
         gme_play(gme->emu, (int32_t) 2*samples, (int16_t*)p);
-        
+
+        // The legacy mixer plays each voice at half amplitude (6dB of
+        // per-voice headroom for panning), leaving this centered music
+        // stream quieter than the OGG/MP3 streams that play through
+        // Allegro 5 at full gain. Sound effects and tracker music still
+        // share that mixer on this branch, so its per-voice volume can't
+        // be raised wholesale; double just this stream's samples instead.
+        int16_t *s=(int16_t*) p;
+        for(int32_t j=0; j<2*samples; ++j)
+        {
+            int32_t v = 2 * (int32_t) s[j];
+            if(v > 32767) v = 32767;
+            else if(v < -32768) v = -32768;
+            s[j] = (int16_t) v;
+        }
+
         // Allegro only uses UNSIGNED samples ...
         for(int32_t j=0; j<2*samples; ++j)
         {
