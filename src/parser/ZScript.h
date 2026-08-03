@@ -110,7 +110,7 @@ namespace ZScript
 		void setRun(Function* func) {runFunc = func;}
 		Function* getRun() const {return runFunc;}
 		virtual void register_instance_var(Variable*, optional<int32_t>) {};
-		virtual void process_instance_vars() {};
+		virtual void process_instance_vars(CompileErrorHandler*) {};
 		virtual void apply_data(disassembled_script_data&) {};
 		
 		bool isPrototypeRun() const;
@@ -149,7 +149,7 @@ namespace ZScript
 		ScriptScope const& getScope() const /*override*/ {return *scope;}
 		std::optional<int32_t> getInitWeight() const /*override*/ {return node.init_weight;}
 		void register_instance_var(Variable* v, optional<int32_t> value) /*override*/;
-		void process_instance_vars() /*override*/;
+		void process_instance_vars(CompileErrorHandler* handler) /*override*/;
 		void apply_data(disassembled_script_data& dest) /*override*/;
 		
 	private:
@@ -356,7 +356,7 @@ namespace ZScript
 
 		ASTDataDecl& node;
 		std::optional<int32_t> registerId;
-		friend void UserScript::process_instance_vars();
+		friend void UserScript::process_instance_vars(CompileErrorHandler*);
 	};
 
 	class InternalVariable : public Datum

@@ -284,12 +284,13 @@ static bool compare_inst_var_data(UserScript::InstanceVarData const& s1, UserScr
 		return false;
 	return false;
 }
-void UserScript::process_instance_vars()
+void UserScript::process_instance_vars(CompileErrorHandler* handler)
 {
 	if (instance_var_data.empty())
 		return;
 	
 	sort(instance_var_data.begin(), instance_var_data.end(), compare_inst_var_data);
+	exported_variable const* last_export_data = nullptr;
 	for (auto& [v, value] : instance_var_data)
 	{
 		assert(v && !v->is_static && !v->registerId);
@@ -301,7 +302,38 @@ void UserScript::process_instance_vars()
 		
 		auto* decl_list = v->node.list;
 		if (decl_list && decl_list->was_exported)
-			script_d_exports[id] = decl_list->export_data;
+		{
+			auto& export_data = decl_list->export_data;
+			auto& engine_type = export_data.engine_type;
+			if (engine_type != special_engine_export::none)
+			{
+				auto req_prev_engine_type = special_engine_export::none;
+				switch (engine_type)
+				{
+					case special_engine_export::tile_cset:
+						req_prev_engine_type = special_engine_export::tile;
+						break;
+					case special_engine_export::combo_cset:
+						req_prev_engine_type = special_engine_export::combo;
+						break;
+				}
+				if (req_prev_engine_type != special_engine_export::none)
+				{
+					if (!last_export_data || last_export_data->engine_type != req_prev_engine_type)
+					{
+						handler->handleError(CompileError::ExportError(&v->node,
+							fmt::format("@ExportEngineValue(\"{}\") must be used on a variable immediately after"
+							" a variable exported using @ExportEngineValue(\"{}\")!",
+							get_special_engine_export_name(engine_type),
+							get_special_engine_export_name(req_prev_engine_type))));
+						engine_type = special_engine_export::none;
+					}
+				}
+			}
+			script_d_exports[id] = export_data;
+			last_export_data = &export_data;
+		}
+		else last_export_data = nullptr;
 	}
 	// no need to hang onto this data
 	// and clearing it makes sure we don't ever re-process these too
