@@ -26,6 +26,11 @@ void RegBaseVisitor::handle_data_decl_registry(ASTDataDecl& host)
 		handleError(CompileError::ExportError(&host, "@ExportRange() requires @Export() to function!"));
 		list->was_range_exported = false;
 	}
+	if (list && list->export_data.engine_type != special_engine_export::none && !list->was_exported)
+	{
+		handleError(CompileError::ExportError(&host, "@ExportEngineValue() requires @Export() to function!"));
+		list->export_data.engine_type = special_engine_export::none;
+	}
 	
 	// Don't allow void type.
 	if (type->isVoid())
@@ -150,6 +155,7 @@ void RegBaseVisitor::handle_data_decl_registry(ASTDataDecl& host)
 			return;
 		}
 
+		bool special_export = list->export_data.engine_type != special_engine_export::none;
 		if (type->isBool())
 		{
 			// Mark bool exports as checkboxes!
@@ -162,7 +168,20 @@ void RegBaseVisitor::handle_data_decl_registry(ASTDataDecl& host)
 				handleError(CompileError::ExportError(&host, "@ExportRange() is incompatible with 'bool' variables!"));
 				list->was_range_exported = false;
 			}
+			if (special_export)
+			{
+				handleError(CompileError::ExportError(&host, "@ExportEngineValue() is incompatible with 'bool' variables!"));
+				list->export_data.engine_type = special_engine_export::none;
+				special_export = false;
+			}
 		}
+		else if (special_export && list->export_data.btn_type > -1)
+		{
+			handleError(CompileError::ExportError(&host, "@ExportEngineValue() is incompatible with specified button types in @Export()!"));
+		}
+		
+		if (special_export)
+			list->export_data.btn_type = nswapDEC; // set to a valid value, although shouldn't matter
 		else if (list->export_data.btn_type < 0)
 		{
 			// No explicit input field type - default from the variable's type.

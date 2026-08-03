@@ -14,6 +14,18 @@ extern bool fake_pack_writing;
 
 bool pfwrite(const char *p,int32_t n,PACKFILE *f);
 
+#define V_EXPORTED_VARIABLE 1
+extern int packfile_v_exported_variable;
+
+struct PackfileVersionHandler
+{
+	int& ref;
+	int old_ver;
+	int new_ver;
+	PackfileVersionHandler(int& ref, int new_ver);
+	~PackfileVersionHandler();
+};
+
 inline bool pfwrite(const void *p,int32_t n,PACKFILE *f)
 {
 	bool success=true;
@@ -646,6 +658,11 @@ inline bool p_getvar(exported_variable* ptr, PACKFILE *f)
 		return false;
 	if (!p_getc(&ptr->btn_type, f))
 		return false;
+	if (packfile_v_exported_variable > 0)
+	{
+		if (!p_igetw(&ptr->engine_type, f))
+			return false;
+	}
 	if (!p_igetzf(&ptr->min, f))
 		return false;
 	if (!p_igetzf(&ptr->max, f))
@@ -659,6 +676,8 @@ inline bool p_putvar(exported_variable const& ptr, PACKFILE *f)
 	if (!p_putlstr(ptr.helptext, f))
 		return false;
 	if (!p_putc(ptr.btn_type, f))
+		return false;
+	if (!p_iputw(word(ptr.engine_type), f))
 		return false;
 	if (!p_iputzf(ptr.min, f))
 		return false;

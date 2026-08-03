@@ -778,7 +778,7 @@ Annotated_Data :
 	Annotation_List Data {
 		ASTAnnotationList* list = (ASTAnnotationList*)$1;
 		ASTDataDeclList* decl = (ASTDataDeclList*)$2;
-		handle_annotations(list, [&](AnnotData& data, map<string, std::set<string>>&)
+		handle_annotations(list, [&](AnnotData& data, map<string, std::set<string>>& excl_keys)
 		{
 			auto& key = data.key;
 			if (key == "Export")
@@ -839,6 +839,33 @@ Annotated_Data :
 					
 					decl->was_range_exported = true;
 				}
+				excl_keys["ExportEngineValue"].insert(key);
+				return true;
+			}
+			else if (key == "ExportEngineValue")
+			{
+				if (annot_sig_check_1(ANNTY_STR, data))
+				{
+					auto& param = data.params[0];
+					special_engine_export idx = special_engine_export::none;
+					for (int q = 1; q < int(special_engine_export::max_value); ++q)
+					{
+						if (param.unescaped_val == special_engine_export_names[q])
+						{
+							idx = (special_engine_export)q;
+							break;
+						}
+					}
+					if (idx != special_engine_export::none)
+						decl->export_data.engine_type = idx;
+					else
+					{
+						annot_errstr(fmt::format("ERROR: Bad Annotation Value: @{} got value"
+							" {}; expects one of [{}]",
+							key, param.unescaped_val, fmt::join(special_engine_export_names, ", ")), data.location);
+					}
+				}
+				excl_keys["ExportRange"].insert(key);
 				return true;
 			}
 			return false;

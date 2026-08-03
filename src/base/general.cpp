@@ -272,6 +272,25 @@ rect_t rect_t::expanded(int dist) const
 
 const char* swp_strs[nswapMAX] = {"D", "H", "LD", "LH", "B"};
 
+const std::array<std::string, size_t(special_engine_export::max_value)> special_engine_export_names
+{
+	"NONE",
+	
+	"Tile", "Tile CSet", "Combo", "Combo CSet", "Color",
+	
+	"Item", "Enemy", "Counter", "Sprite Data", "SFX",
+	"MIDI", "Music", "Save Menu", "Message String",
+	"Weapon Type", "LWeapon Type", "EWeapon Type",
+	"Dropset", "Font", "Bottle Type", "Combo Type",
+	"Combo Flag",
+};
+std::string get_special_engine_export_name(special_engine_export idx)
+{
+	if (uint(idx) >= uint(special_engine_export::max_value))
+		return "";
+	return special_engine_export_names[int(idx)];
+}
+
 script_config::script_config(word script)
 	: script(script), inst_init()
 {

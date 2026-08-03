@@ -577,12 +577,30 @@ enum
 };
 extern const char* swp_strs[nswapMAX];
 
+enum class special_engine_export : uint16_t
+{
+	none,
+	
+	tile, tile_cset, combo, combo_cset, color,
+	
+	item, enemy, counter, sprite, sfx,
+	midi, music, save_menu, message_string,
+	weapon_type, lweapon_type, eweapon_type,
+	dropset, font_id, bottle_type, combo_type,
+	combo_flag,
+	
+	max_value
+};
+extern const std::array<std::string, size_t(special_engine_export::max_value)> special_engine_export_names;
+std::string get_special_engine_export_name(special_engine_export idx);
+
 struct exported_variable
 {
-	std::string name;
-	std::string helptext;
+	std::string name {};
+	std::string helptext {};
 	// -1 = unset; defaulted from the variable's type at compile time.
 	int8_t btn_type = -1;
+	special_engine_export engine_type = special_engine_export::none;
 	zfix min = -214748.3648_zf, max = 214748.3647_zf;
 	bool operator==(const exported_variable& other) const = default;
 };
