@@ -2,6 +2,7 @@
 #include <gui/builder.h>
 #include <utility>
 #include "base/qrs.h"
+#include "base/util.h"
 
 #ifdef IS_EDITOR
 #include "quest_rules.h"
@@ -114,6 +115,18 @@ void InfoDialog::postinit()
 		string sub = d_text.substr(pos+1,nextpos-pos-1);
 		d_text.erase(pos,nextpos-pos+1);
 		#ifdef IS_EDITOR
+		if (sub[0] == '[' && sub.back() == ')') // url parsing
+		{
+			size_t brackpos = sub.find_first_of("]");
+			size_t parenpos = sub.find_last_of("(");
+			if (brackpos == string::npos || parenpos == string::npos)
+				continue; //invalid
+			if (brackpos != parenpos - 1)
+				continue; // invalid
+			urls.emplace_back(sub.substr(1, brackpos-1), sub.substr(parenpos+1, sub.size() - parenpos - 2));
+			continue; // done
+		}
+		
 		dword special_type = 0; //qr by default
 		if(sub[0] == '#') //Special type id given
 		{
@@ -263,6 +276,21 @@ std::shared_ptr<GUI::Widget> InfoDialog::view()
 	);
 	if(add_grid)
 		main_col->add(gr);
+	if (!urls.empty())
+	{
+		auto url_gr = Rows<4>(padding = 0_px);
+		for (auto& [txt, url] : urls)
+		{
+			url_gr->add(Button(text = txt,
+				height = 2_em,
+				onPressFunc = [&, url]()
+				{
+					util::open_web_link(url);
+				}
+			));
+		}
+		main_col->add(url_gr);
+	}
 	main_col->add(closeRow);
 	return window;
 }

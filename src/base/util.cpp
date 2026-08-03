@@ -1238,6 +1238,12 @@ std::string RULETMPL_HINT(std::vector<int> tmpls)
 {
 	return HINT_TY(tmpls,INFOHINT_T_RULETMPL);
 }
+std::string INFO_URL(std::string const& text, std::string const& url)
+{
+	if (text.empty() || url.empty())
+		return "";
+	return fmt::format("$[{}]({})$", text, url);
+}
 
 int binary_search_int(int b1, int b2, std::function<int(int,int&)> proc, int defval)
 {

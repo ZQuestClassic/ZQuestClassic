@@ -128,6 +128,7 @@ void zc_trace_clear();
 
 std::string QRHINT(std::vector<int> qrs);
 std::string RULETMPL_HINT(std::vector<int> tmpls);
+std::string INFO_URL(std::string const& text, std::string const& url);
 enum //special insert types
 {
 	INFOHINT_T_QR,

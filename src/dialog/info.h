@@ -34,6 +34,7 @@ protected:
 	
 	std::set<int> qrs; //related qrs
 	std::set<int> ruleTemplates; //related rule templates
+	std::vector<std::pair<std::string, std::string>> urls; //url buttons (text, url)
 	
 	byte local_qrs[QR_SZ];
 	byte* dest_qrs;
