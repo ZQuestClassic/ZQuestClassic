@@ -20,6 +20,7 @@
 #include "auto/bug_opt_var_across_waitframe.zs"
 #include "auto/bug_script_draw_error_logging.zs"
 #include "auto/bug_spawn_screen_oob.zs"
+#include "auto/bug_string_16bit_index.zs"
 #include "auto/bug_transitive_yield.zs"
 #include "auto/bug_unused_var_bad_opt.zs"
 #include "auto/call_limit.zs"

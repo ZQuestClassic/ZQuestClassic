@@ -16878,7 +16878,7 @@ void killfairy(int32_t misc)
 
 int32_t getGuyIndex(const int32_t eid)
 {
-	for(word i = 0; i < guys.Count(); i++)
+	for(int i = 0; i < guys.Count(); i++)
 	{
 		if(guys.spr(i)->getUID() == eid)
 			return i;

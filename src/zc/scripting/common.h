@@ -66,11 +66,6 @@ public:
 	//Returns values of a zscript array as an std::string.
 	static void getString(const int32_t ptr, string &str, dword num_chars = ZSCRIPT_MAX_STRING_CHARS, dword offset = 0);
 	
-	//Used for issues where reading the ZScript array floods the console with errors 'Accessing array index [12] size of 12.
-	//Happens with Quad3D and some other functions, and I have no clue why. -Z ( 28th April, 2019 )
-	//Like getString but for an array of longs instead of chars. *(arrayPtr is not checked for validity)
-	static void getValues2(const int32_t ptr, int32_t* arrayPtr, dword num_values, dword offset = 0);
-	
 	//Like getString but for an array of longs instead of chars. *(arrayPtr is not checked for validity)
 	static void getValues(const int32_t ptr, int32_t* arrayPtr, dword num_values, dword offset = 0);
 	
@@ -129,9 +124,9 @@ public:
 		if(am.can_resize() && resize)
 			am.resize_min((userStride+1)*size);
 			
-		word j = 0, k = userStride;
+		size_t j = 0, k = userStride;
 		size_t sz = am.size();
-		for(word i = 0; j < size; i++)
+		for(size_t i = 0; j < size; i++)
 		{
 			if(i >= sz)
 				return _Overflow; //Resize?

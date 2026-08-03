@@ -876,7 +876,7 @@ int32_t read_items_old(PACKFILE *f, word s_version, word version, word build)
 			return ret;
 
 	if (!should_skip)
-		for(word i = 0; i < itemsbuf.capacity(); ++i)
+		for(int i = 0; i < itemsbuf.capacity(); ++i)
 			update_old_item(s_version, i, version, build);
 	
 	return 0;

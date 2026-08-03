@@ -57,7 +57,7 @@ int32_t ItemH::loadItem(int32_t uid)
 
 int32_t ItemH::getItemIndex(int32_t uid)
 {
-	for(word i = 0; i < items.Count(); i++)
+	for(int i = 0; i < items.Count(); i++)
 	{
 		if(items.spr(i)->getUID() == uid)
 			return i;

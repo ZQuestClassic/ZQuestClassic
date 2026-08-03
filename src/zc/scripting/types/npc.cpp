@@ -35,7 +35,7 @@ enemy *GuyH::getNPC()
 
 int32_t GuyH::getNPCIndex(const int32_t eid)
 {
-	for(word i = 0; i < guys.Count(); i++)
+	for(int i = 0; i < guys.Count(); i++)
 	{
 		if(guys.spr(i)->getUID() == eid)
 			return i;
