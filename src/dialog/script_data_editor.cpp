@@ -71,36 +71,40 @@ std::shared_ptr<GUI::Widget> ScriptDataDialog::view()
 				}
 			)
 		));
-	main_column->add(TabPanel(ptr = &tab_pos,
-		TabRef(name = "InitD[]",
-			Frame(info = "These values represent the up to 8 parameters of the script's `Run` function."
-				" Modifying them will configure script-specific behaviors."
-				"\n\nUsing '@ExportInitD0()' through '@ExportInitD7()' in scripts allows specifying custom"
-				" help text for the '?' buttons of each option, as well as customizing the name and default"
-				" input state of the field.",
+	
+	auto tab_initd = TabRef(name = "InitD[]",
+		Frame(info = "These values represent the up to 8 parameters of the script's `Run` function."
+			" Modifying them will configure script-specific behaviors."
+			"\n\nUsing '@ExportInitD0()' through '@ExportInitD7()' in scripts allows specifying custom"
+			" help text for the '?' buttons of each option, as well as customizing the name and default"
+			" input state of the field.",
+			fitParent = true,
+			initd_grid
+		)
+	);
+	auto tab_exports = TabRef(name = "Exports",
+		Frame(info = "These variables are specific to the currently-selected script,"
+			" and configure script-specific behaviors."
+			"\nThe value will be the 'script default' value, unless you modify it here."
+			" Values that have been modified will have a reset button to their right to"
+			" set them back to default. (Modified values will not change even if the script"
+			" is edited to change a value)"
+			"\n\nUsing '@Export()' allows adding a script-scope variable to this list."
+			" Using '@ExportRange()' on an already exported variable allows setting a min/max value"
+			" for the field.",
+			fitParent = true,
+			ScrollingPane(
+				ptr_y = &scroll_pos,
 				fitParent = true,
-				initd_grid
-			)
-		),
-		TabRef(name = "Exports",
-			Frame(info = "These variables are specific to the currently-selected script,"
-				" and configure script-specific behaviors."
-				"\nThe value will be the 'script default' value, unless you modify it here."
-				" Values that have been modified will have a reset button to their right to"
-				" set them back to default. (Modified values will not change even if the script"
-				" is edited to change a value)"
-				"\n\nUsing '@Export()' allows adding a script-scope variable to this list."
-				" Using '@ExportRange()' on an already exported variable allows setting a min/max value"
-				" for the field.",
-				fitParent = true,
-				ScrollingPane(
-					ptr_y = &scroll_pos,
-					fitParent = true,
-					padding = 0_px, topPadding = 10_px,
-					instvar_grid
-				)
+				padding = 0_px, topPadding = 10_px,
+				instvar_grid
 			)
 		)
+	);
+	
+	main_column->add(TabPanel(ptr = &tab_pos,
+		tab_exports,
+		tab_initd
 	));
 	
 	window = Window(
