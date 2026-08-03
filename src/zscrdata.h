@@ -106,6 +106,7 @@ inline void write_var(exported_variable const& val, FILE *f)
 	write_str(val.name, f);
 	write_str(val.helptext, f);
 	write_var(val.btn_type, f);
+	write_var(word(val.engine_type), f);
 	write_var(val.min, f);
 	write_var(val.max, f);
 }
@@ -114,6 +115,7 @@ inline void read_var(exported_variable& val, FILE *f)
 	read_str(val.name, f);
 	read_str(val.helptext, f);
 	read_var(val.btn_type, f);
+	read_var((word&)(val.engine_type), f);
 	read_var(val.min, f);
 	read_var(val.max, f);
 }

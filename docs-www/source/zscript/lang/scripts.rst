@@ -51,30 +51,43 @@ A value in [square brackets] indicates an 'optional' value.
 .. table::
 	:widths: auto
 	
-	+-----------------+-----------------------------------------------+-------------------------------------------------+
-	| Annotation Name | Values                                        | Purpose                                         |
-	+=================+===============================================+=================================================+
-	| `@Export`       | | Name: String (256)                          | Exports the specified variable to be modifiable |
-	|                 | | Help Text: [String (65535)]                 | Sets the label, helptext, and input field       |
-	|                 | | Type: ["D", "H", "LD", "LH", "B", "-1"]     | type of the textbox for the exported variable.  |
-	|                 |                                               |                                                 |
-	|                 |                                               | Name must be specified, help text               |
-	|                 |                                               | defaults to blank, and type defaults based on   |
-	|                 |                                               | variable type, as:                              |
-	|                 |                                               |                                                 |
-	|                 |                                               | | `int`, `float`, `untyped` -> "D"              |
-	|                 |                                               | | `long` -> "LD"                                |
-	|                 |                                               | | `bool` -> "B"                                 |
-	|                 |                                               | | `rgb` -> "LH"                                 |
-	|                 |                                               | | else -> "-1"                                  |
-	+-----------------+-----------------------------------------------+-------------------------------------------------+
-	| `@ExportRange`  | | Min: int                                    | Sets a range for the exported variable. The     |
-	|                 | | Max: int                                    | field in the editor will not allow setting its  |
-	|                 |                                               | value outside of the specified range.           |
-	|                 |                                               |                                                 |
-	|                 |                                               | | If used on a non-exported variable, errors.   |
-	|                 |                                               | | If used on a boolean variable, errors.        |
-	+-----------------+-----------------------------------------------+-------------------------------------------------+
+	+----------------------+-------------------------------------------------------+-------------------------------------------------+
+	| Annotation Name      | Values                                                | Purpose                                         |
+	+======================+=======================================================+=================================================+
+	| `@Export`            | | Name: String (256)                                  | Exports the specified variable to be modifiable |
+	|                      | | Help Text: [String (65535)]                         | Sets the label, helptext, and input field       |
+	|                      | | Type: ["D", "H", "LD", "LH", "B", "-1"]             | type of the textbox for the exported variable.  |
+	|                      |                                                       |                                                 |
+	|                      |                                                       | Name must be specified, help text               |
+	|                      |                                                       | defaults to blank, and type defaults based on   |
+	|                      |                                                       | variable type, as:                              |
+	|                      |                                                       |                                                 |
+	|                      |                                                       | | `int`, `float`, `untyped` -> "D"              |
+	|                      |                                                       | | `long` -> "LD"                                |
+	|                      |                                                       | | `bool` -> "B"                                 |
+	|                      |                                                       | | `rgb` -> "LH"                                 |
+	|                      |                                                       | | else -> "-1"                                  |
+	+----------------------+-------------------------------------------------------+-------------------------------------------------+
+	| `@ExportRange`       | | Min: int                                            | Sets a range for the exported variable. The     |
+	|                      | | Max: int                                            | field in the editor will not allow setting its  |
+	|                      |                                                       | value outside of the specified range.           |
+	|                      |                                                       |                                                 |
+	|                      |                                                       | | If used on a non-exported variable, errors.   |
+	|                      |                                                       | | If used on a boolean variable, errors.        |
+	+----------------------+-------------------------------------------------------+-------------------------------------------------+
+	| `@ExportEngineValue` | String:                                               | Sets the exported value to use a special GUI.   |
+	|                      | ["Tile", "Tile CSet", "Combo", "Combo CSet", "Color", | For example, "Tile", "Combo", and "Color" will  |
+	|                      | "Item", "Enemy", "Counter", "Sprite Data", "SFX",     | use a Tile / Combo / Color selector instead of  |
+	|                      | "MIDI", "Music", "Save Menu", "Message String",       | a number entry field. Most special values use   |
+	|                      | "Weapon Type", "LWeapon Type", "EWeapon Type",        | Drop Down Lists, limiting the selection to      |
+	|                      | "Dropset", "Font", "Bottle Type", "Combo Type",       | specific values based on the type.              |
+	|                      | "Combo Flag"]                                         |                                                 |
+	|                      |                                                       | Some of these special modes require multiple    |
+	|                      |                                                       | variables in a row; for example, 'Tile CSet'    |
+	|                      |                                                       | is only usable on a variable directly after     |
+	|                      |                                                       | a variable exported with 'Tile' mode (causing   |
+	|                      |                                                       | the two variables to share a gui widget)        |
+	+----------------------+-------------------------------------------------------+-------------------------------------------------+
 
 Static Functions
 ----------------

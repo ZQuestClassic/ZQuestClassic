@@ -145,6 +145,7 @@ void RegBaseVisitor::handle_data_decl_registry(ASTDataDecl& host)
 			return;
 		}
 
+		bool special_export = list->export_data.engine_type != special_engine_export::none;
 		if (type->isBool())
 		{
 			// Mark bool exports as checkboxes!
@@ -157,7 +158,20 @@ void RegBaseVisitor::handle_data_decl_registry(ASTDataDecl& host)
 				handleError(CompileError::ExportError(&host, "@ExportRange() is incompatible with 'bool' variables!"));
 				list->was_range_exported = false;
 			}
+			if (special_export)
+			{
+				handleError(CompileError::ExportError(&host, "@ExportEngineValue() is incompatible with 'bool' variables!"));
+				list->export_data.engine_type = special_engine_export::none;
+				special_export = false;
+			}
 		}
+		else if (special_export && list->export_data.btn_type > -1)
+		{
+			handleError(CompileError::ExportError(&host, "@ExportEngineValue() is incompatible with specified button types in @Export()!"));
+		}
+		
+		if (special_export)
+			list->export_data.btn_type = nswapDEC; // set to a valid value, although shouldn't matter
 		else if (list->export_data.btn_type < 0)
 		{
 			// No explicit input field type - default from the variable's type.
@@ -443,7 +457,7 @@ void RegBaseVisitor::caseDataEnum(ASTDataEnum& host, void* param)
 	
 	// Resolve the base type.
 	DataType const* baseType = &host.baseType->resolve(*scope, this);
-    if (breakRecursion(*host.baseType.get())) return;
+	if (breakRecursion(*host.baseType.get())) return;
 	if (!baseType->isResolved())
 	{
 		if (!isRegistration())
@@ -958,6 +972,11 @@ bool RegBaseVisitor::parse_annotations_data(ASTDataDeclList& node)
 	static const vector<string> valid_keys = {
 		"Export",
 		"ExportRange",
+		"ExportEngineValue",
+	};
+	static const vector<string> exclusive_keys = {
+		"ExportRange",
+		"ExportEngineValue",
 	};
 	
 	START_ANNOT_LIST(data, valid_keys)
@@ -1002,6 +1021,8 @@ bool RegBaseVisitor::parse_annotations_data(ASTDataDeclList& node)
 		}
 		if (!validate_annot_param_count(annot, 2))
 			break;
+		if (!validate_annot_exclusions(key, annots, exclusive_keys))
+			break;
 		
 		AnnotParam_Parsed p_min, p_max;
 		if (!parse_annot_param_as(annot, 0, p_min, AnnotParam_Parsed::Type::NUMBER))
@@ -1019,6 +1040,44 @@ bool RegBaseVisitor::parse_annotations_data(ASTDataDeclList& node)
 		node.export_data.min = p_min.number;
 		node.export_data.max = p_max.number;
 		node.was_range_exported = true;
+	}
+	END_ANNOT()
+	START_ANNOT("ExportEngineValue")
+	{
+		if (!annots.contains("Export"))
+		{
+			handleError(CompileError::AnnotationError(&node, "@ExportEngineValue() requires @Export() to function!"));
+			break;
+		}
+		if (!validate_annot_param_count(annot, 1))
+			break;
+		if (!validate_annot_exclusions(key, annots, exclusive_keys))
+			break;
+		
+		AnnotParam_Parsed param;
+		if (!parse_annot_param_as(annot, 0, param, AnnotParam_Parsed::Type::STRING_UNESCAPED))
+			break;
+		special_engine_export idx = special_engine_export::none;
+		for (int q = 1; q < int(special_engine_export::max_value); ++q)
+		{
+			if (param.str == special_engine_export_names[q])
+			{
+				idx = (special_engine_export)q;
+				break;
+			}
+		}
+		if (idx != special_engine_export::none)
+			node.export_data.engine_type = idx;
+		else
+		{
+			vector<string> expected_names {};
+			expected_names.reserve(int(special_engine_export::max_value)-1);
+			for (int q = 1; q < int(special_engine_export::max_value); ++q)
+				expected_names.emplace_back(special_engine_export_names[q]);
+			handleError(CompileError::AnnotationError(&node,
+				fmt::format("Annotation '@{}' got \"{}\", but expected one of [{}]", key, param.str, fmt::join(expected_names, ", ")).c_str()));
+			break;
+		}
 	}
 	END_ANNOT()
 	END_ANNOT_LIST()
