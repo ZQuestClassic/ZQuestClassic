@@ -4,6 +4,7 @@
 #include "components/sound/zcmixer.h"
 #include "core/qst.h"
 #include "core/dmap.h"
+#include "zalleg/packfile.h"
 
 void mark_save_dirty();
 extern ZCMUSIC* zcmusic;
