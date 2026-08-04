@@ -16,6 +16,19 @@ RegBaseVisitor::RegBaseVisitor(Program& program)
 	: RecursiveVisitor(program)
 {}
 
+static string var_custom_export_type_name(var_custom_export_type val)
+{
+	switch (val)
+	{
+		case var_custom_export_type::custom_dropdown:
+			return "ExportDropdown";
+		case var_custom_export_type::custom_bitflags:
+			return "ExportBitflags";
+		case var_custom_export_type::custom_long_bitflags:
+			return "ExportLongBitflags";
+	}
+	return "";
+}
 void RegBaseVisitor::handle_data_decl_registry(ASTDataDecl& host)
 {
 	auto* list = host.list;
@@ -144,8 +157,10 @@ void RegBaseVisitor::handle_data_decl_registry(ASTDataDecl& host)
 			handleError(CompileError::ExportError(&host, fmt::format("@Export is incompatible with type '{}'", type->getName())));
 			return;
 		}
-
+		
 		bool special_export = list->export_data.engine_type != special_engine_export::none;
+		bool custom_export = list->export_data.export_custom_type != var_custom_export_type::none;
+		
 		if (type->isBool())
 		{
 			// Mark bool exports as checkboxes!
@@ -164,13 +179,27 @@ void RegBaseVisitor::handle_data_decl_registry(ASTDataDecl& host)
 				list->export_data.engine_type = special_engine_export::none;
 				special_export = false;
 			}
-		}
-		else if (special_export && list->export_data.btn_type > -1)
-		{
-			handleError(CompileError::ExportError(&host, "@ExportEngineValue() is incompatible with specified button types in @Export()!"));
+			if (custom_export)
+			{
+				handleError(CompileError::ExportError(&host, fmt::format("@{}() is incompatible with 'bool' variables!",
+					var_custom_export_type_name(list->export_data.export_custom_type))));
+				list->export_data.export_custom_type = var_custom_export_type::none;
+				custom_export = false;
+			}
 		}
 		
-		if (special_export)
+		assert(!(special_export && custom_export)); // should have been prevented at the annotation level
+		
+		if (list->export_data.btn_type > -1)
+		{
+			if (special_export)
+				handleError(CompileError::ExportError(&host, "@ExportEngineValue() is incompatible with specified button types in @Export()!"));
+			if (custom_export)
+				handleError(CompileError::ExportError(&host, fmt::format("@{}() is incompatible with specified button types in @Export()!",
+					var_custom_export_type_name(list->export_data.export_custom_type))));
+		}
+		
+		if (special_export || custom_export)
 			list->export_data.btn_type = nswapDEC; // set to a valid value, although shouldn't matter
 		else if (list->export_data.btn_type < 0)
 		{
@@ -591,13 +620,32 @@ map<string, ASTAnnotation*> RegBaseVisitor::validate_annotation_keys(ASTAnnotati
 	return ret;
 }
 
-bool RegBaseVisitor::parse_annot_param_as(ASTAnnotation& annot, size_t idx, AnnotParam_Parsed& output, AnnotParam_Parsed::Type ty)
+static string _parsed_type_string(AnnotParam_Parsed::Type ty)
+{
+	switch (ty)
+	{
+		case AnnotParam_Parsed::Type::NONE:
+			return "NONE";
+		case AnnotParam_Parsed::Type::STRING:
+		case AnnotParam_Parsed::Type::STRING_UNESCAPED:
+			return "String";
+		case AnnotParam_Parsed::Type::BTN_SWAP_TYPE:
+			return "String";
+		case AnnotParam_Parsed::Type::NUMBER:
+			return "Constant Number";
+		case AnnotParam_Parsed::Type::ENUM_NAME:
+			return "Enum Type";
+	}
+	return "??Unknown??";
+}
+bool RegBaseVisitor::parse_annot_param_as(ASTAnnotation& annot, size_t idx, AnnotParam_Parsed& output, AnnotParam_Parsed::Type ty, bool skip_invalid_error)
 {
 	if (annot.params.size() <= idx)
 	{
 		if (ty != AnnotParam_Parsed::Type::NONE)
 		{
-			handleError(CompileError::AnnotationError(&annot, fmt::format("Expected at least {} parameters, only found {}!", idx+1, annot.params.size()).c_str()));
+			if (!skip_invalid_error)
+				handleError(CompileError::AnnotationError(&annot, fmt::format("Expected at least {} parameters, only found {}!", idx+1, annot.params.size()).c_str()));
 			return false;
 		}
 		return true;
@@ -728,31 +776,34 @@ bool RegBaseVisitor::parse_annot_param_as(ASTAnnotation& annot, size_t idx, Anno
 		}
 	}
 	
-	// Invalid input type, error out
-	string expected_ty_str = "??Unknown??";
-	switch (ty)
+	if (!skip_invalid_error)
 	{
-		case AnnotParam_Parsed::Type::NONE:
-			expected_ty_str = "NONE";
-			break;
-		case AnnotParam_Parsed::Type::STRING:
-		case AnnotParam_Parsed::Type::STRING_UNESCAPED:
-			expected_ty_str = "String";
-			break;
-		case AnnotParam_Parsed::Type::BTN_SWAP_TYPE:
-			expected_ty_str = "String";
-			break;
-		case AnnotParam_Parsed::Type::NUMBER:
-			expected_ty_str = "Constant Number";
-			break;
-		case AnnotParam_Parsed::Type::ENUM_NAME:
-			expected_ty_str = "Enum Type";
-			break;
+		// Invalid input type, error out
+		handleError(CompileError::AnnotationError(&annot,
+			fmt::format("Annotation '@{}' parameter {}; expected {} but got '{}'",
+				annot.key, idx, _parsed_type_string(ty), input.to_string(this, scope))));
 	}
-	handleError(CompileError::AnnotationError(&annot,
-		fmt::format("Annotation '@{}' parameter {}; expected {} but got '{}'",
-			annot.key, idx, expected_ty_str, input.to_string(this, scope))));
 	return false;
+}
+optional<AnnotParam_Parsed::Type> RegBaseVisitor::parse_annot_param_as(ASTAnnotation& annot, size_t idx, AnnotParam_Parsed& output, vector<AnnotParam_Parsed::Type> const& tys, bool skip_invalid_error)
+{
+	for (auto ty : tys)
+	{
+		if (parse_annot_param_as(annot, idx, output, ty, true))
+			return ty;
+	}
+	
+	if (!skip_invalid_error)
+	{
+		// Invalid input type, error out
+		vector<string> expected_tys;
+		for (auto ty : tys)
+			expected_tys.emplace_back(_parsed_type_string(ty));
+		handleError(CompileError::AnnotationError(&annot,
+			fmt::format("Annotation '@{}' parameter {}; expected one of [{}] but got '{}'",
+				annot.key, idx, fmt::join(expected_tys, ", "), annot.params[idx].to_string(this, scope))));
+	}
+	return nullopt;
 }
 
 bool RegBaseVisitor::validate_annot_param_count(ASTAnnotation& annot, size_t min, optional<size_t> max)
@@ -765,11 +816,11 @@ bool RegBaseVisitor::validate_annot_param_count(ASTAnnotation& annot, size_t min
 	{
 		if (max && mx != min)
 			handleError(CompileError::AnnotationError(&annot,
-				fmt::format("Annotation '{}' found {} parameters; expected >= {} and <= {}",
+				fmt::format("Annotation '@{}' found {} parameters; expected >= {} and <= {}",
 					annot.key, sz, min, mx).c_str()));
 		else
 			handleError(CompileError::AnnotationError(&annot,
-				fmt::format("Annotation '{}' found {} parameters; expected {}",
+				fmt::format("Annotation '@{}' found {} parameters; expected {}",
 					annot.key, sz, min).c_str()));
 		return false;
 	}
@@ -875,6 +926,35 @@ return !_did_fail;
 	} \
 }
 
+static optional<string> _check_power_2_value(zfix check_val, bool is_long)
+{
+	int v = check_val.val;
+	string sval;
+
+	if (is_long)
+		sval = to_string(v);
+	else
+	{
+		sval = check_val.str();
+		if (v % 10000L)
+			return sval;
+		v /= 10000L;
+	}
+
+	int count = 0;
+	while (v)
+	{
+		if (v & 1)
+		{
+			if (++count > 1)
+				break;
+		}
+		v >>= 1;
+	}
+	if (count != 1)
+		return sval;
+	return nullopt;
+}
 bool RegBaseVisitor::parse_annotations_enum(ASTDataEnum& node)
 {
 	if (breakRecursion()) return false;
@@ -973,10 +1053,16 @@ bool RegBaseVisitor::parse_annotations_data(ASTDataDeclList& node)
 		"Export",
 		"ExportRange",
 		"ExportEngineValue",
+		"ExportDropdown",
+		"ExportBitflags",
+		"ExportLongBitflags",
 	};
 	static const vector<string> exclusive_keys = {
 		"ExportRange",
 		"ExportEngineValue",
+		"ExportDropdown",
+		"ExportBitflags",
+		"ExportLongBitflags",
 	};
 	
 	START_ANNOT_LIST(data, valid_keys)
@@ -1016,7 +1102,7 @@ bool RegBaseVisitor::parse_annotations_data(ASTDataDeclList& node)
 	{
 		if (!annots.contains("Export"))
 		{
-			handleError(CompileError::AnnotationError(&node, "@ExportRange() requires @Export() to function!"));
+			handleError(CompileError::AnnotationError(&node, fmt::format("@{}() requires @Export() to function!", key).c_str()));
 			break;
 		}
 		if (!validate_annot_param_count(annot, 2))
@@ -1046,7 +1132,7 @@ bool RegBaseVisitor::parse_annotations_data(ASTDataDeclList& node)
 	{
 		if (!annots.contains("Export"))
 		{
-			handleError(CompileError::AnnotationError(&node, "@ExportEngineValue() requires @Export() to function!"));
+			handleError(CompileError::AnnotationError(&node, fmt::format("@{}() requires @Export() to function!", key).c_str()));
 			break;
 		}
 		if (!validate_annot_param_count(annot, 1))
@@ -1078,6 +1164,259 @@ bool RegBaseVisitor::parse_annotations_data(ASTDataDeclList& node)
 				fmt::format("Annotation '@{}' got \"{}\", but expected one of [{}]", key, param.str, fmt::join(expected_names, ", ")).c_str()));
 			break;
 		}
+	}
+	END_ANNOT()
+	START_ANNOT("ExportDropdown")
+	{
+		if (!annots.contains("Export"))
+		{
+			handleError(CompileError::AnnotationError(&node, fmt::format("@{}() requires @Export() to function!", key).c_str()));
+			break;
+		}
+		if (!validate_annot_exclusions(key, annots, exclusive_keys))
+			break;
+		zfix list_key = 0;
+		if (!num_params)
+		{
+			handleError(CompileError::AnnotationError(&annot,
+				fmt::format("Annotation '@{}' found 0 parameters; expected >= 1", key).c_str()));
+			break;
+		}
+		else
+		{
+			bool failed = false;
+			bool was_int = false;
+			for (size_t q = 0; q < num_params; ++q)
+			{
+				AnnotParam_Parsed param;
+				auto ty = parse_annot_param_as(annot, q, param, {AnnotParam_Parsed::Type::STRING_UNESCAPED, AnnotParam_Parsed::Type::NUMBER});
+				if (!ty)
+				{
+					failed = true;
+					break;
+				}
+				if (q == num_params-1 && *ty != AnnotParam_Parsed::Type::STRING_UNESCAPED)
+				{
+					handleError(CompileError::AnnotationError(&annot,
+						fmt::format("Annotation '@{}' last parameter must be a STRING!", key)));
+					failed = true;
+					break;
+				}
+				switch (*ty)
+				{
+					case AnnotParam_Parsed::Type::STRING_UNESCAPED:
+					{
+						if (node.export_data.custom_export_names.contains(list_key))
+						{
+							handleError(CompileError::AnnotationError(&annot,
+								fmt::format("Annotation '@{}' found multiple strings for value {}!", key, list_key)));
+							failed = true;
+							break;
+						}
+						node.export_data.custom_export_names[list_key] = param.str;
+						list_key += 1;
+						was_int = false;
+						break;
+					}
+					case AnnotParam_Parsed::Type::NUMBER:
+					{
+						if (was_int)
+						{
+							handleError(CompileError::AnnotationError(&annot,
+								fmt::format("Annotation '@{}' cannot have multiple NUMBER parameters in a row!", key)));
+							failed = true;
+							break;
+						}
+						list_key = param.number;
+						was_int = true;
+						break;
+					}
+				}
+				if (failed) break;
+			}
+			if (failed) break;
+		}
+		node.export_data.export_custom_type = var_custom_export_type::custom_dropdown;
+	}
+	END_ANNOT()
+	START_ANNOT("ExportBitflags")
+	{
+		if (!annots.contains("Export"))
+		{
+			handleError(CompileError::AnnotationError(&node, fmt::format("@{}() requires @Export() to function!", key).c_str()));
+			break;
+		}
+		if (!validate_annot_exclusions(key, annots, exclusive_keys))
+			break;
+		zfix list_key = 1;
+		if (!num_params)
+		{
+			for (int q = 0; q < 18; ++q)
+				node.export_data.custom_export_names[zfix(1 << q)] = to_string(q);
+		}
+		else
+		{
+			bool failed = false;
+			bool was_int = false;
+			for (size_t q = 0; q < num_params; ++q)
+			{
+				AnnotParam_Parsed param;
+				auto ty = parse_annot_param_as(annot, q, param, {AnnotParam_Parsed::Type::STRING_UNESCAPED, AnnotParam_Parsed::Type::NUMBER});
+				if (!ty)
+				{
+					failed = true;
+					break;
+				}
+				if (q == num_params-1 && *ty != AnnotParam_Parsed::Type::STRING_UNESCAPED)
+				{
+					handleError(CompileError::AnnotationError(&annot,
+						fmt::format("Annotation '@{}' last parameter must be a STRING!", key)));
+					failed = true;
+					break;
+				}
+				switch (*ty)
+				{
+					case AnnotParam_Parsed::Type::STRING_UNESCAPED:
+					{
+						if (node.export_data.custom_export_names.contains(list_key))
+						{
+							handleError(CompileError::AnnotationError(&annot,
+								fmt::format("Annotation '@{}' found multiple strings for value {}!", key, list_key)));
+							failed = true;
+							break;
+						}
+						node.export_data.custom_export_names[list_key] = param.str;
+						bool overflow = list_key >= 0b100000000000000000;
+						if (!overflow) // shifting past the last bit would overflow the int
+							list_key <<= 1;
+						if (overflow && (q + 1) < num_params)
+						{
+							handleError(CompileError::AnnotationError(&annot,
+								fmt::format("Annotation '@{}' overflowed the available number of bits!", key)));
+							failed = true;
+							break;
+						}
+						was_int = false;
+						break;
+					}
+					case AnnotParam_Parsed::Type::NUMBER:
+					{
+						if (was_int)
+						{
+							handleError(CompileError::AnnotationError(&annot,
+								fmt::format("Annotation '@{}' cannot have multiple NUMBER parameters in a row!", key)));
+							failed = true;
+							break;
+						}
+						list_key = param.number;
+						
+						if (auto sval = _check_power_2_value(list_key, false))
+						{
+							handleError(CompileError::AnnotationError(&annot,
+								fmt::format("Annotation '@{}' requires power-of-2 values, found bad value {}!", key, *sval)));
+							failed = true;
+							break;
+						}
+						
+						was_int = true;
+						break;
+					}
+				}
+				if (failed) break;
+			}
+			if (failed) break;
+		}
+		node.export_data.export_custom_type = var_custom_export_type::custom_bitflags;
+	}
+	END_ANNOT()
+	START_ANNOT("ExportLongBitflags")
+	{
+		if (!annots.contains("Export"))
+		{
+			handleError(CompileError::AnnotationError(&node, fmt::format("@{}() requires @Export() to function!", key).c_str()));
+			break;
+		}
+		if (!validate_annot_exclusions(key, annots, exclusive_keys))
+			break;
+		zfix list_key = 0.0001_zf;
+		if (!num_params)
+		{
+			for (int q = 0; q < 32; ++q)
+				node.export_data.custom_export_names[zslongToFix(1 << q)] = to_string(q);
+		}
+		else
+		{
+			bool failed = false;
+			bool was_int = false;
+			for (size_t q = 0; q < num_params; ++q)
+			{
+				AnnotParam_Parsed param;
+				auto ty = parse_annot_param_as(annot, q, param, {AnnotParam_Parsed::Type::STRING_UNESCAPED, AnnotParam_Parsed::Type::NUMBER});
+				if (!ty)
+				{
+					failed = true;
+					break;
+				}
+				if (q == num_params-1 && *ty != AnnotParam_Parsed::Type::STRING_UNESCAPED)
+				{
+					handleError(CompileError::AnnotationError(&annot,
+						fmt::format("Annotation '@{}' last parameter must be a STRING!", key)));
+					failed = true;
+					break;
+				}
+				switch (*ty)
+				{
+					case AnnotParam_Parsed::Type::STRING_UNESCAPED:
+					{
+						if (node.export_data.custom_export_names.contains(list_key))
+						{
+							handleError(CompileError::AnnotationError(&annot,
+								fmt::format("Annotation '@{}' found multiple strings for value {}!", key, list_key)));
+							failed = true;
+							break;
+						}
+						node.export_data.custom_export_names[list_key] = param.str;
+						bool overflow = list_key.val >= 0b10000000000000000000000000000000;
+						if (!overflow) // shifting past the last bit would overflow the long
+							list_key.val <<= 1;
+						if (overflow && (q + 1) < num_params)
+						{
+							handleError(CompileError::AnnotationError(&annot,
+								fmt::format("Annotation '@{}' overflowed the available number of bits!", key)));
+							failed = true;
+							break;
+						}
+						was_int = false;
+						break;
+					}
+					case AnnotParam_Parsed::Type::NUMBER:
+					{
+						if (was_int)
+						{
+							handleError(CompileError::AnnotationError(&annot,
+								fmt::format("Annotation '@{}' cannot have multiple NUMBER parameters in a row!", key)));
+							failed = true;
+							break;
+						}
+						list_key = param.number;
+						
+						if (auto sval = _check_power_2_value(list_key, true))
+						{
+							handleError(CompileError::AnnotationError(&annot,
+								fmt::format("Annotation '@{}' requires power-of-2 values, found bad value {}!", key, *sval)));
+							failed = true;
+							break;
+						}
+						
+						was_int = true;
+						break;
+					}
+				}
+				if (failed) break;
+			}
+			if (failed) break;
+		}
+		node.export_data.export_custom_type = var_custom_export_type::custom_long_bitflags;
 	}
 	END_ANNOT()
 	END_ANNOT_LIST()
