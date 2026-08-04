@@ -19778,32 +19778,60 @@ int32_t main(int32_t argc,char **argv)
 				refresh(rALL);
 			}
 		}
-		else if(OpenLastQuest&&filepath[0]&&exists(filepath)&&!used_switch(argc,argv,"-new"))
+		else
 		{
-			int32_t ret = load_quest(filepath);
-			
-			if(ret == qe_OK)
+			bool loaded = false;
+
+			if(OpenLastQuest && !used_switch(argc,argv,"-new"))
+			{
+				// Try the last-open quest, then the rest of the recent list,
+				// silently skipping entries that are missing or fail to load.
+				if(filepath[0])
+				{
+					if(!exists(filepath))
+						al_trace("Skipping recent quest (not found): %s\n", filepath);
+					else if(load_quest(filepath)==qe_OK)
+						loaded = true;
+					else
+						al_trace("Skipping recent quest (failed to load): %s\n", filepath);
+				}
+
+				for(int q = 0; !loaded && q < 10; ++q)
+				{
+					char const* path = rec_menu_fullpaths[q];
+
+					if(path[0]=='-' || !strcmp(path,filepath))
+						continue;
+
+					if(!exists(path))
+						al_trace("Skipping recent quest (not found): %s\n", path);
+					else if(load_quest(path)==qe_OK)
+					{
+						strcpy(filepath,path);
+						loaded = true;
+					}
+					else
+						al_trace("Skipping recent quest (failed to load): %s\n", path);
+				}
+			}
+
+			if(loaded)
 			{
 				first_save=true;
 				refresh(rALL);
 			}
 			else
 			{
+				if (onNew() == D_CLOSE)
+				{
+					Z_message("User canceled creating new quest, closing.\n");
+					zapp_exit(0);
+				}
+
+				//otherwise the blank quest gets the name of the last loaded quest... not good! -DD
 				filepath[0]=temppath[0]=0;
 				first_save=false;
 			}
-		}
-		else
-		{
-			if (onNew() == D_CLOSE)
-			{
-				Z_message("User canceled creating new quest, closing.\n");
-				zapp_exit(0);
-			}
-
-			//otherwise the blank quest gets the name of the last loaded quest... not good! -DD
-			filepath[0]=temppath[0]=0;
-			first_save=false;
 		}
 	}
 
