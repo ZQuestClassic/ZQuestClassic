@@ -772,20 +772,36 @@ void crt_filter_set_mode(CrtFilterMode mode)
 	crt_filter_update_web_display_size();
 }
 
+#ifdef __EMSCRIPTEN__
+// See crt_filter_update_web_display_size. When set, the filters report no shader.
+static bool web_viewport_too_small;
+#endif
+
 void crt_filter_update_web_display_size()
 {
 #ifdef __EMSCRIPTEN__
 	int w = 0, h = 0;
+	web_viewport_too_small = false;
 	if (crt_filter_get_mode() != CrtFilterMode::none)
 	{
-		int size[2] = {};
+		int size[3] = {};
 		EM_ASM({
 			var s = window.zcCanvasSize ? window.zcCanvasSize() : null;
 			HEAP32[$0 >> 2] = s ? s.bufW : 0;
 			HEAP32[($0 >> 2) + 1] = s ? s.bufH : 0;
+			HEAP32[($0 >> 2) + 2] = s ? Math.round(s.cssW * devicePixelRatio) : 0;
 		}, size);
-		w = size[0];
-		h = size[1];
+		// bufW never shrinks below the virtual screen, so when the page's box is smaller
+		// than that in device pixels, the browser would have to downsample the shaded
+		// output - re-creating exactly the resampling moire the full-res backbuffer exists
+		// to avoid. Render unfiltered instead; growing the viewport re-enables the filter
+		// (this runs again on every resize via zc_web_display_size_changed).
+		web_viewport_too_small = size[2] > 0 && size[2] < size[0];
+		if (!web_viewport_too_small)
+		{
+			w = size[0];
+			h = size[1];
+		}
 	}
 
 	ALLEGRO_DISPLAY* display = all_get_display();
@@ -863,58 +879,50 @@ static ALLEGRO_SHADER* build_shader(const char* name, const char* glsl_source, c
 	return shader;
 }
 
-ALLEGRO_SHADER* crt_filter_shader()
+// Build failures latch (a filter that failed once won't build next frame either), so a
+// failed mode just renders unfiltered from then on.
+static ALLEGRO_SHADER* get_cached_shader(CrtFilterMode mode, bool overlay)
 {
-	CrtFilterMode mode = crt_filter_get_mode();
 	if (mode == CrtFilterMode::none)
 		return nullptr;
 
-	static ALLEGRO_SHADER* shaders[(int)CrtFilterMode::count];
-	static bool attempted[(int)CrtFilterMode::count];
+	static ALLEGRO_SHADER* shaders[2][(int)CrtFilterMode::count];
+	static bool attempted[2][(int)CrtFilterMode::count];
 	int index = (int)mode;
-	if (!attempted[index])
+	if (!attempted[overlay][index])
 	{
-		attempted[index] = true;
+		attempted[overlay][index] = true;
 		switch (mode)
 		{
 			case CrtFilterMode::easymode:
-				shaders[index] = build_shader("easymode", easymode_glsl, easymode_hlsl);
+				shaders[overlay][index] = build_shader(overlay ? "easymode overlay" : "easymode", easymode_glsl, easymode_hlsl, overlay);
 				break;
 			case CrtFilterMode::geom:
-				shaders[index] = build_shader("geom", geom_glsl, geom_hlsl);
+				shaders[overlay][index] = build_shader(overlay ? "geom overlay" : "geom", geom_glsl, geom_hlsl, overlay);
 				break;
 			default:
 				break;
 		}
 	}
-	return shaders[index];
+	return shaders[overlay][index];
+}
+
+ALLEGRO_SHADER* crt_filter_shader()
+{
+#ifdef __EMSCRIPTEN__
+	if (web_viewport_too_small)
+		return nullptr;
+#endif
+	return get_cached_shader(crt_filter_get_mode(), false);
 }
 
 ALLEGRO_SHADER* crt_filter_overlay_shader()
 {
-	CrtFilterMode mode = crt_filter_get_mode();
-	if (mode == CrtFilterMode::none)
+#ifdef __EMSCRIPTEN__
+	if (web_viewport_too_small)
 		return nullptr;
-
-	static ALLEGRO_SHADER* shaders[(int)CrtFilterMode::count];
-	static bool attempted[(int)CrtFilterMode::count];
-	int index = (int)mode;
-	if (!attempted[index])
-	{
-		attempted[index] = true;
-		switch (mode)
-		{
-			case CrtFilterMode::easymode:
-				shaders[index] = build_shader("easymode overlay", easymode_glsl, easymode_hlsl, true);
-				break;
-			case CrtFilterMode::geom:
-				shaders[index] = build_shader("geom overlay", geom_glsl, geom_hlsl, true);
-				break;
-			default:
-				break;
-		}
-	}
-	return shaders[index];
+#endif
+	return get_cached_shader(crt_filter_get_mode(), true);
 }
 
 void crt_filter_set_uniforms(int src_w, int src_h, int out_w, int out_h)

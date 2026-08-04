@@ -1592,7 +1592,10 @@ int32_t init_game()
 	replay_step_comment("init_game");
 	replay_forget_input();
 
+	// Strip the title screen's logo layers off the game layer - but the cheat/debug info
+	// layer lives there too (it renders through the CRT filters), so re-attach it.
 	rti_game.remove_children();
+	rti_game.add_child(&rti_infolayer);
 
 	int initial_seed = time(0);
 	replay_register_rng(zc_get_default_rand());

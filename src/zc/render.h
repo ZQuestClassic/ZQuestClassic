@@ -15,6 +15,9 @@ extern LegacyBitmapRTI rti_screen;
 // whole block when this is false (see render.cpp).
 bool info_bmp_enabled();
 void clear_info_bmp();
+// Whether anything drew into the info layer since the last clear. Drives the layer's
+// visibility, so an empty layer costs no draw at all.
+bool info_bmp_has_content();
 // Snapshot the info layer and restore it later. The debugger uses these while paused
 // so it can composite its transient sprite highlight without permanently erasing the
 // walkability/hitbox cheat overlays drawn during the last game frame.

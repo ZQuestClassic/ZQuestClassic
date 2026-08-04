@@ -78,6 +78,11 @@ static void init_render_tree()
 	rti_game.a4_bitmap = framebuf;
 	rti_infolayer.bitmap = create_a5_bitmap(framebuf->w, framebuf->h);
 	rti_infolayer.set_size(framebuf->w, framebuf->h);
+	// A child of the game layer (identity transform, same size), so the CRT filters apply
+	// to the cheat/debug overlays too. As a fullres_overlay child it is composited by its
+	// own live shader pass rather than baked, keeping it updating while the game layer is
+	// frozen (the debugger draws its sprite highlight while paused under a dialog).
+	rti_infolayer.fullres_overlay = true;
 
 	al_set_new_bitmap_flags(base_flags);
 	rti_menu.bitmap = create_a5_bitmap(menu_bmp->w, menu_bmp->h);
@@ -101,7 +106,7 @@ static void init_render_tree()
 	rti_screen.transparency_index = 0;
 	
 	rti_root.add_child(&rti_game);
-	rti_root.add_child(&rti_infolayer);
+	rti_game.add_child(&rti_infolayer);
 	rti_root.add_child(&rti_menu);
 	rti_root.add_child(&rti_gui);
 	rti_root.add_child(&rti_screen);
@@ -175,13 +180,11 @@ static void configure_render_tree()
 		rti_game.uv_warp = nullptr;
 	}
 
-	rti_infolayer.set_transform({
-		.x = (int)(resx - w*xscale) / 2,
-		.y = (int)(resy - h*yscale) / 2,
-		.xscale = xscale,
-		.yscale = yscale,
-	});
-	rti_infolayer.visible = true;
+	// Identity: as a child of rti_game it inherits the transform above. Hidden while empty
+	// so the layer costs nothing (a fullscreen blend, or a whole extra shader pass under a
+	// CRT filter) when no cheat/debug overlay is being drawn - which is nearly always.
+	rti_infolayer.set_transform({});
+	rti_infolayer.visible = info_bmp_has_content();
 	
 	rti_dialogs.visible = rti_dialogs.has_children();
 	rti_gui.visible = (dialog_count >= 1 && !active_dialog) || dialog_count >= 2 || screen == gui_bmp;
@@ -315,8 +318,18 @@ static void configure_render_tree()
 // The current setup has this bitmap cleared every frame in draw_screen and conditionally drawn to if
 // some debug data must be drawn, so the cost was being paid to swap textures even when not used.
 
+// Whether anything has drawn into the info layer since it was last cleared. Every drawer
+// goes through start_info_bmp, so this is exact - it drives the layer's visibility.
+static bool info_bmp_written;
+
+bool info_bmp_has_content()
+{
+	return info_bmp_written;
+}
+
 void clear_info_bmp()
 {
+	info_bmp_written = false;
 #ifndef __EMSCRIPTEN__
 	clear_a5_bmp(rti_infolayer.bitmap);
 #endif
@@ -337,8 +350,10 @@ bool info_bmp_enabled()
 #endif
 }
 
-// Backing store for save_info_bmp/restore_info_bmp.
+// Backing store for save_info_bmp/restore_info_bmp, and whether the layer had content when
+// it was captured - so restoring an empty backup doesn't re-enable the layer's draw.
 static ALLEGRO_BITMAP* infobmp_backup = nullptr;
+static bool infobmp_backup_written;
 
 void save_info_bmp()
 {
@@ -356,6 +371,8 @@ void save_info_bmp()
 	}
 	if (!infobmp_backup)
 		infobmp_backup = create_a5_bitmap(w, h);
+
+	infobmp_backup_written = info_bmp_written;
 
 	ALLEGRO_STATE old_state;
 	al_store_state(&old_state, ALLEGRO_STATE_TARGET_BITMAP | ALLEGRO_STATE_BLENDER);
@@ -377,6 +394,8 @@ void restore_info_bmp()
 		return;
 	}
 
+	info_bmp_written = infobmp_backup_written;
+
 	ALLEGRO_STATE old_state;
 	al_store_state(&old_state, ALLEGRO_STATE_TARGET_BITMAP | ALLEGRO_STATE_BLENDER);
 	al_set_target_bitmap(rti_infolayer.bitmap);
@@ -391,6 +410,7 @@ static ALLEGRO_STATE infobmp_old_state;
 void start_info_bmp()
 {
 #ifndef __EMSCRIPTEN__
+	info_bmp_written = true;
 	al_store_state(&infobmp_old_state, ALLEGRO_STATE_TARGET_BITMAP);
 	al_set_target_bitmap(rti_infolayer.bitmap);
 	al_set_clipping_rectangle(0, playing_field_offset, al_get_bitmap_width(rti_infolayer.bitmap), al_get_bitmap_height(rti_infolayer.bitmap)-playing_field_offset);
