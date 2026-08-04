@@ -1115,7 +1115,7 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 												{
 													local_ref.viewport_cond_range = (int16_t)val;
 												}),
-											IBTN_T("Viewport Range","Used by the 'In View' and 'Out of View' flags"),
+											IBTN_T("Viewport Range","Used by the 'Req. On Screen' and 'Req. Off Screen' flags"),
 											Label(text = "Cooldown:", fitParent = true, rightPadding = 0_px),
 											TextField(
 												fitParent = true,
