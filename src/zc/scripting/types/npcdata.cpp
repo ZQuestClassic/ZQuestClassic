@@ -91,6 +91,7 @@ int32_t npcdata_get_register(int32_t reg)
 		case NPCDATAETILE: GET_NPCDATA_VAR_INT32(e_tile, "ExTile"); break;
 		case NPCDATAEWIDTH: GET_NPCDATA_VAR_BYTE(e_width, "ExWidth"); break;
 		case NPCDATAFIRESFX: GET_NPCDATA_VAR_BYTE(firesfx, "WeaponSFX"); break;
+		case NPCDATAFIRESFXSECONDARY: GET_NPCDATA_VAR_BYTE(firesfx_secondary, "WeaponSecondarySFX"); break;
 		case NPCDATAFLAGS1:
 		{
 			if( !nd )
@@ -267,6 +268,7 @@ void npcdata_set_register(int32_t reg, int32_t value)
 		case NPCDATAETILE: SET_NPCDATA_VAR_INT(e_tile, "ExTile"); break;
 		case NPCDATAEWIDTH: SET_NPCDATA_VAR_BYTE(e_width, "ExWidth"); break;
 		case NPCDATAFIRESFX: SET_NPCDATA_VAR_BYTE(firesfx, "WeaponSFX"); break;
+		case NPCDATAFIRESFXSECONDARY: SET_NPCDATA_VAR_BYTE(firesfx_secondary, "WeaponSecondarySFX"); break;
 		case NPCDATAFLAGS1: SET_NPCDATA_VAR_ENUM(flags, "Flags (deprecated)"); break;
 		case NPCDATAFLAGS2: SET_NPCDATA_VAR_ENUM(flags, "Flags2 (deprecated)"); break;
 		case NPCDATAFRAMERATE: SET_NPCDATA_VAR_WORD(frate, "Framerate"); break;

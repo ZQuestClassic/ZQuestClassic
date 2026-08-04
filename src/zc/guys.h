@@ -79,6 +79,7 @@ public:
 	
 	int32_t hitby[NUM_HIT_TYPES_USED];
 	int16_t firesfx;
+	int16_t firesfx_secondary;
 	bool isCore;
 	int16_t parentCore;
 	
@@ -246,7 +247,6 @@ public:
 	// place the enemy in line with Hero (red wizzrobes)
 	void place_on_axis(bool floater, bool solid_ok);
 	void update_enemy_frame();
-	int32_t wpnsfx(int32_t wpn);
 	int32_t n_frame_n_dir(int32_t frames, int32_t dir, int32_t f4);
 	void tiledir_small(int32_t ndir, bool fourdir);
 	void tiledir_three(int32_t ndir);

@@ -1419,6 +1419,7 @@ static constexpr script_variable variable_list[]=
 	
 	{ "NPCWEAPSPRITE", NPCWEAPSPRITE, 0}, //WeaponSprite
 	{ "NPCFIRESFX", NPCFIRESFX, 0}, //WeaponSFX
+	{ "NPCFIRESFXSECONDARY", NPCFIRESFXSECONDARY, 0}, //WeaponSecondarySFX
 
 	{"GAMENUMMESSAGES", GAMENUMMESSAGES, 0},
 	{"GAMESUBSCHEIGHT", GAMESUBSCHEIGHT, 0},
@@ -1509,6 +1510,7 @@ static constexpr script_variable variable_list[]=
 	{"NPCDATAFROZENTILE", NPCDATAFROZENTILE, 0},
 	{"NPCDATAFROZENCSET", NPCDATAFROZENCSET, 0},
 	{"NPCDATAFIRESFX", NPCDATAFIRESFX, 0 },
+	{"NPCDATAFIRESFXSECONDARY", NPCDATAFIRESFXSECONDARY, 0 },
 	{"NPCDATAFLAG", NPCDATAFLAG, 0 },
 	
 	//mapdata md->
@@ -4444,6 +4446,7 @@ std::optional<int> get_register_ref_dependency(int reg)
 		case NPCFALLCLK:
 		case NPCFALLCMB:
 		case NPCFIRESFX:
+		case NPCFIRESFXSECONDARY:
 		case NPCFLAGS:
 		case NPCFLASHINGCSET:
 		case NPCFLICKERCOLOR:
@@ -4539,6 +4542,7 @@ std::optional<int> get_register_ref_dependency(int reg)
 		case NPCDATAETILE:
 		case NPCDATAEWIDTH:
 		case NPCDATAFIRESFX:
+		case NPCDATAFIRESFXSECONDARY:
 		case NPCDATAFLAGS1:
 		case NPCDATAFLAGS2:
 		case NPCDATAFRAMERATE:

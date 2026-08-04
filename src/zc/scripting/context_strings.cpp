@@ -1039,6 +1039,7 @@ const char* scripting_get_zasm_register_context_string(int reg)
 		case NPCWEAPON: return "npc::Weapon";
 		case NPCWDP: return "npc::WeaponDamage";
 		case NPCFIRESFX: return "npc::WeaponSFX";
+		case NPCFIRESFXSECONDARY: return "npc::WeaponSecondarySFX";
 		case NPCWEAPSPRITE: return "npc::WeaponSprite";
 		case NPCDATAANIM: return "npcdata::Anim";
 		case NPCDATAATTRIBUTE: return "npcdata::Attributes[]";
@@ -1094,6 +1095,7 @@ const char* scripting_get_zasm_register_context_string(int reg)
 		case NPCDATAWEAPONINITD: return "npcdata::WeaponInitD[]";
 		case NPCDATAWMOVEFLAGS: return "npcdata::WeaponMoveFlags[]";
 		case NPCDATAFIRESFX: return "npcdata::WeaponSFX";
+		case NPCDATAFIRESFXSECONDARY: return "npcdata::WeaponSecondarySFX";
 		case NPCDATAWEAPONSCRIPT: return "npcdata::WeaponScript";
 		case NPCDATAWPNSPRITE: return "npcdata::WeaponSprite";
 		case NPCDATAWIDTH: return "npcdata::Width";

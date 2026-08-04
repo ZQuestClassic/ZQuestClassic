@@ -485,6 +485,15 @@ class npc {
 	// @zasm_var NPCFIRESFX
 	internal int WeaponSFX;
 
+	// The sfx (Quest->Audio->SFXData) used whenever the npc fires a weapon
+	// other than [npc::Weapon]. Only the 'Fire Octo' death effect does so, and
+	// the weapon it fires is [npc::Weapon] plus the 'Weapon Offset' attribute.
+	// If WeaponSecondarySFX <= 0 no sound will be played.
+	//
+	// @versionadded 3.0
+	// @zasm_var NPCFIRESFXSECONDARY
+	internal int WeaponSecondarySFX;
+
 	// @zasm_var NPCSCRDEFENSED
 	internal int ScriptDefense[];
 

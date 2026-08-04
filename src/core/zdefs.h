@@ -152,7 +152,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_ICONS            10 //Game Icons
 #define V_GRAPHICSPACK     1
 #define V_INITDATA        50
-#define V_GUYS            59
+#define V_GUYS            60
 #define V_GUYS_ZNPC_MIN   57 // .znpc files before this used a different field ordering
 #define V_MIDIS            5
 #define V_CHEATS           1
@@ -1171,6 +1171,8 @@ struct guydata
     int16_t frozenmisc[10];
     //v 34
     int16_t firesfx; //weapon fire (attack) sound
+    //v 60
+    int16_t firesfx_secondary; //fire sound for a weapon fired other than the enemy's own
     int32_t movement[32]; //Reserved for npc movement types and args. 
     int32_t new_weapon[32]; //Reserved for weapon patterns and args.
 	script_config scrconfig;
