@@ -3459,6 +3459,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 							string lbl = local_comboref.label.empty() ? "" : fmt::format("'{}' ", local_comboref.label);
 							ScriptDataDialog(fmt::format("Combo {}#{} Script Setup", lbl, index),
 								local_comboref.scrconfig, list_combscript, comboscripts).show();
+							loadComboType();
 						}
 					),
 					Checkbox(text = "Show Script Attrib Metadata",

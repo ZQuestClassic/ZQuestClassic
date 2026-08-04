@@ -2317,6 +2317,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 								ScriptDataDialog(fmt::format("Item '{}' #{} Action Script Setup ({})",
 									local_itemref.name, index, (local_itemref.flags & item_passive_script) ? "passive" : "active"),
 									local_itemref.scrconfig, list_itemdatscript, itemscripts).show();
+								loadItemClass();
 							}
 						),
 						Button(
@@ -2326,6 +2327,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 							{
 								ScriptDataDialog(fmt::format("Item '{}' #{} Pickup Script Setup", local_itemref.name, index),
 									local_itemref.collect_scrconfig, list_itemdatscript, itemscripts).show();
+								loadItemClass();
 							}
 						),
 						Button(
@@ -2335,6 +2337,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 							{
 								ScriptDataDialog(fmt::format("Item '{}' #{} Sprite Script Setup", local_itemref.name, index),
 									local_itemref.sprite_scrconfig, list_itemsprscript, itemspritescripts).show();
+								loadItemClass();
 							}
 						)
 					),
