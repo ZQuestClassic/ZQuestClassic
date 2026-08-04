@@ -107,6 +107,7 @@ void Window::calculateSize()
 		for(auto wid : wids)
 			if(wid > maxwid)
 				maxwid = wid;
+		maxwid += 12;
 		setPreferredWidth(Size::pixels(maxwid));
 		size_t height = content->getTotalHeight();
 		height += 30;

@@ -255,6 +255,7 @@ void Grid::calculateSize()
 	int32_t prefW = 0;
 	for(auto& cw: colWidths)
 		prefW += cw;
+	prefW += colSpacing * (numCols - 1);
 	for(auto& rw: rowWidths)
 	{
 		if(rw > prefW)
@@ -266,6 +267,7 @@ void Grid::calculateSize()
 	int32_t prefH = 0;
 	for(auto& rh: rowHeights)
 		prefH += rh;
+	prefH += rowSpacing * (numRows - 1);
 	for(auto& ch: colHeights)
 	{
 		if(ch > prefH)
