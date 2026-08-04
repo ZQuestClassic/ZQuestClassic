@@ -287,7 +287,7 @@ std::shared_ptr<GUI::Widget> SaveMenuDialog::view()
 							Label(text = "Text Align:", hAlign = 1.0),
 							DropDownList(data = list_aligns,
 								fitParent = true, selectedValue = local_ref.misc_texts[idx].text_align,
-								onSelectFunc = [&](int32_t val)
+								onSelectFunc = [&, idx](int32_t val)
 								{
 									local_ref.misc_texts[idx].text_align = val;
 								}),
@@ -327,7 +327,7 @@ std::shared_ptr<GUI::Widget> SaveMenuDialog::view()
 						TextField(
 							type = GUI::TextField::type::INT_DECIMAL, fitParent = true,
 							bounds = {0, 255}, val = local_ref.misc_texts[idx].x,
-							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+							onValChangedFunc = [&, idx](GUI::TextField::type,std::string_view,int32_t val)
 							{
 								local_ref.misc_texts[idx].x = val;
 							}),
@@ -336,7 +336,7 @@ std::shared_ptr<GUI::Widget> SaveMenuDialog::view()
 						TextField(
 							type = GUI::TextField::type::INT_DECIMAL, fitParent = true,
 							bounds = {0, 255}, val = local_ref.misc_texts[idx].y,
-							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+							onValChangedFunc = [&, idx](GUI::TextField::type,std::string_view,int32_t val)
 							{
 								local_ref.misc_texts[idx].y = val;
 							}),
