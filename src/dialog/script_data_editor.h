@@ -12,6 +12,7 @@
 #include <functional>
 #include <string_view>
 #include <array>
+#include "base/general.h"
 
 struct ExportWidgetData
 {
@@ -21,6 +22,8 @@ struct ExportWidgetData
 	std::function<void(int)> set_widg_val;
 	std::function<void(int)> set_arg;
 	exported_variable const* expdata = nullptr;
+	GUI::ListData list {};
+	std::vector<CheckListInfo> clist_info {};
 };
 
 class ScriptDataDialog: public GUI::Dialog<ScriptDataDialog>

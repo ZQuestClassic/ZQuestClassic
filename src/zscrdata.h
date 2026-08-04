@@ -32,6 +32,10 @@ template<typename T>
 void write_vec(vector<T> const& vec, FILE* f);
 template<typename T>
 void read_vec(vector<T>& vec, FILE* f);
+template<typename Tkey, typename Tval>
+void write_map(map<Tkey, Tval> const& mp, FILE* f);
+template<typename Tkey, typename Tval>
+void read_map(map<Tkey, Tval>& mp, FILE* f);
 template<uint_type Sz,typename T>
 inline void write_boundedcont(bounded_vec<Sz,T> const& cont, FILE *f);
 template<uint_type Sz,typename T>
@@ -70,6 +74,16 @@ inline void read_var(vector<T>& val, FILE *f)
 {
 	read_vec(val, f);
 }
+template<typename Tkey, typename Tval>
+inline void write_var(map<Tkey, Tval> const& val, FILE *f)
+{
+	write_map(val, f);
+}
+template<typename Tkey, typename Tval>
+inline void read_var(map<Tkey, Tval>& val, FILE *f)
+{
+	read_map(val, f);
+}
 template<uint_type Sz,typename T>
 inline void write_var(bounded_vec<Sz,T> const& val, FILE *f)
 {
@@ -107,6 +121,8 @@ inline void write_var(exported_variable const& val, FILE *f)
 	write_str(val.helptext, f);
 	write_var(val.btn_type, f);
 	write_var(word(val.engine_type), f);
+	write_var(byte(val.export_custom_type), f);
+	write_var(val.custom_export_names, f);
 	write_var(val.min, f);
 	write_var(val.max, f);
 }
@@ -116,6 +132,8 @@ inline void read_var(exported_variable& val, FILE *f)
 	read_str(val.helptext, f);
 	read_var(val.btn_type, f);
 	read_var((word&)(val.engine_type), f);
+	read_var((byte&)(val.export_custom_type), f);
+	read_var(val.custom_export_names, f);
 	read_var(val.min, f);
 	read_var(val.max, f);
 }
@@ -153,6 +171,33 @@ void read_vec(vector<T>& vec, FILE* f)
 	vec.clear();
 	for(size_t q = 0; q < sz; ++q)
 		read_var(vec.emplace_back(), f);
+}
+
+template<typename Tkey, typename Tval>
+void write_map(map<Tkey, Tval> const& mp, FILE* f)
+{
+	size_t sz = mp.size();
+	write_var(sz, f);
+	for (auto& [key, val] : mp)
+	{
+		write_var(key, f);
+		write_var(val, f);
+	}
+}
+template<typename Tkey, typename Tval>
+void read_map(map<Tkey, Tval>& mp, FILE* f)
+{
+	size_t sz;
+	read_var(sz, f);
+	mp.clear();
+	for (size_t q = 0; q < sz; ++q)
+	{
+		Tkey key;
+		Tval val;
+		read_var(key, f);
+		read_var(val, f);
+		mp[key] = val;
+	}
 }
 
 

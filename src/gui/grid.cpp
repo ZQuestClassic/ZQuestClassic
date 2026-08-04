@@ -419,5 +419,9 @@ std::map<size_t, std::shared_ptr<Widget>> Grid::get_children()
 {
 	return children;
 }
+size_t Grid::maxChildIndex() const
+{
+	return children.empty() ? 0 : children.rbegin()->first;
+}
 
 }

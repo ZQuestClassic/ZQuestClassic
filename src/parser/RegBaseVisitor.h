@@ -24,7 +24,9 @@ namespace ZScript
 		map<string, ASTAnnotation*> validate_annotation_keys(ASTAnnotationList& annot_list,
 			vector<string> const& expected, string const& object_type_name);
 		bool parse_annot_param_as(ASTAnnotation& annot, size_t idx, AnnotParam_Parsed& output,
-			AnnotParam_Parsed::Type ty);
+			AnnotParam_Parsed::Type ty, bool skip_invalid_error = false);
+		optional<AnnotParam_Parsed::Type> parse_annot_param_as(ASTAnnotation& annot, size_t idx, AnnotParam_Parsed& output,
+			vector<AnnotParam_Parsed::Type> const& tys, bool skip_invalid_error = false);
 		bool validate_annot_param_count(ASTAnnotation& annot, size_t min, optional<size_t> max = nullopt);
 		bool validate_annot_exclusions(string const& key, map<string, ASTAnnotation*> const& annots,
 			vector<string> const& bad_keys);

@@ -70,6 +70,7 @@ public:
 	void arrange(int32_t contX, int32_t contY, int32_t contW, int32_t contH) override;
 	void realize(DialogRunner& runner) override;
 	std::map<size_t, std::shared_ptr<Widget>> get_children();
+	size_t maxChildIndex() const;
 private:
 	//std::vector<std::shared_ptr<Widget>> children;
 	std::vector<int32_t> rowWidths, colWidths, rowHeights, colHeights;
@@ -81,10 +82,6 @@ private:
 	type growthType;
 	size_t size1, size2;
 	
-	size_t maxChildIndex() const
-	{
-		return children.empty() ? 0 : children.rbegin()->first;
-	}
 	size_t get_index(size_t row, size_t col) const;
 	size_t get_row(size_t index) const;
 	size_t get_col(size_t index) const;
