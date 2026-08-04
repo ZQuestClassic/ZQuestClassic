@@ -551,7 +551,27 @@ static void render_tree_draw_item(RenderTreeItem* rti, bool do_a4_only)
 
 	for (auto rti_child : rti->get_children())
 	{
-		render_tree_draw_item(rti_child, do_a4_only);
+		// Only the on-screen pass draws anything the clip could apply to.
+		if (!do_a4_only && rti_child->clip_to_parent && rti->bitmap)
+		{
+			int cx, cy, cw, ch;
+			al_get_clipping_rectangle(&cx, &cy, &cw, &ch);
+
+			// The same corner mapping the draw above uses for the parent's own rect.
+			auto& matrix = rti->get_transform_matrix();
+			auto [x0, y0] = matrix.apply(0, 0);
+			auto [x1, y1] = matrix.apply(al_get_bitmap_width(rti->bitmap), al_get_bitmap_height(rti->bitmap));
+
+			int nx0 = std::max(cx, x0);
+			int ny0 = std::max(cy, y0);
+			int nx1 = std::min(cx + cw, x1);
+			int ny1 = std::min(cy + ch, y1);
+			al_set_clipping_rectangle(nx0, ny0, std::max(0, nx1 - nx0), std::max(0, ny1 - ny0));
+			render_tree_draw_item(rti_child, do_a4_only);
+			al_set_clipping_rectangle(cx, cy, cw, ch);
+		}
+		else
+			render_tree_draw_item(rti_child, do_a4_only);
 	}
 }
 

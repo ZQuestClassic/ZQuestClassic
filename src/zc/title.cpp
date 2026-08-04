@@ -278,6 +278,9 @@ static RenderTreeItem* get_logo()
 		// Under a CRT filter, composite at the bitmap's own resolution rather than being
 		// baked into the (chunky) game-resolution layer.
 		rti_logo.fullres_overlay = true;
+		// The crawl starts below the game viewport - mask it until it enters, rather than
+		// letting it ride up over the letterbox border.
+		rti_logo.clip_to_parent = true;
 		rti_game.add_child(&rti_logo);
 	}
 
@@ -1702,6 +1705,8 @@ static void actual_titlescreen()
 		rti_sword.freeze = true;
 		rti_sword.visible = false;
 		rti_sword.fullres_overlay = true;
+		// Thrusts in from off screen left - keep it masked until it crosses into the viewport.
+		rti_sword.clip_to_parent = true;
 		// Behind the base logo, so the blade passes under the letters.
 		rti_game.add_child_before(&rti_sword, logo);
 

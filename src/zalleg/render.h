@@ -163,6 +163,10 @@ public:
 	// Optional non-affine warp appended to world_to_local, in normalized [0,1] local space.
 	// Lets mouse coordinates track a shader that spatially distorts this item (e.g. CRT curvature).
 	std::function<std::pair<double, double>(double u, double v)> uv_warp;
+	// Confine this child to its parent's on-screen rect. The shader paths (baking, overlay)
+	// already do this by construction, but a plain child is drawn straight to the screen and
+	// can spill past its parent - the title logo painting over the letterbox borders.
+	bool clip_to_parent = false;
 
 	RenderTreeItem(std::string name, RenderTreeItem* parent = nullptr);
 	virtual ~RenderTreeItem();
