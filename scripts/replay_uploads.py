@@ -215,6 +215,10 @@ def run_replays_process(args):
     if test_results_folder.exists():
         shutil.rmtree(test_results_folder)
     test_results_folder.parent.mkdir(parents=True, exist_ok=True)
+    # There can be hundreds of replay paths here, which blows past Windows'
+    # ~32k command line limit, so pass them in a response file instead.
+    args_path = test_results_folder.parent / 'replay_uploads_args.txt'
+    args_path.write_text('\n'.join(str(arg) for arg in args))
     subprocess.run(
         [
             sys.executable,
@@ -223,7 +227,7 @@ def run_replays_process(args):
             test_results_folder,
             '--root_replays_folder',
             replays_dir,
-            *args,
+            f'@{args_path}',
         ]
     )
     test_results_json = json.loads(
