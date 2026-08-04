@@ -108,7 +108,10 @@ ASSERT_FAILED_EXIT_CODE = 120
 if os.name == 'nt':
     sys.stdout.reconfigure(encoding='utf-8')
 
-parser = argparse.ArgumentParser()
+# fromfile_prefix_chars lets callers pass "@some/file.txt" (one argument per
+# line) instead of spelling every argument out. Necessary when running hundreds
+# of replays by path: Windows caps a command line at ~32k characters.
+parser = argparse.ArgumentParser(fromfile_prefix_chars='@')
 parser.add_argument(
     '--build_folder',
     type=dir_path,
