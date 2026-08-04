@@ -119,6 +119,27 @@ static optional<int8_t> annot_param_check_swaptype(AnnotData& data, size_t param
 			data.key, param_idx, pdata.strval), data.location);
 	return nullopt;
 }
+static bool annot_check_type(AnnotData const& data, size_t idx, vector<AnnotationParamType> const& signature)
+{
+	auto ty = ANNTY_NONE;
+	if (idx < data.params.size())
+		ty = data.params[idx].type;
+	if (util::contains(signature, ty))
+		return true;
+	string s;
+	if (signature.size() == 1)
+		s = fmt::format("type '{}'", annot_tys[signature[0]]);
+	else
+	{
+		vector<string> tynames;
+		for (auto ty : signature)
+			tynames.push_back(annot_tys[ty]);
+		s = fmt::format("one of types '{}'", fmt::join(tynames, ", "));
+	}
+	annot_errstr(fmt::format("ERROR: Bad Annotation Value: @{} expects parameter {} to be {}, not type '{}'",
+		data.key, idx, s, annot_tys[ty]), data.location);
+	return false;
+}
 static bool annot_sig_check(AnnotData const& data, vector<vector<AnnotationParamType>> signature)
 {
 	size_t max = signature.size();
@@ -177,23 +198,8 @@ static bool annot_sig_check(AnnotData const& data, vector<vector<AnnotationParam
 	{
 		for (size_t idx = 0; idx < sz; ++idx)
 		{
-			auto& pdata = data.params[idx];
-			auto& sigvec = signature[idx];
-			if (util::contains(sigvec, pdata.type))
-				continue;
-			string s;
-			if (sigvec.size() == 1)
-				s = fmt::format("type '{}'", annot_tys[sigvec[0]]);
-			else
-			{
-				vector<string> tynames;
-				for (auto ty : sigvec)
-					tynames.push_back(annot_tys[ty]);
-				s = fmt::format("one of types '{}'", fmt::join(tynames, ", "));
-			}
-			annot_errstr(fmt::format("ERROR: Bad Annotation Value: @{} expects parameter {} to be {}, not type '{}'",
-				data.key, idx, s, annot_tys[pdata.type]), data.location);
-			return false;
+			if (!annot_check_type(data, idx, signature[idx]))
+				return false;
 		}
 	}
 	return true;
@@ -780,7 +786,9 @@ Annotated_Data :
 		ASTDataDeclList* decl = (ASTDataDeclList*)$2;
 		handle_annotations(list, [&](AnnotData& data, map<string, std::set<string>>& excl_keys)
 		{
+			auto num_params = data.params.size();
 			auto& key = data.key;
+			auto& expdata = decl->export_data;
 			if (key == "Export")
 			{
 				if (annot_sig_check(data,
@@ -794,21 +802,21 @@ Annotated_Data :
 					if (sz >= 3)
 					{
 						if (auto v = annot_param_check_swaptype(data, 2))
-							decl->export_data.btn_type = *v;
+							expdata.btn_type = *v;
 					}
 					
 					if (sz >= 2)
 					{
 						auto& param = data.params[1];
 						annot_trunc_str(param.val, 65535);
-						decl->export_data.helptext = param.val;
+						expdata.helptext = param.val;
 					}
 					
 					// if (sz >= 1)
 					{
 						auto& param = data.params[0];
 						annot_trunc_str(param.unescaped_val, 255);
-						decl->export_data.name = param.unescaped_val;
+						expdata.name = param.unescaped_val;
 					}
 					
 					decl->was_exported = true;
@@ -833,13 +841,15 @@ Annotated_Data :
 					}
 					else
 					{
-						decl->export_data.min = min;
-						decl->export_data.max = max;
+						expdata.min = min;
+						expdata.max = max;
 					}
 					
 					decl->was_range_exported = true;
 				}
 				excl_keys["ExportEngineValue"].insert(key);
+				excl_keys["ExportDropdown"].insert(key);
+				excl_keys["ExportBitflags"].insert(key);
 				return true;
 			}
 			else if (key == "ExportEngineValue")
@@ -857,7 +867,7 @@ Annotated_Data :
 						}
 					}
 					if (idx != special_engine_export::none)
-						decl->export_data.engine_type = idx;
+						expdata.engine_type = idx;
 					else
 					{
 						annot_errstr(fmt::format("ERROR: Bad Annotation Value: @{} got value"
@@ -866,6 +876,153 @@ Annotated_Data :
 					}
 				}
 				excl_keys["ExportRange"].insert(key);
+				excl_keys["ExportDropdown"].insert(key);
+				excl_keys["ExportBitflags"].insert(key);
+				return true;
+			}
+			else if (key == "ExportDropdown" || key == "ExportBitflags" || key == "ExportLongBitflags")
+			{
+				std::set<string> other_keys = {"ExportDropdown", "ExportBitflags","ExportLongBitflags"};
+				other_keys.erase(key);
+				
+				zfix list_key = 0;
+				if (key == "ExportDropdown")
+					expdata.export_custom_type = var_custom_export_type::custom_dropdown;
+				else if (key == "ExportBitflags")
+				{
+					expdata.export_custom_type = var_custom_export_type::custom_bitflags;
+					list_key = 1;
+				}
+				else if (key == "ExportLongBitflags")
+				{
+					expdata.export_custom_type = var_custom_export_type::custom_long_bitflags;
+					list_key.val = 1;
+				}
+				
+				excl_keys["ExportRange"].insert(key);
+				excl_keys["ExportEngineValue"].insert(key);
+				for (auto& other : other_keys)
+					excl_keys[other].insert(key);
+				
+				if (!num_params)
+				{
+					switch (expdata.export_custom_type)
+					{
+						case var_custom_export_type::custom_dropdown:
+							annot_errstr(fmt::format("ERROR: Bad Annotation Value: @{} expects at least 1 parameter!",
+								data.key), data.location);
+							break;
+						case var_custom_export_type::custom_bitflags:
+						{
+							for (int q = 0; q < 18; ++q)
+								expdata.custom_export_names[zfix(1 << q)] = to_string(q);
+							break;
+						}
+						case var_custom_export_type::custom_long_bitflags:
+						{
+							for (int q = 0; q < 32; ++q)
+								expdata.custom_export_names[zslongToFix(1 << q)] = to_string(q);
+							break;
+						}
+					}
+					return true;
+				}
+				if (data.params.back().type != ANNTY_STR)
+				{
+					annot_errstr(fmt::format("ERROR: Bad Annotation Value: @{} expects last parameter to be type {}!",
+						data.key, annot_tys[ANNTY_STR]), data.location);
+					return true;
+				}
+				
+				bool was_int = false;
+				for (size_t idx = 0; idx < num_params; ++idx)
+				{
+					if (!annot_check_type(data, idx, {ANNTY_INT, ANNTY_STR}))
+						return true;
+					auto& param = data.params[idx];
+					if (param.type == ANNTY_INT)
+					{
+						if (was_int)
+						{
+							annot_errstr(fmt::format("ERROR: Bad Annotation Value: @{} cannot accept multiple {} parameters in a row!",
+								data.key, annot_tys[ANNTY_INT]), data.location);
+						}
+						list_key = param.intval;
+						
+						if (expdata.export_custom_type == var_custom_export_type::custom_dropdown)
+							;
+						else
+						{
+							int v = list_key.val;
+							string sval;
+							
+							bool is_long = expdata.export_custom_type == var_custom_export_type::custom_long_bitflags;
+							bool dec_fail = false;
+							
+							if (is_long)
+								sval = to_string(v);
+							else
+							{
+								if (v % 10000L)
+									dec_fail = true;
+								v /= 10000L;
+								sval = list_key.str();
+							}
+							
+							int count = 0;
+							if (!dec_fail)
+								while (v)
+								{
+									if (v & 1)
+										++count;
+									v >>= 1;
+								}
+							
+							if (count != 1 || dec_fail)
+							{
+								annot_errstr(fmt::format("ERROR: Bad Annotation Value: @{} requires"
+									" power-of-2 values, found bad value {}!",
+									data.key, sval), data.location);
+								break; // continuing here is likely to cause garbage errors
+							}
+						}
+						was_int = true;
+					}
+					else if (param.type == ANNTY_STR)
+					{
+						if (expdata.custom_export_names.contains(list_key))
+						{
+							annot_errstr(fmt::format("ERROR: Bad Annotation Value: @{} found multiple strings for value {}!",
+								data.key, list_key), data.location);
+						}
+						else
+							expdata.custom_export_names[list_key] = param.unescaped_val;
+						
+						bool overflow = false;
+						switch (expdata.export_custom_type)
+						{
+							case var_custom_export_type::custom_dropdown:
+								list_key += 1;
+								break;
+							case var_custom_export_type::custom_bitflags:
+								overflow = list_key >= 0b100000000000000000;
+								list_key <<= 1;
+								break;
+							case var_custom_export_type::custom_long_bitflags:
+								overflow = list_key.val >= 0b10000000000000000000000000000000;
+								list_key.val <<= 1;
+								break;
+						}
+						if (overflow && (idx + 1) < num_params)
+						{
+							annot_errstr(fmt::format("ERROR: Bad Annotation Value: @{}"
+								" overflowed the available number of bits!",
+								data.key), data.location);
+							break;
+						}
+						was_int = false;
+					}
+				}
 				return true;
 			}
 			return false;

@@ -204,7 +204,8 @@ std::shared_ptr<GUI::Widget> ScriptDataDialog::view()
 				auto idx = widget_data.index;
 				specified_args[local_ref.script].set(idx, false);
 				args[idx] = scrdata->script_d_init.get(idx);
-				widget_data.set_widg_val(args[idx]);
+				if (widget_data.set_widg_val)
+					widget_data.set_widg_val(args[idx]);
 				widget_data.reset_button->setVisible(false);
 			};
 			for (auto const& [idx, expdata] : scrdata->script_d_exports.inner())
@@ -220,6 +221,11 @@ std::shared_ptr<GUI::Widget> ScriptDataDialog::view()
 				auto& widget_data = export_widgets[idx];
 				widget_data.index = idx;
 				widget_data.expdata = &expdata;
+				auto info_btn = INFOBTN_T_EX(expdata.name, expdata.helptext,
+					disabled = expdata.helptext.empty(),
+					padding = 0_px,
+					width = 24_px, height = 24_px
+				);
 				auto reset_btn = Button(
 					padding = 0_px, rightPadding = 12_px,
 					width = 24_px, height = 24_px,
@@ -240,10 +246,8 @@ std::shared_ptr<GUI::Widget> ScriptDataDialog::view()
 					specified_args[local_ref.script].set(idx, true);
 				};
 				widget_data.set_arg = set_arg;
-				instvar_grid->add(Label(
-					text = expdata.name, hAlign = 1.0
-				));
-				instvar_grid->add(expdata.helptext.empty() ? DINFOBTN() : INFOBTN(expdata.helptext));
+				instvar_grid->add(Label(text = expdata.name, hAlign = 1.0));
+				instvar_grid->add(info_btn);
 				byte swp = nswapDEC;
 				if (unsigned(expdata.btn_type) < nswapMAX)
 					swp = expdata.btn_type;
@@ -452,6 +456,109 @@ std::shared_ptr<GUI::Widget> ScriptDataDialog::view()
 						}
 					}
 				}
+				else if (expdata.export_custom_type != var_custom_export_type::none)
+				{
+					bool is_long = false;
+					switch (expdata.export_custom_type)
+					{
+						case var_custom_export_type::custom_dropdown:
+						{
+							auto& ld = widget_data.list;
+							map<string, zfix> vals;
+							
+							// Build out the custom list data
+							bool decimal = false;
+							size_t digits = 1;
+							for (auto& [val, str] : expdata.custom_export_names)
+							{
+								if (val % 1_zf)
+								{
+									decimal = true;
+									break; // decimal negates the need for any of the other info
+								}
+								auto length = val.str_trim().size();
+								if (digits < length)
+									digits = length;
+							}
+							
+							for (auto& [val, str] : expdata.custom_export_names)
+							{
+								string key;
+								if (decimal)
+									key = fmt::format("{} ({})", str, val);
+								else
+									key = fmt::format("{} ({:0{}})", str, val.getInt(), digits);
+								vals[key] = val;
+							}
+							
+							for(auto& [name, val] : vals)
+								ld.add(name, val);
+							
+							auto ddl = DropDownList(
+								fitParent = true, width = 200_px,
+								data = ld,
+								selectedValue = args[idx],
+								onSelectFunc = [&, set_arg](int32_t val)
+								{
+									set_arg(val);
+								}
+							);
+							widget_data.main_widget = ddl;
+							widget_data.set_widg_val = [&, ddl](int val)
+								{
+									ddl->setSelectedValue(val);
+								};
+							instvar_grid->add(ddl);
+							break;
+						}
+						
+						case var_custom_export_type::custom_long_bitflags:
+							is_long = true;
+						[[fallthrough]];
+						case var_custom_export_type::custom_bitflags:
+						{
+							auto& clist = widget_data.clist_info;
+							
+							int numbits = is_long ? 32 : 18;
+							int queued_blanks = 0;
+							for (int q = 0; q < numbits; ++q)
+							{
+								zfix v = is_long ? zslongToFix(1 << q) : zfix(1 << q);
+								
+								if (expdata.custom_export_names.contains(v))
+								{
+									if (queued_blanks)
+									{
+										clist.insert(clist.end(), queued_blanks, {CheckListInfo::DISABLED, "--"});
+										queued_blanks = 0;
+									}
+									
+									clist.emplace_back(expdata.custom_export_names.at(v));
+								}
+								else
+									++queued_blanks;
+							}
+							if (clist.empty())
+								clist.emplace_back(CheckListInfo::DISABLED, "No Flags Found");
+							
+							auto btn = Button(text = "P",
+								hAlign = 0.0, padding = 0_px,
+								width = 24_px, height = 24_px,
+								onPressFunc = [&, idx, set_arg]()
+								{
+									int flags = args[idx];
+									if (!call_checklist_dialog(fmt::format("Select '{}'", expdata.name),
+										export_widgets[idx].clist_info, flags))
+										return;
+									set_arg(flags);
+								}
+							);
+							widget_data.main_widget = btn;
+							instvar_grid->add(btn);
+							break;
+						}
+					}
+				}
 				else if (expdata.min == 0_zf && expdata.max == 0.0001_zf && swp == nswapBOOL)
 				{
 					// Checkbox input
@@ -490,6 +597,7 @@ std::shared_ptr<GUI::Widget> ScriptDataDialog::view()
 					instvar_grid->add(tf);
 				}
 				instvar_grid->add(reset_btn);
+				DCHECK((instvar_grid->maxChildIndex()+1) % 4 == 0);
 			}
 		}
 	}
@@ -501,7 +609,7 @@ std::shared_ptr<GUI::Widget> ScriptDataDialog::view()
 			bad_idxs.insert(idx);
 	}
 	if (added_idxs.empty())
-		instvar_grid->add(Label(text = "No exported Instance Variables.", colSpan = 3));
+		instvar_grid->add(Label(text = "No exported Instance Variables.", colSpan = 4));
 	if (!bad_idxs.empty())
 	{
 		bool singular = bad_idxs.size() == 1;

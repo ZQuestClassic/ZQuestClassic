@@ -591,6 +591,15 @@ enum class special_engine_export : uint16_t
 	
 	max_value
 };
+enum class var_custom_export_type : uint8_t
+{
+	none,
+	custom_dropdown,
+	custom_bitflags,
+	custom_long_bitflags,
+	
+	max_value
+};
 extern const std::array<std::string, size_t(special_engine_export::max_value)> special_engine_export_names;
 std::string get_special_engine_export_name(special_engine_export idx);
 
@@ -601,6 +610,8 @@ struct exported_variable
 	// -1 = unset; defaulted from the variable's type at compile time.
 	int8_t btn_type = -1;
 	special_engine_export engine_type = special_engine_export::none;
+	var_custom_export_type export_custom_type = var_custom_export_type::none;
+	std::map<zfix, std::string> custom_export_names {};
 	zfix min = -214748.3648_zf, max = 214748.3647_zf;
 	bool operator==(const exported_variable& other) const = default;
 };

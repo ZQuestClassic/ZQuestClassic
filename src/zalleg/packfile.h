@@ -541,6 +541,14 @@ inline bool p_putvar(T const& ptr, PACKFILE *f)
 	return pfwrite((char const*)&ptr, sizeof(T), f);
 }
 
+inline bool p_getvar(zfix* ptr, PACKFILE *f)
+{
+	return p_igetzf(ptr, f);
+}
+inline bool p_putvar(zfix const& ptr, PACKFILE *f)
+{
+	return p_iputzf(ptr, f);
+}
 
 template<uint_type Sz,typename T>
 inline bool p_getvar(bounded_vec<Sz,T>* ptr, PACKFILE *f)
@@ -662,6 +670,10 @@ inline bool p_getvar(exported_variable* ptr, PACKFILE *f)
 	{
 		if (!p_igetw(&ptr->engine_type, f))
 			return false;
+		if (!p_getc(&ptr->export_custom_type, f))
+			return false;
+		if (!p_getwmap(&ptr->custom_export_names, f))
+			return false;
 	}
 	if (!p_igetzf(&ptr->min, f))
 		return false;
@@ -678,6 +690,10 @@ inline bool p_putvar(exported_variable const& ptr, PACKFILE *f)
 	if (!p_putc(ptr.btn_type, f))
 		return false;
 	if (!p_iputw(word(ptr.engine_type), f))
+		return false;
+	if (!p_putc(byte(ptr.export_custom_type), f))
+		return false;
+	if (!p_putwmap(ptr.custom_export_names, f))
 		return false;
 	if (!p_iputzf(ptr.min, f))
 		return false;

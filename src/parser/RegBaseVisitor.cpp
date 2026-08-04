@@ -15,21 +15,43 @@ RegBaseVisitor::RegBaseVisitor(Program& program)
 	: RecursiveVisitor(program)
 {}
 
+static string var_custom_export_type_name(var_custom_export_type val)
+{
+	switch (val)
+	{
+		case var_custom_export_type::custom_dropdown:
+			return "ExportDropdown";
+		case var_custom_export_type::custom_bitflags:
+			return "ExportBitflags";
+		case var_custom_export_type::custom_long_bitflags:
+			return "ExportLongBitflags";
+	}
+	return "";
+}
 void RegBaseVisitor::handle_data_decl_registry(ASTDataDecl& host)
 {
 	auto* list = host.list;
 	DataType const* type = host.resolve_ornull(scope, this);
 	assert(type);
 	
-	if (list && list->was_range_exported && !list->was_exported)
+	if (list && !list->was_exported)
 	{
-		handleError(CompileError::ExportError(&host, "@ExportRange() requires @Export() to function!"));
-		list->was_range_exported = false;
-	}
-	if (list && list->export_data.engine_type != special_engine_export::none && !list->was_exported)
-	{
-		handleError(CompileError::ExportError(&host, "@ExportEngineValue() requires @Export() to function!"));
-		list->export_data.engine_type = special_engine_export::none;
+		if (list->was_range_exported)
+		{
+			handleError(CompileError::ExportError(&host, "@ExportRange() requires @Export() to function!"));
+			list->was_range_exported = false;
+		}
+		if (list->export_data.engine_type != special_engine_export::none)
+		{
+			handleError(CompileError::ExportError(&host, "@ExportEngineValue() requires @Export() to function!"));
+			list->export_data.engine_type = special_engine_export::none;
+		}
+		if (list->export_data.export_custom_type != var_custom_export_type::none)
+		{
+			handleError(CompileError::ExportError(&host, fmt::format("@{}() requires @Export() to function!",
+				var_custom_export_type_name(list->export_data.export_custom_type))));
+			list->export_data.export_custom_type = var_custom_export_type::none;
+		}
 	}
 	
 	// Don't allow void type.
@@ -154,8 +176,10 @@ void RegBaseVisitor::handle_data_decl_registry(ASTDataDecl& host)
 			handleError(CompileError::ExportError(&host, fmt::format("@Export is incompatible with type '{}'", type->getName())));
 			return;
 		}
-
+		
 		bool special_export = list->export_data.engine_type != special_engine_export::none;
+		bool custom_export = list->export_data.export_custom_type != var_custom_export_type::none;
+		
 		if (type->isBool())
 		{
 			// Mark bool exports as checkboxes!
@@ -174,13 +198,32 @@ void RegBaseVisitor::handle_data_decl_registry(ASTDataDecl& host)
 				list->export_data.engine_type = special_engine_export::none;
 				special_export = false;
 			}
-		}
-		else if (special_export && list->export_data.btn_type > -1)
-		{
-			handleError(CompileError::ExportError(&host, "@ExportEngineValue() is incompatible with specified button types in @Export()!"));
+			if (custom_export)
+			{
+				handleError(CompileError::ExportError(&host, fmt::format("@{}() is incompatible with 'bool' variables!",
+					var_custom_export_type_name(list->export_data.export_custom_type))));
+				list->export_data.export_custom_type = var_custom_export_type::none;
+				custom_export = false;
+			}
 		}
 		
-		if (special_export)
+		if (special_export && custom_export)
+		{
+			handleError(CompileError::ExportError(&host, fmt::format("@ExportEngineValue() is incompatible with @{}()!",
+				var_custom_export_type_name(list->export_data.export_custom_type))));
+			return;
+		}
+		
+		if (list->export_data.btn_type > -1)
+		{
+			if (special_export)
+				handleError(CompileError::ExportError(&host, "@ExportEngineValue() is incompatible with specified button types in @Export()!"));
+			if (custom_export)
+				handleError(CompileError::ExportError(&host, fmt::format("@{}() is incompatible with specified button types in @Export()!",
+					var_custom_export_type_name(list->export_data.export_custom_type))));
+		}
+		
+		if (special_export || custom_export)
 			list->export_data.btn_type = nswapDEC; // set to a valid value, although shouldn't matter
 		else if (list->export_data.btn_type < 0)
 		{
