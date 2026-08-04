@@ -59,6 +59,8 @@ replays_dir = root_dir / 'tests' / 'replays'
 # name -> (jit, precompile, optimize_zasm)
 MODES = {
     'jit': dict(jit=True, precompile=True, optimize=True),
+    'jit-nodirect': dict(jit=True, precompile=True, optimize=True,
+                         extra=['-no-jit-direct-calls']),
     'nojit': dict(jit=False, precompile=False, optimize=True),
     'nojit-noopt': dict(jit=False, precompile=False, optimize=False),
 }
@@ -201,6 +203,7 @@ def build_flags(mode: dict, args) -> list:
     # Per-frame processing cost distribution. (On web this dumps a line per slow
     # frame to the console at exit, but that's post-run so it doesn't skew timing.)
     flags += ['-frame-timings']
+    flags += mode.get('extra', [])
     return flags
 
 
@@ -209,13 +212,24 @@ def _execute_and_parse(cmd: list, log_path: Path, result_path: Path, args) -> di
     # Clear any stale result so a failed run doesn't read the previous attempt's numbers.
     result_path.unlink(missing_ok=True)
 
+    # The engine's timing summaries go through al_trace, which on Windows writes
+    # only to the trace file - never to stdout. Point it at a per-run file (the
+    # engine opens it in append mode, so clear it first) and parse both.
+    trace_path = log_path.with_suffix('.trace.log')
+    trace_path.unlink(missing_ok=True)
+    env = {**os.environ, 'ALLEGRO_LEGACY_TRACE': str(trace_path)}
+
     start = time.perf_counter()
     timed_out = False
     returncode = None
     with open(log_path, 'wb') as log:
         try:
             proc = subprocess.run(
-                cmd, stdout=log, stderr=subprocess.STDOUT, timeout=args.max_seconds
+                cmd,
+                stdout=log,
+                stderr=subprocess.STDOUT,
+                timeout=args.max_seconds,
+                env=env,
             )
             returncode = proc.returncode
         except subprocess.TimeoutExpired:
@@ -223,6 +237,8 @@ def _execute_and_parse(cmd: list, log_path: Path, result_path: Path, args) -> di
     wall_ms = (time.perf_counter() - start) * 1000
 
     log_text = log_path.read_text(errors='replace')
+    if trace_path.exists():
+        log_text += trace_path.read_text(errors='replace')
     result = parse_result_file(result_path)
     precompile_match = RE_PRECOMPILE.search(log_text)
     load_match = RE_LOAD.search(log_text)
