@@ -23,6 +23,7 @@ struct Transform
 	float yscale = 1;
 };
 
+// Row-major 3x3. In practice only translation and scale ever occur (see Transform).
 struct Matrix
 {
 	static Matrix Identity()
@@ -36,10 +37,6 @@ struct Matrix
 	static Matrix Scale(float w, float h)
 	{
 		return {.d {{w, 0, 0}, {0, h, 0}, {0, 0, 1}}};
-	}
-	static Matrix Rotate(double radians)
-	{
-		return {.d {{(float)cos(radians), (float)sin(radians), 0}, {(float)-sin(radians), (float)cos(radians), 0}, {0, 0, 1}}};
 	}
 
 	float d[3][3];
@@ -100,30 +97,6 @@ struct Matrix
 		r.d[2][1] = (d[2][0] * d[0][1] - d[0][0] * d[2][1]) * invdet;
 		r.d[2][2] = (d[0][0] * d[1][1] - d[1][0] * d[0][1]) * invdet;
 		return r;
-	}
-
-	ALLEGRO_TRANSFORM to_allegro_transform()
-	{
-		// Our transform is different from Allegro's.
-		// Transpose it, and add a third spatial dimension.
-		ALLEGRO_TRANSFORM t;
-
-		for (int i = 0; i < 3; i++) {
-			for (int j = 0; j < 3; j++) {
-				t.m[i][j] = d[j][i];
-			}
-		}
-
-		t.m[3][0] = t.m[2][0];
-		t.m[3][1] = t.m[2][1];
-		t.m[3][2] = 0;
-		t.m[3][3] = t.m[2][2];
-		t.m[2][0] = 0;
-		t.m[2][1] = 0;
-		t.m[2][2] = 1;
-		t.m[2][3] = 0;
-
-		return t;
 	}
 };
 
@@ -227,21 +200,6 @@ private:
 	void mark_transform_dirty();
 };
 
-class CustomRTI : public RenderTreeItem
-{
-public:
-	CustomRTI(std::string name) : RenderTreeItem(name) {}
-	CustomRTI(std::string name, std::function<void()> prepare_cb, std::function<void()> render_cb);
-	~CustomRTI();
-
-	std::function<void()> prepare_cb;
-	std::function<void()> render_cb;
-
-protected:
-	void prepare();
-	void render(bool);
-};
-
 class LegacyBitmapRTI : public RenderTreeItem
 {
 public:
@@ -301,7 +259,6 @@ extern BITMAP* zqdialog_bg_bmp;
 extern ALLEGRO_COLOR* override_dlg_tint;
 void zqdialog_set_skiptint(bool skipTint);
 void zqdialog_name(string const& name);
-void zqdialog_tag(uint tagid);
 void zqdialog_freeze(bool frozen);
 void get_zqdialog_xy(int& x, int& y);
 void on_zqdialog_close(std::function<void()>&& proc);

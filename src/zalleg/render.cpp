@@ -26,7 +26,7 @@ void RenderTreeItem::add_child(RenderTreeItem* child)
 		child->parent->remove_child(child);
 	children.push_back(child);
 	child->parent = this;
-	child->transform_dirty = true;
+	child->mark_transform_dirty();
 }
 void RenderTreeItem::add_child_before(RenderTreeItem* child, RenderTreeItem* before_child)
 {
@@ -38,7 +38,7 @@ void RenderTreeItem::add_child_before(RenderTreeItem* child, RenderTreeItem* bef
 	children.insert(it, child);
 	child->parent = this;
 	if (!already_child)
-		child->transform_dirty = true;
+		child->mark_transform_dirty();
 }
 void RenderTreeItem::remove_child(RenderTreeItem* child)
 {
@@ -47,7 +47,7 @@ void RenderTreeItem::remove_child(RenderTreeItem* child)
 	{
 		children.erase(it);
 		child->parent = nullptr;
-		child->transform_dirty = true;
+		child->mark_transform_dirty();
 	}
 }
 void RenderTreeItem::remove_children()
@@ -223,10 +223,9 @@ RenderTreeItem::~RenderTreeItem()
 	}
 	for(RenderTreeItem* child : children)
 	{
-		if(owned || child->owned)
-		{
+		child->parent = nullptr;
+		if (child->owned)
 			delete child;
-		}
 	}
 }
 
@@ -641,12 +640,6 @@ bool render_get_debug()
 void RenderTreeItem::prepare() {}
 void RenderTreeItem::render(bool) {}
 
-// void CustomRTI::render(bool bitmap_resized)
-// {
-	
-// }
-
-
 LegacyBitmapRTI::LegacyBitmapRTI(std::string name, RenderTreeItem* parent) : RenderTreeItem(name, parent) {}
 
 LegacyBitmapRTI::~LegacyBitmapRTI()
@@ -789,11 +782,6 @@ void zqdialog_name(string const& name)
 	if(active_dlg_rti)
 		active_dlg_rti->name = name;
 }
-void zqdialog_tag(uint tagid)
-{
-	if(active_dlg_rti)
-		active_dlg_rti->type = tagid;
-}
 void zqdialog_freeze(bool frozen)
 {
 	if(active_dlg_rti)
@@ -830,7 +818,7 @@ static RenderTreeItem* get_active_dialog(bool forTint = false)
 		auto child = *it;
 		if(forTint && child->skip_tint)
 			continue;
-		if(child->name != "tint")
+		if(child != &rti_tint)
 			return child;
 	}
 	return nullptr;
