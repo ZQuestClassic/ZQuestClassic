@@ -2783,6 +2783,12 @@ void HeroClass::position_hammer_for_triggers()
 }
 void HeroClass::draw(BITMAP* dest)
 {
+	do_primitives(dest, SPLAYER_SPRITE_TARGET_UNDER, getUID());
+	ScopeExitHandler exit_handler([&]()
+	{
+		do_primitives(dest, SPLAYER_SPRITE_TARGET_OVER, getUID());
+	});
+	
 	do_primitives(dest, SPLAYER_UNDER_PLAYER_DRAW);
 	int32_t oxofs = xofs, oyofs = yofs;
 	bool invisible = invis_timer || (hero_scr->flags3&fINVISHERO);

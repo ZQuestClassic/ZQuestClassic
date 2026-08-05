@@ -308,6 +308,12 @@ bool item::animate(int32_t)
 
 void item::draw(BITMAP *dest)
 {
+	do_primitives(dest, SPLAYER_SPRITE_TARGET_UNDER, getUID());
+	ScopeExitHandler exit_handler([&]()
+	{
+		do_primitives(dest, SPLAYER_SPRITE_TARGET_OVER, getUID());
+	});
+	
 	if((pickup&ipNODRAW) || tile==0 || force_grab)
 		return;
 	

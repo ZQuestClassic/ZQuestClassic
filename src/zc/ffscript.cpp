@@ -1464,6 +1464,7 @@ static void set_current_script_engine_data(ScriptEngineData& data, ScriptType ty
 				mapscr* scr = get_scr(ffc->screen_spawned);
 				reset_script_variables(scr->ffcs[index % 128].scrconfig);
 				data.initialized = true;
+				ri->sprite_draw_target_ref = ffc->getUID();
 			}
 
 			ri->ffcref = ZScriptVersion::ffcRefIsSpriteId() ? ffc->getUID() : index;
@@ -1481,6 +1482,7 @@ static void set_current_script_engine_data(ScriptEngineData& data, ScriptType ty
 				got_initialized = true;
 				reset_script_variables(spr->scrconfig);
 				data.initialized = 1;
+				ri->sprite_draw_target_ref = index;
 			}
 			
 			ri->npcref = index;
@@ -1498,6 +1500,7 @@ static void set_current_script_engine_data(ScriptEngineData& data, ScriptType ty
 				got_initialized = true;
 				reset_script_variables(spr->scrconfig);
 				data.initialized = 1;
+				ri->sprite_draw_target_ref = index;
 			}
 			
 			ri->lwpnref = index;
@@ -1515,6 +1518,7 @@ static void set_current_script_engine_data(ScriptEngineData& data, ScriptType ty
 				got_initialized = true;
 				reset_script_variables(spr->scrconfig);
 				data.initialized = 1;
+				ri->sprite_draw_target_ref = index;
 			}
 			
 			ri->ewpnref = index;
@@ -1532,6 +1536,7 @@ static void set_current_script_engine_data(ScriptEngineData& data, ScriptType ty
 				got_initialized = true;
 				reset_script_variables(spr->scrconfig);
 				data.initialized = 1;
+				ri->sprite_draw_target_ref = index;
 			}
 			
 			ri->itemref = index;
@@ -7187,6 +7192,7 @@ static void do_drawing_command(int32_t script_command, bool is_screen_draw)
 	script_drawing_commands[j].pc = ri->pc;
 	script_drawing_commands[j].script_funcrun = script_funcrun;
 	script_drawing_commands[j].thiskey = ri->thiskey;
+	script_drawing_commands[j].sprite_draw_target_ref = ri->sprite_draw_target_ref;
 
 	switch(script_command)
 	{
@@ -7884,7 +7890,7 @@ static void do_drawing_command(int32_t script_command, bool is_screen_draw)
 		}
 	}
 
-	script_drawing_commands.mark_dirty(script_drawing_commands[j][1]/10000);
+	script_drawing_commands.mark_dirty(script_drawing_commands[j][1]/10000, script_drawing_commands[j].sprite_draw_target_ref);
 }
 
 void do_set_rendertarget(bool)

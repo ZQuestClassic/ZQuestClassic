@@ -2271,51 +2271,51 @@ POP D2; Func[void Game::SetDMapIntro(int, char32[])] Body Start                 
 POP D3                                                                          | 2242 resources/include/bindings/game.zh:1849
 SETDMAPINTRO D3 D2                                                              | 2243 resources/include/bindings/game.zh:1849
 RETURNFUNC; Func[void Game::SetDMapIntro(int, char32[])] Body End               | 2244 resources/include/bindings/game.zh:1849
-POP D3; Func[void Graphics::Wavy(bool)] Body Start                              | 2245 resources/include/bindings/graphics.zh:49
-FXWAVYR D3                                                                      | 2246 resources/include/bindings/graphics.zh:49
-RETURNFUNC; Func[void Graphics::Wavy(bool)] Body End                            | 2247 resources/include/bindings/graphics.zh:49
-POP D3; Func[void Graphics::Zap(bool)] Body Start                               | 2248 resources/include/bindings/graphics.zh:56
-FXZAPR D3                                                                       | 2249 resources/include/bindings/graphics.zh:56
-RETURNFUNC; Func[void Graphics::Zap(bool)] Body End                             | 2250 resources/include/bindings/graphics.zh:56
-TINT; Func[void Graphics::Tint(int, int, int)] Body Start                       | 2251 resources/include/bindings/graphics.zh:65
-POPARGS D5 0.0003                                                               | 2252 resources/include/bindings/graphics.zh:65
-RETURNFUNC; Func[void Graphics::Tint(int, int, int)] Body End                   | 2253 resources/include/bindings/graphics.zh:65
-MONOHUE; Func[void Graphics::MonochromeHue(int, int, int, bool)] Body Start     | 2254 resources/include/bindings/graphics.zh:74
-POPARGS D5 0.0004                                                               | 2255 resources/include/bindings/graphics.zh:74
-RETURNFUNC; Func[void Graphics::MonochromeHue(int, int, int, bool)] Body End    | 2256 resources/include/bindings/graphics.zh:74
-CLEARTINT; Func[void Graphics::ClearTint()] Body Start                          | 2257 resources/include/bindings/graphics.zh:81
-RETURNFUNC; Func[void Graphics::ClearTint()] Body End                           | 2258 resources/include/bindings/graphics.zh:81
-POP D0; Func[int Graphics::GetPixel(untyped, int, int)] Body Start              | 2259 resources/include/bindings/graphics.zh:90
-POP D1                                                                          | 2260 resources/include/bindings/graphics.zh:90
-POP D2                                                                          | 2261 resources/include/bindings/graphics.zh:90
-GRAPHICSGETPIXEL D2                                                             | 2262 resources/include/bindings/graphics.zh:90
-RETURNFUNC; Func[int Graphics::GetPixel(untyped, int, int)] Body End            | 2263 resources/include/bindings/graphics.zh:90
-CREATEPALDATA; Func[paldata Graphics::CreatePalData()] Body Start               | 2264 resources/include/bindings/graphics.zh:95
-RETURNFUNC; Func[paldata Graphics::CreatePalData()] Body End                    | 2265 resources/include/bindings/graphics.zh:95
-POP D2; Func[paldata Graphics::CreatePalData(rgb)] Body Start                   | 2266 resources/include/bindings/graphics.zh:101
-CREATEPALDATACLR D2                                                             | 2267 resources/include/bindings/graphics.zh:101
-RETURNFUNC; Func[paldata Graphics::CreatePalData(rgb)] Body End                 | 2268 resources/include/bindings/graphics.zh:101
-MIXCLR; Func[rgb Graphics::MixColor(rgb, rgb, int, ColorSpace)] Body Start      | 2269 resources/include/bindings/graphics.zh:109
-POPARGS D5 0.0004                                                               | 2270 resources/include/bindings/graphics.zh:109
-RETURNFUNC; Func[rgb Graphics::MixColor(rgb, rgb, int, ColorSpace)] Body End    | 2271 resources/include/bindings/graphics.zh:109
-POP D2; Func[rgb Graphics::CreateRGB(long)] Body Start                          | 2272 resources/include/bindings/graphics.zh:116
-CREATERGBHEX D2                                                                 | 2273 resources/include/bindings/graphics.zh:116
-RETURNFUNC; Func[rgb Graphics::CreateRGB(long)] Body End                        | 2274 resources/include/bindings/graphics.zh:116
-CREATERGB; Func[rgb Graphics::CreateRGB(int, int, int)] Body Start              | 2275 resources/include/bindings/graphics.zh:125
-POPARGS D5 0.0003                                                               | 2276 resources/include/bindings/graphics.zh:125
-RETURNFUNC; Func[rgb Graphics::CreateRGB(int, int, int)] Body End               | 2277 resources/include/bindings/graphics.zh:125
-CONVERTFROMRGB; Func[void Graphics::ConvertFromRGB(int[], rgb, int)] Body Start | 2278 resources/include/bindings/graphics.zh:130
-POPARGS D5 0.0003                                                               | 2279 resources/include/bindings/graphics.zh:130
-RETURNFUNC; Func[void Graphics::ConvertFromRGB(int[], rgb, int)] Body End       | 2280 resources/include/bindings/graphics.zh:130
-CONVERTTORGB; Func[rgb Graphics::ConvertToRGB(int, int[])] Body Start           | 2281 resources/include/bindings/graphics.zh:135
-POPARGS D5 0.0002                                                               | 2282 resources/include/bindings/graphics.zh:135
-RETURNFUNC; Func[rgb Graphics::ConvertToRGB(int, int[])] Body End               | 2283 resources/include/bindings/graphics.zh:135
-GETTILEPIXEL; Func[int Graphics::GetTilePixel(int, int, int, int)] Body Start   | 2284 resources/include/bindings/graphics.zh:142
-POPARGS D5 0.0004                                                               | 2285 resources/include/bindings/graphics.zh:142
-RETURNFUNC; Func[int Graphics::GetTilePixel(int, int, int, int)] Body End       | 2286 resources/include/bindings/graphics.zh:142
-SETTILEPIXEL; Func[void Graphics::SetTilePixel(int, int, int, int)] Body Start  | 2287 resources/include/bindings/graphics.zh:149
-POPARGS D5 0.0004                                                               | 2288 resources/include/bindings/graphics.zh:149
-RETURNFUNC; Func[void Graphics::SetTilePixel(int, int, int, int)] Body End      | 2289 resources/include/bindings/graphics.zh:149
+POP D3; Func[void Graphics::Wavy(bool)] Body Start                              | 2245 resources/include/bindings/graphics.zh:58
+FXWAVYR D3                                                                      | 2246 resources/include/bindings/graphics.zh:58
+RETURNFUNC; Func[void Graphics::Wavy(bool)] Body End                            | 2247 resources/include/bindings/graphics.zh:58
+POP D3; Func[void Graphics::Zap(bool)] Body Start                               | 2248 resources/include/bindings/graphics.zh:65
+FXZAPR D3                                                                       | 2249 resources/include/bindings/graphics.zh:65
+RETURNFUNC; Func[void Graphics::Zap(bool)] Body End                             | 2250 resources/include/bindings/graphics.zh:65
+TINT; Func[void Graphics::Tint(int, int, int)] Body Start                       | 2251 resources/include/bindings/graphics.zh:74
+POPARGS D5 0.0003                                                               | 2252 resources/include/bindings/graphics.zh:74
+RETURNFUNC; Func[void Graphics::Tint(int, int, int)] Body End                   | 2253 resources/include/bindings/graphics.zh:74
+MONOHUE; Func[void Graphics::MonochromeHue(int, int, int, bool)] Body Start     | 2254 resources/include/bindings/graphics.zh:83
+POPARGS D5 0.0004                                                               | 2255 resources/include/bindings/graphics.zh:83
+RETURNFUNC; Func[void Graphics::MonochromeHue(int, int, int, bool)] Body End    | 2256 resources/include/bindings/graphics.zh:83
+CLEARTINT; Func[void Graphics::ClearTint()] Body Start                          | 2257 resources/include/bindings/graphics.zh:90
+RETURNFUNC; Func[void Graphics::ClearTint()] Body End                           | 2258 resources/include/bindings/graphics.zh:90
+POP D0; Func[int Graphics::GetPixel(untyped, int, int)] Body Start              | 2259 resources/include/bindings/graphics.zh:99
+POP D1                                                                          | 2260 resources/include/bindings/graphics.zh:99
+POP D2                                                                          | 2261 resources/include/bindings/graphics.zh:99
+GRAPHICSGETPIXEL D2                                                             | 2262 resources/include/bindings/graphics.zh:99
+RETURNFUNC; Func[int Graphics::GetPixel(untyped, int, int)] Body End            | 2263 resources/include/bindings/graphics.zh:99
+CREATEPALDATA; Func[paldata Graphics::CreatePalData()] Body Start               | 2264 resources/include/bindings/graphics.zh:104
+RETURNFUNC; Func[paldata Graphics::CreatePalData()] Body End                    | 2265 resources/include/bindings/graphics.zh:104
+POP D2; Func[paldata Graphics::CreatePalData(rgb)] Body Start                   | 2266 resources/include/bindings/graphics.zh:110
+CREATEPALDATACLR D2                                                             | 2267 resources/include/bindings/graphics.zh:110
+RETURNFUNC; Func[paldata Graphics::CreatePalData(rgb)] Body End                 | 2268 resources/include/bindings/graphics.zh:110
+MIXCLR; Func[rgb Graphics::MixColor(rgb, rgb, int, ColorSpace)] Body Start      | 2269 resources/include/bindings/graphics.zh:118
+POPARGS D5 0.0004                                                               | 2270 resources/include/bindings/graphics.zh:118
+RETURNFUNC; Func[rgb Graphics::MixColor(rgb, rgb, int, ColorSpace)] Body End    | 2271 resources/include/bindings/graphics.zh:118
+POP D2; Func[rgb Graphics::CreateRGB(long)] Body Start                          | 2272 resources/include/bindings/graphics.zh:125
+CREATERGBHEX D2                                                                 | 2273 resources/include/bindings/graphics.zh:125
+RETURNFUNC; Func[rgb Graphics::CreateRGB(long)] Body End                        | 2274 resources/include/bindings/graphics.zh:125
+CREATERGB; Func[rgb Graphics::CreateRGB(int, int, int)] Body Start              | 2275 resources/include/bindings/graphics.zh:134
+POPARGS D5 0.0003                                                               | 2276 resources/include/bindings/graphics.zh:134
+RETURNFUNC; Func[rgb Graphics::CreateRGB(int, int, int)] Body End               | 2277 resources/include/bindings/graphics.zh:134
+CONVERTFROMRGB; Func[void Graphics::ConvertFromRGB(int[], rgb, int)] Body Start | 2278 resources/include/bindings/graphics.zh:139
+POPARGS D5 0.0003                                                               | 2279 resources/include/bindings/graphics.zh:139
+RETURNFUNC; Func[void Graphics::ConvertFromRGB(int[], rgb, int)] Body End       | 2280 resources/include/bindings/graphics.zh:139
+CONVERTTORGB; Func[rgb Graphics::ConvertToRGB(int, int[])] Body Start           | 2281 resources/include/bindings/graphics.zh:144
+POPARGS D5 0.0002                                                               | 2282 resources/include/bindings/graphics.zh:144
+RETURNFUNC; Func[rgb Graphics::ConvertToRGB(int, int[])] Body End               | 2283 resources/include/bindings/graphics.zh:144
+GETTILEPIXEL; Func[int Graphics::GetTilePixel(int, int, int, int)] Body Start   | 2284 resources/include/bindings/graphics.zh:151
+POPARGS D5 0.0004                                                               | 2285 resources/include/bindings/graphics.zh:151
+RETURNFUNC; Func[int Graphics::GetTilePixel(int, int, int, int)] Body End       | 2286 resources/include/bindings/graphics.zh:151
+SETTILEPIXEL; Func[void Graphics::SetTilePixel(int, int, int, int)] Body Start  | 2287 resources/include/bindings/graphics.zh:158
+POPARGS D5 0.0004                                                               | 2288 resources/include/bindings/graphics.zh:158
+RETURNFUNC; Func[void Graphics::SetTilePixel(int, int, int, int)] Body End      | 2289 resources/include/bindings/graphics.zh:158
 POP D2; Func[bool ffc::Trigger(int)] Body Start                                 | 2290 resources/include/bindings/ffc.zh:182
 POP REFFFC                                                                      | 2291 resources/include/bindings/ffc.zh:182
 FFCTRIGGER D2                                                                   | 2292 resources/include/bindings/ffc.zh:182
@@ -5354,6 +5354,8 @@ debug data:
       - const SpecialDrawLayer SPLAYER_UNDER_PLAYER_DRAW @ Constant[-1999780000]
       - const SpecialDrawLayer SPLAYER_OVER_LIFT_WEAPON @ Constant[-1999770000]
       - const SpecialDrawLayer SPLAYER_OVER_PROMPT_COMBO @ Constant[-1999760000]
+      - const SpecialDrawLayer SPLAYER_SPRITE_TARGET_UNDER @ Constant[-1999750000]
+      - const SpecialDrawLayer SPLAYER_SPRITE_TARGET_OVER @ Constant[-1999740000]
     [ENUM] int SpriteID <IDX:22>
       - const SpriteID SP_ARROW_ENEMY @ Constant[190000]
       - const SpriteID SP_ARROW1 @ Constant[100000]
@@ -8515,6 +8517,7 @@ debug data:
       - const int[] IsBlankTile @ Reg[ISBLANKTILE]
       - const int MaxDraws @ Reg[MAXDRAWS]
       - const int NumDraws @ Reg[NUMDRAWS]
+      - sprite SpriteLayerTarget @ Reg[GRAPHICS_SPRITE_LAYER_TARGET]
       [FUNCTION] ClearTint <PC:2257-2258 IDX:530> <INTERNAL>
         - const Graphics this @ Reg[CLASS_THISKEY] <HIDDEN>
       [FUNCTION] ConvertFromRGB <PC:2278-2280 IDX:531> <INTERNAL>

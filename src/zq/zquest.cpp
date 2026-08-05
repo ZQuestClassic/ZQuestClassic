@@ -21988,3 +21988,13 @@ extern "C" void get_shareable_url()
 #endif
 
 void setZScriptVersion([[maybe_unused]] int32_t v){}
+
+void do_primitives([[maybe_unused]] BITMAP *targetBitmap, [[maybe_unused]] int32_t type, [[maybe_unused]] int32_t target_sprite_uid)
+{
+	return;
+}
+void do_primitives([[maybe_unused]] BITMAP *targetBitmap, [[maybe_unused]] int32_t type, [[maybe_unused]] int32_t xoff, [[maybe_unused]] int32_t yoff, [[maybe_unused]] int32_t target_sprite_uid)
+{
+	return;
+}
+

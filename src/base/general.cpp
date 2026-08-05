@@ -318,3 +318,14 @@ void script_config::clear()
 {
 	*this = script_config();
 }
+
+ScopeExitHandler::ScopeExitHandler(std::function<void()>&& proc)
+	: proc(proc)
+{}
+
+ScopeExitHandler::~ScopeExitHandler()
+{
+	if (proc)
+		proc();
+}
+

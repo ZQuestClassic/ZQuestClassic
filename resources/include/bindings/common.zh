@@ -1011,6 +1011,12 @@ enum SpecialDrawLayer
 	// This is just after the Hero's draw and the [Hero->LiftedWeapon] is drawn.
 	// @versionadded 3.0
 	SPLAYER_OVER_PROMPT_COMBO,
+	// Just under the [Graphics->SpriteLayerTarget] sprite, if it exists.
+	// @versionadded 3.0
+	SPLAYER_SPRITE_TARGET_UNDER,
+	// Just over the [Graphics->SpriteLayerTarget] sprite, if it exists.
+	// @versionadded 3.0
+	SPLAYER_SPRITE_TARGET_OVER,
 };
 
 // Used with [itemdata::SizeFlags], [itemdata::WeaponSizeFlags], [npcdata::SizeFlags].

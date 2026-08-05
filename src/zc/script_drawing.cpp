@@ -11948,6 +11948,16 @@ void do_bmpdrawlayerciflagr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t
 }
 
 
+static bool layer_uses_sprite(int lyr)
+{
+	switch (lyr)
+	{
+		case SPLAYER_SPRITE_TARGET_UNDER:
+		case SPLAYER_SPRITE_TARGET_OVER:
+			return true;
+	}
+	return false;
+}
 
 /////////////////////////////////////////////////////////
 // do primitives
@@ -11956,18 +11966,18 @@ void do_bmpdrawlayerciflagr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t
 // Draw commands can vary in terms of the origin/coordinate system to draw as. This
 // is controlled via `DrawOrigin`. Previous to `DrawOrigin`, this always drew
 // relative to the playing field (except for offscreen bitmaps).
-void do_primitives(BITMAP *targetBitmap, int32_t type)
+void do_primitives(BITMAP *targetBitmap, int32_t type, int32_t target_sprite_uid)
 {
-	do_primitives(targetBitmap, type, 0, playing_field_offset);
+	do_primitives(targetBitmap, type, 0, playing_field_offset, target_sprite_uid);
 }
 
-void do_primitives(BITMAP *targetBitmap, int32_t type, int32_t xoff, int32_t yoff)
+void do_primitives(BITMAP *targetBitmap, int32_t type, int32_t xoff, int32_t yoff, int32_t target_sprite_uid)
 {
 	if(type > 7)
 		return;
 	if(type >= 0 && origin_scr->hidescriptlayers & (1<<type))
 		return; //Script draws hidden for this layer
-	if(!script_drawing_commands.is_dirty(type))
+	if(!script_drawing_commands.is_dirty(type, target_sprite_uid))
 		return; //No draws to this layer
 
 	color_map = trans_table2;
@@ -11991,12 +12001,15 @@ void do_primitives(BITMAP *targetBitmap, int32_t type, int32_t xoff, int32_t yof
 	bool oldScriptFuncrun = script_funcrun;
 	refInfo* oldRi = ri;
 
+	bool use_target_sprite = layer_uses_sprite(type);
 	for (int i = 0; i < numDrawCommandsToProcess; i++)
 	{
 		auto& command = script_drawing_commands[i];
 		int32_t *sdci = &script_drawing_commands[i][0];
 
 		if (sdci[1] != type_mul_10000)
+			continue;
+		if (use_target_sprite && target_sprite_uid != command.sprite_draw_target_ref)
 			continue;
 
 		DrawOrigin draw_origin = command.draw_origin;
@@ -12400,6 +12413,21 @@ void CScriptDrawingCommands::Clear()
 	
 	draw_container.Clear();
 }
+
+bool CScriptDrawingCommands::is_dirty(int lyr, int sprite_id)
+{
+	if (!layer_uses_sprite(lyr))
+		sprite_id = 0;
+	return dirty_layers.contains({lyr, sprite_id});
+}
+
+void CScriptDrawingCommands::mark_dirty(int lyr, int sprite_id)
+{
+	if (!layer_uses_sprite(lyr))
+		sprite_id = 0;
+	dirty_layers.insert({lyr, sprite_id});
+}
+
 CScriptDrawingCommands* CScriptDrawingCommands::pop_commands()
 {
 	CScriptDrawingCommands* ret = new CScriptDrawingCommands();
@@ -12418,18 +12446,6 @@ void CScriptDrawingCommands::push_commands(CScriptDrawingCommands* other, bool d
 	commands.insert(commands.end(), other->commands.begin(), other->commands.end());
 	count += other->count;
 	if(del) delete other;
-}
-
-vector<int> CScriptDrawingCommands::get_dirty_layers_in_range(int min, int max)
-{
-	vector<int> ret;
-	for(int layer : dirty_layers)
-	{
-		if(layer < min) continue;
-		if(layer > max) break;
-		ret.push_back(layer);
-	}
-	return ret;
 }
 
 void do_script_draws(BITMAP *targetBitmap, mapscr* scr, int32_t xoff, int32_t yoff, bool hideLayer7)

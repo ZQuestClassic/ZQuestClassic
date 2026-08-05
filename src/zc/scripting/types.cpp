@@ -415,6 +415,7 @@ constexpr EngineSubsystem getEngineSubsystemForRegister(int reg)
 		case LONGDISTANCESCALE:
 			return EngineSubsystem::global;
 
+		case GRAPHICS_SPRITE_LAYER_TARGET:
 		case MAXDRAWS:
 		case NUMDRAWS:
 			return EngineSubsystem::graphics;
