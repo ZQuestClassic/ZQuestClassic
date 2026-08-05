@@ -7476,6 +7476,12 @@ bool weapon::can_drawshadow() const
 }
 void weapon::draw(BITMAP *dest)
 {
+	do_primitives(dest, SPLAYER_SPRITE_TARGET_UNDER, getUID());
+	ScopeExitHandler exit_handler([&]()
+	{
+		do_primitives(dest, SPLAYER_SPRITE_TARGET_OVER, getUID());
+	});
+	
 	if(weapon_dying_frame) return;
 	if(fallclk || drownclk)
 	{

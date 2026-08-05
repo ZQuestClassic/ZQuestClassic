@@ -606,5 +606,13 @@ struct script_config
 // Exists for p_putvar / p_getvar resolution to skip saving the script
 struct script_config_nosavescript : public script_config{};
 
+struct ScopeExitHandler
+{
+	ScopeExitHandler(std::function<void()>&& proc);
+	~ScopeExitHandler();
+private:
+	std::function<void()> proc;
+};
+
 #endif
 

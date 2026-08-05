@@ -31,14 +31,21 @@ void ffcdata::draw(BITMAP* dest)
 
 void ffcdata::draw_ffc(BITMAP* dest, int32_t xofs, int32_t yofs, bool overlay)
 {
-	(void)overlay;
+	if(!(flags&ffc_overlay) != !overlay) return; //force cast both of these to boolean. They're both not, so same as if they weren't not.
+	
+	#ifdef IS_PLAYER
+	do_primitives(dest, SPLAYER_SPRITE_TARGET_UNDER, getUID());
+	ScopeExitHandler exit_handler([&]()
+	{
+		do_primitives(dest, SPLAYER_SPRITE_TARGET_OVER, getUID());
+	});
+	#endif
 
 	if (flags&ffc_changer) return;
 	#ifdef IS_PLAYER
 	if(combobuf[data].animflags & AF_EDITOR_ONLY) return;
 	if ((flags&ffc_lensinvis) && lensclk) return; //If lens is active and ffc is invis to lens, don't draw
 	if ((flags&ffc_lensvis) && !lensclk) return; //If FFC does not require lens, or lens is active, draw
-	if(!(flags&ffc_overlay) != !overlay) return; //force cast both of these to boolean. They're both not, so same as if they weren't not.
 	
 	if (switch_hooked)
 	{

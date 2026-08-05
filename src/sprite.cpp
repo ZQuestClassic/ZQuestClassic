@@ -2918,6 +2918,12 @@ movingblock::movingblock() : sprite(), blockLayer(0), step(0.5)
 
 void movingblock::draw(BITMAP *dest)
 {
+	do_primitives(dest, SPLAYER_SPRITE_TARGET_UNDER, getUID());
+	ScopeExitHandler exit_handler([&]()
+	{
+		do_primitives(dest, SPLAYER_SPRITE_TARGET_OVER, getUID());
+	});
+	
 	handle_sprlighting();
 	if(fallclk)
 	{

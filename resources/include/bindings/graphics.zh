@@ -40,6 +40,15 @@ class Graphics {
 	//
 	// @zasm_var IS8BITTILE
 	internal const bool Is8BitTile[];
+	
+	// The sprite being targetted by [SPLAYER_SPRITE_TARGET_UNDER] and [SPLAYER_SPRITE_TARGET_OVER]
+	// for the current script (each script stores a separate copy of this value).
+	//
+	// Defaults to [NULL] for most scripts, except for scripts attached to a sprite object,
+	// which default this to the attached sprite.
+	// @versionadded 3.0
+	// @zasm_var GRAPHICS_SPRITE_LAYER_TARGET
+	internal sprite SpriteLayerTarget;
 
 	// Creates a 'wave' effect, as a 'Wavy' warp type uses.
 	//

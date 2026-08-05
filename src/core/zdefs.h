@@ -1287,6 +1287,8 @@ public:
 
 	DrawOrigin screen_draw_origin;
 	int32_t screen_draw_origin_target;
+	
+	int32_t sprite_draw_target_ref = 0;
 
 	int32_t cmp_op1, cmp_op2; //cached compare operands
 	optional<int32_t> cmp_strcache;
@@ -2112,6 +2114,10 @@ enum //Special hardcoded draw layers
 	// Just over the Hero's overhead prompt combo, regardless of if there is one or not.
 	// This is just after the Hero's draw and the [Hero->LiftedWeapon] is drawn.
 	SPLAYER_OVER_PROMPT_COMBO,
+	// Just under the [Graphics->SpriteLayerTarget] sprite, if it exists.
+	SPLAYER_SPRITE_TARGET_UNDER,
+	// Just over the [Graphics->SpriteLayerTarget] sprite, if it exists.
+	SPLAYER_SPRITE_TARGET_OVER,
 };
 
 //

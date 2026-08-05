@@ -14,6 +14,9 @@
 #define DRAWCMD_BMP_TARGET     18
 #define DRAWCMD_CURRENT_TARGET 19
 
+void do_primitives(BITMAP *bmp, int32_t type, int32_t target_sprite_uid = 0);
+void do_primitives(BITMAP *bmp, int32_t type, int32_t x, int32_t y, int32_t target_sprite_uid = 0);
+
 // (bitmap_id, is_user_bitmap)
 std::pair<int, bool> resolveScriptingBitmapId(int scripting_bitmap_id);
 
@@ -286,6 +289,8 @@ public:
 
 	DrawOrigin secondary_draw_origin;
 	int32_t secondary_draw_origin_target;
+	
+	int32_t sprite_draw_target_ref;
 
 	// Script metadata captured at queue time so deferred draw errors
 	// log the originating script rather than whatever ran last.
@@ -377,15 +382,8 @@ public:
 		memset((void*)&commands[ind], 0, sizeof(CScriptDrawingCommandVars));
 	}
 	
-	bool is_dirty(int lyr)
-	{
-		return dirty_layers.contains(lyr);
-	}
-	
-	void mark_dirty(int lyr)
-	{
-		dirty_layers.insert(lyr);
-	}
+	bool is_dirty(int lyr, int sprite_id = 0);
+	void mark_dirty(int lyr, int sprite_id = 0);
     
     reference operator [](const int32_t i)
     {
@@ -414,13 +412,11 @@ public:
 	
 	CScriptDrawingCommands* pop_commands();
 	void push_commands(CScriptDrawingCommands* other, bool del = true);
-    
-	std::vector<int> get_dirty_layers_in_range(int min, int max);
 public: 
 	int32_t count;
 protected:
     vec_type commands;
-    std::set<int> dirty_layers;
+	std::set<std::pair<int, int>> dirty_layers;
     
     DrawingContainer draw_container;
     ScriptDrawingBitmapPool bitmap_pool;

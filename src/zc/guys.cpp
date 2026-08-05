@@ -4099,21 +4099,17 @@ void enemy::draw(BITMAP *dest)
 	// So instead we draw it here, and supress it within sprite::draw.
 	if (show_hitboxes)
 		draw_hitbox();
-	struct RestoreEnemyHideHitbox
+	bool prev_hide_hitbox = hide_hitbox;
+	hide_hitbox = true;
+	
+	do_primitives(dest, SPLAYER_SPRITE_TARGET_UNDER, getUID());
+	
+	// cleanup / post-draw code should run no matter what `return` is hit
+	ScopeExitHandler exit_handler([&]()
 	{
-		enemy* npc;
-		bool prev_hide_hitbox;
-
-		RestoreEnemyHideHitbox(enemy* npc_) : npc(npc_), prev_hide_hitbox(npc_->hide_hitbox)
-		{
-			npc_->hide_hitbox = true;
-		}
-
-		~RestoreEnemyHideHitbox(){
-			npc->hide_hitbox = prev_hide_hitbox;
-		}
-	};
-	RestoreEnemyHideHitbox restore{this};
+		hide_hitbox = prev_hide_hitbox;
+		do_primitives(dest, SPLAYER_SPRITE_TARGET_OVER, getUID());
+	});
 
 	didScriptThisFrame = false; //Since there's no better place to put it
 	if(fading==fade_invisible || (((flags&guy_blinking)||(fading==fade_flicker)) && (clk&1))) 

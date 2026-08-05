@@ -23,6 +23,11 @@ int32_t graphics_get_register(int32_t reg)
 			ret = script_drawing_commands.Count() * 10000;
 			//ret = FFCore.numscriptdraws * 10000; // This isn't updated until end of frame, making it useless!
 			break;
+		case GRAPHICS_SPRITE_LAYER_TARGET:
+		{
+			ret = ri->sprite_draw_target_ref;
+			break;
+		}
 
 		default:
 			NOTREACHED();
@@ -31,12 +36,17 @@ int32_t graphics_get_register(int32_t reg)
 	return ret;
 }
 
-void graphics_set_register(int32_t reg, [[maybe_unused]] int32_t value)
+void graphics_set_register(int32_t reg, int32_t value)
 {
 	switch (reg)
 	{
 		case MAXDRAWS: break;
 		case NUMDRAWS: break;
+		case GRAPHICS_SPRITE_LAYER_TARGET:
+		{
+			ri->sprite_draw_target_ref = value;
+			break;
+		}
 
 		default:
 			NOTREACHED();
