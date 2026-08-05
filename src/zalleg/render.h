@@ -15,7 +15,10 @@ struct Transform
 {
 	bool operator==(const Transform&) const = default;
 
-	int x = 0, y = 0;
+	// Fractional positions matter: an item animated at sub-(parent-)pixel speed - the title
+	// logo crawl - otherwise moves in whole-pixel steps of uneven cadence, and each parent
+	// pixel is several output pixels once scaled to the window.
+	float x = 0, y = 0;
 	float xscale = 1;
 	float yscale = 1;
 };
@@ -42,6 +45,16 @@ struct Matrix
 	float d[3][3];
 
 	std::pair<int, int> apply(int x, int y) const
+	{
+		return {
+			d[0][0] * x + d[0][1] * y + d[0][2],
+			d[1][0] * x + d[1][1] * y + d[1][2]
+		};
+	}
+
+	// Like apply, but keeps the fractional result - used when drawing, so sub-pixel
+	// positions survive to the draw call instead of snapping to whole pixels.
+	std::pair<float, float> apply_f(float x, float y) const
 	{
 		return {
 			d[0][0] * x + d[0][1] * y + d[0][2],

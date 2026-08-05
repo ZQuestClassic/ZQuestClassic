@@ -143,8 +143,8 @@ void mmap_set_zoom(bool zoomed)
 	zoomed_minimap = zoomed;
 	size_and_pos *real_mini_sqr = zoomed_minimap ? &real_minimap_zoomed : &real_minimap;
 	rti_minimap.set_transform({
-		.x = real_mini_sqr->x,
-		.y = real_mini_sqr->y,
+		.x = (float)real_mini_sqr->x,
+		.y = (float)real_mini_sqr->y,
 	});
 	rti_minimap.width = real_mini_sqr->w * real_mini_sqr->xscale;
 	rti_minimap.height = real_mini_sqr->h * real_mini_sqr->yscale;

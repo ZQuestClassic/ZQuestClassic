@@ -53,8 +53,8 @@ private:
 		font = oldfont;
 
 		auto t = get_transform();
-		t.x = std::clamp(t.x, 0, zq_screen_w - w);
-		t.y = std::clamp(t.y, 0, zq_screen_h - h);
+		t.x = std::clamp(t.x, 0.f, (float)(zq_screen_w - w));
+		t.y = std::clamp(t.y, 0.f, (float)(zq_screen_h - h));
 		set_transform(t);
 
 		if (!a4_bitmap || a4_bitmap->w != w || a4_bitmap->h != h)
@@ -182,7 +182,7 @@ void ttip_set_z_index(int id, int z_index)
 
 static void add_highlight(size_and_pos pos, int thickness)
 {
-	rti_highlight.set_transform({pos.x, pos.y});
+	rti_highlight.set_transform({(float)pos.x, (float)pos.y});
 	rti_highlight.visible = true;
 
 	size_and_pos pos2 = pos;
@@ -258,7 +258,7 @@ void ToolTipRTI::prepare()
 		rti_text.text = tooltip->text;
 	}
 
-	rti_text.set_transform({tooltip->tip_x, tooltip->tip_y, 1, 1});
+	rti_text.set_transform({(float)tooltip->tip_x, (float)tooltip->tip_y, 1, 1});
 
 	rti_highlight.visible = TooltipsHighlight;
 	if (rti_highlight.visible && rti_highlight.pos != tooltip->trigger_area)

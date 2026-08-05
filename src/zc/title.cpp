@@ -337,7 +337,7 @@ static void selectscreen()
 		int target_width = target_height * aspect_ratio;
 		float scale = (float)target_height / al_get_bitmap_height(logo->bitmap);
 		int x = (al_get_bitmap_width(rti_game.bitmap) - target_width) / 2;
-		logo->set_transform({.x = x, .y = 0, .xscale = scale, .yscale = scale});
+		logo->set_transform({.x = (float)x, .y = 0, .xscale = scale, .yscale = scale});
 	}
 	else
 	{
@@ -1663,7 +1663,7 @@ static void actual_titlescreen()
 		int target_width = target_height * aspect_ratio;
 		float scale = (float)target_height / al_get_bitmap_height(logo->bitmap);
 		int x = (al_get_bitmap_width(rti_game.bitmap) - target_width) / 2;
-		logo->set_transform({.x = x, .y = 0, .xscale = scale, .yscale = scale});
+		logo->set_transform({.x = (float)x, .y = 0, .xscale = scale, .yscale = scale});
 	}
 
 	// Sword intro: the logo crawls up without its sword, then the sword thrusts in from the left
@@ -1731,8 +1731,8 @@ static void actual_titlescreen()
 			.xscale = (float)rti_game.width / 16, .yscale = (float)rti_game.height / 16});
 	}
 
-	int starting_y = rti_game.height + 46;
-	int final_y = (rti_game.height - 46) / 2;
+	double starting_y = rti_game.height + 46;
+	double final_y = (double)(rti_game.height - 46) / 2;
 
 	bool show_text = false;
 	int duration = 150;
@@ -1770,10 +1770,10 @@ static void actual_titlescreen()
 						sfx(WAV_SWORD);
 				}
 				double r = (double)(counter - duration + 1) / sword_frames;
-				int logo_w = (int)(al_get_bitmap_width(logo->bitmap) * lt.xscale);
-				int from_x = -logo_w;
+				float logo_w = al_get_bitmap_width(logo->bitmap) * lt.xscale;
+				float from_x = -logo_w;
 				rti_sword.visible = true;
-				rti_sword.set_transform({.x = (int)std::lround(from_x + (lt.x - from_x) * r),
+				rti_sword.set_transform({.x = (float)(from_x + (lt.x - from_x) * r),
 					.y = lt.y, .xscale = lt.xscale, .yscale = lt.yscale});
 			}
 			else if (counter == sword_hit)

@@ -144,8 +144,8 @@ static void configure_render_tree()
 	}
 
 	rti_game.set_transform({
-		.x = (int)(resx - w*xscale) / 2,
-		.y = (int)(resy - h*yscale) / 2,
+		.x = (float)((int)(resx - w*xscale) / 2),
+		.y = (float)((int)(resy - h*yscale) / 2),
 		.xscale = xscale,
 		.yscale = yscale,
 	});
@@ -205,8 +205,8 @@ static void configure_render_tree()
 		float xscale = gui_xscale;
 		float yscale = gui_yscale;
 		rti_gui.set_transform({
-			.x = (int)(resx - w*xscale) / 2,
-			.y = (int)(resy - h*yscale) / 2,
+			.x = (float)((int)(resx - w*xscale) / 2),
+			.y = (float)((int)(resy - h*yscale) / 2),
 			.xscale = xscale,
 			.yscale = yscale,
 		});
@@ -266,8 +266,8 @@ static void configure_render_tree()
 		}
 
 		rti_screen.set_transform({
-			.x = (int)(resx - w*xscale) / 2,
-			.y = (int)(resy - h*yscale) / 2,
+			.x = (float)((int)(resx - w*xscale) / 2),
+			.y = (float)((int)(resy - h*yscale) / 2),
 			.xscale = xscale,
 			.yscale = yscale,
 		});

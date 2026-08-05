@@ -4310,7 +4310,7 @@ int32_t launchPicViewer(BITMAP **pictoview, PALETTE pal, int32_t& px2, int32_t& 
 			mapy = std::max(mapy, (int)(-h*scale + dh));
 			mapx = std::min(mapx, 0);
 			mapy = std::min(mapy, 0);
-			rti_map_view->set_transform({mapx, mapy, (float)scale, (float)scale});
+			rti_map_view->set_transform({(float)mapx, (float)mapy, (float)scale, (float)scale});
 		}
 
 		if(redraw)
@@ -5576,7 +5576,7 @@ void draw_screenunit(int32_t unit, int32_t flags)
 
 				MapViewRTI* rti_map_view = mapview_get_rti();
 				rti_map_view->flags = Flags;
-				rti_map_view->set_transform({.x = startxint, .y = startyint, .xscale = (float)mapscreen_single_scale, .yscale = (float)mapscreen_single_scale});
+				rti_map_view->set_transform({.x = (float)startxint, .y = (float)startyint, .xscale = (float)mapscreen_single_scale, .yscale = (float)mapscreen_single_scale});
 				rti_map_view->set_size(w, h);
 				rti_map_view->dirty = true;
 				rti_map_view->freeze = false;

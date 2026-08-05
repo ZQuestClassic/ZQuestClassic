@@ -303,16 +303,16 @@ static void configure_render_tree()
 			yscale = std::max((int) yscale, 1);
 		}
 		rti_screen.set_transform({
-			.x = (int)(resx - w*xscale) / 2,
-			.y = (int)(resy - h*yscale) / 2,
+			.x = (float)((int)(resx - w*xscale) / 2),
+			.y = (float)((int)(resy - h*yscale) / 2),
 			.xscale = xscale,
 			.yscale = yscale,
 		});
 		rti_screen.visible = true;
 		// TODO: it seems `rti_screen` is unnecessary, given this `rti_dialogs` also draws the main Window component.
 		rti_dialogs.set_transform({
-			.x = (int)(resx - w*xscale) / 2,
-			.y = (int)(resy - h*yscale) / 2,
+			.x = (float)((int)(resx - w*xscale) / 2),
+			.y = (float)((int)(resy - h*yscale) / 2),
 			.xscale = xscale,
 			.yscale = yscale,
 		});

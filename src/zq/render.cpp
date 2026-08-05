@@ -91,8 +91,8 @@ static void configure_render_tree()
 		if(DragAspect)
 			xscale = yscale = std::min(xscale,yscale);
 		rti_root.set_transform({
-			.x = center_root_rti ? (int)(resx - w*xscale) / 2 : 0,
-			.y = center_root_rti ? (int)(resy - h*yscale) / 2 : 0,
+			.x = center_root_rti ? (float)((int)(resx - w*xscale) / 2) : 0,
+			.y = center_root_rti ? (float)((int)(resy - h*yscale) / 2) : 0,
 			.xscale = xscale,
 			.yscale = yscale,
 		});

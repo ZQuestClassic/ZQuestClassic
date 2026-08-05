@@ -497,16 +497,16 @@ static void render_tree_draw_item(RenderTreeItem* rti, bool do_a4_only)
 		int h = al_get_bitmap_height(rti->bitmap);
 
 		auto& matrix = rti->get_transform_matrix();
-		auto [x0, y0] = matrix.apply(0, 0);
-		auto [x1, y1] = matrix.apply(w, h);
-		int tw = x1 - x0;
-		int th = y1 - y0;
+		auto [x0, y0] = matrix.apply_f(0, 0);
+		auto [x1, y1] = matrix.apply_f(w, h);
+		float tw = x1 - x0;
+		float th = y1 - y0;
 		bool shader_active = false;
 		if (rti->shader)
 		{
 			shader_active = al_use_shader(rti->shader);
 			if (shader_active && rti->shader_prepare)
-				rti->shader_prepare(rti, tw, th);
+				rti->shader_prepare(rti, (int)std::lround(tw), (int)std::lround(th));
 		}
 		if (rti->tint)
 		{
@@ -531,7 +531,7 @@ static void render_tree_draw_item(RenderTreeItem* rti, bool do_a4_only)
 					continue;
 				bool overlay_active = al_use_shader(rti->overlay_shader);
 				if (overlay_active && rti->overlay_prepare)
-					rti->overlay_prepare(rti, child, tw, th);
+					rti->overlay_prepare(rti, child, (int)std::lround(tw), (int)std::lround(th));
 				int cw = al_get_bitmap_width(child->bitmap);
 				int ch = al_get_bitmap_height(child->bitmap);
 				if (rti->tint)
@@ -557,15 +557,16 @@ static void render_tree_draw_item(RenderTreeItem* rti, bool do_a4_only)
 			int cx, cy, cw, ch;
 			al_get_clipping_rectangle(&cx, &cy, &cw, &ch);
 
-			// The same corner mapping the draw above uses for the parent's own rect.
+			// The same corner mapping the draw above uses for the parent's own rect,
+			// rounded outward so the clip never shaves a partially-covered pixel.
 			auto& matrix = rti->get_transform_matrix();
-			auto [x0, y0] = matrix.apply(0, 0);
-			auto [x1, y1] = matrix.apply(al_get_bitmap_width(rti->bitmap), al_get_bitmap_height(rti->bitmap));
+			auto [fx0, fy0] = matrix.apply_f(0, 0);
+			auto [fx1, fy1] = matrix.apply_f(al_get_bitmap_width(rti->bitmap), al_get_bitmap_height(rti->bitmap));
 
-			int nx0 = std::max(cx, x0);
-			int ny0 = std::max(cy, y0);
-			int nx1 = std::min(cx + cw, x1);
-			int ny1 = std::min(cy + ch, y1);
+			int nx0 = std::max(cx, (int)std::floor(fx0));
+			int ny0 = std::max(cy, (int)std::floor(fy0));
+			int nx1 = std::min(cx + cw, (int)std::ceil(fx1));
+			int ny1 = std::min(cy + ch, (int)std::ceil(fy1));
 			al_set_clipping_rectangle(nx0, ny0, std::max(0, nx1 - nx0), std::max(0, ny1 - ny0));
 			render_tree_draw_item(rti_child, do_a4_only);
 			al_set_clipping_rectangle(cx, cy, cw, ch);
@@ -860,7 +861,7 @@ void popup_zqdialog_start(string name, uint tagid, int x, int y, int w, int h, i
 		al_set_new_bitmap_flags(0);
 		rti->a4_bitmap = tmp_bmp;
 		rti->transparency_index = transp;
-		rti->set_transform({x, y});
+		rti->set_transform({(float)x, (float)y});
 		rti->owned = true;
 		rti_dialogs.add_child(rti);
 		rti_dialogs.visible = true;
@@ -968,7 +969,7 @@ RenderTreeItem* add_dlg_layer(int x, int y, int w, int h)
 	rti->bitmap = al_create_bitmap(w,h);
 	rti->set_size(w, h);
 	clear_a5_bmp(rti->bitmap);
-	rti->set_transform({.x = x, .y = y});
+	rti->set_transform({.x = (float)x, .y = (float)y});
 	rti->a4_bitmap = nullptr;
 	rti->visible = true;
 	rti->owned = true;
