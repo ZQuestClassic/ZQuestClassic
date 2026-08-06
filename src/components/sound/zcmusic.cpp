@@ -80,7 +80,15 @@ char const * zcmusic_types = "it;mod;mp3;ogg;s3m;spc;gym;nsf;gbs;vgm;xm";
 pair<ZCMUSIC*,ZCM_Error> zcmusic_load_for_quest(const char* filename, const char* quest_path)
 {
 	if (!al_is_audio_installed())
+	{
+		static bool logged_no_audio;
+		if (!logged_no_audio)
+		{
+			logged_no_audio = true;
+			al_trace("Not loading music: audio is not installed\n");
+		}
 		return make_pair(nullptr, ZCM_E_NO_AUDIO);
+	}
     char exe_path[PATH_MAX];
     get_executable_name(exe_path, PATH_MAX);
     auto exe_dir = std::filesystem::path(exe_path).parent_path();
@@ -128,6 +136,11 @@ pair<ZCMUSIC*,ZCM_Error> zcmusic_load_for_quest(const char* filename, const char
         if (newzcmusic)
             return make_pair(newzcmusic, ZCM_E_OK);
     }
+
+	if (any_existed)
+		al_trace("Music file '%s' was found, but failed to load (quest: '%s')\n", filename, quest_path);
+	else
+		al_trace("Music file '%s' not found in any music folder (quest: '%s')\n", filename, quest_path);
 
     return make_pair(nullptr, any_existed ? ZCM_E_ERROR : ZCM_E_NOT_FOUND);
 }
