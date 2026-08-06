@@ -86,7 +86,14 @@ jobs:
           cmake-version: '3.31.10'
 
       # Install dependencies.
-      - if: ${{ contains(inputs.runs-on, 'mac') }}
+      # Homebrew's bison is new enough on arm64 macs, but it is keg-only, so
+      # expose it to later steps.
+      - if: ${{ contains(inputs.runs-on, 'mac') && runner.arch == 'ARM64' }}
+        name: Install Bison
+        run: |
+          brew install bison
+          echo "$(brew --prefix bison)/bin" >> "$GITHUB_PATH"
+      - if: ${{ contains(inputs.runs-on, 'mac') && runner.arch != 'ARM64' }}
         name: Build and install Bison
         run: |
           wget http://ftp.gnu.org/gnu/bison/bison-3.6.tar.gz
@@ -224,7 +231,10 @@ jobs:
             arch_label = {'win32': 'x86', 'arm64': 'arm64'}.get(arch, 'x64')
             release_platform = f'windows-{arch_label}'
           elif system == 'Darwin':
-            release_platform = 'mac'
+            # Arch-neutral on purpose: this becomes the compile-time
+            # RELEASE_PLATFORM string, which both slices of a universal
+            # binary share.
+            release_platform = 'mac-universal' if arch == 'universal' else 'mac'
           elif system == 'Linux':
             release_platform = f'linux-{arch}'
 
@@ -246,9 +256,38 @@ jobs:
           -DCMAKE_C_COMPILER_LAUNCHER=ccache
           -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
 
+      # A mac universal build compiles the host architecture into `build`
+      # (above), the other architecture into `build-x86_64`, and lipo-merges
+      # the second into the first. A single configure with both archs in
+      # CMAKE_OSX_ARCHITECTURES is not supported - see "Universal (multi-arch)
+      # mac binaries" in the root CMakeLists.txt.
+      # Keep these arguments the same as "Configure build".
+      - name: Configure build (universal, x86_64 slice)
+        if: inputs.arch == 'universal'
+        run: >
+          cmake -S . -B build-x86_64 -G 'Ninja Multi-Config'
+          -DCMAKE_OSX_ARCHITECTURES=x86_64
+          -DCOPY_RESOURCES=OFF
+          -DZC_OFFICIAL="${{ inputs.official }}"
+          -DRELEASE_TAG="${{ inputs.release-tag }}"
+          -DRELEASE_PLATFORM="${{ steps.set-platform.outputs.platform }}"
+          -DRELEASE_CHANNEL="2.55"
+          -DREPO="${{ github.repository }}"
+          -DWANT_SENTRY="${{ inputs.sentry }}"
+          -DWANT_ZC_TESTS="${{ inputs.test-runner }}"
+          -DCMAKE_OSX_DEPLOYMENT_TARGET=12.0
+          -DCMAKE_C_COMPILER_LAUNCHER=ccache
+          -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+
       - run: ccache -z
       - run: cmake --build build --config ${{ inputs.config }} --target ${{ env.TARGET }} -j 4 -- -k 0
+      - name: Build (universal, x86_64 slice)
+        if: inputs.arch == 'universal'
+        run: cmake --build build-x86_64 --config ${{ inputs.config }} --target ${{ env.TARGET }} -j 4 -- -k 0
       - run: ccache -s
+      - name: Merge builds into universal binaries
+        if: inputs.arch == 'universal'
+        run: python .github/workflows/merge_mac_universal.py build/${{ inputs.config }} build-x86_64/${{ inputs.config }}
 
       # Fail if any changes were written to any source files.
       - run: git diff --cached --exit-code
@@ -269,7 +308,10 @@ jobs:
             arch_label = {'win32': 'x86', 'arm64': 'arm64'}.get(arch, 'x64')
             package_name = f'{release_tag}-windows-{arch_label}.zip'
           elif system == 'Darwin':
-            package_name = f'{release_tag}-mac.dmg'
+            if arch == 'universal':
+              package_name = f'{release_tag}-mac-universal.dmg'
+            else:
+              package_name = f'{release_tag}-mac.dmg'
           elif system == 'Linux':
             package_name = f'{release_tag}-linux-{arch}.tar.gz'
 

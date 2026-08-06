@@ -207,7 +207,9 @@ def get_download_urls(release_platform: str):
                         None,
                     )
         elif release_platform == 'mac':
-            key = next((k for k in keys if k.endswith('.dmg')), None)
+            key = next(
+                (k for k in keys if k.endswith('mac-universal.dmg')), None
+            ) or next((k for k in keys if k.endswith('.dmg')), None)
         elif release_platform == 'linux':
             key = next(
                 (
@@ -365,7 +367,9 @@ def get_gh_release_package_url(tag: str, release_platform: str):
 
     asset = None
     if release_platform == 'mac':
-        asset = next((asset for asset in assets if asset.name.endswith('.dmg')), None)
+        asset = next(
+            (a for a in assets if a.name.endswith('mac-universal.dmg')), None
+        ) or next((asset for asset in assets if asset.name.endswith('.dmg')), None)
     elif release_platform == 'windows':
         # Exclude things that are certainly not windows packages, so a
         # release with only (say) a mac build doesn't match below.
@@ -433,6 +437,7 @@ def download_revision(revision: Revision, release_platform: str):
         urls = [f'{prefix}windows-{arch}.zip' for arch in _windows_arch_preference()]
     elif release_platform == 'mac':
         urls = [
+            f'{prefix}mac-universal.dmg',
             f'{prefix}mac.dmg',
         ]
     elif release_platform == 'linux':

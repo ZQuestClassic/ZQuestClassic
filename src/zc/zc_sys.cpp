@@ -19,6 +19,7 @@
 #include <filesystem>
 #include <ctype.h>
 #include <sstream>
+#include "base/about.h"
 #include "base/zc_alleg.h"
 #include "base/win_encoding.h"
 #include "gamedata.h"
@@ -5661,7 +5662,9 @@ int32_t onAbout()
 	oss << buf1 << '\n';
 	sprintf(buf1, "Built By: %s", DEV_SIGNOFF);
 	oss << buf1 << '\n';
-	
+	snprintf(buf1, sizeof(buf1), "Arch: %s", getRunningArch());
+	oss << buf1 << '\n';
+
 	InfoDialog("About ZC", oss.str()).show();
 	return D_O_K;
 }
