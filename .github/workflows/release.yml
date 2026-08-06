@@ -69,8 +69,11 @@ jobs:
             compiler: msvc
             config: RelWithDebInfo
             sentry: ${{ inputs.sentry }}
-          - runs-on: macos-15-intel
-            arch: intel
+          # Builds a universal (arm64 + x86_64) bundle: the native arm64 build
+          # is merged with a second x86_64 build via lipo. See the `build`
+          # command in ci.py.
+          - runs-on: macos-15
+            arch: universal
             compiler: clang
             config: RelWithDebInfo
             sentry: ${{ inputs.sentry }}

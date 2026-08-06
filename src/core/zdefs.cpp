@@ -1,5 +1,6 @@
 #include "core/zdefs.h"
 #include "items.h"
+#include "base/about.h"
 #include "base/version.h"
 #include "base/zc_math.h"
 #include "gui/jwin_a5.h"
@@ -734,7 +735,9 @@ string generate_zq_about()
 	oss << buf1 << '\n';
 	snprintf(buf1, sizeof(buf1), "Build Date: %s %s, %d at @ %s %s", dayextension(BUILDTM_DAY).c_str(), (char*)months[BUILDTM_MONTH], BUILDTM_YEAR, __TIME__, __TIMEZONE__);
 	oss << buf1 << '\n';
-	
+	snprintf(buf1, sizeof(buf1), "Arch: %s", getRunningArch());
+	oss << buf1 << '\n';
+
 	return oss.str();
 }
 

@@ -1,4 +1,5 @@
 import argparse
+import hashlib
 import json
 import logging
 import os
@@ -85,6 +86,11 @@ class CiContext:
         if self.is_windows:
             arch_label = 'x86' if self.arch == 'win32' else 'x64'
             return f'windows-{arch_label}'
+        if self.is_mac:
+            # Arch-neutral on purpose: this becomes the compile-time
+            # RELEASE_PLATFORM string, which both slices of a universal
+            # binary share.
+            return 'mac-universal' if self.arch == 'universal' else 'mac'
         return self.system.lower()
 
     @property
@@ -250,15 +256,27 @@ def install_deps(ctx: CiContext, args):
         logger.info("macOS detected. Installing via Homebrew.")
         run_cmd("brew install ninja ccache")
 
-        logger.info("Building custom Bison 3.6...")
-        run_cmd("wget http://ftp.gnu.org/gnu/bison/bison-3.6.tar.gz")
-        run_cmd("tar -zxvf bison-3.6.tar.gz")
+        if platform.machine() == 'arm64':
+            # Homebrew's bison is new enough here, but it is keg-only, so
+            # expose it to later workflow steps via GITHUB_PATH.
+            run_cmd("brew install bison")
+            bison_prefix = subprocess.check_output(
+                ['brew', '--prefix', 'bison'], text=True
+            ).strip()
+            github_path = os.environ.get('GITHUB_PATH')
+            if github_path:
+                with open(github_path, 'a') as f:
+                    f.write(f"{bison_prefix}/bin\n")
+        else:
+            logger.info("Building custom Bison 3.6...")
+            run_cmd("wget http://ftp.gnu.org/gnu/bison/bison-3.6.tar.gz")
+            run_cmd("tar -zxvf bison-3.6.tar.gz")
 
-        env = os.environ.copy()
-        env['CFLAGS'] = '-Wno-error=incompatible-pointer-types'
-        run_cmd("./configure", cwd="bison-3.6", env=env)
-        run_cmd("make", cwd="bison-3.6")
-        run_cmd("sudo make install", cwd="bison-3.6")
+            env = os.environ.copy()
+            env['CFLAGS'] = '-Wno-error=incompatible-pointer-types'
+            run_cmd("./configure", cwd="bison-3.6", env=env)
+            run_cmd("make", cwd="bison-3.6")
+            run_cmd("sudo make install", cwd="bison-3.6")
 
     elif ctx.is_linux:
         logger.info("Linux detected. Installing via apt-get.")
@@ -302,6 +320,117 @@ def install_deps(ctx: CiContext, args):
     logger.info("Dependency installation complete.")
 
 
+OPENSSL_VERSION = "3.5.7"
+OPENSSL_SHA256 = "a8c0d28a529ca480f9f36cf5792e2cd21984552a3c8e4aa11a24aa31aeac98e8"
+
+
+def build_mac_openssl(arch: str) -> Path:
+    """Build a static OpenSSL for the given arch, returning an install prefix
+    usable as OPENSSL_ROOT_DIR.
+
+    Used by mac universal builds. Homebrew no longer publishes x86_64
+    bottles, so a from-source build is the only way to get an x86_64 OpenSSL
+    on the arm64 runners. The native slice uses this too so both slices carry
+    the same version - and unlike Homebrew's, this build reads CA
+    certificates from /etc/ssl, which exists on every mac.
+    """
+    install_dir = tmp_dir / f"openssl-{arch}"
+    if (install_dir / "lib/libssl.a").exists():
+        return install_dir
+
+    tarball = tmp_dir / f"openssl-{OPENSSL_VERSION}.tar.gz"
+    if not tarball.exists():
+        tmp_dir.mkdir(parents=True, exist_ok=True)
+        url = f"https://github.com/openssl/openssl/releases/download/openssl-{OPENSSL_VERSION}/openssl-{OPENSSL_VERSION}.tar.gz"
+        run_cmd(['curl', '-sfL', '-o', tarball, url])
+
+    digest = hashlib.sha256(tarball.read_bytes()).hexdigest()
+    if digest != OPENSSL_SHA256:
+        logger.error(f"openssl tarball sha256 mismatch: {digest}")
+        sys.exit(1)
+
+    src_dir = tmp_dir / f"openssl-src-{arch}"
+    src_dir.mkdir(parents=True, exist_ok=True)
+    run_cmd(['tar', '-xf', tarball, '-C', src_dir, '--strip-components', '1'])
+
+    run_cmd(
+        [
+            './Configure',
+            f'darwin64-{arch}-cc',
+            'no-shared',
+            'no-tests',
+            f'--prefix={install_dir}',
+            '--openssldir=/etc/ssl',
+            '--libdir=lib',
+        ],
+        cwd=src_dir,
+    )
+    run_cmd(['make', f'-j{os.cpu_count()}'], cwd=src_dir)
+    # install_sw skips the (slow, unneeded) docs.
+    run_cmd(['make', 'install_sw'], cwd=src_dir)
+    return install_dir
+
+
+# Thin Mach-O magic numbers (little-endian on disk), 64-bit and 32-bit.
+MACHO_THIN_MAGICS = {b'\xcf\xfa\xed\xfe', b'\xce\xfa\xed\xfe'}
+
+
+def is_thin_macho(path: Path) -> bool:
+    if path.is_symlink() or not path.is_file():
+        return False
+    try:
+        with path.open('rb') as f:
+            return f.read(4) in MACHO_THIN_MAGICS
+    except OSError:
+        return False
+
+
+def strip_build_tree_rpaths(path: Path):
+    """Remove LC_RPATH entries pointing into the build tree.
+
+    The slices of a universal build carry rpaths naming their own build
+    folders, and install_name_tool can only delete an rpath present in every
+    slice of a fat file - so this must run on the thin binaries, before
+    merging. (Otherwise fixup_bundle fails at package time when it tries to
+    clean them up.) They are meaningless outside the build tree anyway; the
+    packaging step adds the install rpath the app needs.
+    """
+    out = subprocess.check_output(['otool', '-l', str(path)], text=True)
+    rpaths = set(re.findall(r'^\s+path (.+) \(offset \d+\)$', out, re.MULTILINE))
+    for rpath in sorted(rpaths):
+        if rpath.startswith(str(root_dir)):
+            run_cmd(['install_name_tool', '-delete_rpath', rpath, path])
+
+
+def merge_mac_binaries(primary_dir: Path, secondary_dir: Path):
+    """lipo-merge every Mach-O in secondary_dir into its counterpart in primary_dir.
+
+    This covers the executables and dylibs that get packaged, and also the
+    debug info inside the .dSYM bundles next to them (dsymutil's DWARF
+    companion files are Mach-O too), so the sentry debug info upload from
+    primary_dir covers both architectures.
+    """
+    merged = []
+    for path in sorted(primary_dir.rglob('*')):
+        if not is_thin_macho(path):
+            continue
+        other = secondary_dir / path.relative_to(primary_dir)
+        if not is_thin_macho(other):
+            continue
+        if not any(part.endswith('.dSYM') for part in path.parts):
+            strip_build_tree_rpaths(path)
+            strip_build_tree_rpaths(other)
+        run_cmd(['lipo', '-create', path, other, '-output', path])
+        merged.append(path)
+
+    if not merged:
+        logger.error(f"No binaries to merge found in {primary_dir}")
+        sys.exit(1)
+
+    logger.info(f"Created {len(merged)} universal binaries.")
+    run_cmd(['lipo', '-info', merged[0]])
+
+
 @command("build", help="Configure and build the project")
 @argument("--no-cache", dest="cache", action="store_false", help="Disable ccache")
 @argument("--official", action="store_true", help="Mark as an official build")
@@ -342,57 +471,98 @@ def build(ctx: CiContext, args):
 
     configure_signatures(ctx)
 
-    logger.info("Running CMake configure...")
     is_official = str(args.official).lower()
     wants_tests = str(args.test_runner).lower()
     sentry = str(args.sentry).lower()
 
-    cmake_config_cmd = [
-        "cmake",
-        "-S",
-        ".",
-        "-B",
-        "build",
-        "-G",
-        "Ninja Multi-Config",
-        "-DCOPY_RESOURCES=OFF",
-        f"-DZC_OFFICIAL={is_official}",
-        f"-DZC_VERSION={ctx.release_version}",
-        f"-DRELEASE_PLATFORM={ctx.platform_label}",
-        "-DRELEASE_CHANNEL=3",
-        f"-DREPO={ctx.repo}",
-        f"-DWANT_SENTRY={sentry}",
-        f"-DWANT_ZC_TESTS={wants_tests}",
-    ]
-    if ctx.is_windows:
-        cmake_config_cmd.append("-DCMAKE_WIN32_EXECUTABLE=1")
-    if ctx.is_linux and not args.official:
-        # Enable DCHECK in CI on Linux for testing.
-        cmake_config_cmd.append("-DCMAKE_CXX_FLAGS=-DDCHECK_IS_ON")
-    if cmake_toolchain:
-        cmake_config_cmd.append(f"-DCMAKE_TOOLCHAIN_FILE={cmake_toolchain}")
-        cmake_config_cmd.append(f"-DVCPKG_TARGET_TRIPLET={triplet}")
-    if args.cache:
-        cmake_config_cmd.extend(
-            [
-                "-DCMAKE_C_COMPILER_LAUNCHER=ccache",
-                "-DCMAKE_CXX_COMPILER_LAUNCHER=ccache",
-            ]
-        )
-
-    run_cmd(cmake_config_cmd, env=env)
+    # A mac universal build compiles the host architecture into `build`, the
+    # other architecture into `build-<arch>`, and lipo-merges the second into
+    # the first. A single configure with both archs in CMAKE_OSX_ARCHITECTURES
+    # is not supported - see "Universal (multi-arch) mac binaries" in the root
+    # CMakeLists.txt.
+    build_dirs = [("build", [])]
+    if ctx.is_mac and ctx.arch == 'universal':
+        native_arch = platform.machine()
+        other_arch = 'x86_64' if native_arch == 'arm64' else 'arm64'
+        # Each slice links its own arch's OpenSSL statically. Dynamic linking
+        # would reference a Homebrew dylib the user won't have - today that
+        # is papered over by fixup_bundle copying the dylib into the app, but
+        # Homebrew has no x86_64 libraries on an arm64 host at all, so both
+        # slices instead use a from-source static build.
+        build_dirs = [
+            (
+                "build",
+                [
+                    "-DOPENSSL_USE_STATIC_LIBS=TRUE",
+                    f"-DOPENSSL_ROOT_DIR={build_mac_openssl(native_arch)}",
+                ],
+            ),
+            (
+                f"build-{other_arch}",
+                [
+                    f"-DCMAKE_OSX_ARCHITECTURES={other_arch}",
+                    "-DOPENSSL_USE_STATIC_LIBS=TRUE",
+                    f"-DOPENSSL_ROOT_DIR={build_mac_openssl(other_arch)}",
+                ],
+            ),
+        ]
 
     if args.cache:
         run_cmd("ccache -z", env=env)
 
-    logger.info("Running CMake build...")
-    run_cmd(
-        f"cmake --build build --config {ctx.config} --target {targets_str} -- -k 0",
-        env=env,
-    )
+    for build_dir, extra_config_args in build_dirs:
+        logger.info(f"Running CMake configure ({build_dir})...")
+        cmake_config_cmd = [
+            "cmake",
+            "-S",
+            ".",
+            "-B",
+            build_dir,
+            "-G",
+            "Ninja Multi-Config",
+            "-DCOPY_RESOURCES=OFF",
+            f"-DZC_OFFICIAL={is_official}",
+            f"-DZC_VERSION={ctx.release_version}",
+            f"-DRELEASE_PLATFORM={ctx.platform_label}",
+            "-DRELEASE_CHANNEL=3",
+            f"-DREPO={ctx.repo}",
+            f"-DWANT_SENTRY={sentry}",
+            f"-DWANT_ZC_TESTS={wants_tests}",
+        ]
+        cmake_config_cmd.extend(extra_config_args)
+        if ctx.is_windows:
+            cmake_config_cmd.append("-DCMAKE_WIN32_EXECUTABLE=1")
+        if ctx.is_linux and not args.official:
+            # Enable DCHECK in CI on Linux for testing.
+            cmake_config_cmd.append("-DCMAKE_CXX_FLAGS=-DDCHECK_IS_ON")
+        if cmake_toolchain:
+            cmake_config_cmd.append(f"-DCMAKE_TOOLCHAIN_FILE={cmake_toolchain}")
+            cmake_config_cmd.append(f"-DVCPKG_TARGET_TRIPLET={triplet}")
+        if args.cache:
+            cmake_config_cmd.extend(
+                [
+                    "-DCMAKE_C_COMPILER_LAUNCHER=ccache",
+                    "-DCMAKE_CXX_COMPILER_LAUNCHER=ccache",
+                ]
+            )
+
+        run_cmd(cmake_config_cmd, env=env)
+
+        logger.info(f"Running CMake build ({build_dir})...")
+        run_cmd(
+            f"cmake --build {build_dir} --config {ctx.config} --target {targets_str} -- -k 0",
+            env=env,
+        )
 
     if args.cache:
         run_cmd("ccache -s", env=env)
+
+    if len(build_dirs) > 1:
+        logger.info("Merging builds into universal binaries...")
+        merge_mac_binaries(
+            root_dir / "build" / ctx.config,
+            root_dir / build_dirs[1][0] / ctx.config,
+        )
 
     logger.info("Verifying source tree integrity...")
     run_cmd("git diff --cached --exit-code")
@@ -408,7 +578,10 @@ def package(ctx: CiContext, args):
     if ctx.is_windows:
         package_name = f"{ctx.release_version}-windows-{ctx.arch_label}.zip"
     elif ctx.is_mac:
-        package_name = f"{ctx.release_version}-mac.dmg"
+        if ctx.arch == 'universal':
+            package_name = f"{ctx.release_version}-mac-universal.dmg"
+        else:
+            package_name = f"{ctx.release_version}-mac.dmg"
     elif ctx.is_linux:
         package_name = f"{ctx.release_version}-linux.tar.gz"
     else:
@@ -779,7 +952,9 @@ def main():
     # Global/Shared arguments for all subparsers
     parent = argparse.ArgumentParser(add_help=False)
     parent.add_argument(
-        "--arch", default="x64", help="Architecture (x64, win32, intel, aarch64)"
+        "--arch",
+        default="x64",
+        help="Architecture (x64, win32, intel, aarch64, universal)",
     )
     parent.add_argument("--compiler", default="gcc", help="Compiler (gcc, clang, msvc)")
     parent.add_argument(

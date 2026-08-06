@@ -21,6 +21,7 @@
 #include <filesystem>
 #include <ctype.h>
 #include <sstream>
+#include "base/about.h"
 #include "base/version.h"
 #include "gamedata.h"
 #include "zc/debugger/debugger.h"
@@ -4920,7 +4921,9 @@ int32_t onAbout()
 	oss << buf1 << '\n';
 	snprintf(buf1, sizeof(buf1), "Build Date: %s %s, %d at @ %s %s", dayextension(BUILDTM_DAY).c_str(), (char*)months[BUILDTM_MONTH], BUILDTM_YEAR, __TIME__, __TIMEZONE__);
 	oss << buf1 << '\n';
-	
+	snprintf(buf1, sizeof(buf1), "Arch: %s", getRunningArch());
+	oss << buf1 << '\n';
+
 	InfoDialog("About ZC", oss.str()).show();
 	return D_O_K;
 }

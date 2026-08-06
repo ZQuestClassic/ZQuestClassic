@@ -782,7 +782,7 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 						Rows<1>(fitParent = true,
 							Label(text = fmt::format("Current version: {}", getVersionString())),
 							Label(text = fmt::format("Channel: {}", getReleaseChannel())),
-							Label(text = fmt::format("Platform: {}", getReleasePlatform())),
+							Label(text = fmt::format("Platform: {} ({})", getReleasePlatform(), getRunningArch())),
 							Button(
 								text = "View Release Notes",
 								onClick = message::ZU_RELEASE_NOTES
