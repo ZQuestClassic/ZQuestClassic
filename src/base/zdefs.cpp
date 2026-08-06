@@ -1,4 +1,5 @@
 #include "base/zdefs.h"
+#include "base/about.h"
 #include "gui/jwin_a5.h"
 #include "base/zapp.h"
 #include "dialog/info.h"
@@ -721,7 +722,9 @@ string generate_zq_about()
 	oss << buf1 << '\n';
 	sprintf(buf1, "Built By: %s", DEV_SIGNOFF);
 	oss << buf1 << '\n';
-	
+	snprintf(buf1, sizeof(buf1), "Arch: %s", getRunningArch());
+	oss << buf1 << '\n';
+
 	return oss.str();
 }
 
