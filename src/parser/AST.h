@@ -361,7 +361,6 @@ namespace ZScript
 		void execute(ASTVisitor& visitor, void* param = NULL);
     	
 		std::pair<std::string,std::string> parseValue() const;
-		int32_t getValue();
 		void initNeg();
 		Type type;
 		std::string value;
@@ -402,17 +401,47 @@ namespace ZScript
 		owning_vector<ASTString> strings;
 	};
 
-	struct AnnotationParam
+	struct AnnotParam_Raw
 	{
-		AnnotationParam(ASTString* ptr)
-			: is_string(true), strval(ptr), intval()
+		enum class Type
+		{
+			NONE,
+			STRING,
+			IDENTIFIER,
+			EXPR_CONST,
+		};
+		AnnotParam_Raw(ASTString* ptr)
+			: ty(Type::STRING), strval(ptr)
 		{}
-		AnnotationParam(ASTFloat* ptr)
-			: is_string(false), strval(), intval(ptr)
+		AnnotParam_Raw(ASTExprIdentifier* ptr)
+			: ty(Type::IDENTIFIER), identval(ptr)
 		{}
-		bool is_string;
-		owning_ptr<ASTString> strval;
-		owning_ptr<ASTFloat> intval;
+		AnnotParam_Raw(ASTExprConst* ptr)
+			: ty(Type::EXPR_CONST), exprval(ptr)
+		{}
+		Type ty = Type::NONE;
+		owning_ptr<ASTString> strval {};
+		owning_ptr<ASTExprIdentifier> identval {};
+		owning_ptr<ASTExprConst> exprval {};
+		
+		string to_string(CompileErrorHandler* errorHandler, Scope* scope);
+	};
+	struct AnnotParam_Parsed
+	{
+		enum class Type
+		{
+			NONE,
+			STRING,
+			STRING_UNESCAPED,
+			NUMBER,
+			ENUM_NAME,
+			BTN_SWAP_TYPE,
+		};
+		Type ty = Type::NONE;
+		string str {};
+		zfix number {};
+		DataType const* enum_type = nullptr;
+		operator bool() const {return ty != Type::NONE;}
 	};
 	class ASTAnnotation : public AST
 	{
@@ -422,8 +451,9 @@ namespace ZScript
 		
 		void execute(ASTVisitor& visitor, void* param = NULL);
 		
-		owning_ptr<ASTString> key;
-		vector<AnnotationParam> params;
+		std::string key;
+		vector<AnnotParam_Raw> params;
+		bool was_parsed = false;
 	};
 	
 	class ASTAnnotationList : public AST
@@ -434,7 +464,7 @@ namespace ZScript
 		
 		void execute(ASTVisitor& visitor, void* param = NULL);
 		
-		owning_vector<ASTAnnotation> set;
+		owning_vector<ASTAnnotation> annots;
 	};
 	
 	class ASTSetOption : public AST
@@ -668,6 +698,7 @@ namespace ZScript
 		owning_ptr<ASTExpr> increment;
 		owning_ptr<ASTStmt> body;
 		owning_ptr<ASTStmt> elseBlock;
+		owning_ptr<ASTAnnotationList> loop_annotation {};
 		
 		bool ends_loop, ends_else;
 		
@@ -842,6 +873,7 @@ namespace ZScript
 		owning_vector<ASTDataTypeDef> types;
 		owning_vector<ASTUsingDecl> use;
 		owning_vector<ASTAssert> asserts;
+		owning_ptr<ASTAnnotationList> script_annotation {};
 		
 		optional<int32_t> init_weight;
 		
@@ -1054,6 +1086,7 @@ namespace ZScript
 		bool was_range_exported;
 		exported_variable export_data;
 
+		owning_ptr<ASTAnnotationList> data_annotation {};
 	protected:
 		// The list of individual data declarations.
 		owning_vector<ASTDataDecl> declarations_;
@@ -1081,6 +1114,8 @@ namespace ZScript
 		BitMode getBitMode() const {return bitmode;}
 		
 		optional<zfix> increment_val;
+		
+		owning_ptr<ASTAnnotationList> enum_annotation {};
 	private:
 		BitMode bitmode = BIT_NONE;
 	};

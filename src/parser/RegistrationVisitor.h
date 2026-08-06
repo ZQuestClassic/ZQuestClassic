@@ -39,7 +39,6 @@ namespace ZScript
 		void caseCustomDataTypeDef(ASTCustomDataTypeDef& host, void* param = NULL);
 		void caseScriptTypeDef(ASTScriptTypeDef& host, void* param = NULL);
 		void caseDataDeclList(ASTDataDeclList& host, void* param = NULL);
-		void caseDataEnum(ASTDataEnum& host, void* param = NULL);
 		void caseDataDecl(ASTDataDecl& host, void* param = NULL);
 		void caseDataDeclExtraArray(ASTDataDeclExtraArray& host, void* param = NULL);
 		void caseFuncDecl(ASTFuncDecl& host, void* param = NULL);
@@ -91,30 +90,12 @@ namespace ZScript
 			caseDefault(host,param);}
 		void caseArrayLiteral(ASTArrayLiteral& host, void* param = NULL);
 		void caseStringLiteral(ASTStringLiteral& host, void* param = NULL);
-	protected:
 		
-		void doRegister(AST& host)
-		{
-			host.mark_registered();
-			hasChanged = true;
-		}
-		////////////////////////////////////////////////////////////////
-		// Convenience Functions
-		// Quickly checks if a node, or container of nodes, is all registered
-		bool registered(AST& node) const;
-		//Shortcut for pointer
-		bool registered(AST* node) const;
-		template <class Container>
-		bool registered_vec(Container const& nodes) const;
-		//Visiting
-		template <class Container>
-		void block_regvisit_vec(Container const& nodes, void* param = NULL);
+		bool isRegistration() const {return true;}
 	private:
 		void analyzeUnaryExpr(ASTUnaryExpr& host);
 		void analyzeBinaryExpr(ASTBinaryExpr& host);
 		void handle_staticness(AST* node, bool& is_static, bool is_nonstatic, Scope* scope, bool disallow);
-		
-		bool hasChanged;
 	};
 }
 
