@@ -137,6 +137,13 @@ if(LINUX)
 	# doesn't support the flag).
 	if(NOT EMSCRIPTEN)
 		add_link_options("$<$<NOT:$<CONFIG:Asan>>:-Wl,--exclude-libs,ALL>")
+
+		# Emit GNU build-ids: upstream clang doesn't by default (distro
+		# compilers patch it in). Without one, crashpad and sentry-cli fall
+		# back to hashing file bytes for the debug id, and cpack's
+		# install-time RPATH rewrite changes the executables' bytes - so
+		# Linux crash reports never matched the uploaded debug info.
+		add_link_options("-Wl,--build-id=sha1")
 	endif()
 endif()
 
