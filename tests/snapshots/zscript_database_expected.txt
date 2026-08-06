@@ -1,4 +1,4 @@
-639 / 785 (81%) passed
+638 / 785 (81%) passed
 
 Failures:
 	00026-deku-leaf/script.zs
@@ -141,6 +141,7 @@ Failures:
 	00547--new-palette-based-day-night-system/DayNightNew.zs
 	00571-gumzol/gumzol.z
 	00571-gumzol/script.zs
+	00572-ice-physics-slippery/icePhysics.zs
 	00580-mani-s-script-header/script.zs
 	00589-temporary-no-return-item-drops/TempNoReturnItem.zs
 	00601-chain-chomp/ChainChomp.zs
@@ -13599,6 +13600,29 @@ script.zs Line 207 - Error T021: Function IsActive(int) has not been declared.
 
 Failure!
 Compile finished with exit code '9' (compiled with errors)
+
+=== 00572-ice-physics-slippery/icePhysics.zs
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+icePhysics.zs Line 24 - Error S114: Duplicate Annotation '@InitD0'!
+
+22    //Assign the script to a slot, and set it to 'Run from Start' in Init Data
+23    @InitD0("Accel Rate"), @InitDHelp0("The fraction of your current speed that you accelerate by. Default '0.015'. Must be above 0."),
+24    @InitD0("Decel Rate"), @InitDHelp0("The fraction of your current speed that you decelerate by. Default '0.010'. Must be between 0 and 1.")
+      ^~~~~~~~~~~~~~~~~~~~~
+
+
+icePhysics.zs Line 24 - Error S114: Duplicate Annotation '@InitDHelp0'!
+
+22    //Assign the script to a slot, and set it to 'Run from Start' in Init Data
+23    @InitD0("Accel Rate"), @InitDHelp0("The fraction of your current speed that you accelerate by. Default '0.015'. Must be above 0."),
+24    @InitD0("Decel Rate"), @InitDHelp0("The fraction of your current speed that you decelerate by. Default '0.010'. Must be between 0 and 1.")
+                             ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+Failure!
+Compile finished with exit code '114' (compiled with errors)
 
 === 00580-mani-s-script-header/script.zs
 Pass 1: Parsing

@@ -398,7 +398,8 @@ DataType const* ZScript::lookupDataType(
 				break;
 			if(type->compare(*temp))
 			{
-				if(!isTypedefCheck)errorHandler->handleError(CompileError::TooManyType(&host, name));
+				if (!isTypedefCheck && errorHandler)
+					errorHandler->handleError(CompileError::TooManyType(&host, name));
 				return NULL;
 			}
 		}
@@ -417,7 +418,8 @@ DataType const* ZScript::lookupDataType(
 		{
 			if(type->compare(*temp))
 			{
-				errorHandler->handleError(CompileError::TooManyType(&host, name));
+				if (errorHandler)
+					errorHandler->handleError(CompileError::TooManyType(&host, name));
 				return NULL;
 			}
 		}
