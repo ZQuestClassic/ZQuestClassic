@@ -4,7 +4,9 @@
 /* supported music file formats.       */
 
 #include "base/zc_alleg.h" // TODO: why do we get "_malloca macro redefinition" in Windows debug builds without this include?
+#include <algorithm>
 #include <cstring>
+#include <vector>
 
 #ifdef _DEBUG
 #ifdef _malloca
@@ -97,54 +99,66 @@ pair<ZCMUSIC*,ZCM_Error> zcmusic_load_for_quest(const char* filename, const char
     get_executable_name(exe_path, PATH_MAX);
     auto exe_dir = std::filesystem::path(exe_path).parent_path();
     auto quest_dir = std::filesystem::path(quest_path).parent_path();
-	
-	bool any_existed = false;
-	
-    for (int i = 0; i <= 5; i++)
-    {
-        std::filesystem::path dir;
-        if (i == 0)
-        {
-            dir = exe_dir;
-        }
-        else if (i == 1)
-        {
-            dir = quest_dir;
-        }
-        else if (i == 2)
-        {
-            std::string folder_name = std::filesystem::path(quest_path).filename().string() + "_music";
-            dir = resolve_case_insensitive(exe_dir, folder_name);
-        }
-        else if (i == 3)
-        {
-            dir = resolve_case_insensitive(exe_dir, "music");
-        }
-        else if (i == 4)
-        {
-            std::string folder_name = std::filesystem::path(quest_path).filename().string() + "_music";
-            dir = resolve_case_insensitive(quest_dir, folder_name);
-        }
-        else if (i == 5)
-        {
-            dir = resolve_case_insensitive(quest_dir, "music");
-        }
+	// A quest path with no directory component should search relative to the
+	// current directory (this is how the bundled title music is found).
+	if (quest_dir.empty())
+		quest_dir = ".";
 
-        auto path = resolve_case_insensitive(dir, filename);
-        if (!std::filesystem::exists(path))
-            continue;
-		
+	std::vector<std::filesystem::path> dirs;
+	auto add_dir = [&](const std::filesystem::path& dir) {
+		std::error_code ec;
+		if (!std::filesystem::is_directory(dir, ec))
+			return;
+		if (std::find(dirs.begin(), dirs.end(), dir) == dirs.end())
+			dirs.push_back(dir);
+	};
+
+	std::string music_folder_name = std::filesystem::path(quest_path).filename().string() + "_music";
+	add_dir(exe_dir);
+	add_dir(quest_dir);
+	add_dir(resolve_case_insensitive(exe_dir, music_folder_name));
+	add_dir(resolve_case_insensitive(exe_dir, "music"));
+	add_dir(resolve_case_insensitive(quest_dir, music_folder_name));
+	add_dir(resolve_case_insensitive(quest_dir, "music"));
+
+	// Last resort: the quest directory's immediate subfolders, so a music
+	// pack extracted into its own folder (what most archive tools do by
+	// default) still works.
+	std::error_code ec;
+	for (const auto& entry : std::filesystem::directory_iterator(quest_dir, ec))
+	{
+		if (!entry.is_directory(ec))
+			continue;
+		if (entry.path().filename().string().starts_with('.'))
+			continue;
+		add_dir(entry.path());
+	}
+
+	bool any_existed = false;
+
+	for (const auto& dir : dirs)
+	{
+		auto path = resolve_case_insensitive(dir, filename);
+		if (!std::filesystem::exists(path))
+			continue;
+
 		any_existed = true;
-		
+
 		ZCMUSIC *newzcmusic = zcmusic_load_file(path.string().c_str());
-        if (newzcmusic)
-            return make_pair(newzcmusic, ZCM_E_OK);
-    }
+		if (newzcmusic)
+			return make_pair(newzcmusic, ZCM_E_OK);
+	}
 
 	if (any_existed)
+	{
 		al_trace("Music file '%s' was found, but failed to load (quest: '%s')\n", filename, quest_path);
+	}
 	else
-		al_trace("Music file '%s' not found in any music folder (quest: '%s')\n", filename, quest_path);
+	{
+		al_trace("Music file '%s' not found in any music folder (quest: '%s'). Searched:\n", filename, quest_path);
+		for (const auto& dir : dirs)
+			al_trace("    %s\n", dir.string().c_str());
+	}
 
     return make_pair(nullptr, any_existed ? ZCM_E_ERROR : ZCM_E_NOT_FOUND);
 }
