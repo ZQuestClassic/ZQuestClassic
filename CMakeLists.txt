@@ -125,6 +125,19 @@ set(BUILD_TESTING OFF CACHE BOOL "")
 if(LINUX)
 	# https://stackoverflow.com/a/71321163/2788187
 	SET(CMAKE_BUILD_RPATH_USE_ORIGIN TRUE)
+
+	# Don't re-export symbols from vendored static libraries (libpng, libjpeg,
+	# zlib, vorbis, ...) in our shared libraries. Without this, system libraries
+	# loaded into the process later (e.g. GTK/gdk-pixbuf when a native file
+	# dialog opens) can bind their libpng/libjpeg/zlib calls to our vendored
+	# copies, which crashes on some distros.
+	# Skipped for Asan builds: the statically-linked sanitizer runtime's
+	# malloc/free interceptors must remain exported so shared libraries bind
+	# to them. Skipped for Emscripten (LINUX is set for it above, but wasm-ld
+	# doesn't support the flag).
+	if(NOT EMSCRIPTEN)
+		add_link_options("$<$<NOT:$<CONFIG:Asan>>:-Wl,--exclude-libs,ALL>")
+	endif()
 endif()
 
 if(APPLE)
@@ -227,6 +240,14 @@ if (WANT_NFD)
 		set(BUILD_SHARED_LIBS ON CACHE BOOL "" FORCE)
 		set(NFD_INSTALL OFF CACHE BOOL "" FORCE)
 		set(NFD_OVERRIDE_RECENT_WITH_DEFAULT ON CACHE BOOL "" FORCE)
+		if(LINUX)
+			# Use the xdg-desktop-portal backend instead of in-process GTK3.
+			# The dialog is provided out-of-process by the desktop environment,
+			# which works on Wayland and avoids loading GTK (and its transitive
+			# libraries) into our process. Requires libdbus-1-dev to build and
+			# xdg-desktop-portal at runtime (standard on modern desktops).
+			set(NFD_PORTAL ON CACHE BOOL "" FORCE)
+		endif()
 		FetchContent_MakeAvailable(nativefiledialog) # exposed as nfd
 		set(BUILD_SHARED_LIBS ${BUILD_SHARED_LIBS_PREV} CACHE BOOL "" FORCE)
 		set(USE_NFD ON)

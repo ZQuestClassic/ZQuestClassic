@@ -276,6 +276,8 @@ def install_deps(ctx: CiContext, args):
             "libxcursor1",
             "libasound2-dev",
             "libgtk-3-dev",
+            # For nativefiledialog-extended's xdg-desktop-portal backend.
+            "libdbus-1-dev",
             "flex",
             "bison",
             "elfutils",
