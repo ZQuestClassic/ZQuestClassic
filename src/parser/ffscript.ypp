@@ -43,244 +43,6 @@ std::string curfilename;
 extern YYLTYPE noloc;
 
 #define push_front(v, elem) (v).insert((v).begin(), elem)
-void trunc_str(std::string& str, size_t sz, std::string const& header, int32_t row = yyrow,
-	int32_t col = yycol, char const* txt = yytext)
-{
-	if(str.size() > sz)
-	{
-		yyerrmsg("ERROR: "+header+": String value '" + str + "' is too long. Max '"+std::to_string(sz)+"' characters.", row, col, txt);
-		str = str.substr(0,sz);
-	}
-}
-
-enum AnnotationParamType
-{
-	ANNTY_NONE,
-	ANNTY_STR,
-	ANNTY_INT,
-	ANNTY_MAX
-};
-static string annot_tys[ANNTY_MAX] = {"Empty", "String", "Number"};
-
-int annot_row, annot_col;
-string annot_err_txt;
-static const string annot_err_header = "ERROR: Bad Annotation Value";
-struct AnnotParamData
-{
-	string strval, val, unescaped_val;
-	zfix intval;
-	AnnotationParamType type;
-};
-struct AnnotData
-{
-	string key;
-	vector<AnnotParamData> params;
-	YYLTYPE location;
-};
-static void annot_errstr(string const& message, YYLTYPE const& loc)
-{
-	zconsole_error(message.c_str());
-	zparser_error_out(message, ZScript::LocationData(loc));
-}
-static void annot_trunc_str(string& str, size_t size)
-{
-	trunc_str(str, size, annot_err_header, annot_row, annot_col, annot_err_txt.c_str());
-}
-
-
-static optional<int8_t> annot_param_check_swaptype(AnnotData& data, size_t param_idx)
-{
-	auto& pdata = data.params[param_idx];
-	CHECK(pdata.type == ANNTY_STR);
-	if (pdata.val == "-1")
-		return -1;
-	util::upperstr(pdata.val);
-	if (pdata.val.size() == 2 && pdata.val[0] == 'L')
-	{
-		switch(pdata.val[1])
-		{
-			case 'D': return nswapLDEC;
-			case 'H': return nswapLHEX;
-		}
-	}
-	else if (pdata.val.size() == 1)
-	{
-		switch (pdata.val[0])
-		{
-			case 'D': return nswapDEC;
-			case 'H': return nswapHEX;
-			case 'B': return nswapBOOL;
-		}
-	}
-	
-	annot_errstr(
-		fmt::format("ERROR: Bad Annotation Value: '@{}' parameter {} must be"
-			" exactly 'D','H','LD','LH','B', or '-1' NOT '{}'.",
-			data.key, param_idx, pdata.strval), data.location);
-	return nullopt;
-}
-static bool annot_sig_check(AnnotData const& data, vector<vector<AnnotationParamType>> signature)
-{
-	size_t max = signature.size();
-	size_t min = max;
-	for (int idx = int(signature.size()-1); idx >= 0; --idx)
-	{
-		auto& sigvec = signature[idx];
-		if (util::contains(sigvec, ANNTY_NONE)) // optional
-		{
-			CHECK(min == idx+1); // can't have a required after an optional!
-			--min;
-			util::remove_if_exists(sigvec, ANNTY_NONE);
-		}
-		CHECK(!sigvec.empty());
-	}
-	
-	auto sz = data.params.size();
-	
-	// check param count
-	{
-		string err_word;
-		size_t err_sz;
-		if (max == min)
-		{
-			if (sz != min)
-			{
-				err_word = "exactly";
-				err_sz = min;
-			}
-		}
-		else
-		{
-			CHECK(min < max);
-			if (sz < min)
-			{
-				err_word = "at least";
-				err_sz = min;
-			}
-			else if (sz > max)
-			{
-				err_word = "at most";
-				err_sz = max;
-			}
-		}
-		
-		if (!err_word.empty())
-		{
-			annot_errstr(fmt::format("ERROR: Bad Annotation Value: @{} expects"
-				" {} {} parameter{}, not {} parameter{}!", data.key, err_word,
-				err_sz, err_sz == 1 ? "" : "s",
-				sz, sz == 1 ? "" : "s"), data.location);
-			return false;
-		}
-	}
-	// check param types
-	{
-		for (size_t idx = 0; idx < sz; ++idx)
-		{
-			auto& pdata = data.params[idx];
-			auto& sigvec = signature[idx];
-			if (util::contains(sigvec, pdata.type))
-				continue;
-			string s;
-			if (sigvec.size() == 1)
-				s = fmt::format("type '{}'", annot_tys[sigvec[0]]);
-			else
-			{
-				vector<string> tynames;
-				for (auto ty : sigvec)
-					tynames.push_back(annot_tys[ty]);
-				s = fmt::format("one of types '{}'", fmt::join(tynames, ", "));
-			}
-			annot_errstr(fmt::format("ERROR: Bad Annotation Value: @{} expects parameter {} to be {}, not type '{}'",
-				data.key, idx, s, annot_tys[pdata.type]), data.location);
-			return false;
-		}
-	}
-	return true;
-}
-static bool annot_sig_check_1(AnnotationParamType expected, AnnotData const& data)
-{
-	return annot_sig_check(data, {{expected}});
-}
-
-static void handle_annotations(ASTAnnotationList* list, std::function<bool(AnnotData&, map<string, std::set<string>>&)> fn)
-{
-	owning_vector<ASTAnnotation>& set = list->set;
-	annot_row = list->location.first_line;
-	annot_col = list->location.first_column;
-	std::set<string> used_keys;
-	map<string, std::set<string>> excl_keys;
-	for(size_t q = 0; q < set.size(); ++q)
-	{
-		ASTAnnotation* a = set[q];
-		AnnotData data = AnnotData();
-		data.key = a->key->getValue();
-		for (auto& param : a->params)
-		{
-			auto& pdata = data.params.emplace_back();
-			
-			pdata.strval = "";
-			pdata.intval = 0;
-			if(param.is_string)
-			{
-				pdata.type = ANNTY_STR;
-				pdata.strval = param.strval->getValue();
-			}
-			else if(param.intval)
-			{
-				pdata.type = ANNTY_INT;
-				pdata.intval = zslongToFix(param.intval->getValue());
-			}
-			else CHECK(false);
-			
-			pdata.val = "";
-			pdata.unescaped_val = "";
-			switch (pdata.type)
-			{
-				case ANNTY_STR:
-					pdata.val = pdata.strval;
-					pdata.unescaped_val = util::disallow_escapes(util::escape_characters(pdata.strval));
-					break;
-				case ANNTY_INT:
-					pdata.val = pdata.unescaped_val = pdata.intval.str();
-					break;
-			}
-		}
-		ostringstream oss;
-		oss << "@" << data.key << "(";
-		for (size_t q = 0; q < data.params.size(); ++q)
-		{
-			if (q)
-				oss << ", ";
-			oss << data.params[q].val;
-		}
-		oss << ")";
-		annot_err_txt = oss.str();
-
-		data.location.first_line = a->location.first_line;
-		data.location.first_column = a->location.first_column;
-		data.location.last_line = a->location.last_line;
-		data.location.last_column = a->location.last_column;
-		
-		if (used_keys.contains(data.key))
-		{
-			annot_errstr("ERROR: Duplicate Annotation Key: @"+data.key+" was already set.", data.location);
-			continue;
-		}
-		if (excl_keys.contains(data.key))
-		{
-			vector<string> bad_keys;
-			for (auto& bad_key : excl_keys[data.key])
-				bad_keys.push_back(fmt::format("'@{}'", bad_key));
-			annot_errstr(fmt::format("ERROR: Annotation '@{}' not compatible with {}", data.key, fmt::join(bad_keys, ", ")), data.location);
-			continue;
-		}
-		if(!fn(data, excl_keys))
-			annot_errstr("ERROR: Bad Annotation Key: '"+data.key+"'", data.location);
-	}
-	delete list;
-}
-
 static ASTExpr* handle_statement_expr(ASTExpr* expr)
 {
 	if(ASTExprIncrement* increm = dynamic_cast<ASTExprIncrement*>(expr))
@@ -318,7 +80,7 @@ static ASTExprAssign* compound_assign(ASTExpr* left, ASTExpr* rval, LocationData
 
 %glr-parser
 %expect 7
-%expect-rr 1
+%expect-rr 9
 %define parse.error verbose
 %start Init
 %parse-param {std::shared_ptr<ZScript::ASTFile>& root}
@@ -778,71 +540,7 @@ Annotated_Data :
 	Annotation_List Data {
 		ASTAnnotationList* list = (ASTAnnotationList*)$1;
 		ASTDataDeclList* decl = (ASTDataDeclList*)$2;
-		handle_annotations(list, [&](AnnotData& data, map<string, std::set<string>>&)
-		{
-			auto& key = data.key;
-			if (key == "Export")
-			{
-				if (annot_sig_check(data,
-					{
-						{ANNTY_STR},
-						{ANNTY_NONE, ANNTY_STR},
-						{ANNTY_NONE, ANNTY_STR}
-					}))
-				{
-					auto sz = data.params.size();
-					if (sz >= 3)
-					{
-						if (auto v = annot_param_check_swaptype(data, 2))
-							decl->export_data.btn_type = *v;
-					}
-					
-					if (sz >= 2)
-					{
-						auto& param = data.params[1];
-						annot_trunc_str(param.val, 65535);
-						decl->export_data.helptext = param.val;
-					}
-					
-					// if (sz >= 1)
-					{
-						auto& param = data.params[0];
-						annot_trunc_str(param.unescaped_val, 255);
-						decl->export_data.name = param.unescaped_val;
-					}
-					
-					decl->was_exported = true;
-				}
-				return true;
-			}
-			else if (key == "ExportRange")
-			{
-				if (annot_sig_check(data,
-					{
-						{ANNTY_INT},
-						{ANNTY_INT}
-					}))
-				{
-					zfix min = data.params[0].intval;
-					zfix max = data.params[1].intval;
-					if (min > max)
-					{
-						annot_errstr(fmt::format("ERROR: Bad Annotation Value: @{} expects"
-							" min <= max; got {} > {}",
-							key, min.str(), max.str()), data.location);
-					}
-					else
-					{
-						decl->export_data.min = min;
-						decl->export_data.max = max;
-					}
-					
-					decl->was_range_exported = true;
-				}
-				return true;
-			}
-			return false;
-		});
+		decl->data_annotation = list;
 		$$ = decl;}
 	| Data {$$ = $1;}
 	;
@@ -1305,280 +1003,7 @@ Annotated_Script :
 	Annotation_List Script {
 		ASTAnnotationList* list = (ASTAnnotationList*)$1;
 		ASTScript* script = (ASTScript*)$2;
-		handle_annotations(list, [&](AnnotData& data, map<string, std::set<string>>& excl_keys)
-		{
-			AnnotParamData* p1 = nullptr;
-			if (data.params.size() > 0)
-				p1 = &data.params[0];
-			auto& key = data.key;
-			if(key == "Author")
-			{
-				if(annot_sig_check_1(ANNTY_STR, data))
-				{
-					annot_trunc_str(p1->unescaped_val, 255);
-					script->metadata.author = p1->unescaped_val;
-				}
-				return true;
-			}
-			else if(key == "InitScript")
-			{
-				if(annot_sig_check_1(ANNTY_INT, data))
-					script->init_weight = p1->intval.getZLong();
-				return true;
-			}
-			else if (key == "ScriptInfo")
-			{
-				if(annot_sig_check_1(ANNTY_STR, data))
-				{
-					annot_trunc_str(p1->val, 65535);
-					script->metadata.script_info = p1->val;
-				}
-				return true;
-			}
-			else if (key == "ScriptSetup")
-			{
-				if(annot_sig_check_1(ANNTY_STR, data))
-				{
-					annot_trunc_str(p1->val, 65535);
-					script->metadata.script_setup = p1->val;
-				}
-				return true;
-			}
-			else if((key.size() == 5 || key.size() == 6) && !key.compare(0,4,"Flag"))
-			{
-				byte c = key[4]-'0';
-				if(key.size() == 6)
-					c = (c*10)+key[5]-'0';
-				if(c < 16)
-				{
-					if(annot_sig_check_1(ANNTY_STR, data))
-					{
-						annot_trunc_str(p1->unescaped_val, 255);
-						script->metadata.usrflags[c] = p1->unescaped_val;
-					}
-					return true;
-				}
-			}
-			else if((key.size() == 9 || key.size() == 10) && !key.compare(0,8,"FlagHelp"))
-			{
-				byte c = key[8]-'0';
-				if(key.size() == 10)
-					c = (c*10)+key[9]-'0';
-				if(c < 16)
-				{
-					if(annot_sig_check_1(ANNTY_STR, data))
-					{
-						annot_trunc_str(p1->val, 65535);
-						script->metadata.usrflags_help[c] = p1->val;
-					}
-					return true;
-				}
-			}
-			else if(key.size() == 6 && !key.compare(0,5,"InitD"))
-			{
-				byte c = key[5]-'0';
-				if(c < 8)
-				{
-					if(annot_sig_check_1(ANNTY_STR, data))
-					{
-						annot_trunc_str(p1->unescaped_val, 255);
-						script->metadata.initd_label[c] = p1->unescaped_val;
-					}
-					excl_keys[fmt::format("ExportInitD{}", c)].insert(key);
-					return true;
-				}
-			}
-			else if(key.size() == 10)
-			{
-				byte c = key[9]-'0';
-				if(!key.compare(0,9,"InitDType"))
-				{
-					if(c < 8)
-					{
-						if(annot_sig_check_1(ANNTY_STR, data))
-						{
-							if (auto v = annot_param_check_swaptype(data, 0))
-								script->metadata.initd_type[c] = *v;
-						}
-						excl_keys[fmt::format("ExportInitD{}", c)].insert(key);
-						return true;
-					}
-				}
-				else if(!key.compare(0,9,"InitDHelp"))
-				{
-					if(c < 8)
-					{
-						if(annot_sig_check_1(ANNTY_STR, data))
-						{
-							annot_trunc_str(p1->val, 65535);
-							script->metadata.initd_help[c] = p1->val;
-						}
-						excl_keys[fmt::format("ExportInitD{}", c)].insert(key);
-						return true;
-					}
-				}
-				else if(!key.compare(0,9,"Attribute"))
-				{
-					if(c < 10) // 1 digit number
-					{
-						if(annot_sig_check_1(ANNTY_STR, data))
-						{
-							annot_trunc_str(p1->unescaped_val, 255);
-							script->metadata.attributes[c] = p1->unescaped_val;
-						}
-						return true;
-					}
-				}
-				else if(!key.compare(0,9,"Attribyte"))
-				{
-					if(c < 8)
-					{
-						if(annot_sig_check_1(ANNTY_STR, data))
-						{
-							annot_trunc_str(p1->unescaped_val, 255);
-							script->metadata.attributes[8+c] = p1->unescaped_val;
-						}
-						return true;
-					}
-				}
-			}
-			else if(key.size() == 11)
-			{
-				if(!key.compare(0,9,"Attribute"))
-				{
-					if (byte(key[9])-'0' < 10 && byte(key[10])-'0' < 10)
-					{
-						byte c = atoi(key.c_str()+9);
-						if (c < NUM_ZMETA_ATTRIBUTES)
-						{
-							if(annot_sig_check_1(ANNTY_STR, data))
-							{
-								annot_trunc_str(p1->unescaped_val, 255);
-								script->metadata.attributes[c] = p1->unescaped_val;
-							}
-							return true;
-						}
-					}
-				}
-				else if (!key.compare(0,10,"Attrishort"))
-				{
-					byte c = key[10]-'0';
-					if(c < 8)
-					{
-						if(annot_sig_check_1(ANNTY_STR, data))
-						{
-							annot_trunc_str(p1->unescaped_val, 255);
-							script->metadata.attributes[16+c] = p1->unescaped_val;
-						}
-						return true;
-					}
-				}
-			}
-			else if(key.size() == 12)
-			{
-				if(!key.compare(0,11,"ExportInitD"))
-				{
-					byte c = key[11]-'0';
-					if (c < 8)
-					{
-						if (annot_sig_check(data,
-							{
-								{ANNTY_STR},
-								{ANNTY_NONE, ANNTY_STR},
-								{ANNTY_NONE, ANNTY_STR}
-							}))
-						{
-							auto sz = data.params.size();
-							if (sz >= 3)
-							{
-								if (auto v = annot_param_check_swaptype(data, 2))
-									script->metadata.initd_type[c] = *v;
-							}
-							
-							if (sz >= 2)
-							{
-								auto& param = data.params[1];
-								annot_trunc_str(param.val, 65535);
-								script->metadata.initd_help[c] = param.val;
-							}
-							
-							if (sz >= 1)
-							{
-								auto& param = data.params[0];
-								annot_trunc_str(param.unescaped_val, 255);
-								script->metadata.initd_label[c] = param.unescaped_val;
-							}
-						}
-						excl_keys[fmt::format("InitD{}", c)].insert(key);
-						excl_keys[fmt::format("InitDHelp{}", c)].insert(key);
-						excl_keys[fmt::format("InitDType{}", c)].insert(key);
-						return true;
-					}
-				}
-			}
-			else if(key.size() == 14)
-			{
-				if(!key.compare(0,13,"AttributeHelp"))
-				{
-					byte c = key[13]-'0';
-					if(c < 10) // 1 digit number
-					{
-						if(annot_sig_check_1(ANNTY_STR, data))
-						{
-							annot_trunc_str(p1->val, 65535);
-							script->metadata.attributes_help[c] = p1->val;
-						}
-						return true;
-					}
-				}
-				else if(!key.compare(0,13,"AttribyteHelp"))
-				{
-					byte c = key[13]-'0';
-					if(c < 8)
-					{
-						if(annot_sig_check_1(ANNTY_STR, data))
-						{
-							annot_trunc_str(p1->val, 65535);
-							script->metadata.attributes_help[8+c] = p1->val;
-						}
-						return true;
-					}
-				}
-			}
-			else if(key.size() == 15)
-			{
-				if(!key.compare(0,13,"AttributeHelp"))
-				{
-					if (byte(key[13])-'0' < 10 && byte(key[14])-'0' < 10)
-					{
-						byte c = atoi(key.c_str()+13);
-						if(c < NUM_ZMETA_ATTRIBUTES)
-						{
-							if(annot_sig_check_1(ANNTY_STR, data))
-							{
-								annot_trunc_str(p1->val, 65535);
-								script->metadata.attributes_help[c] = p1->val;
-							}
-							return true;
-						}
-					}
-				}
-				else if (!key.compare(0,14,"AttrishortHelp"))
-				{
-					byte c = key[14]-'0';
-					if(c < 8)
-					{
-						if(annot_sig_check_1(ANNTY_STR, data))
-						{
-							annot_trunc_str(p1->val, 65535);
-							script->metadata.attributes_help[16+c] = p1->val;
-						}
-						return true;
-					}
-				}
-			}
-			return false;
-		});
+		script->script_annotation = list;
 		$$ = script;}
 	| Script {$$ = $1;}
 	;
@@ -1649,13 +1074,13 @@ Script_Block_Element :
 Annotation_List :
 	Annotation_List COMMA Annotation {
 		ASTAnnotationList* list = (ASTAnnotationList*)$1;
-		list->set.push_back((ASTAnnotation*)$3);
+		list->annots.push_back((ASTAnnotation*)$3);
 		if (list->doc_comment.empty())
 			list->doc_comment = std::move(((ASTAnnotation*)$3)->doc_comment);
 		$$ = list;}
 	| Annotation {
 		ASTAnnotationList* list = new ASTAnnotationList(@$);
-		list->set.push_back((ASTAnnotation*)$1);
+		list->annots.push_back((ASTAnnotation*)$1);
 		list->doc_comment = std::move(((ASTAnnotation*)$1)->doc_comment);
 		$$ = list;}
 	;
@@ -1664,58 +1089,51 @@ Annotation :
 	HANDLE IDENTIFIER LPAREN AnnotArgList RPAREN {
 		ASTString* key = (ASTString*)$2;
 		ASTAnnotation* a = (ASTAnnotation*)$4;
-		a->key = key;
+		a->key = key->getValue();
 		a->location = @$;
 		a->doc_comment = std::move(key->doc_comment);
+		delete key;
 		$$ = a;}
 	| HANDLE IDENTIFIER LPAREN RPAREN {
 		ASTString* key = (ASTString*)$2;
 		ASTAnnotation* a = new ASTAnnotation(@$);
-		a->key = key;
+		a->key = key->getValue();
 		a->doc_comment = std::move(key->doc_comment);
+		delete key;
 		$$ = a;}
 	;
 
 AnnotArgList :
-	AnnotArgList COMMA AnnotFloat {
-		ASTAnnotation* a = (ASTAnnotation*)$1;
-		a->params.emplace_back((ASTFloat*)$3);
-		$$ = a;
-	}
-	| AnnotArgList COMMA AnnotStr {
+	AnnotArgList COMMA QuotedString %dprec 2 {
 		ASTAnnotation* a = (ASTAnnotation*)$1;
 		a->params.emplace_back((ASTString*)$3);
 		$$ = a;
 	}
-	| AnnotFloat {
-		ASTAnnotation* a = new ASTAnnotation(@$);
-		a->params.emplace_back((ASTFloat*)$1);
+	| AnnotArgList COMMA Identifier_List %dprec 2 {
+		ASTAnnotation* a = (ASTAnnotation*)$1;
+		a->params.emplace_back((ASTExprIdentifier*)$3);
 		$$ = a;
 	}
-	| AnnotStr {
+	| AnnotArgList COMMA Expression_Constant %dprec 1 {
+		ASTAnnotation* a = (ASTAnnotation*)$1;
+		a->params.emplace_back((ASTExprConst*)$3);
+		$$ = a;
+	}
+	| QuotedString %dprec 2 {
 		ASTAnnotation* a = new ASTAnnotation(@$);
 		a->params.emplace_back((ASTString*)$1);
 		$$ = a;
 	}
-	;
-
-AnnotFloat :
-	NUMBER {$$ = $1;}
-	| LONGNUMBER {$$ = $1;}
-	| MINUS NUMBER {
-		ASTFloat* val = (ASTFloat*)$2;
-		val->negative = !val->negative;
-		$$ = val;
+	| Identifier_List %dprec 2 {
+		ASTAnnotation* a = new ASTAnnotation(@$);
+		a->params.emplace_back((ASTExprIdentifier*)$1);
+		$$ = a;
 	}
-	| MINUS LONGNUMBER {
-		ASTFloat* val = (ASTFloat*)$2;
-		val->negative = !val->negative;
-		$$ = val;
+	| Expression_Constant %dprec 1 {
+		ASTAnnotation* a = new ASTAnnotation(@$);
+		a->params.emplace_back((ASTExprConst*)$1);
+		$$ = a;
 	}
-	;
-
-AnnotStr :
-	QuotedString {$$ = $1;}
 	;
 
 ////////////////////////////////////////////////////////////////
@@ -2011,31 +1429,15 @@ Statement_For_Each :
 Annotated_Loop :
 	Annotation_List Statement_Loop {
 		ASTAnnotationList* list = (ASTAnnotationList*)$1;
-		ASTStmtRangeLoop* loop = (ASTStmtRangeLoop*)$2;
-		handle_annotations(list, [&](AnnotData& data, map<string, std::set<string>>&)
+		AST* loop = $2;
+		if (auto* range_loop = dynamic_cast<ASTStmtRangeLoop*>(loop))
+			range_loop->loop_annotation = list;
+		else
 		{
-			AnnotParamData* p1 = nullptr;
-			if (data.params.size() > 0)
-				p1 = &data.params[0];
-			auto& key = data.key;
-			if(key == "AlwaysRunEndpoint")
-			{
-				if(annot_sig_check_1(ANNTY_STR, data))
-				{
-					if(p1->strval == "off")
-						loop->overflow = ASTStmtRangeLoop::OVERFLOW_ALLOW;
-					else if(p1->strval == "int")
-						loop->overflow = ASTStmtRangeLoop::OVERFLOW_INT;
-					else if(p1->strval == "long" || p1->strval == "float")
-						loop->overflow = ASTStmtRangeLoop::OVERFLOW_LONG;
-					else annot_errstr(annot_err_header+": '@"+key+"' must be"
-							" exactly 'off','int','float', or 'long', NOT '" + p1->strval + "'.", data.location);
-				}
-				return true;
-			}
-			return false;
-		});
-		$$ = loop;}
+			yyerrmsg("ERROR: Annotations invalid on no-args loop()s", loop->location.first_line, loop->location.first_column, "loop()");
+			delete list;
+		}
+		$$ = $2;}
 	| Statement_Loop {$$ = $1;}
 	;
 
@@ -2196,42 +1598,17 @@ Annotated_Enum:
 		ASTAnnotationList* list = (ASTAnnotationList*)$1;
 		ASTDataEnum* en = dynamic_cast<ASTDataEnum*>($2);
 		ASTCustomDataTypeDef* tdef = dynamic_cast<ASTCustomDataTypeDef*>($2);
-		if(tdef) en = tdef->definition.get();
+		if(tdef)
+			en = tdef->definition.get();
 		if(tdef)
 		{
 			if (!list->doc_comment.empty()) tdef->doc_comment = std::move(list->doc_comment);
 		}
-		else if(en)
+		else
 		{
 			if (!list->doc_comment.empty()) en->doc_comment = std::move(list->doc_comment);
 		}
-		handle_annotations(list, [&](AnnotData& data, map<string, std::set<string>>& excl_keys)
-		{
-			AnnotParamData* p1 = nullptr;
-			if (data.params.size() > 0)
-				p1 = &data.params[0];
-			auto& key = data.key;
-			if(key == "Increment")
-			{
-				if(annot_sig_check_1(ANNTY_INT, data))
-					en->increment_val = p1->intval;
-				excl_keys["Bitflags"].insert(key);
-				return true;
-			}
-			else if(key == "Bitflags")
-			{
-				if(annot_sig_check_1(ANNTY_STR, data))
-				{
-					if(p1->strval == "int")
-						en->setBitMode(ASTDataEnum::BIT_INT);
-					else if(p1->strval == "long")
-						en->setBitMode(ASTDataEnum::BIT_LONG);
-				}
-				excl_keys["Increment"].insert(key);
-				return true;
-			}
-			return false;
-		});
+		en->enum_annotation = list;
 		$$ = $2;}
 	| DataEnum {$$ = $1;}
 
