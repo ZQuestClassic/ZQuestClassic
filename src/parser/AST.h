@@ -453,7 +453,6 @@ namespace ZScript
 		
 		std::string key;
 		vector<AnnotParam_Raw> params;
-		bool was_parsed = false;
 	};
 	
 	class ASTAnnotationList : public AST
@@ -1102,6 +1101,7 @@ namespace ZScript
 		
 		ASTDataEnum(LocationData const& location = LOC_NONE);
 		ASTDataEnum(ASTDataEnum const&);
+		ASTDataEnum& operator=(ASTDataEnum const& rhs);
 		ASTDataEnum* clone() const {return new ASTDataEnum(*this);}
 
 		std::optional<LocationData> getIdentifierLocation() const;

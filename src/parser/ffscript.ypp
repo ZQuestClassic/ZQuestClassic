@@ -1429,9 +1429,14 @@ Statement_For_Each :
 Annotated_Loop :
 	Annotation_List Statement_Loop {
 		ASTAnnotationList* list = (ASTAnnotationList*)$1;
-		ASTStmtRangeLoop* loop = dynamic_cast<ASTStmtRangeLoop*>($2);
-		if (loop)
-			loop->loop_annotation = list;
+		AST* loop = $2;
+		if (auto* range_loop = dynamic_cast<ASTStmtRangeLoop*>(loop))
+			range_loop->loop_annotation = list;
+		else
+		{
+			yyerrmsg("ERROR: Annotations invalid on no-args loop()s", loop->location.first_line, loop->location.first_column, "loop()");
+			delete list;
+		}
 		$$ = $2;}
 	| Statement_Loop {$$ = $1;}
 	;
