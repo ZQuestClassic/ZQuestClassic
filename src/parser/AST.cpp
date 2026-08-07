@@ -1122,6 +1122,9 @@ ASTDataDeclList::ASTDataDeclList(ASTDataDeclList const& other)
 			decl->baseType.release();
 		addDeclaration(decl);
 	}
+	data_annotation.reset();
+	if (other.data_annotation)
+		data_annotation = other.data_annotation->clone();
 }
 
 ASTDataDeclList& ASTDataDeclList::operator=(ASTDataDeclList const& rhs)
@@ -1138,6 +1141,9 @@ ASTDataDeclList& ASTDataDeclList::operator=(ASTDataDeclList const& rhs)
 			decl->baseType.release();
 		addDeclaration(decl);
 	}
+	data_annotation.reset();
+	if (rhs.data_annotation)
+		data_annotation = rhs.data_annotation->clone();
 
 	readonly = rhs.readonly;
 	internal = rhs.internal;
@@ -1176,7 +1182,22 @@ ASTDataEnum::ASTDataEnum(LocationData const& location)
 
 ASTDataEnum::ASTDataEnum(ASTDataEnum const& other)
 	: ASTDataDeclList(other)
-{}
+{
+	enum_annotation.reset();
+	if (other.enum_annotation)
+		enum_annotation = other.enum_annotation->clone();
+}
+
+ASTDataEnum& ASTDataEnum::operator=(ASTDataEnum const& rhs)
+{
+	ASTDataDeclList::operator=(rhs);
+	
+	enum_annotation.reset();
+	if (rhs.enum_annotation)
+		enum_annotation = rhs.enum_annotation->clone();
+	
+	return *this;
+}
 
 std::optional<LocationData> ASTDataEnum::getIdentifierLocation() const
 {

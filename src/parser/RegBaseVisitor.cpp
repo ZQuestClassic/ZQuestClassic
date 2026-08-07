@@ -799,20 +799,37 @@ bool RegBaseVisitor::validate_annot_string_size(ASTAnnotation& annot, string& st
 /**
  * - Start a list, then within the list, start as many annotations as you like.
  * - End each annotation before starting another. End the list when done.
+ * - Ending will return a bool. Starting will return `true` if the list was already fully processed previously.
  * - `ASTAnnotation& annot`, `const string key`, and `const size_t num_params` will be available in each annotation.
- * - `break;` from inside an annotation to early-exit.
- * - If the annotation ends without hitting a `break;`, it will not be processed again
- *   on subsequent passes through the list. Be sure to allow this after finalizing an annotation's effects.
- * - `bool did_fail;` will be declared in the scope that the list is started in, and can be used as a
- *   return value after ending the list.
+ * - `break;` from inside an annotation to fail parsing it.
  */
 #define START_ANNOT_LIST(name, valid_keys) \
-bool did_fail = false; \
 ASTAnnotationList& list = *node.name##_annotation; \
+if (registered(list)) return true; \
+bool _did_fail = false; \
+bool _all_parsed = true; \
 auto annots = validate_annotation_keys(list, valid_keys, #name);
 
 #define END_ANNOT_LIST() \
-if (did_fail) failure_temp = true;
+if (_did_fail) failure_temp = true; \
+if (_all_parsed) doRegister(list); \
+else \
+{ \
+	if (!isRegistration() && !failure_temp) \
+	{ \
+		/* Catchall if an annotation somehow is never parsed but emits no error */ \
+		vector<string> badKeys {}; \
+		for (auto& [key, annot] : annots) \
+		{ \
+			if (!registered(annot)) \
+				badKeys.emplace_back(fmt::format("'@{}'", key)); \
+		} \
+		DCHECK(!badKeys.empty()); \
+		handleError(CompileError::AnnotationError(&list, fmt::format("Unable to resolve annotations {}", fmt::join(badKeys, ", ")).c_str())); \
+	} \
+	return false; \
+} \
+return !_did_fail;
 
 #define START_ANNOT(name) \
 { \
@@ -821,20 +838,25 @@ if (did_fail) failure_temp = true;
 	if (it != annots.end()) \
 	{ \
 		auto& annot = *it->second; \
-		if (!annot.isDisabled() && !annot.was_parsed) \
+		if (!annot.isDisabled() && !registered(annot)) \
 		{ \
 			const size_t num_params = annot.params.size(); \
+			bool _is_parsed = false; \
 			do \
 			{
 #define END_ANNOT() \
-				annot.was_parsed = true; \
+				_is_parsed = true; \
 			} while (false); \
 			if (failure_temp) \
 			{ \
-				did_fail = true; \
+				_did_fail = true; \
 				failure_temp = false; \
 				annot.disable(); \
 			} \
+			if (_is_parsed) \
+				doRegister(annot); \
+			else \
+				_all_parsed = false; \
 		} \
 	} \
 }
@@ -892,7 +914,6 @@ bool RegBaseVisitor::parse_annotations_enum(ASTDataEnum& node)
 	}
 	END_ANNOT()
 	END_ANNOT_LIST()
-	return !did_fail;
 }
 bool RegBaseVisitor::parse_annotations_loop(ASTStmtRangeLoop& node)
 {
@@ -928,7 +949,6 @@ bool RegBaseVisitor::parse_annotations_loop(ASTStmtRangeLoop& node)
 	}
 	END_ANNOT()
 	END_ANNOT_LIST()
-	return !did_fail;
 }
 bool RegBaseVisitor::parse_annotations_data(ASTDataDeclList& node)
 {
@@ -1002,7 +1022,6 @@ bool RegBaseVisitor::parse_annotations_data(ASTDataDeclList& node)
 	}
 	END_ANNOT()
 	END_ANNOT_LIST()
-	return !did_fail;
 }
 bool RegBaseVisitor::parse_annotations_script(ASTScript& node)
 {
@@ -1042,6 +1061,7 @@ bool RegBaseVisitor::parse_annotations_script(ASTScript& node)
 			valid_keys.emplace_back(fmt::format("Attrishort{}", q));
 			valid_keys.emplace_back(fmt::format("AttrishortHelp{}", q));
 		}
+		initialized = true;
 	}
 	
 	START_ANNOT_LIST(script, valid_keys)
@@ -1299,6 +1319,5 @@ bool RegBaseVisitor::parse_annotations_script(ASTScript& node)
 		END_ANNOT()
 	}
 	END_ANNOT_LIST()
-	return !did_fail;
 }
 
