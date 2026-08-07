@@ -3187,8 +3187,11 @@ void update_msgstr()
 	}
 	else
 	{
-		blit(msg_txt_bmp_buf, msg_txt_display_buf, msg_margins[left], msg_margins[up], msg_xpos+msg_margins[left], msg_ypos+msg_margins[up], msg_w-msg_margins[left]-msg_margins[right], msg_h-msg_margins[up]-msg_margins[down]);
-		masked_blit(msg_menu_bmp_buf, msg_txt_display_buf, msg_margins[left], msg_margins[up], msg_xpos+msg_margins[left], msg_ypos+msg_margins[up], msg_w-msg_margins[left]-msg_margins[right], msg_h-msg_margins[up]-msg_margins[down]);
+		// 1px of leeway on every side: shadowed text draws its shadow 1px
+		// outside the glyph, so clipping exactly at the margins cuts the
+		// shadow off of edge glyphs.
+		blit(msg_txt_bmp_buf, msg_txt_display_buf, msg_margins[left]-1, msg_margins[up]-1, msg_xpos+msg_margins[left]-1, msg_ypos+msg_margins[up]-1, msg_w-msg_margins[left]-msg_margins[right]+2, msg_h-msg_margins[up]-msg_margins[down]+2);
+		masked_blit(msg_menu_bmp_buf, msg_txt_display_buf, msg_margins[left]-1, msg_margins[up]-1, msg_xpos+msg_margins[left]-1, msg_ypos+msg_margins[up]-1, msg_w-msg_margins[left]-msg_margins[right]+2, msg_h-msg_margins[up]-msg_margins[down]+2);
 	}
 	set_clip_state(msg_portrait_display_buf, 0);
 	blit(msg_portrait_bmp_buf, msg_portrait_display_buf, 0, 0, prt_x, prt_y, prt_tw*16, prt_th*16);
