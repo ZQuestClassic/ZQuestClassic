@@ -196,8 +196,11 @@ void update()
 	else
 	{
 		int ty = scroll.cur_scroll();
-		blit(txt_bmp_buf, txt_display_buf, margins[left], ty+margins[up], xpos+margins[left], ypos+margins[up], width-margins[left]-margins[right], height-margins[up]-margins[down]);
-		masked_blit(menu_bmp_buf, txt_display_buf, margins[left], ty+margins[up], xpos+margins[left], ypos+margins[up], width-margins[left]-margins[right], height-margins[up]-margins[down]);
+		// 1px of leeway on every side: shadowed text draws its shadow 1px
+		// outside the glyph, so clipping exactly at the margins cuts the
+		// shadow off of edge glyphs.
+		blit(txt_bmp_buf, txt_display_buf, margins[left]-1, ty+margins[up]-1, xpos+margins[left]-1, ypos+margins[up]-1, width-margins[left]-margins[right]+2, height-margins[up]-margins[down]+2);
+		masked_blit(menu_bmp_buf, txt_display_buf, margins[left]-1, ty+margins[up]-1, xpos+margins[left]-1, ypos+margins[up]-1, width-margins[left]-margins[right]+2, height-margins[up]-margins[down]+2);
 	}
 	set_clip_state(portrait_display_buf, 0);
 	blit(portrait_bmp_buf, portrait_display_buf, 0, 0, portrait.x, portrait.y, portrait.tw*16, portrait.th*16);

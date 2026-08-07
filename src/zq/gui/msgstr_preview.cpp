@@ -88,7 +88,10 @@ int32_t d_newmsg_preview_proc(int32_t msg, DIALOG *d, int32_t c)
 			auto scrollpos = prv->scroll.bound(prv->scroll.scroll_pos);
 			masked_blit(prv->bg_buf, buf, 0, 0, 0, 0, 256, 168);
 			int mu = prv->msg_margins[up], md = prv->msg_margins[down], ml = prv->msg_margins[left], mr = prv->msg_margins[right];
-			masked_blit(prv->fg_buf, buf, ml, mu+scrollpos, ml+s->x, mu+s->y, s->w-ml-mr, s->h-mu-md);
+			// 1px of leeway on every side, matching the player (see update()
+			// in zc/message_string.cpp): shadowed text draws its shadow 1px
+			// outside the glyph.
+			masked_blit(prv->fg_buf, buf, ml-1, mu+scrollpos-1, ml-1+s->x, mu-1+s->y, s->w-ml-mr+2, s->h-mu-md+2);
 			
 			stretch_blit(buf,screen,0,0,256,168,d->x+2,d->y+2,256*2,168*2);
 			
