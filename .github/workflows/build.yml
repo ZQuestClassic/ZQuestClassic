@@ -200,6 +200,7 @@ jobs:
           -DREPO="${{ github.repository }}"
           -DWANT_SENTRY="${{ inputs.sentry }}"
           -DWANT_ZC_TESTS="${{ inputs.test-runner }}"
+          ${{ contains(inputs.runs-on, 'macos') && '-DCMAKE_OSX_DEPLOYMENT_TARGET=12.0' || '' }}
           -DCMAKE_WIN32_EXECUTABLE=1
           -DCMAKE_C_COMPILER_LAUNCHER=ccache
           -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
