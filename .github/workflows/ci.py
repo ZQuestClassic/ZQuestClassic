@@ -320,6 +320,12 @@ def install_deps(ctx: CiContext, args):
     logger.info("Dependency installation complete.")
 
 
+# The oldest macOS the mac packages support. Without this, binaries inherit
+# the build machine's OS version as their minimum and refuse to launch on
+# anything older. The website's "Supported operating systems" section should
+# be kept in sync.
+MAC_DEPLOYMENT_TARGET = "12.0"
+
 OPENSSL_VERSION = "3.5.7"
 OPENSSL_SHA256 = "a8c0d28a529ca480f9f36cf5792e2cd21984552a3c8e4aa11a24aa31aeac98e8"
 
@@ -362,6 +368,8 @@ def build_mac_openssl(arch: str) -> Path:
             f'--prefix={install_dir}',
             '--openssldir=/etc/ssl',
             '--libdir=lib',
+            # Match the deployment target of the binaries this links into.
+            f'-mmacosx-version-min={MAC_DEPLOYMENT_TARGET}',
         ],
         cwd=src_dir,
     )
@@ -530,6 +538,10 @@ def build(ctx: CiContext, args):
             f"-DWANT_ZC_TESTS={wants_tests}",
         ]
         cmake_config_cmd.extend(extra_config_args)
+        if ctx.is_mac:
+            cmake_config_cmd.append(
+                f"-DCMAKE_OSX_DEPLOYMENT_TARGET={MAC_DEPLOYMENT_TARGET}"
+            )
         if ctx.is_windows:
             cmake_config_cmd.append("-DCMAKE_WIN32_EXECUTABLE=1")
         if ctx.is_linux and not args.official:
