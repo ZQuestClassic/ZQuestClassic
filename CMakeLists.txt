@@ -156,6 +156,28 @@ if(LINUX)
 	endif()
 endif()
 
+# Strip unreferenced code and data from optimized binaries. Every app links
+# the same large static libraries, and the linker otherwise keeps whole
+# object files - e.g. zlauncher carries most of the engine's GUI framework
+# without ever calling it. Static initializers survive: both dead_strip and
+# --gc-sections treat init_array/mod_init_func entries as roots. Scoped to
+# the shipping configs; unreachable code is still handy under a debugger.
+if(NOT EMSCRIPTEN)
+	set(strip_cfgs "$<CONFIG:Release,RelWithDebInfo>")
+	if(MSVC)
+		add_compile_options("$<${strip_cfgs}:/Gy;/Gw>")
+		# RelWithDebInfo links with /DEBUG, which defaults these to off.
+		add_link_options("$<${strip_cfgs}:/OPT:REF;/OPT:ICF>")
+	else()
+		add_compile_options("$<${strip_cfgs}:-ffunction-sections;-fdata-sections>")
+		if(APPLE)
+			add_link_options("$<${strip_cfgs}:-Wl,-dead_strip>")
+		elseif(LINUX)
+			add_link_options("$<${strip_cfgs}:-Wl,--gc-sections>")
+		endif()
+	endif()
+endif()
+
 function(enable_unity_build UB_SUFFIX SOURCE_VARIABLE_NAME)
   set(files ${${SOURCE_VARIABLE_NAME}})
   # Generate a unique filename for the unity build translation unit
