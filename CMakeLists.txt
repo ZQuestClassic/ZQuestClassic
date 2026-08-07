@@ -136,6 +136,13 @@ if(APPLE)
 			endforeach()
 		endforeach()
 	endif()
+
+	# Using an API newer than the deployment target without an availability
+	# guard would crash at runtime on the older systems the target claims to
+	# support (CI builds target the oldest supported macOS - see
+	# CMAKE_OSX_DEPLOYMENT_TARGET in .github/workflows/build.yml). Surface
+	# that at compile time instead.
+	add_compile_options(-Werror=unguarded-availability-new)
 endif()
 
 if(LINUX)
