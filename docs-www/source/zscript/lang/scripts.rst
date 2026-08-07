@@ -48,33 +48,82 @@ also allows "resetting to default" an exported variable's value.
 
 A value in [square brackets] indicates an 'optional' value.
 
+Many of these annotations conflict with one another, and cannot be used together. The notable exception
+is `@Export()`, which is REQUIRED by the other annotations here.
+
 .. table::
 	:widths: auto
 	
-	+-----------------+-----------------------------------------------+-------------------------------------------------+
-	| Annotation Name | Values                                        | Purpose                                         |
-	+=================+===============================================+=================================================+
-	| `@Export`       | | Name: String (256)                          | Exports the specified variable to be modifiable |
-	|                 | | Help Text: [String (65535)]                 | Sets the label, helptext, and input field       |
-	|                 | | Type: ["D", "H", "LD", "LH", "B", "-1"]     | type of the textbox for the exported variable.  |
-	|                 |                                               |                                                 |
-	|                 |                                               | Name must be specified, help text               |
-	|                 |                                               | defaults to blank, and type defaults based on   |
-	|                 |                                               | variable type, as:                              |
-	|                 |                                               |                                                 |
-	|                 |                                               | | `int`, `float`, `untyped` -> "D"              |
-	|                 |                                               | | `long` -> "LD"                                |
-	|                 |                                               | | `bool` -> "B"                                 |
-	|                 |                                               | | `rgb` -> "LH"                                 |
-	|                 |                                               | | else -> "-1"                                  |
-	+-----------------+-----------------------------------------------+-------------------------------------------------+
-	| `@ExportRange`  | | Min: int                                    | Sets a range for the exported variable. The     |
-	|                 | | Max: int                                    | field in the editor will not allow setting its  |
-	|                 |                                               | value outside of the specified range.           |
-	|                 |                                               |                                                 |
-	|                 |                                               | | If used on a non-exported variable, errors.   |
-	|                 |                                               | | If used on a boolean variable, errors.        |
-	+-----------------+-----------------------------------------------+-------------------------------------------------+
+	+-----------------------+-------------------------------------------------------+-------------------------------------------------------+
+	| Annotation Name       | Values                                                | Purpose                                               |
+	+=======================+=======================================================+=======================================================+
+	| `@Export`             | | Name: String (256)                                  | Exports the specified variable to be modifiable       |
+	|                       | | Help Text: [String (65535)]                         | Sets the label, helptext, and input field             |
+	|                       | | Type: ["D", "H", "LD", "LH", "B", "-1"]             | type of the textbox for the exported variable.        |
+	|                       |                                                       |                                                       |
+	|                       |                                                       | Name must be specified, help text                     |
+	|                       |                                                       | defaults to blank, and type defaults based on         |
+	|                       |                                                       | variable type, as:                                    |
+	|                       |                                                       |                                                       |
+	|                       |                                                       | | `int`, `float`, `untyped` -> "D"                    |
+	|                       |                                                       | | `long` -> "LD"                                      |
+	|                       |                                                       | | `bool` -> "B"                                       |
+	|                       |                                                       | | `rgb` -> "LH"                                       |
+	|                       |                                                       | | else -> "-1"                                        |
+	+-----------------------+-------------------------------------------------------+-------------------------------------------------------+
+	| `@ExportRange`        | | Min: int                                            | Sets a range for the exported variable. The           |
+	|                       | | Max: int                                            | field in the editor will not allow setting its        |
+	|                       |                                                       | value outside of the specified range.                 |
+	|                       |                                                       |                                                       |
+	|                       |                                                       | | If used on a non-exported variable, errors.         |
+	|                       |                                                       | | If used on a boolean variable, errors.              |
+	+-----------------------+-------------------------------------------------------+-------------------------------------------------------+
+	| `@ExportEngineValue`  | String:                                               | Sets the exported value to use a special GUI.         |
+	|                       | "Tile", "Tile CSet", "Combo", "Combo CSet", "Color",  | For example, "Tile", "Combo", and "Color" will        |
+	|                       | "Item", "Enemy", "Counter", "Sprite Data", "SFX",     | use a Tile / Combo / Color selector instead of        |
+	|                       | "MIDI", "Music", "Save Menu", "Message String",       | a number entry field. Most special values use         |
+	|                       | "Weapon Type", "LWeapon Type", "EWeapon Type",        | Drop Down Lists, limiting the selection to            |
+	|                       | "Dropset", "Font", "Bottle Type", "Combo Type",       | specific values based on the type.                    |
+	|                       | "Combo Flag"                                          |                                                       |
+	|                       |                                                       | Some of these special modes require multiple          |
+	|                       |                                                       | variables in a row; for example, 'Tile CSet'          |
+	|                       |                                                       | is only usable on a variable directly after           |
+	|                       |                                                       | a variable exported with 'Tile' mode (causing         |
+	|                       |                                                       | the two variables to share a gui widget)              |
+	+-----------------------+-------------------------------------------------------+-------------------------------------------------------+
+	| `@ExportDropdown`     | Takes many parameters. At least 1 required.           | Sets the exported value to use a dropdown list,       |
+	|                       |                                                       | displaying the specified options for the user         |
+	|                       | The 'value' starts at '0'. Specifying an 'int' sets   | to choose from.                                       |
+	|                       | 'String' gives a name to the current 'value', and     |                                                       |
+	|                       | the 'value' to the specified number. Specifying a     | Ex. `@ExportDropdown("Apple", "Banana", 6, "Grape")`  |
+	|                       | then increments the 'value' by 1.                     | would specify "Apple" as 0, "Banana" as 1, and        |
+	|                       |                                                       | "Grape" as 6.                                         |
+	+-----------------------+-------------------------------------------------------+-------------------------------------------------------+
+	| `@ExportBitflags`     | Takes many parameters.                                | Sets the exported value to use flag checkboxes,       |
+	|                       | Specifying no parameters will automatically name      | displaying a checkbox for each specified option.      |
+	|                       | every possible flag by it's number.                   |                                                       |
+	|                       |                                                       | Ex. `@ExportBitflags("Up", "Down", "Left", "Right")`  |
+	|                       | Similar to `@ExportDropdown`, but with flags.         | would specify "Up" as 1, "Down" as 2, "Left" as 4,    |
+	|                       | The 'value' starts at '1'. Specifying an 'int' sets   | and "Right" as 8.                                     |
+	|                       | the 'value' to the specified number. This number MUST |                                                       |
+	|                       | be a power of 2. Specifying a 'String' gives a name   | Ex. `@ExportBitflags("A", "B", "C", "D", 64, "G")`    |
+	|                       | to the current 'value', and then multiplies the       | would specify A/B/C/D/G as 1/2/4/8/64.                |
+	|                       | 'value' by 2.                                         |                                                       |
+	|                       |                                                       | Ex. `@ExportBitflags(5, "A")` is an error; 5 is not   |
+	|                       |                                                       | a power of 2, so cannot be a bitflag value.           |
+	|                       |                                                       |                                                       |
+	|                       |                                                       | Ex. `@ExportBitflags()` gives 18 flag checkboxes,     |
+	|                       |                                                       | named 0, 1, 2, 3, 4, 5, 6, etc. with values 1, 2, 4,  |
+	|                       |                                                       | 8, 16, 32, 64, etc.                                   |
+	+-----------------------+-------------------------------------------------------+-------------------------------------------------------+
+	| `@ExportLongBitflags` | Takes many parameters.                                | Same as `@ExportBitflags`, but with long flags.       |
+	|                       | Specifying no parameters will automatically name      |                                                       |
+	|                       | every possible flag by it's number.                   | Ex. `@ExportLongBitflags()` gives 32 flag checkboxes, |
+	|                       |                                                       | instead of the 18 `@ExportBitflags()` gives.          |
+	|                       | The exact same as `@ExportBitflags`, except using     |                                                       |
+	|                       | 'long' values; so the first value is '1L' instead of  | Ex. `@ExportLongBitflags("A", "B", "C", 64L, "G")`    |
+	|                       | '1'; and values increment like 1L, 2L, 4L, 8L.        | would specify A/B/C/G as 1L/2L/4L/64L.                |
+	+-----------------------+-------------------------------------------------------+-------------------------------------------------------+
 
 Static Functions
 ----------------

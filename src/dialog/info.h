@@ -35,8 +35,7 @@ protected:
 	int d_text_align;
 	bool _has_run_postinit;
 	
-	std::set<int> qrs; //related qrs
-	std::set<int> ruleTemplates; //related rule templates
+	InfoTextHintData hint_data {};
 	
 	byte local_qrs[QR_SZ];
 	byte* d_dest_qrs;

@@ -6829,21 +6829,19 @@ static int32_t droplist(DIALOG *d)
 /* jwin_droplist_proc:
   *   A drop list...
   */
-int32_t jwin_droplist_proc(int32_t msg,DIALOG *d,int32_t c)
+int jwin_droplist_proc(int msg, DIALOG *d, int c)
 {
-	int32_t ret;
-	int32_t down=0, last_draw=0;
-	int32_t d1;
+	int ret = D_O_K;
+	int down = 0, last_draw = 0;
+	int d1 = d->d1;
 	
+	bool should_drop = false;
+	bool should_fallthrough_list = true;
 	switch(msg)
 	{
 		case MSG_CLICK:
-			goto dropit;
-
-			break;
-
 		case MSG_KEY:
-			goto dropit;
+			should_drop = true;
 			break;
 
 		case MSG_DRAW:
@@ -6852,82 +6850,89 @@ int32_t jwin_droplist_proc(int32_t msg,DIALOG *d,int32_t c)
 			_jwin_draw_listbox(d, 1);
 			draw_arrow_button(screen, d->x+d->w-18, d->y+2,16, d->h-4, 0, 0);
 			return D_O_K;
-	}
-
-	d1 = d->d1;
-	ret = jwin_list_proc(msg,d,c);
-
-	if(d->d1!=d->d2)
-	{
-		// 'jwin_list_proc' scrolls assuming the widget shows '(h-3)/text_height'
-		// rows starting at the offset (d2), but a closed dropdown displays only
-		// the selected item (d1). Depending on the font size that row count can
-		// be 0 or 2+, letting the offset drift from the selection (ex: MSG_START
-		// clamping the offset away from a selected last item). Keep the
-		// selection and move the offset - except for the mouse wheel, which
-		// scrolls the offset on purpose to change the selection.
-		if(msg == MSG_WHEEL)
+		
+		case MSG_WHEEL:
 		{
+			if (!c)
+				return D_O_K;
+			int delta = c < 0 ? 1 : -1;
+			
 			ListData *data = (ListData *)d->dp;
 			int32_t listsize;
 			data->listFunc(-1, &listsize);
-			d->d1 = d->d2 = vbound(d->d2, 0, listsize-1);
+			d->d1 = d->d2 = vbound(d->d2 + delta, 0, listsize-1);
+			jwin_droplist_proc(MSG_DRAW, d, 0);
+			should_fallthrough_list = false;
 		}
-		else
+	}
+	
+	if (should_drop) // returns
+	{
+		last_draw = 0;
+		
+		while (gui_mouse_b())
+		{
+			down = mouse_in_rect(d->x,d->y,d->w,d->h);
+			
+			if (down != last_draw)
+			{
+				draw_arrow_button(screen, d->x+d->w-18, d->y+2,16, d->h-4, 0, down*3);
+				last_draw = down;
+				update_hw_screen();
+			}
+			
+			clear_keybuf();
+			rest(1);
+		}
+		
+		if (!down)
+		{
+			return D_O_K;
+		}
+		
+		draw_arrow_button(screen, d->x+d->w-18, d->y+2,16, d->h-4, 0, 0);
+		
+		d1 = d->d1;
+		d->d2 = d->d1 = droplist(d);
+		
+		object_message(d, MSG_DRAW, 0);
+		
+		while (gui_mouse_b())
+		{
+			clear_keybuf();
+			rest(1);
+			update_hw_screen();
+		}
+
+		if (d1 != d->d1)
+			GUI_EVENT(d, geCHANGE_SELECTION);
+
+		return ((d1 != d->d1) && (d->flags&D_EXIT)) ? D_CLOSE : D_O_K;
+	}
+	else if (should_fallthrough_list)
+	{
+		ret = jwin_list_proc(msg,d,c);
+		if (d->d1 != d->d2)
+		{
+			// 'jwin_list_proc' scrolls assuming the widget shows '(h-3)/text_height'
+			// rows starting at the offset (d2), but a closed dropdown displays only
+			// the selected item (d1). Depending on the font size that row count can
+			// be 0 or 2+, letting the offset drift from the selection (ex: MSG_START
+			// clamping the offset away from a selected last item). Keep the
+			// selection and move the offset.
 			d->d2 = d->d1;
-		jwin_droplist_proc(MSG_DRAW, d, 0);
+			jwin_droplist_proc(MSG_DRAW, d, 0);
+		}
 	}
 
-	if(d1 != d->d1)
+	if (d1 != d->d1)
 	{
 		GUI_EVENT(d, geCHANGE_SELECTION);
-		if(d->flags&D_EXIT)
+		if (d->flags&D_EXIT)
 			ret |= D_CLOSE;
 	}
 
 	return ret;
-	
-dropit:
-	last_draw = 0;
-	
-	while(gui_mouse_b())
-	{
-		down = mouse_in_rect(d->x,d->y,d->w,d->h);
-		
-		if(down!=last_draw)
-		{
-			draw_arrow_button(screen, d->x+d->w-18, d->y+2,16, d->h-4, 0, down*3);
-			last_draw = down;
-			update_hw_screen();
-		}
-		
-		clear_keybuf();
-		rest(1);
-	}
-	
-	if(!down)
-	{
-		return D_O_K;
-	}
-	
-	draw_arrow_button(screen, d->x+d->w-18, d->y+2,16, d->h-4, 0, 0);
-	
-	d1 = d->d1;
-	d->d2 = d->d1 = droplist(d);
-	
-	object_message(d, MSG_DRAW, 0);
-	
-	while(gui_mouse_b())
-	{
-		clear_keybuf();
-		rest(1);
-		update_hw_screen();
-	}
-
-	if(d1!=d->d1)
-		GUI_EVENT(d, geCHANGE_SELECTION);
-
-	return ((d1 != d->d1) && (d->flags&D_EXIT)) ? D_CLOSE : D_O_K;
 }
 
 

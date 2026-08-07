@@ -2,7 +2,7 @@
 #define ZQ_CUSTOM_H_
 
 #include "items.h"
-#include "zalleg/packfile.h"
+#include "zalleg/zalleg.h"
 
 void large_dialog(DIALOG *d);
 void large_dialog(DIALOG *d, float RESIZE_AMT);

@@ -110,6 +110,7 @@ namespace ZScript
 		void setRun(Function* func) {runFunc = func;}
 		Function* getRun() const {return runFunc;}
 		virtual void register_instance_var(Variable*, optional<int32_t>) {};
+		virtual void process_instance_vars(CompileErrorHandler*) {};
 		virtual void apply_data(disassembled_script_data&) {};
 		
 		bool isPrototypeRun() const;
@@ -135,8 +136,9 @@ namespace ZScript
 	{
 		friend UserScript* createScript(
 				Program&, Scope&, ASTScript&, CompileErrorHandler*);
-
 	public:
+		using InstanceVarData = std::pair<Variable*, std::optional<int32_t>>;
+		
 		ParserScriptType getType() const /*override*/;
 		void setName(std::string const& newname) /*override*/ {node.metadata.script_name = newname;};
 		std::string const& getName() const /*override*/ {return node.metadata.script_name;};
@@ -147,6 +149,7 @@ namespace ZScript
 		ScriptScope const& getScope() const /*override*/ {return *scope;}
 		std::optional<int32_t> getInitWeight() const /*override*/ {return node.init_weight;}
 		void register_instance_var(Variable* v, optional<int32_t> value) /*override*/;
+		void process_instance_vars(CompileErrorHandler* handler) /*override*/;
 		void apply_data(disassembled_script_data& dest) /*override*/;
 		
 	private:
@@ -154,6 +157,7 @@ namespace ZScript
 
 		ASTScript& node;
 		ScriptScope* scope;
+		std::vector<InstanceVarData> instance_var_data {};
 		bounded_map<word, int32_t> script_d_init {MAX_SCRIPT_INST_VARIABLES, 0};
 		bounded_map<word, exported_variable> script_d_exports {MAX_SCRIPT_INST_VARIABLES, {}};
 	};
@@ -352,7 +356,7 @@ namespace ZScript
 
 		ASTDataDecl& node;
 		std::optional<int32_t> registerId;
-		friend void UserScript::register_instance_var(Variable*, optional<int32_t>);
+		friend void UserScript::process_instance_vars(CompileErrorHandler*);
 	};
 
 	class InternalVariable : public Datum

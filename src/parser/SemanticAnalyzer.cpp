@@ -921,6 +921,10 @@ void SemanticAnalyzer::caseScript(ASTScript& host, void* param)
 	}
 	
 	RecursiveVisitor::caseScript(host, param);
+	// Processing of instance vars is deferred until here
+	// This makes sure they are all added and sorted consistently by their location
+	// Note that this does not occur in RegistrationVisitor, only SemanticAnalyzer
+	script.process_instance_vars(this);
 	
 	scope = scope->getParent();
 	
