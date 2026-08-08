@@ -709,8 +709,9 @@ def extract_package(ctx: CiContext, args):
 
 
 @command("replay-tests", help="Run ZC replay tests")
-@argument("--runs-on", required=True)
-@argument("--run-id", required=True)
+# Omitted when running locally (e.g. tests/test_ci.py).
+@argument("--runs-on")
+@argument("--run-id", default="local")
 @argument("--shard")
 @argument("--extra-args", default="")
 @argument("--no-jit", action="store_true")
@@ -732,10 +733,11 @@ def replay_tests(ctx: CiContext, args):
         'tests/run_replay_tests.py',
         f'--build_folder={binary_dir}',
         f'--build_type={ctx.config}',
-        f'--ci={args.runs_on}_{ctx.arch}',
         f'--test_results_folder={test_results_dir}',
         '--retries=1',
     ]
+    if args.runs_on:
+        base_cmd.append(f'--ci={args.runs_on}_{ctx.arch}')
 
     if args.shard:
         base_cmd.append(f"--shard={args.shard}")
