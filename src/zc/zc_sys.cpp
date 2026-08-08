@@ -3437,21 +3437,28 @@ void updatescr(bool allowwavy)
 		hw_palette = &RAMpal;
 		update_hw_pal = true;
 
-		// Creating rgb_table and trans_table is pretty expensive, so try not to redo the same work
-		// within a short period of time by using a cache.
+		// Creating rgb_table is pretty expensive (~1ms), so try not to redo the
+		// same work by using a cache. The trans tables are derived from
+		// rgb_table with a cheap pass (~70us), so they are not cached
+		// per-palette: they are rebuilt into the globals whenever the active
+		// palette changes. This keeps cache entries small (32KB), which matters
+		// because palette cycling can produce a few hundred distinct palettes
+		// in a single level (the three cycles advance at different speeds, so
+		// the combined states multiply). If the cache is smaller than that
+		// working set, the cyclic access pattern evicts entries right before
+		// they are needed again and every call pays the full rebuild.
 		typedef std::array<uint32_t, PAL_SIZE> pal_table_cache_key;
 		struct pal_table_cache_entry {
 			RGB_MAP rgb_table;
-			COLOR_MAP trans_table;
 		};
 		static std::map<pal_table_cache_key, pal_table_cache_entry> pal_table_cache;
 
-		static constexpr int pal_table_cache_max_memory_mb = 10;
+		static constexpr int pal_table_cache_max_memory_mb = 20;
 		static constexpr int pal_table_cache_max_size = pal_table_cache_max_memory_mb / ((double)sizeof(pal_table_cache_entry) / 1024 / 1024);
 
 		// Direct cache for the most-recently-used entry - avoids the map lookup
-		// on consecutive calls with the same palette (common in steady-state
-		// gameplay).
+		// and the trans table rebuild on consecutive calls with the same
+		// palette (common in steady-state gameplay).
 		// NOTE: the upstream commit also keyed on 6-bit values (>> 2) to coalesce
 		// fade frames, relying on create_rgb_table/create_zc_trans_table dividing
 		// 8-bit components by 4. This 2.55 branch uses a 6-bit palette that those
@@ -3480,12 +3487,8 @@ void updatescr(bool allowwavy)
 			auto cache_it = pal_table_cache.find(key);
 			if (cache_it == pal_table_cache.end())
 			{
-				// Build into the globals first: create_zc_trans_table reads the
-				// global rgb_map (which points at rgb_table), so rgb_table must be
-				// current before it runs.
 				create_rgb_table(&rgb_table, RAMpal, NULL);
-				create_zc_trans_table(&trans_table, RAMpal, 128, 128, 128);
-				cache_it = pal_table_cache.emplace(key, pal_table_cache_entry{rgb_table, trans_table}).first;
+				cache_it = pal_table_cache.emplace(key, pal_table_cache_entry{rgb_table}).first;
 			}
 
 			entry = &cache_it->second;
@@ -3493,9 +3496,14 @@ void updatescr(bool allowwavy)
 			last_entry = entry;
 		}
 
+		// Restore the globals unconditionally: loadlvlpal/loadfadepal build
+		// tables into them directly, so they can be out of sync with the cache
+		// even when the palette (and thus last_key) is unchanged.
+		// create_zc_trans_table reads the global rgb_map (which points at
+		// rgb_table), so rgb_table must be current before it runs.
 		rgb_table = entry->rgb_table;
-		trans_table = entry->trans_table;
-		trans_table2 = entry->trans_table;
+		create_zc_trans_table(&trans_table, RAMpal, 128, 128, 128);
+		trans_table2 = trans_table;
 
 		for(int32_t q=0; q<PAL_SIZE; q++)
 		{
