@@ -26193,10 +26193,13 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 		}
 		//preloaded freeform combos
 		ffscript_engine(true);
-		
+
 		putscr(hero_scr, scrollbuf, 0, 0);
 		putscrdoors(hero_scr, scrollbuf, 0, 0);
-		
+
+		// Most of the arrival transition animations below call draw_screen, which executes
+		// the script draws queued by the screen-init scripts above.
+		bool draws_flushed = true;
 		if((type1==cCAVE)||(type1>=cCAVEB && type1<=cCAVED) || (type2==cCAVE)||(type2>=cCAVEB && type2<=cCAVED))
 		{
 			reset_pal_cycling();
@@ -26222,6 +26225,18 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 		else if(wtype==wtIWARPOPEN)
 		{
 			openscreen();
+			draws_flushed = !COOLSCROLL;
+		}
+		else
+		{
+			draws_flushed = false;
+		}
+		// Otherwise (Insta-Warp, Insta-Warp with Blackout), the queued draws would be
+		// silently discarded when the game loop restarts, which is especially harmful
+		// for draws targeting script bitmaps. Execute them now.
+		if(!draws_flushed && !get_qr(qr_SCROLLWARP_NO_RESET_FRAME))
+		{
+			do_script_draws(framebuf, origin_scr, 0, playing_field_offset);
 		}
 		if(reposition_sword_postwarp)
 		{
