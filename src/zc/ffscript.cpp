@@ -1051,7 +1051,7 @@ public:
 	// so there's no need to print an error
 	static int32_t getNPCIndex(const int32_t eid)
 	{
-		for(word i = 0; i < guys.Count(); i++)
+		for(int i = 0; i < guys.Count(); i++)
 		{
 			if(guys.spr(i)->getUID() == eid)
 				return i;
@@ -1173,7 +1173,7 @@ public:
 	
 	static int32_t getItemIndex(const int32_t iid)
 	{
-		for(word i = 0; i < items.Count(); i++)
+		for(int i = 0; i < items.Count(); i++)
 		{
 			if(items.spr(i)->getUID() == iid)
 				return i;
@@ -2191,7 +2191,7 @@ public:
 		
 		str.clear();
 		size_t sz = am.size();
-		for(word i = offset; BC::checkUserArrayIndex(i, sz) == _NoError && am.get(i) != '\0' && num_chars != 0; i++)
+		for(dword i = offset; BC::checkUserArrayIndex(i, sz) == _NoError && am.get(i) != '\0' && num_chars != 0; i++)
 		{
 			int32_t c = am.get(i) / 10000;
 			if(byte(c) != c)
@@ -2204,33 +2204,15 @@ public:
 		}
 	}
 	
-	//Used for issues where reading the ZScript array floods the console with errors 'Accessing array index [12] size of 12.
-	//Happens with Quad3D and some other functions, and I have no clue why. -Z ( 28th April, 2019 )
-	//Like getString but for an array of longs instead of chars. *(arrayPtr is not checked for validity)
-	static void getValues2(const int32_t ptr, int32_t* arrayPtr, dword num_values, dword offset = 0) //a hack -Z
-	{
-		ArrayManager am(ptr);
-		
-		if(am.invalid())
-			return;
-		
-		size_t sz = am.size();
-		for(word i = offset; BC::checkUserArrayIndex(i, sz+1) == _NoError && num_values != 0; i++)
-		{
-			arrayPtr[i] = (am.get(i) / 10000);
-			num_values--;
-		}
-	}
-	
 	//Like getString but for an array of longs instead of chars. *(arrayPtr is not checked for validity)
 	static void getValues(const int32_t ptr, int32_t* arrayPtr, dword num_values, dword offset = 0)
 	{
 		ArrayManager am(ptr);
-		
+
 		if (am.invalid())
 			return;
 		size_t sz = am.size();
-		for(word i = offset; num_values != 0 && BC::checkUserArrayIndex(i, sz) == _NoError; i++)
+		for(dword i = offset; num_values != 0 && BC::checkUserArrayIndex(i, sz) == _NoError; i++)
 		{
 			arrayPtr[i] = (am.get(i) / 10000);
 			num_values--;
@@ -2359,9 +2341,9 @@ public:
 		if(am.can_resize() && resize)
 			am.resize_min((userStride+1)*size);
 			
-		word j = 0, k = userStride;
+		size_t j = 0, k = userStride;
 		size_t sz = am.size();
-		for(word i = 0; j < size; i++)
+		for(size_t i = 0; j < size; i++)
 		{
 			if(i >= sz)
 				return _Overflow; //Resize?
@@ -33705,7 +33687,6 @@ static void do_drawing_command(int32_t script_command, bool is_screen_draw)
 			ArrayH::getValues((script_drawing_commands[j][2] / 10000), pos, 12);
 			ArrayH::getValues((script_drawing_commands[j][3] / 10000), uv, 8);
 			ArrayH::getValues((script_drawing_commands[j][4] / 10000), col, 4);
-			//FFCore.getValues2(script_drawing_commands[j][5] / 10000, size, 2);
 			ArrayH::getValues((script_drawing_commands[j][5] / 10000), size, 2);
 			
 			script_drawing_commands[j].SetVector(v);

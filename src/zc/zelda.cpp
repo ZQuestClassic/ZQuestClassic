@@ -422,7 +422,7 @@ void setZScriptVersion(int32_t s_version)
 
 void initZScriptArrayRAM(bool firstplay)
 {
-    for(word i = 0; i < NUM_ZSCRIPT_ARRAYS; i++)
+    for(int i = 0; i < NUM_ZSCRIPT_ARRAYS; i++)
     {
         localRAM[i].Clear();
         arrayOwner[i].clear();

@@ -5,6 +5,7 @@
 #include "auto/bug_mod_int_min.zs"
 #include "auto/bug_nested_class_constructors.zs"
 #include "auto/bug_script_draw_error_logging.zs"
+#include "auto/bug_string_16bit_index.zs"
 #include "auto/bug_unused_var_bad_opt.zs"
 #include "auto/classes.zs"
 #include "auto/combo_script_owned_clear.zs"
