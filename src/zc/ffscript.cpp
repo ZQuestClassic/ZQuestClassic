@@ -34529,11 +34529,21 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmapID, int32_t scrID, int3
 				
 			//preloaded freeform combos
 			ffscript_engine(true);
-			
+
 			putscr(scrollbuf,0,0,tmpscr);
 			putscrdoors(scrollbuf,0,0,tmpscr);
-			
+
 			doWarpEffect(warpEffect, false);
+			// Same as in HeroClass::dowarp: the zap/wave/open arrival effects call
+			// draw_screen, which executes the script draws queued by the screen-init
+			// scripts above. Without such an effect, the queued draws would be silently
+			// discarded when the game loop restarts. Execute them now.
+			bool draws_flushed = warpEffect==warpEffectZap || warpEffect==warpEffectWave
+				|| (warpEffect==warpEffectOpen && !COOLSCROLL);
+			if(!draws_flushed && !get_qr(qr_SCROLLWARP_NO_RESET_FRAME))
+			{
+				do_script_draws(framebuf, tmpscr, 0, playing_field_offset);
+			}
 			show_subscreen_life=true;
 			show_subscreen_numbers=true;
 			if (!(warpFlags&warpFlagFORCECONTINUEMUSIC)) Play_Level_Music();
@@ -34541,7 +34551,7 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmapID, int32_t scrID, int3
 			dointro();
 			Hero.set_respawn_point();
 			Hero.trySideviewLadder();
-			
+
 			break;
 		}
 		
