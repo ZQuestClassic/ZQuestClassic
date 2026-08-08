@@ -38,8 +38,9 @@ while(false)
 // BuildOpcodes
 
 BuildOpcodes::BuildOpcodes(Scope* curScope)
-	: returnlabelid(-1), returnRefCount(0), continuelabelids(), 
-	  continueRefCounts(), breaklabelids(), breakRefCounts()
+	: returnlabelid(-1), returnRefCount(0), continuelabelids(),
+	  continueRefCounts(), breaklabelids(), breakRefCounts(),
+	  varg_depth(0), varg_push_depth(0)
 {
 	opcodeTargets.push_back(&result);
 	scope = curScope;
@@ -1309,6 +1310,19 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 	INITC_STORE();
 	auto& func = *host.binding;
 	bool classfunc = func.getFlag(FUNCFLAG_CLASSFUNC) && !func.getFlag(FUNCFLAG_STATIC);
+	bool func_vargs = func.getFlag(FUNCFLAG_VARARGS);
+	bool is_nil = func.getFlag(FUNCFLAG_NIL) || func.prototype;
+	
+	// prevent clobbering vargs when calling a function inside varg parameter resolution
+	// nil functions, and internal non-vargs functions, should be safe- skip those as an optimization
+	// non-nil user functions may call vargs functions inside them even if they aren't vargs functions
+	bool varg_push = varg_depth > varg_push_depth && !is_nil && (func_vargs || !func.isInternal());
+	
+	if (varg_push)
+	{
+		++varg_push_depth;
+		addOpcode(new OPushVargStack());
+	}
 	
 	auto* optarg = opcodeTargets.back();
 	int32_t startRefCount = arrayRefs.size(); //Store ref count
@@ -1416,6 +1430,7 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 		}
 		if(vargcount)
 		{
+			++varg_depth;
 			//push the vargs, in forward order
 			for (; param_indx < host.parameters.size(); ++param_indx)
 			{
@@ -1453,6 +1468,7 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 					addOpcode(new OPushVargR(new VarArgument(EXP1)));
 				}
 			}
+			--varg_depth;
 		}
 		else if(used_opt_params)
 		{
@@ -1543,6 +1559,7 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 		
 		if(vargs)
 		{
+			++varg_depth;
 			//push the vargs, in forward order
 			for (size_t param_indx = num_used_params-vargcount; param_indx < num_used_params; ++param_indx)
 			{
@@ -1580,6 +1597,7 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 					addOpcode(new OPushVargR(new VarArgument(EXP1)));
 				}
 			}
+			--varg_depth;
 			addOpcode(new OMakeVargArray());
 			addOpcode(new OPushRegister(new VarArgument(EXP1)));
 			++pushcount;
@@ -1696,6 +1714,7 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 		
 		if(user_vargs)
 		{
+			++varg_depth;
 			//push the vargs, in forward order
 			for (size_t param_indx = num_used_params-vargcount; param_indx < num_used_params; ++param_indx)
 			{
@@ -1733,6 +1752,7 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 					addOpcode(new OPushVargR(new VarArgument(EXP1)));
 				}
 			}
+			--varg_depth;
 			addOpcode(new OMakeVargArray());
 			addOpcode(new OPushRegister(new VarArgument(EXP1)));
 			++pushcount;
@@ -1807,6 +1827,7 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 			}
 			else
 			{
+				++varg_depth;
 				//push the vargs, in forward order
 				for (; param_indx < host.parameters.size(); ++param_indx)
 				{
@@ -1844,6 +1865,7 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 						addOpcode(new OPushVargR(new VarArgument(EXP1)));
 					}
 				}
+				--varg_depth;
 			}
 		}
 		else if(used_opt_params)
@@ -1890,6 +1912,13 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 				handleError(CompileError::BadReassignCall(&host, func.getSignature().asString()));
 			}
 		}
+	}
+	
+	if (varg_push)
+	{
+		--varg_push_depth;
+		if (!func.getFlag(FUNCFLAG_NEVER_RETURN))
+			addOpcode(new OPopVargStack());
 	}
 	
 	//Allocate string/array literals retroactively

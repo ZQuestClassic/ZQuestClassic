@@ -1653,7 +1653,12 @@ public:
 	dword thiskey, thiskey2; //used for user class 'this' pointers
 	dword waitframes; //wait multiple frames in a row
 	dword wait_index; // nth WaitX instruction (0 being pc 0) last execution stopped at. for jit only
-	
+
+	// Stack of vargs vectors. The compiler brackets any function call made while
+	// varg parameters are being pushed with PUSHVARGSTACK/POPVARGSTACK, so nested
+	// calls to vargs-using functions don't clobber each other's vargs.
+	std::vector<std::vector<int32_t>> zs_vargs_stack {1};
+
 	void Clear()
 	{
 		*this = refInfo();

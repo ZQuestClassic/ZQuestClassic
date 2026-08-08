@@ -2825,6 +2825,14 @@ string OMakeVargArray::toString() const
 {
 	return "MAKEVARGARRAY";
 }
+string OPushVargStack::toString() const
+{
+	return "PUSHVARGSTACK";
+}
+string OPopVargStack::toString() const
+{
+	return "POPVARGSTACK";
+}
 string OPrintfArr::toString() const
 {
 	return "PRINTFA";

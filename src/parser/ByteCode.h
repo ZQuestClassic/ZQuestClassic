@@ -2633,6 +2633,24 @@ namespace ZScript
 			return new OMakeVargArray();
 		}
 	};
+	class OPushVargStack : public Opcode
+	{
+	public:
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OPushVargStack();
+		}
+	};
+	class OPopVargStack : public Opcode
+	{
+	public:
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OPopVargStack();
+		}
+	};
 	class OPrintfArr : public Opcode
 	{
 	public:

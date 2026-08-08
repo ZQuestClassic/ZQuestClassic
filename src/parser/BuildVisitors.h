@@ -122,6 +122,11 @@ namespace ZScript
 		// Stack of opcode targets. Only the latest is used.
 		std::vector<std::vector<std::shared_ptr<Opcode>>*> opcodeTargets;
 
+		// >0 while visiting the varg parameters of a call. Any call made in that
+		// region must push a fresh vargs frame (see varg_push in caseExprCall),
+		// tracked by varg_push_depth, so it can't clobber the outer call's vargs.
+		uint32_t varg_depth, varg_push_depth;
+
 		// Helper Functions.
 
 		// For when ASTDataDecl is for a single variable.

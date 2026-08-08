@@ -572,7 +572,6 @@ string *sargstr;
 refInfo *ri = NULL;
 script_data *curscript = NULL;
 int32_t(*stack)[MAX_SCRIPT_REGISTERS] = NULL;
-vector<int32_t> zs_vargs;
 ScriptType curScriptType;
 word curScriptNum;
 int32_t curScriptIndex;
@@ -28952,7 +28951,7 @@ void do_push(const bool v)
 void do_push_varg(const bool v)
 {
 	const int32_t value = SH::get_arg(sarg1, v);
-	zs_vargs.push_back(value);
+	ri->zs_vargs_stack.back().push_back(value);
 }
 
 void do_pop()
@@ -35981,7 +35980,6 @@ int32_t run_script_int(bool is_jitted)
 		--ri->waitframes;
 		return RUNSCRIPT_OK;
 	}
-	zs_vargs.clear();
 
 j_command:
 	bool is_debugging = script_debug_is_runtime_debugging() == 2;
@@ -36811,7 +36809,23 @@ j_command:
 			case PUSHVARGR:
 				do_push_varg(false);
 				break;
-				
+			case PUSHVARGSTACK:
+				if (ri->zs_vargs_stack.size() >= 128)
+				{
+					Z_scripterrlog("vargs stack overflow!\n");
+					break;
+				}
+				ri->zs_vargs_stack.emplace_back();
+				break;
+			case POPVARGSTACK:
+				if (ri->zs_vargs_stack.size() < 2)
+				{
+					Z_scripterrlog("vargs stack underflow!\n");
+					break;
+				}
+				ri->zs_vargs_stack.pop_back();
+				break;
+
 			case RNDR:
 				do_rnd(false);
 				break;
@@ -45564,8 +45578,8 @@ script_command ZASMcommands[NUMCOMMANDS+1]=
 	{ "TILEARRAYR",                0,   0,   0,   0},
 	{ "COMBOARRAYR",                0,   0,   0,   0},
 	{ "RES0000",			   0,   0,   0,   0},
-	{ "RES0001",			   0,   0,   0,   0},
-	{ "RES0002",			   0,   0,   0,   0},
+	{ "PUSHVARGSTACK",         0,   0,   0,   0},
+	{ "POPVARGSTACK",          0,   0,   0,   0},
 	{ "RES0003",			   0,   0,   0,   0},
 	{ "RES0004",			   0,   0,   0,   0},
 	{ "RES0005",			   0,   0,   0,   0},
@@ -48548,9 +48562,17 @@ char const* zs_formatter(char const* format, int32_t arg, int32_t mindig, dword 
 	return ret.c_str();
 }
 
+// Returns the current (innermost) vargs vector, clearing it in the process.
+static vector<int32_t> clear_vargs_back()
+{
+	vector<int32_t> vargs = std::move(ri->zs_vargs_stack.back());
+	ri->zs_vargs_stack.back().clear();
+	return vargs;
+}
+
 static int32_t zspr_varg_getter(int32_t,int32_t next_arg)
 {
-	return zs_vargs.at(next_arg);
+	return ri->zs_vargs_stack.back().at(next_arg);
 }
 static int32_t zspr_stack_getter(int32_t num_args, int32_t next_arg)
 {
@@ -48706,7 +48728,7 @@ void FFScript::do_printf(const bool v, const bool varg)
 	int32_t num_args, format_arrayptr;
 	if(varg)
 	{
-		num_args = zs_vargs.size();
+		num_args = ri->zs_vargs_stack.back().size();
 		format_arrayptr = SH::read_stack(ri->sp) / 10000;
 	}
 	else
@@ -48723,14 +48745,14 @@ void FFScript::do_printf(const bool v, const bool varg)
 		traceStr(zs_sprintf(formatstr.c_str(), num_args, varg ? zspr_varg_getter : zspr_stack_getter));
 	}
 	if(varg)
-		zs_vargs.clear();
+		clear_vargs_back();
 }
 void FFScript::do_sprintf(const bool v, const bool varg)
 {
 	int32_t num_args, dest_arrayptr, format_arrayptr;
 	if(varg)
 	{
-		num_args = zs_vargs.size();
+		num_args = ri->zs_vargs_stack.back().size();
 		dest_arrayptr = SH::read_stack(ri->sp + 1) / 10000;
 		format_arrayptr = SH::read_stack(ri->sp) / 10000;
 	}
@@ -48758,7 +48780,7 @@ void FFScript::do_sprintf(const bool v, const bool varg)
 		else ri->d[rEXP1] = output.size();
 	}
 	if(varg)
-		zs_vargs.clear();
+		clear_vargs_back();
 }
 void FFScript::do_printfarr()
 {
@@ -48811,47 +48833,48 @@ void FFScript::do_sprintfarr()
 }
 void FFScript::do_varg_max()
 {
-	int32_t num_args = zs_vargs.size();
+	auto vargs = clear_vargs_back();
+	int32_t num_args = vargs.size();
 	int32_t val = 0;
 	if (num_args > 0)
-		val = zs_vargs.at(0);
+		val = vargs.at(0);
 	for(auto q = 1; q < num_args; ++q)
 	{
-		int32_t tval = zs_vargs.at(q);
+		int32_t tval = vargs.at(q);
 		if(tval > val) val = tval;
 	}
-	zs_vargs.clear();
 	ri->d[rEXP1] = val;
 }
 void FFScript::do_varg_min()
 {
-	int32_t num_args = zs_vargs.size();
+	auto vargs = clear_vargs_back();
+	int32_t num_args = vargs.size();
 	int32_t val = 0;
 	if (num_args > 0)
-		val = zs_vargs.at(0);
+		val = vargs.at(0);
 	for(auto q = 1; q < num_args; ++q)
 	{
-		int32_t tval = zs_vargs.at(q);
+		int32_t tval = vargs.at(q);
 		if(tval < val) val = tval;
 	}
-	zs_vargs.clear();
 	ri->d[rEXP1] = val;
 }
 void FFScript::do_varg_choose()
 {
-	int32_t num_args = zs_vargs.size();
+	auto vargs = clear_vargs_back();
+	int32_t num_args = vargs.size();
 	int32_t val = 0;
 	if(num_args > 0)
 	{
 		int32_t choice = zc_rand(num_args-1);
-		val = zs_vargs.at(choice);
+		val = vargs.at(choice);
 	}
-	zs_vargs.clear();
 	ri->d[rEXP1] = val;
 }
 void FFScript::do_varg_makearray(ScriptType type, const uint32_t UID)
 {
-	size_t num_args = zs_vargs.size();
+	auto vargs = clear_vargs_back();
+	size_t num_args = vargs.size();
 	//
 	dword ptrval;
 	for(ptrval = 1; localRAM[ptrval].Valid(); ptrval++) ;
@@ -48869,12 +48892,11 @@ void FFScript::do_varg_makearray(ScriptType type, const uint32_t UID)
 		a.setValid(true);
 		
 		for(size_t j = 0; j < num_args; ++j)
-			a[j] = zs_vargs[j]; //initialize array
+			a[j] = vargs[j]; //initialize array
 		
 		arrayOwner[ptrval].reown(type, UID);
 	}
 	//
-	zs_vargs.clear();
 	ri->d[rEXP1] = ptrval*10000;
 }
 
