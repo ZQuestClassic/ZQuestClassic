@@ -26148,6 +26148,44 @@ int32_t main(int32_t argc,char **argv)
 		exit(0);
 	}
 
+	int import_strings_arg = used_switch(argc, argv, "-import-strings");
+	if (import_strings_arg > 0)
+	{
+		if (import_strings_arg + 3 > argc)
+		{
+			printf("expected -import-strings input.qst input.tsv\n");
+			exit(1);
+		}
+
+		is_zq_replay_test = true;
+		set_headless_mode();
+
+		int load_ret = load_quest(argv[import_strings_arg + 1], false);
+		if (load_ret != qe_OK)
+		{
+			printf("Failed to load quest: %d\n", load_ret);
+			exit(1);
+		}
+
+		try
+		{
+			parse_strings_tsv(util::read_text_file(argv[import_strings_arg + 2]));
+		}
+		catch (std::exception& ex)
+		{
+			printf("Failed to import strings: %s\n", ex.what());
+			exit(1);
+		}
+
+		if (save_quest(argv[import_strings_arg + 1]) != 0)
+		{
+			printf("Failed to save quest\n");
+			exit(1);
+		}
+
+		exit(0);
+	}
+
 	if (!is_headless())
 	{
 		zc_set_palette((RGB*)zcdata[PAL_ZQUEST].dat);
