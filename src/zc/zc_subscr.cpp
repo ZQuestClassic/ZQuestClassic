@@ -538,7 +538,20 @@ void dosubscr()
 {
 	bool skipdraws = FFCore.skipscriptdraws;
 	FFCore.skipscriptdraws = false;
+
+	// The active subscreen blocks in the middle of a game_loop frame, and its
+	// internal loops repeatedly clear the script drawing queue. Stash the draws
+	// the interrupted frame already queued and restore them once the subscreen
+	// closes, so the frame that resumes doesn't render without its script draws.
+	CScriptDrawingCommands* outer_draws = script_drawing_commands.pop_commands();
+
 	_dosubscr();
+
+	// Anything the subscreen's own scripts left queued was already rendered
+	// by the subscreen loops; drop it before restoring the stashed draws.
+	script_drawing_commands.Clear();
+	script_drawing_commands.push_commands(outer_draws);
+
 	FFCore.skipscriptdraws = skipdraws;
 }
 
