@@ -1,5 +1,6 @@
 #include "zc/replay.h"
 #include "zc/replay_compat.h"
+#include "zc/jit.h"
 #include "base/qrs.h"
 #include "base/zapp.h"
 #include "zc/zc_sys.h"
@@ -35,6 +36,16 @@
 using namespace std::chrono_literals;
 
 static const int ASSERT_SNAPSHOT_BUFFER = 10;
+
+// Exiting while the JIT worker threads are still compiling lets them race the
+// exit handlers and static destruction (the asmjit runtime, the compiled
+// function maps) - seen as spurious "failed to compile" errors right before
+// exit, or a segfault in a compile thread. Stop them first.
+static void replay_exit(int code)
+{
+	jit_shutdown();
+	exit(code);
+}
 static const int ASSERT_FAILED_EXIT_CODE = 120;
 static const int VERSION = 39;
 
@@ -1878,7 +1889,7 @@ void replay_stop(bool aborted)
         if (exit_when_done)
         {
 			mode = ReplayMode::Off;
-			exit(has_assert_failed ? ASSERT_FAILED_EXIT_CODE : 0);
+			replay_exit(has_assert_failed ? ASSERT_FAILED_EXIT_CODE : 0);
         }
         else if (has_assert_failed)
         {
@@ -1900,7 +1911,7 @@ void replay_stop(bool aborted)
             {
                 save_result(true);
                 mode = ReplayMode::Off;
-                exit(ASSERT_FAILED_EXIT_CODE);
+                replay_exit(ASSERT_FAILED_EXIT_CODE);
             }
             else
             {
@@ -1961,7 +1972,7 @@ void replay_stop(bool aborted)
     string_arena.clear();
 
 	if (exit_when_done)
-		exit(has_rng_desynced ? 1 : 0);
+		replay_exit(has_rng_desynced ? 1 : 0);
 }
 
 void replay_quit()
