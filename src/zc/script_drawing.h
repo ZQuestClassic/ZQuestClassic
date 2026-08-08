@@ -185,7 +185,26 @@ public:
         current_string_count = 0;
         current_drawdata_count = 0;
     }
-    
+
+    // Moves every pooled allocation into 'other', leaving this container empty.
+    // Queued commands hold raw pointers into the pool, so ownership must travel
+    // together with the commands (see pop_commands/push_commands).
+    void give_to(DrawingContainer& other)
+    {
+        if(this == &other)
+            return;
+        other.drawstring.insert(other.drawstring.end(), drawstring.begin(), drawstring.end());
+        other.drawdata.insert(other.drawdata.end(), drawdata.begin(), drawdata.end());
+        // Don't hand these slots out for reuse until the next Clear(), since the
+        // commands transferred along with them may still reference them.
+        other.current_string_count = other.drawstring.size();
+        other.current_drawdata_count = other.drawdata.size();
+        drawstring.clear();
+        drawdata.clear();
+        current_string_count = 0;
+        current_drawdata_count = 0;
+    }
+
     std::string* GetString()
     {
         std::string* str;
