@@ -12431,20 +12431,29 @@ void CScriptDrawingCommands::mark_dirty(int lyr, int sprite_id)
 CScriptDrawingCommands* CScriptDrawingCommands::pop_commands()
 {
 	CScriptDrawingCommands* ret = new CScriptDrawingCommands();
-	if(commands.empty())
-		return ret;
 	ret->push_commands(this, false);
-	
-	memset((void*)&commands[0], 0, count * sizeof(CScriptDrawingCommandVars));
-	count = 0;
-	
-	draw_container.Clear();
+
+	if(!commands.empty())
+	{
+		memset((void*)&commands[0], 0, count * sizeof(CScriptDrawingCommandVars));
+		count = 0;
+	}
+	dirty_layers.clear();
 	return ret;
 }
 void CScriptDrawingCommands::push_commands(CScriptDrawingCommands* other, bool del)
 {
-	commands.insert(commands.end(), other->commands.begin(), other->commands.end());
-	count += other->count;
+	if(other->count > 0)
+	{
+		// The vectors may be pre-sized past their used range (see GetNext), so place
+		// the incoming commands at index 'count', not at vector end.
+		if((int32_t)commands.size() < count + other->count)
+			commands.resize(count + other->count);
+		std::copy(other->commands.begin(), other->commands.begin() + other->count, commands.begin() + count);
+		count += other->count;
+	}
+	dirty_layers.insert(other->dirty_layers.begin(), other->dirty_layers.end());
+	other->draw_container.give_to(draw_container);
 	if(del) delete other;
 }
 
