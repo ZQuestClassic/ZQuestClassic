@@ -3,7 +3,7 @@ Z3 user guide
 
 This is written for experienced users of ZC, and describes the major changes related to the new "z3" scrolling regions feature.
 
-"z3" refers to the third Zelda, A Link To The Past, which unlike the original Zelda features playing areas larger than a single screen. To accomplish the same in ZQuest Classic, one had to rewrite the entire game engine and every feature you wanted to use in ZScript, an incredibly daunting task. Now, ZQuest Classic supports z3-style screens via a new features: regions.
+"z3" refers to the third Zelda, A Link To The Past, which unlike the original Zelda features playing areas larger than a single screen. Previously, to accomplish the same in ZQuest Classic one had to recreate the entire game engine (and every engine feature you wanted to use) in ZScript, an incredibly daunting task. Now, ZQuest Classic supports z3-style screens via a new feature: regions.
 
 Regions
 -------
@@ -16,7 +16,7 @@ Even non-scrolling areas of 1x1 screens are technically considered to be a regio
 
 There are some specific terms used for the screens within a region:
 
-* ``origin screen``: The top-left screen of the region. This is equal to `Game->CurScreen`
+* ``origin screen``: The top-left screen of the region. This is equal to :ref:`Game->CurScreen<globals_game_var_curscreen>`
 * ``hero screen``: The screen that the player is currently in
 
 The specific screen that is loaded into (via scrolling or warping or whatever) has no special behavior, other than determining which
@@ -27,15 +27,15 @@ Viewport
 
 The traditional viewport for ZC has been 256 pixels wide by 176 pixels tall - or 16x11 combos. This continues to be the viewport when in a non-scrolling region.
 
-In a scrolling region, the viewport pans as the player moves across the region. By default the viewport is centered to draw the player in the middle of the screen, but this is bounded by the edges of the region to prevent showing beyond the current region. This behavior can be customized via scripting.
+In a scrolling region, the viewport pans as the player moves across the region. By default the viewport is centered to draw the player in the middle of the screen, but this is bounded by the edges of the region to prevent showing beyond the current region. This behavior can be customized via scripting with :ref:`Viewport->Mode<globals_viewport_var_mode>`: keep the default bounded centering (`VIEW_MODE_CENTER_AND_BOUND`), always center on the target even beyond the region's edges (`VIEW_MODE_CENTER`), or take full control of the viewport position from a script (`VIEW_MODE_SCRIPT`). The viewport can also follow a sprite other than the player via :ref:`Viewport->Target<globals_viewport_var_target>`.
 
-There is a new option to have an extended height viewport (applicable only when a region is taller than 1 screen). This makes the viewport 232 pixels (or 3.5 combos taller - the height of the passive subscreen). This effectively centers the player as if the passive subscreen did not exist. This is controlled by a DMap flag. When using an extended height viewport, the passive subscreen should be configured to have no background color. Without a transparent passive subscreen, it will look very odd. Similarly, if not using an extended height viewport, the passive subscreen should be opaque.
+There is a new option to have an extended height viewport (applicable only when a region is taller than 1 screen). This makes the viewport 232 pixels tall - 56 pixels (3.5 combos) taller, which is the height of the passive subscreen. This effectively centers the player as if the passive subscreen did not exist. This is controlled by the ``Extended Viewport`` DMap flag. When using an extended height viewport, the passive subscreen should be configured to have no background color. Without a transparent passive subscreen, it will look very odd. Similarly, if not using an extended height viewport, the passive subscreen should be opaque.
 
 The viewport height is only extended if the DMap flag is on, and if the current region is taller than one screen.
 
-When in a scrolling region, enemies and their weapons are paused if they are outside the current viewport, with some buffer (48px). However, weapon/npc scripts still run.
+When in a scrolling region, enemies and their weapons are paused if they are outside the current viewport, with some buffer (48px by default - configurable per-enemy in the Enemy Editor, where a value of 0 disables pausing entirely). Enemies can also optionally be configured to despawn when far enough outside the viewport. However, weapon/npc scripts still run while paused.
 
-Player weapons are considered "out of bounds" when they leave the viewport. Most player weapons are deleted when they go out of bounds (unless `CollDetection` is false), such as arrows. But some weapon types have special behavior: for example, boomerangs just begin returning to the hero.
+Player weapons are considered "out of bounds" when they leave the viewport. Most player weapons are deleted when they go out of bounds (unless :ref:`CollDetection<classes_lweapon_var_colldetection>` is false), such as arrows. But some weapon types have special behavior: for example, boomerangs just begin returning to the hero.
 
 Mazes
 -----
@@ -55,19 +55,19 @@ TL;DR
 
 Most scripts can be migrated by simply making the following changes:
 
-* for iterating every combo position, change 176 to `NUM_COMBO_POS`
-* for the max FFC id, use `MAX_FFC` (instead of 32 or 128 or whatever)
-* to translate x/y to a combo position, only use `ComboAt` or `ComboAdjust`
-* to check if something is out-of-bounds, change 256 / 176 to `Region->Width` / `Region->Height`
-* to check if something is out-of-view, use `Viewport->Contains(int x, int y)` / `Viewport->Contains(sprite s)`
-* set `Screen->DrawOrigin` to adjust the origin used by `Screen` drawing functions
+* for iterating every combo position, change 176 to :ref:`NUM_COMBO_POS<globals_var_num_combo_pos>`
+* for the max FFC id, use :ref:`MAX_FFC<globals_var_max_ffc>` (instead of 32 or 128 or whatever)
+* to translate x/y to a combo position, only use :ref:`ComboAt<globals_fun_comboat>` or :ref:`ComboAdjust<globals_fun_comboadjust>`
+* to check if something is out-of-bounds, change 256 / 176 to :ref:`Region->Width<globals_region_var_width>` / :ref:`Region->Height<globals_region_var_height>`
+* to check if something is out-of-view, use :ref:`Viewport->Contains(int x, int y)<globals_viewport_fun_contains_2>` / :ref:`Viewport->Contains(sprite s)<globals_viewport_fun_contains>`
+* set :ref:`Screen->DrawOrigin<globals_screen_var_draworigin>` to adjust the origin used by `Screen` drawing functions
 
 Read on for more detail.
 
 Drawing
 ^^^^^^^
 
-Screen drawing functions (e.g. `Screen->DrawTile`) used to always be relative to the playing field (where the origin ``(0, 0)`` is the pixel below the passive subscreen, on the left). To account for this during scroll transitions, scripts had to use `Game->Scrolling[]` to adjust the coordinates accordingly.
+Screen drawing functions (e.g. :ref:`Screen->DrawTile<globals_screen_fun_drawtile>`) used to always be relative to the playing field (where the origin ``(0, 0)`` is the pixel below the passive subscreen, on the left). To account for this during scroll transitions, scripts had to use :ref:`Game->Scrolling[]<globals_game_var_scrolling>` to adjust the coordinates accordingly.
 
 Now, a new variable :ref:`Screen->DrawOrigin<globals_screen_var_draworigin>` determines how coordinates given to these drawing functions are interpreted. See the documentation for more details.
 
@@ -89,51 +89,45 @@ There's also some functions for configuring region ids:
 sprite SpawnScreen
 ^^^^^^^^^^^^^^^^^^^
 
-All sprites (such as `ffc`, `npc`, `lweapon`, `eweapon`, `itemsprite` etc.) have a `SpawnScreen` variable, which is the screen the sprite was created on. This variable does not update as the sprite moves around a region.
+All sprites (such as :ref:`ffc<classes_ffc>`, :ref:`npc<classes_npc>`, :ref:`lweapon<classes_lweapon>`, :ref:`eweapon<classes_eweapon>`, :ref:`itemsprite<classes_itemsprite>` etc.) have a :ref:`SpawnScreen<classes_sprite_var_spawnscreen>` variable, which is the screen the sprite was created on. This variable does not update as the sprite moves around a region.
 
 Functionality specific to a screen (like screen flags, secrets, etc.) correspond to a sprite's `SpawnScreen`.
 
 Game->HeroScreen
 ^^^^^^^^^^^^^^^^
 
-This variable updates as the player moves around within a region.
+The :ref:`Game->HeroScreen<globals_game_var_heroscreen>` variable updates as the player moves around within a region.
 
 `mapdata` and `Screen`
 ^^^^^^^^^^^^^^^^^^^^^^
 
-The :ref:`Screen<globals_screen>` global and the :ref:`mapdata<classes_mapdata>` class are similiar in that they both deal with screens. However, `Screen` only references the currently active screens, and `mapdata` may reference active screens, scrolling screens, or the canonical map screens.
+The :ref:`Screen<globals_screen>` global and the :ref:`mapdata<classes_mapdata>` class are similar in that they both deal with screens. However, `Screen` only references the currently active screens, and `mapdata` may reference active screens, scrolling screens, or the canonical map screens.
 
-By default, :ref:`Screen<globals_screen>` reads from the origin screen. Some script types (screendata, ffc, npc, eweapon, lweapon, itemsprite, combo) operate on the screen that spawned the script. Player scripts operate on the screen the player is currently in (`Game->HeroScreen`).
+By default, :ref:`Screen<globals_screen>` reads from the origin screen. Some script types (ffc, npc, eweapon, lweapon, itemsprite, combo) operate on the screen that spawned the script, and screendata scripts operate on the screen they are assigned to. Player scripts operate on the screen the player is currently in (:ref:`Game->HeroScreen<globals_game_var_heroscreen>`). To see which screen a script is operating on, read :ref:`Screen->Index<globals_screen_var_index>`.
 
-* `Screen->ComboD[pos]` can return any combo in the current region. Before regions, `pos` (which stands for combo position) could be `0-175`. The same is true with regions, but the range is `0` to `NUM_COMBO_POS` (exclusive), where `NUM_COMBO_POS` is equal to 176 multiplied by the number of screens in a region.
-* The above is also true for:
-* * `Screen->ComboC[pos]`
-* * `Screen->ComboF[pos]`
-* * `Screen->ComboI[pos]`
-* * `Screen->ComboT[pos]`
-* * `Screen->ComboS[pos]`
-* * `Screen->ComboE[pos]`
-* `Screen->LoadFFC(id)` can return any FFC within the current region. `id` can be `1-MAX_FFC`
+* :ref:`Screen->ComboD[pos]<globals_screen_var_combod>` can return any combo in the current region. Before regions, `pos` (which stands for combo position) could be `0-175`. The same is true with regions, but the range is `0` to `NUM_COMBO_POS` (exclusive), where :ref:`NUM_COMBO_POS<globals_var_num_combo_pos>` is equal to 176 multiplied by the number of screens in a region.
+* The above is also true for the other combo arrays: `Screen->ComboC[pos]`, `Screen->ComboF[pos]`, `Screen->ComboI[pos]`, `Screen->ComboT[pos]`, `Screen->ComboS[pos]`, and `Screen->ComboE[pos]`
+* :ref:`Screen->LoadFFC(id)<globals_screen_fun_loadffc>` can return any FFC within the current region. `id` can be `1-MAX_FFC`
 * For everything else on `Screen->`, it accesses just a single screen
 
 Before regions, to iterate every combo on a screen you loop between 0 and 176 (exclusive). With regions, the upper value is instead `NUM_COMBO_POS` - when not in a region, this value is 176. To make scripts compatible with regions, replace 176 with `NUM_COMBO_POS`.
 
-To get the correct value of `pos` for a given `x` and `y` coordinate, you can still use `ComboAt(x, y)`. This will use the current region to determine the combo position. Also, `ComboAdjust(pos, x, y)` will return the combo position relative to the given `pos` adjusted by `x` and `y` pixels.
+To get the correct value of `pos` for a given `x` and `y` coordinate, you can still use :ref:`ComboAt(x, y)<globals_fun_comboat>`. This will use the current region to determine the combo position. Also, :ref:`ComboAdjust(pos, x, y)<globals_fun_comboadjust>` will return the combo position relative to the given `pos` adjusted by `x` and `y` pixels.
 
-To access other screens of the current region, use `mapdata`. There is `Game->LoadMapData(map, screen)`, `Game->LoadTempScreen(layer)`, and `Game->LoadScrollingScreen(layer)`. These all return a `mapdata`:
+To access other screens of the current region, use :ref:`mapdata<classes_mapdata>`. There is `Game->LoadMapData(map, screen)`, `Game->LoadTempScreen(layer)`, and `Game->LoadScrollingScreen(layer)`. These all return a `mapdata`:
 
-* `Game->LoadMapData(map, screen)`: Returns a handle that accesses canonical screens. If the player is currently on this screen, no changes will be observed until the screen is reloaded. Modifications will not persist after saving/continue.
-* `Game->LoadTempScreen(layer)`, `Game->LoadTempScreen(layer, screen)`: Returns a handle that accesses a currently loaded screen at the given layer. Modifications to the temporary screen will not persist when the player leaves the region.
-* `Game->LoadTempScreenForComboPos(layer)`, `Game->LoadTempScreenForComboPos(layer, pos)`: Similar to above, but returns the temp screen for the given given combo position (the result of `ComboAt(x, y)`).
-* `Game->LoadScrollingScreen(layer)`, `Game->LoadScrollingScreen(layer, screen)`: Returns a handle that accesses a temporary screen from the region that the player is scrolling away from, at the given layer. This is only valid during screen scrolling.
+* :ref:`Game->LoadMapData(map, screen)<globals_game_fun_loadmapdata>`: Returns a handle that accesses canonical screens. If the player is currently on this screen, no changes will be observed until the screen is reloaded. Modifications will not persist after saving/continue.
+* :ref:`Game->LoadTempScreen(layer)<globals_game_fun_loadtempscreen>`, :ref:`Game->LoadTempScreen(layer, screen)<globals_game_fun_loadtempscreen_2>`: Returns a handle that accesses a currently loaded screen at the given layer. Modifications to the temporary screen will not persist when the player leaves the region.
+* :ref:`Game->LoadTempScreenForComboPos(layer, pos)<globals_game_fun_loadtempscreenforcombopos>`: Similar to above, but returns the temp screen containing the given combo position (the result of `ComboAt(x, y)`).
+* :ref:`Game->LoadScrollingScreen(layer)<globals_game_fun_loadscrollingscreen>`, :ref:`Game->LoadScrollingScreen(layer, screen)<globals_game_fun_loadscrollingscreen_2>`: Returns a handle that accesses a temporary screen from the region that the player is scrolling away from, at the given layer. This is only valid during screen scrolling.
 
-`mapdata` only ever refers to a single screen.
+A `mapdata` from `Game->LoadMapData` or the overloads that take a `screen` parameter refers to a single screen. The layer-only overloads (`Game->LoadTempScreen(layer)`, `Game->LoadScrollingScreen(layer)`) instead work like `Screen` does: their combo arrays can access every position in the region, while their other variables read from just the origin screen.
 
 FFCs
 ^^^^
 
-Each individual screen within a region may have up to 128 FFCs. The number used to uniquely identify an FFC in the current region is :ref:`ffc::ID<classes_ffc_var_id>`. The maximum FFC ID for the currently loaded region is `MAX_FFC`.
+Each individual screen within a region may have up to 128 FFCs. The number used to uniquely identify an FFC in the current region is :ref:`ffc::ID<classes_ffc_var_id>`. The maximum FFC ID for the currently loaded region is :ref:`MAX_FFC<globals_var_max_ffc>`.
 
-To load the FFC with the specified ID, use `Screen->LoadFFC(int ffc_id)`.
+To load the FFC with the specified ID, use :ref:`Screen->LoadFFC(int ffc_id)<globals_screen_fun_loadffc>`.
 
-To load the FFC at a specific index for a given screen, use `Screen->LoadFFC(int screen, int index)`.
+To load the FFC at a specific index (`0-127`) for a given screen, use :ref:`Screen->LoadFFC(int screen, int index)<globals_screen_fun_loadffc_2>`.
