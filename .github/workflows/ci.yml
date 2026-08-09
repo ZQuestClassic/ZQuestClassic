@@ -108,7 +108,7 @@ jobs:
 
       - uses: mymindstorm/setup-emsdk@v14
         with:
-          version: "4.0.13"
+          version: "6.0.6"
           actions-cache-folder: "emsdk-cache-${{ runner.os }}-${{ runner.arch }}"
 
       - name: Install Node.js 22.x

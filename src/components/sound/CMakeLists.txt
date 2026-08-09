@@ -5,6 +5,11 @@ FetchContent_Declare(
 	EXCLUDE_FROM_ALL
 )
 set(GME_YM2612_EMU "Nuked" CACHE STRING "Which YM2612 emulator to use: \"Nuked\" (LGPLv2.1+), \"MAME\" (GPLv2+), or \"GENS\" (LGPLv2.1+)")
+if(EMSCRIPTEN)
+	# gme caches this option from BUILD_SHARED_LIBS at first configure, so force
+	# it: a real .so in the link makes emscripten >= 6.0 imply -sMAIN_MODULE.
+	set(GME_BUILD_SHARED OFF CACHE BOOL "" FORCE)
+endif()
 FetchContent_MakeAvailable(gme_external)
 add_library(gme_headers INTERFACE)
 target_include_directories(gme_headers INTERFACE ${gme_external_SOURCE_DIR}/gme)
@@ -23,7 +28,11 @@ set(ZCSOUNDSOURCES
 	zcmixer.cpp
 	zcmusic.cpp
 )
-add_library(zcsound SHARED ${ZCSOUNDSOURCES})
+if(EMSCRIPTEN)
+	add_library(zcsound STATIC ${ZCSOUNDSOURCES})
+else()
+	add_library(zcsound SHARED ${ZCSOUNDSOURCES})
+endif()
 target_link_libraries(zcsound PUBLIC base allegro_with_legacy gme gme_headers ${ZCSOUNDLIBSEXTRA})
 
 target_compile_definitions(zcsound PRIVATE SOUND_LIBS_BUILT_FROM_SOURCE)

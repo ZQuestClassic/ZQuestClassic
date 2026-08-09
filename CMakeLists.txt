@@ -220,7 +220,14 @@ set(ZC_INSTALL_TARGETS "")
 # deps
 #############################################################
 
-set(BUILD_SHARED_LIBS ON)
+# Emscripten >= 6.0 makes -shared produce real wasm side modules (FAKE_DYLIBS
+# now defaults off), which require -fPIC objects and dynamic linking support.
+# Everything is linked into a single wasm binary on web anyway, so build static.
+if(EMSCRIPTEN)
+	set(BUILD_SHARED_LIBS OFF)
+else()
+	set(BUILD_SHARED_LIBS ON)
+endif()
 
 add_subdirectory(third_party)
 
