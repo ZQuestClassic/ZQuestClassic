@@ -137,7 +137,6 @@ __pycache__
 ./packages/
 resources/modules/classic/fontsdat
 output/
-changelogs/nightly.txt
 *.log
 
 api_server

@@ -159,7 +159,6 @@ install(CODE "
 			--new_packager
 			--build_folder \"${BUILD_FOLDER}\"
 			--package_folder \"$<INSTALL_PREFIX>/${INSTALL_DATA_DIR}\"
-			$<$<BOOL:${RELEASE_TAG}>:--version;${RELEASE_TAG}>
 		COMMAND_ERROR_IS_FATAL ANY)
 ")
 
