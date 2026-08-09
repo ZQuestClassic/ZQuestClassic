@@ -38,10 +38,11 @@ void MsgScrollState::clamp()
 
 bool MsgScrollState::update_max_scroll(int pos)
 {
-	if (segmented && (pos % body_height))
+	if (segmented && pos > 0)
 	{
-		// round up to next multiple of body_height
-		pos += body_height - (pos % body_height);
+		// round up to the end of the segment containing the last row
+		int seg = (pos - 1) / segment_stride();
+		pos = seg * segment_stride() + body_height;
 	}
 
 	if (pos <= max_visible_pos)
@@ -59,13 +60,13 @@ bool MsgScrollState::ensure_scrolled_to(int pos, int h)
 	if (target_scroll_pos + body_height < epos)
 	{
 		if (segmented)
-			target_scroll_pos = pos - (pos % body_height);
+			target_scroll_pos = pos - (pos % segment_stride());
 		else target_scroll_pos = epos - body_height;
 	}
 	else if (target_scroll_pos > pos)
 	{
 		if (segmented)
-			target_scroll_pos = pos - (pos % body_height);
+			target_scroll_pos = pos - (pos % segment_stride());
 		else target_scroll_pos = pos;
 	}
 
@@ -95,7 +96,7 @@ void MsgScrollState::scroll_input(bool up, bool down)
 	if (segmented)
 	{
 		active_scrolling = true;
-		target_scroll_pos = bound(target_scroll_pos + (down ? body_height : -body_height));
+		target_scroll_pos = bound(target_scroll_pos + (down ? segment_stride() : -segment_stride()));
 	}
 	else
 	{
@@ -112,12 +113,12 @@ void MsgScrollState::wheel(int delta)
 	{
 		if (scroll_pos != target_scroll_pos)
 			return; // only segmented scroll from still
-		if (target_scroll_pos % body_height)
-			target_scroll_pos -= (target_scroll_pos % body_height);
+		if (target_scroll_pos % segment_stride())
+			target_scroll_pos -= (target_scroll_pos % segment_stride());
 		if (delta > 0 && target_scroll_pos < max_scroll())
-			target_scroll_pos += body_height;
+			target_scroll_pos += segment_stride();
 		else if (delta < 0 && target_scroll_pos > 0)
-			target_scroll_pos -= body_height;
+			target_scroll_pos -= segment_stride();
 	}
 	else
 	{
@@ -129,10 +130,11 @@ std::optional<int> MsgScrollState::segment_crossed(int ty, int ty2)
 {
 	if (!segmented)
 		return std::nullopt;
-	if (ty / body_height == (ty2-1) / body_height)
-		return std::nullopt;
-	max_visible_pos = ty - (ty % body_height) + body_height;
-	return max_visible_pos;
+	int seg = ty / segment_stride();
+	if (ty2 <= seg * segment_stride() + body_height)
+		return std::nullopt; // still fits within this segment's body
+	max_visible_pos = seg * segment_stride() + body_height;
+	return (seg + 1) * segment_stride();
 }
 
 namespace msg_layout

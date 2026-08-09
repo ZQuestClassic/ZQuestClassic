@@ -45,7 +45,7 @@ int32_t d_newmsg_preview_proc(int32_t msg, DIALOG *d, int32_t c)
 	if (prv->is_tmp_scrolling)
 	{
 		if (prv->scroll.segmented)
-			prv->scroll.target_scroll_pos = prv->scroll.scroll_pos = prv->tmp_scroll * prv->scroll.body_height;
+			prv->scroll.target_scroll_pos = prv->scroll.scroll_pos = prv->tmp_scroll * prv->scroll.segment_stride();
 		else
 			prv->scroll.target_scroll_pos = prv->scroll.scroll_pos = prv->tmp_scroll;
 	}
@@ -77,8 +77,8 @@ int32_t d_newmsg_preview_proc(int32_t msg, DIALOG *d, int32_t c)
 				int h = prv->scroll.body_height;
 				if (prv->scroll.segmented && prv->is_tmp_scrolling)
 				{
-					cur /= prv->scroll.body_height;
-					max /= prv->scroll.body_height;
+					cur /= prv->scroll.segment_stride();
+					max /= prv->scroll.segment_stride();
 					h = 1;
 				}
 				_jwin_draw_scrollable_frame(d, max+h, cur, h, 0);
@@ -107,14 +107,14 @@ int32_t d_newmsg_preview_proc(int32_t msg, DIALOG *d, int32_t c)
 				int h = prv->scroll.body_height;
 				if (prv->scroll.segmented)
 				{
-					prv->tmp_scroll /= prv->scroll.body_height;
-					max /= prv->scroll.body_height;
+					prv->tmp_scroll /= prv->scroll.segment_stride();
+					max /= prv->scroll.segment_stride();
 					h = 1;
 				}
 				if (_handle_jwin_scrollable_scroll_click(d, max+h, &prv->tmp_scroll, h))
 				{
 					if (prv->scroll.segmented)
-						prv->tmp_scroll *= prv->scroll.body_height;
+						prv->tmp_scroll *= prv->scroll.segment_stride();
 					prv->scroll.target_scroll_pos = prv->scroll.scroll_pos = prv->tmp_scroll;
 				}
 				prv->is_tmp_scrolling = false;

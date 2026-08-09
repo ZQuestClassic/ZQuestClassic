@@ -13,6 +13,13 @@ struct MsgScrollState
 	int body_height = 1;
 	int active_speed = 1, passive_speed = 1;
 
+	// Blank rows between segments in the content bitmap. The margin clip
+	// rect gives shadows 1px of leeway per side, so without a gap that
+	// leeway would reveal the edge rows of adjacent segments' text.
+	static constexpr int segment_gap = 2;
+	// Rows from one segment's start to the next's in the content bitmap.
+	int segment_stride() const { return body_height + segment_gap; }
+
 	// Reset to the not-scrolling defaults.
 	void clear();
 	void set_body_height(int height, int margin_up, int margin_down);
