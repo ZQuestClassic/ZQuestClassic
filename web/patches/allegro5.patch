@@ -14,6 +14,26 @@ index 777324259..636d7d381 100644
     want.callback = audio_callback;
     want.userdata = sv;
  
+diff --git a/src/opengl/ogl_fbo.c b/src/opengl/ogl_fbo.c
+index 0d45b556b..f51c60965 100644
+--- a/src/opengl/ogl_fbo.c
++++ b/src/opengl/ogl_fbo.c
+@@ -648,6 +648,15 @@ static void use_fbo_for_bitmap(ALLEGRO_DISPLAY *display,
+          ALLEGRO_DEBUG("glFrameBufferTexture2DEXT failed! fbo=%d texture=%d (%s)\n",
+             info->fbo, ogl_bitmap->texture, _al_gl_error_string(e));
+       }
++
++      /* A texture attached to the framebuffer must not also be left bound to a
++       * sampler unit: GLES/WebGL reject every draw in that state with
++       * GL_INVALID_OPERATION (a rendering feedback loop), even when the shader
++       * never samples it. Untextured primitives don't rebind under the
++       * programmable pipeline, so a bitmap whose texture is still bound from
++       * its own creation would silently drop every draw made to it.
++       */
++      glBindTexture(GL_TEXTURE_2D, 0);
+    }
+ 
+    /* See comment about unimplemented functions on Android above */
 diff --git a/src/sdl/sdl_display.c b/src/sdl/sdl_display.c
 index 12fc8f14d..afbe4703d 100644
 --- a/src/sdl/sdl_display.c
