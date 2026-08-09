@@ -49,4 +49,13 @@ else
   echo '#define ZC_IS_NIGHTLY 0' >> src/metadata/versionsig.h
 fi
 
+#Filter out ZC_IS_PRERELEASE
+grep -v 'ZC_IS_PRERELEASE' src/metadata/versionsig.h > src/metadata/tmp
+mv src/metadata/tmp src/metadata/versionsig.h
+if [ "${ZC_PRERELEASE:-false}" == "true" ]; then
+  echo '#define ZC_IS_PRERELEASE 1' >> src/metadata/versionsig.h
+else
+  echo '#define ZC_IS_PRERELEASE 0' >> src/metadata/versionsig.h
+fi
+
 echo '' >> src/metadata/versionsig.h

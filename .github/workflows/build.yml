@@ -50,6 +50,10 @@ on:
         type: boolean
         description: Full Version (i.e. NOT a nightly)
         required: false
+      prerelease:
+        type: boolean
+        default: false
+        description: Sets ZC_IS_PRERELEASE to 1
     outputs:
       artifact-name:
         description: "The name of the artifact that should be downloaded by the caller workflow"
@@ -169,6 +173,8 @@ jobs:
         run: echo "TARGET=zplayer" >> "$GITHUB_ENV"
       - run: bash .github/workflows/configure-signatures.sh ${{ inputs.compiler }} ${{ inputs.versiontype }} ${{ inputs.full_release }} ${{ inputs.number }}
         if: ${{ inputs.versiontype }}
+        env:
+          ZC_PRERELEASE: ${{ inputs.prerelease }}
       - name: Set release platform
         id: set-platform
         shell: python

@@ -24,6 +24,10 @@ on:
         type: boolean
         description: Perform a sentry release
         default: true
+      prerelease:
+        type: boolean
+        description: Build prerelease assets only (sets ZC_IS_PRERELEASE=1, publishes nothing)
+        default: false
 
 jobs:
   create-tag:
@@ -46,16 +50,16 @@ jobs:
 
       - name: Setup Sentry CLI
         uses: mathieu-bour/setup-sentry-cli@dbbd0776d55f6e0e5cd7e81fa1a80f4fd0c60369 # v2.0.0
-        if: inputs.sentry
+        if: ${{ inputs.sentry && !inputs.prerelease }}
         with:
           version: '2.20.6'
           token: ${{ secrets.SENTRY_TOKEN }}
           organization: zeldaclassic
           project: zelda-classic
       - run: sentry-cli --version
-        if: inputs.sentry
+        if: ${{ inputs.sentry && !inputs.prerelease }}
       - run: sentry-cli --log-level=DEBUG releases new 'zelda-classic@${{ steps.make-vars.outputs.release-tag }}'
-        if: inputs.sentry
+        if: ${{ inputs.sentry && !inputs.prerelease }}
 
   build-release:
     needs: ["create-tag"]
@@ -90,9 +94,10 @@ jobs:
       compiler: ${{ matrix.compiler }}
       config: ${{ matrix.config }}
       official: true
-      sentry: ${{ matrix.sentry }}
-      release-tag: ${{ needs.create-tag.outputs.release-tag }}
-      release-name: ${{ needs.create-tag.outputs.release-name }}
+      sentry: ${{ matrix.sentry && !inputs.prerelease }}
+      prerelease: ${{ inputs.prerelease }}
+      release-tag: ${{ needs.create-tag.outputs.release-tag }}${{ inputs.prerelease && '-prerelease' || '' }}
+      release-name: ${{ needs.create-tag.outputs.release-name }}${{ inputs.prerelease && ' (prerelease)' || '' }}
       cache: false
       number: ${{ inputs.number }}
       versiontype: ${{ inputs.versiontype }}
@@ -103,7 +108,7 @@ jobs:
     needs:
       - create-tag
       - build-release
-    if: ${{ always() }}
+    if: ${{ always() && !inputs.prerelease }}
     runs-on: ubuntu-22.04
     steps:
       - name: git clone
