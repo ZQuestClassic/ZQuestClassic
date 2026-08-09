@@ -1,6 +1,6 @@
 import puppeteer from 'puppeteer';
 import statikk from 'statikk';
-import { setupConsoleListener } from './utils.js';
+import { blockNonLocalRequests, setupConsoleListener } from './utils.js';
 
 const buildFolder = process.argv[2];
 const target = process.argv[3];
@@ -62,6 +62,7 @@ async function run() {
     headless: openUrl.searchParams.has('headless') ? 'new' : false,
   });
   const page = await browser.newPage();
+  await blockNonLocalRequests(page);
   let hasExited = false;
   let exitCode = -1;
   const onClose = async () => {

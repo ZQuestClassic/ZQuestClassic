@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import * as url from 'url';
 import puppeteer from 'puppeteer';
-import { setupConsoleListener } from './utils.js';
+import { blockNonLocalRequests, setupConsoleListener } from './utils.js';
 
 const dirname = url.fileURLToPath(new URL('.', import.meta.url));
 
@@ -53,6 +53,7 @@ async function runReplay(zplay) {
   const zplayName = zplaySplit[zplaySplit.length - 1];
 
   const page = await browser.newPage();
+  await blockNonLocalRequests(page);
 
   let hasExited = false;
   let exitCode = 0;

@@ -49,7 +49,27 @@ function waitForConsoleMessage(page, pattern) {
   });
 }
 
+/**
+ * @param {import('puppeteer').Page} page
+ */
+// Abort all requests that leave localhost. The app tolerates these failing
+// (analytics, the quest database manifest), but a transient bad response from
+// an external server can trip COEP ("blocked by response") errors that the
+// harnesses treat as fatal - tests should never depend on the network.
+async function blockNonLocalRequests(page) {
+  await page.setRequestInterception(true);
+  page.on('request', request => {
+    const { hostname } = new URL(request.url());
+    if (hostname === 'localhost' || hostname === '127.0.0.1') {
+      request.continue();
+    } else {
+      request.abort();
+    }
+  });
+}
+
 export {
   setupConsoleListener,
   waitForConsoleMessage,
+  blockNonLocalRequests,
 };

@@ -1,7 +1,7 @@
 import puppeteer from 'puppeteer';
 import statikk from 'statikk';
 import { expect } from 'expect';
-import { setupConsoleListener } from './utils.js';
+import { blockNonLocalRequests, setupConsoleListener } from './utils.js';
 
 /** @type {import('puppeteer').Browser} */
 let browser;
@@ -20,6 +20,7 @@ before(async () => {
     headless: !process.env.HEADFULL,
   });
   page = await browser.newPage();
+  await blockNonLocalRequests(page);
   consoleListener = setupConsoleListener(page);
   page.on('pageerror', pageError => pageErrors.push(pageError));
   page.on('console', e => {
@@ -34,6 +35,12 @@ before(async () => {
       // Web build fetches the quest manifest from the internet. In case that ever goes away,
       // don't allow errors in fetching to fail tests.
       if (error.includes('manifest.json') || error.includes('Failed to fetch') || error.includes('blocked by CORS policy')) {
+        console.warning(error);
+        return;
+      }
+
+      // blockNonLocalRequests aborts these, which logs a net::ERR_FAILED error.
+      if (error.includes('googletagmanager')) {
         console.warning(error);
         return;
       }
