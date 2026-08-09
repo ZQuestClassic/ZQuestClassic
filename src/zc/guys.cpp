@@ -9889,21 +9889,26 @@ bool eRock::animate(int32_t index)
 	
 	if(++clk2==0)                                             // start it
 	{
-		x=zc_oldrand()&0xF0;
-		y=0;
+		// Rain within the column of the screen this rock spawned on, entering
+		// from just above the viewport. For a non-scrolling screen this is
+		// exactly the classic behavior (dx=0, viewport.y=0).
+		x=(zc_oldrand()&0xF0) + translate_screen_coordinates_to_world(screen_spawned).first;
+		y=viewport.y;
 		clk3=0;
 		clk2=zc_oldrand()&15;
 	}
-	
+
 	if(clk2>16)                                               // move it
 	{
 		if(clk3<=0)                                             // start bounce
 		{
 			dir=zc_oldrand()&1;
-			
-			if(x<32)  dir=1;
-			
-			if(x>208) dir=0;
+
+			int dx = translate_screen_coordinates_to_world(screen_spawned).first;
+
+			if(x<dx+32)  dir=1;
+
+			if(x>dx+208) dir=0;
 		}
 		
 		if(clk3<13+16)
@@ -9938,12 +9943,12 @@ bool eRock::animate(int32_t index)
 			
 			++clk3;
 		}
-		else if(y<world_h)
+		else if(y<viewport.bottom())
 			clk3=0;                                               // next bounce
 		else
 			clk2 = -(zc_oldrand()&63);                                  // back to top
 	}
-	
+
 	return enemy::animate(index);
 }
 
@@ -10013,21 +10018,24 @@ bool eBoulder::animate(int32_t index)
 	
 	if(++clk2==0)                                             // start it
 	{
-		x=zc_oldrand()&0xF0;
-		y=-32;
+		// See the eRock::animate comment; boulders start a bit higher up.
+		x=(zc_oldrand()&0xF0) + translate_screen_coordinates_to_world(screen_spawned).first;
+		y=viewport.y-32;
 		clk3=0;
 		clk2=zc_oldrand()&15;
 	}
-	
+
 	if(clk2>16)                                               // move it
 	{
 		if(clk3<=0)                                             // start bounce
 		{
 			dir=zc_oldrand()&1;
-			
-			if(x<32)  dir=1;
-			
-			if(x>208) dir=0;
+
+			int dx = translate_screen_coordinates_to_world(screen_spawned).first;
+
+			if(x<dx+32)  dir=1;
+
+			if(x>dx+208) dir=0;
 		}
 		
 		if(clk3<13+16)
@@ -10062,12 +10070,12 @@ bool eBoulder::animate(int32_t index)
 			
 			++clk3;
 		}
-		else if(y<176)
+		else if(y<viewport.bottom())
 			clk3=0;                                               // next bounce
 		else
 			clk2 = -(zc_oldrand()&63);                                  // back to top
 	}
-	
+
 	return enemy::animate(index);
 }
 
