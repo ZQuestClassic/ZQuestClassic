@@ -28,7 +28,13 @@ You can use `manage_commits.py path/to/file.txt` to normalize this list of commi
 Some guidelines:
 
 - Cherry-pick starting from the oldest candidates.
-- use `git cherry-pick -x`, and resolve the conflict for me. Do not EVER change the commit message.
+- use `git cherry-pick -x`, and resolve the conflict for me. Do not EVER change the commit message, with one exception: "Regressed in" lines (see below).
+- If the commit message has a "Regressed in <version> (<hash>)" line referencing a 3.0 version/commit, rewrite it to reference the 2.55 equivalent (via `git commit --amend`, keeping everything else — including the "(cherry picked from ...)" trailer — intact):
+  1. Find the 2.55 commit that introduced the regression. Usually it's the 2.55 cherry-pick of the cited main commit: search with `git log releases/2.55 --grep="cherry picked from commit <full-hash>"`, or by subject (`git log releases/2.55 --grep="<subject>"`) since older picks lack the trailer.
+  2. Verify that 2.55 commit actually introduces the bug there (inspect its diff) — don't blindly map.
+  3. Find the first 2.55 release containing it: `git tag --contains <sha> | grep -E '^2\.55' | sort -V | head -1`. Ignore nightly tags — this branch's convention only cites alpha/numbered releases.
+  4. Cite as `Regressed in 2.55.<x> (<10-char sha>).`
+  5. If the regressing commit was never cherry-picked to 2.55, investigate how the bug got into 2.55; if the fix is still relevant but no 2.55 commit can be cited, drop the "Regressed in" line rather than citing a 3.0 commit.
 - Write a file .tmp/CHERRY_PICK_PROGRESS.md and record notes for every commit you assess. Be sure to append to the file, not overwrite it.
 - Validate each cherry-pick'd commit via `cmake --build build --config Release -t all` and `python tests/run_replay_tests.py --filter playground`
 - If a commit modifies anything in `tests`, you should probably take only the .zs changes and drop playground.qst or .zplay changes. Will need to regenerate those for 2.55.
