@@ -346,7 +346,8 @@ bool info_bmp_enabled()
 #ifdef __EMSCRIPTEN__
 	return false;
 #else
-	return true;
+	// The infolayer bitmap is never created in headless mode.
+	return rti_infolayer.bitmap != nullptr;
 #endif
 }
 

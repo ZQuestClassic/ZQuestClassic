@@ -348,7 +348,7 @@ extern byte SnapshotScale;
 extern int32_t add_asparkle, add_bsparkle;
 
 extern bool show_layers[7];
-extern bool show_layer_over, show_layer_push, show_sprites, show_ffcs, show_hitboxes, show_walkflags, show_ff_scripts, show_effectflags;
+extern bool show_layer_over, show_layer_push, show_sprites, show_ffcs, show_hitboxes, show_walkflags, show_ff_scripts, show_effectflags, show_trigger_prox;
 
 extern int32_t    cheat_goto_dmap, cheat_goto_screen;
 extern int32_t  visited[6];

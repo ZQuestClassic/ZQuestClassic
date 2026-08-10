@@ -3712,6 +3712,11 @@ int32_t onShowHitboxes()
 	show_hitboxes=!show_hitboxes;
 	return D_O_K;
 }
+int32_t onShowTriggerProx()
+{
+	show_trigger_prox=!show_trigger_prox;
+	return D_O_K;
+}
 int32_t onShowInfoOpacity()
 {
 	if (auto num = call_get_num("Debug Info Opacity", info_opacity, 255, 0))
@@ -5401,6 +5406,7 @@ enum
 	MENUID_SHOW_SOLIDITY,
 	MENUID_SHOW_HITBOX,
 	MENUID_SHOW_EFFECT,
+	MENUID_SHOW_TRIGGER_PROX,
 };
 static NewMenu show_menu
 {
@@ -5421,6 +5427,7 @@ static NewMenu show_menu
 	{ "Walkability", onShowLayerW, MENUID_SHOW_SOLIDITY },
 	{ "Hitboxes", onShowHitboxes, MENUID_SHOW_HITBOX },
 	{ "Effects", onShowLayerE, MENUID_SHOW_EFFECT },
+	{ "Trigger Proximity", onShowTriggerProx, MENUID_SHOW_TRIGGER_PROX },
 	{ "Info Opacity", onShowInfoOpacity },
 };
 
@@ -5886,6 +5893,7 @@ void System()
 			show_menu.select_uid(MENUID_SHOW_SCRIPTNAME, show_ff_scripts);
 			show_menu.select_uid(MENUID_SHOW_HITBOX, show_hitboxes);
 			show_menu.select_uid(MENUID_SHOW_EFFECT, show_effectflags);
+			show_menu.select_uid(MENUID_SHOW_TRIGGER_PROX, show_trigger_prox);
 			
 			settings_menu.select_uid(MENUID_SETTINGS_HEARTBEEP, heart_beep);
 			settings_menu.select_uid(MENUID_SETTINGS_SAVEINDICATOR, use_save_indicator);

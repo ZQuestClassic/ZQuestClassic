@@ -4530,6 +4530,53 @@ void do_walkflags(int32_t x, int32_t y)
 	end_info_bmp();
 }
 
+static void put_trigger_prox_a5(zfix center_x, zfix center_y, newcombo const& cmb)
+{
+	for (auto const& trig : cmb.triggers)
+	{
+		if (!trig.trigprox)
+			continue;
+
+		float cx = center_x.getFloat() - viewport.x;
+		float cy = center_y.getFloat() + playing_field_offset - viewport.y;
+		float r = trig.trigprox;
+		ALLEGRO_COLOR col = trig.trigger_flags.get(TRIGFLAG_INVERTPROX)
+			? al_map_rgba(255, 165, 0, info_opacity)
+			: al_map_rgba(85, 255, 255, info_opacity);
+		if (trig.trigger_flags.get(TRIGFLAG_PROX_USE_SQUARE))
+			al_draw_rectangle(cx - r, cy - r, cx + r, cy + r, col, 1);
+		else
+			al_draw_circle(cx, cy, r, col, 1);
+	}
+}
+
+// Show trigger proximity cheat: draw the proximity requirement of combo
+// triggers, so quest makers can see where "Proximity:" conditions pass or fail.
+static void do_trigger_prox_ranges()
+{
+	if (!show_trigger_prox || !info_bmp_enabled())
+		return;
+
+	start_info_bmp();
+
+	for_every_rpos([&](const rpos_handle_t& rpos_handle) {
+		auto& cmb = rpos_handle.combo();
+		if (cmb.triggers.empty())
+			return;
+		auto [center_x, center_y] = rpos_handle.center_xy();
+		put_trigger_prox_a5(center_x, center_y, cmb);
+	});
+	for_every_ffc([&](const ffc_handle_t& ffc_handle) {
+		auto& cmb = ffc_handle.combo();
+		if (cmb.triggers.empty())
+			return;
+		auto [center_x, center_y] = ffc_handle.center_xy();
+		put_trigger_prox_a5(center_x, center_y, cmb);
+	});
+
+	end_info_bmp();
+}
+
 // Effectflags L4 cheat
 void do_effectflags(mapscr* scr, int32_t x, int32_t y)
 {
@@ -5138,6 +5185,9 @@ void draw_screen(bool showhero, bool runGeneric, bool drawPassiveSubscreenSepara
 
 		do_walkflags(0, 0);
 	}
+
+	// Show trigger proximity cheat
+	do_trigger_prox_ranges();
 
 	putscrdoors(nearby_screens, scrollbuf, 0, playing_field_offset);
 	
