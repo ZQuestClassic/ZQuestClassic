@@ -1,6 +1,7 @@
 #include "components/zasm/table.h"
 #include "base/general.h"
 #include "components/zasm/defines.h"
+#include <algorithm>
 #include <array>
 #include <optional>
 #include <string.h>
@@ -2743,13 +2744,28 @@ const script_command* get_script_command(int command)
 	return sc_by_command[command];
 }
 
+static const auto& sc_by_name()
+{
+	static const auto sorted = [] {
+		std::array<const script_command*, std::size(command_list)> result;
+		for (size_t i = 0; i < std::size(command_list); i++)
+			result[i] = &command_list[i];
+		std::sort(result.begin(), result.end(), [](const script_command* a, const script_command* b) {
+			return strcmp(a->name, b->name) < 0;
+		});
+		return result;
+	}();
+	return sorted;
+}
+
 const script_command* get_script_command(const std::string& name)
 {
-	for (auto& sc : command_list)
-	{
-		if (sc.name == name)
-			return &sc;
-	}
+	auto& by_name = sc_by_name();
+	auto it = std::lower_bound(by_name.begin(), by_name.end(), name.c_str(), [](const script_command* sc, const char* name) {
+		return strcmp(sc->name, name) < 0;
+	});
+	if (it != by_name.end() && strcmp((*it)->name, name.c_str()) == 0)
+		return *it;
 
 	if (name == "0xFFFF")
 		return &null_command;
@@ -2784,6 +2800,20 @@ const script_variable* get_script_variable(int32_t var)
 		return nullptr;
 
 	return sv_by_id[var];
+}
+
+static const auto& sv_by_name()
+{
+	static const auto sorted = [] {
+		std::array<const script_variable*, std::size(variable_list)> result;
+		for (size_t i = 0; i < std::size(variable_list); i++)
+			result[i] = &variable_list[i];
+		std::sort(result.begin(), result.end(), [](const script_variable* a, const script_variable* b) {
+			return strcasecmp(a->name, b->name) < 0;
+		});
+		return result;
+	}();
+	return sorted;
 }
 
 std::optional<int> get_script_variable(const std::string& var_name)
@@ -2835,11 +2865,12 @@ std::optional<int> get_script_variable(const std::string& var_name)
 		}
 	}
 
-	for (auto& sv : variable_list)
-	{
-		if (strcasecmp(var_name.c_str(), sv.name) == 0)
-			return sv.id;
-	}
+	auto& by_name = sv_by_name();
+	auto it = std::lower_bound(by_name.begin(), by_name.end(), var_name.c_str(), [](const script_variable* sv, const char* name) {
+		return strcasecmp(sv->name, name) < 0;
+	});
+	if (it != by_name.end() && strcasecmp((*it)->name, var_name.c_str()) == 0)
+		return (*it)->id;
 
 	return std::nullopt;
 }
