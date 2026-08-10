@@ -29362,6 +29362,9 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		
 		do_effectflags(oldscr, tx2, ty2,3); //show effectflags if the cheat is on
 		do_effectflags(newscr, tx, ty,2);
+
+		do_trigger_prox_ranges(oldscr, tx2, ty2,3);
+		do_trigger_prox_ranges(newscr, tx, ty,2);
 		
 		
 		putscrdoors(framebuf, 0-tx2, 0-ty2+playing_field_offset, oldscr);

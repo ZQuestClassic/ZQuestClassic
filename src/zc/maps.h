@@ -165,6 +165,7 @@ void do_layer(BITMAP *bmp, int32_t type, int32_t layer, mapscr* basescr, int32_t
 void put_walkflags(BITMAP *dest,int32_t x,int32_t y,int32_t xofs,int32_t yofs, word cmbdat,int32_t lyr);
 void do_walkflags(mapscr* layer,int32_t x, int32_t y, int32_t tempscreen);
 void do_effectflags(mapscr* layer,int32_t x, int32_t y, int32_t tempscreen);
+void do_trigger_prox_ranges(mapscr* layer,int32_t x, int32_t y, int32_t tempscreen);
 void do_primitives(BITMAP *bmp, int32_t type, mapscr *layer, int32_t x, int32_t y);
 void do_script_draws(BITMAP *bmp, mapscr *layer, int32_t x, int32_t y, bool hideLayer7 = false);
 void calc_darkroom_combos(bool scrolling = false);

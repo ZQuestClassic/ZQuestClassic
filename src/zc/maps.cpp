@@ -3890,6 +3890,52 @@ void do_walkflags(mapscr* layer,int32_t x, int32_t y, int32_t tempscreen)
 	}
 }
 
+static void put_trigger_prox_a5(int32_t cx, int32_t cy, newcombo const& cmb)
+{
+	if (!cmb.trigprox)
+		return;
+
+	ALLEGRO_COLOR col = (cmb.triggerflags[0] & combotriggerINVERTPROX)
+		? al_map_rgba(255, 165, 0, info_opacity)
+		: al_map_rgba(85, 255, 255, info_opacity);
+	al_draw_circle(cx, cy, cmb.trigprox, col, 1);
+}
+
+// Show trigger proximity cheat: draw the proximity requirement of combo
+// triggers, so quest makers can see where "Proximity:" conditions pass or fail.
+// The trigger check (_do_trigger_combo / _do_trigger_ffc_combo) measures the
+// hero's top-left against the combo's top-left; that is the same test as the
+// hero's center against the combo's top-left + (8,8), so the circle is drawn
+// there, where it visually surrounds the combo (and matches main's overlay).
+void do_trigger_prox_ranges(mapscr* layer, int32_t x, int32_t y, int32_t tempscreen)
+{
+	// The infolayer bitmap is never created in headless mode.
+	if (!show_trigger_prox || !rti_infolayer.bitmap)
+		return;
+
+	start_info_bmp();
+
+	int32_t offx = -x;
+	int32_t offy = -y + playing_field_offset;
+	for (int32_t lyr = 0; lyr < 7; ++lyr)
+	{
+		mapscr* scr = lyr == 0 ? layer : (tempscreen==2 ? tmpscr2 : tmpscr3) + (lyr - 1);
+		if (lyr && !scr->valid)
+			continue;
+		for (int32_t pos = 0; pos < 176; ++pos)
+			put_trigger_prox_a5(COMBOX(pos) + 8 + offx, COMBOY(pos) + 8 + offy, combobuf[scr->data[pos]]);
+	}
+
+	word c = layer->numFFC();
+	for (word q = 0; q < c; ++q)
+	{
+		ffcdata const& ffc = layer->ffcs[q];
+		put_trigger_prox_a5(ffc.x.getInt() + 8 + offx, ffc.y.getInt() + 8 + offy, combobuf[ffc.data]);
+	}
+
+	end_info_bmp();
+}
+
 // Effectflags L4 cheat
 void do_effectflags(mapscr* layer,int32_t x, int32_t y, int32_t tempscreen)
 {
@@ -4177,6 +4223,7 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 	//Show walkflags cheat
 	do_walkflags(this_screen,0,0,2);
 	do_effectflags(this_screen,0,0,2);
+	do_trigger_prox_ranges(this_screen,0,0,2);
 	
 	putscrdoors(scrollbuf,0,playing_field_offset,this_screen);
 	

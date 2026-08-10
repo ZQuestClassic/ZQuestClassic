@@ -356,7 +356,7 @@ bool palette_user_tinted = false;
 
 bool show_layer_0=true, show_layer_1=true, show_layer_2=true, show_layer_3=true, show_layer_4=true, show_layer_5=true, show_layer_6=true,
 //oveheard combos     //pushblocks
-     show_layer_over=true, show_layer_push=true, show_sprites=true, show_ffcs=true, show_hitboxes=false, show_walkflags=false, show_ff_scripts=false, show_effectflags = false;
+     show_layer_over=true, show_layer_push=true, show_sprites=true, show_ffcs=true, show_hitboxes=false, show_walkflags=false, show_ff_scripts=false, show_effectflags = false, show_trigger_prox = false;
 
 
 bool Throttlefps = true, MenuOpen = false, ClickToFreeze=false, Paused=false, Saving=false,
@@ -1634,7 +1634,7 @@ void init_game_vars(bool is_cont_game = false)
 		cheat=0;
 		show_layer_0=show_layer_1=show_layer_2=show_layer_3=show_layer_4=show_layer_5=show_layer_6=true;
 		show_layer_over=show_layer_push=show_sprites=show_ffcs=true;
-		cheat_superman=cheats_execute_light=cheats_execute_goto=show_walkflags=show_effectflags=show_ff_scripts=show_hitboxes=false;
+		cheat_superman=cheats_execute_light=cheats_execute_goto=show_walkflags=show_effectflags=show_ff_scripts=show_hitboxes=show_trigger_prox=false;
 	}
 
 	// Various things use the frame counter to do random stuff (ex: runDrunkRNG).
