@@ -1261,7 +1261,11 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 											local_ref.trigprox = (word)val;
 										}),
 									IBTN_T("Proximity Requirement","If the value is >0, the combo "
-										" will only trigger if the Hero is within that number of pixels of the combo."),
+										" will only trigger if the Hero is within that number of pixels of the combo."
+										"\nThis is a condition, not a cause: it also applies when this trigger is fired"
+										" by a Copycat or Large Combo Copycat, and can make that fail. To trigger"
+										" distant combos based on proximity, put the proximity requirement on the"
+										" trigger that fires the copycat, not on the triggers the copycat fires."),
 									TRIGFLAG(TRIGFLAG_INVERTPROX,"Invert Prox. Req", 1, true),
 									IBTN("'Proximity:' requires the Hero to be far away, instead of close"),
 									TRIGFLAG(TRIGFLAG_PROX_USE_SOL_HITBOX,"Use S. Hitbox", 1, true),
@@ -1496,7 +1500,9 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 							DummyWidget(),
 							IBTN_T("Copycat", "If the value is > 0, the combo is linked to that copycat ID."
 								"\nIf this trigger is triggered, all other linked combos will also trigger,"
-								"\nand if any other linked trigger triggers, this trigger will trigger."),
+								"\nand if any other linked trigger triggers, this trigger will trigger."
+								"\nNote: conditions on a linked trigger (ex. Proximity, item requirements)"
+								" still apply when it is triggered via copycat, and can make it fail to trigger."),
 							//
 							Label(text = "LevelState:", fitParent = true),
 							TextField(
@@ -1643,7 +1649,12 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 									TRIGFLAG(TRIGFLAG_TRIGGER_LARGE_COMBO_COPYCAT, "->Large Copycat"),
 									IBTN("Cause: Will be triggered when any combo in the same 'Large Combo' as this combo (see General tab)"
 										" triggers a trigger with '->Large Copycat' checked and the same"
-										" 'Large Combo' 'Copycat' value as above."),
+										" 'Large Combo' 'Copycat' value as above."
+										"\nNote: conditions (ex. Proximity) on this trigger still apply, and can"
+										" make it fail to trigger. To trigger every part of a Large Combo when the"
+										" Hero is near any part of it, use two triggers: one with the proximity"
+										" requirement and '->Large Copycat', and a second with 'Large Copycat->'"
+										" and no conditions."),
 									TRIGFLAG(TRIGFLAG_TRIGGERED_BY_LARGE_COMBO_COPYCAT, "Large Copycat->")
 								)
 							)
