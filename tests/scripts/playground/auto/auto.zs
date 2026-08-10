@@ -5,6 +5,7 @@
 #include "auto/bug_arc_fill.zs"
 #include "auto/bug_compound_assign_side_effects.zs"
 #include "auto/bug_convert_rgb.zs"
+#include "auto/bug_deprecated_draw_layer.zs"
 #include "auto/bug_draw_minitile_oob.zs"
 #include "auto/bug_draworigin_despawn.zs"
 #include "auto/bug_dtor_reentrancy.zs"

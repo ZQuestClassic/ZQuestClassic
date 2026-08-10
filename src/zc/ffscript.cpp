@@ -4,8 +4,10 @@
 #include <limits>
 #include <memory>
 #include <optional>
+#include <set>
 #include <string>
 #include <sstream>
+#include <tuple>
 #include <math.h>
 #include <cstdio>
 #include <algorithm>
@@ -7171,6 +7173,51 @@ static std::pair<DrawOrigin, int> get_draw_origin_for_draw_command(bool is_scree
 	return {DrawOrigin::Screen, 0};
 }
 
+// These draw timings only ever render in draw_screen's 'Classic Drawing Order'
+// branch - under the new drawing order their queues are never flushed.
+static const char* get_classic_only_draw_layer_name(int layer)
+{
+	switch (layer)
+	{
+		case SPLAYER_EWEAP_BEHIND_DRAW: return "SPLAYER_EWEAP_BEHIND_DRAW";
+		case SPLAYER_EWEAP_FRONT_DRAW: return "SPLAYER_EWEAP_FRONT_DRAW";
+		case SPLAYER_LWEAP_BEHIND_DRAW: return "SPLAYER_LWEAP_BEHIND_DRAW";
+		case SPLAYER_LWEAP_FRONT_DRAW: return "SPLAYER_LWEAP_FRONT_DRAW";
+		case SPLAYER_LWEAP_ABOVE_DRAW: return "SPLAYER_LWEAP_ABOVE_DRAW";
+		case SPLAYER_CHAINLINK_DRAW: return "SPLAYER_CHAINLINK_DRAW";
+		case SPLAYER_NPC_DRAW: return "SPLAYER_NPC_DRAW";
+		case SPLAYER_NPC_ABOVEPLAYER_DRAW: return "SPLAYER_NPC_ABOVEPLAYER_DRAW";
+		case SPLAYER_NPC_AIRBORNE_DRAW: return "SPLAYER_NPC_AIRBORNE_DRAW";
+		case SPLAYER_ITEMSPRITE_DRAW: return "SPLAYER_ITEMSPRITE_DRAW";
+	}
+	return nullptr;
+}
+
+// One error per originating line of script code. Cleared by FFScript::init.
+static std::set<std::tuple<ScriptType, word, int32_t>> warned_classic_only_draw_layers;
+
+void clear_classic_only_draw_layer_warnings()
+{
+	warned_classic_only_draw_layers.clear();
+}
+
+static void warn_if_classic_only_draw_layer(const CScriptDrawingCommandVars& cmd, int layer)
+{
+	if (get_qr(qr_CLASSIC_DRAWING_ORDER))
+		return;
+
+	const char* name = get_classic_only_draw_layer_name(layer);
+	if (!name)
+		return;
+
+	if (!warned_classic_only_draw_layers.insert({cmd.script_type, cmd.script_num, cmd.pc}).second)
+		return;
+
+	Z_scripterrlog("Draw command on layer %s does nothing: this draw timing requires the 'Classic Drawing Order' quest rule."
+		" Use Graphics->SpriteLayerTarget with SPLAYER_SPRITE_TARGET_UNDER/OVER to draw relative to a sprite instead."
+		" (This error only prints once per line of code)\n", name);
+}
+
 static void do_drawing_command(int32_t script_command, bool is_screen_draw)
 {
 	if (FFCore.skipscriptdraws)
@@ -7890,7 +7937,9 @@ static void do_drawing_command(int32_t script_command, bool is_screen_draw)
 		}
 	}
 
-	script_drawing_commands.mark_dirty(script_drawing_commands[j][1]/10000, script_drawing_commands[j].sprite_draw_target_ref);
+	int layer = script_drawing_commands[j][1]/10000;
+	warn_if_classic_only_draw_layer(script_drawing_commands[j], layer);
+	script_drawing_commands.mark_dirty(layer, script_drawing_commands[j].sprite_draw_target_ref);
 }
 
 void do_set_rendertarget(bool)
@@ -14407,6 +14456,7 @@ void FFScript::init(bool for_continue)
 {
 	apply_qr_rules();
 	eventData.clear();
+	clear_classic_only_draw_layer_warnings();
 	countGenScripts();
 	// Some scripts can run even before ~Init (but only if qr_OLD_INIT_SCRIPT_TIMING is on), so figure out
 	// the global register types ahead of time.
