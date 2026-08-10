@@ -6,7 +6,6 @@
 #include <initializer_list>
 #include <optional>
 #include <string>
-#include <utility>
 #include <vector>
 
 enum class ARGTY : byte
@@ -47,12 +46,11 @@ struct script_variable
 {
     char name[64];
     int32_t id;
-    word maxcount;
 };
 
 const script_command* get_script_command(int command);
 const script_command* get_script_command(const std::string& name);
-std::pair<const script_variable*, int> get_script_variable(int var);
+const script_variable* get_script_variable(int var);
 std::optional<int> get_script_variable(const std::string& var_name);
 
 struct CommandDependency

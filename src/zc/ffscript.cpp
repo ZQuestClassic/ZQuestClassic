@@ -17507,7 +17507,7 @@ void print_d_register_deps()
 
 	for (int i = 0; i < NUMVARIABLES; i++)
 	{
-		auto [sv, _] = get_script_variable(i);
+		auto sv = get_script_variable(i);
 		if (!sv) continue;
 
 		reset_test_ri(&testRi);
@@ -17545,7 +17545,7 @@ void print_d_register_deps()
 
 		if (debug_ref)
 		{
-			std::string value = get_script_variable(debug_ref).first->name;
+			std::string value = get_script_variable(debug_ref)->name;
 			if (auto* labels = util::find(value_to_labels2, value))
 				labels->push_back(sv->name);
 			else

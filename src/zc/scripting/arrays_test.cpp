@@ -10,7 +10,7 @@ TestResults test_arrays([[maybe_unused]] bool verbose)
 
 	for (int i = 0; i < NUMVARIABLES; i++)
 	{
-		auto [sv, _] = get_script_variable(i);
+		auto sv = get_script_variable(i);
 		if (!sv) continue;
 
 		bool is_array = zasm_array_supports(i);
@@ -18,7 +18,7 @@ TestResults test_arrays([[maybe_unused]] bool verbose)
 
 		if (is_array && deps != std::vector<int>{rINDEX})
 		{
-			auto& name = get_script_variable(i).first->name;
+			auto& name = sv->name;
 			failures.push_back(fmt::format("expected zasm register {} to declare {{rINDEX}} in _get_register_dependencies", name));
 		}
 	}
@@ -50,10 +50,10 @@ TestResults test_arrays([[maybe_unused]] bool verbose)
 
 		auto name = [](std::optional<int> reg) -> std::string {
 			if (!reg) return "(none)";
-			auto [sv, _] = get_script_variable(*reg);
+			auto sv = get_script_variable(*reg);
 			return sv ? std::string(sv->name) : fmt::format("{}", *reg);
 		};
-		auto [sv, _] = get_script_variable(i);
+		auto sv = get_script_variable(i);
 		ref_failures.push_back(fmt::format(
 			"scripting array {} resolves its object from {}, but the zasm table says {}. "
 			"Add it to get_register_ref_dependency in components/zasm/table.cpp.",

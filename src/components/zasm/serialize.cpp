@@ -13,17 +13,9 @@
 
 std::string zasm_var_to_string(int32_t var)
 {
-	const auto& [sv, w] = get_script_variable(var);
+	const auto* sv = get_script_variable(var);
 	if (!sv)
 		return "(null)";
-
-	if (sv->maxcount > 0)
-	{
-		if (strcmp(sv->name, "A") == 0)
-			return fmt::format("{}{}", sv->name, w + 1);
-
-		return fmt::format("{}{}", sv->name, w);
-	}
 
 	return sv->name;
 }

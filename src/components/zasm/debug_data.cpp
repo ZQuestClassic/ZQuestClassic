@@ -723,7 +723,7 @@ std::string DebugData::getDebugSymbolName(const DebugSymbol* symbol) const
 			case LOC_SCRIPT_INSTANCE:
 				return fmt::format("ScriptField[{}]", offset);
 			case LOC_REGISTER:
-				return fmt::format("Reg[{}]", get_script_variable(offset).first->name);
+				return fmt::format("Reg[{}]", get_script_variable(offset)->name);
 			case LOC_CLASS:
 				return fmt::format("ClassField[{}]", offset);
 			default:
