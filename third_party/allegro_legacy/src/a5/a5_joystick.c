@@ -37,6 +37,7 @@ static int a5_get_joystick(ALLEGRO_JOYSTICK * joystick)
 }
 
 static int stick_to_btn[10];
+static int dpad_to_btn[10]; /* per joystick: first of 4 synthesized dpad buttons, 0 = none */
 
 static void a5_reconfigure_joysticks()
 {
@@ -44,6 +45,7 @@ static void a5_reconfigure_joysticks()
     int i, j, k;
 
     memset(stick_to_btn, 0, sizeof(stick_to_btn));
+    memset(dpad_to_btn, 0, sizeof(dpad_to_btn));
 
     num_joysticks = al_get_num_joysticks();
     for(i = 0; i < num_joysticks; i++)
@@ -85,6 +87,21 @@ static void a5_reconfigure_joysticks()
                 {
                     stick_to_btn[j] = joy[i].num_buttons;
                     joy[i].button[joy[i].num_buttons].name = joy[i].stick[j].name;
+                    joy[i].num_buttons++;
+                }
+            }
+
+            // local edit - in the gamepad model the dpad is a stick, but ZC
+            // binds buttons, so also expose it as four buttons (in the order
+            // Up, Down, Left, Right).
+            if (al_get_joystick_type(joystick) == ALLEGRO_JOYSTICK_TYPE_GAMEPAD
+                && ALLEGRO_GAMEPAD_STICK_DPAD < joy[i].num_sticks)
+            {
+                static const char* dpad_names[4] = {"Dpad Up", "Dpad Down", "Dpad Left", "Dpad Right"};
+                dpad_to_btn[i] = joy[i].num_buttons;
+                for(j = 0; j < 4; j++)
+                {
+                    joy[i].button[joy[i].num_buttons].name = dpad_names[j];
                     joy[i].num_buttons++;
                 }
             }
@@ -169,6 +186,24 @@ static void * a5_joystick_thread_proc(ALLEGRO_THREAD * thread, void * data)
                         {
                             int btn = stick_to_btn[event.joystick.stick];
                             joy[i].button[btn].b = event.joystick.pos > 0.1;
+                        }
+
+                        // local edit - reflect dpad axes into the synthesized
+                        // dpad buttons (see a5_reconfigure_joysticks).
+                        // (dpad_to_btn is only set for gamepad-type joysticks.)
+                        if (dpad_to_btn[i] && event.joystick.stick == ALLEGRO_GAMEPAD_STICK_DPAD)
+                        {
+                            int base = dpad_to_btn[i];
+                            if (event.joystick.axis == 0)
+                            {
+                                joy[i].button[base + 2].b = event.joystick.pos < -0.5;
+                                joy[i].button[base + 3].b = event.joystick.pos > 0.5;
+                            }
+                            else if (event.joystick.axis == 1)
+                            {
+                                joy[i].button[base + 0].b = event.joystick.pos < -0.5;
+                                joy[i].button[base + 1].b = event.joystick.pos > 0.5;
+                            }
                         }
                     }
                     break;

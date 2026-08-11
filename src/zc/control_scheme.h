@@ -13,6 +13,7 @@ extern std::map<string, control_scheme> control_schemes;
 
 extern std::string global_control_scheme_name;
 extern optional<std::string> quest_control_scheme_name;
+extern optional<std::string> gamepad_control_scheme_name;
 extern std::string active_control_scheme_name;
 extern control_scheme const* active_control_scheme;
 extern control_scheme replay_control_scheme;
@@ -20,6 +21,7 @@ extern control_scheme replay_control_scheme;
 #define DEFAULT_CONTROL_SCHEME_NAME "Default"
 
 void update_quest_control_path(string const& path);
+void poll_gamepad_scheme();
 void refresh_control_scheme();
 void save_schemes();
 void load_control_schemes();
@@ -74,10 +76,14 @@ struct control_scheme
 		KEY_Z, KEY_X, KEY_ENTER, KEY_Q, KEY_W, KEY_SPACE,
 		KEY_A, KEY_S, KEY_D, KEY_C,
 	};
+	// Numbered per the SDL joystick driver's gamepad model, 1-based: 1-11 =
+	// A,B,X,Y,LS,RS,Back,Start,Guide,LThumb,RThumb; 12/13 = triggers; 14-17 =
+	// dpad. Face buttons bind the engine action to the same-lettered button;
+	// see make_gamepad_default_scheme for the full policy.
 	int btns[NUM_SCHEME_KEYS] = {
-		13, 14, 15, 16,
-		2, 1, 10, 5, 6, 12,
-		7, 8, 4, 3,
+		14, 15, 16, 17,
+		1, 2, 8, 5, 6, 7,
+		3, 4, 12, 13,
 	};
 	int stick_data[num_sticks][num_axes][num_data];
 	int cheatkeys[Cheat::Last][2];
