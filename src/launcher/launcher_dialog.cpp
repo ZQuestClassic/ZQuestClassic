@@ -108,6 +108,18 @@ namespace GUI::Lists
 		{ "OpenGL", 2 }
 	};
 	
+	static const ListData joystickDriverList
+	{
+		{ "SDL (default)", 0 },
+#ifdef _WIN32
+		{ "Native (XInput + DirectInput)", 1 },
+		{ "DirectInput only", 2 },
+		{ "XInput only", 3 },
+#else
+		{ "OS native", 1 },
+#endif
+	};
+
 	static const ListData nameEntryList
 	{
 		{ "Keyboard", 0 },
@@ -288,6 +300,24 @@ Button(forceFitH = true, text = "?", \
 	})
 //}
 
+#define JOYDRIVER_DROPDOWN_I(name, app, head, subhead, def, list, info) \
+Label(text = name, hAlign = 1.0), \
+DropDownList(data = list, \
+	fitParent = true, \
+	minwidth = GFXCARD_DROPDOWN_MINWIDTH, \
+	selectedValue = getJoyDriverID(zc_get_config(head,subhead,getJoyDriverStr(def),app)), \
+	onSelectFunc = [&](int32_t val) \
+	{ \
+		if(val > -1) \
+			zc_set_config(head,subhead,getJoyDriverStr(val),app); \
+	} \
+), \
+Button(forceFitH = true, text = "?", \
+	onPressFunc = [&]() \
+	{ \
+		InfoDialog("Info",info).show(); \
+	})
+
 //}
 
 //{ TextField
@@ -395,6 +425,30 @@ char const* getGFXDriverStr(int32_t id)
 		default: gfx_card_buf[0]=0; break;
 	}
 	return gfx_card_buf;
+}
+//}
+
+//{ JoystickDriver
+char const* getJoyDriverStr(int32_t id)
+{
+	switch(id)
+	{
+		case 1: return "native";
+#ifdef _WIN32
+		case 2: return "directinput";
+		case 3: return "xinput";
+#endif
+		default: return "default";
+	}
+}
+int32_t getJoyDriverID(char const* str)
+{
+	if(0 == strcmp(str, "native")) return 1;
+#ifdef _WIN32
+	if(0 == strcmp(str, "directinput")) return 2;
+	if(0 == strcmp(str, "xinput")) return 3;
+#endif
+	return 0;
 }
 //}
 
@@ -567,6 +621,7 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 						CONFIG_TEXTFIELD_I("Saved Window X:",App::zelda,"zeldadx","window_x", 0, 0, rightmost, "The top-left corner of the ZQuest Window, for manual positioning and also used by 'Save Window Position'. If 0, uses the default position."),
 						CONFIG_TEXTFIELD_I("Saved Window Y:",App::zelda,"zeldadx","window_y", 0, 0, bottommost, "The top-left corner of the ZQuest Window, for manual positioning and also used by 'Save Window Position'. If 0, uses the default position."),
 						GFXCARD_DROPDOWN("Graphics Driver:", App::zelda, "graphics", "driver", 0, gfxDriverList),
+						JOYDRIVER_DROPDOWN_I("Joystick Driver:", App::zelda, "joystick", "driver", 0, joystickDriverList,"Which backend reads gamepads. SDL is the default: it supports the most controllers (triggers, PlayStation/Switch pads, Bluetooth), keeps working while Steam is running, and understands the community controller database. The native options are the drivers older versions used; try them only if a device misbehaves with SDL."),
 #if ZC_JIT_BACKEND != 0
 						CONFIG_DROPDOWN_I("JIT threads:",App::zelda,"ZSCRIPT","jit_threads",-2,jitThreadsList,"Use background threads to speed up JIT compilation. If disabled, all scripts are compiled when a quest first loads."),
 #endif

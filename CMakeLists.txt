@@ -322,10 +322,46 @@ add_compile_definitions("$<$<CONFIG:ASAN>:DEBUGMODE>")
 
 set(MINIMP3_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/include/minimp3)
 
+if(NOT EMSCRIPTEN)
+	# Vendored SDL2, used only by allegro's SDL joystick driver (see
+	# WANT_SDL2_JOYSTICK below); only joystick-related subsystems are built.
+	# Unlike the native evdev/HID/directinput drivers, SDL keeps working when
+	# Steam Input has grabbed the controller, and it brings SDL's controller
+	# database. It is the default on Windows, macOS, and Linux; setting
+	# [joystick] driver = native opts back into the OS-native drivers (the
+	# launcher exposes this).
+	FetchContent_Declare(
+	  SDL2
+	  GIT_REPOSITORY https://github.com/libsdl-org/SDL.git
+	  GIT_TAG        release-2.32.10
+	  GIT_SHALLOW    TRUE
+	  PATCH_COMMAND  git restore . && git apply ${CMAKE_SOURCE_DIR}/third_party/sdl2.patch
+	  EXCLUDE_FROM_ALL
+	)
+	set(SDL_SHARED OFF CACHE BOOL "" FORCE)
+	set(SDL_STATIC ON CACHE BOOL "" FORCE)
+	# The static lib links into the shared liballegro, so it must be PIC.
+	set(SDL_STATIC_PIC ON CACHE BOOL "" FORCE)
+	set(SDL_TEST OFF CACHE BOOL "" FORCE)
+	set(SDL2_DISABLE_INSTALL ON CACHE BOOL "" FORCE)
+	set(SDL2_DISABLE_UNINSTALL ON CACHE BOOL "" FORCE)
+	set(SDL2_DISABLE_SDL2MAIN ON CACHE BOOL "" FORCE)
+	set(SDL_AUDIO OFF CACHE BOOL "" FORCE)
+	set(SDL_VIDEO OFF CACHE BOOL "" FORCE)
+	set(SDL_RENDER OFF CACHE BOOL "" FORCE)
+	set(SDL_POWER OFF CACHE BOOL "" FORCE)
+	set(SDL_FILESYSTEM OFF CACHE BOOL "" FORCE)
+	set(SDL_SENSOR OFF CACHE BOOL "" FORCE)
+	set(SDL_LOCALE OFF CACHE BOOL "" FORCE)
+	set(SDL_MISC OFF CACHE BOOL "" FORCE)
+	FetchContent_MakeAvailable(SDL2)
+	set(WANT_SDL2_JOYSTICK ON CACHE BOOL "" FORCE)
+endif()
+
 FetchContent_Declare(
   allegro5
   GIT_REPOSITORY https://github.com/connorjclark/allegro5.git
-  GIT_TAG        a2799f13bdf890c1480e8dcbc9fca4e5938bd98b
+  GIT_TAG        fbdf9d1ade160ae03853a3beca4b3b0298ed75a8
   EXCLUDE_FROM_ALL
 )
 if(EMSCRIPTEN)

@@ -74,10 +74,10 @@ bool joystick(int stick_idx, int s)
 }
 static optional<int> get_btnpress(int stick_idx, bool stick)
 {
+	if (!binding_joystick || !al_get_joystick_active(binding_joystick))
+		return -1;
 	if (stick)
 	{
-		if (!binding_joystick || !al_get_joystick_active(binding_joystick))
-			return -1;
 		for(int q = 0; q < joy[stick_idx].num_sticks; ++q)
 			if(joystick (stick_idx, q))
 				return q;
