@@ -109,22 +109,19 @@ void ControlBindingDialog::load_gamepad_labels()
 void set_binding_joystick(ALLEGRO_JOYSTICK* stick);
 void ControlBindingDialog::check_joystick()
 {
+	// This runs from view(), so it must not pop a dialog or refresh_dlg():
+	// either reruns view(), which hits the same joystick state again, forever.
 	set_binding_joystick(nullptr);
 	if (!(num_gamepads && al_get_num_joysticks() > 0)) return;
-	
+
 	if (local_scheme.joystick_index >= al_get_num_joysticks())
-	{
 		local_scheme.joystick_index = 0;
-		refresh_dlg();
-	}
-	
-	auto* joystick = al_get_joystick(local_scheme.joystick_index);
-	if (!joystick)
-	{
-		InfoDialog("ZC", "Invalid gamepad. Did it disconnect?").show();
-		refresh_dlg();
-	}
-	set_binding_joystick(joystick);
+
+	// Can still be null for a valid index: a just-unplugged gamepad lingers
+	// in the joystick list until the next reconfigure. The bind buttons treat
+	// a null binding joystick as disconnected, and onTick refreshes the
+	// dialog once the joystick count settles.
+	set_binding_joystick(al_get_joystick(local_scheme.joystick_index));
 }
 
 // CHEATS
