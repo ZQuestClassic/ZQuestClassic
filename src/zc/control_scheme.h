@@ -22,6 +22,8 @@ extern control_scheme replay_control_scheme;
 
 void update_quest_control_path(string const& path);
 void poll_gamepad_scheme();
+optional<std::string> get_gamepad_assigned_scheme(int joy_index);
+void set_gamepad_assigned_scheme(int joy_index, string const& name);
 void refresh_control_scheme();
 void save_schemes();
 void load_control_schemes();
