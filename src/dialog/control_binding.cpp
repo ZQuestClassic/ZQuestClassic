@@ -350,7 +350,8 @@ std::shared_ptr<GUI::Widget> ControlBindingDialog::view()
 						{
 							local_scheme.analog_movement = state;
 						}),
-					INFOBTN_T("Analog Movement", "If checked, uses the sticks below instead of the directions above.")
+					INFOBTN_T("Analog Movement", "If checked, the Primary stick below moves the player."
+						" The directional buttons above always work, either way.")
 				)
 			);
 			btnlist->add(Frame(padding = 0_px, fitParent = true, Label(text = "Primary", leftPadding = DEFAULT_PADDING + 0.75_em)));

@@ -3759,6 +3759,7 @@ void syskeys()
 {
 	poll_keyboard();
 	poll_joystick();
+	poll_gamepad_scheme();
 	update_system_keys();
 	
 	handle_close_btn_quit();
@@ -5970,6 +5971,7 @@ void System()
 		
 		poll_keyboard();
 		poll_joystick();
+		poll_gamepad_scheme();
 		if (menu_pressed(true))
 			running = false;
 
@@ -6348,10 +6350,10 @@ void load_control_state()
 
 	if (!replay_is_replaying())
 	{
-		raw_control_state[0]=zc_getrawkey(active_control_scheme->keys[btnUp], true)||(active_control_scheme->analog_movement ? STICK_1_Y.d1 || STICK_1_Y.pos - STICK_1_Y_OFFSET < -STICK_PRECISION : joybtn(active_control_scheme->joystick_index, active_control_scheme->btns[btnUp]));
-		raw_control_state[1]=zc_getrawkey(active_control_scheme->keys[btnDown], true)||(active_control_scheme->analog_movement ? STICK_1_Y.d2 || STICK_1_Y.pos - STICK_1_Y_OFFSET > STICK_PRECISION : joybtn(active_control_scheme->joystick_index, active_control_scheme->btns[btnDown]));
-		raw_control_state[2]=zc_getrawkey(active_control_scheme->keys[btnLeft], true)||(active_control_scheme->analog_movement ? STICK_1_X.d1 || STICK_1_X.pos - STICK_1_X_OFFSET < -STICK_PRECISION : joybtn(active_control_scheme->joystick_index, active_control_scheme->btns[btnLeft]));
-		raw_control_state[3]=zc_getrawkey(active_control_scheme->keys[btnRight], true)||(active_control_scheme->analog_movement ? STICK_1_X.d2 || STICK_1_X.pos - STICK_1_X_OFFSET > STICK_PRECISION : joybtn(active_control_scheme->joystick_index, active_control_scheme->btns[btnRight]));
+		raw_control_state[0]=zc_getrawkey(active_control_scheme->keys[btnUp], true)||((active_control_scheme->analog_movement && (STICK_1_Y.d1 || STICK_1_Y.pos - STICK_1_Y_OFFSET < -STICK_PRECISION)) || joybtn(active_control_scheme->joystick_index, active_control_scheme->btns[btnUp]));
+		raw_control_state[1]=zc_getrawkey(active_control_scheme->keys[btnDown], true)||((active_control_scheme->analog_movement && (STICK_1_Y.d2 || STICK_1_Y.pos - STICK_1_Y_OFFSET > STICK_PRECISION)) || joybtn(active_control_scheme->joystick_index, active_control_scheme->btns[btnDown]));
+		raw_control_state[2]=zc_getrawkey(active_control_scheme->keys[btnLeft], true)||((active_control_scheme->analog_movement && (STICK_1_X.d1 || STICK_1_X.pos - STICK_1_X_OFFSET < -STICK_PRECISION)) || joybtn(active_control_scheme->joystick_index, active_control_scheme->btns[btnLeft]));
+		raw_control_state[3]=zc_getrawkey(active_control_scheme->keys[btnRight], true)||((active_control_scheme->analog_movement && (STICK_1_X.d2 || STICK_1_X.pos - STICK_1_X_OFFSET > STICK_PRECISION)) || joybtn(active_control_scheme->joystick_index, active_control_scheme->btns[btnRight]));
 		raw_control_state[4]=zc_getrawkey(active_control_scheme->keys[btnA], true)||joybtn(active_control_scheme->joystick_index, active_control_scheme->btns[btnA]);
 		raw_control_state[5]=zc_getrawkey(active_control_scheme->keys[btnB], true)||joybtn(active_control_scheme->joystick_index, active_control_scheme->btns[btnB]);
 		raw_control_state[6]=zc_getrawkey(active_control_scheme->keys[btnS], true)||joybtn(active_control_scheme->joystick_index, active_control_scheme->btns[btnS]);
@@ -6434,10 +6436,10 @@ void load_control_state()
 bool zc_key_pressed()
 //may also need to use zc_getrawkey
 {
-	if((zc_getrawkey(active_control_scheme->keys[btnUp], true)||(active_control_scheme->analog_movement ? STICK_1_Y.d1 || STICK_1_Y.pos - STICK_1_Y_OFFSET< -STICK_PRECISION : joybtn(active_control_scheme->joystick_index, active_control_scheme->btns[btnUp]))) ||
-	   (zc_getrawkey(active_control_scheme->keys[btnDown], true)||(active_control_scheme->analog_movement ? STICK_1_Y.d2 || STICK_1_Y.pos - STICK_1_Y_OFFSET > STICK_PRECISION : joybtn(active_control_scheme->joystick_index, active_control_scheme->btns[btnDown]))) ||
-	   (zc_getrawkey(active_control_scheme->keys[btnLeft], true)||(active_control_scheme->analog_movement ? STICK_1_X.d1 || STICK_1_X.pos - STICK_1_X_OFFSET < -STICK_PRECISION : joybtn(active_control_scheme->joystick_index, active_control_scheme->btns[btnLeft]))) ||
-	   (zc_getrawkey(active_control_scheme->keys[btnRight], true)||(active_control_scheme->analog_movement ? STICK_1_X.d2 || STICK_1_X.pos - STICK_1_X_OFFSET > STICK_PRECISION : joybtn(active_control_scheme->joystick_index, active_control_scheme->btns[btnRight]))) ||
+	if((zc_getrawkey(active_control_scheme->keys[btnUp], true)||((active_control_scheme->analog_movement && (STICK_1_Y.d1 || STICK_1_Y.pos - STICK_1_Y_OFFSET< -STICK_PRECISION)) || joybtn(active_control_scheme->joystick_index, active_control_scheme->btns[btnUp]))) ||
+	   (zc_getrawkey(active_control_scheme->keys[btnDown], true)||((active_control_scheme->analog_movement && (STICK_1_Y.d2 || STICK_1_Y.pos - STICK_1_Y_OFFSET > STICK_PRECISION)) || joybtn(active_control_scheme->joystick_index, active_control_scheme->btns[btnDown]))) ||
+	   (zc_getrawkey(active_control_scheme->keys[btnLeft], true)||((active_control_scheme->analog_movement && (STICK_1_X.d1 || STICK_1_X.pos - STICK_1_X_OFFSET < -STICK_PRECISION)) || joybtn(active_control_scheme->joystick_index, active_control_scheme->btns[btnLeft]))) ||
+	   (zc_getrawkey(active_control_scheme->keys[btnRight], true)||((active_control_scheme->analog_movement && (STICK_1_X.d2 || STICK_1_X.pos - STICK_1_X_OFFSET > STICK_PRECISION)) || joybtn(active_control_scheme->joystick_index, active_control_scheme->btns[btnRight]))) ||
 	   (zc_getrawkey(active_control_scheme->keys[btnA], true)||joybtn(active_control_scheme->joystick_index, active_control_scheme->btns[btnA])) ||
 	   (zc_getrawkey(active_control_scheme->keys[btnB], true)||joybtn(active_control_scheme->joystick_index, active_control_scheme->btns[btnB])) ||
 	   (zc_getrawkey(active_control_scheme->keys[btnS], true)||joybtn(active_control_scheme->joystick_index, active_control_scheme->btns[btnS])) ||
