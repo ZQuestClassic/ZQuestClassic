@@ -23,7 +23,12 @@ static void reload_schemes()
 {
 	global_scheme = global_control_scheme_name;
 	quest_scheme = quest_control_scheme_name;
-	edit_scheme = quest_scheme ? *quest_scheme : global_scheme;
+	// Default the editor to whichever scheme is actually in effect, which
+	// accounts for the per-gamepad assignment.
+	if (control_schemes.contains(active_control_scheme_name))
+		edit_scheme = active_control_scheme_name;
+	else
+		edit_scheme = quest_scheme ? *quest_scheme : global_scheme;
 }
 bool edit_controls_dialog()
 {
@@ -74,12 +79,58 @@ std::shared_ptr<GUI::Widget> ControlSchemeDialog::view()
 		});
 	generate_lists(); // AFTER the widgets are constructed, so it can modify the DropDownList selections directly
 	
+	// One row per connected controller, assigning it a scheme. '(Auto)' means
+	// unassigned: the next time the controller is seen, it gets a scheme
+	// automatically (see poll_gamepad_scheme). Changes apply immediately.
+	std::shared_ptr<GUI::Widget> gamepad_section;
+	int num_pads = al_get_num_joysticks();
+	if (num_pads > 8) // keep the dialog from outgrowing the screen
+		num_pads = 8;
+	if (num_pads > 0)
+	{
+		auto gamepad_grid = GUI::Internal::makeRows(2);
+		for (int q = 0; q < num_pads; ++q)
+		{
+			ALLEGRO_JOYSTICK* jstick = al_get_joystick(q);
+			gamepad_grid->add(Label(hAlign = 1.0,
+				text = fmt::format("{} ({:03}):", jstick ? al_get_joystick_name(jstick) : "?", q)));
+			auto assigned = get_gamepad_assigned_scheme(q);
+			int32_t sel = -1;
+			if (assigned)
+				for (size_t i = 0; i < schemes_list_no_none.size(); ++i)
+				{
+					int32_t v = schemes_list_no_none.getValue(i);
+					if (schemes_list_no_none.findText(v) == *assigned)
+					{
+						sel = v;
+						break;
+					}
+				}
+			gamepad_grid->add(DropDownList(data = schemes_list_gamepad,
+				fitParent = true, maxwidth = 250_px,
+				selectedValue = sel,
+				onSelectFunc = [&, q](int32_t val)
+				{
+					if (val < 0)
+						set_gamepad_assigned_scheme(q, "");
+					else
+						set_gamepad_assigned_scheme(q, schemes_list_gamepad.findText(val));
+					refresh_dlg(); // the 'Currently Active' label may have changed
+				}));
+		}
+		gamepad_section = Column(framed = true, frameText = "Connected Gamepads",
+			gamepad_grid);
+	}
+	else
+		gamepad_section = DummyWidget();
+	
 	std::shared_ptr<GUI::Window> window = Window(
 		title = "Control Schemes",
 		onClose = message::CANCEL,
 		Column(
 			Row(
 				Column(
+					Label(text = fmt::format("Currently Active: '{}'", active_control_scheme_name), maxwidth = 300_px),
 					Label(text = "Global Control Scheme:"),
 					scheme_global,
 					Label(text = "Quest Control Scheme:"),
@@ -148,6 +199,7 @@ std::shared_ptr<GUI::Widget> ControlSchemeDialog::view()
 					
 				)
 			),
+			gamepad_section,
 			Row(
 				topPadding = 0.5_em,
 				vAlign = 1.0,
@@ -196,6 +248,8 @@ void ControlSchemeDialog::generate_lists()
 		++idx;
 	}
 	schemes_list_no_none = schemes_list_quest.copy().filter([](GUI::ListItem& li){return li.value != -1;});
+	schemes_list_gamepad = schemes_list_no_none.copy();
+	schemes_list_gamepad.add("(Auto)", -1);
 	
 	if (scheme_global)
 	{
