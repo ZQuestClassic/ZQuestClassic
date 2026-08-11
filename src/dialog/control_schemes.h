@@ -20,7 +20,7 @@ public:
 	bool handleMessage(const GUI::DialogMessage<message>& msg);
 
 private:
-	GUI::ListData schemes_list_no_none, schemes_list_quest;
+	GUI::ListData schemes_list_no_none, schemes_list_quest, schemes_list_gamepad;
 	std::shared_ptr<GUI::DropDownList> scheme_global, scheme_quest, scheme_edit;
 	std::shared_ptr<GUI::Button> edit_buttons[3];
 	std::string button_word;
