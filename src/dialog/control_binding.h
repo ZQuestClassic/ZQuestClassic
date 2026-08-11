@@ -49,6 +49,7 @@ private:
 	std::shared_ptr<GUI::Label> stick_labels[control_scheme::num_sticks];
 	
 	GUI::ListData gamepad_list;
+	GUI::ListData stick_list;
 
 	void load_kb_labels();
 	void load_gamepad_labels();
