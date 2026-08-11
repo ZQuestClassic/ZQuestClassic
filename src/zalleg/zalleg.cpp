@@ -255,6 +255,12 @@ void zalleg_setup_allegro(App id, int argc, char **argv)
 
 	if (id == App::zelda || id == App::zquest)
 	{
+		// Normalizes controller layouts (SDL_GameControllerDB community database).
+		// Must happen before install_joystick; with the SDL joystick driver these
+		// also merge into SDL's own built-in database.
+		if (al_filename_exists("gamecontrollerdb.txt"))
+			al_set_joystick_mappings("gamecontrollerdb.txt");
+
 		if(install_joystick(JOY_TYPE_AUTODETECT) < 0)
 		{
 			Z_error_fatal("Failed to init allegro: %s\n%s\n", "install_joystick", allegro_error);
