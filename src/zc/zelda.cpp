@@ -4448,6 +4448,12 @@ int main(int argc, char **argv)
 		Z_error_fatal(allegro_error);
 	}
 	
+	// Normalizes controller layouts (SDL_GameControllerDB community database).
+	// Must happen before install_joystick; with the SDL joystick driver these
+	// also merge into SDL's own built-in database.
+	if (al_filename_exists("gamecontrollerdb.txt"))
+		al_set_joystick_mappings("gamecontrollerdb.txt");
+
 	if(install_joystick(JOY_TYPE_AUTODETECT) < 0)
 	{
 		Z_error_fatal(allegro_error);
