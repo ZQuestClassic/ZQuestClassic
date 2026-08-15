@@ -16207,6 +16207,11 @@ std::optional<StackFrame> FFScript::get_script_stack_frame(int pc)
 	return std::nullopt;
 }
 
+// Scripts may print partial lines (e.g. printf without a trailing newline,
+// finished later by TraceNL or a printf ending w/ a newline character), so
+// the trace prefix must only be printed when starting a new line.
+static bool trace_mid_line = false;
+
 void FFScript::handle_trace(const std::string& s, bool is_error, bool no_prefix)
 {
 	// -experimental-disable-script-error-logs: skip script error logging (and the
@@ -16235,12 +16240,27 @@ void FFScript::handle_trace(const std::string& s, bool is_error, bool no_prefix)
 	{
 		if (!no_prefix)
 		{
-			bool force_context = is_error;
-			PrintTracePrefix(force_context, is_error);
+			// If an error interrupts a partial line, end that line so the error's
+			// context prefix starts fresh.
+			if (trace_mid_line && is_error)
+			{
+				safe_al_trace("\n");
+				if (console_enabled)
+					zscript_coloured_console.safeprint(
+						CConsoleLoggerEx::COLOR_WHITE | CConsoleLoggerEx::COLOR_BACKGROUND_BLACK, "\n");
+				trace_mid_line = false;
+			}
+			if (!trace_mid_line)
+			{
+				bool force_context = is_error;
+				PrintTracePrefix(force_context, is_error);
+			}
 		}
 		safe_al_trace(s);
 		if (!stack_trace_string.empty())
 			safe_al_trace(stack_trace_string);
+		if (!s.empty())
+			trace_mid_line = s.back() != '\n';
 	}
 
 	if (do_replay_comment)
@@ -16846,6 +16866,7 @@ void FFScript::do_cleartrace()
 {
 	zc_trace_clear();
 	clearConsole();
+	trace_mid_line = false;
 }
 
 string inttobase(word base, int32_t x, word mindigits)
