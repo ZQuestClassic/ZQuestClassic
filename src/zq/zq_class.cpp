@@ -14019,7 +14019,14 @@ int32_t save_unencoded_quest(const char *filename, bool compressed, const char *
 		box_out("-- Error saving quest file! --");
 		box_end(true);
 	}
-	else box_end(false);
+	else
+	{
+		// Keep this in sync with the saved location, as it is otherwise only
+		// set when loading a quest (ex: the compile dialog resolves include
+		// paths relative to it).
+		header.filename = filename;
+		box_end(false);
+	}
 	return ret;
 }
 
