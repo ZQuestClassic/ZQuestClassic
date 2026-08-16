@@ -11,12 +11,18 @@
 #include <vector>
 
 extern std::map<uint32_t, std::unique_ptr<script_object_base>> script_objects;
+// Mutate only via register_script_object/delete_script_object/
+// clear_script_object_ids_by_type, which keep the O(1) removal locator in
+// sync. The per-type vectors are not kept in insertion order.
 extern std::map<script_object_type, std::vector<uint32_t>> script_object_ids_by_type;
+void clear_script_object_ids_by_type();
 extern std::vector<uint32_t> next_script_object_id_freelist;
 
 // The autorelease pool. Mutate only via the functions below, which keep an
 // O(1) membership index in sync (opcode handlers query membership per object
 // push/pop, so a linear scan of the pool would make N pops cost O(N^2)).
+// Removal is lazy: the vector can contain stale entries, so don't read it
+// directly - the index is the source of truth.
 extern std::vector<uint32_t> script_object_autorelease_pool;
 void script_object_autorelease_pool_add(uint32_t id);
 bool script_object_autorelease_pool_remove(uint32_t id);

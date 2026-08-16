@@ -9,6 +9,7 @@
 #include "zc/zscriptversion.h"
 
 #include <ranges>
+#include <unordered_map>
 #include <unordered_set>
 #include <utility>
 
@@ -20,9 +21,24 @@ std::vector<uint32_t> script_object_autorelease_pool;
 std::vector<uint32_t> next_script_object_id_freelist;
 std::vector<uint32_t> untyped_internal_arrays_retaining_references;
 
-// O(1) membership index for script_object_autorelease_pool. Only the functions
-// below touch either container, keeping them in sync.
+// O(1) membership index for script_object_autorelease_pool. The index is the
+// source of truth: removal only erases from the index, leaving a stale entry
+// behind in the vector (an eager vector erase would make each removal
+// O(pool size), so N removals cost O(N^2)). Stale entries are filtered out
+// when the pool is drained.
 static std::unordered_set<uint32_t> script_object_autorelease_pool_index;
+
+// Each id's position within its type's vector in script_object_ids_by_type,
+// so removal is O(1) via swap-and-pop (a linear scan would make deleting N
+// objects cost O(N^2)). As a result the per-type vectors are not kept in
+// insertion order.
+static std::unordered_map<uint32_t, size_t> script_object_ids_by_type_locator;
+
+void clear_script_object_ids_by_type()
+{
+	script_object_ids_by_type.clear();
+	script_object_ids_by_type_locator.clear();
+}
 
 void script_object_autorelease_pool_add(uint32_t id)
 {
@@ -32,10 +48,7 @@ void script_object_autorelease_pool_add(uint32_t id)
 
 bool script_object_autorelease_pool_remove(uint32_t id)
 {
-	if (!script_object_autorelease_pool_index.erase(id))
-		return false;
-	util::remove_if_exists(script_object_autorelease_pool, id);
-	return true;
+	return script_object_autorelease_pool_index.erase(id);
 }
 
 bool script_object_autorelease_pool_contains(uint32_t id)
@@ -45,8 +58,18 @@ bool script_object_autorelease_pool_contains(uint32_t id)
 
 std::vector<uint32_t> script_object_autorelease_pool_take()
 {
-	script_object_autorelease_pool_index.clear();
-	return std::move(script_object_autorelease_pool);
+	// An id removed and later re-added appears twice in the vector; keep the
+	// last occurrence so it drains from its most recent position.
+	std::vector<uint32_t> ids;
+	ids.reserve(script_object_autorelease_pool_index.size());
+	for (auto it = script_object_autorelease_pool.rbegin(); it != script_object_autorelease_pool.rend(); it++)
+	{
+		if (script_object_autorelease_pool_index.erase(*it))
+			ids.push_back(*it);
+	}
+	std::reverse(ids.begin(), ids.end());
+	script_object_autorelease_pool.clear();
+	return ids;
 }
 
 static int allocations_since_last_gc;
@@ -140,7 +163,7 @@ void init_script_objects()
 		next_script_object_id_freelist.push_back(id);
 	script_objects.clear();
 	script_array_cache_clear();
-	script_object_ids_by_type.clear();
+	clear_script_object_ids_by_type();
 	script_object_autorelease_pool.clear();
 	script_object_autorelease_pool_index.clear();
 	objects_being_destructed.clear();
@@ -222,7 +245,9 @@ void register_script_object(script_object_base* object, script_object_type type,
 	object->type = type;
 	object->id = id;
 	script_objects[id] = std::unique_ptr<script_object_base>(object);
-	script_object_ids_by_type[type].push_back(id);
+	auto& type_ids = script_object_ids_by_type[type];
+	script_object_ids_by_type_locator[id] = type_ids.size();
+	type_ids.push_back(id);
 
 	allocations_since_last_gc++;
 	object->ref_count = 1;
@@ -396,7 +421,17 @@ void delete_script_object(uint32_t id, bool remove_refs)
 	// Restore the reference count (doesn't really matter, about to delete it).
 	object->ref_count--;
 
-	util::remove_if_exists(script_object_ids_by_type[object->type], id);
+	if (auto locator_it = script_object_ids_by_type_locator.find(id); locator_it != script_object_ids_by_type_locator.end())
+	{
+		auto& type_ids = script_object_ids_by_type[object->type];
+		size_t index = locator_it->second;
+		DCHECK(index < type_ids.size() && type_ids[index] == id);
+		type_ids[index] = type_ids.back();
+		type_ids.pop_back();
+		if (index < type_ids.size())
+			script_object_ids_by_type_locator[type_ids[index]] = index;
+		script_object_ids_by_type_locator.erase(id);
+	}
 	script_array_cache_invalidate(id);
 	script_objects.erase(it);
 	deallocations_since_last_gc++;
@@ -525,7 +560,8 @@ static auto run_mark_and_sweep(bool only_include_global_roots)
 			for (int i : data.ref.script_d_is_object)
 				live_object_ids.insert(data.ref.script_d[i]);
 		}
-		for (auto id : script_object_autorelease_pool)
+		// The index, not the vector - the vector can contain stale entries.
+		for (auto id : script_object_autorelease_pool_index)
 			live_object_ids.insert(id);
 		// Objects currently running their destructor, and the local stacks of those
 		// destructors, are roots too - otherwise a GC triggered from within a

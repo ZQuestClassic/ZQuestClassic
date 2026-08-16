@@ -2306,7 +2306,7 @@ void FFScript::deallocateAllScriptOwnedOfType(ScriptType scriptType)
 // Only called when resetting the engine. Don't keep anything.
 void FFScript::deallocateAllScriptOwned()
 {
-	script_object_ids_by_type.clear();
+	clear_script_object_ids_by_type();
 	script_objects.clear();
 	script_array_cache_clear();
 	next_script_object_id_freelist.clear();
@@ -14530,7 +14530,7 @@ void FFScript::shutdown()
 	objectRAM.clear();
 	script_objects.clear();
 	script_array_cache_clear();
-	script_object_ids_by_type.clear();
+	clear_script_object_ids_by_type();
 	next_script_object_id_freelist.clear();
 }
 
