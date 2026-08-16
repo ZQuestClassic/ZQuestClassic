@@ -1,0 +1,472 @@
+https://zquestclassic.com/releases/2.55.16
+
+# Features
+
+Dropdown lists open when clicked anywhere, instead of just the arrow
+
+Find enhanced music inside a subfolder next to the quest
+  Music packs are sometimes distributed as a zip of loose files, and most
+  archive tools extract those into a new folder named after the zip. ZC
+  only looked next to the quest file or in a folder named "music", so that
+  common layout would result in no music being fond.
+  
+  Now, the quest folder's immediate subfolders are now searched as a last
+  resort (existing locations still take priority, and hidden folders are
+  skipped).
+  
+  Also, when a music file cannot be found, the log now lists every folder
+  that was searched.
+
+  Discord: https://discord.com/channels/876899628556091432/1534711166469931180
+
+zq: Try each recent quest at startup until one loads
+  When "Open Last Quest" is enabled and the most recent quest is missing
+  or fails to load, the editor now tries the next quest in the recent
+  list, and so on. Only when none of them can be loaded does it fall back
+  to creating a new quest, without showing any error. Previously it gave
+  up after the first entry, which was annoying when using ZC from an
+  external drive that gets assigned a different path on each computer.
+
+  Discord: https://discord.com/channels/876899628556091432/1533872851738820688
+
+zscript: Support passing string / boolean to `Trace`
+  `Trace(some_string)` now prints a trailing newline after the string
+  (unlike `TraceS`), and `Trace(some_bool)` prints "true"/"false" instead
+  of a number.
+  
+  Also repairs a corrupted `scriptWarp`/`forceWarp` error message in the
+  deprecated theRandomHeader.zh, which had left that header uncompilable.
+  
+  This matches behavior in 3.0.
+
+
+# Bug Fixes
+
+
+Dropdown selection off-by-one with non-default dialog font sizes
+  Selecting the last item of a dropdown list could revert to the previous
+  item, and clicking or using arrow keys on a closed dropdown could
+  silently change the selection. This mostly happened when the dialog font
+  was changed to a non-default value.
+
+Dropdown list popups not closing when clicking an item
+  Since 2.55 Alpha 115, clicking an item in a dropdown list popup
+  selected it but left the popup open - only a fast double click, or
+  Enter, would commit the choice. Worse, clicking anywhere else
+  afterwards (such as a dialog's OK button) dismissed the popup and
+  silently reverted the selection. This made dropdown choices appear to
+  not stick, e.g. picking a scheme in the Control Schemes dialog and
+  clicking OK could leave the old scheme active.
+
+Closed dropdowns drawing extra list rows with small dialog fonts
+  When the dialog font was small enough for two rows of text to fit in
+  the widget, a closed dropdown drew the next list item below the
+  selected one, as if the list were open. A closed dropdown now always
+  draws only the selected item.
+
+Game music (SPC, NSF, VGM, GBS, GYM) playing at half volume
+  Music played through the game-music emulator library is mixed at half
+  amplitude: the legacy mixer reserves 6dB of per-voice headroom for
+  panning, but this centered music stream never pans. OGG and MP3 music
+  play through Allegro 5 at full gain, so emulated console music sounded
+  noticeably quieter. The stream's samples are now doubled (saturating)
+  to restore full volume.
+  
+  Regressed in 2.55-alpha-112 (7c6712d810).
+
+MIDI songs sounding detuned or wrong after other songs played
+  MIDIs can reconfigure durable synth state - most notably pitch bend
+  range, but also channel tuning, instrument banks, and effect levels. The
+  MIDI player never reset this state when starting a new song (the "reset
+  all controllers" message it sent is defined by the MIDI spec to not
+  cover it), so one song's setup corrupted every song played after it
+  until the program was restarted.
+  
+  This was noticed by users reporting that sometimes pitch bends became
+  wildly wrong - bending an octave instead of a whole step.
+  
+  Also, seeking (used when a song has a custom start position, and every
+  time a song loops back to its loop point) would dropped all such
+  controller messages in the skipped region, so affected songs sounded
+  wrong even when played first. These are now restored after every seek.
+
+[win] ignore initial click when window is inactive
+
+  Discord: https://discord.com/channels/876899628556091432/1499572218256953424
+
+[linux] prevent crash when opening the native file dialog
+  The native file dialog (off by default in 2.55) could crash the player
+  and editor on some Linux distros. Two changes to prevent this:
+  
+  - File dialogs now go through xdg-desktop-portal instead of in-process
+    GTK3, so the desktop environment provides the dialog out-of-process.
+    This also behaves better on Wayland.
+  - Our shared libraries no longer re-export symbols from vendored static
+    libraries (libpng, libjpeg, zlib, ogg/vorbis). System libraries
+    loaded into the process later - like GTK and gdk-pixbuf - could bind
+    their image/compression calls to our vendored copies instead of the
+    system ones and crash.
+  
+  Regressed in 2.55.4 (5953252f5b).
+
+Mac releases support macOS 12 and up again
+  Since the CI runners moved past macOS 12, the mac app has inherited the
+  build machine's OS version as its minimum: recent releases refuse to
+  launch on anything older than macOS 15. The deployment target is now
+  pinned to macOS 12, matching the website's stated support.
+  
+  Regressed in 2.55.8 (cd7d682dd8).
+
+[mac] prevent crash when window is resized
+  Resizing the window while the game was drawing could crash inside the
+  system's OpenGL driver.
+
+  Discord: https://discord.com/channels/876899628556091432/1098964099989250098
+
+Keep the window painted while it is being resized
+  Dragging the window edge blanked the game until the next frame was due,
+  because resizing the display throws away what was drawn.
+
+File dialogs opening on a folder that does not exist
+  Exporting a tile page could open the file dialog on a bogus folder, so
+  it listed nothing at all - not even a ".." to navigate out of. Any file
+  dialog whose starting folder no longer exists now falls back to the
+  closest folder that does.
+  
+  The bogus folder came from a stale export path saved in the config by
+  versions before 2.55.10 (9df104fd95), which was never cleaned up. That
+  value is now repaired on the next launch.
+
+String shadows cut off at the text box margins
+  Shadowed text draws its shadow 1px outside each glyph, but the string
+  margin clipping copied exactly the text area, cutting shadows off of
+  glyphs at the edges. The margin rect now has 1px of leeway.
+  
+  Regressed in 2.55-alpha-52 (73acd7828f).
+
+zc: Stop music restarting on warp to same-music screen
+  Warps that cut music to silence before replaying it (Entrance/Exit
+  and Cave warps) restarted the screen music even when the destination
+  screen used the same song, causing an audible reset during
+  cutscene-style screen-to-screen warps. These warps now keep the music
+  playing when the destination screen uses the track that's already
+  playing.
+
+zc: Font scale option in ZPlayer Options dialog never saving
+  Setting a font's Scale in the ZPlayer Options dialog had no effect: it
+  reverted to 1 on hitting OK. The font choice itself saved fine; only
+  the scale was lost. Broken since the dialog was added in 2.55.0 (df3b5ab5b5).
+
+zc: Ganon room music not playing for quests made in 1.90
+  The Ganon room plays the last MIDI in the quest's MIDI bank, but the
+  number of MIDI slots grew from 32 to 252 in 1.92 build 178. The player
+  always looked at the modern last slot, which doesn't exist in quests
+  made before then, so their Ganon music never played.
+
+  Discord: https://discord.com/channels/876899628556091432/1529206920379105291
+
+zc: Passive subscreen missing when playing some old quests
+  Some old quests (pre-2.55 subscreen format) have dmaps whose subscreen
+  index points past the end of the quest's subscreen list. The original
+  engine silently fell back to displaying the last subscreen in the list,
+  but since the new subscreen system arrived, such an index displayed
+  nothing at all - leaving the passive subscreen area entirely empty. "Link's Grand
+  Adventure 2" is the only quest known to be affected.
+  
+  Now the old engine's index resolution is emulated when loading old
+  quests, restoring the subscreens these quests always displayed.
+  
+  Regressed in 2.55-alpha-117 (7441956cdd).
+
+zc: Default triforce and ending fanfare NSF tunes never played
+  Since 2021, zelda.nsf has shipped in modules/classic/, but the music
+  loader only searches the executable and quest directories (and their
+  music/ subfolders), so it was never found and quests always fell back
+  to the lower-quality MIDI versions of the classic triforce and ending
+  tunes. The file now ships in music/, where the loader finds it -
+  after any quest-provided replacement, which still takes priority.
+  
+  Regressed in 2.55-alpha-97 (d69aafa6ee).
+
+zc: Scrolling warp to another DMap charted a screen on the wrong map
+  When taking a scrolling warp to a different DMap, the destination
+  screen was charted on the previous DMap's map instead of its own. This
+  made a screen the player never visited show as explored - seen when
+  returning to the previous DMap and viewing its map, or via the
+  reverse warp charting a phantom screen on the destination DMap.
+  
+  Regressed in 2.55.9 (7ee836aedc).
+
+zc: Effect flags in bottom/right 8px ignored with newer player movement
+  With "Newer Player Movement" enabled (and LTTP walk disabled), the
+  player can stand in the bottom/right 8 pixels of the screen, but effect
+  flag checks there still used the legacy shrunken screen bounds - so
+  damage combos didn't hurt, slow combos didn't slow, and lock blocks,
+  signs, armos/graves and other trigger combos didn't activate in that
+  strip. Same class of bug as the recent solidity fix for this movement
+  mode.
+  
+  Regressed in 2.55-alpha-114 (9933309604).
+
+zc: Prevent crash drawing a Button Item subscreen widget
+  A Button Item widget whose button index is out of range - as can
+  happen with a corrupt quest file - read (and wrote) past the ends of
+  fixed-size arrays while drawing, crashing the game.
+  
+  Bug introduced when the button-item subscreen widget was added in
+  2.55-alpha-117 (e935320e).
+
+zc: Prevent crash drawing a Button Counter subscreen widget
+  A Button Counter widget whose cost index is out of range - as can
+  happen with a corrupt quest file - read past the end of a fixed-size
+  array while drawing, crashing the game.
+  
+  Bug introduced when the Button Counter subscreen widget was added in
+  2.55-alpha-117 (09a871e0).
+
+zc: Prevent divide by zero drawing Gauge Piece subscreen widgets
+  Gauge Piece widgets divided by zero while drawing when their "per
+  container" value was 0 (possible with a corrupt quest file), or when
+  using the percentage-based animation flags with a counter whose
+  maximum is 0, crashing the game.
+  
+  Bug introduced when Gauge Piece subscreen widgets were added in
+  2.55-alpha-117 (7d54ca59).
+
+zc: Stuck at screen edge over walkable water that can't drown you
+  The fix preventing screen scrolling from beating out drowning checked
+  for water without checking whether the hero can actually drown in it.
+  In quests without the 'Hero Drowns in Walkable Water' rule (and not
+  sideview swimming), walkable water tiles at a screen edge would block
+  scrolling entirely, softlocking the player against the edge, even
+  though the water could never drown them.
+  
+  Now the pre-scroll water check uses the same "can drown" conditions as
+  the actual drowning logic.
+  
+  Regressed in 2.55.10 (b27da2ea23).
+
+  Discord: https://discord.com/channels/876899628556091432/1293495220284952628
+
+zc: Coyote time jumps eating an 'extra jump'
+  Roc items with both coyote time and 'extra jumps' would lose one
+  'extra jump' when executing a coyote time jump.
+
+zc: Show the Save Indicator setting in the Settings menu again
+  The Settings menu was truncated one entry too early when debug mode is
+  off, hiding the "Save Indicator" toggle. The menu is now truncated
+  based on where the Debug entry actually is, so inserting entries above
+  it can't hide the wrong ones again.
+  
+  Regressed in 2.55.0 (05449497b9).
+
+zc: Dialog dimming not covering the whole screen in fullscreen
+  When the window's aspect ratio did not match the 4:3 GUI, the
+  translucent overlay drawn behind a dialog (like the "End current game?"
+  prompt) stopped short of the right edge of the screen, leaving part of
+  the game undimmed.
+  
+  Regressed in 2.55.0 (fad67d9622).
+
+zc: Scripted Wind LWeapons infinitely looping wind sfx
+  Wind LWeapons with a valid Parent Item ID belonging to a non-whistle
+  item class stopped that item's sound effect instead of the hardcoded
+  wind sound, leaving the wind sfx looping forever.
+
+zc: Shooter combos not running scripts on custom lweapons
+  Shooter combos firing a 'Custom Weapon' id with 'Custom Weapons Are
+  LWeapons' checked would assign the weapon script but never run it,
+  because custom-weapon lweapons only ran scripts when fired by an item
+  or created by a script. Custom eweapons were unaffected.
+  
+  Regressed in 2.55-alpha-110 (a90cd1b2e8).
+
+  Discord: https://discord.com/channels/876899628556091432/1532973551282290849
+
+zc: Big 4-directional enemy fire/attack frames overlapping walk tiles
+  The 'Big + Firing' enemy animation styles placed their firing frames
+  too close to the walking frames, so a big enemy's attack animation
+  displayed walking tiles from the wrong direction instead of its own
+  attack frames. The fire frame offset now clears the full block of
+  walking tiles.
+  
+  Broken when added in 2.55-alpha-100 (9753e33c).
+
+zq: Prevent crash at startup when a recent quest path is inaccessible
+  Making a path relative for display (recent quest menu entries, per-quest
+  config headers, etc.) threw an unhandled filesystem exception when the
+  OS could not resolve the path - for example, a config file copied from
+  another computer with quest paths in folders that don't exist or can't
+  be accessed. In the editor this happened during startup, crashing
+  before the window even appeared.
+  
+  Such paths are now left unchanged instead of crashing.
+  
+  Regressed in 2.55-alpha-108 (f79e7bd348).
+
+zq: Wrong npc IDs listed by tile move overwrite protection
+  When moving tiles onto tiles used by enemies, the overwrite protection
+  warning listed each enemy by its position in the alphabetized enemy
+  list instead of by its actual npc ID (the name shown next to it was
+  correct).
+  
+  Regressed in 2.55.2 (6aae56ece8).
+
+zq: Prevent crash and blank pages in the Screen Data / Init Data value editor
+  The "Edit Starting Data" editor (Screen Data dialog, also used for
+  generic script data in Init Data) crashed when adding a value with an
+  out-of-range index: with a data size of 1, the "Add at what index?"
+  prompt had equal min/max bounds, which disabled all input clamping, and
+  entering any index above 0 threw an unhandled error.
+  
+  Also fixes the value list showing a blank page (with a nonsense page
+  range label) after removing enough values while on a later page.
+  
+  Regressed in 2.55-alpha-120 (b84aded881).
+
+  Discord: https://discord.com/channels/876899628556091432/1502718806517223546
+
+zq: String .tsv import scrambling margins and list order
+  Importing a strings .tsv file - even one exported unedited - broke the
+  string data in two ways:
+  
+  The margin column is written in top/right/bottom/left order, but the
+  importer read it as top/bottom/left/right, permuting three of the four
+  margins on every import.
+  
+  The imported list positions were dropped entirely (the string copy
+  intentionally skips them), forcing every string's list position to its
+  numerical index - except the last imported string, which kept a stale
+  position from before the import, corrupting the string list order.
+  
+  Imported list positions are now applied by rank, so hand-edited files
+  with duplicate or gapped position values normalize sensibly instead of
+  breaking the list.
+  
+  Broken when added in 2.55.0 (1e1af9db17).
+
+  Discord: https://discord.com/channels/876899628556091432/1531111795035607192
+
+zq: Pressing Shift mid-drag not changing the snap mode of screen objects
+  Holding Shift while dragging an FFC, warp square, or other screen
+  object switches to a finer snap mode - but the key was only picked up
+  if it was already held when the drag began. Pressing or releasing
+  Shift during the drag did nothing until the object was dropped. The
+  key state is now re-read on every frame of the drag.
+  
+  Broken since the Shift snap modes were added in 2.55-alpha-119
+  (c4f28895ed).
+
+  Discord: https://discord.com/channels/876899628556091432/1437241713830658238
+
+zscript: Filled `Screen->Arc` / `bitmap->Arc` pies escaping the wedge
+  Filled arcs were drawn by outlining the pie (the arc plus two edge
+  lines) and flood filling a probe point expected to be inside it.
+  Whenever that probe landed outside the wedge - wrap-around angle spans,
+  pies partially offscreen, tiny radii - the fill escaped and painted
+  everything except the pie. This is the ancient breakage (since the
+  command was added in the 2.50 days) that led scripters to guard Arc
+  calls with parameter checks. Filled pies are now rasterized directly as
+  polygons, which also removes the leftover debug logging that every
+  filled arc printed to the console.
+  
+  Additionally, filled draws went through a masked sprite blit, so opaque
+  fills with color 0 never drew anything; they now write color 0, letting
+  bitmap->Arc carve/clear regions.
+  
+  The arc's angle convention is unchanged (and now covered by a test):
+  degrees anticlockwise, 0 = east, as documented.
+
+zscript: Stale JIT code could run after reloading a changed quest
+  The JIT cache that lets an F9 reset reuse compiled scripts decided
+  "quest unchanged" from the qst file's modification time. That check can
+  falsely pass - coarse filesystem timestamp granularity (exFAT/FAT and
+  some network drives round to 2 seconds), or the file changing between
+  the quest load and the timestamp read - and since a script's cache key
+  (its type and slot index) is identical every load, a false pass
+  silently runs the previous quest load's compiled code against the newly
+  loaded scripts. In test mode that surfaces as recompiled scripts not
+  taking effect after a reset until the player is fully restarted.
+  
+  The cache is now keyed on a hash of the loaded ZASM itself, so compiled
+  code can never outlive the scripts it was built from, and resets of a
+  truly unchanged quest still reuse it.
+  
+  Regressed in 2.55-alpha-120 (2bd7e877de).
+
+zscript: Script draws were discarded during the screen init of instant warps
+  Scripts can run during the screen init frame of an 'Insta-Warp' or
+  'Insta-Warp with Blackout', but any draws they queued were silently
+  discarded, since nothing executed them before the post-warp game loop
+  restart cleared the drawing queue. This was especially harmful for
+  draws to script bitmaps, as those have lasting consequences.
+  
+  The other insta-warp types (Zap, Wave, Open) were unaffected, as their
+  arrival animations execute queued script draws as a side effect - though
+  'Insta-Warp, Opening Wipe' was affected when the circle wipe is used.
+  Scripted warps (Hero->WarpEx) with no warp effect had the same problem,
+  and are fixed too.
+  
+  This is longstanding behavior, not a recent regression.
+
+zscript: Script draws vanished for one frame when closing the active subscreen
+  The active subscreen blocks in the middle of a game frame, and its
+  internal loops repeatedly clear the queue of pending script draws. When
+  the subscreen closed, the interrupted frame resumed and rendered with
+  an empty queue, so every script draw was missing from that one frame.
+  
+  The interrupted frame's queued draws are now stashed while the
+  subscreen is open and restored when it closes.
+  
+  Regressed in 2.55-alpha-119 (cb2d6b5217).
+
+zscript: Backslashes lost from script metadata help text
+  Help text on a script's attributes, flags or InitD - anything written in
+  a doc comment - lost its backslashes when the quest was reloaded,
+  mangling the text after them. "C:\new" came back as "C:" followed by a
+  newline and "ew".
+
+zscript: Strings longer than 65535 chars compared and written incorrectly
+  Internal string and array helpers used 16-bit loop indices, so operating
+  on an array with more than 65535 elements would wrap the index back to
+  zero. For example, `strcmp()` compared only the first 65536 chars (and
+  never reached the null terminator), and writing such an array could hang
+  the game. Arrays can hold up to 214748 elements.
+  
+  This bug has existed since ZScript arrays were added (2.50-era).
+
+zscript: Nested calls to vargs-using functions clobbering each other's varg params
+
+# Build
+
+
+Strip unreferenced code and data from the binaries
+  Every app links the same large engine libraries, and the linker kept
+  whole object files whenever anything in them was used - the launcher
+  carried most of the GUI framework without ever calling it. Binaries
+  now shrink on every platform: roughly 10% for the player and editor,
+  about half for the launcher, and over half for the Windows release
+  builds, whose debug-info link had disabled dead-code removal entirely.
+
+
+# Refactors
+
+
+zc: Levels with palette cycling ran much slower than necessary
+  Palette cycling advances up to three cycles at independent speeds, so a
+  single level can produce a few hundred distinct palettes. The color
+  lookup tables rebuilt on every palette change (~1ms each) were cached,
+  but the cache only held ~100 palettes - and cycling revisits palettes in
+  order, which is the worst case for an undersized cache: entries were
+  evicted right before they were needed again. One tested quest rebuilt
+  tables 42,000 times for only 385 distinct palettes, eating ~40% of frame
+  time.
+  
+  Now only the expensive RGB lookup table is cached per palette (3x
+  smaller entries, so ~640 palettes fit in 20MB), and the cheap
+  translucency tables are derived from it when the active palette changes.
+  Replaying a palette-cycling-heavy quest went from 158s to 96s.
+  
+  Palette cycling has always had this cost; the cache added in 2.55.4 /
+  3.0.0-prerelease.55 (c3889779) was too small to help it.
+
