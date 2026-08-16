@@ -16848,6 +16848,10 @@ void FFScript::PrintTracePrefix(bool force_show_context, bool is_error)
 		}
 	}
 
+	// No timestamp and no context, so don't print any prefix.
+	if (parts.empty())
+		return;
+
 	std::string prefix = fmt::format("{}: ", fmt::join(parts, " "));
 
 	al_trace("%s", prefix.c_str());
