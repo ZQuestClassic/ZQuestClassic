@@ -20,6 +20,8 @@ We support Windows (Win7+), OSX (12+), and Linux. There is also an experimental 
 
 See [`docs/building.md`](./docs/building.md) and learn [how to contribute](./CONTRIBUTING.md).
 
+Regarding the usage of AI in ZQuest Classic, see [this doc](./docs/ai.md).
+
 ## Images
 
 ![Editor](https://github.com/user-attachments/assets/84d5f7e0-d948-4e01-b62b-552d1f961f91)

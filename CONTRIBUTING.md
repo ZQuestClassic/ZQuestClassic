@@ -70,3 +70,7 @@ PRs should be an isolated change.
 Make sure the CI (GitHub Actions) continues to pass for all environments.
 
 It's encouraged to engage in a discussion before submitting a PR - drop by [our Discord](https://discord.gg/uStAnHJhPM) or start a discussion in a GitHub issue, and we can guide you towards making an effective contribution.
+
+## AI
+
+Regarding the usage of AI in pull requests, please read [this doc](./docs/ai.md).
