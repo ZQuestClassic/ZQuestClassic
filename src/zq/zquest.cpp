@@ -19785,18 +19785,28 @@ int32_t main(int32_t argc,char **argv)
 			if(OpenLastQuest && !used_switch(argc,argv,"-new"))
 			{
 				// Try the last-open quest, then the rest of the recent list,
-				// silently skipping entries that are missing or fail to load.
+				// silently skipping entries that are missing. Any other failure
+				// (ex. the user cancelling a password prompt) stops the search.
+				bool keep_trying = true;
+
 				if(filepath[0])
 				{
 					if(!exists(filepath))
 						al_trace("Skipping recent quest (not found): %s\n", filepath);
-					else if(load_quest(filepath)==qe_OK)
-						loaded = true;
 					else
-						al_trace("Skipping recent quest (failed to load): %s\n", filepath);
+					{
+						int32_t ret = load_quest(filepath);
+
+						if(ret == qe_OK)
+							loaded = true;
+						else if(ret == qe_notfound)
+							al_trace("Skipping recent quest (not found): %s\n", filepath);
+						else
+							keep_trying = false;
+					}
 				}
 
-				for(int q = 0; !loaded && q < 10; ++q)
+				for(int q = 0; keep_trying && !loaded && q < 10; ++q)
 				{
 					char const* path = rec_menu_fullpaths[q];
 
@@ -19805,13 +19815,20 @@ int32_t main(int32_t argc,char **argv)
 
 					if(!exists(path))
 						al_trace("Skipping recent quest (not found): %s\n", path);
-					else if(load_quest(path)==qe_OK)
-					{
-						strcpy(filepath,path);
-						loaded = true;
-					}
 					else
-						al_trace("Skipping recent quest (failed to load): %s\n", path);
+					{
+						int32_t ret = load_quest(path);
+
+						if(ret == qe_OK)
+						{
+							strcpy(filepath,path);
+							loaded = true;
+						}
+						else if(ret == qe_notfound)
+							al_trace("Skipping recent quest (not found): %s\n", path);
+						else
+							keep_trying = false;
+					}
 				}
 			}
 
