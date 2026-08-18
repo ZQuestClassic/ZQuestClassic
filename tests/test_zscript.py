@@ -47,8 +47,10 @@ class TestZScript(unittest.TestCase):
     def compile_script(self, script_path):
         # Change include paths to use resources/ directly, instead of possibly-stale stuff inside a build folder.
         include_paths = [
+            str(test_scripts_dir),
             str(root_dir / 'resources/include'),
             str(root_dir / 'resources/headers'),
+            str(test_scripts_dir / 'playground'),
         ]
         zasm_path = tmp_dir / 'out.zasm'
         zasm_path.unlink(missing_ok=True)
