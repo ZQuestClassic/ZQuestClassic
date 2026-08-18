@@ -233,8 +233,22 @@ void SemanticAnalyzer::caseBlock(ASTBlock& host, void*)
 	}
 	scope = host.getScope();
 
-	// Recurse.
-	RecursiveVisitor::caseBlock(host);
+	// Recurse. Same as RecursiveVisitor::caseBlock, but additionally recycles
+	// literal stack slots between statements: a statement's literals are dead
+	// once its code completes (BuildOpcodes::literalVisit deallocates them),
+	// so a later statement's literals can reuse their slots.
+	block_visit(host, host.options);
+	if (!breakRecursion(host))
+	{
+		for (auto it = host.statements.cbegin(); it != host.statements.cend(); ++it)
+		{
+			uint32_t mark = scope->getLiteralSlotMark();
+			failure_temp = false;
+			visit(**it);
+			scope->recycleLiteralSlots(mark);
+			if(failure_halt) break;
+		}
+	}
 
 	// Restore scope.
 	scope = scope->getParent();

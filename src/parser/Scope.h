@@ -165,6 +165,13 @@ namespace ZScript
 		// Get the stack offset for this local datum.
 		virtual std::optional<int32_t> getLocalStackOffset(Datum const&) const {
 			return std::nullopt;}
+
+		// Literal (string/array) datums only live until the end of the
+		// statement that uses them, so their stack slots can be recycled for
+		// literals in later statements. SemanticAnalyzer brackets each block
+		// statement with these.
+		virtual uint32_t getLiteralSlotMark() const {return 0;}
+		virtual void recycleLiteralSlots(uint32_t mark) {}
 			
 		//
 		bool operator==(Scope* other) {return id == other->getId();}
@@ -382,6 +389,9 @@ namespace ZScript
 		virtual int32_t getLocalStackDepth() const {return stackDepth_;}
 		virtual std::optional<int32_t> getLocalStackOffset(Datum const& datum) const;
 
+		virtual uint32_t getLiteralSlotMark() const {return literalSlotHistory_.size();}
+		virtual void recycleLiteralSlots(uint32_t mark);
+
 		int32_t stackDepth_;
 	protected:
 		Scope* parent_;
@@ -394,6 +404,10 @@ namespace ZScript
 		std::vector<Datum*> anonymousData_;
 		std::map<std::string, Datum*> namedData_;
 		std::map<Datum*, int32_t> stackOffsets_;
+		// Stack slots of literals no longer in use, available for reuse.
+		std::vector<int32_t> freeLiteralSlots_;
+		// Stack slots handed to literals since the last recycle point.
+		std::vector<int32_t> literalSlotHistory_;
 		std::map<std::string, Function*> getters_;
 		std::map<std::string, Function*> setters_;
 		std::map<std::string, std::vector<Function*> > functionsByName_;
