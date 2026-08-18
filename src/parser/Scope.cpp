@@ -707,6 +707,15 @@ std::optional<int32_t> ZScript::lookupStackPosition(
 	return std::nullopt;
 }
 
+void BasicScope::recycleLiteralSlots(uint32_t mark)
+{
+	while (literalSlotHistory_.size() > mark)
+	{
+		freeLiteralSlots_.push_back(literalSlotHistory_.back());
+		literalSlotHistory_.pop_back();
+	}
+}
+
 // Get all in branch
 
 vector<Function*> ZScript::getFunctionsInBranch(Scope const& scope)
@@ -1229,8 +1238,23 @@ bool BasicScope::add(Datum& datum, CompileErrorHandler* errorHandler)
 
 	if (!ZScript::isGlobal(datum))
 	{
-		stackOffsets_[&datum] = stackDepth_++;
-		invalidateStackSize();
+		// Literals only live until the end of the statement that uses them
+		// (BuildOpcodes::literalVisit deallocates them there), so they reuse
+		// recycled slots rather than growing the stack frame.
+		if (dynamic_cast<Literal*>(&datum) && !freeLiteralSlots_.empty())
+		{
+			int32_t slot = freeLiteralSlots_.back();
+			freeLiteralSlots_.pop_back();
+			stackOffsets_[&datum] = slot;
+			literalSlotHistory_.push_back(slot);
+		}
+		else
+		{
+			stackOffsets_[&datum] = stackDepth_++;
+			if (dynamic_cast<Literal*>(&datum))
+				literalSlotHistory_.push_back(stackOffsets_[&datum]);
+			invalidateStackSize();
+		}
 	}
 
 	return true;
