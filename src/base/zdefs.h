@@ -1627,7 +1627,8 @@ public:
 	
 	int32_t d[8]; //d registers
 	int32_t a[2]; //a regsisters (reference to another ffc on screen)
-	uint32_t sp; //stack pointer for current script
+	uint32_t sp = MAX_STACK_SIZE; //stack pointer for current script
+	bool stack_overflow = false; //stack overflowed; the script will be stopped
 	dword scriptflag; //stores whether various operations were true/false etc.
 	
 	byte ffcref;

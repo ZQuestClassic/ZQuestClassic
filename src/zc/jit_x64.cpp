@@ -173,11 +173,7 @@ static void set_z_register(CompilationState& state, x86::Compiler &cc, x86::Gp v
 	set_z_register(state, cc, vStackIndex, r, val);
 }
 
-static void modify_sp(x86::Compiler &cc, x86::Gp vStackIndex, int delta)
-{
-	cc.add(vStackIndex, delta);
-	cc.and_(vStackIndex, MASK_SP);
-}
+
 
 static void div_10000(x86::Compiler &cc, x86::Gp dividend)
 {
@@ -345,6 +341,38 @@ static void compile_command(CompilationState& state, x86::Compiler &cc, script_d
 		cc.cmp(state.vRetVal, RUNSCRIPT_OK);
 		cc.jne(state.L_End);
 	}
+}
+
+// Modifies the stack pointer, checking that the result stays in bounds. sp may
+// range over [0, MAX_STACK_SIZE], where MAX_STACK_SIZE means the stack is
+// empty. On overflow (or underflow), undoes the modification and runs the
+// command in the interpreter, which logs the error and stops the script -
+// identical to non-jit behavior.
+static void modify_sp_checked(CompilationState& state, x86::Compiler &cc, x86::Gp vStackIndex, int delta, int pc)
+{
+	extern int32_t jitted_uncompiled_command_count;
+
+	cc.add(vStackIndex, delta);
+	// For pushes (delta < 0) the new sp must also be a readable slot, so allow
+	// one less than for pops.
+	cc.cmp(vStackIndex, delta < 0 ? MAX_STACK_SIZE : MAX_STACK_SIZE + 1);
+	Label ok = cc.newLabel();
+	cc.jb(ok);
+
+	cc.sub(vStackIndex, delta);
+	x86::Gp reg = cc.newIntPtr();
+	cc.mov(reg, (uint64_t)&jitted_uncompiled_command_count);
+	cc.mov(x86::ptr_32(reg), 1);
+	cc.mov(x86::ptr_32(state.ptrPc), pc);
+	cc.mov(x86::ptr_32(state.ptrStackIndex), vStackIndex);
+	cc.mov(x86::ptr_32(state.ptrWaitIndex), 0);
+	InvokeNode *invokeNode;
+	cc.invoke(&invokeNode, run_script_int, FuncSignatureT<int32_t, bool>(CallConvId::kHost));
+	invokeNode->setArg(0, true);
+	invokeNode->setRet(0, state.vRetVal);
+	cc.jmp(state.L_End);
+
+	cc.bind(ok);
 }
 
 static bool _cpu_supports_sse41()
@@ -793,7 +821,7 @@ JittedFunction jit_compile_script(script_data *script)
 		{
 			// Note: the return pc is on the stack, but we just ignore it and instead use
 			// the function call return label.
-			modify_sp(cc, vStackIndex, 1);
+			modify_sp_checked(state, cc, vStackIndex, 1, i);
 
 			cc.sub(vCallStackRetIndex, 1);
 			x86::Gp address = cc.newIntPtr();
@@ -829,7 +857,7 @@ JittedFunction jit_compile_script(script_data *script)
 		break;
 		case PUSHV:
 		{
-			modify_sp(cc, vStackIndex, -1);
+			modify_sp_checked(state, cc, vStackIndex, -1, i);
 			cc.mov(x86::ptr_32(state.ptrStack, vStackIndex, 2), arg1);
 		}
 		break;
@@ -837,7 +865,7 @@ JittedFunction jit_compile_script(script_data *script)
 		{
 			// Grab value from register and push onto stack.
 			x86::Gp val = get_z_register(state, cc, vStackIndex, arg1);
-			modify_sp(cc, vStackIndex, -1);
+			modify_sp_checked(state, cc, vStackIndex, -1, i);
 			cc.mov(x86::ptr_32(state.ptrStack, vStackIndex, 2), val);
 		}
 		break;
@@ -898,9 +926,9 @@ JittedFunction jit_compile_script(script_data *script)
 		break;
 		case POP:
 		{
+			modify_sp_checked(state, cc, vStackIndex, 1, i);
 			x86::Gp val = cc.newInt32();
-			cc.mov(val, x86::ptr_32(state.ptrStack, vStackIndex, 2));
-			modify_sp(cc, vStackIndex, 1);
+			cc.mov(val, x86::ptr_32(state.ptrStack, vStackIndex, 2, -4));
 			set_z_register(state, cc, vStackIndex, arg1, val);
 		}
 		break;
@@ -908,18 +936,12 @@ JittedFunction jit_compile_script(script_data *script)
 		{
 			// int32_t num = sarg2;
 			// ri->sp += num;
-			modify_sp(cc, vStackIndex, arg2);
+			modify_sp_checked(state, cc, vStackIndex, arg2, i);
 
-			// word read = (ri->sp-1) & MASK_SP;
-			x86::Gp read = cc.newInt32();
-			cc.mov(read, vStackIndex);
-			cc.sub(read, 1);
-			cc.and_(read, MASK_SP);
-
-			// int32_t value = SH::read_stack(read);
+			// int32_t value = SH::read_stack(ri->sp - 1);
 			// set_register(sarg1, value);
 			x86::Gp val = cc.newInt32();
-			cc.mov(val, x86::ptr_32(state.ptrStack, read, 2));
+			cc.mov(val, x86::ptr_32(state.ptrStack, vStackIndex, 2, -4));
 			set_z_register(state, cc, vStackIndex, arg1, val);
 		}
 		break;

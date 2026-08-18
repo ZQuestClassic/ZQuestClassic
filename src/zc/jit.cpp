@@ -360,7 +360,10 @@ struct JittedScriptHandle
 	JittedFunction fn;
 	script_data *script;
 	refInfo *ri;
-	intptr_t call_stack_rets[100];
+	// Every script function call pushes its return pc onto the script stack,
+	// so the call depth can never exceed MAX_STACK_SIZE before the stack
+	// overflow check stops the script - which keeps this in bounds.
+	intptr_t call_stack_rets[MAX_STACK_SIZE];
 	uint32_t call_stack_ret_index;
 };
 
@@ -401,7 +404,7 @@ void jit_delete_script_handle(JittedScriptHandle *jitted_script)
 
 int jit_run_script(JittedScriptHandle *jitted_script)
 {
-	extern int32_t(*stack)[MAX_SCRIPT_REGISTERS];
+	extern int32_t(*stack)[MAX_STACK_SIZE];
 
 	return jitted_script->fn(
 		jitted_script->ri->d, game->global_d,

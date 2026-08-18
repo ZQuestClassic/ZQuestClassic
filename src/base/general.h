@@ -86,6 +86,10 @@ double wrap_float(double x,double low,double high);
 #define MASK_SP                    ((1<<BITS_SP)-1)
 #define MAX_SCRIPT_REGISTERS       (1<<BITS_SP)
 #define MAX_SCRIPT_REGISTERS_250   256
+// Size of the script stack (same as 3.0). Kept separate from
+// MAX_SCRIPT_REGISTERS, which sizes the global_d array serialized in save
+// files and so cannot change.
+#define MAX_STACK_SIZE             5120
 #define MAX_PC                     dword(-1)
 
 //Sizes

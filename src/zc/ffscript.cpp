@@ -571,7 +571,7 @@ vector<int32_t> *sargvec;
 string *sargstr;
 refInfo *ri = NULL;
 script_data *curscript = NULL;
-int32_t(*stack)[MAX_SCRIPT_REGISTERS] = NULL;
+int32_t(*stack)[MAX_STACK_SIZE] = NULL;
 ScriptType curScriptType;
 word curScriptNum;
 int32_t curScriptIndex;
@@ -588,7 +588,7 @@ static vector<vector<int32_t>*> sargvec_cache;
 static vector<string*> sargstr_cache;
 static vector<refInfo*> ricache;
 static vector<script_data*> sdcache;
-static vector<int32_t(*)[MAX_SCRIPT_REGISTERS]> stackcache;
+static vector<int32_t(*)[MAX_STACK_SIZE]> stackcache;
 void push_ri()
 {
 	sarg1cache.push_back(sarg1);
@@ -651,9 +651,10 @@ public:
 	
 	static void write_stack(const uint32_t stackoffset, const int32_t value)
 	{
-		if(stackoffset >= MAX_SCRIPT_REGISTERS)
+		if(stackoffset >= MAX_STACK_SIZE)
 		{
-			Z_scripterrlog("Stack over or underflow, stack pointer = %ld\n", stackoffset);
+			Z_scripterrlog("Stack overflow!\n");
+			ri->stack_overflow = true;
 			return;
 		}
 		
@@ -662,9 +663,10 @@ public:
 	
 	static int32_t read_stack(const uint32_t stackoffset)
 	{
-		if(stackoffset >= MAX_SCRIPT_REGISTERS)
+		if(stackoffset >= MAX_STACK_SIZE)
 		{
-			Z_scripterrlog("Stack over or underflow, stack pointer = %ld\n", stackoffset);
+			Z_scripterrlog("Stack overflow!\n");
+			ri->stack_overflow = true;
 			return -10000;
 		}
 		
@@ -1493,7 +1495,7 @@ static bool scriptCanSave = true;
 
 struct ScriptEngineData {
 	refInfo ref;
-	int32_t stack[MAX_SCRIPT_REGISTERS];
+	int32_t stack[MAX_STACK_SIZE];
 	// This is used as a boolean for all but ScriptType::Item.
 	byte doscript = true;
 	bool waitdraw;
@@ -22731,7 +22733,7 @@ void set_register(int32_t arg, int32_t value)
 		}
 		
 		case DEBUGSP:
-			SH::write_stack(ri->sp,vbound((value / 10000),0,MAX_SCRIPT_REGISTERS-1));
+			SH::write_stack(ri->sp,vbound((value / 10000),0,MAX_STACK_SIZE-1));
 			break;
 			
 		case DEBUGREFFFC:
@@ -26151,7 +26153,7 @@ void set_register(int32_t arg, int32_t value)
 	//Misc./Internal
 		case SP:
 			ri->sp = value / 10000;
-			ri->sp &= MASK_SP;
+			check_stack(ri->sp);
 			break;
 			
 		case PC:
@@ -28842,19 +28844,31 @@ int32_t sz_int_arr(const int32_t ptr)
 ///----------------------------------------------------------------------------------------------------//
 
 
+bool check_stack(uint32_t sp)
+{
+	if (sp >= MAX_STACK_SIZE)
+	{
+		Z_scripterrlog("Stack overflow!\n");
+		ri->stack_overflow = true;
+		return false;
+	}
+
+	return true;
+}
+
 void stack_push(int32_t val)
 {
-	--ri->sp;
-	ri->sp &= MASK_SP;
-	SH::write_stack(ri->sp, val);
+	SH::write_stack(--ri->sp, val);
 }
 void stack_push(int32_t val, size_t count)
 {
+	if (!check_stack(ri->sp - count))
+		return;
+
 	for(int q = 0; q < count; ++q)
 	{
 		--ri->sp;
-		ri->sp &= MASK_SP;
-		SH::write_stack(ri->sp, val);
+		(*stack)[ri->sp] = val;
 	}
 }
 
@@ -28862,14 +28876,12 @@ int32_t stack_pop()
 {
 	const int32_t val = SH::read_stack(ri->sp);
 	++ri->sp;
-	ri->sp &= MASK_SP;
 	return val;
 }
 int32_t stack_pop(size_t count)
 {
 	ri->sp += count;
-	ri->sp &= MASK_SP;
-	return SH::read_stack((ri->sp-1) & MASK_SP);
+	return SH::read_stack(ri->sp-1);
 }
 
 ///----------------------------------------------------------------------------------------------------//
@@ -36283,14 +36295,13 @@ j_command:
 
 			case RETURN:
 			{
-				if (script_funcrun && ri->sp >= MAX_SCRIPT_REGISTERS)
+				if (script_funcrun && ri->sp >= MAX_STACK_SIZE)
 				{
 					ri->pc = MAX_PC;
 					break; //handled below
 				}
 				ri->pc = SH::read_stack(ri->sp) - 1;
 				++ri->sp;
-				ri->sp &= MASK_SP;
 				increment = false;
 				break;
 			}
@@ -40330,11 +40341,11 @@ j_command:
 			earlyretval = -1;
 			return RUNSCRIPT_SELFDELETE;
 		}
-		if (ri->sp >= MAX_SCRIPT_REGISTERS)
+		if (ri->stack_overflow)
 		{
 			if (script_funcrun)
 				return RUNSCRIPT_OK;
-			Z_scripterrlog("Stack over/underflow caused by command %d!\n", scommand);
+			scommand = 0xFFFF;
 		}
 		if(hit_invalid_zasm) break;
 		if(script_funcrun && ri->pc == MAX_PC)
