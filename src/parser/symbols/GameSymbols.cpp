@@ -160,7 +160,7 @@ static AccessorTable gameTable[] =
 	{ "LoadMapData",                0,       ZTID_MAPDATA,   -1,                   FL_INL,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT },{} },
 	{ "LoadTempScreen",             0,       ZTID_MAPDATA,   -1,                   FL_INL,  { ZTID_GAME, ZTID_FLOAT },{} },
 	{ "LoadTempScreen",             1,       ZTID_MAPDATA,   -1,                   FL_INL,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT },{} },
-	{ "LoadTempScreenForComboPos",  0,       ZTID_MAPDATA,   -1,                   FL_INL,  { ZTID_GAME, ZTID_FLOAT },{} },
+	{ "LoadTempScreenForComboPos",  0,       ZTID_MAPDATA,   -1,                   FL_INL,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT },{} },
 	{ "LoadScrollingScreen",        0,       ZTID_MAPDATA,   -1,                   FL_INL,  { ZTID_GAME, ZTID_FLOAT },{} },
 	{ "LoadScrollingScreen",        1,       ZTID_MAPDATA,   -1,                   FL_INL,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT },{} },
 	{ "LoadSpriteData",             0,    ZTID_SPRITEDATA,   -1,                   FL_INL,  { ZTID_GAME, ZTID_FLOAT },{} },

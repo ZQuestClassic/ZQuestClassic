@@ -32958,8 +32958,8 @@ void FFScript::do_loadmapdata_tempscr2(const bool v)
 
 static void do_loadtmpscrforcombopos(const bool v)
 {
-	int rpos = SH::get_arg(sarg1, v) / 10000;
-	int layer = SH::get_arg(sarg2, v) / 10000;
+	int layer = SH::get_arg(sarg1, v) / 10000;
+	int rpos = SH::get_arg(sarg2, v) / 10000;
 
 	if (BC::checkBoundsPos(rpos, 0, 175, "Game->LoadTempScreenForComboPos()") != SH::_NoError)
 	{
