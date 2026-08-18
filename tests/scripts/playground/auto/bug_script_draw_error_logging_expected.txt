@@ -1,6 +1,8 @@
 Compiling 'bug_script_draw_error_logging.zs'
 Pass 1: Parsing
 Pass 2: Preprocessing
-ZQ_BUFFER Line 3 @ Columns 1-30 - Error P083: Could not find included file 'auto/test_runner.zs'. Please check your include paths!
+Pass 3: Registration
+Pass 4: Analyzing Code
+ZQ_BUFFER Line 12 @ Columns 14-18 - Error S009: Variable NULL has not been declared.
 Failure!
-Compile finished with exit code '-1' (compiled with warnings)
+Compile finished with exit code '9' (compiled with errors)
