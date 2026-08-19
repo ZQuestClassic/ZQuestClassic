@@ -283,7 +283,12 @@ def get_revisions(
             and commit_count
             < get_release_commit_count_of_tag_or_raise(branch, '2.55-alpha-107')
         ):
-            if not has_release_package(tag, release_platform):
+            # The s3 bucket has packages for some old releases, so only ask
+            # GitHub (which needs a GH_PAT token) when the bucket lacks one.
+            has_package = tag in get_download_urls(
+                release_platform
+            ) or has_release_package(tag, release_platform)
+            if not has_package:
                 ignore_commit_counts.append(commit_count)
                 continue
 
