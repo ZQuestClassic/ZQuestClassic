@@ -159,15 +159,22 @@ def get_download_urls(release_platform: str):
     for commitish, keys in keys_by_commitish.items():
         key = None
         if release_platform == 'windows':
-            if len(keys) == 1:
-                key = keys[0]
+            # Exclude things that are certainly not windows packages, so a
+            # commitish with only (say) a mac build doesn't match below.
+            candidates = [
+                k
+                for k in keys
+                if not k.endswith(('.dmg', '.tar.gz', '.tgz', 'web.zip'))
+            ]
+            if len(candidates) == 1:
+                key = candidates[0]
             else:
-                keys = [k for k in keys if 'windows' in k]
-                if len(keys) == 1:
-                    key = keys[0]
+                candidates = [k for k in candidates if 'windows' in k]
+                if len(candidates) == 1:
+                    key = candidates[0]
                 else:
-                    key = next((k for k in keys if 'x64' in k), None) or next(
-                        (k for k in keys if 'x86' in k), None
+                    key = next((k for k in candidates if 'x64' in k), None) or next(
+                        (k for k in candidates if 'x86' in k), None
                     )
         elif release_platform == 'mac':
             key = next(
@@ -342,13 +349,21 @@ def get_gh_release_package_url(tag: str, release_platform: str):
             (a for a in assets if a.name.endswith('mac-universal.dmg')), None
         ) or next((asset for asset in assets if asset.name.endswith('.dmg')), None)
     elif release_platform == 'windows':
-        if len(assets) == 1:
-            asset = assets[0]
+        # Exclude things that are certainly not windows packages, so a
+        # release with only (say) a mac build doesn't match below.
+        candidates = [
+            asset
+            for asset in assets
+            if not asset.name.endswith(('.dmg', '.tar.gz', '.tgz'))
+            and 'web' not in asset.name
+        ]
+        if len(candidates) == 1:
+            asset = candidates[0]
         else:
-            assets = [asset for asset in assets if 'windows' in asset.name]
+            candidates = [asset for asset in candidates if 'windows' in asset.name]
             asset = next(
-                (asset for asset in assets if 'x64' in asset.name), None
-            ) or next((asset for asset in assets if 'x86' in asset.name), None)
+                (asset for asset in candidates if 'x64' in asset.name), None
+            ) or next((asset for asset in candidates if 'x86' in asset.name), None)
     elif release_platform == 'linux':
         asset = next(
             (
