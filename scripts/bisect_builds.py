@@ -95,7 +95,12 @@ def check_revision(revision: Revision):
     if not binaries:
         answer = 'u'
     elif args.command:
-        p = common.run_zc_command(binaries, args.command)
+        try:
+            p = common.run_zc_command(binaries, args.command)
+        except Exception as e:
+            print(e)
+            print('skipping this revision')
+            return 'u'
         if args.check_return_code:
             retcode = p.wait()
             answer = 'g' if retcode == 0 else 'b'
