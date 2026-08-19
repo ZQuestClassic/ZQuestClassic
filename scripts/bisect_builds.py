@@ -11,6 +11,7 @@
 
 import argparse
 import os
+import subprocess
 import sys
 
 from pathlib import Path
@@ -52,6 +53,11 @@ parser.add_argument(
 )
 parser.add_argument(
     '--check_return_code', action=argparse.BooleanOptionalAction, default=False
+)
+parser.add_argument(
+    '--timeout',
+    type=int,
+    help='Seconds to wait for the command in --check_return_code mode before killing it and considering the revision bad. Default is to wait forever.',
 )
 
 # Grab all the arguments after '--'.
@@ -102,7 +108,13 @@ def check_revision(revision: Revision):
             print('skipping this revision')
             return 'u'
         if args.check_return_code:
-            retcode = p.wait()
+            try:
+                retcode = p.wait(timeout=args.timeout)
+            except subprocess.TimeoutExpired:
+                p.kill()
+                p.wait()
+                print(f'command timed out after {args.timeout}s, answer: b')
+                return 'b'
             answer = 'g' if retcode == 0 else 'b'
             print(f'code: {retcode}, answer: {answer}')
         else:
