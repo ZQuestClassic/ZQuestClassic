@@ -747,9 +747,7 @@ std::string check_for_update()
 
 bool scan_meta(Entry& e)
 {
-	// The guard restores FFCore.quest_format, which readheader rewrites and
-	// belongs to the loaded quest when the browser is shown mid-session.
-	ScopedPartialQuestLoad guard(grabtilebuf);
+	auto quest_load_guard = make_partial_quest_load_guard();
 
 	int32_t error = 0;
 	PACKFILE* f = open_quest_file(&error, e.path.c_str(), false);
@@ -784,7 +782,7 @@ bool scan_icon(Entry& e)
 	set_bit(skip_flags, skip_colors, 0);
 	set_bit(skip_flags, skip_icons, 0);
 
-	ScopedPartialQuestLoad guard(grabtilebuf);
+	auto quest_load_guard = make_partial_quest_load_guard();
 
 	miscQdata temp_misc = QMisc;
 	zquestheader h{};

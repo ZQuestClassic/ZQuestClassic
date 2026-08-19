@@ -3941,15 +3941,8 @@ extern void return_RAMpal_color(AL_CONST PALETTE pal, int32_t x, int32_t y, RGB 
 void load_imagebuf()
 {
 	PACKFILE *f;
-	//cache QRS
-	//byte cached_rules[QUESTRULES_NEW_SIZE] = { 0 };
-	//for ( int32_t q = 0; q < QUESTRULES_NEW_SIZE; ++q )
-	// { 
-	//	cached_rules[q] = quest_rules[q];
-	// }
 	bool compressed=false;
 	bool encrypted=false;
-	tiledata *hold=newtilebuf;
 	zquestheader tempheader{};
 	
 	if(imagebuf)
@@ -4114,16 +4107,20 @@ error2:
 	case ftZQT:
 		compressed=true;
 	case ftQSU:
+	{
 		packfile_password("");
 		imagesize = zalleg_file_size_ex_password(imagepath, encrypted ? datapwd : "");
-		newtilebuf=grabtilebuf;
+
+		// The foreign quest's tiles land in grabtilebuf; everything else
+		// the load touches is restored when the guard leaves scope.
+		auto quest_load_guard = make_partial_quest_load_guard();
 		byte skip_flags[4];
-		
+
 		for(int32_t i=0; i<skip_max; ++i)
 		{
 			set_bit(skip_flags,i,1);
 		}
-		
+
 		set_bit(skip_flags,skip_tiles,0);
 		set_bit(skip_flags,skip_header,0);
 		int ret = loadquest(imagepath,&tempheader,&QMisc,customtunes,true,skip_flags);
@@ -4134,7 +4131,7 @@ error2:
 			clear_tiles(grabtilebuf);
 			chop_path(imagepath);
 		}
-		
+
 		if (!ret && encrypted && compressed)
 		{
 			if(quest_access(imagepath, &tempheader) != 1)
@@ -4145,20 +4142,13 @@ error2:
 				chop_path(imagepath);
 			}
 		}
-		
-		//setPackfilePassword(NULL);
-		newtilebuf=hold;
+
 		tilecount=count_tiles(grabtilebuf);
 		break;
 	}
-	
+	}
+
 	rgb_map = zq_rgb_table;
-	//restore cashed QRs / rules
-	
-	//for ( int32_t q = 0; q < QUESTRULES_NEW_SIZE; ++q )
-	// { 
-	//	quest_rules[q] = cached_rules[q];
-	// }
 }
 
 static char bitstrbuf[32];

@@ -1884,6 +1884,28 @@ static void restore_prev_qstload_global_state()
 	map_count = prev_map_count;
 }
 
+ScopedPartialQuestLoad::ScopedPartialQuestLoad(tiledata* tile_scratch)
+	: held_tilebuf(newtilebuf)
+	, held_colordata(colordata, colordata + psTOTAL255)
+	, held_format(FFCore.quest_format, FFCore.quest_format + versiontypesLAST)
+	, held_last_maptile(DMapEditorLastMaptileUsed)
+{
+	newtilebuf = tile_scratch;
+}
+
+ScopedPartialQuestLoad::~ScopedPartialQuestLoad()
+{
+	newtilebuf = held_tilebuf;
+	memcpy(colordata, held_colordata.data(), held_colordata.size());
+	std::copy(held_format.begin(), held_format.end(), FFCore.quest_format);
+	DMapEditorLastMaptileUsed = held_last_maptile;
+}
+
+ScopedPartialQuestLoad make_partial_quest_load_guard()
+{
+	return ScopedPartialQuestLoad(grabtilebuf);
+}
+
 //Internal function for loadquest wrapper
 // TODO: refactor to never mutate global state, to make loading partial qst files easier and less error prone. huge project.
 static int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Misc, zctune *tunes, bool show_progress, byte *skip_flags, byte printmetadata)
