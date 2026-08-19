@@ -4,6 +4,7 @@
 #include "core/qst.h"
 #include "base/zapp.h"
 #include "dialog/compilezscript.h"
+#include "dialog/quest_browser.h"
 #include "dialog/quest_rules.h"
 #include "zc_list_data.h"
 #include "zc/ffscript.h"

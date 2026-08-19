@@ -17,6 +17,7 @@
 #include "dialog/alertfunc.h"
 #include "dialog/tilesetwizard.h"
 #include "dialog/pickruleset.h"
+#include "dialog/quest_browser.h"
 #include "dialog/pickruletemplate.h"
 #include "zq/zq_misc.h"
 #include "zq/zquest.h"
@@ -399,6 +400,7 @@ int32_t onSave()
         saved = autosaved = true;
         first_save=true;
         header.dirty_password=false;
+        quest_browser_record_loaded_quest(filepath);
     }
     else
     {
@@ -480,6 +482,7 @@ int32_t onSaveAs()
 		disable_saving = false;
 		first_save=true;
 		header.dirty_password=false;
+		quest_browser_record_loaded_quest(filepath);
 	}
 	else
 	{
@@ -510,6 +513,7 @@ int32_t open_quest(char const* path)
 		saved = autosaved = true;
 		strcpy(filepath, path);
 		first_save=true;
+		quest_browser_record_loaded_quest(path);
 	}
 	else if(ret == qe_cancel)
 	{
@@ -581,14 +585,11 @@ bool should_open_as_readonly(std::string_view path)
 int32_t onOpen()
 {
 	restore_mouse();
-	
+
 	if(checksave()==0)
 		return D_O_K;
-	
-	if(!get_qst_name())
-		return D_O_K;
-	
-	open_quest(temppath);
+
+	quest_browser_open();
 	return D_O_K;
 }
 

@@ -1,4 +1,5 @@
 #include "gui/label.h"
+#include "base/check.h"
 #include "gui/common.h"
 #include "gui/dialog.h"
 #include "gui/dialog_runner.h"
@@ -12,7 +13,7 @@ namespace GUI
 {
 
 Label::Label(): text(), text_fit(), maxLines(0), contX(0),
-	contY(0), contW(0), contH(0), textAlign(0), nohline(false)
+	contY(0), contW(0), contH(0), textAlign(0), textColor(-1), nohline(false)
 {
 	setPreferredHeight(Size::pixels(text_height(widgFont)));
 }
@@ -27,6 +28,37 @@ void Label::setText(std::string newText)
 void Label::setMaxLines(size_t newMax)
 {
 	maxLines = newMax;
+}
+
+int32_t Label::procFlags() const
+{
+	return (nohline ? 1 : 0) | (textColor >= 0 ? 2 : 0) | (onPress ? 4 : 0);
+}
+
+void Label::setTextColor(int32_t color)
+{
+	textColor = color;
+	if(alDialog)
+	{
+		alDialog->fg = textColor >= 0 ? textColor : fgColor;
+		alDialog->d2 = procFlags();
+		pendDraw();
+	}
+}
+
+void Label::setOnPress(GUI::function<void()> newOnPress)
+{
+	onPress = std::move(newOnPress);
+	if(alDialog)
+		alDialog->d2 = procFlags();
+}
+
+int32_t Label::onEvent(int32_t event, MessageDispatcher&)
+{
+	CHECK(event == geCLICK);
+	if(onPress)
+		onPress();
+	return -1;
 }
 
 void Label::setAlign(int32_t ta)
@@ -182,10 +214,10 @@ void Label::realize(DialogRunner& runner)
 	alDialog = runner.push(shared_from_this(), DIALOG {
 		newGUIProc<new_text_proc>,
 		x, y, getWidth(), getHeight(),
-		fgColor, bgColor,
+		textColor >= 0 ? textColor : fgColor, bgColor,
 		0, // key
 		getFlags(), // flags
-		textAlign, nohline ? 1 : 0, // d1, d2
+		textAlign, procFlags(), // d1, d2
 		text_fit.data(), widgFont, nullptr // dp, dp2, dp3
 	});
 }

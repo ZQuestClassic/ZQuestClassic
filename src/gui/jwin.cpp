@@ -8,6 +8,7 @@
 #include "gui/editbox.h"
 #include <iostream>
 #include <sstream>
+#include "zalleg/render.h"
 #include "zalleg/zsys.h"
 #include <stdio.h>
 #include "base/util.h"
@@ -1071,8 +1072,80 @@ int32_t d_ctext2_proc(int32_t msg, DIALOG *d, int32_t c)
 	return ret;
 }
 
+// Calls fn(x, y, w, h) with the bounds of each line of a new_text_proc
+// label's text, accounting for the label's alignment. The label's widget
+// rect can be much wider than the text itself.
+template<typename F>
+static void for_each_text_proc_line(DIALOG* d, F fn)
+{
+	char const* s = (char const*)d->dp;
+	if(!s)
+		return;
+	FONT* f = d->dp2 ? (FONT*)d->dp2 : font;
+	int32_t th = text_height(f);
+	int32_t ly = d->y;
+	while(*s)
+	{
+		char const* nl = strchr(s, '\n');
+		std::string line(s, nl ? nl - s : strlen(s));
+		int32_t pw = text_length(f, line.c_str());
+		int32_t lx = d->x;
+		if(d->d1 == 1) // centered
+			lx += d->w/2 - pw/2;
+		else if(d->d1 == 2) // right-aligned
+			lx += d->w - 1 - pw;
+		if(pw > 0)
+			fn(lx, ly, pw, th);
+		ly += th;
+		s = nl ? nl+1 : s+line.size();
+	}
+}
+
+static bool mouse_in_text_proc_text(DIALOG* d)
+{
+	bool hit = false;
+	for_each_text_proc_line(d, [&](int32_t x, int32_t y, int32_t w, int32_t h)
+	{
+		if(mouse_in_rect(x, y, w, h))
+			hit = true;
+	});
+	return hit;
+}
+
 int32_t new_text_proc(int32_t msg, DIALOG *d, int32_t c)
 {
+	// Bit 4 of d2 marks a clickable label. Hover and clicks only count
+	// within the text itself, not the (possibly much wider) widget rect.
+	if(msg == MSG_WANTMOUSE && (d->d2 & 4) && !mouse_in_text_proc_text(d))
+		return D_DONTWANTMOUSE;
+
+	// Track the click and fire the event if the mouse is released over
+	// the text.
+	if(msg == MSG_CLICK && (d->d2 & 4) && !(d->flags & D_DISABLED))
+	{
+		while(gui_mouse_b())
+		{
+			broadcast_dialog_message(MSG_IDLE, 0);
+			update_hw_screen();
+		}
+		if(mouse_in_text_proc_text(d))
+			GUI_EVENT(d, geCLICK);
+		return D_O_K;
+	}
+
+	// Clickable labels get the OS pointer cursor while hovered.
+	static DIALOG* link_hovered = nullptr;
+	if(msg == MSG_GOTMOUSE && (d->d2 & 4) && !(d->flags & D_DISABLED))
+	{
+		link_hovered = d;
+		MouseSprite::set_link_hover(true);
+	}
+	else if((msg == MSG_LOSTMOUSE || msg == MSG_END) && link_hovered == d)
+	{
+		link_hovered = nullptr;
+		MouseSprite::set_link_hover(false);
+	}
+
 	BITMAP* oldscreen = screen;
 	if(msg==MSG_DRAW)
 	{
@@ -1083,7 +1156,12 @@ int32_t new_text_proc(int32_t msg, DIALOG *d, int32_t c)
 	}
 	int32_t ret = D_O_K;
 	int32_t w = d->w, h = d->h, x = d->x, y = d->y;
-	if(d->d2) no_hline = true;
+	if(d->d2 & 1) no_hline = true;
+	// The jwin text procs draw with the scheme's text color, ignoring d->fg.
+	// Bit 2 of d2 requests d->fg; swap it into the scheme for the call.
+	int32_t old_boxfg = scheme[jcBOXFG];
+	if(d->d2 & 2)
+		scheme[jcBOXFG] = d->fg;
 	switch(d->d1)
 	{
 		case 0:
@@ -1098,6 +1176,7 @@ int32_t new_text_proc(int32_t msg, DIALOG *d, int32_t c)
 			ret = jwin_rtext_proc(msg, d, c);
 			break;
 	}
+	scheme[jcBOXFG] = old_boxfg;
 	no_hline = false;
 	d->w = w;
 	d->h = h;
@@ -1105,6 +1184,17 @@ int32_t new_text_proc(int32_t msg, DIALOG *d, int32_t c)
 	d->y = y;
 	if(msg==MSG_DRAW)
 	{
+		// Underline clickable labels so they read as hyperlinks.
+		if((d->d2 & 4) && !(d->flags & (D_HIDDEN|D_DISABLED)))
+		{
+			int32_t color = (d->d2 & 2) ? d->fg : scheme[jcBOXFG];
+			for_each_text_proc_line(d, [&](int32_t lx, int32_t ly, int32_t pw, int32_t th)
+			{
+				// th-1 rather than the baseline: the label is exactly
+				// th*lines tall, so the clip rect cuts anything below.
+				hline(screen, lx, ly+th-1, lx+pw-1, color);
+			});
+		}
 		masked_blit(screen, oldscreen, d->x, d->y, d->x, d->y, d->w, d->h);
 		destroy_bitmap(screen);
 		screen = oldscreen;
