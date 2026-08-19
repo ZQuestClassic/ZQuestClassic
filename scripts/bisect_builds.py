@@ -147,15 +147,20 @@ def run_bisect(revisions: list[Revision]):
     bads = [upper if good_rev <= bad_rev else 0]
 
     if args.validate_range:
-        print(f'Validating good revision: {revisions[good_rev].tag}')
-        answer = check_revision(revisions[good_rev])
-        if answer != 'g':
-            raise Exception(f'Expected good revision was not good. Got: {answer}')
-
-        print(f'Validating bad revision: {revisions[bad_rev].tag}')
-        answer = check_revision(revisions[bad_rev])
-        if answer != 'b':
-            raise Exception(f'Expected bad revision was not bad. Got: {answer}')
+        for expected, label, index in [('g', 'good', good_rev), ('b', 'bad', bad_rev)]:
+            revision = revisions[index]
+            print(f'Validating {label} revision: {revision.tag}')
+            answer = check_revision(revision)
+            if answer == 'q':
+                raise SystemExit(1)
+            if answer == 'u':
+                raise Exception(
+                    f'could not check the expected {label} revision {revision.tag}'
+                )
+            if answer != expected:
+                raise Exception(
+                    f'Expected {label} revision {revision.tag} was not {label}. Got: {answer}'
+                )
 
     while upper - lower > 1:
         if pivot in skipped:
@@ -209,7 +214,7 @@ def run_bisect(revisions: list[Revision]):
         answer = check_revision(rev)
 
         if answer == 'q':
-            raise SystemExit()
+            raise SystemExit(1)
 
         if answer == 'g':
             goods.append(pivot)
