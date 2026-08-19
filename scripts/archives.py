@@ -457,35 +457,45 @@ def download_revision(revision: Revision, release_platform: str):
         if not url:
             raise Exception(f'could not find package url for {revision.tag}')
         r = requests.get(url)
+        r.raise_for_status()
 
     dest.mkdir(parents=True, exist_ok=True)
 
-    if release_platform == 'mac':
-        (dest / 'ZQuestClassic.dmg').write_bytes(r.content)
-        subprocess.check_call(
-            [
-                'hdiutil',
-                'attach',
-                '-mountpoint',
-                str(dest / 'zc-mounted'),
-                str(dest / 'ZQuestClassic.dmg'),
-            ],
-            stdout=subprocess.DEVNULL,
-        )
-        zc_app_path = next((dest / 'zc-mounted').glob('*.app'))
-        shutil.copytree(zc_app_path, dest / zc_app_path.name)
-        subprocess.check_call(
-            ['hdiutil', 'unmount', str(dest / 'zc-mounted')], stdout=subprocess.DEVNULL
-        )
-        (dest / 'ZQuestClassic.dmg').unlink()
-    elif url.endswith(('.tar.gz', '.tgz')):
-        tf = tarfile.open(fileobj=io.BytesIO(r.content), mode='r')
-        tf.extractall(dest, filter='data')
-        tf.close()
-    else:
-        zip = zipfile.ZipFile(io.BytesIO(r.content))
-        zip.extractall(dest)
-        zip.close()
+    try:
+        if release_platform == 'mac':
+            (dest / 'ZQuestClassic.dmg').write_bytes(r.content)
+            subprocess.check_call(
+                [
+                    'hdiutil',
+                    'attach',
+                    '-mountpoint',
+                    str(dest / 'zc-mounted'),
+                    str(dest / 'ZQuestClassic.dmg'),
+                ],
+                stdout=subprocess.DEVNULL,
+            )
+            try:
+                zc_app_path = next((dest / 'zc-mounted').glob('*.app'))
+                shutil.copytree(zc_app_path, dest / zc_app_path.name)
+            finally:
+                subprocess.check_call(
+                    ['hdiutil', 'unmount', str(dest / 'zc-mounted')],
+                    stdout=subprocess.DEVNULL,
+                )
+            (dest / 'ZQuestClassic.dmg').unlink()
+        elif url.endswith(('.tar.gz', '.tgz')):
+            tf = tarfile.open(fileobj=io.BytesIO(r.content), mode='r')
+            tf.extractall(dest, filter='data')
+            tf.close()
+        else:
+            zip = zipfile.ZipFile(io.BytesIO(r.content))
+            zip.extractall(dest)
+            zip.close()
+    except BaseException:
+        # Don't leave a partial extraction behind - the next run would
+        # mistake it for a completed download and skip it.
+        shutil.rmtree(dest, ignore_errors=True)
+        raise
 
     print(f'finished downloading {tag}', file=os.sys.stderr)
     return dest
