@@ -35,7 +35,7 @@ def get_commits_in_bucket(bucket_url: str):
 
         keys = re.compile(r'<Key>(.*?)</Key>').findall(archives_xml)
         for key in keys:
-            commitish, filename = key.split('/', 2)
+            commitish = key.split('/', 1)[0]
             commitishes.add(commitish)
 
         match = re.compile(r'<NextMarker>(.*?)</NextMarker>').search(archives_xml)

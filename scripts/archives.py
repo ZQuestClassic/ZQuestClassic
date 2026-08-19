@@ -170,7 +170,7 @@ def get_download_urls(release_platform: str):
 
     keys_by_commitish = {}
     for key in keys:
-        commitish, filename = key.split('/', 2)
+        commitish = key.split('/', 1)[0]
         if commitish not in keys_by_commitish:
             keys_by_commitish[commitish] = []
         keys_by_commitish[commitish].append(key)
