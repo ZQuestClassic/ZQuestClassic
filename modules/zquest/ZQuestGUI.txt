@@ -27,6 +27,7 @@ src/zq/gui/misc_cset_sel.cpp
 src/zq/gui/misc_color_sel.cpp
 src/zq/gui/misc_color_row.cpp
 src/zq/gui/dmap_minimap.cpp
+src/zq/gui/quest_list_view.cpp
 src/zq/gui/dmap_mapgrid.cpp
 src/zq/gui/engraving.cpp
 src/gui/qrpanel.cpp
@@ -87,6 +88,8 @@ src/dialog/ditherpick.cpp
 src/dialog/zqhotkeys.cpp
 src/dialog/edit_dmap.cpp
 src/dialog/tilesetwizard.cpp
+src/dialog/quest_browser.cpp
+src/dialog/quest_browser_data.cpp
 src/dialog/view_script_slots.cpp
 src/dialog/object_pages.cpp
 src/dialog/screen_notes.cpp

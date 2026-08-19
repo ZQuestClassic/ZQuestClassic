@@ -229,6 +229,9 @@ namespace MouseSprite
 	void assign(int index, BITMAP* spr, int xf = 1, int yf = 1);
 	bool set(int index);
 	void clear(int index);
+	// Shows the OS pointer ("link") cursor while hovering a clickable
+	// element; passing false restores the active mouse sprite.
+	void set_link_hover(bool hover);
 };
 
 extern RenderTreeItem rti_dialogs;

@@ -110,7 +110,7 @@ static std::array<int, 4> current_mouse_state;
 static std::chrono::time_point<std::chrono::steady_clock> time_started;
 static std::chrono::time_point<std::chrono::system_clock> time_started_system;
 static std::chrono::time_point<std::chrono::steady_clock> time_result_saved;
-static std::optional<ZCVersion> zc_version_created;
+static std::optional<ZCVersionCreated> zc_version_created;
 
 // Memory ownership for zero-copy string_views.
 static std::string replay_file_buffer;
@@ -2302,12 +2302,12 @@ int replay_get_version()
     return version;
 }
 
-ZCVersion replay_get_zc_version_created()
+ZCVersionCreated replay_get_zc_version_created()
 {
 	if (zc_version_created.has_value())
 		return *zc_version_created;
 
-	ZCVersion result{};
+	ZCVersionCreated result{};
 	std::string str = replay_get_meta_str("zc_version_created");
 	if (str.empty())
 		str = replay_get_meta_str("zc_version_updated");

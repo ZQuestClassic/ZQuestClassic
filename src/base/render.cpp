@@ -654,6 +654,23 @@ namespace MouseSprite
 			al_destroy_mouse_cursor(zc_mouse_sprites[index]);
 		zc_mouse_sprites[index] = nullptr;
 	}
+	void set_link_hover(bool hover)
+	{
+		static bool active = false;
+		if(hover == active)
+			return;
+		active = hover;
+		if(hover)
+			al_set_system_mouse_cursor(all_get_display(), ALLEGRO_SYSTEM_MOUSE_CURSOR_LINK);
+		else
+		{
+			// Reapply whatever mouse sprite was active before the hover.
+			int index = active_mouse_sprite;
+			active_mouse_sprite = -2;
+			if(index < 0 || !set(index))
+				set(-1);
+		}
+	}
 }
 
 BITMAP* zqdialog_bg_bmp = nullptr;

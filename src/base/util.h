@@ -48,6 +48,8 @@ namespace util
 	std::string read_text_file(fs::path path);
 	std::istream &portable_get_line(std::istream &is, std::string &t);
 	std::string cropPath(std::string filepath);
+	// Opens `url` in the user's browser.
+	void open_web_link(std::string url);
 	void replstr(std::string& str, std::string const& from, std::string const& to);
 	void replace_first(std::string& s, std::string const& toReplace, std::string const& replaceWith);
 	std::string escape_characters(std::string const& str);
