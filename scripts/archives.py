@@ -210,7 +210,10 @@ def get_download_urls(release_platform: str):
     return urls_by_commitish
 
 
-def get_local_builds(branch: str, revisions=[]):
+def get_local_builds(branch: str, revisions=None):
+    if revisions is None:
+        revisions = []
+
     commit_counts = get_commit_counts(branch)
     for sha, commit_count in commit_counts.items():
         if not next((r for r in revisions if r.commit_count == commit_count), None):
