@@ -23,7 +23,7 @@ import git_helpers
 import requests
 import s3_helpers
 
-from github import Github
+from github import Github, UnknownObjectException
 from joblib import Memory
 
 
@@ -92,20 +92,26 @@ def get_release_commit_count_main(sha: str):
 
 
 @memory.cache
-def get_release_commit_count_of_tag(branch: str, tag: str):
+def _get_release_commit_count_of_tag(branch: str, tag: str):
+    # Raises if the tag can't be resolved to a commit on the branch. Only
+    # successful lookups reach the cache.
     sha = git_helpers.rev_parse(tag)
     try:
         return get_release_commit_count(branch, sha)
-    except:
+    except Exception:
         pass
 
     sha = git_helpers.tag_to_sha_on_branch(tag, branch)
-    try:
-        return get_release_commit_count(branch, sha)
-    except:
-        pass
+    return get_release_commit_count(branch, sha)
 
-    return None
+
+def get_release_commit_count_of_tag(branch: str, tag: str):
+    # Failures are not cached, since they may be transient (ex: the tag or
+    # the branch simply isn't fetched locally yet).
+    try:
+        return _get_release_commit_count_of_tag(branch, tag)
+    except Exception:
+        return None
 
 
 def get_release_commit_count_of_tag_or_raise(branch: str, tag: str):
@@ -116,11 +122,25 @@ def get_release_commit_count_of_tag_or_raise(branch: str, tag: str):
 
 
 @memory.cache
-def has_release_package(tag: str, release_platform: str):
+def _has_release_package(tag: str, release_platform: str):
     try:
-        url = get_gh_release_package_url(tag, release_platform)
-        return bool(url)
-    except:
+        return get_gh_release_package_url(tag, release_platform) is not None
+    except UnknownObjectException:
+        # No GitHub release exists for this tag.
+        return False
+
+
+def has_release_package(tag: str, release_platform: str):
+    # Only genuine "checked GitHub and it isn't there" answers are cached.
+    # Transient errors (no GH_PAT set, network issues) must not be, or the
+    # wrong answer would stick until .tmp/memory_archives is deleted.
+    try:
+        return _has_release_package(tag, release_platform)
+    except Exception as e:
+        print(
+            f'warning: could not check release package for {tag}: {e}',
+            file=os.sys.stderr,
+        )
         return False
 
 
@@ -375,7 +395,7 @@ def get_gh_release_package_url(tag: str, release_platform: str):
         )
 
     if not asset:
-        raise Exception(f'could not find package url for {tag}')
+        return None
 
     return asset.browser_download_url
 
@@ -431,6 +451,8 @@ def download_revision(revision: Revision, release_platform: str):
             file=os.sys.stderr,
         )
         url = get_gh_release_package_url(revision.tag, release_platform)
+        if not url:
+            raise Exception(f'could not find package url for {revision.tag}')
         r = requests.get(url)
 
     dest.mkdir(parents=True, exist_ok=True)
