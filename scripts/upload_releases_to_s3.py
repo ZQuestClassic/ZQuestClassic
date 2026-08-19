@@ -54,7 +54,6 @@ def get_commits_in_bucket(bucket_url: str):
 
 gh = Github(args.token)
 repo = gh.get_repo('ZQuestClassic/ZQuestClassic')
-release = repo.get_release(repo)
 releases_already_uploaded = get_commits_in_bucket(BUCKET_URL)
 
 for release in repo.get_releases():
