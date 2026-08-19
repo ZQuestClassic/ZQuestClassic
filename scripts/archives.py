@@ -529,7 +529,11 @@ class CLI:
         subparsers = parser.add_subparsers(dest='command')
 
         base = argparse.ArgumentParser(add_help=False)
-        base.add_argument('--platform', default=common.get_release_platform())
+        base.add_argument(
+            '--platform',
+            default=common.get_release_platform(),
+            choices=['windows', 'mac', 'linux'],
+        )
 
         list_cmd = subparsers.add_parser('list', parents=[base])
         list_cmd.add_argument('--channel', default='main')
