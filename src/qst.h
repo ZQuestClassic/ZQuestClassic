@@ -210,6 +210,21 @@ int32_t loadquest(const char *filename, zquestheader *Header, miscQdata *Misc,
 char *byte_conversion(int32_t number, int32_t format);
 char *byte_conversion2(int32_t number1, int32_t number2, int32_t format1, int32_t format2);
 
+class ScopedPartialQuestLoad
+{
+public:
+	explicit ScopedPartialQuestLoad(tiledata* tile_scratch);
+	~ScopedPartialQuestLoad();
+	ScopedPartialQuestLoad(ScopedPartialQuestLoad const&) = delete;
+	ScopedPartialQuestLoad& operator=(ScopedPartialQuestLoad const&) = delete;
+
+private:
+	tiledata* held_tilebuf;
+	std::vector<byte> held_colordata;
+	std::vector<int32_t> held_format;
+	int32_t held_last_maptile;
+};
+
 bool valid_zqt(PACKFILE *f);
 bool valid_zqt(const char *filename);
 bool reset_mapstyles(bool validate, miscQdata *Misc);

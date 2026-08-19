@@ -56,6 +56,7 @@ void setZScriptVersion(int32_t) { } //bleh...
 #include <fmt/format.h>
 
 #include "dialog/cheat_codes.h"
+#include "dialog/quest_browser.h"
 #include "dialog/set_password.h"
 #include "dialog/foodlg.h"
 #include "dialog/quest_rules.h"
@@ -26320,15 +26321,14 @@ int32_t main(int32_t argc,char **argv)
 			}
 			else
 			{
-				if (onNew() == D_CLOSE)
+				// Quest browser: pick an existing quest or create a new one
+				// via the tileset wizard. It sets up filepath/first_save for
+				// whichever path was taken.
+				if (!quest_browser_open())
 				{
-					Z_message("User canceled creating new quest, closing.\n");
+					Z_message("User quit from the quest browser, closing.\n");
 					exit(0);
 				}
-
-				//otherwise the blank quest gets the name of the last loaded quest... not good! -DD
-				filepath[0]=temppath[0]=0;
-				first_save=false;
 			}
 		}
 	}

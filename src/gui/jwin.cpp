@@ -7,6 +7,7 @@
 #include "gui/editbox.h"
 #include <iostream>
 #include <sstream>
+#include "base/render.h"
 #include "base/zsys.h"
 #include <stdio.h>
 #include "base/util.h"
@@ -987,8 +988,80 @@ int32_t d_ctext2_proc(int32_t msg, DIALOG *d, int32_t c)
 	return ret;
 }
 
+// Calls fn(x, y, w, h) with the bounds of each line of a new_text_proc
+// label's text, accounting for the label's alignment. The label's widget
+// rect can be much wider than the text itself.
+template<typename F>
+static void for_each_text_proc_line(DIALOG* d, F fn)
+{
+	char const* s = (char const*)d->dp;
+	if(!s)
+		return;
+	FONT* f = d->dp2 ? (FONT*)d->dp2 : font;
+	int32_t th = text_height(f);
+	int32_t ly = d->y;
+	while(*s)
+	{
+		char const* nl = strchr(s, '\n');
+		std::string line(s, nl ? nl - s : strlen(s));
+		int32_t pw = text_length(f, line.c_str());
+		int32_t lx = d->x;
+		if(d->d1 == 1) // centered
+			lx += d->w/2 - pw/2;
+		else if(d->d1 == 2) // right-aligned
+			lx += d->w - 1 - pw;
+		if(pw > 0)
+			fn(lx, ly, pw, th);
+		ly += th;
+		s = nl ? nl+1 : s+line.size();
+	}
+}
+
+static bool mouse_in_text_proc_text(DIALOG* d)
+{
+	bool hit = false;
+	for_each_text_proc_line(d, [&](int32_t x, int32_t y, int32_t w, int32_t h)
+	{
+		if(mouse_in_rect(x, y, w, h))
+			hit = true;
+	});
+	return hit;
+}
+
 int32_t new_text_proc(int32_t msg, DIALOG *d, int32_t c)
 {
+	// Bit 4 of d2 marks a clickable label. Hover and clicks only count
+	// within the text itself, not the (possibly much wider) widget rect.
+	if(msg == MSG_WANTMOUSE && (d->d2 & 4) && !mouse_in_text_proc_text(d))
+		return D_DONTWANTMOUSE;
+
+	// Track the click and fire the event if the mouse is released over
+	// the text.
+	if(msg == MSG_CLICK && (d->d2 & 4) && !(d->flags & D_DISABLED))
+	{
+		while(gui_mouse_b())
+		{
+			broadcast_dialog_message(MSG_IDLE, 0);
+			update_hw_screen();
+		}
+		if(mouse_in_text_proc_text(d))
+			GUI_EVENT(d, geCLICK);
+		return D_O_K;
+	}
+
+	// Clickable labels get the OS pointer cursor while hovered.
+	static DIALOG* link_hovered = nullptr;
+	if(msg == MSG_GOTMOUSE && (d->d2 & 4) && !(d->flags & D_DISABLED))
+	{
+		link_hovered = d;
+		MouseSprite::set_link_hover(true);
+	}
+	else if((msg == MSG_LOSTMOUSE || msg == MSG_END) && link_hovered == d)
+	{
+		link_hovered = nullptr;
+		MouseSprite::set_link_hover(false);
+	}
+
 	BITMAP* oldscreen = screen;
 	if(msg==MSG_DRAW)
 	{
@@ -999,7 +1072,12 @@ int32_t new_text_proc(int32_t msg, DIALOG *d, int32_t c)
 	}
 	int32_t ret = D_O_K;
 	int32_t w = d->w, h = d->h, x = d->x, y = d->y;
-	if(d->d2) no_hline = true;
+	if(d->d2 & 1) no_hline = true;
+	// The jwin text procs draw with the scheme's text color, ignoring d->fg.
+	// Bit 2 of d2 requests d->fg; swap it into the scheme for the call.
+	int32_t old_boxfg = scheme[jcBOXFG];
+	if(d->d2 & 2)
+		scheme[jcBOXFG] = d->fg;
 	switch(d->d1)
 	{
 		case 0:
@@ -1014,6 +1092,7 @@ int32_t new_text_proc(int32_t msg, DIALOG *d, int32_t c)
 			ret = jwin_rtext_proc(msg, d, c);
 			break;
 	}
+	scheme[jcBOXFG] = old_boxfg;
 	no_hline = false;
 	d->w = w;
 	d->h = h;
@@ -1021,6 +1100,17 @@ int32_t new_text_proc(int32_t msg, DIALOG *d, int32_t c)
 	d->y = y;
 	if(msg==MSG_DRAW)
 	{
+		// Underline clickable labels so they read as hyperlinks.
+		if((d->d2 & 4) && !(d->flags & (D_HIDDEN|D_DISABLED)))
+		{
+			int32_t color = (d->d2 & 2) ? d->fg : scheme[jcBOXFG];
+			for_each_text_proc_line(d, [&](int32_t lx, int32_t ly, int32_t pw, int32_t th)
+			{
+				// th-1 rather than the baseline: the label is exactly
+				// th*lines tall, so the clip rect cuts anything below.
+				hline(screen, lx, ly+th-1, lx+pw-1, color);
+			});
+		}
 		masked_blit(screen, oldscreen, d->x, d->y, d->x, d->y, d->w, d->h);
 		destroy_bitmap(screen);
 		screen = oldscreen;
@@ -4545,7 +4635,168 @@ void _calc_scroll_bar(int32_t h, int32_t height, int32_t listsize, int32_t offse
   *  Helper to process a click on a scrollable object.
   */
 
-void _handle_jwin_scrollable_scroll_click(DIALOG *d, int32_t listsize, int32_t *offset, FONT *fnt)
+bool _handle_jwin_scrollable_scroll_click(DIALOG *d, int32_t listsize, int32_t *offset, int32_t height)
+{
+    enum { top_btn, bottom_btn, bar, top_bar, bottom_bar };
+    
+    int32_t xx, yy;
+    int32_t hh = d->h - 32;
+    int32_t obj = bar;
+    int32_t bh, len, pos;
+    int32_t down = 1, last_draw = 0;
+    int32_t redraw = 0, mouse_delay = 0;
+    
+    _calc_scroll_bar(d->h, height, listsize, *offset, &bh, &len, &pos);
+    
+    xx = d->x + d->w - 18;
+    
+    // find out which object is being clicked
+    
+    yy = gui_mouse_y();
+    
+    if(yy <= d->y+2+bh)
+    {
+        obj = top_btn;
+        yy = d->y+2;
+    }
+    else if(yy >= d->y+d->h-2-bh)
+    {
+        obj = bottom_btn;
+        yy = d->y+d->h-2-bh;
+    }
+    else if(d->h > 32+6)
+    {
+        if(yy < d->y+2+bh+pos)
+            obj = top_bar;
+        else if(yy >= d->y+2+bh+pos+len)
+            obj = bottom_bar;
+    }
+    
+	if (!gui_mouse_b())
+		return false;
+	
+    while(gui_mouse_b())
+    {
+        _calc_scroll_bar(d->h, height, listsize, *offset, &bh, &len, &pos);
+        
+        switch(obj)
+        {
+        case top_btn:
+        case bottom_btn:
+            down = mouse_in_rect(xx, yy, 16, bh);
+            
+            if(!down)
+                mouse_delay = 0;
+            else
+            {
+                if((mouse_delay&1)==0)
+                {
+                    if(obj==top_btn && *offset>0)
+                    {
+                        (*offset)--;
+                        redraw = 1;
+                    }
+                    
+                    if(obj==bottom_btn && *offset<listsize-height)
+                    {
+                        (*offset)++;
+                        redraw = 1;
+                    }
+                }
+                
+                mouse_delay++;
+            }
+            
+            if(down!=last_draw || redraw)
+            {
+                vsync();
+                d->proc(MSG_DRAW, d, 0);
+                draw_arrow_button(screen, xx, yy, 16, bh, obj==top_btn, down*3);
+                last_draw = down;
+            }
+            
+            break;
+            
+        case top_bar:
+        case bottom_bar:
+            if(mouse_in_rect(xx, d->y+2, 16, d->h-4))
+            {
+                if(obj==top_bar)
+                {
+                    if(gui_mouse_y() < d->y+2+bh+pos)
+                        yy = *offset - height;
+                }
+                else
+                {
+                    if(gui_mouse_y() >= d->y+2+bh+pos+len)
+                        yy = *offset + height;
+                }
+                
+                if(yy < 0)
+                    yy = 0;
+                    
+                if(yy > listsize-height)
+                    yy = listsize-height;
+                    
+                if(yy != *offset)
+                {
+                    *offset = yy;
+                    vsync();
+                    d->proc(MSG_DRAW, d, 0);
+                }
+            }
+            
+            _calc_scroll_bar(d->h, height, listsize, *offset, &bh, &len, &pos);
+            
+            if(!mouse_in_rect(xx, d->y+2+bh+pos, 16, len))
+                break;
+                
+            // fall through
+            
+        case bar:
+        default:
+            xx = gui_mouse_y() - pos;
+            
+            while(gui_mouse_b())
+            {
+                yy = (listsize * (gui_mouse_y() - xx) + hh/2) / hh;
+                
+                if(yy > listsize-height)
+                    yy = listsize-height;
+                    
+                if(yy < 0)
+                    yy = 0;
+                
+                if(yy != *offset)
+                {
+                    *offset = yy;
+                    d->proc(MSG_DRAW, d, 0);
+                }
+                
+                /* let other objects continue to animate */
+                broadcast_dialog_message(MSG_IDLE, 0);
+				update_hw_screen();
+            }
+            
+            break;
+            
+        }                                                       // switch(obj)
+        
+        redraw = 0;
+        
+		update_hw_screen();
+        // let other objects continue to animate
+        broadcast_dialog_message(MSG_IDLE, 0);
+    }
+    
+    if(last_draw==1)
+    {
+        draw_arrow_button(screen, xx, yy, 16, bh, obj==top_btn, 0);
+    }
+	return true;
+}
+
+void _handle_jwin_scrollable_scroll_click_font(DIALOG *d, int32_t listsize, int32_t *offset, FONT *fnt)
 {
     enum { top_btn, bottom_btn, bar, top_bar, bottom_bar };
     
@@ -5173,7 +5424,7 @@ int32_t jwin_list_proc(int32_t msg, DIALOG *d, int32_t c)
         }
         else
         {
-            _handle_jwin_scrollable_scroll_click(d, listsize, &d->d2, *data->font);
+            _handle_jwin_scrollable_scroll_click_font(d, listsize, &d->d2, *data->font);
         }
         
         break;
@@ -5432,7 +5683,7 @@ int32_t jwin_do_abclist_proc(int32_t msg, DIALOG *d, int32_t c)
 			}
 			else
 			{
-				_handle_jwin_scrollable_scroll_click(d, listsize, &d->d2, *data->font);
+				_handle_jwin_scrollable_scroll_click_font(d, listsize, &d->d2, *data->font);
 			}
 		}
         break;
@@ -5894,7 +6145,7 @@ int32_t jwin_textbox_proc(int32_t msg, DIALOG *d, int32_t c)
         else
         {
             /* clicked on the scroll area */
-            _handle_jwin_scrollable_scroll_click(d, d->d1, &d->d2, font);
+            _handle_jwin_scrollable_scroll_click_font(d, d->d1, &d->d2, font);
         }
         
         break;

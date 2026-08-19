@@ -42,6 +42,7 @@ extern int32_t zq_screen_w, zq_screen_h;
 #include "zq/gui/misc_color_row.h"
 #include "zq/gui/dmap_minimap.h"
 #include "zq/gui/dmap_mapgrid.h"
+#include "zq/gui/quest_list_view.h"
 #include "zq/gui/engraving.h"
 #endif
 
@@ -288,6 +289,11 @@ inline std::shared_ptr<DMapMapGrid> makeDMapMapGrid()
 	return std::make_shared<DMapMapGrid>();
 }
 
+inline std::shared_ptr<QuestListView> makeQuestListView()
+{
+	return std::make_shared<QuestListView>();
+}
+
 inline std::shared_ptr<Engraving> makeEngraving()
 {
 	return std::make_shared<Engraving>();
@@ -384,6 +390,8 @@ ZCGUI_BUILDER_START(Label)
 	ZCGUI_ACCEPT_PROP(text, setText, std::string)
 	ZCGUI_ACCEPT_PROP(maxLines, setMaxLines, std::size_t)
 	ZCGUI_ACCEPT_PROP(textAlign, setAlign, int32_t)
+	ZCGUI_ACCEPT_PROP(textColor, setTextColor, int32_t)
+	ZCGUI_ACCEPT_PROP(onPressFunc, setOnPress, GUI::function<void()>)
 	ZCGUI_ACCEPT_PROP(noHLine, setNoHLine, bool)
 
 	ZCGUI_SUGGEST_PROP(title, text)
@@ -642,6 +650,14 @@ ZCGUI_BUILDER_START(DMapMinimap)
 	ZCGUI_ACCEPT_PROP(offset, setOffset, int32_t)
 ZCGUI_BUILDER_END()
 ZCGUI_BUILDER_FUNCTION(DMapMinimap, DMapMinimap, makeDMapMinimap)
+
+ZCGUI_BUILDER_START(QuestListView)
+	ZCGUI_ACCEPT_PROP(onSelectionChanged, onSelectionChanged, Dialog::message)
+	ZCGUI_ACCEPT_PROP(onDClick, onDClick, Dialog::message)
+	ZCGUI_ACCEPT_PROP(onSelectFunc, setOnSelectFunc, GUI::function<void(int32_t)>)
+	ZCGUI_ACCEPT_PROP(onDClickFunc, setOnDClickFunc, GUI::function<void(int32_t)>)
+ZCGUI_BUILDER_END()
+ZCGUI_BUILDER_FUNCTION(QuestListView, QuestListView, makeQuestListView)
 
 ZCGUI_BUILDER_START(DMapMapGrid)
 	ZCGUI_ACCEPT_PROP(mapGridPtr, setMapGridPtr, byte*)

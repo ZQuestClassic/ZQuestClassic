@@ -150,7 +150,7 @@ int32_t scrollProc(int32_t msg, DIALOG* d, int32_t c)
 				// This emits MSG_DRAW as it scrolls
 				d->d1=1;
 				d->d2=sp->scrollPos;
-				_handle_jwin_scrollable_scroll_click(d, sp->contentHeight, &sp->scrollPos, nullptr);
+				_handle_jwin_scrollable_scroll_click_font(d, sp->contentHeight, &sp->scrollPos, nullptr);
 				if(sp->scrollptr) *(sp->scrollptr) = sp->scrollPos;
 				d->d1=0;
 			}
