@@ -408,7 +408,10 @@ def download_revision(revision: Revision, release_platform: str):
         break
 
     if not found_url:
-        print(f'Not found on {bucket_url}, falling back to using the GitHub API')
+        print(
+            f'Not found on {bucket_url}, falling back to using the GitHub API',
+            file=os.sys.stderr,
+        )
         url = get_gh_release_package_url(revision.tag, release_platform)
         r = requests.get(url)
 
