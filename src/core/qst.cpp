@@ -1871,7 +1871,7 @@ static void store_prev_qstload_global_state()
 {
 	memcpy(prev_quest_rules, quest_rules, QUESTRULES_NEW_SIZE);
 	memcpy(prev_extra_rules, extra_rules, EXTRARULES_SIZE);
-	memcpy(prev_quest_format, FFCore.quest_format, versiontypesLAST);
+	memcpy(prev_quest_format, FFCore.quest_format, sizeof(prev_quest_format));
 	prev_map_count = map_count;
 }
 
@@ -1880,7 +1880,7 @@ static void restore_prev_qstload_global_state()
 	memcpy(quest_rules, prev_quest_rules, QUESTRULES_NEW_SIZE);
 	memcpy(extra_rules, prev_extra_rules, EXTRARULES_SIZE);
 	unpack_qrs();
-	memcpy(FFCore.quest_format, prev_quest_format, versiontypesLAST);
+	memcpy(FFCore.quest_format, prev_quest_format, sizeof(prev_quest_format));
 	map_count = prev_map_count;
 }
 
