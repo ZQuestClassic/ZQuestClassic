@@ -351,9 +351,12 @@ def get_gh_release_package_url(tag: str, release_platform: str):
             ) or next((asset for asset in assets if 'x86' in asset.name), None)
     elif release_platform == 'linux':
         asset = next(
-            asset
-            for asset in assets
-            if asset.name.endswith('.tar.gz') or asset.name.endswith('.tgz')
+            (
+                asset
+                for asset in assets
+                if asset.name.endswith('.tar.gz') or asset.name.endswith('.tgz')
+            ),
+            None,
         )
 
     if not asset:
