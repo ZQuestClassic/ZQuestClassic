@@ -172,12 +172,10 @@ def run_bisect(revisions: list[Revision]):
                     return k not in skipped
 
                 if check(pivot - i):
-                    print(pivot - i)
                     pivot = pivot - i
                     rev = revs[pivot]
                     break
                 if check(pivot + i):
-                    print(pivot + i)
                     pivot = pivot + i
                     rev = revs[pivot]
                     break
