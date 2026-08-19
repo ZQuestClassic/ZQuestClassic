@@ -275,7 +275,7 @@ def get_revisions(
             continue
 
         # Every release after this one will have binaries, but before only some do.
-        if commit_count != None and commit_count < get_release_commit_count_of_tag(
+        if commit_count != None and commit_count < get_release_commit_count_of_tag_or_raise(
             branch, '2.55-alpha-107'
         ):
             if not has_release_package(tag, release_platform):
