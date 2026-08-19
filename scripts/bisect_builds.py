@@ -22,8 +22,8 @@ from archives import Revision
 from joblib import Memory
 
 parser = argparse.ArgumentParser(description='Runs a bisect using prebuilt releases.')
-parser.add_argument('--good')
-parser.add_argument('--bad')
+parser.add_argument('--good', required=True)
+parser.add_argument('--bad', required=True)
 parser.add_argument(
     '--validate_range',
     action=argparse.BooleanOptionalAction,
@@ -65,6 +65,9 @@ args = parser.parse_args(argv)
 
 # Replace the contents of the dummy argument with the unparsed args.
 args.command = unparsed
+
+if args.good == args.bad:
+    parser.error('--good and --bad must be different revisions')
 
 script_dir = Path(os.path.dirname(os.path.realpath(__file__)))
 root_dir = script_dir.parent
