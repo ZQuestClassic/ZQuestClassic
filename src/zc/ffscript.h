@@ -721,7 +721,8 @@ byte temp_no_stepforward;
 
 byte subscreen_scroll_speed;
 
-bool show_zasm_stack_traces;
+bool log_stack_trace_zasm_frames;
+bool log_stack_trace_on_trace;
 
 void setSubscreenScrollSpeed(byte n);
 int32_t getSubscreenScrollSpeed();

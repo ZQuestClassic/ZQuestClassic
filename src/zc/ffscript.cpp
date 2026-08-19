@@ -14585,7 +14585,8 @@ void FFScript::init(bool for_continue)
 	else clear_script_engine_data();
 	script_debug_handles.clear();
 	runtime_script_debug_handle = nullptr;
-	show_zasm_stack_traces = zc_get_config("ZSCRIPT", "show_zasm_stack_traces", false);
+	log_stack_trace_zasm_frames = zc_get_config("ZSCRIPT", "log_stack_trace_zasm_frames", false);
+	log_stack_trace_on_trace = is_feature_enabled("-log-stack-trace-on-trace", "ZSCRIPT", "log_stack_trace_on_trace", false);
 }
 
 void FFScript::shutdown()
@@ -16257,7 +16258,7 @@ std::optional<StackFrame> FFScript::get_script_stack_frame(int pc)
 		frame.function_name = fn_name;
 		return frame;
 	}
-	else if (show_zasm_stack_traces)
+	else if (log_stack_trace_zasm_frames)
 	{
 		// It's often useful to know which zasm instruction stuff happened at for development,
 		// but that's never useful for typical users.
@@ -16292,12 +16293,17 @@ void FFScript::handle_trace(const std::string& s, bool is_error, bool no_prefix)
 	if (!do_replay_comment && !user_visible_trace)
 		return;
 
+	// Errors always log a stack trace; plain Trace/printf output only does if
+	// opted-in. Replay comments and the debugger always get the stack trace.
+	bool log_stack_trace = is_error || log_stack_trace_on_trace;
+	bool debugger_open = zscript_debugger_get_if_open() != nullptr;
+
 	std::optional<StackTrace> stack_trace;
 	std::string stack_trace_string;
 
-	if (!s.empty() && s.back() == '\n')
+	if (!s.empty() && s.back() == '\n' && (log_stack_trace || do_replay_comment || debugger_open))
 		stack_trace = create_stack_trace(ri);
-	if (stack_trace)
+	if (stack_trace && log_stack_trace)
 		stack_trace_string = stack_trace->to_string() + "\n";
 
 	if (user_visible_trace)
@@ -16395,7 +16401,7 @@ std::string StackTrace::to_string() const
 
 bool FFScript::should_display_stack_traces()
 {
-	return !zasm_debug_data.debug_lines_encoded.empty() || show_zasm_stack_traces;
+	return !zasm_debug_data.debug_lines_encoded.empty() || log_stack_trace_zasm_frames;
 }
 
 std::optional<StackTrace> FFScript::create_stack_trace(const refInfo* ri)

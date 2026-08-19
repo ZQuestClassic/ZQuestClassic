@@ -5474,10 +5474,17 @@ static void onOpenDebugger()
 enum
 {
 	MENUID_DEBUG_OPEN,
+	MENUID_DEBUG_LOG_STACK_TRACE_ON_TRACE,
 };
+static void onToggleLogStackTraceOnTrace()
+{
+	FFCore.log_stack_trace_on_trace = !FFCore.log_stack_trace_on_trace;
+	zc_set_config("ZSCRIPT", "log_stack_trace_on_trace", FFCore.log_stack_trace_on_trace ? 1 : 0);
+}
 static NewMenu debug_menu
 {
 	{ "&Open debugger...", onOpenDebugger, MENUID_DEBUG_OPEN },
+	{ "Log Stack &Trace on Trace/printf", onToggleLogStackTraceOnTrace, MENUID_DEBUG_LOG_STACK_TRACE_ON_TRACE },
 };
 
 #if DEVLEVEL > 0
@@ -5865,6 +5872,8 @@ void System()
 			
 			misc_menu.select_uid(MENUID_MISC_CONSOLE, console_enabled);
 			misc_menu.select_uid(MENUID_MISC_CLEAR_CONSOLE_ON_LOAD, clearConsoleOnLoad);
+
+			debug_menu.select_uid(MENUID_DEBUG_LOG_STACK_TRACE_ON_TRACE, FFCore.log_stack_trace_on_trace);
 			
 			bool nocheat = (replay_is_replaying() || !Playing
 				|| (!maxcheat && !zcheats.flags && !get_debug() && DEVLEVEL < 2 && !zqtesting_mode && !devpwd()));
