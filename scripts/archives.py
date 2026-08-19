@@ -438,7 +438,7 @@ def download_revision(revision: Revision, release_platform: str):
             ['hdiutil', 'unmount', str(dest / 'zc-mounted')], stdout=subprocess.DEVNULL
         )
         (dest / 'ZQuestClassic.dmg').unlink()
-    elif url.endswith('.tar.gz'):
+    elif url.endswith(('.tar.gz', '.tgz')):
         tf = tarfile.open(fileobj=io.BytesIO(r.content), mode='r')
         tf.extractall(dest, filter='data')
         tf.close()
