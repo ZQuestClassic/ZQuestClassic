@@ -174,7 +174,9 @@ def get_download_urls(release_platform: str):
                 (k for k in keys if k.endswith('mac-universal.dmg')), None
             ) or next((k for k in keys if k.endswith('.dmg')), None)
         elif release_platform == 'linux':
-            key = next((k for k in keys if k.startswith('linux')), None)
+            key = next((k for k in keys if k.endswith('linux.tar.gz')), None) or next(
+                (k for k in keys if k.endswith(('ubuntu.tar.gz', 'ubuntu.tgz'))), None
+            )
         if key:
             urls_by_commitish[commitish] = f'{bucket_url}/{key}'
 
