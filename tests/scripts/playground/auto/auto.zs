@@ -10,6 +10,7 @@
 #include "auto/bug_draworigin_despawn.zs"
 #include "auto/bug_dtor_reentrancy.zs"
 #include "auto/bug_empty_constructor.zs"
+#include "auto/bug_jit_class_arrays.zs"
 #include "auto/bug_jit_range_loop.zs"
 #include "auto/bug_jit_stack_overflow.zs"
 #include "auto/bug_mod_int_min.zs"

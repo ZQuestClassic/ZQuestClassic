@@ -557,8 +557,13 @@ ZasmLiveness zasm_run_liveness_analysis(const zasm_script* script, const ZasmCFG
 				gen |= (0xFF & ~kill);
 
 			auto& meta = command_meta_cache[instr.command];
-			gen |= (meta.implicit_read_mask & ~kill);
-			kill |= meta.implicit_write_mask;
+
+			// An instruction's reads all happen before its writes, so collect the
+			// masks for every arg first and only then apply the kills. Interleaving
+			// them per-arg drops the read when one arg writes a register another
+			// arg reads (e.g. READPODARRAYR D2 D2: arg1 writes D2, arg2 reads it).
+			uint8_t instr_reads = meta.implicit_read_mask;
+			uint8_t instr_writes = meta.implicit_write_mask;
 
 			const int32_t* p_arg = &instr.arg1;
 			for (int argn = 0; argn < 3; ++argn)
@@ -570,13 +575,16 @@ ZasmLiveness zasm_run_liveness_analysis(const zasm_script* script, const ZasmCFG
 				if (reg < 8)
 				{
 					if (arg_info.reads)
-						if (!(kill & (1 << reg))) gen |= (1 << reg);
+						instr_reads |= (1 << reg);
 					if (arg_info.writes)
-						kill |= (1 << reg);
+						instr_writes |= (1 << reg);
 				}
 
-				gen |= (register_dependency_mask_cache[reg] & ~kill);
+				instr_reads |= register_dependency_mask_cache[reg];
 			}
+
+			gen |= (instr_reads & ~kill);
+			kill |= instr_writes;
 		}
 
 		vars[block_index] = {0, 0, gen, kill, returns};
