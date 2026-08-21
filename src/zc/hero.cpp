@@ -17894,8 +17894,8 @@ bool HeroClass::scr_walkflag(zfix_round zdx,zfix_round zdy,int d2, [[maybe_unuse
 			if(landswim < ls)
 			{
 				if(dx<0||dy<0);
-				else if(dx>=256);
-				else if(dy>=176);
+				else if(dx>=world_w);
+				else if(dy>=world_h);
 				else if(get_qr(qr_DROWN) && !ilswim);
 				else if(iswaterex_z3(MAPCOMBO(dx,dy), -1, dx,dy)) //!DIMI: weird duplicate function here before. Was water bugged this whole time, or was it just an unneccessary duplicate?
 					solid = false;
