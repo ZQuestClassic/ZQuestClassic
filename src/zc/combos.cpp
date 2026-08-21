@@ -992,9 +992,9 @@ bool play_combo_string(int str, optional<int> screen)
 	return true;
 }
 
-void trigger_string(combo_trigger const& trig, bool success)
+void trigger_string(combo_trigger const& trig, bool success, optional<int> screen)
 {
-	play_combo_string((success ? trig.trig_msgstr : trig.fail_msgstr)/10000L, cur_screen);
+	play_combo_string((success ? trig.trig_msgstr : trig.fail_msgstr)/10000L, screen);
 }
 
 void trigger_sign(newcombo const& cmb, optional<int> screen)
@@ -3084,7 +3084,7 @@ static bool _do_trigger_combo(const combined_handle_t& handle, size_t idx, int32
 	
 	if(!handle_trigger_conditionals(handle, idx, hasitem))
 	{
-		trigger_string(trig, false);
+		trigger_string(trig, false, handle.get_screen());
 		return false;
 	}
 	
@@ -3151,7 +3151,7 @@ static bool _do_trigger_combo(const combined_handle_t& handle, size_t idx, int32
 					
 					case cSIGNPOST:
 						if(!(special & ctrigIGNORE_SIGN))
-							trigger_sign(cmb);
+							trigger_sign(cmb, handle.get_screen());
 						break;
 					
 					case cSLASH: case cSLASHITEM: case cBUSH: case cFLOWERS: case cTALLGRASS:
@@ -3242,7 +3242,7 @@ static bool _do_trigger_combo(const combined_handle_t& handle, size_t idx, int32
 	{
 		if(trig.trig_genscr)
 			FFCore.runGenericFrozenEngine(trig.trig_genscr);
-		trigger_string(trig, true);
+		trigger_string(trig, true, handle.get_screen());
 	}
 	return true;
 }
