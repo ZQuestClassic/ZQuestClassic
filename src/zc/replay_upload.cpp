@@ -87,10 +87,17 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(status_entry_t, key, state, time, error)
 
 struct replay_upload_state
 {
+	// Bump to discard state written by older builds.
+	// 2: state written before the consent fix and the server's ZC-Version
+	// requirement - the server's rejection of old builds' uploads wrongly
+	// marked their replays as permanently "ignored".
+	static constexpr int CURRENT_VERSION = 2;
+
+	int version = CURRENT_VERSION;
 	std::map<std::string, status_entry_t> entries;
 	int time_last_run;
 };
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(replay_upload_state, entries, time_last_run)
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(replay_upload_state, version, entries, time_last_run)
 
 static int64_t get_last_write_time(fs::path path)
 {
@@ -204,7 +211,11 @@ static replay_upload_state load_state()
 		{
 			Z_message("invalid json: %s\n", state_path.string().c_str());
 		}
-		if (auto error = try_deserialize(state, j))
+		else if (j.value("version", 1) < replay_upload_state::CURRENT_VERSION)
+		{
+			Z_message("discarding replay upload state from an older build\n");
+		}
+		else if (auto error = try_deserialize(state, j))
 		{
 			Z_message("invalid json: %s\n", error.value().c_str());
 		}
@@ -252,10 +263,38 @@ static bool should_process_replay(status_entry_t& status_entry, fs::path path, i
 	return false;
 }
 
+// True for replays checked into the repo's test suite (a "tests/replays"
+// path). This guards against dev machines uploading replays.
+static bool is_test_suite_replay(fs::path path)
+{
+	std::error_code ec;
+	fs::path canonical = fs::weakly_canonical(path, ec);
+	if (!ec)
+		path = canonical;
+
+	bool prev_was_tests = false;
+	for (const auto& part : path)
+	{
+		if (prev_was_tests && part == "replays")
+			return true;
+
+		prev_was_tests = part == "tests";
+	}
+
+	return false;
+}
+
 static bool process_replay(status_entry_t& status_entry, fs::path path, [[maybe_unused]] std::string rel_fname, int64_t now_time)
 {
 	status_entry = {};
 	status_entry.time = now_time;
+
+	if (is_test_suite_replay(path))
+	{
+		status_entry.ignore();
+		status_entry.error = "replay is part of the test suite";
+		return false;
+	}
 
 	auto meta_map = replay_load_meta(path);
 
@@ -404,7 +443,7 @@ std::optional<std::string> replay_upload(std::string file_path)
 
 int replay_upload_auto()
 {
-	if (replay_upload_auto_enabled())
+	if (!replay_upload_auto_enabled())
 		return 0;
 
 	auto state = load_state();
