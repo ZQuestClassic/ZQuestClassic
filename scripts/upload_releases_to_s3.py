@@ -20,7 +20,7 @@ tmp_dir = root_dir / '.tmp/gh-releases'
 tmp_dir.mkdir(exist_ok=True, parents=True)
 
 parser = argparse.ArgumentParser(description='Upload builds from GitHub to s3 bucket.')
-parser.add_argument('--token')
+parser.add_argument('--token', default=os.environ.get('GITHUB_TOKEN'))
 args = parser.parse_args()
 
 

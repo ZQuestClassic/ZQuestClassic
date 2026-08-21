@@ -170,3 +170,5 @@ jobs:
 
       - name: Upload to s3 bucket
         run: python scripts/upload_releases_to_s3.py
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
