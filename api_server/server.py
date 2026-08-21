@@ -111,16 +111,6 @@ for path in replays_dir.rglob('*.zplay'):
 print(f'found {len(replay_guid_to_path)} replays')
 
 
-# Old clients auto-uploaded replays without user consent (fixed in
-# 8940060885); they predate this header, so requiring it locks them all out.
-@app.before_request
-def require_version_header():
-    if not request.headers.get('ZC-Version'):
-        return {
-            'error': 'missing ZC-Version header (please update ZC)'
-        }, HTTPStatus.BAD_REQUEST
-
-
 @app.route('/api/v1/quests', methods=['GET'])
 def quests():
     return quest_list
@@ -128,6 +118,13 @@ def quests():
 
 @app.route('/api/v1/replays/<uuid>', methods=['PUT'])
 def replays(uuid):
+    # Old clients auto-uploaded replays without user consent (fixed in
+    # 8940060885); they predate this header, so requiring it locks them all out.
+    if not request.headers.get('ZC-Version'):
+        return {
+            'error': 'missing ZC-Version header (please update ZC)'
+        }, HTTPStatus.BAD_REQUEST
+
     # Log the attempted upload size up front (and flushed), so that if a large
     # payload starves the box of memory we can still correlate it in the logs.
     content_encoding = request.headers.get('Content-Encoding', '').lower()
