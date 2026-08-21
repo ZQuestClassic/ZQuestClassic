@@ -9242,17 +9242,17 @@ bool eWallM::animate(int32_t index)
 				case up:
 					y=0;
 					break;
-					
+
 				case down:
-					y=160;
+					y=world_h-16;
 					break;
-					
+
 				case left:
 					x=0;
 					break;
-					
+
 				case right:
-					x=240;
+					x=world_w-16;
 					break;
 				}
 		
