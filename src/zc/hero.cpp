@@ -7923,7 +7923,7 @@ bool HeroClass::handle_portal_collide(portal* p)
 					tContScr = game->get_continue_scrn(),
 					tContDMap = game->get_continue_dmap();
 			int32_t sourcescr = get_screen_for_world_xy(x, y), sourcedmap = cur_dmap;
-			zfix tx = x % 256_zf, ty = y % 256_zf, tz = z;
+			zfix tx = x % 256_zf, ty = y % 176_zf, tz = z;
 			
 			int32_t weff = p->weffect,
 				wsfx = p->wsfx;
