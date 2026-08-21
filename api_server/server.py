@@ -111,6 +111,16 @@ for path in replays_dir.rglob('*.zplay'):
 print(f'found {len(replay_guid_to_path)} replays')
 
 
+# Old clients auto-uploaded replays without user consent (fixed in
+# 8940060885); they predate this header, so requiring it locks them all out.
+@app.before_request
+def require_version_header():
+    if not request.headers.get('ZC-Version'):
+        return {
+            'error': 'missing ZC-Version header (please update ZC)'
+        }, HTTPStatus.BAD_REQUEST
+
+
 @app.route('/api/v1/quests', methods=['GET'])
 def quests():
     return quest_list
@@ -184,6 +194,14 @@ def replays(uuid):
 
     if not is_valid_uuid(uuid):
         return {'error': 'invalid uuid'}, HTTPStatus.BAD_REQUEST
+
+    # Split-replay segments (from scripts/split_replay.py) start from a .sav
+    # snapshot that never gets uploaded alongside the replay, so they can
+    # never actually be replayed.
+    if 'sav' in meta:
+        return {
+            'error': 'replay requires a save file to run (split replay segment)'
+        }, HTTPStatus.BAD_REQUEST
 
     if int(meta.get('length')) != len(steps):
         return {'error': 'invalid length'}, HTTPStatus.BAD_REQUEST
