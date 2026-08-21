@@ -18975,7 +18975,6 @@ static void side_load_enemies(mapscr* scr)
 
 bool is_starting_pos(mapscr* scr, int32_t i, int32_t x, int32_t y, int32_t t)
 { 
-	if (!is_in_scrolling_region())
 	if(scr->enemy[i]<1||scr->enemy[i]>=MAXGUYS) //Hackish fix for crash in Waterford.st on screen 0x65 of dmap 0 (map 1).
 	{
 		return false; //never 0, never OoB.
