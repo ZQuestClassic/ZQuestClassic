@@ -12100,7 +12100,10 @@ void eWizzrobe::wizzrobe_attack()
 				break;
 			}
 			
-			if(jdir>0 && jx>=32 && jx<=208 && jy>=32 && jy<=128)
+			bool region_jump_bug = !replay_version_check(65);
+			int32_t jx_max = region_jump_bug ? 208 : world_w-48;
+			int32_t jy_max = region_jump_bug ? 128 : world_h-48;
+			if(jdir>0 && jx>=32 && jx<=jx_max && jy>=32 && jy<=jy_max)
 			{
 				misc=3;
 				clk3=32;
