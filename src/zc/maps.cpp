@@ -703,7 +703,7 @@ bool edge_of_region(direction dir)
 	if (dir == down) screen_y += 1;
 	if (dir == left) screen_x -= 1;
 	if (dir == right) screen_x += 1;
-	if (screen_x < 0 || screen_x > 16 || screen_y < 0 || screen_y > 8) return true;
+	if (screen_x < 0 || screen_x > 15 || screen_y < 0 || screen_y > 7) return true;
 	return !is_in_current_region(map_scr_xy_to_index(screen_x, screen_y));
 }
 
