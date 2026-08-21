@@ -9551,36 +9551,40 @@ bool eTrap::trapmove(int32_t ndir)
 		return canmove(ndir,(zfix)1,spw_water, 0, 0, 15, 15,false);
 	}
 	
-	if(oy==80 && !(ndir==left || ndir == right))
+	auto [offx, offy] = translate_screen_coordinates_to_world(screen_spawned);
+	int32_t cx = 128 + offx;
+	int32_t cy = 80 + offy;
+
+	if(oy==cy && !(ndir==left || ndir == right))
 		return false;
-		
-	if(ox==128 && !(ndir==up || ndir==down))
+
+	if(ox==cx && !(ndir==up || ndir==down))
 		return false;
-		
-	if(oy<80 && ndir==up)
+
+	if(oy<cy && ndir==up)
 		return false;
-		
-	if(oy>80 && ndir==down)
+
+	if(oy>cy && ndir==down)
 		return false;
-		
-	if(ox<128 && ndir==left)
+
+	if(ox<cx && ndir==left)
 		return false;
-		
-	if(ox>128 && ndir==right)
+
+	if(ox>cx && ndir==right)
 		return false;
-		
-	if(ox<128 && oy<80 && ndir==l_up)
+
+	if(ox<cx && oy<cy && ndir==l_up)
 		return false;
-		
-	if(ox<128 && oy>80 && ndir==l_down)
+
+	if(ox<cx && oy>cy && ndir==l_down)
 		return false;
-		
-	if(ox>128 && oy<80 && ndir==r_up)
+
+	if(ox>cx && oy<cy && ndir==r_up)
 		return false;
-		
-	if(ox>128 && oy>80 && ndir==r_down)
+
+	if(ox>cx && oy>cy && ndir==r_down)
 		return false;
-		
+
 	return true;
 }
 
@@ -9635,49 +9639,51 @@ bool eTrap::clip()
 	}
 	else
 	{
+		auto [offx, offy] = translate_screen_coordinates_to_world(screen_spawned);
+
 		switch(dir)
 		{
 		case up:
-			if(oy>80 && y<=86) return true;
-			
+			if(oy>80+offy && y<=86+offy) return true;
+
 			break;
-			
+
 		case down:
-			if(oy<80 && y>=80) return true;
-			
+			if(oy<80+offy && y>=80+offy) return true;
+
 			break;
-			
+
 		case left:
-			if(ox>128 && x<=124) return true;
-			
+			if(ox>128+offx && x<=124+offx) return true;
+
 			break;
-			
+
 		case right:
-			if(ox<120 && x>=116) return true;
-			
+			if(ox<120+offx && x>=116+offx) return true;
+
 			break;
-			
+
 		case l_up:
-			if(oy>80 && y<=86 && ox>128 && x<=124) return true;
-			
+			if(oy>80+offy && y<=86+offy && ox>128+offx && x<=124+offx) return true;
+
 			break;
-			
+
 		case l_down:
-			if(oy<80 && y>=80 && ox>128 && x<=124) return true;
-			
+			if(oy<80+offy && y>=80+offy && ox>128+offx && x<=124+offx) return true;
+
 			break;
-			
+
 		case r_up:
-			if(oy>80 && y<=86 && ox<120 && x>=116) return true;
-			
+			if(oy>80+offy && y<=86+offy && ox<120+offx && x>=116+offx) return true;
+
 			break;
-			
+
 		case r_down:
-			if(oy<80 && y>=80 && ox<120 && x>=116) return true;
-			
+			if(oy<80+offy && y>=80+offy && ox<120+offx && x>=116+offx) return true;
+
 			break;
 		}
-		
+
 		return false;
 	}
 }
@@ -9700,13 +9706,14 @@ eTrap2::eTrap2(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 	mainguy=false;
 	if (!(editorflags&ENEMY_FLAG3)) count_enemy=false;
 	step=2;
+	auto [offx, offy] = translate_screen_coordinates_to_world(screen_spawned);
 	if(dmisc1==1 || (dmisc1==0 && zc_oldrand()&2))
 	{
-		dir=(x<=112)?right:left;
+		dir=(x<=112+offx)?right:left;
 	}
 	else
 	{
-		dir=(y<=72)?down:up;
+		dir=(y<=72+offy)?down:up;
 	}
 	
 	if(get_qr(qr_TRAPPOSFIX))
