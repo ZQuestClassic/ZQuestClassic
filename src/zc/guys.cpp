@@ -15255,8 +15255,7 @@ ePatra::ePatra(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)// enemy
 {
 	if ( !(editorflags & ENEMY_FLAG5) )
 	{
-		x = 128;
-		y = 48;
+		position_relative_to_screen(x, y, 128, 48);
 	}
 	else { x = X; y = Y; }
 	adjusted=false;
@@ -16248,8 +16247,9 @@ void esPatra::draw(BITMAP *dest)
 }
 
 
-ePatraBS::ePatraBS(zfix ,zfix ,int32_t Id,int32_t Clk) : enemy((zfix)128,(zfix)48,Id,Clk)
+ePatraBS::ePatraBS(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 {
+	position_relative_to_screen(x, y, 128, 48);
 	adjusted=false;
 	dir=(zc_oldrand()&7)+8;
 	step=0.25;
