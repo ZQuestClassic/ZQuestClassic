@@ -12,6 +12,7 @@ Editor
    /tutorials/using_a_tileset
    /tutorials/message_strings
    /tutorials/z3_user_guide
+   /tutorials/wieldable_bow
 
 .. note::
    We currently have few recent tutorials for how to use the editor, but there are many old ones. Many features have been added since these were written; UI would have changed, and perhaps better approaches for some things exist now. If you need more recent advice, `just reach out <https://zquestclassic.com/community/>`_!

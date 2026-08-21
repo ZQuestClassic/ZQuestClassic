@@ -1,5 +1,7 @@
 # Using a tileset
 
+*Authored by Coolgamer.*
+
 This tutorial explains how to start using a tileset.
 
 To start, select the `File > New` option in the editor (this dialog is also shown when you open the editor for the very first time). This dialog is where you create your own `.qst` file, and this is the time to decide what tileset to use.
