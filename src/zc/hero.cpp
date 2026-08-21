@@ -21562,11 +21562,13 @@ bool usekey(int32_t num)
 
 bool islockeddoor(int32_t x, int32_t y, int32_t lock)
 {
-    int32_t mc = (y&0xF0)+(x>>4);
-    bool ret = (((mc==7||mc==8||mc==23||mc==24) && origin_scr->door[up]==lock)
-                || ((mc==151||mc==152||mc==167||mc==168) && origin_scr->door[down]==lock)
-                || ((mc==64||mc==65||mc==80||mc==81) && origin_scr->door[left]==lock)
-                || ((mc==78||mc==79||mc==94||mc==95) && origin_scr->door[right]==lock));
+    mapscr* scr = get_scr_for_world_xy(x, y);
+    auto [offx, offy] = translate_screen_coordinates_to_world(scr->screen);
+    int32_t mc = (((y-offy))&0xF0)+((x-offx)>>4);
+    bool ret = (((mc==7||mc==8||mc==23||mc==24) && scr->door[up]==lock)
+                || ((mc==151||mc==152||mc==167||mc==168) && scr->door[down]==lock)
+                || ((mc==64||mc==65||mc==80||mc==81) && scr->door[left]==lock)
+                || ((mc==78||mc==79||mc==94||mc==95) && scr->door[right]==lock));
     return ret;
 }
 
