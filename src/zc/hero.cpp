@@ -26523,13 +26523,13 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 			
 			if(get_qr(qr_NOARRIVALPOINT))
 			{
-				wrx=origin_scr->warpreturnx[0];
-				wry=origin_scr->warpreturny[0];
+				wrx=hero_scr->warpreturnx[0];
+				wry=hero_scr->warpreturny[0];
 			}
 			else
 			{
-				wrx=origin_scr->warparrivalx;
-				wry=origin_scr->warparrivaly;
+				wrx=hero_scr->warparrivalx;
+				wry=hero_scr->warparrivaly;
 			}
 			
 			if((wtype == wtEXIT)
@@ -26562,17 +26562,17 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 		lastentrance = game->get_continue_scrn();
 	}
 	
-	if(origin_scr->flags4&fAUTOSAVE)
+	if(hero_scr->flags4&fAUTOSAVE)
 	{
 		save_game(true,0);
 	}
-	
-	if(origin_scr->flags6&fCONTINUEHERE)
+
+	if(hero_scr->flags6&fCONTINUEHERE)
 	{
 		lastentrance_dmap = cur_dmap;
 		lastentrance = home_screen;
 	}
-	
+
 	update_subscreens();
 	verifyBothWeapons();
 
