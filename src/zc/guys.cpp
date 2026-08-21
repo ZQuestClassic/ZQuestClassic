@@ -12251,12 +12251,13 @@ void eWizzrobe::draw(BITMAP *dest)
 eDodongo::eDodongo(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 {
 	fading=fade_flash_die;
-	if(dir==down&&y>=128)
+	auto [offx, offy] = translate_screen_coordinates_to_world(screen_spawned);
+	if(dir==down&&y>=128+offy)
 	{
 		dir=up;
 	}
-	
-	if(dir==right&&x>=208)
+
+	if(dir==right&&x>=208+offx)
 	{
 		dir=left;
 	}
@@ -12381,12 +12382,13 @@ eDodongo2::eDodongo2(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 	fading=fade_flash_die;
 	//nets+5180;
 	previous_dir=-1;
-	if(dir==down&&y>=128)
+	auto [offx, offy] = translate_screen_coordinates_to_world(screen_spawned);
+	if(dir==down&&y>=128+offy)
 	{
 		dir=up;
 	}
-	
-	if(dir==right&&x>=208)
+
+	if(dir==right&&x>=208+offx)
 	{
 		dir=left;
 	}
