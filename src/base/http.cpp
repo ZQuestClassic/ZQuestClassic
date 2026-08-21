@@ -10,6 +10,7 @@
 namespace http {
 
 static const std::string UA = fmt::format("ZQuestClassic/2.55.{}", V_ZC_THIRD);
+static const std::string VERSION_HEADER = fmt::format("ZC-Version: 2.55.{}", V_ZC_THIRD);
 
 bool http_response::success() const
 {
@@ -29,11 +30,18 @@ expected<http_response, std::string> get(std::string url)
 	http_response response{};
 
 	CURL *curl_handle = curl_easy_init();
+
+	struct curl_slist* headers = NULL;
+	headers = curl_slist_append(headers, VERSION_HEADER.c_str());
+
 	curl_easy_setopt(curl_handle, CURLOPT_URL, url.c_str());
+	curl_easy_setopt(curl_handle, CURLOPT_HTTPHEADER, headers);
 	curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, _write_callback);
 	curl_easy_setopt(curl_handle, CURLOPT_WRITEDATA, (void *)&response.body);
 	curl_easy_setopt(curl_handle, CURLOPT_USERAGENT, UA.c_str());
 	CURLcode res = curl_easy_perform(curl_handle);
+
+	curl_slist_free_all(headers);
 
 	if (res != CURLE_OK)
 	{
@@ -95,6 +103,7 @@ expected<http_response, std::string> upload(std::string url, fs::path path)
 
 	struct curl_slist* headers = NULL;
 	headers = curl_slist_append(headers, "Content-Encoding: gzip");
+	headers = curl_slist_append(headers, VERSION_HEADER.c_str());
 
 	curl_easy_setopt(curl_handle, CURLOPT_URL, url.c_str());
 	curl_easy_setopt(curl_handle, CURLOPT_UPLOAD, 1);
