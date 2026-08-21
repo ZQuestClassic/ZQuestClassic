@@ -126,5 +126,8 @@ std::optional<int> get_scc_command_num_args(int code);
 std::optional<int> get_scc_command_max_args(int code);
 value_and_warnings<ParsedMsgStr> parse_ascii_msg_str(const std::string& str);
 value_and_warnings<ParsedMsgStr> parse_legacy_binary_msg_str(const std::string& str);
+// Prepares plain text (e.g. from the clipboard) for insertion into an ascii-encoded msg
+// str: strips '\r' and converts '\n' into the \Newline\ command.
+std::string sanitize_pasted_msg_str_text(std::string_view text);
 
 #endif

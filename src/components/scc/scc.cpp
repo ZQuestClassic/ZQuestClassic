@@ -841,6 +841,31 @@ value_and_warnings<ParsedMsgStr> parse_legacy_binary_msg_str(const std::string& 
 	return result;
 }
 
+std::string sanitize_pasted_msg_str_text(std::string_view text)
+{
+	std::string result;
+	result.reserve(text.size());
+
+	for (char c : text)
+	{
+		if (c == '\r')
+			continue;
+
+		if (c == '\n')
+		{
+			// A '\' just before the command would escape its leading slash.
+			if (!result.empty() && result.back() == '\\')
+				result += ' ';
+			result += "\\Newline\\ ";
+			continue;
+		}
+
+		result += c;
+	}
+
+	return result;
+}
+
 // Generates a string that should roundtrip back into a ParsedMsgStr via parse_ascii_msg_str.
 std::string ParsedMsgStr::serialize() const
 {

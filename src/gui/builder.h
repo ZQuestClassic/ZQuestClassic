@@ -529,6 +529,7 @@ ZCGUI_BUILDER_START(TextField)
 	ZCGUI_ACCEPT_PROP(onCursorChangedFunc, setOnCursorChanged, GUI::function<void(TextField::type,int32_t,int32_t)>)
 	ZCGUI_ACCEPT_PROP(places, setFixedPlaces, size_t)
 	ZCGUI_ACCEPT_PROP(swap_type, setSwapType, int32_t)
+	ZCGUI_ACCEPT_PROP(msgStrPaste, setMsgStrPaste, bool)
 ZCGUI_BUILDER_END()
 ZCGUI_BUILDER_FUNCTION(TextField, TextField, makeTextField)
 

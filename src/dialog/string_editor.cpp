@@ -188,6 +188,7 @@ std::shared_ptr<GUI::Widget> StringEditorDialog::view()
 			str_field = TextField(fitParent = true,
 				forceFitW = true, height = 2_px+(3*(1_em+2_px)),
 				maxLength = MSGBUF_SIZE - 1, type = GUI::TextField::type::TEXT,
+				msgStrPaste = true,
 				text = start_text, focused = !stred_tab_1,
 				onValChangedFunc = [&](GUI::TextField::type,std::string_view v,int32_t)
 				{
@@ -271,6 +272,7 @@ std::shared_ptr<GUI::Widget> StringEditorDialog::view()
 						std::string tmp;
 						if(get_al_clipboard(tmp))
 						{
+							tmp = sanitize_pasted_msg_str_text(tmp);
 							str_field->setText(tmp);
 							onTextUpdated(std::move(tmp));
 						}

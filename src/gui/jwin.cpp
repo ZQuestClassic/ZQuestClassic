@@ -4,6 +4,7 @@
 #include "zalleg/zalleg.h"
 #include <allegro/internal/aintern.h>
 #include "gui/jwin.h"
+#include "components/scc/scc.h"
 #include "core/zdefs.h"
 #include "gui/editbox.h"
 #include <iostream>
@@ -2625,6 +2626,8 @@ int32_t jwin_vedit_proc(int32_t msg, DIALOG *d, int32_t c)
 				std::string cb;
 				if(get_al_clipboard(cb))
 				{
+					if(d->flags & D_MSGSTR_PASTE)
+						cb = sanitize_pasted_msg_str_text(cb);
 					int ind = low_cursor, ind2 = high_cursor + 1;
 					if (range_selected)
 					{
@@ -3175,6 +3178,8 @@ int32_t jwin_edit_proc(int32_t msg, DIALOG *d, int32_t c)
 				std::string cb;
 				if(get_al_clipboard(cb))
 				{
+					if(d->flags & D_MSGSTR_PASTE)
+						cb = sanitize_pasted_msg_str_text(cb);
 					int ind = low_cursor, ind2 = high_cursor + 1;
 					if (range_selected)
 					{

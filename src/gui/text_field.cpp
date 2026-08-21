@@ -181,7 +181,7 @@ namespace GUI
 TextField::TextField(): buffer(nullptr), startVal(0), fixedPlaces(4),
 	lbound(0), ubound(-1), bounds_set(false),
 	tfType(type::TEXT), swap_type_start(0), maxLength(0),
-	forced_length(false), last_applied_vis(true), last_applied_dis(false), onEnterMsg(-1),
+	forced_length(false), msgStrPaste(false), last_applied_vis(true), last_applied_dis(false), onEnterMsg(-1),
 	onValueChangedMsg(-1), valSet(false)
 {
 	setPreferredWidth(1_em);
@@ -484,6 +484,18 @@ void TextField::setMaxLength(size_t newMax)
 	_updateBuf(newMax);
 }
 
+void TextField::setMsgStrPaste(bool msgstr)
+{
+	msgStrPaste = msgstr;
+	if(alDialog)
+	{
+		if(msgstr)
+			alDialog->flags |= D_MSGSTR_PASTE;
+		else
+			alDialog->flags &= ~D_MSGSTR_PASTE;
+	}
+}
+
 void TextField::check_len(size_t min)
 {
 	if(forced_length)
@@ -691,7 +703,7 @@ void TextField::realize(DialogRunner& runner)
 			x, y, getWidth(), getHeight(),
 			fgColor, bgColor,
 			0, // key
-			getFlags(), // flags
+			getFlags() | (msgStrPaste ? D_MSGSTR_PASTE : 0), // flags
 			static_cast<int32_t>(maxLength), 0, // d1, d2
 			buffer.get(), widgFont, nullptr // dp, dp2, dp3
 		});

@@ -916,6 +916,68 @@ static bool assert_warnings(const std::vector<std::string>& expected, const std:
 	return false;
 }
 
+struct PasteSanitizeTestCase
+{
+	std::string description;
+	std::string input;
+	std::string expected;
+};
+
+std::vector<PasteSanitizeTestCase> get_paste_sanitize_test_cases()
+{
+	using TC = PasteSanitizeTestCase;
+
+	return {
+		TC{
+			"No control characters",
+			"Hello, world!",
+			"Hello, world!"
+		},
+		TC{
+			"Newline becomes Newline command",
+			"Hello,\nworld!",
+			R"(Hello,\Newline\ world!)"
+		},
+		TC{
+			"Windows line ending",
+			"Hello,\r\nworld!",
+			R"(Hello,\Newline\ world!)"
+		},
+		TC{
+			"Lone carriage return is stripped",
+			"Hello,\rworld!",
+			"Hello,world!"
+		},
+		TC{
+			"Consecutive newlines",
+			"a\n\nb",
+			R"(a\Newline\ \Newline\ b)"
+		},
+		TC{
+			"Trailing newline",
+			"Hello\n",
+			R"(Hello\Newline\ )"
+		},
+		TC{
+			"Backslash before newline gets a separating space",
+			"Hello\\\nworld",
+			R"(Hello\ \Newline\ world)"
+		},
+	};
+}
+
+static bool run_paste_sanitize_test_case(const PasteSanitizeTestCase& tc)
+{
+	std::string actual = sanitize_pasted_msg_str_text(tc.input);
+	if (actual == tc.expected)
+		return true;
+
+	cur << RED << "  [FAIL] " << RESET << "Sanitized text mismatch.\n";
+	cur << "    Expected: R\"(" << tc.expected << ")\"\n";
+	cur << "    Actual  : R\"(" << actual << ")\"\n";
+	return false;
+}
+
 static bool run_legacy_round_trip_test_case(const LegacyRoundTripTestCase& tc)
 {
 	bool passed = true;
@@ -1024,7 +1086,44 @@ TestResults test_scc(bool verbose)
 		test_num++;
 	}
 
-	return TestResults{tests_failed, (int)(all_test_cases.size() + legacy_test_cases.size())};
+	auto paste_test_cases = get_paste_sanitize_test_cases();
+	for (const auto& tc : paste_test_cases)
+	{
+		if (verbose)
+		{
+			std::cerr << "--- Test " << std::setw(2) << test_num << ": "
+					<< tc.description << " ---" << std::endl;
+		}
+
+		cur.clear();
+
+		bool test_passed = run_paste_sanitize_test_case(tc);
+		if (!test_passed)
+			tests_failed++;
+
+		if (verbose)
+		{
+			std::cerr << cur.str();
+
+			if (test_passed) {
+				std::cerr << GREEN << "  [PASS]" << RESET << "\n";
+			} else {
+				std::cerr << "--- End of Test " << test_num << " ---\n";
+			}
+			std::cerr << std::endl;
+		}
+		else if (!test_passed)
+		{
+			std::cerr << "--- Test " << std::setw(2) << test_num << ": "
+					<< tc.description << " ---" << std::endl;
+			std::cerr << cur.str();
+			std::cerr << std::endl;
+		}
+
+		test_num++;
+	}
+
+	return TestResults{tests_failed, (int)(all_test_cases.size() + legacy_test_cases.size() + paste_test_cases.size())};
 }
 
 // TODO: make this not needed to compile...

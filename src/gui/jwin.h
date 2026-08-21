@@ -46,6 +46,12 @@ extern "C"
 /* read only flag for jwin_edit_proc */
 #define D_READONLY      D_USER
 
+/* jwin_edit_proc/jwin_vedit_proc flag: the field edits an ascii-encoded msg
+ * str, so pasted text is sanitized ('\r' stripped, '\n' converted to
+ * \Newline\ commands).
+ */
+#define D_MSGSTR_PASTE  (D_USER<<6)
+
 /* Disable click to select combo for d_combo_proc */
 #define D_NOCLICK       D_USER
 

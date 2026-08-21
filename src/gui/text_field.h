@@ -81,6 +81,11 @@ public:
 	 */
 	void setMaxLength(size_t newMax);
 
+	/* Mark this field as editing an ascii-encoded msg str, so pasted text is
+	 * sanitized ('\r' stripped, '\n' converted to \Newline\ commands).
+	 */
+	void setMsgStrPaste(bool msgstr);
+
 	/* Sets the message to send when the enter key is pressed. Note that
 	 * the type of the argument varies depending on the text field's type.
 	 * If set to Text, the argument will be a std::string_view. If set to
@@ -126,6 +131,7 @@ private:
 	int32_t swap_type_start;
 	size_t maxLength;
 	bool forced_length;
+	bool msgStrPaste;
 	bool last_applied_vis;
 	bool last_applied_dis;
 	DialogRef alDialog;
