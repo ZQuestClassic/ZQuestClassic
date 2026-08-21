@@ -616,18 +616,18 @@ bool enemy::scr_walkflag(int32_t dx,int32_t dy,int32_t special, [[maybe_unused]]
 	switch(special)
 	{
 		case spw_clipbottomright:
-			if(dy>=128 || dx>=208) return true;
+			if(dy>=world_h-48 || dx>=world_w-48) return true;
 			break;
 		case spw_clipright:
 			break; //if(input_x>=208) return true; break;
-			
+
 		case spw_wizzrobe: // fall through
 		case spw_floater: // Special case for fliers and wizzrobes - hack!
 			{
 				if(isdungeon(screen_spawned) && !(moveflags & move_ignore_screenedge))
 				{
-					if(dy < 32-yg || dy >= 144) return true;
-					if(dx < 32 || dx >= 224) return true;
+					if(dy < 32-yg || dy >= world_h-32) return true;
+					if(dx < 32 || dx >= world_w-32) return true;
 				}
 				if(!(moveflags & move_ignore_blockflags) && flyerblocked(dx, dy, special, kb))
 					return true;
@@ -1467,10 +1467,10 @@ bool enemy::m_walkflag_old(int32_t dx,int32_t dy,int32_t special, int32_t x, int
 	bool isInDungeon = isdungeon(screen_spawned);
 	if(isInDungeon || special==spw_wizzrobe)
 	{
-		if((x>=32 && dy<32-yg) || (y>-1000 && y<=144 && dy>=144))
+		if((x>=32 && dy<32-yg) || (y>-1000 && y<=world_h-32 && dy>=world_h-32))
 			return true;
-			
-		if((x>=32 && dx<32) || (x>-1000 && x<224 && dx>=224))
+
+		if((x>=32 && dx<32) || (x>-1000 && x<world_w-32 && dx>=world_w-32))
 			if(special!=spw_door) // walk in door way
 				return true;
 	}
@@ -1485,18 +1485,18 @@ bool enemy::m_walkflag_old(int32_t dx,int32_t dy,int32_t special, int32_t x, int
 	switch(special)
 	{
 	case spw_clipbottomright:
-		if(dy>=128 || dx>=208) return true;
+		if(dy>=world_h-48 || dx>=world_w-48) return true;
 		break;
 	case spw_clipright:
 		break; //if(x>=208) return true; break;
-		
+
 	case spw_wizzrobe: // fall through
 	case spw_floater: // Special case for fliers and wizzrobes - hack!
 		{
 			if(isInDungeon)
 			{
-				if(dy < 32-yg || dy >= 144) return true;
-				if(dx < 32 || dx >= 224) return true;
+				if(dy < 32-yg || dy >= world_h-32) return true;
+				if(dx < 32 || dx >= world_w-32) return true;
 			}
 			return false;
 		}
