@@ -13622,7 +13622,11 @@ bool eMoldorm::animate(int32_t index)
 {
 	update_current_screen();
 	if(switch_hooked) return enemy::animate(index);
-	int32_t max_y = isdungeon(screen_spawned) ? 100 : 100+28; //warning: Ugly hack. -Z
+	int32_t max_y; //warning: Ugly hack. -Z
+	if (replay_version_check(65))
+		max_y = isdungeon(screen_spawned) ? world_h-76 : world_h-48;
+	else
+		max_y = isdungeon(screen_spawned) ? 100 : 100+28;
 	if ( y > (max_y) )
 	{
 		++stickclk; //Keep Moldorm from pacinn the bottom row or leaving the screen via the bottom edge. -Z 8th Sept, 2019
