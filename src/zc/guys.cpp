@@ -19367,7 +19367,7 @@ void loadenemies()
 					if ( scr->enemy[i] )
 					{
 						int32_t preguycount = guys.Count();
-						addenemy(screen,dngn_enemy_x[i],96,scr->enemy[i],-14-i);
+						addenemy(screen,dngn_enemy_x[i%4],96,scr->enemy[i],-14-i);
 						if (guys.Count() > preguycount)
 						{
 							if (!get_qr(qr_ENEMIES_DONT_SCRIPT_FIRST_FRAME))
