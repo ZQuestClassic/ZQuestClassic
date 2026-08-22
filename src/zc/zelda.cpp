@@ -903,7 +903,7 @@ void ALLOFF(bool messagesToo, bool decorationsToo, bool force)
     
 	activation_counters.fill({});
 
-    sle_clk=0;
+    reset_side_load_states();
 	mblock2.clear();
     fairy_cnt=0;
     
@@ -1471,7 +1471,6 @@ void init_game_vars(bool is_cont_game = false)
 	script_hero_flip = -1; 
 	script_hero_cset = -1;
 	region_is_lit=darkroom=naturaldark=false;
-	sle_x=sle_y=0;
 	Bwpn = Awpn = Xwpn = Ywpn = {};
 	FFCore.kb_typing_mode = false;
 	activated_timed_warp=false;
@@ -1522,7 +1521,6 @@ void init_game_vars(bool is_cont_game = false)
 	watch = loaded_guys = blockpath = false;
 	freeze_holdup = false;
 	fairy_cnt = 0;
-	sle_clk = 0;
 	didpit = false;
 	onload_gswitch_timers();
 	refresh_subscr_buttonitems();

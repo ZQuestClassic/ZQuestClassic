@@ -8134,8 +8134,8 @@ void FFScript::AlloffLimited(int32_t flagset)
 		get_screen_state(scr->screen).loaded_enemies = false;
 	});
 
-	sle_clk=0;
-	
+	reset_side_load_states();
+
 	if(usebombpal)
 	{
 		memcpy(RAMpal, tempbombpal, PAL_SIZE*sizeof(RGB));

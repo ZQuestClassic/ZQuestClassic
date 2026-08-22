@@ -544,6 +544,15 @@ enum class ScreenItemState
 	CarriedByEnemy,
 };
 
+// Enemy loading for the pSIDES/pSIDESR patterns happens over many frames.
+struct side_load_state_t
+{
+	int32_t clk;
+	int32_t cnt;
+	int32_t x, y;
+	int32_t pattern;
+};
+
 struct screen_state_t
 {
 	ScreenItemState item_state;
@@ -551,6 +560,7 @@ struct screen_state_t
 	bool did_enemy_secret;
 	bool triggered_secrets;
 	int open_doors;
+	side_load_state_t side_load;
 };
 
 std::map<int, screen_state_t>& get_screen_states();

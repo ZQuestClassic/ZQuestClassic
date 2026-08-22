@@ -37,19 +37,41 @@
 extern sprite_list  guys, items, Ewpns, Lwpns, chainlinks, decorations;
 
 static std::array<bool, MAPSCRS> script_sle;
-static int32_t sle_pattern;
+
+// The per-screen pSIDES/pSIDESR loading state lives in screen_state_t. Before
+// the state became per-screen, it was shared by every screen, and old replays
+// depend on that: the non-random perimeter walk position carries over from one
+// screen's loading to the next.
+static side_load_state_t shared_side_load_state;
+
+static side_load_state_t& get_side_load_state(int screen)
+{
+	if (!replay_version_check(65))
+		return shared_side_load_state;
+	return get_screen_state(screen).side_load;
+}
 
 void guys_init_game_vars()
 {
 	script_sle = {};
-	sle_pattern = 0;
+	// The per-screen states are cleared alongside this via clear_screen_states.
+	shared_side_load_state = {};
+}
+
+// Used where the pre-region code reset the shared loading clock (screen loads,
+// forced enemy reloads). The legacy shared walk position deliberately persists
+// here; it is only fully cleared when a game starts (guys_init_game_vars).
+void reset_side_load_states()
+{
+	for (auto& [screen, state] : get_screen_states())
+		state.side_load = {};
+	shared_side_load_state.clk = 0;
 }
 
 int32_t repaircharge=0;
 bool adjustmagic=false;
 bool learnslash=false;
 int32_t wallm_load_clk=0;
-int32_t sle_x,sle_y,sle_cnt,sle_clk=0;
 int32_t vhead=0;
 
 char *guy_string[eMAXGUYS];
@@ -18705,89 +18727,89 @@ void awaken_spinning_tile(const combined_handle_t& comb_handle, bool natural)
 }
 
 // It stands for next_side_pos
-// moves sle_x and sle_y to the next position
-void nsp(bool random)
+// moves the state's x and y to the next position
+static void nsp(side_load_state_t& sls, bool random)
 {
 	if(random)
 	{
 		if(zc_oldrand()%2)
 		{
-			sle_x = (zc_oldrand()%2) ? 0 : 240;
-			sle_y = (zc_oldrand()%10)*16;
+			sls.x = (zc_oldrand()%2) ? 0 : 240;
+			sls.y = (zc_oldrand()%10)*16;
 		}
 		else
 		{
-			sle_y = (zc_oldrand()%2) ? 0 : 160;
-			sle_x = (zc_oldrand()%15)*16;
+			sls.y = (zc_oldrand()%2) ? 0 : 160;
+			sls.x = (zc_oldrand()%15)*16;
 		}
-		
+
 		return;
 	}
-	
-	if(sle_x==0)
+
+	if(sls.x==0)
 	{
-		if(sle_y<160)
-			sle_y+=16;
+		if(sls.y<160)
+			sls.y+=16;
 		else
-			sle_x+=16;
+			sls.x+=16;
 	}
-	else if(sle_y==160)
+	else if(sls.y==160)
 	{
-		if(sle_x<240)
-			sle_x+=16;
+		if(sls.x<240)
+			sls.x+=16;
 		else
-			sle_y-=16;
+			sls.y-=16;
 	}
-	else if(sle_x==240)
+	else if(sls.x==240)
 	{
-		if(sle_y>0)
-			sle_y-=16;
+		if(sls.y>0)
+			sls.y-=16;
 		else
-			sle_x-=16;
+			sls.x-=16;
 	}
-	else if(sle_y==0)
+	else if(sls.y==0)
 	{
-		if(sle_x>0)
-			sle_x-=16;
+		if(sls.x>0)
+			sls.x-=16;
 		else
-			sle_y+=16;
+			sls.y+=16;
 	}
 }
 
-// moves sle_x and sle_y to the next available position
+// moves the state's x and y to the next available position
 // returns the direction the enemy should face
-int32_t next_side_pos(int32_t screen, bool random)
+static int32_t next_side_pos(side_load_state_t& sls, int32_t screen, bool random)
 {
 	bool blocked;
 	int32_t c=0;
 	auto [offx, offy] = translate_screen_coordinates_to_world(screen);
-	
+
 	do
 	{
-		nsp(c>35 ? false : random);
-		int x = sle_x + offx;
-		int y = sle_y + offy;
+		nsp(sls, c>35 ? false : random);
+		int x = sls.x + offx;
+		int y = sls.y + offy;
 		blocked = _walkflag(x,y,2) || _walkflag(x,y+8,2) ||
 				  (combo_class_buf[COMBOTYPE(x,y)].block_enemies ||
 				   MAPFLAG(x,y) == mfNOENEMY || MAPCOMBOFLAG(x,y)==mfNOENEMY ||
 				   MAPFLAG(x,y) == mfNOGROUNDENEMY || MAPCOMBOFLAG(x,y)==mfNOGROUNDENEMY ||
 				   iswaterex_z3(MAPCOMBO(x,y), -1, x, y, true));
-				   
+
 		if(++c>50)
 			return -1;
 	}
 	while(blocked);
-	
+
 	int32_t dir=0;
-	
-	if(sle_x==0)    dir=right;
-	
-	if(sle_y==0)    dir=down;
-	
-	if(sle_x==240)  dir=left;
-	
-	if(sle_y==168)  dir=up;
-	
+
+	if(sls.x==0)    dir=right;
+
+	if(sls.y==0)    dir=down;
+
+	if(sls.x==240)  dir=left;
+
+	if(sls.y==168)  dir=up;
+
 	return dir;
 }
 
@@ -18848,24 +18870,26 @@ static bool check_if_recently_visited()
 
 static void script_side_load_enemies(mapscr* scr)
 {
-	if (script_sle[scr->screen] || sle_clk) return;
+	auto& sls = get_side_load_state(scr->screen);
+	if (script_sle[scr->screen] || sls.clk) return;
 
-	sle_cnt = 0;
-	while(sle_cnt<10 && scr->enemy[sle_cnt]!=0)
-		++sle_cnt;
+	sls.cnt = 0;
+	while(sls.cnt<10 && scr->enemy[sls.cnt]!=0)
+		++sls.cnt;
 	script_sle[scr->screen] = true;
-	sle_pattern = scr->pattern;
-	sle_clk = 0;
+	sls.pattern = scr->pattern;
+	sls.clk = 0;
 }
 
 static void side_load_enemies(mapscr* scr)
 {
 	int screen = scr->screen;
+	auto& sls = get_side_load_state(screen);
 
-	if (sle_clk==0 && !script_sle[scr->screen])
+	if (sls.clk==0 && !script_sle[scr->screen])
 	{
-		sle_pattern = scr->pattern;
-		sle_cnt = 0;
+		sls.pattern = scr->pattern;
+		sls.cnt = 0;
 		int32_t guycnt = 0;
 		
 		int mi = mapind(cur_map, screen);
@@ -18877,23 +18901,23 @@ static void side_load_enemies(mapscr* scr)
 		bool beenhere = check_if_recently_visited();
 		if (beenhere && game->guys.get(mi) == 0)
 		{
-			sle_cnt=0;
+			sls.cnt=0;
 			reload=false;
 		}
 
 		if(reload)
 		{
-			sle_cnt = game->guys.get(mi);
+			sls.cnt = game->guys.get(mi);
 			
 			if((get_qr(qr_NO_LEAVE_ONE_ENEMY_ALIVE_TRICK) && !beenhere)
-			|| sle_cnt==0)
+			|| sls.cnt==0)
 			{
-				while(sle_cnt<10 && scr->enemy[sle_cnt]!=0)
-					++sle_cnt;
+				while(sls.cnt<10 && scr->enemy[sls.cnt]!=0)
+					++sls.cnt;
 			}
 			if (!beenhere && get_qr(qr_UNBEATABLES_DONT_KEEP_DEAD))
 			{
-				for(int32_t i = 0; i<sle_cnt && scr->enemy[i]>0; i++)
+				for(int32_t i = 0; i<sls.cnt && scr->enemy[i]>0; i++)
 				{
 					if (!(guysbuf[scr->enemy[i]].flags & guy_doesnt_count)) 
 					{
@@ -18902,9 +18926,9 @@ static void side_load_enemies(mapscr* scr)
 				}
 				if (unbeatablereload)
 				{
-					while(sle_cnt<10 && scr->enemy[sle_cnt]!=0)
+					while(sls.cnt<10 && scr->enemy[sls.cnt]!=0)
 					{
-						++sle_cnt;
+						++sls.cnt;
 					}
 				}
 			}
@@ -18912,24 +18936,24 @@ static void side_load_enemies(mapscr* scr)
 		
 		if((get_qr(qr_ALWAYSRET)) || (scr->flags3&fENEMIESRETURN))
 		{
-			sle_cnt = 0;
+			sls.cnt = 0;
 			
-			while(sle_cnt<10 && scr->enemy[sle_cnt]!=0)
-				++sle_cnt;
+			while(sls.cnt<10 && scr->enemy[sls.cnt]!=0)
+				++sls.cnt;
 		}
 		if(getmapflag(scr, mNO_ENEMIES_RETURN))
-			sle_cnt = 0;
+			sls.cnt = 0;
 		
-		for(int32_t i=0; i<sle_cnt; i++)
+		for(int32_t i=0; i<sls.cnt; i++)
 			++guycnt;
 		
 		game->guys[mi] = guycnt;
 	}
 	
-	if((++sle_clk+8)%24 == 0)
+	if((++sls.clk+8)%24 == 0)
 	{
-		int32_t dir = next_side_pos(screen, sle_pattern==pSIDESR);
-		auto [x, y] = translate_screen_coordinates_to_world(screen, sle_x, sle_y);
+		int32_t dir = next_side_pos(sls, screen, sls.pattern==pSIDESR);
+		auto [x, y] = translate_screen_coordinates_to_world(screen, sls.x, sls.y);
 		
 		if(dir==-1 || tooclose(x,y,32))
 		{
@@ -18938,12 +18962,12 @@ static void side_load_enemies(mapscr* scr)
 		
 		int32_t enemy_slot=guys.Count();
 		
-		while(sle_cnt > 0 && !ok2add(scr, scr->enemy[sle_cnt-1]))
-			sle_cnt--;
+		while(sls.cnt > 0 && !ok2add(scr, scr->enemy[sls.cnt-1]))
+			sls.cnt--;
 			
-		if(sle_cnt > 0)
+		if(sls.cnt > 0)
 		{
-			if(addenemy(screen, x,y,scr->enemy[--sle_cnt],0))
+			if(addenemy(screen, x,y,scr->enemy[--sls.cnt],0))
 			{
 				if (((enemy*)guys.spr(enemy_slot))->type != eeTEK)
 				{
@@ -18961,7 +18985,7 @@ static void side_load_enemies(mapscr* scr)
 		}
 	}
 	
-	if(sle_cnt<=0)
+	if(sls.cnt<=0)
 	{
 		if (script_sle[screen])
 			script_sle[screen] = false;
@@ -18969,7 +18993,7 @@ static void side_load_enemies(mapscr* scr)
 		{
 			get_screen_state(screen).loaded_enemies = true;
 		}
-		sle_clk = 0;
+		sls.clk = 0;
 	}
 }
 
@@ -19280,7 +19304,7 @@ bool scriptloadenemies(int screen)
 	if (!replay_compat_enemies_load_bug)
 		state.loaded_enemies = true;
 
-	if (sle_clk || script_sle[screen]) return false;
+	if (get_side_load_state(screen).clk || script_sle[screen]) return false;
 
 	mapscr* scr = get_scr(screen);
 	if(scr->pattern==pNOSPAWN) return false;

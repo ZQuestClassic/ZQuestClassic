@@ -15,11 +15,11 @@ extern bool adjustmagic;
 extern bool learnslash;
 extern int32_t itemindex;
 extern int32_t wallm_load_clk;
-extern int32_t sle_x,sle_y,sle_cnt,sle_clk;
 extern int32_t vhead;
 extern bool enemy_spawning_has_checked_been_here;
 
 void guys_init_game_vars();
+void reset_side_load_states();
 
 int32_t random_layer_enemy(int screen);
 int32_t count_layer_enemies(int screen);
@@ -883,8 +883,6 @@ void never_return(int32_t screen, int32_t index);
 bool hasBoss();
 bool slowguy(int32_t id);
 void load_default_enemies(mapscr* scr);
-void nsp(bool random);
-int32_t next_side_pos(int32_t screen, bool random);
 bool can_side_load(int32_t id);
 bool scriptloadenemies(int screen);
 void loadenemies();
