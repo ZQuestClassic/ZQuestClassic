@@ -10222,6 +10222,9 @@ heroanimate_skip_liftwpn:;
 		fairyclk = holdclk = refill_why = 0;
 	}
 	
+	// In a scrolling region, timed warps deliberately use only the origin (top-left) screen's
+	// settings. Ticking whichever screen the hero currently occupies would make the effective timer
+	// erratic as the hero moves around.
 	if((!activated_timed_warp) && (origin_scr->timedwarptics>0))
 	{
 		origin_scr->timedwarptics--;
