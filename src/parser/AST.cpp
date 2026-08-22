@@ -446,185 +446,7 @@ pair<string, string> ASTFloat::parseValue() const
 
 	return pair<string,string>(intpart, fpart);
 }
-int32_t ASTFloat::getValue()
-{
-	string f = value;
-	int32_t outval = 0;
-	bool is_long = false;
-	bool alt = false;
-	bool neg = negative;
-	switch(type)
-	{
-		case TYPE_L_DECIMAL: case TYPE_L_BINARY: case TYPE_L_HEX: case TYPE_L_OCTAL:
-		case TYPE_L_BINARY_2: case TYPE_L_OCTAL_2:
-			is_long = true;
-			break;
-	}
-	switch(type)
-	{
-		case TYPE_BINARY_2: case TYPE_L_BINARY_2:
-		case TYPE_OCTAL_2: case TYPE_L_OCTAL_2:
-			alt = true;
-			break;
-	}
 
-	switch(type)
-	{
-		case TYPE_DECIMAL:
-		{
-			bool founddot = false;
-
-			for(size_t i=0; i<f.size(); i++)
-			{
-				if(f.at(i) == '.')
-				{
-					if(int q = 4-(f.size()-i-1); q > 0)
-						f += string(q, '0'); // add trailing 0s
-					outval = std::stoi(f.substr(0,i))*10000 + std::stoi(f.substr(i+1,4));
-					founddot = true;
-					break;
-				}
-			}
-
-			if(!founddot)
-			{
-				outval = std::stoi(f)*10000;
-			}
-
-			if(neg) outval = -outval;
-			break;
-		}
-		
-		case TYPE_L_DECIMAL:
-		{
-			// Trim off the "L".
-			f = f.substr(0,f.size()-1);
-			outval = std::stoi(f);
-			if(neg) outval = -outval;
-			break;
-		}
-		
-		case TYPE_L_HEX:
-		case TYPE_HEX:
-		{
-			if(is_long)
-			{
-				// Trim off the "0x" and "L".
-				f = f.substr(2,f.size()-3);
-			}
-			else
-			{
-				// Trim off the "0x".
-				f = f.substr(2,f.size()-2);
-			}
-			// Parse the hex.
-			for(size_t i=0; i<f.size(); i++)
-			{
-				char d = f.at(i);
-				outval*=16;
-
-				if('0' <= d && d <= '9')
-					outval+=(d-'0');
-				else if('A' <= d && d <= 'F')
-					outval+=(10+d-'A');
-				else
-					outval+=(10+d-'a');
-			}
-		
-			if(neg && outval > 0) outval *= -1;
-			break;
-		}
-
-		case TYPE_OCTAL:
-		case TYPE_L_OCTAL:
-		case TYPE_OCTAL_2:
-		case TYPE_L_OCTAL_2:
-		{
-			if(alt)
-			{
-				//Trim '0o' prefix
-				f = f.substr(2,f.size()-2);
-				if(is_long) //...and 'L' suffix
-					f = f.substr(0,f.size()-1);
-			}
-			else if(is_long)
-			{
-				// Trim off the "oL".
-				f = f.substr(0,f.size()-2);
-			}
-			else
-			{
-				// Trim off the "o".
-				f = f.substr(0,f.size()-1);
-			}
-			// Parse the octal.
-			for(size_t i=0; i<f.size(); i++)
-			{
-				char d = f.at(i);
-				outval*=8;
-
-				outval+=(d-'0');
-			}
-		
-			if(neg && outval > 0) outval *= -1;
-			break;
-		}
-
-		case TYPE_BINARY:
-		case TYPE_L_BINARY:
-		case TYPE_BINARY_2:
-		case TYPE_L_BINARY_2:
-		{
-			if(alt)
-			{
-				//Trim '0b' prefix
-				f = f.substr(2,f.size()-2);
-				if(is_long) //...and 'L' suffix
-					f = f.substr(0,f.size()-1);
-			}
-			else if(is_long)
-			{
-				//trim 'Lb' / 'bL' suffix
-				f = f.substr(0,f.size()-2);
-			}
-			else
-			{
-				//trim 'b' suffix
-				f = f.substr(0,f.size()-1);
-			}
-			if(is_long)
-			{
-				if(f.size() > 32)
-				{
-					f = f.substr(f.size() - 32, 32);
-				}
-				if(f.size() == 32)
-				{
-					/*if(f.find_first_of('0') == string::npos)
-					{
-						val2 = -1;
-						goto parselong_skipbinary;
-					}*/
-				}
-			}
-			else if(f.size() > 18)
-			{
-				f = f.substr(f.size() - 18, 18);
-			}
-			
-			for(size_t i=0; i<f.size(); i++)
-			{
-				outval<<=1;
-				if(f.at(i) == '1') outval |= 1;
-			}
-
-			if(neg && outval > 0) outval *= -1;
-			break;
-		}
-	}
-
-	return outval;
-}
 // ASTString
 
 ASTString::ASTString(const char* str, LocationData const& location)
@@ -663,6 +485,23 @@ void ASTStringList::execute(ASTVisitor& visitor, void* param)
 
 // ASTAnnotation
 
+string AnnotParam_Raw::to_string(CompileErrorHandler* errorHandler, Scope* scope)
+{
+	switch (ty)
+	{
+		case Type::STRING:
+			return fmt::format("\"{}\"", strval->getValue());
+		case Type::IDENTIFIER:
+			return identval->asString();
+		case Type::EXPR_CONST:
+			if (auto v = exprval->getCompileTimeValue(errorHandler, scope))
+				return zslongToFix(*v).str_trim();
+			break;
+		case Type::NONE:
+			return "<NIL_VALUE>";
+	}
+	return "<BAD_VALUE>";
+}
 ASTAnnotation::ASTAnnotation(LocationData const& location)
 	: AST(location), key(), params()
 {}
@@ -1283,6 +1122,9 @@ ASTDataDeclList::ASTDataDeclList(ASTDataDeclList const& other)
 			decl->baseType.release();
 		addDeclaration(decl);
 	}
+	data_annotation.reset();
+	if (other.data_annotation)
+		data_annotation = other.data_annotation->clone();
 }
 
 ASTDataDeclList& ASTDataDeclList::operator=(ASTDataDeclList const& rhs)
@@ -1299,6 +1141,9 @@ ASTDataDeclList& ASTDataDeclList::operator=(ASTDataDeclList const& rhs)
 			decl->baseType.release();
 		addDeclaration(decl);
 	}
+	data_annotation.reset();
+	if (rhs.data_annotation)
+		data_annotation = rhs.data_annotation->clone();
 
 	readonly = rhs.readonly;
 	internal = rhs.internal;
@@ -1337,7 +1182,22 @@ ASTDataEnum::ASTDataEnum(LocationData const& location)
 
 ASTDataEnum::ASTDataEnum(ASTDataEnum const& other)
 	: ASTDataDeclList(other)
-{}
+{
+	enum_annotation.reset();
+	if (other.enum_annotation)
+		enum_annotation = other.enum_annotation->clone();
+}
+
+ASTDataEnum& ASTDataEnum::operator=(ASTDataEnum const& rhs)
+{
+	ASTDataDeclList::operator=(rhs);
+	
+	enum_annotation.reset();
+	if (rhs.enum_annotation)
+		enum_annotation = rhs.enum_annotation->clone();
+	
+	return *this;
+}
 
 std::optional<LocationData> ASTDataEnum::getIdentifierLocation() const
 {

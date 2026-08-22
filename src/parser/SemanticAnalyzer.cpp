@@ -312,6 +312,7 @@ void SemanticAnalyzer::caseStmtForEach(ASTStmtForEach& host, void* param)
 
 void SemanticAnalyzer::caseStmtRangeLoop(ASTStmtRangeLoop& host, void* param)
 {
+	if (!parse_annotations_loop(host)) return;
 	//Use sub-scope
 	{
 		ScopeReverter sr(&scope);
@@ -546,97 +547,11 @@ void SemanticAnalyzer::caseDataDeclList(ASTDataDeclList& host, void*)
 			return;
 		}
 		
-		if (host.was_exported && host.getDeclarations().size() > 1)
-		{
-			handleError(CompileError::Error(&host, "@Export() can't be used on multi-variable declarations!"));
+		if (!parse_annotations_data(host))
 			return;
-		}
 	}
 	// Recurse on list contents.
 	visit_vec(host.getDeclarations());
-}
-
-void SemanticAnalyzer::caseDataEnum(ASTDataEnum& host, void* param)
-{
-	if(host.registered())
-	{
-		visit_vec(host.getDeclarations());
-		return;
-	}
-	// Resolve the base type.
-	DataType const* baseType = &host.baseType->resolve(*scope, this);
-	if (breakRecursion(*host.baseType.get())) return;
-	if (!baseType->isResolved())
-	{
-		handleError(CompileError::UnresolvedType(&host, baseType->getName()));
-		return;
-	}
-
-	// Don't allow void/auto types.
-	if (baseType->isVoid() || baseType->isAuto())
-	{
-		handleError(CompileError::BadVarType(&host, host.asString(), baseType->getName()));
-		return;
-	}
-	
-	host.is_static = !scope->getFunctionScope();
-
-	//Handle initializer assignment
-	zfix value = 0;
-	auto bitmode = host.getBitMode();
-	switch(bitmode)
-	{
-		case ASTDataEnum::BIT_INT:
-			value = 1;
-			break;
-		case ASTDataEnum::BIT_LONG:
-			value = 0.0001_zf;
-			break;
-	}
-	bool is_first = true;
-	std::vector<ASTDataDecl*> decls = host.getDeclarations();
-	for(vector<ASTDataDecl*>::iterator it = decls.begin();
-		it != decls.end(); ++it)
-	{
-		ASTDataDecl* declaration = *it;
-		ASTExpr* init = declaration->getInitializer();
-		if(!init) //auto-fill
-		{
-			if(!is_first)
-			{
-				if(host.increment_val)
-					value += *host.increment_val;
-				else if(bitmode)
-					value *= 2;
-				else if(baseType->isLong())
-					value += 0.0001_zf;
-				else value += 1;
-			}
-			ASTNumberLiteral* lit = new ASTNumberLiteral(new ASTFloat(value.getTrunc(), value.getZLongDPart(), host.location), host.location);
-			declaration->setInitializer(lit);
-		}
-		is_first = false;
-		visit(declaration, param);
-		if(breakRecursion(host, param)) return;
-		if(init) //Set spot for next auto-fill, enforce const-ness
-		{
-			scope->in_static_init = host.is_static;
-			std::optional<int32_t> v = init->getCompileTimeValue(this, scope);
-			scope->in_static_init = false;
-			if(v)
-			{
-				value = zslongToFix(*v);
-				// Should we WARN here if 'bitmode' is on? This could break the doubling increment....
-				// Could maybe warn only if not assigned to an exact power of 2 (based on mode)?
-			}
-			else
-			{
-				handleError(CompileError::ExprNotConstant(declaration));
-				return;
-			}
-		}
-		if(breakRecursion(host, param)) return;
-	}
 }
 
 void SemanticAnalyzer::caseDataDecl(ASTDataDecl& host, void*)
@@ -898,6 +813,8 @@ void SemanticAnalyzer::caseFuncDecl(ASTFuncDecl& host, void* param)
 
 void SemanticAnalyzer::caseScript(ASTScript& host, void* param)
 {
+	if (!parse_annotations_script(host))
+		return;
 	if(!host.script)
 	{
 		host.script = program.addScript(host, *scope, this);

@@ -1,10 +1,8 @@
-void badAnnotation()
-{
-    @AlwaysRunEndpoint("invalid")
-    loop(int x in [0,16), 4) {
 
-    }
-}
+enum foo
+{
+	A, B, C
+};
 
 @Authors("asd"),
 @Author(1),
@@ -21,6 +19,15 @@ void badAnnotation()
 @ExportInitD0("Overlap"),
 @ExportInitD8("Doesn't Exist")
 ffc script BadAnnotatedScript
+{
+	void run(){}
+}
+
+@Author(),
+@ExportInitD0(2),
+@InitD1(foo),
+@InitD2(A)
+ffc script BadAnnotatedScript2
 {
 	void run(){}
 }

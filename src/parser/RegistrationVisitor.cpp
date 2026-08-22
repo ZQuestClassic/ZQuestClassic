@@ -33,7 +33,7 @@ int32_t StringToVar(std::string var);
 // RegistrationVisitor
 
 RegistrationVisitor::RegistrationVisitor(Program& program)
-	: RegBaseVisitor(program), hasChanged(false)
+	: RegBaseVisitor(program)
 {
 	scope = &program.getScope();
 	caseRoot(program.getRoot());
@@ -45,18 +45,6 @@ void RegistrationVisitor::visit(AST& node, void* param)
 	if(node.isDisabled()) return; //Don't visit disabled nodes.
 	if(registered(node)) return; //Don't double-register
 	RecursiveVisitor::visit(node, param);
-}
-
-template <class Container>
-void RegistrationVisitor::block_regvisit_vec(Container const& nodes, void* param)
-{
-	for (auto it = nodes.cbegin();
-		 it != nodes.cend(); ++it)
-	{
-		failure_temp = false;
-		visit(**it, param);
-		if(failure_halt) return;
-	}
 }
 
 void RegistrationVisitor::caseDefault(AST& host, void*)
@@ -162,6 +150,9 @@ void RegistrationVisitor::caseSetOption(ASTSetOption& host, void* param)
 // Declarations
 void RegistrationVisitor::caseScript(ASTScript& host, void* param)
 {
+	if (!parse_annotations_script(host))
+		return;
+	
 	visit(host.type.get());
 	if(!registered(host.type.get())) return;
 	
@@ -599,111 +590,20 @@ void RegistrationVisitor::caseDataDeclList(ASTDataDeclList& host, void*)
 		handleError(CompileError::GroupAuto(&host));
 		return;
 	}
-	
-	if (host.was_exported && host.getDeclarations().size() > 1)
-	{
-		handleError(CompileError::Error(&host, "@Export() can't be used on multi-variable declarations!"));
-		return;
-	}
-	
+		
 	if (!host.handled_staticness)
 	{
 		handle_staticness(&host, host.is_static, host.is_nonstatic, scope, false);
 		host.handled_staticness = true;
 	}
-
+	
 	if (breakRecursion(host)) return;
+	if (!parse_annotations_data(host))
+		return;
+
 	// Recurse on list contents.
 	visit_vec(host.getDeclarations());
 	if (breakRecursion(host)) return;
-	if(registered_vec(host.getDeclarations())) doRegister(host);
-}
-
-void RegistrationVisitor::caseDataEnum(ASTDataEnum& host, void* param)
-{
-	// Resolve the base type.
-	DataType const* baseType = host.baseType->resolve_ornull(*scope, this);
-    if (breakRecursion(*host.baseType.get())) return;
-	if (!baseType) return;
-	
-	host.is_static = !scope->getFunctionScope();
-	
-	// Don't allow void/auto types.
-	if (baseType->isVoid() || baseType->isAuto())
-	{
-		handleError(CompileError::BadVarType(&host, host.asString(), baseType->getName()));
-		doRegister(host);
-		return;
-	}
-
-	//Handle initializer assignment
-	zfix value = 0;
-	auto bitmode = host.getBitMode();
-	switch(bitmode)
-	{
-		case ASTDataEnum::BIT_INT:
-			value = 1;
-			break;
-		case ASTDataEnum::BIT_LONG:
-			value = 0.0001_zf;
-			break;
-	}
-	bool is_first = true;
-	std::vector<ASTDataDecl*> decls = host.getDeclarations();
-	for(vector<ASTDataDecl*>::iterator it = decls.begin();
-		it != decls.end(); ++it)
-	{
-		ASTDataDecl* declaration = *it;
-		if(ASTExpr* init = declaration->getInitializer())
-		{
-			scope->in_static_init = host.is_static;
-			visit(init);
-			std::optional<int32_t> v;
-			if(registered(init))
-				v = init->getCompileTimeValue(this, scope);
-			scope->in_static_init = false;
-			if (v)
-				value = zslongToFix(*v);
-			else return;
-		}
-		else
-		{
-			if(!is_first)
-			{
-				if(host.increment_val)
-					value += *host.increment_val;
-				else if(bitmode)
-				{
-					if (value == 0)
-						value = bitmode == ASTDataEnum::BIT_INT ? 1_zf : 0.0001_zf;
-					else
-						value *= 2;
-					uint32_t value_to_check = bitmode == ASTDataEnum::BIT_INT ? value.getInt() : value.getZLong();
-					if (!std::has_single_bit(value_to_check))
-					{
-						handleError(CompileError::Error(declaration,
-							fmt::format("Auto-assigned values for bitflags members must be a power-of-two, but got: {}\n{}",
-							value,
-							"Either change the previous member to be a power-of-two, or explicitly initialize this member.")));
-						doRegister(host);
-						return;
-					}
-				}
-				else if(baseType->isLong())
-					value += 0.0001_zf;
-				else value += 1;
-			}
-			ASTNumberLiteral* lit = new ASTNumberLiteral(new ASTFloat(value.getTrunc(), value.getZLongDPart(), host.location), host.location);
-			declaration->setInitializer(lit);
-		}
-		is_first = false;
-		visit(declaration, param);
-		if(breakRecursion(host, param))
-		{
-			if(registered(declaration)) doRegister(host); //Decl errored, but registered; fatal error
-			return;
-		}
-	}
 	if(registered_vec(host.getDeclarations())) doRegister(host);
 }
 
@@ -1565,28 +1465,6 @@ void RegistrationVisitor::analyzeBinaryExpr(ASTBinaryExpr& host)
 	if (breakRecursion(host)) return;
 	if((registered(host.left.get()) && registered(host.right.get()))) doRegister(host);
 }
-
-bool RegistrationVisitor::registered(AST& node) const
-{
-	return node.registered();
-}
-
-bool RegistrationVisitor::registered(AST* node) const
-{
-	if(node) return registered(*node);
-	return true;
-}
-
-template <class Container>
-bool RegistrationVisitor::registered_vec(Container const& nodes) const
-{
-	for(auto it = nodes.cbegin(); it != nodes.cend(); ++it)
-	{
-		if(!registered(*it)) return false;
-	}
-	return true;
-}
-
 
 void RegistrationVisitor::handle_staticness(AST* node, bool& is_static, bool is_nonstatic, Scope* target_scope, bool disallow)
 {

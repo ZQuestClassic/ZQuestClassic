@@ -1,0 +1,69 @@
+stderr:
+
+Compiling 'errors_annotations_3.zs'
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+Pass 4: Analyzing Code
+errors_annotations_3.zs Line 9 @ Columns 13-16 - Error S009: Variable foo has not been declared.
+
+ 7    void badAnnotation()
+ 8    {
+ 9        @Increment(foo)
+                     ^~~
+
+
+errors_annotations_3.zs Line 15 @ Column 2 - Line 17 @ Column 3 - Error S114: Annotation '@AlwaysRunEndpoint' expected "off", "int", "float", or "long", but got "invalid"
+
+13        };
+14        @AlwaysRunEndpoint("invalid")
+15        loop(int x in [0,16), 4) {
+16    
+17        }
+
+
+Failure!
+Compile finished with exit code '9' (compiled with errors)
+
+stdout:
+
+{
+  "success": false,
+  "code": 9,
+  "diagnostics": [
+    {
+      "range": {
+        "start": {
+          "line": 8,
+          "character": 12
+        },
+        "end": {
+          "line": 8,
+          "character": 15
+        }
+      },
+      "severity": 1,
+      "message": "S009: Variable foo has not been declared."
+    },
+    {
+      "range": {
+        "start": {
+          "line": 14,
+          "character": 1
+        },
+        "end": {
+          "line": 16,
+          "character": 2
+        }
+      },
+      "severity": 1,
+      "message": "S114: Annotation '@AlwaysRunEndpoint' expected \"off\", \"int\", \"float\", or \"long\", but got \"invalid\""
+    }
+  ],
+  "metadata": {
+    "currentFileSymbols": 9,
+    "symbols": 6,
+    "identifiers": 6,
+    "elided": true
+  }
+}
