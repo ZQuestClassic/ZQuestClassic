@@ -375,6 +375,7 @@ int32_t read_one_ffscript(PACKFILE *f, zquestheader *, [[maybe_unused]] int32_t 
 	ASSERT(script);
 	if(s_version < 27)
 		return read_old_ffscript(f, s_version, script, zmeta_version);
+	PackfileVersionHandler handler {packfile_v_exported_variable, s_version >= 31 ? 1 : 0};
 
 	char exists;
 	if (!p_getc(&exists, f))

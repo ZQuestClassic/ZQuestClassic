@@ -12,445 +12,66 @@ extern int32_t readsize, writesize;
 extern bool fake_pack_writing;
 #define new_return(x) {assert(x == 0); fake_pack_writing = false; return x; }
 
+#define V_EXPORTED_VARIABLE 1
+extern int packfile_v_exported_variable;
+
+struct PackfileVersionHandler
+{
+	int& ref;
+	int old_ver;
+	int new_ver;
+	PackfileVersionHandler(int& ref, int new_ver);
+	~PackfileVersionHandler();
+};
+
 bool pfwrite(const char *p,int32_t n,PACKFILE *f);
+bool pfwrite(const void *p,int32_t n,PACKFILE *f);
 
-inline bool pfwrite(const void *p,int32_t n,PACKFILE *f)
-{
-	bool success=true;
-	
-	if(!fake_pack_writing)
-	{
-		success=(pack_fwrite(p,n,f)==n);
-	}
-	
-	if(success)
-	{
-		writesize+=n;
-	}
-	
-	return success;
-}
+bool pfread(void *p,int n,PACKFILE *f,bool allow_less = false);
+bool p_getc(void *p,PACKFILE *f);
+bool p_putc(int32_t c,PACKFILE *f);
+bool p_igetw(void *p,PACKFILE *f);
+bool p_iputw(int32_t c,PACKFILE *f);
+bool p_igetl(void *p,PACKFILE *f);
+bool p_igetzf(void *p,PACKFILE *f);
+bool p_igetd(void *p, PACKFILE *f);
+bool p_igetf_DO_NOT_USE(void *p,PACKFILE *f); // Floats are not serializable, do not use!
+bool p_iputl(int32_t c,PACKFILE *f);
+bool p_iputzf(zfix const& c,PACKFILE *f);
+bool p_mgetw(void *p,PACKFILE *f);
+bool p_mputw(int32_t c,PACKFILE *f);
+bool p_mgetl(void *p,PACKFILE *f);
+bool p_mputl(int32_t c,PACKFILE *f);
 
-inline bool pfread(void *p,int n,PACKFILE *f,bool allow_less = false)
-{
-	auto count = pack_fread(p,n,f);
-	bool success = allow_less || count==n;
-	
-	if(success)
-		readsize += count;
-	
-	return success;
-}
+bool p_getstr(char *str, size_t sz, PACKFILE *f);
+bool p_getstr(string *str, size_t sz, PACKFILE *f);
+bool p_putstr(char const* str, size_t sz, PACKFILE *f);
+bool p_putstr(string const& str, size_t sz, PACKFILE *f);
 
-inline bool p_getc(void *p,PACKFILE *f)
-{
-	uint8_t *cp = (uint8_t *)p;
-	int32_t c;
-	
-	if(!f) return false;
-	
+bool p_getcstr(string *str, PACKFILE *f);
+bool p_putcstr(string const& str, PACKFILE *f);
+bool p_getwstr(string *str, PACKFILE *f);
+bool p_putwstr(string const& str, PACKFILE *f);
+bool p_getlstr(string *str, PACKFILE *f);
+bool p_putlstr(string const& str, PACKFILE *f);
 
-	if(f->normal.flags&PACKFILE_FLAG_WRITE) return false;     //must not be writing to file
-	
-	if(pack_feof(f))
-	{
-		return false;
-	}
-	
-	c = pack_getc(f);
-	
-	if(pack_ferror(f))
-	{
-		return false;
-	}
-	
-	*cp = c;
-	
-	readsize+=1;
-	return true;
-}
+bool p_getbitstr(bitstring* ptr, PACKFILE *f);
+bool p_putbitstr(bitstring const& ptr, PACKFILE *f);
 
-inline bool p_putc(int32_t c,PACKFILE *f)
-{
-	bool success=true;
-	
-	if(!fake_pack_writing)
-	{
-		if(!f) return false;
-		
+bool p_getvar(zfix* ptr, PACKFILE *f);
+bool p_putvar(zfix const& ptr, PACKFILE *f);
 
-		if(!(f->normal.flags&PACKFILE_FLAG_WRITE)) return false;  //must be writing to file
-		
-		pack_putc(c,f);
-		success=(pack_ferror(f)==0);
-	}
-	
-	if(success)
-	{
-		writesize+=1;
-	}
-	
-	return success;
-}
+bool p_getvar(string* ptr, PACKFILE *f);
+bool p_putvar(string const& ptr, PACKFILE *f);
 
-inline bool p_igetw(void *p,PACKFILE *f)
-{
-	int16_t *cp = (int16_t *)p;
-	int32_t c;
-	
-	if(!f) return false;
-	
+bool p_getvar(exported_variable* ptr, PACKFILE *f);
+bool p_putvar(exported_variable const& ptr, PACKFILE *f);
+bool p_getvar(script_config_nosavescript* ptr, PACKFILE *f);
+bool p_putvar(script_config_nosavescript const& ptr, PACKFILE *f);
+bool p_getvar(script_config* ptr, PACKFILE *f);
+bool p_putvar(script_config const& ptr, PACKFILE *f);
 
-	if(f->normal.flags&PACKFILE_FLAG_WRITE) return false;     //must not be writing to file
-	
-	if(pack_feof(f))
-	{
-		return false;
-	}
-	
-	c = pack_igetw(f);
-	
-	if(pack_ferror(f))
-	{
-		return false;
-	}
-	
-	*cp = c;
-	
-	readsize+=2;
-	return true;
-}
 
-inline bool p_iputw(int32_t c,PACKFILE *f)
-{
-	bool success=true;
-	
-	if(!fake_pack_writing)
-	{
-		if(!f) return false;
-		
-
-		if(!(f->normal.flags&PACKFILE_FLAG_WRITE)) return false;  //must be writing to file
-		
-		pack_iputw(c,f);
-		success=(pack_ferror(f)==0);
-	}
-	
-	if(success)
-	{
-		writesize+=2;
-	}
-	
-	return success;
-}
-
-inline bool p_igetl(void *p,PACKFILE *f)
-{
-	dword *cp = (dword *)p;
-	int32_t c;
-	
-	if(!f) return false;
-	
-
-	if(f->normal.flags&PACKFILE_FLAG_WRITE) return false;     //must not be writing to file
-	
-	if(pack_feof(f))
-	{
-		return false;
-	}
-	
-	c = pack_igetl(f);
-	
-	if(pack_ferror(f))
-	{
-		return false;
-	}
-	
-	*cp = c;
-	
-	readsize+=4;
-	return true;
-}
-
-inline bool p_igetzf(void *p,PACKFILE *f)
-{
-	zfix *cp = (zfix *)p;
-	int32_t c;
-	
-	if(!f) return false;
-	
-
-	if(f->normal.flags&PACKFILE_FLAG_WRITE) return false;     //must not be writing to file
-	
-	if(pack_feof(f))
-	{
-		return false;
-	}
-	
-	c = pack_igetl(f);
-	
-	if(pack_ferror(f))
-	{
-		return false;
-	}
-	
-	*cp = zslongToFix(c);
-	
-	readsize+=4;
-	return true;
-}
-
-inline bool p_igetd(void *p, PACKFILE *f)
-{
-	int32_t temp;
-	bool result = p_igetl(&temp,f);
-	*(int32_t *)p=(int32_t)temp;
-	return result;
-}
-
-// Floats are not serializable, do not use!
-inline bool p_igetf_DO_NOT_USE(void *p,PACKFILE *f)
-{
-	if(!f) return false;
-	
-
-	if(f->normal.flags&PACKFILE_FLAG_WRITE) return false;     //must not be writing to file
-	
-	if(pack_feof(f))
-	{
-		return false;
-	}
-	
-	byte tempfloat[sizeof(float)];
-	
-	if(!pfread(tempfloat,sizeof(float),f))
-		return false;
-		
-	memset(p, 0,sizeof(float));
-#ifdef ALLEGRO_MACOSX
-	
-	for(int32_t i=0; i<(int32_t)sizeof(float); i++)
-	{
-		((byte *)p)[i] = tempfloat[i];
-	}
-	
-#else
-	
-	for(int32_t i=0; i<(int32_t)sizeof(float); i++)
-	{
-		((byte *)p)[sizeof(float)-i-1] = tempfloat[i];
-	}
-	
-#endif
-	
-	readsize += sizeof(float);
-	return true;
-}
-
-inline bool p_iputl(int32_t c,PACKFILE *f)
-{
-	bool success=true;
-	
-	if(!fake_pack_writing)
-	{
-		if(!f) return false;
-		
-
-		if(!(f->normal.flags&PACKFILE_FLAG_WRITE)) return false;  //must be writing to file
-		
-		pack_iputl(c,f);
-		success=(pack_ferror(f)==0);
-	}
-	
-	if(success)
-	{
-		writesize+=4;
-	}
-	
-	return success;
-}
-
-inline bool p_iputzf(zfix const& c,PACKFILE *f)
-{
-	bool success=true;
-	
-	if(!fake_pack_writing)
-	{
-		if(!f) return false;
-		
-
-		if(!(f->normal.flags&PACKFILE_FLAG_WRITE)) return false;  //must be writing to file
-		
-		pack_iputl(c.getZLong(),f);
-		success=(pack_ferror(f)==0);
-	}
-	
-	if(success)
-	{
-		writesize+=4;
-	}
-	
-	return success;
-}
-
-inline bool p_mgetw(void *p,PACKFILE *f)
-{
-	int16_t *cp = (int16_t *)p;
-	int32_t c;
-	
-	if(!f) return false;
-	
-
-	if(f->normal.flags&PACKFILE_FLAG_WRITE) return false;     //must not be writing to file
-	
-	if(pack_feof(f))
-	{
-		return false;
-	}
-	
-	c = pack_mgetw(f);
-	
-	if(pack_ferror(f))
-	{
-		return false;
-	}
-	
-	*cp = c;
-	
-	readsize+=2;
-	return true;
-}
-
-inline bool p_mputw(int32_t c,PACKFILE *f)
-{
-	bool success=true;
-	
-	if(!fake_pack_writing)
-	{
-		if(!f) return false;
-		
-
-		if(!(f->normal.flags&PACKFILE_FLAG_WRITE)) return false;  //must be writing to file
-		
-		pack_mputw(c,f);
-		success=(pack_ferror(f)==0);
-	}
-	
-	if(success)
-	{
-		writesize+=2;
-	}
-	
-	return success;
-}
-
-inline bool p_mgetl(void *p,PACKFILE *f)
-{
-	dword *cp = (dword *)p;
-	int32_t c;
-	
-	if(!f) return false;
-	
-
-	if(f->normal.flags&PACKFILE_FLAG_WRITE) return false;     //must not be writing to file
-	
-	if(pack_feof(f))
-	{
-		return false;
-	}
-	
-	c = pack_mgetl(f);
-	
-	if(pack_ferror(f))
-	{
-		return false;
-	}
-	
-	*cp = c;
-	
-	readsize+=4;
-	return true;
-}
-
-inline bool p_mputl(int32_t c,PACKFILE *f)
-{
-	bool success=true;
-	
-	if(!fake_pack_writing)
-	{
-		if(!f) return false;
-		
-
-		if(!(f->normal.flags&PACKFILE_FLAG_WRITE)) return false;  //must be writing to file
-		
-		pack_mputl(c,f);
-		success=(pack_ferror(f)==0);
-	}
-	
-	if(success)
-	{
-		writesize+=4;
-	}
-	
-	return success;
-}
-
-inline bool p_getstr(char *str, size_t sz, PACKFILE *f)
-{
-	size_t read = pack_fread(str, sz, f);
-	bool success = read == sz;
-	str[read] = '\0';
-	if (success)
-		readsize += read;
-	return success;
-}
-
-static std::optional<std::unique_ptr<char[]>> allocate_string_buffer(size_t sz)
-{
-	// A 100+ MB string is far beyond a reasonable size. File must be corrupt.
-	if (sz >= 1e+8)
-		return std::nullopt;
-
-	auto buf2 = std::make_unique<char[]>(sz + 1);
-	buf2[sz] = '\0';
-	return buf2;
-}
-
-inline bool p_getstr(string *str, size_t sz, PACKFILE *f)
-{
-	auto buf = allocate_string_buffer(sz);
-	if (!buf.has_value())
-		return false;
-
-	if (!pfread(buf->get(), sz, f))
-		return false;
-	*str = buf->get();
-	return true;
-}
-inline bool p_putstr(char const* str, size_t sz, PACKFILE *f)
-{
-	return pfwrite(str,sz,f);
-}
-inline bool p_putstr(string const& str, size_t sz, PACKFILE *f)
-{
-	if(str.size() < sz)
-	{
-		if(!pfwrite(str.data(),str.size(),f))
-			return false;
-		for(int q = str.size(); q < sz; ++q)
-			if(!p_putc(0,f))
-				return false;
-		return true;
-	}
-	return pfwrite(str.data(),sz,f);
-}
-
-inline bool p_getcstr(string *str, PACKFILE *f);
-inline bool p_putcstr(string const& str, PACKFILE *f);
-inline bool p_getwstr(string *str, PACKFILE *f);
-inline bool p_putwstr(string const& str, PACKFILE *f);
-inline bool p_getlstr(string *str, PACKFILE *f);
-inline bool p_putlstr(string const& str, PACKFILE *f);
 template<typename T>
 inline bool p_getcvec(vector<T> *vec, PACKFILE *f);
 template<typename T>
@@ -502,9 +123,6 @@ inline bool p_getpair(def_pair<A,B>* cont, PACKFILE *f);
 template<typename A, typename B>
 inline bool p_putpair(def_pair<A,B> const& cont, PACKFILE *f);
 
-bool p_getbitstr(bitstring* ptr, PACKFILE *f);
-bool p_putbitstr(bitstring const& ptr, PACKFILE *f);
-
 template<integral_type T>
 inline bool p_getvar(T* ptr, PACKFILE *f)
 {
@@ -528,7 +146,6 @@ inline bool p_putvar(T const& ptr, PACKFILE *f)
 		return p_iputl(ptr, f);
 	return pfwrite((char const*)&ptr, sizeof(T), f);
 }
-
 
 template<uint_type Sz,typename T>
 inline bool p_getvar(bounded_vec<Sz,T>* ptr, PACKFILE *f)
@@ -572,15 +189,6 @@ template<typename K, typename V>
 inline bool p_putvar(map<K, V> const& ptr, PACKFILE *f)
 {
 	return p_putlmap(ptr,f);
-}
-
-inline bool p_getvar(string* ptr, PACKFILE *f)
-{
-	return p_getlstr(ptr,f);
-}
-inline bool p_putvar(string const& ptr, PACKFILE *f)
-{
-	return p_putlstr(ptr,f);
 }
 
 template<typename T>
@@ -635,66 +243,6 @@ template<typename A, typename B>
 inline bool p_putvar(def_pair<A,B> const& ptr, PACKFILE *f)
 {
 	return p_putpair(ptr,f);
-}
-
-inline bool p_getvar(exported_variable* ptr, PACKFILE *f)
-{
-	*ptr = exported_variable();
-	if (!p_getcstr(&ptr->name, f))
-		return false;
-	if (!p_getlstr(&ptr->helptext, f))
-		return false;
-	if (!p_getc(&ptr->btn_type, f))
-		return false;
-	if (!p_igetzf(&ptr->min, f))
-		return false;
-	if (!p_igetzf(&ptr->max, f))
-		return false;
-	return true;
-}
-inline bool p_putvar(exported_variable const& ptr, PACKFILE *f)
-{
-	if (!p_putcstr(ptr.name, f))
-		return false;
-	if (!p_putlstr(ptr.helptext, f))
-		return false;
-	if (!p_putc(ptr.btn_type, f))
-		return false;
-	if (!p_iputzf(ptr.min, f))
-		return false;
-	if (!p_iputzf(ptr.max, f))
-		return false;
-	return true;
-}
-
-inline bool p_getvar(script_config_nosavescript* ptr, PACKFILE *f)
-{
-	if (!p_getarr(&ptr->run_args, f))
-		return false;
-	if (!p_getwmap(&ptr->inst_init, f))
-		return false;
-	return true;
-}
-inline bool p_putvar(script_config_nosavescript const& ptr, PACKFILE *f)
-{
-	if (!p_putarr(ptr.run_args, f))
-		return false;
-	if (!p_putwmap(ptr.inst_init, f))
-		return false;
-	return true;
-}
-
-inline bool p_getvar(script_config* ptr, PACKFILE *f)
-{
-	if (!p_igetw(&ptr->script, f))
-		return false;
-	return p_getvar((script_config_nosavescript*)ptr, f);
-}
-inline bool p_putvar(script_config const& ptr, PACKFILE *f)
-{
-	if (!p_iputw(ptr.script, f))
-		return false;
-	return p_putvar((script_config_nosavescript const&)ptr, f);
 }
 
 //
@@ -864,15 +412,6 @@ inline bool p_putbmap(bounded_map<Sz,T> const& cont, PACKFILE *f)
 	return true;
 }
 
-inline bool p_getbitstr(bitstring* ptr, PACKFILE *f)
-{
-	return p_getbvec(&ptr->inner(),f);
-}
-inline bool p_putbitstr(bitstring const& ptr, PACKFILE *f)
-{
-	return p_putbvec(ptr.inner(),f);
-}
-
 template<typename T, size_t Sz>
 inline bool p_getarr(std::array<T,Sz>* cont, PACKFILE *f)
 {
@@ -933,111 +472,6 @@ inline bool p_putpair(def_pair<A,B> const& cont, PACKFILE *f)
 	return true;
 }
 //
-
-inline bool p_getcstr(string *str, PACKFILE *f)
-{
-	byte sz = 0;
-	if(!p_getc(&sz,f))
-	{
-		str->clear();
-		return false;
-	}
-
-	if(sz) //string found
-	{
-		str->reserve(sz);
-		char dummy;
-		for(size_t q = 0; q < sz; ++q)
-		{
-			if(!p_getc(&dummy,f))
-				return false;
-			str->push_back(dummy);
-		}
-	}
-
-	return true;
-}
-inline bool p_putcstr(string const& str, PACKFILE *f)
-{
-	byte sz = byte(zc_min(255,str.size()));
-	if(!p_putc(sz,f))
-		return false;
-	if(sz)
-	{
-		for(size_t q = 0; q < sz; ++q)
-		{
-			if(!p_putc(str.at(q),f))
-				return false;
-		}
-	}
-	return true;
-}
-inline bool p_getwstr(string *str, PACKFILE *f)
-{
-	str->clear();
-	word sz = 0;
-	if(!p_igetw(&sz,f))
-		return false;
-	if(sz)
-	{
-		str->reserve(sz);
-		auto buf = allocate_string_buffer(sz);
-		if (!buf.has_value())
-			return false;
-		if (!pfread(buf->get(), sz, f))
-			return false;
-		*str = buf->get();
-	}
-	return true;
-}
-inline bool p_putwstr(string const& str, PACKFILE *f)
-{
-	word sz = word(zc_min(65535,str.size()));
-	if(!p_iputw(sz,f))
-		return false;
-	if(sz)
-	{
-		for(size_t q = 0; q < sz; ++q)
-		{
-			if(!p_putc(str.at(q),f))
-				return false;
-		}
-	}
-	return true;
-}
-inline bool p_getlstr(string *str, PACKFILE *f)
-{
-	str->clear();
-	dword sz = 0;
-	if(!p_igetl(&sz,f))
-		return false;
-	if(sz)
-	{
-		str->reserve(sz);
-		auto buf = allocate_string_buffer(sz);
-		if (!buf.has_value())
-			return false;
-		if (!pfread(buf->get(), sz, f))
-			return false;
-		*str = buf->get();
-	}
-	return true;
-}
-inline bool p_putlstr(string const& str, PACKFILE *f)
-{
-	dword sz = word(zc_min(UINT32_MAX,str.size()));
-	if(!p_iputl(sz,f))
-		return false;
-	if(sz)
-	{
-		for(size_t q = 0; q < sz; ++q)
-		{
-			if(!p_putc(str.at(q),f))
-				return false;
-		}
-	}
-	return true;
-}
 
 template<typename T>
 inline bool p_getcvec(vector<T> *vec, PACKFILE *f)

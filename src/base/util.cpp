@@ -9,6 +9,7 @@
 #include <iomanip>
 #include <filesystem>
 #include <fmt/format.h>
+#include <fmt/ranges.h>
 #include <sys/stat.h>
 #include <regex>
 #include <system_error>
@@ -1027,22 +1028,8 @@ void clear_clip_rect(BITMAP* bitmap)
 
 static std::string HINT_TY(std::vector<int> vals, dword ty)
 {
-	if(vals.empty()) return "";
-	std::ostringstream oss;
-	bool comma = false;
-	oss << "$#" << ty << "#";
-	for(int v : vals)
-	{
-		if(comma)
-			oss << "," << v;
-		else
-		{
-			comma = true;
-			oss << v;
-		}
-	}
-	oss << "$";
-	return oss.str();
+	if (vals.empty()) return "";
+	return fmt::format("$#{}#{}$", ty, fmt::join(vals, ","));
 }
 std::string QRHINT(std::vector<int> qrs)
 {
@@ -1052,8 +1039,14 @@ std::string RULETMPL_HINT(std::vector<int> tmpls)
 {
 	return HINT_TY(tmpls,INFOHINT_T_RULETMPL);
 }
+std::string INFO_URL(std::string const& text, std::string const& url)
+{
+	if (text.empty() || url.empty())
+		return "";
+	return fmt::format("$[{}]({})$", text, url);
+}
 
-static void _handle_hint_text(string& str, map<uint8_t, set<int>>* out_data)
+static void _handle_hint_text(string& str, InfoTextHintData* out_data)
 {
 	while(true)
 	{
@@ -1069,6 +1062,18 @@ static void _handle_hint_text(string& str, map<uint8_t, set<int>>* out_data)
 		if (!out_data)
 			continue;
 		auto& ret = *out_data;
+		
+		if (sub[0] == '[' && sub.back() == ')') // url parsing
+		{
+			size_t brackpos = sub.find_first_of("]");
+			size_t parenpos = sub.find_last_of("(");
+			if (brackpos == string::npos || parenpos == string::npos)
+				continue; //invalid
+			if (brackpos != parenpos - 1)
+				continue; // invalid
+			ret.urls.emplace_back(sub.substr(1, brackpos-1), sub.substr(parenpos+1, sub.size() - parenpos - 2));
+			continue; // done
+		}
 		
 		uint8_t special_type = INFOHINT_T_QR; //qr by default
 		if(sub[0] == '#') //Special type id given
@@ -1099,7 +1104,7 @@ static void _handle_hint_text(string& str, map<uint8_t, set<int>>* out_data)
 			if(sub2.size() < 1 || sub2.find_first_not_of("0123456789") != string::npos)
 				continue; //invalid
 			int val = atoi(sub2.c_str());
-			ret[special_type].insert(val);
+			ret.hints[special_type].insert(val);
 		}
 	}
 	
@@ -1109,9 +1114,9 @@ void erase_hint_text(string& str)
 {
 	_handle_hint_text(str, nullptr);
 }
-map<uint8_t, set<int>> parse_hint_text(string& str)
+InfoTextHintData parse_hint_text(string& str)
 {
-	map<uint8_t, set<int>> ret;
+	InfoTextHintData ret;
 	_handle_hint_text(str, &ret);
 	return ret;
 }

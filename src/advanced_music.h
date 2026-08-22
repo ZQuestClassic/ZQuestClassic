@@ -1,7 +1,7 @@
 #pragma once
 
 #include "base/headers.h"
-#include "zalleg/packfile.h"
+#include "zalleg/zalleg.h"
 
 #define MAX_QUEST_MUSIC 65535
 

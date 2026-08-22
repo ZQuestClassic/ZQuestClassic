@@ -42,6 +42,9 @@ InfoDialog& InfoDialog::set_text_align(int text_align)
 	return *this;
 }
 
+#define HINT_QRS (hint_data.hints[INFOHINT_T_QR])
+#define HINT_TEMPLATES (hint_data.hints[INFOHINT_T_RULETMPL])
+
 static byte* next_dest_qr = nullptr;
 void InfoDialog::postinit()
 {
@@ -50,18 +53,15 @@ void InfoDialog::postinit()
 	
 	if (get_app_id() == App::zquest)
 	{
-		auto hints = parse_hint_text(d_text);
-		qrs = hints[INFOHINT_T_QR];
-		ruleTemplates = hints[INFOHINT_T_RULETMPL];
+		hint_data = parse_hint_text(d_text);
 	}
 	else
 	{
 		erase_hint_text(d_text);
-		qrs.clear();
-		ruleTemplates.clear();
+		hint_data = {};
 	}
 	
-	if(qrs.size() || ruleTemplates.size())
+	if (!(HINT_QRS.empty() && HINT_TEMPLATES.empty()))
 	{
 		if(!d_dest_qrs)
 			d_dest_qrs = next_dest_qr ? next_dest_qr : quest_rules;
@@ -85,10 +85,12 @@ std::shared_ptr<GUI::Widget> InfoDialog::view()
 	std::shared_ptr<GUI::Grid> closeRow;
 	bool add_grid = false, addok = false;
 	#ifdef IS_EDITOR
+	auto& qrs = HINT_QRS;
+	auto& ruleTemplates = HINT_TEMPLATES;
 	add_grid = addok = qrs.size() || ruleTemplates.size();
-	if(add_grid)
+	if (add_grid)
 		gr = Row(padding = 0_px);
-	if(qrs.size())
+	if (!qrs.empty())
 	{
 		GUI::ListData tosearch = (combinedQRList()+combinedZSRList()).filter(
 			[&](GUI::ListItem& itm)
@@ -97,7 +99,7 @@ std::shared_ptr<GUI::Widget> InfoDialog::view()
 					return true;
 				return false;
 			});
-		if(tosearch.size())
+		if (tosearch.size())
 		{
 			gr->add(Frame(title = "Related QRs",
 				QRPanel(
@@ -111,16 +113,16 @@ std::shared_ptr<GUI::Widget> InfoDialog::view()
 			));
 		}
 	}
-	if(ruleTemplates.size())
+	if (!ruleTemplates.empty())
 	{
 		std::shared_ptr<GUI::Grid> cboxes = Rows<2>();
 		cboxes->add(Label(colSpan = 2, text = "Note: Selecting a rule template"
 			"\nwill write to numerous QRs."));
 		int cnt = 0;
 		auto const& list_rule_templates = GUI::ZCListData::rule_templates_list();
-		for(size_t q = 0; q < list_rule_templates.size(); ++q)
+		for (size_t q = 0; q < list_rule_templates.size(); ++q)
 		{
-			if(!ruleTemplates.contains(q))
+			if (!ruleTemplates.contains(q))
 				continue;
 			string infostr = list_rule_templates.getInfo(q);
 			cboxes->add(infostr.size() ? INFOBTN(infostr) : DINFOBTN());
@@ -134,7 +136,7 @@ std::shared_ptr<GUI::Widget> InfoDialog::view()
 				));
 			++cnt;
 		}
-		if(cnt)
+		if (cnt)
 			gr->add(Frame(title = "Related Rule Templates",cboxes));
 	}
 	#endif
@@ -173,9 +175,31 @@ std::shared_ptr<GUI::Widget> InfoDialog::view()
 			build_text()
 		)
 	);
-	window->setCopyText(d_text);
-	if(add_grid)
+	
+	std::ostringstream oss;
+	oss << d_text;
+	for (auto& [txt, url] : hint_data.urls)
+		oss << fmt::format("\n[{}]({})", txt, url);
+	
+	window->setCopyText(oss.str());
+	
+	if (add_grid)
 		main_col->add(gr);
+	if (!hint_data.urls.empty())
+	{
+		auto url_gr = Rows<4>(padding = 0_px);
+		for (auto& [txt, url] : hint_data.urls)
+		{
+			url_gr->add(Button(text = txt,
+				height = 2_em,
+				onPressFunc = [&, url]()
+				{
+					util::open_web_link(url);
+				}
+			));
+		}
+		main_col->add(url_gr);
+	}
 	main_col->add(closeRow);
 	return window;
 }
@@ -219,7 +243,7 @@ bool InfoDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			#ifdef IS_EDITOR
 			if(d_dest_qrs)
 			{
-				if(ruleTemplates.size())
+				if (!HINT_TEMPLATES.empty())
 				{
 					for(int q = 0; q < sz_ruletemplate; ++q)
 					{

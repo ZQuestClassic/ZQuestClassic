@@ -47,9 +47,28 @@ std::shared_ptr<GUI::Widget> ChecklistDialog::view()
 {
 	using namespace GUI::Builder;
 	using namespace GUI::Props;
-	size_t num_per_col = per_col ? *per_col
-		: size_t((flagnames.size() > 5 && flagnames.size() < 20) ? ((flagnames.size()+1)/2) : 10);
-	auto grid = GUI::Grid::columns(num_per_col);
+	if (!per_col)
+	{
+		auto numflags = flagnames.size();
+		size_t best_per_col = 0;
+		size_t best_remainder = numflags;
+		for (size_t q = vbound(numflags/2, 4, 10); q > 3; --q)
+		{
+			auto rem = numflags % q;
+			if (rem < best_remainder)
+			{
+				best_per_col = q;
+				best_remainder = rem;
+			}
+			if (!rem)
+				break;
+		}
+		if (best_per_col > 0)
+			per_col = best_per_col;
+		else
+			per_col = 10;
+	}
+	auto grid = GUI::Grid::columns(*per_col);
 	bool use_info = false;
 	for(uint q = 0; q < flagnames.size(); ++q)
 		if(!flagnames[q].info.empty())
