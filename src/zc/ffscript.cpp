@@ -9815,16 +9815,25 @@ int32_t run_script_int(JittedScriptInstance* j_instance)
 	bool increment = true;
 	static std::vector<ffscript> empty_zasm = {{0xFFFF}};
 	const auto& zasm = curscript->valid() ? curscript->zasm_script->zasm : empty_zasm;
-	word scommand = zasm[ri->pc].command;
+	const ffscript* code = zasm.data();
+	word scommand = code[ri->pc].command;
 	bool hit_invalid_zasm = false;
 	bool no_dealloc = false;
 	bool has_debugger = !script_is_within_debugger_vm && zscript_debugger_is_open();
+	// One predictable branch guards every rare per-command hook, keeping the hot
+	// dispatch path free of them.
+	const bool instrumented = has_debugger || is_debugging || script_is_within_debugger_vm;
 	while(scommand != 0xFFFF)
 	{
-		if (has_debugger)
-			zscript_debugger_exec(ri->pc);
+		if (unlikely(instrumented))
+		{
+			if (has_debugger)
+				zscript_debugger_exec(ri->pc);
+			if (script_is_within_debugger_vm && commands_run > 10000000)
+				return RUNSCRIPT_INFINITE_LOOP;
+		}
 
-		const auto& op = zasm[ri->pc];
+		const auto& op = code[ri->pc];
 		scommand = op.command;
 		sarg1 = op.arg1;
 		sarg2 = op.arg2;
@@ -9834,147 +9843,11 @@ int32_t run_script_int(JittedScriptInstance* j_instance)
 
 		current_zasm_command = (ASM_DEFINE)scommand;
 
-		if (is_debugging && (!is_jitted || !j_instance->sequence_mode || commands_run > 0))
+		if (unlikely(is_debugging) && (!is_jitted || !j_instance->sequence_mode || commands_run > 0))
 		{
 			runtime_script_debug_handle->pre_command();
 		}
 
-		bool waiting = true;
-		switch(scommand) //Handle waitframe-type commands first
-		{
-			case WAITDRAW:
-			{
-				if(script_funcrun)
-					scommand = NOP;
-				else switch(type)
-				{
-					case ScriptType::EngineSubscreen: //ignore waitdraws
-						Z_scripterrlog("'Waitdraw()' is invalid in subscreen scripts, will be ignored\n");
-						scommand = NOP;
-						break;
-					case ScriptType::Generic:
-					case ScriptType::GenericFrozen: //ignore waitdraws
-						Z_scripterrlog("'Waitdraw()' is invalid in generic scripts, will be ignored\n");
-						scommand = NOP;
-						break;
-				}
-				break;
-			}
-			case WAITTO:
-			{
-				if(script_funcrun)
-					scommand = NOP;
-				else switch(type)
-				{
-					case ScriptType::GenericFrozen:
-						//ignore, no warn/error
-						scommand = NOP;
-						break;
-					case ScriptType::Generic:
-					{
-						user_genscript& scr = user_genscript::get(script);
-						int32_t target = get_register(sarg1)/10000L;
-						bool atleast = get_register(sarg2)!=0;
-						if(unsigned(target) > SCR_TIMING_END_FRAME)
-						{
-							Z_scripterrlog("Invalid value '%d' provided to 'WaitTo()'\n", target);
-							scommand = NOP;
-							break;
-						}
-						if(genscript_timing == target ||
-							(atleast && genscript_timing < target))
-						{
-							//Already that time, skip the command
-							scommand = NOP;
-							break;
-						}
-						scr.waituntil = scr_timing(target);
-						scr.wait_atleast = atleast;
-						break;
-					}
-					default:
-						Z_scripterrlog("'WaitTo()' is only valid in 'generic' scripts!\n");
-						scommand = NOP;
-						break;
-				}
-				break;
-			}
-			case WAITEVENT:
-			{
-				if(script_funcrun)
-					scommand = NOP;
-				else switch(type)
-				{
-					case ScriptType::GenericFrozen:
-						scommand = WAITFRAME;
-						ri->d[0] = GENSCR_EVENT_NIL*10000; //no event
-						break;
-					case ScriptType::Generic:
-					{
-						user_genscript& scr = user_genscript::get(script);
-						scr.waitevent = true;
-						break;
-					}
-					default:
-						Z_scripterrlog("'WaitEvent()' is only valid in 'generic' scripts!\n");
-						scommand = NOP;
-						break;
-				}
-				break;
-			}
-			case WAITFRAME:
-			{
-				if(script_funcrun)
-					scommand = NOP;
-				else switch(type)
-				{
-					case ScriptType::Generic:
-					{
-						user_genscript& scr = user_genscript::get(script);
-						scr.waituntil = SCR_TIMING_START_FRAME;
-						scr.wait_atleast = false;
-						break;
-					}
-				}
-				break;
-			}
-			case WAITFRAMESR:
-			{
-				auto count = get_register(sarg1);
-				if(script_funcrun || count <= 0)
-				{
-					scommand = NOP;
-					break;
-				}
-				auto frames = count/10000;
-				if(count%10000) ++frames; //round up decimals
-				ri->waitframes = frames-1; //this frame doesn't count
-				switch(type)
-				{
-					case ScriptType::Generic:
-					{
-						user_genscript& scr = user_genscript::get(script);
-						scr.waituntil = SCR_TIMING_START_FRAME;
-						scr.wait_atleast = false;
-						break;
-					}
-				}
-				break;
-			}
-			default: waiting = false;
-		}
-		if(waiting && scommand != NOP)
-		{
-			if (script_is_within_debugger_vm)
-			{
-				ri->waitframes = 1;
-				return RUNSCRIPT_ERROR;
-			}
-			if (is_jitted)
-				j_instance->should_wait = true;
-			break;
-		}
-		
 		numInstructions++;
 		if(numInstructions==hangcount) // No need to check frequently
 		{
@@ -9986,11 +9859,114 @@ int32_t run_script_int(JittedScriptInstance* j_instance)
 				scommand=0xFFFF;
 		}
 
-		if (script_is_within_debugger_vm && commands_run > 10000000)
-			return RUNSCRIPT_INFINITE_LOOP;
-
 		switch(scommand)
 		{
+			// Waitframe-type commands suspend the script until next frame by
+			// jumping to wait_command (below the switch), which exits the loop
+			// with scommand still holding the wait command.
+			case WAITDRAW:
+			{
+				if(script_funcrun)
+					break;
+				switch(type)
+				{
+					case ScriptType::EngineSubscreen: //ignore waitdraws
+						Z_scripterrlog("'Waitdraw()' is invalid in subscreen scripts, will be ignored\n");
+						break;
+					case ScriptType::Generic:
+					case ScriptType::GenericFrozen: //ignore waitdraws
+						Z_scripterrlog("'Waitdraw()' is invalid in generic scripts, will be ignored\n");
+						break;
+					default:
+						goto wait_command;
+				}
+				break;
+			}
+			case WAITTO:
+			{
+				if(script_funcrun)
+					break;
+				switch(type)
+				{
+					case ScriptType::GenericFrozen:
+						//ignore, no warn/error
+						break;
+					case ScriptType::Generic:
+					{
+						user_genscript& scr = user_genscript::get(script);
+						int32_t target = get_register(sarg1)/10000L;
+						bool atleast = get_register(sarg2)!=0;
+						if(unsigned(target) > SCR_TIMING_END_FRAME)
+						{
+							Z_scripterrlog("Invalid value '%d' provided to 'WaitTo()'\n", target);
+							break;
+						}
+						if(genscript_timing == target ||
+							(atleast && genscript_timing < target))
+						{
+							//Already that time, skip the command
+							break;
+						}
+						scr.waituntil = scr_timing(target);
+						scr.wait_atleast = atleast;
+						goto wait_command;
+					}
+					default:
+						Z_scripterrlog("'WaitTo()' is only valid in 'generic' scripts!\n");
+						break;
+				}
+				break;
+			}
+			case WAITEVENT:
+			{
+				if(script_funcrun)
+					break;
+				switch(type)
+				{
+					case ScriptType::GenericFrozen:
+						scommand = WAITFRAME;
+						ri->d[0] = GENSCR_EVENT_NIL*10000; //no event
+						goto wait_command;
+					case ScriptType::Generic:
+					{
+						user_genscript& scr = user_genscript::get(script);
+						scr.waitevent = true;
+						goto wait_command;
+					}
+					default:
+						Z_scripterrlog("'WaitEvent()' is only valid in 'generic' scripts!\n");
+						break;
+				}
+				break;
+			}
+			case WAITFRAME:
+			{
+				if(script_funcrun)
+					break;
+				if(type == ScriptType::Generic)
+				{
+					user_genscript& scr = user_genscript::get(script);
+					scr.waituntil = SCR_TIMING_START_FRAME;
+					scr.wait_atleast = false;
+				}
+				goto wait_command;
+			}
+			case WAITFRAMESR:
+			{
+				auto count = get_register(sarg1);
+				if(script_funcrun || count <= 0)
+					break;
+				auto frames = count/10000;
+				if(count%10000) ++frames; //round up decimals
+				ri->waitframes = frames-1; //this frame doesn't count
+				if(type == ScriptType::Generic)
+				{
+					user_genscript& scr = user_genscript::get(script);
+					scr.waituntil = SCR_TIMING_START_FRAME;
+					scr.wait_atleast = false;
+				}
+				goto wait_command;
+			}
 			//always first
 			case 0xFFFF:  //invalid command
 			{
@@ -10042,7 +10018,7 @@ int32_t run_script_int(JittedScriptInstance* j_instance)
 				// No need to do a bounds check - the last command should always be 0xFFFF.
 				if (is_debugging || is_jitted)
 					break;
-				while (zasm[ri->pc + 1].command == NOP)
+				while (code[ri->pc + 1].command == NOP)
 					ri->pc++;
 				break;
 			}
@@ -13656,6 +13632,18 @@ int32_t run_script_int(JittedScriptInstance* j_instance)
 				break;
 			}
 		}
+		goto post_switch;
+	wait_command:
+		// A waitframe-type command was reached: suspend until next frame.
+		if (script_is_within_debugger_vm)
+		{
+			ri->waitframes = 1;
+			return RUNSCRIPT_ERROR;
+		}
+		if (is_jitted)
+			j_instance->should_wait = true;
+		break;
+	post_switch:
 		if(earlyretval == RUNSCRIPT_SELFDELETE)
 		{
 			// The JIT uses command_could_return_not_ok to decide whether to check a command's
