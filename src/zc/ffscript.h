@@ -873,8 +873,25 @@ extern PALETTE tempblackpal;
 
 void script_init_name_to_slot_index_maps();
 
-int32_t get_register(int32_t arg);
-void set_register(int32_t arg, int32_t value);
+// D registers (ids D(0)-D(7), i.e. 0-7) make up the vast majority of ZASM
+// operands, so resolve them inline; everything else takes the out-of-line
+// path. ffscript.cpp static_asserts the id range.
+extern refInfo* ri;
+int32_t get_register_slow(int32_t arg);
+void set_register_slow(int32_t arg, int32_t value);
+
+inline int32_t get_register(int32_t arg)
+{
+	return uint32_t(arg) < 8 ? ri->d[arg] : get_register_slow(arg);
+}
+
+inline void set_register(int32_t arg, int32_t value)
+{
+	if (uint32_t(arg) < 8)
+		ri->d[arg] = value;
+	else
+		set_register_slow(arg, value);
+}
 
 // POD-array access helpers, called from the JIT backends.
 int32_t jit_pod_read(int32_t arrayptr, int32_t index, int32_t pc, int32_t no_neg);

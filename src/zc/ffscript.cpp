@@ -2851,7 +2851,8 @@ static int get_ref(int arg)
 }
 
 int32_t earlyretval = -1;
-int32_t get_register(int32_t arg)
+
+int32_t get_register_slow(int32_t arg)
 {
 	if (arg >= D(0) && arg <= D(7))
 		return ri->d[arg - D(0)];
@@ -2921,7 +2922,7 @@ int32_t get_register(int32_t arg)
 	return ret;
 }
 
-void set_register(int32_t arg, int32_t value)
+void set_register_slow(int32_t arg, int32_t value)
 {
 	if (arg >= D(0) && arg <= D(7))
 	{
