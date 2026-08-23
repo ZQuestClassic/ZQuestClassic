@@ -2852,6 +2852,49 @@ static int get_ref(int arg)
 
 int32_t earlyretval = -1;
 
+// Inline fast path for the hottest array element accesses (the pod opcodes and
+// the JIT's pod helpers): a cached plain (non-internal) array with an in-bounds
+// index reads and writes identically with or without negative-index support,
+// so skip constructing an ArrayManager. Everything else (internal arrays,
+// object-holding arrays, negative indices, cache misses, errors) falls back to
+// ArrayH.
+static ZC_FORCE_INLINE script_array* lookup_cached_plain_array(int32_t ptr)
+{
+	for (const auto& entry : script_array_cache.entries)
+	{
+		if (entry.id == (uint32_t)ptr && entry.array)
+			return entry.array->internal_id.has_value() ? nullptr : entry.array;
+	}
+	return nullptr;
+}
+
+static ZC_FORCE_INLINE int32_t array_get_element(int32_t ptr, int32_t offset, bool neg)
+{
+	if (script_array* array = lookup_cached_plain_array(ptr))
+	{
+		if ((uint32_t)offset < array->arr.Size())
+			return array->arr[offset];
+	}
+	return ArrayH::getElement(ptr, offset, neg);
+}
+
+static ZC_FORCE_INLINE void array_set_element(int32_t ptr, int32_t offset, int32_t value, bool neg, script_object_type type)
+{
+	if (type == script_object_type::none)
+	{
+		if (script_array* array = lookup_cached_plain_array(ptr))
+		{
+			if ((uint32_t)offset < array->arr.Size() &&
+				array->arr.ObjectType() == script_object_type::none)
+			{
+				array->arr[offset] = value;
+				return;
+			}
+		}
+	}
+	ArrayH::setElement(ptr, offset, value, neg, type);
+}
+
 int32_t get_register_slow(int32_t arg)
 {
 	if (arg >= D(0) && arg <= D(7))
@@ -2889,6 +2932,8 @@ int32_t get_register_slow(int32_t arg)
 		case GLOBALRAM:
 		{
 			current_zasm_register = arg;
+			// Deliberately not using array_get_element: inlining here bloats this switch and
+			// measurably slows some heavy scripted quests.
 			int32_t ret = ArrayH::getElement(GET_D(rINDEX), GET_D(rINDEX2) / 10000);
 			current_zasm_register = 0;
 			return ret;
@@ -2897,6 +2942,8 @@ int32_t get_register_slow(int32_t arg)
 		case GLOBALRAMD:
 		{
 			current_zasm_register = arg;
+			// Deliberately not using array_get_element: inlining here bloats this switch and
+			// measurably slows some heavy scripted quests.
 			int32_t ret = ArrayH::getElement(GET_D(rINDEX), 0);
 			current_zasm_register = 0;
 			return ret;
@@ -2959,12 +3006,16 @@ void set_register_slow(int32_t arg, int32_t value)
 		case SCRIPTRAM:
 		case GLOBALRAM:
 			current_zasm_register = arg;
+			// Deliberately not using array_set_element: inlining here bloats this switch and
+			// measurably slows some heavy scripted quests.
 			ArrayH::setElement(GET_D(rINDEX), GET_D(rINDEX2) / 10000, value);
 			current_zasm_register = 0;
 			return;
 		case SCRIPTRAMD:
 		case GLOBALRAMD:
 			current_zasm_register = arg;
+			// Deliberately not using array_set_element: inlining here bloats this switch and
+			// measurably slows some heavy scripted quests.
 			ArrayH::setElement(GET_D(rINDEX), 0, value);
 			current_zasm_register = 0;
 			return;
@@ -9193,7 +9244,7 @@ void do_combotile(const bool v)
 void do_readpod(const bool v)
 {
 	int32_t indx = SH::get_arg(sarg2, v) / 10000;
-	int32_t val = ArrayH::getElement(GET_D(rINDEX), indx, can_neg_array);
+	int32_t val = array_get_element(GET_D(rINDEX), indx, can_neg_array);
 	set_register(sarg1, val);
 }
 void do_writepod(const bool v1, const bool v2)
@@ -9201,18 +9252,18 @@ void do_writepod(const bool v1, const bool v2)
 	int32_t indx = SH::get_arg(sarg1, v1) / 10000;
 	int32_t val = SH::get_arg(sarg2, v2);
 	auto type = (script_object_type)sarg3;
-	ArrayH::setElement(GET_D(rINDEX), indx, val, can_neg_array, type);
+	array_set_element(GET_D(rINDEX), indx, val, can_neg_array, type);
 }
 
 int32_t jit_pod_read(int32_t arrayptr, int32_t index, int32_t pc, int32_t no_neg)
 {
 	ri->pc = pc;
-	return ArrayH::getElement(arrayptr, index, no_neg ? false : can_neg_array);
+	return array_get_element(arrayptr, index, no_neg ? false : can_neg_array);
 }
 void jit_pod_write(int32_t arrayptr, int32_t index, int32_t value, int32_t type, int32_t pc, int32_t no_neg)
 {
 	ri->pc = pc;
-	ArrayH::setElement(arrayptr, index, value, no_neg ? false : can_neg_array, (script_object_type)type);
+	array_set_element(arrayptr, index, value, no_neg ? false : can_neg_array, (script_object_type)type);
 }
 int32_t jit_allocatemem(int32_t size, int32_t object_type, int32_t pc)
 {
