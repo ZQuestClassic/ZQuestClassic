@@ -94,6 +94,8 @@ function ensureEmFunctions() {
   emFunctions.podWrite = rawEngineExport('em_pod_write');
   emFunctions.allocatemem = rawEngineExport('em_allocatemem');
   emFunctions.writepodarr = rawEngineExport('em_writepodarr');
+  emFunctions.classRead = rawEngineExport('em_class_read');
+  emFunctions.classWrite = rawEngineExport('em_class_write');
 }
 
 async function compileOneModule(name, ptr, size) {
@@ -119,6 +121,8 @@ async function compileOneModule(name, ptr, size) {
         pod_write: emFunctions.podWrite,
         allocatemem: emFunctions.allocatemem,
         writepodarr: emFunctions.writepodarr,
+        class_read: emFunctions.classRead,
+        class_write: emFunctions.classWrite,
       },
     });
 

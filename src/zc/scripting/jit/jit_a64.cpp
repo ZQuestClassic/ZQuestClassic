@@ -1790,6 +1790,34 @@ static void compile_single_command(CompilationState& state, a64::Compiler& cc, c
 			node->setArg(1, state.pc);
 		}
 		break;
+		case ZCLASS_READ:
+		{
+			// rEXP1 = object(arg1).data[arg2]. The helper does the id and bounds checks.
+			a64::Gp id = get_z_register(state, cc, arg1);
+			a64::Gp result = cc.newInt32();
+			InvokeNode* node;
+			invoke(cc, &node, jit_class_read, FuncSignature::build<int32_t, int32_t, int32_t, int32_t>(state.calling_convention));
+			node->setArg(0, id);
+			node->setArg(1, arg2);
+			node->setArg(2, state.pc);
+			node->setRet(0, result);
+			set_z_register(state, cc, rEXP1, result);
+		}
+		break;
+		case ZCLASS_WRITE:
+		{
+			// object(arg1).data[arg2] = rEXP1. The helper also handles reference counts
+			// for object-typed members.
+			a64::Gp id = get_z_register(state, cc, arg1);
+			a64::Gp value = get_z_register(state, cc, rEXP1);
+			InvokeNode* node;
+			invoke(cc, &node, jit_class_write, FuncSignature::build<void, int32_t, int32_t, int32_t, int32_t>(state.calling_convention));
+			node->setArg(0, id);
+			node->setArg(1, arg2);
+			node->setArg(2, value);
+			node->setArg(3, state.pc);
+		}
+		break;
 		case ALLOCATEMEMV:
 		{
 			// reg[arg1] = allocate(size=arg2/10000, object_type=arg3).

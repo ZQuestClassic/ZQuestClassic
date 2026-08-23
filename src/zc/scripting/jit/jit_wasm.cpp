@@ -88,6 +88,8 @@ struct CompilationState
 	uint8_t f_idx_pod_write;
 	uint8_t f_idx_allocatemem;
 	uint8_t f_idx_writepodarr;
+	uint8_t f_idx_class_read;
+	uint8_t f_idx_class_write;
 
 	uint8_t l_idx_j_instance;
 	uint8_t l_idx_ri;
@@ -703,6 +705,8 @@ static bool command_is_compiled(int command)
 	case WRITEPODARRAYVV:
 	case WRITEPODARRAY:
 	case ALLOCATEMEMV:
+	case ZCLASS_READ:
+	case ZCLASS_WRITE:
 		return true;
 	}
 
@@ -1849,6 +1853,28 @@ static void compile_plain_command(CompilationState& state, const zasm_script* sc
 				wasm.emitI32Const(state.pc);
 				wasm.emitCall(state.f_idx_allocatemem);
 			});
+		}
+		break;
+		case ZCLASS_READ:
+		{
+			// rEXP1 = object(arg1).data[arg2]. The helper does the id and bounds checks.
+			set_z_register(state, rEXP1, [&](){
+				get_z_register(state, arg1);
+				wasm.emitI32Const(arg2);
+				wasm.emitI32Const(state.pc);
+				wasm.emitCall(state.f_idx_class_read);
+			});
+		}
+		break;
+		case ZCLASS_WRITE:
+		{
+			// object(arg1).data[arg2] = rEXP1. The helper also handles reference counts
+			// for object-typed members.
+			get_z_register(state, arg1);
+			wasm.emitI32Const(arg2);
+			get_z_register(state, rEXP1);
+			wasm.emitI32Const(state.pc);
+			wasm.emitCall(state.f_idx_class_write);
 		}
 		break;
 
@@ -3213,6 +3239,8 @@ static bool wasm_codegen(zasm_script* script, WasmCodegenResult& out)
 	state.f_idx_pod_write = comp.builder.importFunction("pod_write", 6, 0);
 	state.f_idx_allocatemem = comp.builder.importFunction("allocatemem", 3, 1);
 	state.f_idx_writepodarr = comp.builder.importFunction("writepodarr", 2, 0);
+	state.f_idx_class_read = comp.builder.importFunction("class_read", 3, 1);
+	state.f_idx_class_write = comp.builder.importFunction("class_write", 4, 0);
 
 	// params
 	state.l_idx_j_instance = 0;
@@ -3733,15 +3761,12 @@ extern "C" void em_set_register(int r, int value)
 
 extern "C" void em_set_guarded_register(int32_t arg, int32_t value, pc_t pc)
 {
-	extern refInfo *ri;
-
 	ri->pc = pc;
 	do_set(arg, value);
 }
 
 extern "C" void em_runtime_script_debug(int pc, int sp)
 {
-	extern refInfo *ri;
 	extern ScriptDebugHandle* runtime_script_debug_handle;
 	ri->pc = pc;
 	ri->sp = sp;
@@ -3775,6 +3800,16 @@ extern "C" int em_allocatemem(int size, int object_type, int uid)
 extern "C" void em_writepodarr(int id, int pc)
 {
 	jit_writepodarr(id, pc);
+}
+
+extern "C" int em_class_read(int id, int index, int pc)
+{
+	return jit_class_read(id, index, pc);
+}
+
+extern "C" void em_class_write(int id, int index, int value, int pc)
+{
+	jit_class_write(id, index, value, pc);
 }
 
 #endif

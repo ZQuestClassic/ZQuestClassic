@@ -111,12 +111,8 @@ static void do_constructclass(ScriptType type, word script, int32_t i)
 	else set_register(sarg1, 0);
 }
 
-static void do_readclass()
+static int32_t readclass_impl(dword id, int32_t ind)
 {
-	dword id = get_register(sarg1);
-	SET_D(rEXP1, 0);
-
-	int32_t ind = sarg2;
 	if (auto obj = user_objects.check(id))
 	{
 		if(unsigned(ind) >= obj->data.size())
@@ -125,17 +121,14 @@ static void do_readclass()
 		}
 		else
 		{
-			SET_D(rEXP1, obj->data.at(ind));
+			return obj->data.at(ind);
 		}
 	}
+	return 0;
 }
 
-static void do_writeclass()
+static void writeclass_impl(dword id, int32_t ind, int32_t data)
 {
-	int data = GET_D(rEXP1);
-
-	dword id = get_register(sarg1);
-	int32_t ind = sarg2;
 	if (auto obj = user_objects.check(id))
 	{
 		if(unsigned(ind) >= obj->data.size())
@@ -154,6 +147,30 @@ static void do_writeclass()
 			obj->data[ind] = data;
 		}
 	}
+}
+
+static void do_readclass()
+{
+	dword id = get_register(sarg1);
+	SET_D(rEXP1, readclass_impl(id, sarg2));
+}
+
+static void do_writeclass()
+{
+	writeclass_impl(get_register(sarg1), sarg2, GET_D(rEXP1));
+}
+
+// Class member access helpers, called from the JIT backends.
+int32_t jit_class_read(int32_t id, int32_t index, int32_t pc)
+{
+	ri->pc = pc;
+	return readclass_impl(id, index);
+}
+
+void jit_class_write(int32_t id, int32_t index, int32_t value, int32_t pc)
+{
+	ri->pc = pc;
+	writeclass_impl(id, index, value);
 }
 
 static void do_freeclass()

@@ -893,6 +893,10 @@ inline void set_register(int32_t arg, int32_t value)
 		set_register_slow(arg, value);
 }
 
+// Class member access helpers, called from the JIT backends.
+int32_t jit_class_read(int32_t id, int32_t index, int32_t pc);
+void jit_class_write(int32_t id, int32_t index, int32_t value, int32_t pc);
+
 // POD-array access helpers, called from the JIT backends.
 int32_t jit_pod_read(int32_t arrayptr, int32_t index, int32_t pc, int32_t no_neg);
 void jit_pod_write(int32_t arrayptr, int32_t index, int32_t value, int32_t type, int32_t pc, int32_t no_neg);

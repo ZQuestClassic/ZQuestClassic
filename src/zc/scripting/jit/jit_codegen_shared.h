@@ -662,6 +662,8 @@ inline bool jit_command_is_compiled_shared(int command)
 	case WRITEPODARRAYVV:
 	case WRITEPODARRAY:
 	case ALLOCATEMEMV:
+	case ZCLASS_READ:
+	case ZCLASS_WRITE:
 		return true;
 	}
 
