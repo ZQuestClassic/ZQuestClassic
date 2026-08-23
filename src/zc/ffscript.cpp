@@ -13829,9 +13829,11 @@ int32_t run_script_int(JittedScriptInstance* j_instance)
 
 			if(earlyretval > -1) //Should this be below the 'commands_run += 1'? Unsure. -Em
 			{
-				[[maybe_unused]] auto v = earlyretval;
+				// Same JIT-divergence guard as the RUNSCRIPT_SELFDELETE branch above.
+				CHECK(command_could_return_not_ok(scommand));
+				auto v = earlyretval;
 				earlyretval = -1;
-				return earlyretval;
+				return v;
 			}
 		}
 		else if(scommand != 0xFFFF)
@@ -17534,6 +17536,7 @@ bool command_could_return_not_ok(int command)
 	case GAMERELOAD:
 	case GAMESAVECONTINUE:
 	case GAMESAVEQUIT:
+	case HEROLIFTGRAB:
 	case ITEMDEL:
 	case LWPNDEL:
 	case NPCKICKBUCKET:
