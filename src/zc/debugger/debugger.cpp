@@ -1307,6 +1307,7 @@ Debugger* zscript_debugger_open()
 	if (!debugger)
 	{
 		debugger = std::make_unique<Debugger>();
+		zscript_debugger_open_flag = true;
 		// Only update the cfg value if the debugger wasn't opened via the CLI.
 		if (!get_flag_bool("-debugger").has_value())
 			zc_set_config("ZSCRIPT", "debugger", true);
@@ -1320,10 +1321,7 @@ Debugger* zscript_debugger_get_if_open()
 	return debugger.get();
 }
 
-bool zscript_debugger_is_open()
-{
-	return debugger.get();
-}
+bool zscript_debugger_open_flag;
 
 void zscript_debugger_clear()
 {
@@ -1373,4 +1371,5 @@ void zscript_debugger_close()
 		zc_set_config("ZSCRIPT", "debugger", false);
 	debugger->Save();
 	debugger.reset();
+	zscript_debugger_open_flag = false;
 }

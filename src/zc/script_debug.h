@@ -43,5 +43,13 @@ private:
 };
 
 ScriptDebugHandle* script_debug_get_handle(int type, script_data* script);
-int script_debug_is_runtime_debugging();
+// Called on every script engine entry, so the common all-disabled case is
+// resolved inline from the two globals above.
+int script_debug_is_runtime_debugging_cold();
+inline int script_debug_is_runtime_debugging()
+{
+	if (!DEBUG_PRINT_TO_FILE && !DEBUG_PRINT_TO_CONSOLE)
+		return 0;
+	return script_debug_is_runtime_debugging_cold();
+}
 std::string script_debug_registers_and_stack_to_string();

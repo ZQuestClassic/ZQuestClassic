@@ -212,7 +212,13 @@ private:
 
 Debugger* zscript_debugger_open();
 Debugger* zscript_debugger_get_if_open();
-bool zscript_debugger_is_open();
+// Mirrors whether the debugger instance exists; checked on every script
+// engine entry, so kept as an inline-readable flag.
+extern bool zscript_debugger_open_flag;
+inline bool zscript_debugger_is_open()
+{
+	return zscript_debugger_open_flag;
+}
 void zscript_debugger_clear();
 void zscript_debugger_init();
 void zscript_debugger_update();

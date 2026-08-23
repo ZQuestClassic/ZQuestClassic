@@ -258,7 +258,7 @@ void ScriptDebugHandle::pre_command()
 }
 
 // 0 for off, 1 for per-script execution, 2 for per-instruction.
-int script_debug_is_runtime_debugging()
+int script_debug_is_runtime_debugging_cold()
 {
 	if (!DEBUG_PRINT_TO_FILE && !DEBUG_PRINT_TO_CONSOLE)
 	{
