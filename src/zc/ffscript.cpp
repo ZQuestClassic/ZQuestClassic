@@ -2873,6 +2873,11 @@ int32_t get_register(int32_t arg)
 	// are unchanged.
 	switch (arg)
 	{
+		case SWITCHKEY: return ri->switchkey;
+		case CLASS_THISKEY: return ri->thiskey;
+		case CLASS_THISKEY2: return ri->thiskey2;
+		case SP: return ri->sp * 10000;
+		case SP2: return ri->sp;
 		case REFFFC: return ZScriptVersion::ffcRefIsSpriteId() ? ri->ffcref : ri->ffcref * 10000;
 		case REFNPC: return ri->npcref;
 		case REFLWPN: return ri->lwpnref;
@@ -2939,6 +2944,11 @@ void set_register(int32_t arg, int32_t value)
 	// See the matching fast paths in get_register.
 	switch (arg)
 	{
+		case SWITCHKEY: ri->switchkey = value; return;
+		case CLASS_THISKEY: ri->thiskey = value; return;
+		case CLASS_THISKEY2: ri->thiskey2 = value; return;
+		case SP: ri->sp = value / 10000; return;
+		case SP2: ri->sp = value; return;
 		case REFFFC: ri->ffcref = ZScriptVersion::ffcRefIsSpriteId() ? value : value / 10000; return;
 		case REFNPC: ri->npcref = value; return;
 		case REFLWPN: ri->lwpnref = value; return;
