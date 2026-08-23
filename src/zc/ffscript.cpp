@@ -40349,9 +40349,9 @@ j_command:
 
 			if(earlyretval > -1) //Should this be below the 'commands_run += 1'? Unsure. -Em
 			{
-				[[maybe_unused]] auto v = earlyretval;
+				auto v = earlyretval;
 				earlyretval = -1;
-				return earlyretval;
+				return v;
 			}
 		}
 		else
@@ -54953,6 +54953,7 @@ bool command_could_return_not_ok(int command)
 	case GAMERELOAD:
 	case GAMESAVECONTINUE:
 	case GAMESAVEQUIT:
+	case HEROLIFTGRAB:
 	case ITEMDEL:
 	case LWPNDEL:
 	case NPCKICKBUCKET:
