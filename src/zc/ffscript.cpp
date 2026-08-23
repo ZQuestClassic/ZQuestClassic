@@ -9286,7 +9286,7 @@ portal* loadportal(savedportal& p);
 //                                       Run the script                                                //
 ///----------------------------------------------------------------------------------------------------//
 
-static bool check_cmp(uint cmp)
+static ZC_FORCE_INLINE bool check_cmp(uint cmp)
 {
 	if(cmp & CMP_BOOL)
 	{
