@@ -31,6 +31,15 @@ bool script_object_autorelease_pool_contains(uint32_t id);
 // order for draining.
 std::vector<uint32_t> script_object_autorelease_pool_take();
 
+// Direct-mapped cache in front of the script_objects map, keyed by the low bits of the id.
+// Scripts resolve the same few object ids millions of times per frame (member reads/writes,
+// refcount updates), and each resolution is otherwise a tree walk. Entries are removed on
+// object deletion and container reset (delete_script_object / script_object_lookup_cache_clear,
+// called from the same places that invalidate the script array cache).
+constexpr uint32_t SCRIPT_OBJECT_CACHE_SIZE = 512; // power of two
+extern script_object_base* script_object_lookup_cache[SCRIPT_OBJECT_CACHE_SIZE];
+void script_object_lookup_cache_clear();
+
 void init_script_objects();
 void register_script_object(script_object_base* object, script_object_type type, uint32_t id = -1);
 void script_object_ref_inc(uint32_t id);
@@ -38,6 +47,15 @@ void script_object_ref_dec(uint32_t id);
 void script_object_transfer_ref_to_autorelease_pool(uint32_t id);
 script_object_base* get_script_object(uint32_t id);
 script_object_base* get_script_object_checked(uint32_t id);
+
+// Cache-first lookup; falls back to (and fills from) the script_objects map.
+inline script_object_base* get_script_object_fast(uint32_t id)
+{
+	script_object_base* obj = script_object_lookup_cache[id & (SCRIPT_OBJECT_CACHE_SIZE - 1)];
+	if (obj && obj->id == id)
+		return obj;
+	return get_script_object(id);
+}
 const std::map<uint32_t, std::unique_ptr<script_object_base>>& get_script_objects();
 void own_script_object(script_object_base* object, ScriptType type, int i);
 void own_script_object(script_object_base* object, sprite* sprite);
@@ -101,9 +119,9 @@ struct UserDataContainer
 
 	T* check(uint32_t id, bool skipError = false)
 	{
-		auto it = script_objects.find(id);
-		if (it != script_objects.end() && it->second->type == type)
-			return static_cast<T*>(it->second.get());
+		script_object_base* obj = get_script_object_fast(id);
+		if (obj && obj->type == type)
+			return static_cast<T*>(obj);
 
 		if (skipError) return NULL;
 

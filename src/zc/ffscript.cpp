@@ -2365,6 +2365,7 @@ void FFScript::deallocateAllScriptOwned()
 	clear_script_object_ids_by_type();
 	script_objects.clear();
 	script_array_cache_clear();
+	script_object_lookup_cache_clear();
 	next_script_object_id_freelist.clear();
 
 	if (!ZScriptVersion::gc_arrays())
@@ -14595,6 +14596,7 @@ void FFScript::shutdown()
 	objectRAM.clear();
 	script_objects.clear();
 	script_array_cache_clear();
+	script_object_lookup_cache_clear();
 	clear_script_object_ids_by_type();
 	next_script_object_id_freelist.clear();
 }

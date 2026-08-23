@@ -163,6 +163,7 @@ void init_script_objects()
 		next_script_object_id_freelist.push_back(id);
 	script_objects.clear();
 	script_array_cache_clear();
+	script_object_lookup_cache_clear();
 	clear_script_object_ids_by_type();
 	script_object_autorelease_pool.clear();
 	script_object_autorelease_pool_index.clear();
@@ -245,6 +246,9 @@ void register_script_object(script_object_base* object, script_object_type type,
 	object->type = type;
 	object->id = id;
 	script_objects[id] = std::unique_ptr<script_object_base>(object);
+	// Overwrite rather than invalidate: if this id was already present, the old
+	// object was just destroyed by the assignment above.
+	script_object_lookup_cache[id & (SCRIPT_OBJECT_CACHE_SIZE - 1)] = object;
 	auto& type_ids = script_object_ids_by_type[type];
 	script_object_ids_by_type_locator[id] = type_ids.size();
 	type_ids.push_back(id);
@@ -318,11 +322,26 @@ void script_object_transfer_ref_to_autorelease_pool(uint32_t id)
 		script_object_ref_dec(id);
 }
 
+script_object_base* script_object_lookup_cache[SCRIPT_OBJECT_CACHE_SIZE];
+
+void script_object_lookup_cache_clear()
+{
+	for (auto& entry : script_object_lookup_cache)
+		entry = nullptr;
+}
+
 script_object_base* get_script_object(uint32_t id)
 {
+	script_object_base* cached = script_object_lookup_cache[id & (SCRIPT_OBJECT_CACHE_SIZE - 1)];
+	if (cached && cached->id == id)
+		return cached;
+
 	auto it = script_objects.find(id);
 	if (it != script_objects.end())
+	{
+		script_object_lookup_cache[id & (SCRIPT_OBJECT_CACHE_SIZE - 1)] = it->second.get();
 		return it->second.get();
+	}
 	return nullptr;
 }
 
@@ -433,6 +452,8 @@ void delete_script_object(uint32_t id, bool remove_refs)
 		script_object_ids_by_type_locator.erase(id);
 	}
 	script_array_cache_invalidate(id);
+	if (auto& slot = script_object_lookup_cache[id & (SCRIPT_OBJECT_CACHE_SIZE - 1)]; slot == object)
+		slot = nullptr;
 	script_objects.erase(it);
 	deallocations_since_last_gc++;
 
