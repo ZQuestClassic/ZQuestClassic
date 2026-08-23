@@ -40305,51 +40305,67 @@ j_command:
 		// A waitframe-type command was reached: suspend until next frame.
 		break;
 	post_switch:
-		if(earlyretval == RUNSCRIPT_SELFDELETE)
-		{
-			earlyretval = -1;
-			return RUNSCRIPT_SELFDELETE;
-		}
-		if (ri->stack_overflow)
-		{
-			if (script_funcrun)
-				return RUNSCRIPT_OK;
-			scommand = 0xFFFF;
-		}
-		if(hit_invalid_zasm) break;
-		if(script_funcrun && ri->pc == MAX_PC)
-			return RUNSCRIPT_OK;
-
 #ifdef _SCRIPT_COUNTER
 		end_time = std::chrono::steady_clock::now();
 		script_timer[scommand] += std::chrono::duration_cast<std::chrono::nanoseconds>(end_time - start_time).count();
 		script_execount[scommand] += 1;
 #endif
-		
-		if (type == ScriptType::Combo)
+
+		// These conditions almost never hit, so screen them all behind one predictable branch.
+		if (unlikely(earlyretval > -1 || ri->stack_overflow || hit_invalid_zasm ||
+			script_funcrun || type == ScriptType::Combo))
 		{
-			if(combopos_modified == i)
+			if(earlyretval == RUNSCRIPT_SELFDELETE)
 			{
-				//Combo changed! Abort script!
+				earlyretval = -1;
+				return RUNSCRIPT_SELFDELETE;
+			}
+			if (ri->stack_overflow)
+			{
+				if (script_funcrun)
+					return RUNSCRIPT_OK;
+				scommand = 0xFFFF;
+			}
+			if(hit_invalid_zasm) break;
+			if(script_funcrun && ri->pc == MAX_PC)
 				return RUNSCRIPT_OK;
+
+			if (type == ScriptType::Combo)
+			{
+				if(combopos_modified == i)
+				{
+					//Combo changed! Abort script!
+					return RUNSCRIPT_OK;
+				}
+			}
+			if(increment)	ri->pc++;
+			else			increment = true;
+			if ( ri->pc == MAX_PC ) //rolled over from overflow?
+			{
+				Z_scripterrlog("Script PC overflow! Too many ZASM lines?\n");
+				ri->pc = 0;
+				scommand = 0xFFFF;
+			}
+
+			if(earlyretval > -1) //Should this be below the 'commands_run += 1'? Unsure. -Em
+			{
+				[[maybe_unused]] auto v = earlyretval;
+				earlyretval = -1;
+				return earlyretval;
 			}
 		}
-		if(increment)	ri->pc++;
-		else			increment = true;
-		if ( ri->pc == MAX_PC ) //rolled over from overflow?
+		else
 		{
-			Z_scripterrlog("Script PC overflow! Too many ZASM lines?\n");
-			ri->pc = 0;
-			scommand = 0xFFFF;
+			if(increment)	ri->pc++;
+			else			increment = true;
+			if ( ri->pc == MAX_PC ) //rolled over from overflow?
+			{
+				Z_scripterrlog("Script PC overflow! Too many ZASM lines?\n");
+				ri->pc = 0;
+				scommand = 0xFFFF;
+			}
 		}
-		
-		if(earlyretval > -1) //Should this be below the 'commands_run += 1'? Unsure. -Em
-		{
-			auto v = earlyretval;
-			earlyretval = -1;
-			return earlyretval;
-		}
-		
+
 		// If running a JIT compiled script, we're only here to do a few commands.
 		commands_run += 1;
 		if (is_jitted && commands_run == jitted_uncompiled_command_count) break;
