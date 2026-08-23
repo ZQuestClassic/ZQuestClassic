@@ -14,28 +14,17 @@ extern int32_t(*stack)[MAX_STACK_SIZE];
 void log_stack_overflow_error();
 void log_call_limit_error();
 
-void SH::write_stack(const uint32_t sp, const int32_t value)
+void SH::write_stack_oob()
 {
-	if (sp >= MAX_STACK_SIZE)
-	{
-		log_stack_overflow_error();
-		ri->overflow = true;
-		return;
-	}
-	
-	(*stack)[sp] = value;
+	log_stack_overflow_error();
+	ri->overflow = true;
 }
 
-int32_t SH::read_stack(const uint32_t sp)
+int32_t SH::read_stack_oob()
 {
-	if (sp >= MAX_STACK_SIZE)
-	{
-		log_stack_overflow_error();
-		ri->overflow = true;
-		return -10000;
-	}
-	
-	return (*stack)[sp];
+	log_stack_overflow_error();
+	ri->overflow = true;
+	return -10000;
 }
 
 // Gotten from 'https://fileinfo.com/filetypes/executable'

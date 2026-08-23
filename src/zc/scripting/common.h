@@ -47,8 +47,24 @@ public:
 
 #define INVALIDARRAY localRAM[0]  //localRAM[0] is never used
 
-	static void write_stack(const uint32_t stackoffset, const int32_t value);
-	static int32_t read_stack(const uint32_t stackoffset);
+	// Out-of-line overflow handlers for the inline stack accessors below.
+	static void write_stack_oob();
+	static int32_t read_stack_oob();
+
+	static INLINE void write_stack(const uint32_t stackoffset, const int32_t value)
+	{
+		extern int32_t(*stack)[MAX_STACK_SIZE];
+		if (stackoffset >= MAX_STACK_SIZE)
+			return write_stack_oob();
+		(*stack)[stackoffset] = value;
+	}
+	static INLINE int32_t read_stack(const uint32_t stackoffset)
+	{
+		extern int32_t(*stack)[MAX_STACK_SIZE];
+		if (stackoffset >= MAX_STACK_SIZE)
+			return read_stack_oob();
+		return (*stack)[stackoffset];
+	}
 	static INLINE int32_t get_arg(int32_t arg, bool v)
 	{
 		return v ? arg : get_register(arg);
