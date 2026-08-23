@@ -13655,34 +13655,57 @@ int32_t run_script_int(JittedScriptInstance* j_instance)
 			j_instance->should_wait = true;
 		break;
 	post_switch:
-		if(earlyretval == RUNSCRIPT_SELFDELETE)
+		// These conditions almost never hit, so screen them all behind one predictable branch.
+		if (unlikely(earlyretval > -1 || ri->overflow || hit_invalid_zasm ||
+			old_script_funcrun || type == ScriptType::Combo))
 		{
-			// The JIT uses command_could_return_not_ok to decide whether to check a command's
-			// return code. A self-deleting command that isn't registered there is silently
-			// ignored by the JIT (it diverges from the interpreter), so catch that here.
-			CHECK(command_could_return_not_ok(scommand));
-			earlyretval = -1;
-			return RUNSCRIPT_SELFDELETE;
-		}
-		if (ri->overflow)
-		{
-			if (old_script_funcrun)
-				return RUNSCRIPT_OK;
-			scommand = 0xFFFF;
-		}
-		if(hit_invalid_zasm) break;
-		if(old_script_funcrun && ri->pc == MAX_PC)
-			return RUNSCRIPT_OK;
-		
-		if (type == ScriptType::Combo)
-		{
-			if(combopos_modified == i)
+			if(earlyretval == RUNSCRIPT_SELFDELETE)
 			{
-				//Combo changed! Abort script!
+				// The JIT uses command_could_return_not_ok to decide whether to check a command's
+				// return code. A self-deleting command that isn't registered there is silently
+				// ignored by the JIT (it diverges from the interpreter), so catch that here.
+				CHECK(command_could_return_not_ok(scommand));
+				earlyretval = -1;
+				return RUNSCRIPT_SELFDELETE;
+			}
+			if (ri->overflow)
+			{
+				if (old_script_funcrun)
+					return RUNSCRIPT_OK;
+				scommand = 0xFFFF;
+			}
+			if(hit_invalid_zasm) break;
+			if(old_script_funcrun && ri->pc == MAX_PC)
 				return RUNSCRIPT_OK;
+
+			if (type == ScriptType::Combo)
+			{
+				if(combopos_modified == i)
+				{
+					//Combo changed! Abort script!
+					return RUNSCRIPT_OK;
+				}
+			}
+			if(scommand != 0xFFFF)
+			{
+				if(increment)	ri->pc++;
+				else			increment = true;
+				if ( ri->pc == MAX_PC ) //rolled over from overflow?
+				{
+					Z_scripterrlog("Script PC overflow! Too many ZASM lines?\n");
+					ri->pc = curscript->pc;
+					scommand = 0xFFFF;
+				}
+			}
+
+			if(earlyretval > -1) //Should this be below the 'commands_run += 1'? Unsure. -Em
+			{
+				[[maybe_unused]] auto v = earlyretval;
+				earlyretval = -1;
+				return earlyretval;
 			}
 		}
-		if(scommand != 0xFFFF)
+		else if(scommand != 0xFFFF)
 		{
 			if(increment)	ri->pc++;
 			else			increment = true;
@@ -13692,13 +13715,6 @@ int32_t run_script_int(JittedScriptInstance* j_instance)
 				ri->pc = curscript->pc;
 				scommand = 0xFFFF;
 			}
-		}
-		
-		if(earlyretval > -1) //Should this be below the 'commands_run += 1'? Unsure. -Em
-		{
-			[[maybe_unused]] auto v = earlyretval;
-			earlyretval = -1;
-			return earlyretval;
 		}
 
 		// If running a JIT compiled script, we're only here to do a few commands.
