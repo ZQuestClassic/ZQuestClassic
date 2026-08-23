@@ -60,8 +60,6 @@ static void debug_pre_command(int32_t pc, uint16_t sp)
 		runtime_script_debug_handle->pre_command();
 }
 
-void set_register(int32_t arg, int32_t value);
-
 class MyErrorHandler : public ErrorHandler
 {
 public:

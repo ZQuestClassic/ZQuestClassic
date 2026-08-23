@@ -3233,7 +3233,11 @@ static bool write_array(T(&arr)[N], int index, T value, const char* context)
 }
 
 int32_t earlyretval = -1;
-int32_t get_register(const int32_t arg)
+
+// The inline get_register/set_register wrappers in ffscript.h resolve D(0)-D(7) as ids 0-7.
+static_assert(D(0) == 0 && D(7) == 7);
+
+int32_t get_register_slow(const int32_t arg)
 {
 	int32_t ret = 0;
 	
@@ -15844,7 +15848,7 @@ int32_t get_register(const int32_t arg)
 //Setter Instructions
 
 
-void set_register(int32_t arg, int32_t value)
+void set_register_slow(int32_t arg, int32_t value)
 {
 	//Macros
 	
