@@ -15,6 +15,7 @@ int32_t StringToVar(std::string var);
 namespace ZScript
 {
 	class LiteralArgument;
+	class LabelVectorArgument;
 	class CompareArgument;
 	class VarArgument;
 	class LiteralVarArgument;
@@ -34,6 +35,7 @@ namespace ZScript
 		virtual void caseVar(VarArgument&, void *){}
 		virtual void caseLiteralVar(LiteralVarArgument&, void *){}
 		virtual void caseLabel(LabelArgument&, void *){}
+		virtual void caseLabelVector(LabelVectorArgument&, void *){}
 		void execute(std::vector<std::shared_ptr<Opcode>>& vec, void* param)
 		{
 			for (auto it = vec.begin(); it != vec.end(); ++it)
@@ -242,6 +244,53 @@ namespace ZScript
 		}
 
 		int32_t ID;
+	};
+
+	// A vector argument some of whose entries are label ids, resolved to pcs by
+	// SetLabels like LabelArgument. The labels start at `first_label` and repeat
+	// every `stride` entries; the rest are plain values and are left alone.
+	// GOTOTABLE is {min_key, default_label, labels...} (first_label 1, stride 1);
+	// GOTORANGES is {default_label, start, end, label, ...} (0, stride 3).
+	class LabelVectorArgument : public Argument
+	{
+	public:
+		LabelVectorArgument(std::vector<int32_t> const& Value, size_t first_label, size_t stride = 1)
+			: value(Value), first_label(first_label), stride(stride) {}
+		std::string toString() const;
+		void execute(ArgumentVisitor &host, void *param)
+		{
+			host.caseLabelVector(*this, param);
+		}
+		LabelVectorArgument* clone() const
+		{
+			return new LabelVectorArgument(value, first_label, stride);
+		}
+
+		bool equals(const Argument& other) const
+		{
+			const auto& o = static_cast<const LabelVectorArgument&>(other);
+			return value == o.value && first_label == o.first_label && stride == o.stride;
+		}
+
+		size_t numLabels() const
+		{
+			return value.size() <= first_label ? 0 : (value.size() - first_label + stride - 1) / stride;
+		}
+		int32_t getLabel(size_t index) const { return value[first_label + index * stride]; }
+		void setLabel(size_t index, int32_t id) { value[first_label + index * stride] = id; }
+
+		// Every label id in the vector, for label bookkeeping (GetLabels/MergeLabels).
+		std::vector<int32_t> getLabels() const
+		{
+			std::vector<int32_t> labels;
+			for (size_t i = 0; i < numLabels(); i++)
+				labels.push_back(getLabel(i));
+			return labels;
+		}
+
+		std::vector<int32_t> value;
+		size_t first_label;
+		size_t stride;
 	};
 
 	class LabelArgument : public Argument

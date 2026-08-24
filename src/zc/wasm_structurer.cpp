@@ -28,6 +28,14 @@ std::vector<int> WasmStructurer::succs_of(const BlockInfo& b) {
 		case Term::Dispatch: return {};
 		case Term::Uncond:   return {b.succ_true};
 		case Term::Cond:     return {b.succ_true, b.succ_false};
+		case Term::Switch: {
+			// Many slots can share a target; the graph wants unique edges.
+			std::vector<int> out;
+			for (int s : b.succ_switch)
+				if (std::find(out.begin(), out.end(), s) == out.end())
+					out.push_back(s);
+			return out;
+		}
 	}
 	return {};
 }
@@ -129,6 +137,15 @@ void WasmStructurer::classify() {
 		}
 		if (fwd >= 2) is_merge[b] = 1;
 	}
+
+	// br_table cannot inline a successor, so every forward target of a Switch
+	// block must be a br target (backedge targets already are, via their loop).
+	for (int b = 0; b < n; b++) {
+		if (rpo_num[b] == -1 || blocks[b].term != Term::Switch) continue;
+		for (int s : succs_of(blocks[b]))
+			if (!is_backedge(b, s))
+				is_merge[s] = 1;
+	}
 }
 
 bool WasmStructurer::is_backedge(int from, int to) const {
@@ -220,6 +237,17 @@ void WasmStructurer::emit_block_and_terminator(int node) {
 		case Term::Uncond:
 			do_branch(node, bi.succ_true);
 			break;
+		case Term::Switch: {
+			auto edge_depth = [&](int to) {
+				return is_backedge(node, to) ? depth_to_loop(to) : depth_to_block(to);
+			};
+			std::vector<int> depths;
+			depths.reserve(bi.succ_switch.size() - 1);
+			for (size_t k = 1; k < bi.succ_switch.size(); k++)
+				depths.push_back(edge_depth(bi.succ_switch[k]));
+			sink->emit_switch_dispatch(node, depths, edge_depth(bi.succ_switch[0]));
+			break;
+		}
 		case Term::Cond: {
 			int t = bi.succ_true, f = bi.succ_false;
 			bool t_br = is_br_target(node, t);

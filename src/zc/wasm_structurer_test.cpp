@@ -10,6 +10,7 @@
 #include "test_runner/test_runner.h"
 #include "test_runner/assert.h"
 
+#include <map>
 #include <string>
 #include <vector>
 
@@ -57,6 +58,25 @@ struct MockSink : StructSink {
 		}
 		line(";; dispatch B" + std::to_string(b) + " (ctx_depth " + std::to_string(ctx_depth) + ")");
 	}
+	void emit_switch_dispatch(int node, const std::vector<int>& depths, int default_depth) override {
+		// Validate every depth against the expected successor, in table order.
+		const auto& succs = switch_succs.at(node);
+		if (depths.size() != succs.size() - 1) {
+			ok = false;
+			fmt::println("!! dispatch on B{} has {} depths for {} targets", node, depths.size(), succs.size() - 1);
+		}
+		line(";; switch operand B" + std::to_string(node));
+		std::string s = "(br_table";
+		for (size_t k = 0; k < depths.size(); k++) {
+			validate(depths[k], succs[k + 1]);
+			s += " " + std::to_string(depths[k]);
+		}
+		validate(default_depth, succs[0]);
+		s += " default:" + std::to_string(default_depth) + ")";
+		line(s);
+	}
+	// Test wiring: node -> its succ_switch, so emit_br_table can validate.
+	std::map<int, std::vector<int>> switch_succs;
 
 	std::string label(int target, int depth) {
 		int idx = (int)frames.size() - 1 - depth;
@@ -86,6 +106,9 @@ bool g_verbose;
 static bool structure(int nblocks, int entry, std::vector<BlockInfo> blocks)
 {
 	MockSink sink;
+	for (int b = 0; b < nblocks; b++)
+		if (blocks[b].term == Term::Switch)
+			sink.switch_succs[b] = blocks[b].succ_switch;
 	WasmStructurer s(nblocks, entry, std::move(blocks));
 	bool reducible = s.analyze();
 	if (reducible)
@@ -230,6 +253,41 @@ static void test_suspending_loop_region()
 	}));
 }
 
+// A switch dispatching to two arms that rejoin: 0 -> table(1, 2, default 3);
+// 1 -> 3; 2 -> 3. Every arm must be a br target (br_table cannot inline).
+static void test_switch_diamond()
+{
+	assertTrue(structure(4, 0, {
+		{Term::Switch, -1, -1, {3, 1, 2}}, // B0: default B3, slots -> B1, B2
+		{Term::Uncond, 3, -1},             // B1
+		{Term::Uncond, 3, -1},             // B2
+		{Term::Exit, -1, -1},              // B3
+	}));
+}
+
+// A switch as a loop's condition, with a slot continuing the loop (back-edge)
+// and the default breaking out: 0 -> 1(header); 1 -> table(2, 1, default 3);
+// 2 -> 1.
+static void test_switch_in_loop()
+{
+	assertTrue(structure(4, 0, {
+		{Term::Uncond, 1, -1},             // B0
+		{Term::Switch, -1, -1, {3, 2, 1}}, // B1 header: default exit, slots -> body, header
+		{Term::Uncond, 1, -1},             // B2 body -> back-edge
+		{Term::Exit, -1, -1},              // B3 exit
+	}));
+}
+
+// Multiple slots sharing targets (dense tables commonly repeat arms).
+static void test_switch_shared_targets()
+{
+	assertTrue(structure(3, 0, {
+		{Term::Switch, -1, -1, {2, 1, 1, 2, 1}}, // B0
+		{Term::Uncond, 2, -1},                   // B1
+		{Term::Exit, -1, -1},                    // B2
+	}));
+}
+
 } // namespace
 
 TestResults test_wasm_structurer(bool verbose)
@@ -247,6 +305,9 @@ TestResults test_wasm_structurer(bool verbose)
 		{ "loop_with_dispatch_break", test_loop_with_dispatch_break },
 		{ "shared_dispatch_trampoline", test_shared_dispatch_trampoline },
 		{ "suspending_loop_region", test_suspending_loop_region },
+		{ "switch_diamond", test_switch_diamond },
+		{ "switch_in_loop", test_switch_in_loop },
+		{ "switch_shared_targets", test_switch_shared_targets },
 	};
 
 	for (auto& test : tests)

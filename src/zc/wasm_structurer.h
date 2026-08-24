@@ -60,12 +60,19 @@ enum class Term {
 		// structurer currently has open, so the sink can compute the total branch
 		// depth to the dispatch loop). Like Exit, it has no in-region successors.
 		Dispatch,
+		// N-way dispatch (GOTOTABLE): the sink's emit_switch_operand leaves a u32
+		// index on the stack, and the structurer emits a br_table over
+		// succ_switch[1..] with succ_switch[0] as the default (also taken for any
+		// out-of-range index, per br_table semantics). Every successor is forced
+		// to be a br target during classification, since br_table cannot inline.
+		Switch,
 };
 
 struct BlockInfo {
 		Term term = Term::Exit;
 		int succ_true  = -1; // Uncond: the sole successor. Cond: taken (cond != 0) target.
 		int succ_false = -1; // Cond: fall-through (cond == 0) target.
+		std::vector<int> succ_switch; // Switch: {default, slot0, slot1, ...}.
 };
 
 // Structural WASM emitter. Real impl forwards to WasmAssembler; the int params
@@ -86,6 +93,12 @@ struct StructSink {
 		// Term::Dispatch only: set the dispatch target and branch out of the
 		// region. ctx_depth = frames the structurer has open at this point.
 		virtual void emit_dispatch(int block, int ctx_depth) = 0;
+		// Term::Switch only: emit the whole N-way dispatch. `depths` holds a
+		// branch depth per succ_switch[1..] entry and `default_depth` the one
+		// for succ_switch[0]; the sink picks the lowering (a br_table for a
+		// dense table, a compare tree for ranges). If the sink opens its own
+		// frames, it must add them to these depths - they are relative to here.
+		virtual void emit_switch_dispatch(int block, const std::vector<int>& depths, int default_depth) = 0;
 };
 
 class WasmStructurer {

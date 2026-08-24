@@ -197,7 +197,7 @@ void jit_reg_cache_flush_policy(Ops& ops, DRegCache<Reg>& cache, JittedScript* j
 		// The interpreter reads and writes ri->d[] directly.
 		ops.flush_cache();
 	}
-	else if (command_is_goto(command) || command == CALLFUNC || command == RETURNFUNC)
+	else if (command_is_goto(command) || command == GOTOTABLE || command == GOTORANGES || command == CALLFUNC || command == RETURNFUNC)
 	{
 		// A CALLFUNC into a function that can suspend (a WaitX/RUNGENFRZSCR reached
 		// transitively) needs the caller's whole modified register state in memory: at the
@@ -328,6 +328,14 @@ void jit_create_labels(State& state, Compiler& cc, zasm_script* script, pc_t sta
 			int pc = script->zasm[i].arg1;
 			if (pc >= (int)start_pc && pc <= (int)final_pc)
 				state.goto_labels[pc] = cc.newLabel();
+		}
+		else if (command == GOTOTABLE || command == GOTORANGES)
+		{
+			for (int pc : zasm_jump_targets(command, script->zasm[i].vecptr))
+			{
+				if (pc >= (int)start_pc && pc <= (int)final_pc && !state.goto_labels.contains(pc))
+					state.goto_labels[pc] = cc.newLabel();
+			}
 		}
 		else if (command == CALLFUNC)
 		{
@@ -664,6 +672,8 @@ inline bool jit_command_is_compiled_shared(int command)
 	case ALLOCATEMEMV:
 	case ZCLASS_READ:
 	case ZCLASS_WRITE:
+	case GOTOTABLE:
+	case GOTORANGES:
 		return true;
 	}
 

@@ -910,6 +910,8 @@ static constexpr script_command command_list[]=
 	{ "SAVEMENU_SWAP_MISCTEXT", SAVEMENU_SWAP_MISCTEXT, 2, { REG_R, REG_R }, 0, 0 },
 	{ "SAVEMENU_MISCTEXT_GET_STRING", SAVEMENU_MISCTEXT_GET_STRING, 2, { REG_R, REG_R }, 0, 0 },
 	{ "SAVEMENU_MISCTEXT_SET_STRING", SAVEMENU_MISCTEXT_SET_STRING, 2, { REG_R, REG_R }, 0, 0 },
+	{ "GOTOTABLE", GOTOTABLE, 1, { REG_R }, 2, 0 },
+	{ "GOTORANGES", GOTORANGES, 1, { REG_R }, 2, 0 },
 };
 
 static constexpr script_variable variable_list[]=
@@ -4997,4 +4999,38 @@ bool does_register_use_stack(int reg)
 bool has_register_dependency(int reg)
 {
 	return register_dependencies[reg].size() || get_register_ref_dependency(reg).has_value();
+}
+
+std::vector<GotoTableRun> gototable_compress(const std::vector<int32_t>& table)
+{
+	// table is {min_key, default_pc, target_for_slot_0, ...}; see GOTOTABLE.
+	std::vector<GotoTableRun> runs;
+	for (size_t k = 2; k < table.size(); k++)
+	{
+		if (runs.empty() || runs.back().target != table[k])
+			runs.push_back({(int32_t)(k - 2), table[k]});
+	}
+	return runs;
+}
+
+std::vector<int32_t> zasm_jump_targets(int command, const std::vector<int32_t>* vec)
+{
+	if (!vec)
+		return {};
+
+	const auto& table = *vec;
+	std::vector<int32_t> targets;
+	if (command == GOTOTABLE)
+	{
+		// {min_key, default_pc, targets...}
+		targets.assign(table.begin() + 1, table.end());
+	}
+	else if (command == GOTORANGES)
+	{
+		// {default_pc, start, end, pc, ...}
+		targets.push_back(table[0]);
+		for (size_t i = 0; i < gotoranges_count(table); i++)
+			targets.push_back(gotoranges_at(table, i).target);
+	}
+	return targets;
 }

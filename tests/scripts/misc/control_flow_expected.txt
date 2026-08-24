@@ -57,11 +57,11 @@ CALLFUNC 0.0133; UsrFunc[void fn_6(int)] Call
 PEEK D4
 LOAD D2 0; UsrFunc[void fn_7(int)] Params Start
 PUSHR D2; UsrFunc[void fn_7(int)] Params End
-CALLFUNC 0.0155; UsrFunc[void fn_7(int)] Call
+CALLFUNC 0.0147; UsrFunc[void fn_7(int)] Call
 PEEK D4
 LOAD D2 0; UsrFunc[void fn_8(int)] Params Start
 PUSHR D2; UsrFunc[void fn_8(int)] Params End
-CALLFUNC 0.0192; UsrFunc[void fn_8(int)] Call
+CALLFUNC 0.0184; UsrFunc[void fn_8(int)] Call
 POP D4
 WAITFRAME; InlineFunc[void Waitframe()] Body AND while(true) #1 Body [Opt:AlwaysOn] End
 GOTO 4; while() #1 End AND [Opt:NeverRet] AND void run(int) Body End
@@ -161,21 +161,13 @@ RETURNFUNC; Func[void fn_5(int)] Body End
 SETR D4 SP2; Func[void fn_6(int)] Body Start
 LOAD D2 0; switch() #1 Key
 SETR SWITCHKEY D2; Store key
-COMPAREV SWITCHKEY 10
-GOTOCMP 145 ==; case '100000'
-COMPAREV SWITCHKEY 15
-GOTOCMP 147 ==; case '150000'
-COMPAREV SWITCHKEY 25
-GOTOCMP 149 ==; case '250000'
-COMPAREV SWITCHKEY 30
-GOTOCMP 151 ==; case '300000'
-GOTO 152; switch() #1 NoMatch
+GOTORANGES SWITCHKEY {0.0144,10,10,0.0137,15,15,0.0139,25,25,0.0141,30,30,0.0143}; switch() #1 range search (4 ranges)
 TRACEV 1; Case block AND InlineFunc[void Trace(untyped)] Params AND InlineFunc[void Trace(untyped)] Body
-GOTO 152; break 1;
+GOTO 144; break 1;
 TRACEV 2; Case block AND InlineFunc[void Trace(untyped)] Params AND InlineFunc[void Trace(untyped)] Body
-GOTO 152; break 1;
+GOTO 144; break 1;
 TRACEV 3; Case block AND InlineFunc[void Trace(untyped)] Params AND InlineFunc[void Trace(untyped)] Body
-GOTO 152; break 1;
+GOTO 144; break 1;
 TRACEV 4; Case block AND InlineFunc[void Trace(untyped)] Params AND InlineFunc[void Trace(untyped)] Body
 TRACEV 0; break 1; AND InlineFunc[void Trace(untyped)] Params AND InlineFunc[void Trace(untyped)] Body
 POP D5
@@ -183,34 +175,34 @@ RETURNFUNC; Func[void fn_6(int)] Body End
 SETR D4 SP2; Func[void fn_7(int)] Body Start
 LOAD D2 0; if() #8 Test
 COMPAREV D2 10
-GOTOCMP 170 <=
+GOTOCMP 162 <=
 LOAD D2 0
 COMPAREV D2 20
-GOTOCMP 170 >=
+GOTOCMP 162 >=
 LOAD D2 0
 COMPAREV D2 14
-GOTOCMP 170 ==
+GOTOCMP 162 ==
 LOAD D2 0
 COMPAREV D2 16
-GOTOCMP 170 ==
+GOTOCMP 162 ==
 SETV D2 1
-GOTO 171
+GOTO 163
 SETV D2 0
 COMPAREV D2 0
-GOTOCMP 175 ==; Test 'if'
+GOTOCMP 167 ==; Test 'if'
 TRACEV 1; InlineFunc[void Trace(untyped)] Params AND if() #8 Body Start AND InlineFunc[void Trace(untyped)] Body
-GOTO 188; if() #8 Body End
+GOTO 180; if() #8 Body End
 LOAD D2 0; if() #10 Test AND if() #8 Else Start
 COMPAREV D2 15
-GOTOCMP 183 <=
+GOTOCMP 175 <=
 LOAD D2 0
 COMPAREV D2 30
-GOTOCMP 183 >
+GOTOCMP 175 >
 SETV D2 1
-GOTO 184
+GOTO 176
 SETV D2 0
 COMPAREV D2 0
-GOTOCMP 187 ==; Test 'if'
+GOTOCMP 179 ==; Test 'if'
 TRACEV 2; InlineFunc[void Trace(untyped)] Params AND if() #10 Body Start AND InlineFunc[void Trace(untyped)] Body AND if() #10 Body End
 NOP; if() #8 Else End
 NOP
@@ -220,49 +212,49 @@ RETURNFUNC; Func[void fn_7(int)] Body End
 SETR D4 SP2; Func[void fn_8(int)] Body Start
 LOAD D2 0; if() #9 Test
 COMPAREV D2 10
-GOTOCMP 207 <=
+GOTOCMP 199 <=
 LOAD D2 0
 COMPAREV D2 20
-GOTOCMP 207 >=
+GOTOCMP 199 >=
 LOAD D2 0
 COMPAREV D2 14
-GOTOCMP 207 ==
+GOTOCMP 199 ==
 LOAD D2 0
 COMPAREV D2 16
-GOTOCMP 207 ==
+GOTOCMP 199 ==
 SETV D2 1
-GOTO 208
+GOTO 200
 SETV D2 0
 COMPAREV D2 0
-GOTOCMP 227 ==; Test 'if'
+GOTOCMP 219 ==; Test 'if'
 LOAD D2 0; if() #11 Test AND if() #9 Body Start
 COMPAREV D2 11
-GOTOCMP 221 ==
+GOTOCMP 213 ==
 LOAD D2 0
 COMPAREV D2 12
-GOTOCMP 221 ==
+GOTOCMP 213 ==
 LOAD D2 0
 COMPAREV D2 13
-GOTOCMP 221 ==
+GOTOCMP 213 ==
 SETV D2 1
-GOTO 222
+GOTO 214
 SETV D2 0
 COMPAREV D2 0
-GOTOCMP 225 ==; Test 'if'
+GOTOCMP 217 ==; Test 'if'
 TRACEV 1; InlineFunc[void Trace(untyped)] Params AND if() #11 Body Start AND InlineFunc[void Trace(untyped)] Body AND if() #11 Body End
 NOP
-GOTO 240; if() #9 Body End
+GOTO 232; if() #9 Body End
 LOAD D2 0; if() #12 Test AND if() #9 Else Start
 COMPAREV D2 15
-GOTOCMP 235 <=
+GOTOCMP 227 <=
 LOAD D2 0
 COMPAREV D2 30
-GOTOCMP 235 >
+GOTOCMP 227 >
 SETV D2 1
-GOTO 236
+GOTO 228
 SETV D2 0
 COMPAREV D2 0
-GOTOCMP 239 ==; Test 'if'
+GOTOCMP 231 ==; Test 'if'
 TRACEV 2; InlineFunc[void Trace(untyped)] Params AND if() #12 Body Start AND InlineFunc[void Trace(untyped)] Body AND if() #12 Body End
 NOP; if() #9 Else End
 NOP

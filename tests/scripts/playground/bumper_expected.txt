@@ -55,20 +55,20 @@ STOREV 0 0.0002
 STOREV 0 0.0001
 PUSHR D4; InlineFunc[int Distance(int, int, int, int)] Params Start AND if() #388 Test AND while(true) #2 Body [Opt:AlwaysOn] Start
 PUSHR SCR0; UsrFunc[int CenterX(ffc)] Params
-CALLFUNC 0.0797; UsrFunc[int CenterX(ffc)] Call
+CALLFUNC 0.0789; UsrFunc[int CenterX(ffc)] Call
 POP D4
 PUSHR D2
 PUSHR D4
 PUSHR SCR0; UsrFunc[int CenterY(ffc)] Params
-CALLFUNC 0.0820; UsrFunc[int CenterY(ffc)] Call
+CALLFUNC 0.0812; UsrFunc[int CenterY(ffc)] Call
 POP D4
 PUSHR D2
 PUSHR D4
-CALLFUNC 0.0783; UsrFunc[int CenterLinkX()] Call
+CALLFUNC 0.0775; UsrFunc[int CenterLinkX()] Call
 POP D4
 PUSHR D2
 PUSHR D4
-CALLFUNC 0.0790; UsrFunc[int CenterLinkY()] Call
+CALLFUNC 0.0782; UsrFunc[int CenterLinkY()] Call
 POP D4; InlineFunc[int Distance(int, int, int, int)] Params End
 POP D1; InlineFunc[int Distance(int, int, int, int)] Body Start
 POP D0
@@ -110,20 +110,20 @@ SETV D2 76; InlineFunc[void Audio::PlaySound(int)] Params AND if() #389 Body Sta
 PLAYSOUNDR D2; InlineFunc[void Audio::PlaySound(int)] Body
 PUSHARGSR D4 0.0002; UsrFunc[int Angle(int, int, int, int)] Params Start
 PUSHR SCR0; UsrFunc[int CenterX(ffc)] Params
-CALLFUNC 0.0797; UsrFunc[int CenterX(ffc)] Call
+CALLFUNC 0.0789; UsrFunc[int CenterX(ffc)] Call
 POP D4
 PUSHR D2
 PUSHR D4
 PUSHR SCR0; UsrFunc[int CenterY(ffc)] Params
-CALLFUNC 0.0820; UsrFunc[int CenterY(ffc)] Call
+CALLFUNC 0.0812; UsrFunc[int CenterY(ffc)] Call
 POP D4
 PUSHR D2
 PUSHR D4
-CALLFUNC 0.0783; UsrFunc[int CenterLinkX()] Call
+CALLFUNC 0.0775; UsrFunc[int CenterLinkX()] Call
 POP D4
 PUSHR D2
 PUSHR D4
-CALLFUNC 0.0790; UsrFunc[int CenterLinkY()] Call
+CALLFUNC 0.0782; UsrFunc[int CenterLinkY()] Call
 POP D4
 PUSHR D2; UsrFunc[int Angle(int, int, int, int)] Params End
 CALLFUNC 0.0486; UsrFunc[int Angle(int, int, int, int)] Call
@@ -135,7 +135,7 @@ SETV D2 16
 STORE D2 0.0003; if() #389 Body End
 NOP
 PUSHR D4
-CALLFUNC 0.0884; UsrFunc[void NoAction()] Call
+CALLFUNC 0.0860; UsrFunc[void NoAction()] Call
 POP D4; if() #388 Body End
 NOP
 LOAD D2 0.0004; if() #390 Test
@@ -149,7 +149,7 @@ PUSHR D4
 PUSHV 3; UsrFunc[int VectorX(int, int)] Params Start
 LOAD D2 0.0005
 PUSHR D2; UsrFunc[int VectorX(int, int)] Params End
-CALLFUNC 0.0956; UsrFunc[int VectorX(int, int)] Call
+CALLFUNC 0.0932; UsrFunc[int VectorX(int, int)] Call
 POP D4
 POP D3
 ADDR D2 D3
@@ -160,7 +160,7 @@ PUSHR D4
 PUSHV 3; UsrFunc[int VectorY(int, int)] Params Start
 LOAD D2 0.0005
 PUSHR D2; UsrFunc[int VectorY(int, int)] Params End
-CALLFUNC 0.0966; UsrFunc[int VectorY(int, int)] Call
+CALLFUNC 0.0942; UsrFunc[int VectorY(int, int)] Call
 POP D4
 POP D3
 ADDR D2 D3
@@ -231,7 +231,7 @@ PUSHR D2
 PUSHR D4
 LOAD D2 0.0001; UsrFunc[int Sign(int)] Params Start
 PUSHR D2; UsrFunc[int Sign(int)] Params End
-CALLFUNC 0.0933; UsrFunc[int Sign(int)] Call
+CALLFUNC 0.0909; UsrFunc[int Sign(int)] Call
 POP D4
 PUSHR D2
 LOAD D2 0.0002; InlineFunc[int Abs(int)] Params Start
@@ -307,7 +307,7 @@ PUSHR D2
 PUSHR D4
 LOAD D2 0.0001; UsrFunc[int Sign(int)] Params Start
 PUSHR D2; UsrFunc[int Sign(int)] Params End
-CALLFUNC 0.0933; UsrFunc[int Sign(int)] Call
+CALLFUNC 0.0909; UsrFunc[int Sign(int)] Call
 POP D4
 PUSHR D2
 LOAD D2 0.0002; InlineFunc[int Abs(int)] Params Start
@@ -390,7 +390,7 @@ PUSHR D2
 PUSHR D4
 LOAD D2 0.0002; UsrFunc[int Sign(int)] Params Start
 PUSHR D2; UsrFunc[int Sign(int)] Params End
-CALLFUNC 0.0933; UsrFunc[int Sign(int)] Call
+CALLFUNC 0.0909; UsrFunc[int Sign(int)] Call
 POP D4
 PUSHR D2
 LOAD D2 0.0001; InlineFunc[int Abs(int)] Params Start
@@ -465,7 +465,7 @@ PUSHR D2
 PUSHR D4
 LOAD D2 0.0002; UsrFunc[int Sign(int)] Params Start
 PUSHR D2; UsrFunc[int Sign(int)] Params End
-CALLFUNC 0.0933; UsrFunc[int Sign(int)] Call
+CALLFUNC 0.0909; UsrFunc[int Sign(int)] Call
 POP D4
 PUSHR D2
 LOAD D2 0.0001; InlineFunc[int Abs(int)] Params Start
@@ -549,18 +549,10 @@ NOP
 PUSHR D4; switch() #4 Key
 LOAD D2 0.0005; UsrFunc[int DirNormal(int)] Params Start
 PUSHR D2; UsrFunc[int DirNormal(int)] Params End
-CALLFUNC 0.0843; UsrFunc[int DirNormal(int)] Call
+CALLFUNC 0.0835; UsrFunc[int DirNormal(int)] Call
 POP D4
 SETR SWITCHKEY D2; Store key
-COMPAREV SWITCHKEY 0
-GOTOCMP 535 ==; case '0'
-COMPAREV SWITCHKEY 1
-GOTOCMP 598 ==; case '10000'
-COMPAREV SWITCHKEY 2
-GOTOCMP 651 ==; case '20000'
-COMPAREV SWITCHKEY 3
-GOTOCMP 710 ==; case '30000'
-GOTO 771; switch() #4 NoMatch
+GOTOTABLE SWITCHKEY {0,0.0763,0.0527,0.059,0.0643,0.0702}; switch() #4 jump table [0..3]
 LOAD D2 0.0006; Case block AND return Start
 PUSHR D2
 LOAD D2 0.0004
@@ -568,7 +560,7 @@ POP D3
 SUBR D3 D2
 SETR D2 D3
 COMPAREV D2 0
-GOTOCMP 594 <
+GOTOCMP 586 <
 LOAD D2 0.0007; InlineFunc[bool screendata::isSolid(int, int)] Params Start
 PUSHR D2
 LOAD D2 0.0006
@@ -584,7 +576,7 @@ SETR D1 D3; InlineFunc[bool screendata::isSolid(int, int)] Params End
 POP D0; InlineFunc[bool screendata::isSolid(int, int)] Body Start
 ISSOLID D2; InlineFunc[bool screendata::isSolid(int, int)] Body End
 COMPAREV D2 0
-GOTOCMP 594 !=
+GOTOCMP 586 !=
 LOAD D2 0.0007; InlineFunc[bool screendata::isSolid(int, int)] Params Start
 ADDV D2 8
 PUSHR D2
@@ -601,7 +593,7 @@ SETR D1 D3; InlineFunc[bool screendata::isSolid(int, int)] Params End
 POP D0; InlineFunc[bool screendata::isSolid(int, int)] Body Start
 ISSOLID D2; InlineFunc[bool screendata::isSolid(int, int)] Body End
 COMPAREV D2 0
-GOTOCMP 594 !=
+GOTOCMP 586 !=
 LOAD D2 0.0001; InlineFunc[bool screendata::isSolid(int, int)] Params Start
 PUSHR D2
 LOAD D2 0.0006
@@ -617,13 +609,13 @@ SETR D1 D3; InlineFunc[bool screendata::isSolid(int, int)] Params End
 POP D0; InlineFunc[bool screendata::isSolid(int, int)] Body Start
 ISSOLID D2; InlineFunc[bool screendata::isSolid(int, int)] Body End
 COMPAREV D2 0
-GOTOCMP 594 !=
+GOTOCMP 586 !=
 SETV D2 0
-GOTO 595
+GOTO 587
 SETV D2 1
 COMPAREV D2 0
 SETCMP D2 I==
-GOTO 781; return End
+GOTO 773; return End
 LOAD D2 0; Case block AND return Start
 PUSHR D2
 LOAD D2 0.0004
@@ -633,7 +625,7 @@ PUSHR D2
 SETR D2 REGION_HEIGHT
 POP D3
 COMPARER D3 D2
-GOTOCMP 647 >=
+GOTOCMP 639 >=
 LOAD D2 0.0007; InlineFunc[bool screendata::isSolid(int, int)] Params Start
 PUSHR D2
 LOAD D2 0
@@ -645,7 +637,7 @@ SETR D1 D2; InlineFunc[bool screendata::isSolid(int, int)] Params End
 POP D0; InlineFunc[bool screendata::isSolid(int, int)] Body Start
 ISSOLID D2; InlineFunc[bool screendata::isSolid(int, int)] Body End
 COMPAREV D2 0
-GOTOCMP 647 !=
+GOTOCMP 639 !=
 LOAD D2 0.0007; InlineFunc[bool screendata::isSolid(int, int)] Params Start
 ADDV D2 8
 PUSHR D2
@@ -658,7 +650,7 @@ SETR D1 D2; InlineFunc[bool screendata::isSolid(int, int)] Params End
 POP D0; InlineFunc[bool screendata::isSolid(int, int)] Body Start
 ISSOLID D2; InlineFunc[bool screendata::isSolid(int, int)] Body End
 COMPAREV D2 0
-GOTOCMP 647 !=
+GOTOCMP 639 !=
 LOAD D2 0.0001; InlineFunc[bool screendata::isSolid(int, int)] Params Start
 PUSHR D2
 LOAD D2 0
@@ -670,13 +662,13 @@ SETR D1 D2; InlineFunc[bool screendata::isSolid(int, int)] Params End
 POP D0; InlineFunc[bool screendata::isSolid(int, int)] Body Start
 ISSOLID D2; InlineFunc[bool screendata::isSolid(int, int)] Body End
 COMPAREV D2 0
-GOTOCMP 647 !=
+GOTOCMP 639 !=
 SETV D2 0
-GOTO 648
+GOTO 640
 SETV D2 1
 COMPAREV D2 0
 SETCMP D2 I==
-GOTO 781; return End
+GOTO 773; return End
 LOAD D2 0.0007; Case block AND return Start
 PUSHR D2
 LOAD D2 0.0004
@@ -684,7 +676,7 @@ POP D3
 SUBR D3 D2
 SETR D2 D3
 COMPAREV D2 0
-GOTOCMP 706 <
+GOTOCMP 698 <
 LOAD D2 0.0007; InlineFunc[bool screendata::isSolid(int, int)] Params Start
 PUSHR D2
 LOAD D2 0.0004
@@ -700,7 +692,7 @@ SETR D1 D2; InlineFunc[bool screendata::isSolid(int, int)] Params End
 POP D0; InlineFunc[bool screendata::isSolid(int, int)] Body Start
 ISSOLID D2; InlineFunc[bool screendata::isSolid(int, int)] Body End
 COMPAREV D2 0
-GOTOCMP 706 !=
+GOTOCMP 698 !=
 LOAD D2 0.0007; InlineFunc[bool screendata::isSolid(int, int)] Params Start
 PUSHR D2
 LOAD D2 0.0004
@@ -717,7 +709,7 @@ SETR D1 D2; InlineFunc[bool screendata::isSolid(int, int)] Params End
 POP D0; InlineFunc[bool screendata::isSolid(int, int)] Body Start
 ISSOLID D2; InlineFunc[bool screendata::isSolid(int, int)] Body End
 COMPAREV D2 0
-GOTOCMP 706 !=
+GOTOCMP 698 !=
 LOAD D2 0.0007; InlineFunc[bool screendata::isSolid(int, int)] Params Start
 PUSHR D2
 LOAD D2 0.0004
@@ -729,13 +721,13 @@ SETR D1 D2; InlineFunc[bool screendata::isSolid(int, int)] Params End
 POP D0; InlineFunc[bool screendata::isSolid(int, int)] Body Start
 ISSOLID D2; InlineFunc[bool screendata::isSolid(int, int)] Body End
 COMPAREV D2 0
-GOTOCMP 706 !=
+GOTOCMP 698 !=
 SETV D2 0
-GOTO 707
+GOTO 699
 SETV D2 1
 COMPAREV D2 0
 SETCMP D2 I==
-GOTO 781; return End
+GOTO 773; return End
 LOAD D2 0.0001; Case block AND return Start
 PUSHR D2
 LOAD D2 0.0004
@@ -745,7 +737,7 @@ PUSHR D2
 SETR D2 REGION_WIDTH
 POP D3
 COMPARER D3 D2
-GOTOCMP 767 >=
+GOTOCMP 759 >=
 LOAD D2 0.0001; InlineFunc[bool screendata::isSolid(int, int)] Params Start
 PUSHR D2
 LOAD D2 0.0004
@@ -761,7 +753,7 @@ SETR D1 D2; InlineFunc[bool screendata::isSolid(int, int)] Params End
 POP D0; InlineFunc[bool screendata::isSolid(int, int)] Body Start
 ISSOLID D2; InlineFunc[bool screendata::isSolid(int, int)] Body End
 COMPAREV D2 0
-GOTOCMP 767 !=
+GOTOCMP 759 !=
 LOAD D2 0.0001; InlineFunc[bool screendata::isSolid(int, int)] Params Start
 PUSHR D2
 LOAD D2 0.0004
@@ -778,7 +770,7 @@ SETR D1 D2; InlineFunc[bool screendata::isSolid(int, int)] Params End
 POP D0; InlineFunc[bool screendata::isSolid(int, int)] Body Start
 ISSOLID D2; InlineFunc[bool screendata::isSolid(int, int)] Body End
 COMPAREV D2 0
-GOTOCMP 767 !=
+GOTOCMP 759 !=
 LOAD D2 0.0001; InlineFunc[bool screendata::isSolid(int, int)] Params Start
 PUSHR D2
 LOAD D2 0.0004
@@ -790,13 +782,13 @@ SETR D1 D2; InlineFunc[bool screendata::isSolid(int, int)] Params End
 POP D0; InlineFunc[bool screendata::isSolid(int, int)] Body Start
 ISSOLID D2; InlineFunc[bool screendata::isSolid(int, int)] Body End
 COMPAREV D2 0
-GOTOCMP 767 !=
+GOTOCMP 759 !=
 SETV D2 0
-GOTO 768
+GOTO 760
 SETV D2 1
 COMPAREV D2 0
 SETCMP D2 I==
-GOTO 781; return End
+GOTO 773; return End
 ALLOCATEMEMV D2 60 0; Case block AND InlineFunc[void printf(char32[], ...untyped[])] Params Start
 WRITEPODSTRING D2 "Invalid direction %d passed to CanWalk(x,y,dir,step,bool) \n"
 PUSHR D2
@@ -805,7 +797,7 @@ PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
 PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
 POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
 SETV D2 0; return Start
-GOTO 781; return End
+GOTO 773; return End
 NOP
 POPARGS D5 0.0008
 RETURNFUNC; Func[bool CanWalk(int, int, int, int, bool)] Body End
@@ -872,41 +864,25 @@ RETURNFUNC; Func[int CenterY(ffc)] Body End
 SETR D4 SP2; Func[int DirNormal(int)] Body Start
 LOAD D2 0; switch() #9 Key
 SETR SWITCHKEY D2; Store key
-COMPAREV SWITCHKEY 8
-GOTOCMP 863 ==; case '80000'
-COMPAREV SWITCHKEY 9
-GOTOCMP 865 ==; case '90000'
-COMPAREV SWITCHKEY 10
-GOTOCMP 867 ==; case '100000'
-COMPAREV SWITCHKEY 11
-GOTOCMP 869 ==; case '110000'
-COMPAREV SWITCHKEY 12
-GOTOCMP 871 ==; case '120000'
-COMPAREV SWITCHKEY 13
-GOTOCMP 873 ==; case '130000'
-COMPAREV SWITCHKEY 14
-GOTOCMP 875 ==; case '140000'
-COMPAREV SWITCHKEY 15
-GOTOCMP 877 ==; case '150000'
-GOTO 879; switch() #9 NoMatch
+GOTOTABLE SWITCHKEY {8,0.0855,0.0839,0.0841,0.0843,0.0845,0.0847,0.0849,0.0851,0.0853}; switch() #9 jump table [8..15]
 SETV D2 0; Case block AND return Start
-GOTO 882; return End
+GOTO 858; return End
 SETV D2 5; Case block AND return Start
-GOTO 882; return End
+GOTO 858; return End
 SETV D2 3; Case block AND return Start
-GOTO 882; return End
+GOTO 858; return End
 SETV D2 7; Case block AND return Start
-GOTO 882; return End
+GOTO 858; return End
 SETV D2 1; Case block AND return Start
-GOTO 882; return End
+GOTO 858; return End
 SETV D2 6; Case block AND return Start
-GOTO 882; return End
+GOTO 858; return End
 SETV D2 2; Case block AND return Start
-GOTO 882; return End
+GOTO 858; return End
 SETV D2 4; Case block AND return Start
-GOTO 882; return End
+GOTO 858; return End
 LOAD D2 0; Case block AND return Start
-GOTO 882; return End
+GOTO 858; return End
 NOP
 POP D5
 RETURNFUNC; Func[int DirNormal(int)] Body End
@@ -917,26 +893,26 @@ LOAD D2 0; for() #68 LoopTest
 COMPAREV D2 14
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 930 ==; for() #68 TestFail?
+GOTOCMP 906 ==; for() #68 TestFail?
 LOAD D2 0; if() #193 Test AND for() #68 Body Start
 COMPAREV D2 9
-GOTOCMP 898 !=
-GOTO 898
+GOTOCMP 874 !=
+GOTO 874
 SETV D2 1
-GOTO 899
+GOTO 875
 SETV D2 0
 COMPAREV D2 0
-GOTOCMP 926 !=; Test 'if' AND continue 1; AND if() #193 Body
+GOTOCMP 902 !=; Test 'if' AND continue 1; AND if() #193 Body
 NOP
 LOAD D2 0; if() #194 Test
 COMPAREV D2 6
-GOTOCMP 908 !=
-GOTO 908
+GOTOCMP 884 !=
+GOTO 884
 SETV D2 1
-GOTO 909
+GOTO 885
 SETV D2 0
 COMPAREV D2 0
-GOTOCMP 926 !=; Test 'if' AND continue 1; AND if() #194 Body
+GOTOCMP 902 !=; Test 'if' AND continue 1; AND if() #194 Body
 NOP
 SETV D2 0
 PUSHR D2
@@ -955,7 +931,7 @@ SETR BUTTONPRESS D2; for() #68 Body End
 LOAD D2 0; for() #68 LoopIncrement
 ADDV D2 1
 STORE D2 0
-GOTO 887; for() #68 End
+GOTO 863; for() #68 End
 NOP
 POP D5
 RETURNFUNC; Func[void NoAction()] Body End
@@ -964,20 +940,20 @@ LOAD D2 0; if() #73 Test
 COMPAREV D2 0
 SETCMP D2 I>
 COMPAREV D2 0
-GOTOCMP 942 ==; Test 'if'
+GOTOCMP 918 ==; Test 'if'
 SETV D2 1; return Start AND if() #73 Body Start
-GOTO 954; return End
-GOTO 953; if() #73 Body End
+GOTO 930; return End
+GOTO 929; if() #73 Body End
 LOAD D2 0; if() #74 Test AND if() #73 Else Start
 COMPAREV D2 0
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 950 ==; Test 'if'
+GOTOCMP 926 ==; Test 'if'
 SETV D2 -1; return Start AND if() #74 Body Start
-GOTO 954; return End
-GOTO 952; if() #74 Body End
+GOTO 930; return End
+GOTO 928; if() #74 Body End
 SETV D2 0; return Start AND if() #74 Else Start
-GOTO 954; return End AND if() #74 Else End
+GOTO 930; return End AND if() #74 Else End
 NOP; if() #73 Else End
 NOP
 POP D5

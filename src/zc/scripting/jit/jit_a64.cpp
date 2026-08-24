@@ -1818,6 +1818,146 @@ static void compile_single_command(CompilationState& state, a64::Compiler& cc, c
 			node->setArg(3, state.pc);
 		}
 		break;
+		case GOTORANGES:
+		{
+			// Range search; see the opcode's comment in defines.h. Binary search
+			// over the sorted ranges, comparing the key itself - no index math,
+			// so non-integral keys inside a range work like the interpreter's.
+			const auto& table = *instr.vecptr;
+			size_t num_ranges = gotoranges_count(table);
+
+			std::map<int, Label> bail_stubs;
+			auto target_label = [&](int pc) -> Label {
+				if (pc >= (int)state.start_pc && pc <= (int)state.final_pc)
+					return state.goto_labels[pc];
+				auto [it, fresh] = bail_stubs.try_emplace(pc, Label());
+				if (fresh)
+					it->second = cc.newLabel();
+				return it->second;
+			};
+
+			Label default_label = target_label(table[0]);
+			if (num_ranges == 0)
+			{
+				cc.b(default_label);
+			}
+			else
+			{
+				a64::Gp key = get_z_register(state, cc, arg1);
+
+				// Each leaf still bounds-checks its own range: the search only
+				// narrows to the range a matching key would be in, and a key in a
+				// gap between ranges reaches a leaf without belonging to it.
+				auto emit_tree = [&](auto&& self, size_t lo, size_t hi) -> void {
+					if (lo == hi)
+					{
+						auto range = gotoranges_at(table, lo);
+						cmp_constant(cc, key, range.start);
+						emit_cond_branch(state, cc, a64::CondCode::kLT, default_label, goto_distance(state, table[0]));
+						cmp_constant(cc, key, range.end);
+						emit_cond_branch(state, cc, a64::CondCode::kGT, default_label, goto_distance(state, table[0]));
+						cc.b(target_label(range.target));
+						return;
+					}
+					size_t mid = (lo + hi + 1) / 2;
+					Label right = cc.newLabel();
+					cmp_constant(cc, key, gotoranges_at(table, mid).start);
+					cc.b(a64::CondCode::kGE, right);
+					self(self, lo, mid - 1);
+					cc.bind(right);
+					self(self, mid, hi);
+				};
+				emit_tree(emit_tree, 0, num_ranges - 1);
+			}
+
+			for (auto& [pc, lbl] : bail_stubs)
+			{
+				cc.bind(lbl);
+				set_ctx_pc(state, cc, pc);
+				cc.mov(state.vResult, EXEC_RESULT_CONTINUE);
+				cc.b(state.L_End);
+			}
+		}
+		break;
+		case GOTOTABLE:
+		{
+			// Dense-switch dispatch; see the opcode's comment in defines.h. Emitted as
+			// a balanced compare tree over the table index - every branch is static,
+			// and an N-way switch costs ~log2(N) compares instead of a linear ladder.
+			const auto& table = *instr.vecptr;
+			int32_t min_key = table[0];
+			size_t num_targets = table.size() - 2;
+
+			// Targets outside the function bail like GOTO does; stubs bound after the tree.
+			std::map<int, Label> bail_stubs;
+			auto target_label = [&](int pc) -> Label {
+				if (pc >= (int)state.start_pc && pc <= (int)state.final_pc)
+					return state.goto_labels[pc];
+				auto [it, fresh] = bail_stubs.try_emplace(pc, Label());
+				if (fresh)
+					it->second = cc.newLabel();
+				return it->second;
+			};
+
+			Label default_label = target_label(table[1]);
+			auto runs = gototable_compress(table);
+			if (num_targets == 0)
+			{
+				cc.b(default_label);
+			}
+			else
+			{
+				a64::Gp key = get_z_register(state, cc, arg1);
+				a64::Gp idx = cc.newInt32();
+				cc.sub(idx, key, imm_to_reg(cc, min_key));
+				a64::Gp q = div_10000(state, cc, idx);
+
+				// A key out of range, or not an exact multiple of 10000 past
+				// min_key, takes the default target.
+				a64::Gp rem = cc.newInt32();
+				cc.msub(rem, q, state.vTenK.w(), idx);
+				cc.cmp(rem, 0);
+				emit_cond_branch(state, cc, a64::CondCode::kNE, default_label, goto_distance(state, table[1]));
+				cc.cmp(q, 0);
+				emit_cond_branch(state, cc, a64::CondCode::kLT, default_label, goto_distance(state, table[1]));
+				if (num_targets <= 4095)
+					cc.cmp(q, num_targets);
+				else
+					cc.cmp(q, imm_to_reg(cc, (int32_t)num_targets));
+				emit_cond_branch(state, cc, a64::CondCode::kGE, default_label, goto_distance(state, table[1]));
+
+				// Binary search over runs of equal targets. The tree is emitted
+				// contiguously, so internal branches are always near; only the
+				// leaf jumps can be far (unconditional b reaches).
+				auto emit_tree = [&](auto&& self, size_t lo, size_t hi) -> void {
+					if (lo == hi)
+					{
+						cc.b(target_label(runs[lo].target));
+						return;
+					}
+					size_t mid = (lo + hi + 1) / 2;
+					Label right = cc.newLabel();
+					if (runs[mid].start <= 4095)
+						cc.cmp(q, runs[mid].start);
+					else
+						cc.cmp(q, imm_to_reg(cc, runs[mid].start));
+					cc.b(a64::CondCode::kGE, right);
+					self(self, lo, mid - 1);
+					cc.bind(right);
+					self(self, mid, hi);
+				};
+				emit_tree(emit_tree, 0, runs.size() - 1);
+			}
+
+			for (auto& [pc, lbl] : bail_stubs)
+			{
+				cc.bind(lbl);
+				set_ctx_pc(state, cc, pc);
+				cc.mov(state.vResult, EXEC_RESULT_CONTINUE);
+				cc.b(state.L_End);
+			}
+		}
+		break;
 		case ALLOCATEMEMV:
 		{
 			// reg[arg1] = allocate(size=arg2/10000, object_type=arg3).

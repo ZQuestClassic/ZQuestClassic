@@ -608,6 +608,23 @@ int32_t parse_script_section(char const* combuf, char const* const* argbufs, ffs
 		case CALLFUNC: //Hardcoded, based on GOTO above
 			zas.arg1 -= 1;
 			break;
+		case GOTOTABLE:
+			// The vector is {min_key, default_pc, targets...}; every entry past
+			// the key is a label, written 1-indexed like the goto args above.
+			if(zas.vecptr)
+				for(size_t q = 1; q < zas.vecptr->size(); ++q)
+					(*zas.vecptr)[q] -= 1;
+			break;
+		case GOTORANGES:
+			// The vector is {default_pc, start, end, pc, ...}; the default and
+			// every third entry after it are labels, the bounds are values.
+			if(zas.vecptr)
+			{
+				(*zas.vecptr)[0] -= 1;
+				for(size_t q = 3; q < zas.vecptr->size(); q += 3)
+					(*zas.vecptr)[q] -= 1;
+			}
+			break;
 	}
 
 	return 1;

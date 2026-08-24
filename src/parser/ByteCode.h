@@ -142,6 +142,8 @@ namespace ZScript {
 	typedef Opcode2<SUBV, VarArgument, LiteralArgument> OSubImmediate;
 	typedef Opcode2<SUBV2, LiteralArgument, VarArgument> OSubImmediate2;
 	typedef Opcode2<WRITEPODARRAY, VarArgument, VectorArgument> OWritePODArray;
+	typedef Opcode2<GOTOTABLE, VarArgument, LabelVectorArgument> OGotoTable;
+	typedef Opcode2<GOTORANGES, VarArgument, LabelVectorArgument> OGotoRanges;
 	typedef Opcode2<WRITEPODSTRING, VarArgument, StringArgument> OWritePODString;
 	typedef Opcode2<XORR, VarArgument, VarArgument> OXorRegister;
 	typedef Opcode2<XORR32, VarArgument, VarArgument> O32BitXorRegister;

@@ -1270,6 +1270,21 @@ enum ASM_DEFINE
 	SAVEMENU_MISCTEXT_GET_STRING,
 	SAVEMENU_MISCTEXT_SET_STRING,
 
+	// Dense-switch dispatch. arg1 is the key register; the vector is
+	// {min_key, default_pc, pc_for_min, pc_for_min+1, ..., pc_for_max}, with
+	// min_key in fixed-point (like the COMPAREV ladder it replaces) and pcs
+	// 0-indexed. A key that is out of range, or not min_key plus an exact
+	// multiple of 10000, jumps to default_pc.
+	GOTOTABLE,
+
+	// Range search. arg1 is the key register; the vector is
+	// {default_pc, start0, end0, pc0, start1, end1, pc1, ...} with inclusive
+	// bounds in fixed-point, sorted and non-overlapping, and pcs 0-indexed.
+	// The key jumps to the pc of the range containing it, else to default_pc.
+	// Unlike GOTOTABLE this compares the key itself, so it also covers case
+	// ranges (which match non-integral keys between their bounds).
+	GOTORANGES,
+
 	NUMCOMMANDS
 };
 

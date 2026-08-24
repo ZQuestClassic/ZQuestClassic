@@ -668,6 +668,175 @@ static std::vector<Scope*> getBreakableScopesForStatement(ASTStmtSwitch* node)
 }
 
 #define OPT_STR(v) (v?to_string(*v):"nullopt")
+// A switch's case labels as inclusive key ranges (a discrete `case 2:` is the
+// range [2,2]), sorted by bound and non-overlapping. This is the shared input
+// to both dispatch lowerings.
+struct SwitchCaseRange
+{
+	int32_t lo, hi;
+	ASTSwitchCases* c;
+};
+
+// Collects every case label as a range.
+//
+// Returns nullopt if:
+// - the switch is a string switch
+// - two labels overlap
+// - any label is not a compile-time value (which isn't a valid switch anyway)
+static std::optional<std::vector<SwitchCaseRange>> collect_switch_case_ranges(
+	const std::vector<ASTSwitchCases*>& cases, CompileErrorHandler* errorHandler, Scope* scope)
+{
+	std::vector<SwitchCaseRange> ranges;
+	for (ASTSwitchCases* c : cases)
+	{
+		if (!c->str_cases.empty())
+			return std::nullopt;
+
+		for (auto& v : c->cases)
+		{
+			auto val = v->getCompileTimeValue(errorHandler, scope);
+			if (!val)
+				return std::nullopt;
+
+			ranges.push_back({*val, *val, c});
+		}
+		for (auto& r : c->ranges)
+		{
+			auto startval = r->getStartVal(true, errorHandler, scope);
+			auto endval = r->getEndVal(true, errorHandler, scope);
+			if (!startval || !endval || *startval > *endval)
+				return std::nullopt;
+
+			ranges.push_back({*startval, *endval, c});
+		}
+	}
+
+	std::sort(ranges.begin(), ranges.end(), [](const auto& a, const auto& b){
+		return a.lo < b.lo;
+	});
+	for (size_t i = 1; i < ranges.size(); i++)
+	{
+		if (ranges[i].lo <= ranges[i - 1].hi)
+			return std::nullopt;
+	}
+
+	return ranges;
+}
+
+// A switch lowered as a GOTOTABLE jump table: `slots[i]` is the case owning key
+// `min_key + i*10000`, or null for keys that fall through to the default.
+struct SwitchJumpTable
+{
+	int32_t min_key; // fixed-point, like the case values
+	std::vector<ASTSwitchCases*> slots;
+};
+
+// Decides whether a switch is worth dispatching through a jump table, and if so
+// builds it. Rejects switches too small to beat a compare ladder, too sparse
+// (the table holds a slot per key in range), whose span is too wide to store,
+// or whose labels don't share a residue mod 10000 (the table indexes by whole
+// steps, so it cannot represent a bound - or a ranged case - that doesn't).
+static std::optional<SwitchJumpTable> build_switch_jump_table(
+	const std::vector<SwitchCaseRange>& ranges)
+{
+	// Tunables. The ladder costs two instructions per label, so a handful of
+	// labels is already faster as a table; the density floor keeps a sparse
+	// switch (e.g. cases 0 and 100000) from generating a huge table.
+	constexpr size_t MIN_LABELS = 4;
+	constexpr int MIN_DENSITY_PERCENT = 25;
+	// Each slot is a 4-byte entry stored in the quest, so cap how wide a span
+	// one switch may spend - a switch over 0x0000..0xFFFF would otherwise store
+	// 65536 entries. Wider switches fall to GOTORANGES, whose size scales with
+	// the number of ranges rather than the keys they cover.
+	static size_t MAX_SLOTS = (size_t)std::max<int64_t>(0, get_flag_int("-switch-table-max-slots").value_or(1024));
+
+	if (ranges.size() < MIN_LABELS)
+		return std::nullopt;
+
+	int32_t min_key = ranges.front().lo, max_key = ranges.back().hi;
+	int64_t num_keys = 0;
+	for (const SwitchCaseRange& r : ranges)
+	{
+		// A ranged case matches every value between its bounds, including
+		// non-integral ones. A table only has a slot per whole step, so it
+		// cannot represent that - those switches use GOTORANGES instead.
+		if (r.lo != r.hi)
+			return std::nullopt;
+		if ((r.lo - min_key) % 10000 != 0)
+			return std::nullopt;
+		num_keys += 1;
+	}
+
+	int64_t num_slots = ((int64_t)max_key - min_key) / 10000 + 1;
+	if (num_slots > (int64_t)MAX_SLOTS)
+		return std::nullopt;
+	if (num_keys * 100 < num_slots * MIN_DENSITY_PERCENT)
+		return std::nullopt;
+
+	SwitchJumpTable table;
+	table.min_key = min_key;
+	table.slots.assign(num_slots, nullptr);
+	for (const SwitchCaseRange& r : ranges)
+	{
+		for (int64_t k = ((int64_t)r.lo - min_key) / 10000; k <= ((int64_t)r.hi - min_key) / 10000; k++)
+			table.slots[k] = r.c;
+	}
+	return table;
+}
+
+// Decides whether a switch is worth dispatching by binary search over its case
+// ranges. Unlike a jump table this compares the key itself, so it handles
+// ranged cases (which match non-integral keys between their bounds) and keys
+// that share no common step - but it costs a compare per level instead of one
+// indexed lookup, so a table is preferred where one fits.
+static bool should_use_switch_ranges(const std::vector<SwitchCaseRange>& ranges)
+{
+	// Below this the ladder's handful of comparisons is not worth an opcode;
+	// above it, the search stays a few comparisons inside a single opcode
+	// while the ladder pays a full dispatch per label.
+	constexpr size_t MIN_LABELS = 4;
+	// Each range is 3 ints in the quest. This bound is generous because the
+	// cost scales with ranges, not with the span of keys they cover.
+	static size_t MAX_RANGES = (size_t)std::max<int64_t>(0, get_flag_int("-switch-ranges-max").value_or(256));
+
+	// Adjacent ranges sharing a case are merged before emission, so count those.
+	size_t merged = 0;
+	for (size_t i = 0; i < ranges.size(); i++)
+	{
+		if (i == 0 || ranges[i].c != ranges[i - 1].c || ranges[i].lo != ranges[i - 1].hi + 1)
+			merged++;
+	}
+
+	return ranges.size() >= MIN_LABELS && merged <= MAX_RANGES;
+}
+
+// How a switch will dispatch: through a jump table when one fits, else by
+// binary search over its case ranges. Null when neither pays off and the
+// switch should keep the compare ladder.
+struct SwitchDispatchPlan
+{
+	std::optional<SwitchJumpTable> table;
+	std::vector<SwitchCaseRange> ranges; // used when `table` is null
+};
+
+static std::optional<SwitchDispatchPlan> plan_switch_dispatch(
+	const std::vector<ASTSwitchCases*>& cases, CompileErrorHandler* errorHandler, Scope* scope)
+{
+	auto ranges = collect_switch_case_ranges(cases, errorHandler, scope);
+	if (!ranges)
+		return std::nullopt;
+
+	// A table is the faster lowering (one indexed lookup), so prefer it where
+	// its cost is bounded; the range search covers everything else it can.
+	if (auto table = build_switch_jump_table(*ranges))
+		return SwitchDispatchPlan{std::move(table), {}};
+
+	if (should_use_switch_ranges(*ranges))
+		return SwitchDispatchPlan{std::nullopt, std::move(*ranges)};
+
+	return std::nullopt;
+}
+
 void BuildOpcodes::caseStmtSwitch(ASTStmtSwitch &host, void* param)
 {
 	if(host.isString)
@@ -723,6 +892,76 @@ void BuildOpcodes::caseStmtSwitch(ASTStmtSwitch &host, void* param)
 			commentAt(targ_sz, fmt::format("switch({}) #{} [Opt:ConstVal]", *keyval, switchid));
 		}
 		else needsEndLabel = false;
+	}
+	// A compile-time key never loaded EXP1 above, so the dispatch lowerings and
+	// the ladder below all require a runtime key. switch_dispatch is null when
+	// the switch has to stay a ladder.
+	else if (auto switch_dispatch = keyval ? std::nullopt : plan_switch_dispatch(cases, this, scope))
+	{
+		// Dispatch straight to the matching case instead of walking a compare
+		// ladder: one opcode replaces two instructions per case label.
+		addOpcode(new OSetRegister(new VarArgument(SWITCHKEY), new VarArgument(EXP1)));
+		commentBack("Store key");
+
+		for (ASTSwitchCases* c : cases)
+		{
+			int32_t label = ScriptParser::getUniqueLabelID();
+			labels[c] = label;
+			if (c->isDefault)
+				default_label = label;
+		}
+
+		if (auto& table = switch_dispatch->table)
+		{
+			// {min_key, default_label, labels...}
+			std::vector<int32_t> vec;
+			vec.push_back(table->min_key);
+			vec.push_back(default_label);
+			for (ASTSwitchCases* c : table->slots)
+				vec.push_back(c ? labels[c] : default_label);
+
+			addOpcode(new OGotoTable(new VarArgument(SWITCHKEY),
+				new LabelVectorArgument(vec, 1)));
+			commentBack(fmt::format("switch() #{} jump table [{}..{}]", switchid,
+				table->min_key / 10000, (table->min_key / 10000) + (int)table->slots.size() - 1));
+		}
+		else
+		{
+			// {default_label, start, end, label, ...}, merging adjacent ranges
+			// that share a case.
+			const auto& ranges = switch_dispatch->ranges;
+			std::vector<int32_t> vec;
+			vec.push_back(default_label);
+			size_t num_ranges = 0;
+			for (size_t i = 0; i < ranges.size(); i++)
+			{
+				bool merges_with_prev = i > 0 && ranges[i].c == ranges[i - 1].c &&
+					ranges[i].lo == ranges[i - 1].hi + 1;
+				if (merges_with_prev)
+				{
+					vec[vec.size() - 2] = ranges[i].hi; // extend the previous range
+					continue;
+				}
+				vec.push_back(ranges[i].lo);
+				vec.push_back(ranges[i].hi);
+				vec.push_back(labels[ranges[i].c]);
+				num_ranges++;
+			}
+
+			// Only the label entries (every third, after the default) are labels.
+			addOpcode(new OGotoRanges(new VarArgument(SWITCHKEY),
+				new LabelVectorArgument(vec, 0, 3)));
+			commentBack(fmt::format("switch() #{} range search ({} ranges)", switchid, num_ranges));
+		}
+
+		// Add the actual code branches.
+		for (auto it = cases.begin(); it != cases.end(); ++it)
+		{
+			ASTSwitchCases* cases = *it;
+			addOpcode(new ONoOp(labels[cases]));
+			commentBack("Case block");
+			visit(cases->block.get(), param);
+		}
 	}
 	else
 	{

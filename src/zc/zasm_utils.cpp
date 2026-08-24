@@ -441,6 +441,16 @@ ZasmCFG zasm_construct_cfg(const zasm_script* script, std::vector<std::pair<pc_t
 				if (i + 1 <= final_pc)
 					block_starts.push_back(i + 1);
 			}
+			else if (command == GOTOTABLE || command == GOTORANGES)
+			{
+				for (pc_t target : zasm_jump_targets(command, script->zasm[i].vecptr))
+				{
+					if (is_in_ranges(target, pc_ranges))
+						block_starts.push_back(target);
+				}
+				if (i + 1 <= final_pc)
+					block_starts.push_back(i + 1);
+			}
 			else if (command_is_suspend(command))
 			{
 				// A suspend point ends its block so execution can resume at the
@@ -481,6 +491,21 @@ ZasmCFG zasm_construct_cfg(const zasm_script* script, std::vector<std::pair<pc_t
 			edges.push_back(j);
 			auto other_block = cfg.block_id_from_start_pc(prev_arg1);
 			edges.push_back(other_block);
+		}
+		else if (prev_command == GOTOTABLE || prev_command == GOTORANGES)
+		{
+			// Previous block continues to one of the dispatch targets (default
+			// included, no fallthrough). Several keys can share a target, so
+			// dedupe the edges.
+			for (pc_t target : zasm_jump_targets(prev_command, script->zasm[i].vecptr))
+			{
+				if (!is_in_ranges(target, pc_ranges))
+					continue;
+
+				auto other_block = cfg.block_id_from_start_pc(target);
+				if (std::find(edges.begin(), edges.end(), other_block) == edges.end())
+					edges.push_back(other_block);
+			}
 		}
 		else if (prev_command != QUIT && prev_command != RETURN && prev_command != RETURNFUNC && prev_command != GOTOR && prev_command != GAMEEXIT && j != num_blocks)
 		{

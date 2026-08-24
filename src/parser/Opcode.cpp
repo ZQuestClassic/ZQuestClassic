@@ -75,3 +75,10 @@ string VectorArgument::toString() const
 {
 	return util::stringify_vector(value, true);
 }
+
+string LabelVectorArgument::toString() const
+{
+	// By the time this is printed, SetLabels has replaced the label ids with
+	// pcs, so this is a plain vector of numbers.
+	return util::stringify_vector(value, true);
+}

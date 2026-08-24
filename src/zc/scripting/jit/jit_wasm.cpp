@@ -628,6 +628,8 @@ static bool command_is_compiled(int command)
 	case COMPAREV:
 	case COMPAREV2:
 	case GOTO:
+	case GOTOTABLE:
+	case GOTORANGES:
 	case QUIT:
 	case CALLFUNC:
 	case RETURNFUNC:
@@ -1080,6 +1082,92 @@ static void compile_quit(CompilationState& state, const zasm_script* script, pc_
 	state.wasm->emitI32Const(RUNSCRIPT_STOPPED);
 	state.wasm->emitCall(state.f_idx_set_return_value);
 	state.wasm->emitUnreachable(); // Bail.
+}
+
+// Emits a GOTORANGES binary search (see the opcode's comment in defines.h).
+// `branch(target_index, extra)` emits the transfer for range target_index (or
+// the default, when target_index is -1), where `extra` is how many wasm frames
+// this search has open at that point - the caller adds it to its own branch
+// depth. The search only narrows to the range a matching key would be in, so
+// each leaf still checks its own bounds and falls back to the default.
+template <typename Branch>
+static void emit_gotoranges_tree(CompilationState& state, const zasm_script* script, pc_t pc, Branch branch)
+{
+	WasmAssembler& wasm = *state.wasm;
+	const auto& table = *script->zasm[pc].vecptr;
+	size_t num_ranges = gotoranges_count(table);
+
+	if (num_ranges == 0)
+	{
+		branch(-1, 0);
+		return;
+	}
+
+	get_z_register(state, script->zasm[pc].arg1);
+	wasm.emitLocalSet(l_idx_scratch2);
+
+	auto emit_tree = [&](auto&& self, size_t lo, size_t hi, int extra) -> void {
+		if (lo == hi)
+		{
+			auto range = gotoranges_at(table, lo);
+			wasm.emitLocalGet(l_idx_scratch2);
+			wasm.emitI32Const(range.start);
+			wasm.emitI32GeS();
+			wasm.emitLocalGet(l_idx_scratch2);
+			wasm.emitI32Const(range.end);
+			wasm.emitI32LeS();
+			wasm.emitI32And();
+			wasm.emitIf();
+			branch((int)lo, extra + 1);
+			wasm.emitEnd();
+			branch(-1, extra);
+			return;
+		}
+		size_t mid = (lo + hi + 1) / 2;
+		wasm.emitLocalGet(l_idx_scratch2);
+		wasm.emitI32Const(gotoranges_at(table, mid).start);
+		wasm.emitI32GeS();
+		wasm.emitIf();
+		self(self, mid, hi, extra + 1);
+		wasm.emitEnd();
+		self(self, lo, mid - 1, extra);
+	};
+	emit_tree(emit_tree, 0, num_ranges - 1, 0);
+}
+
+// The structured lowering's range search: branch out to structurer-provided
+// depths, adjusted by the frames the search itself opens.
+static void emit_gotoranges_search(CompilationState& state, const zasm_script* script, pc_t pc,
+	const std::vector<int>& depths, int default_depth)
+{
+	emit_gotoranges_tree(state, script, pc, [&](int target_index, int extra) {
+		int depth = target_index < 0 ? default_depth : depths[target_index];
+		state.wasm->emitBr(depth + extra);
+	});
+}
+
+// Pushes a GOTOTABLE's dense table index as a u32 (see the opcode's comment in
+// defines.h): (key - min_key)/10000 when the key is an exact multiple, else -1.
+// Any out-of-range value - including the -1, and negative quotients read as
+// huge u32s - selects a br_table's default entry, so callers need no separate
+// bounds check when this feeds a br_table.
+static void emit_gototable_index(CompilationState& state, const zasm_script* script, pc_t pc)
+{
+	WasmAssembler& wasm = *state.wasm;
+	const auto& table = *script->zasm[pc].vecptr;
+
+	get_z_register(state, script->zasm[pc].arg1);
+	wasm.emitI32Const(table[0]);
+	wasm.emitI32Sub();
+	wasm.emitLocalTee(l_idx_scratch);
+	wasm.emitI32Const(10000);
+	wasm.emitI32DivS();
+	wasm.emitI32Const(-1);
+	wasm.emitLocalGet(l_idx_scratch);
+	wasm.emitI32Const(10000);
+	wasm.emitI32RemS();
+	wasm.emitI32Eqz();
+	wasm.emitSelect(); // exact multiple ? quotient : -1
 }
 
 // Emits one straight-line ("plain") compiled command - everything except
@@ -1918,6 +2006,9 @@ struct StructuredFnSink : StructSink
 	// runtime_debug call still appear, matching the loop-switch lowering and
 	// the interpreter's trace. -1 otherwise.
 	const std::vector<int>* goto_debug_pc;
+	// For a Term::Switch block, the GOTOTABLE's pc; -1 otherwise. Null for the
+	// yielder-region sink (region planning rejects GOTOTABLE).
+	const std::vector<int>* switch_pc = nullptr;
 	const std::map<pc_t, CmpGroup>* cmp_groups;
 	const std::map<pc_t, pc_t>* consumer_to_cmp;
 	pc_t final_pc;
@@ -2091,6 +2182,41 @@ struct StructuredFnSink : StructSink
 		emit_cmp_goto_value(*state, script, cmp_groups->at(consumer_to_cmp->at(term_pc)), term_pc);
 	}
 
+	void emit_switch_dispatch(int b, const std::vector<int>& depths, int default_depth) override
+	{
+		CHECK(switch_pc);
+		WasmAssembler& wasm = *state->wasm;
+		pc_t term_pc = (*switch_pc)[b];
+		state->pc = term_pc;
+#ifndef NDEBUG
+		wasm.emitI32Const((int)term_pc);
+		wasm.emitDrop();
+#endif
+		if (state->runtime_debugging)
+		{
+			wasm.emitI32Const((int)term_pc);
+			emit_get_sp(*state);
+			wasm.emitCall(state->f_idx_runtime_debug);
+		}
+
+		if (script->zasm[term_pc].command == GOTOTABLE)
+		{
+			// A dense table indexes directly, which is what br_table does.
+			emit_gototable_index(*state, script, term_pc);
+			wasm.emitBrTable();
+			wasm.emitVarU32(depths.size());
+			for (int d : depths)
+				wasm.emitVarU32(d);
+			wasm.emitVarU32(default_depth);
+			return;
+		}
+
+		// Ranges: a binary search, since br_table cannot express them. Every
+		// `if` opened here nests the branch targets one deeper, so `extra`
+		// tracks how many frames are open at each point (see emit_br_depth).
+		emit_gotoranges_search(*state, script, term_pc, depths, default_depth);
+	}
+
 	void emit_dispatch(int b, int ctx_depth) override
 	{
 		// Only the yielder's structured regions use Term::Dispatch; a
@@ -2253,6 +2379,7 @@ static std::optional<WasmAssembler> compile_function_structured(CompilationState
 	std::vector<BlockInfo> infos(n);
 	std::vector<int> body_last(n);
 	std::vector<int> goto_debug_pc(n, -1);
+	std::vector<int> switch_pc(n, -1);
 	bool ffff_tail = false;
 	for (int b = 0; b < n; b++)
 	{
@@ -2296,6 +2423,22 @@ static std::optional<WasmAssembler> compile_function_structured(CompilationState
 			bi.succ_false = b + 1;
 			body_last[b] = (int)bfinal - 1; // emit_cond emits the condition
 		}
+		else if (command == GOTOTABLE || command == GOTORANGES)
+		{
+			// Multi-target dispatch (see defines.h), lowered by the structurer
+			// via the sink: a br_table for a table, a compare tree for ranges.
+			// succ_switch is {default, targets...}, matching zasm_jump_targets.
+			bi.term = Term::Switch;
+			for (int pc2 : zasm_jump_targets(command, script->zasm[bfinal].vecptr))
+			{
+				int target = pc2 >= (int)start_pc && pc2 <= (int)final_pc ? block_id_of(pc2) : -1;
+				if (target < 0)
+					return std::nullopt;
+				bi.succ_switch.push_back(target);
+			}
+			body_last[b] = (int)bfinal - 1; // emit_switch_dispatch emits the dispatch
+			switch_pc[b] = (int)bfinal;
+		}
 		else if (command == QUIT || command == RETURNFUNC)
 		{
 			bi.term = Term::Exit; // the body emits the trap/return
@@ -2335,6 +2478,7 @@ static std::optional<WasmAssembler> compile_function_structured(CompilationState
 	sink.starts = &starts;
 	sink.body_last = &body_last;
 	sink.goto_debug_pc = &goto_debug_pc;
+	sink.switch_pc = &switch_pc;
 	sink.cmp_groups = &cmp_groups;
 	sink.consumer_to_cmp = &consumer_to_cmp;
 	sink.final_pc = final_pc;
@@ -2659,6 +2803,8 @@ static std::vector<YielderRegionPlan> detect_yielder_regions(const zasm_script* 
 			int command = script->zasm[i].command;
 			if (command_is_suspend(command))
 				ok = false;
+			else if (command == GOTOTABLE || command == GOTORANGES)
+				ok = false; // region planning has no Term::Switch support; the flat lowering handles it
 			else if (command == CALLFUNC)
 			{
 				auto it = structured_zasm.start_pc_to_function.find(script->zasm[i].arg1);
@@ -3065,6 +3211,78 @@ static WasmAssembler compile_function(CompilationState& state, const zasm_script
 
 					// Branch by jumping to start of loop-switch.
 					wasm.emitBr(num_frames - current_rank);
+				}
+				break;
+
+				case GOTORANGES:
+				{
+					// Range search; see the opcode's comment in defines.h. As with
+					// GOTOTABLE below, the loop-switch reaches every target through
+					// the dispatch variable.
+					const auto& table = *script->zasm[i].vecptr;
+					int base_depth = num_frames - current_rank;
+					emit_gotoranges_tree(state, script, i, [&](int target_index, int extra) {
+						int target_pc = target_index < 0 ? table[0] : gotoranges_at(table, target_index).target;
+						wasm.emitI32Const(cfg.block_id_from_start_pc(target_pc) + 1);
+						wasm.emitGlobalSet(g_idx_target_block_id);
+						wasm.emitBr(base_depth + extra);
+					});
+				}
+				break;
+
+				case GOTOTABLE:
+				{
+					// Dense-switch dispatch; see the opcode's comment in defines.h.
+					// In the loop-switch lowering every branch goes through the
+					// dispatch variable, so lower to a balanced compare tree over
+					// the table index whose leaves set the dispatch target. (The
+					// structured lowering uses a real br_table instead.)
+					const auto& table = *script->zasm[i].vecptr;
+					size_t num_targets = table.size() - 2;
+					auto runs = gototable_compress(table);
+					int base_depth = num_frames - current_rank;
+
+					auto emit_jump_to = [&](int pc, int extra) {
+						size_t target_block_index = cfg.block_id_from_start_pc(pc) + 1;
+						wasm.emitI32Const(target_block_index);
+						wasm.emitGlobalSet(g_idx_target_block_id);
+						wasm.emitBr(base_depth + extra);
+					};
+
+					if (num_targets == 0)
+					{
+						emit_jump_to(table[1], 0);
+						break;
+					}
+
+					emit_gototable_index(state, script, i);
+					wasm.emitLocalSet(l_idx_scratch2);
+
+					// Out of [0, n) - including the invalid-key -1 - takes the default.
+					wasm.emitLocalGet(l_idx_scratch2);
+					wasm.emitI32Const((int)num_targets);
+					wasm.emitI32GeU();
+					wasm.emitIf();
+					emit_jump_to(table[1], 1);
+					wasm.emitEnd();
+
+					// Binary search over runs of equal targets.
+					auto emit_tree = [&](auto&& self, size_t lo, size_t hi, int extra) -> void {
+						if (lo == hi)
+						{
+							emit_jump_to(runs[lo].target, extra);
+							return;
+						}
+						size_t mid = (lo + hi + 1) / 2;
+						wasm.emitLocalGet(l_idx_scratch2);
+						wasm.emitI32Const(runs[mid].start);
+						wasm.emitI32GeS();
+						wasm.emitIf();
+						self(self, mid, hi, extra + 1);
+						wasm.emitEnd();
+						self(self, lo, mid - 1, extra);
+					};
+					emit_tree(emit_tree, 0, runs.size() - 1, 0);
 				}
 				break;
 

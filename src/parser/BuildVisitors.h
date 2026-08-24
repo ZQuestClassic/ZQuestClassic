@@ -332,6 +332,16 @@ namespace ZScript
 			usedLabels.insert(id);
 			newLabels.insert(id);
 		}
+
+		void caseLabelVector(LabelVectorArgument& host, void*)
+		{
+			for (int32_t id : host.getLabels())
+			{
+				if (find<int32_t>(usedLabels, id)) continue;
+				usedLabels.insert(id);
+				newLabels.insert(id);
+			}
+		}
 	};
 
 	class SetLabels : public ArgumentVisitor
@@ -341,6 +351,18 @@ namespace ZScript
 		void caseLabel(LabelArgument &host, void *param)
 		{
 			host.setLineNo(check(host.getID(), *(map<int32_t, int32_t> *)param, &err));
+		}
+
+		void caseLabelVector(LabelVectorArgument &host, void *param)
+		{
+			// Unlike LabelArgument (which keeps the id and stores the pc
+			// alongside), the vector's entries become the pcs themselves - the
+			// zasm consumer sees plain numbers. Labels are 1-indexed here, as in
+			// LabelArgument::toString's non-alt form; the -1 to reach a 0-indexed
+			// pc happens when the assembled text is parsed (parse_script_section
+			// in ffasm.cpp, like the goto args there).
+			for (size_t k = 0; k < host.numLabels(); k++)
+				host.setLabel(k, check(host.getLabel(k), *(map<int32_t, int32_t> *)param, &err));
 		}
 		static int check(int lbl, map<int32_t, int32_t> const& labels, bool* error = nullptr)
 		{
@@ -373,6 +395,17 @@ namespace ZScript
 					host.setID(targ_label);
 					return;
 				}
+		}
+
+		void caseLabelVector(LabelVectorArgument &host, void*)
+		{
+			for (size_t k = 0; k < host.numLabels(); k++)
+				for (int lbl : labels)
+					if (lbl == host.getLabel(k))
+					{
+						host.setLabel(k, targ_label);
+						break;
+					}
 		}
 		static void merge(int targ_label, vector<int> const& labels, std::list<std::shared_ptr<Opcode>> const& list, void* param, LabelUsageIndex* lbl_index)
 		{

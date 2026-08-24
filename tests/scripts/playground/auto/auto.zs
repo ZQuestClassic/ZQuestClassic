@@ -51,6 +51,7 @@
 #include "auto/stack_typed.zs"
 #include "auto/std_unit.zs"
 #include "auto/subscreen_owned_clear.zs"
+#include "auto/switches.zs"
 #include "auto/tango.zs"
 #include "auto/varargs.zs"
 #include "auto/viewport.zs"

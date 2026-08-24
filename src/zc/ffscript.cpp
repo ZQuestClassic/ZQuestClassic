@@ -10188,6 +10188,84 @@ int32_t run_script_int(JittedScriptInstance* j_instance)
 				}
 				break;
 			}
+
+			case GOTORANGES:
+			{
+				// Range search; see the opcode's comment in defines.h. The
+				// ranges are sorted and disjoint, so binary search finds the one
+				// containing the key (if any).
+				const auto* table = sargvec;
+				if (!table || table->size() < 1 || (table->size() - 1) % 3 != 0)
+				{
+					goto_err("GOTORANGES");
+					scommand = 0xFFFF;
+					break;
+				}
+
+				int32_t key = get_register(sarg1);
+				int32_t target = (*table)[0];
+				size_t lo = 0, hi = gotoranges_count(*table);
+				while (lo < hi)
+				{
+					size_t mid = (lo + hi) / 2;
+					auto range = gotoranges_at(*table, mid);
+					if (key < range.start)
+						hi = mid;
+					else if (key > range.end)
+						lo = mid + 1;
+					else
+					{
+						target = range.target;
+						break;
+					}
+				}
+
+				if (target < 0)
+				{
+					goto_err("GOTORANGES");
+					scommand = 0xFFFF;
+					break;
+				}
+
+				ri->pc = target;
+				increment = false;
+				break;
+			}
+
+			case GOTOTABLE:
+			{
+				// Dense-switch dispatch; see the opcode's comment in defines.h.
+				// The vector is {min_key, default_pc, pc_for_min, ...}.
+				const auto* table = sargvec;
+				if (!table || table->size() < 2)
+				{
+					goto_err("GOTOTABLE");
+					scommand = 0xFFFF;
+					break;
+				}
+
+				int32_t d = get_register(sarg1) - (*table)[0];
+				size_t num_targets = table->size() - 2;
+				int32_t target;
+				// d >= 0 is not implied by the unsigned compare once a table
+				// exceeds 214748 slots (num_targets * 10000 passes INT32_MAX,
+				// where the u32 cast would alias negative keys into range).
+				if (d >= 0 && (uint32_t)d < num_targets * 10000 && d % 10000 == 0)
+					target = (*table)[2 + d / 10000];
+				else
+					target = (*table)[1];
+
+				if(target < 0)
+				{
+					goto_err("GOTOTABLE");
+					scommand = 0xFFFF;
+					break;
+				}
+
+				ri->pc = target;
+				increment = false;
+				break;
+			}
 			
 			case SETCMP:
 			{

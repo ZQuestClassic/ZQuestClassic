@@ -73,4 +73,35 @@ bool does_register_use_stack(int reg);
 
 bool has_register_dependency(int reg);
 
+// A GOTOTABLE's target table compressed into runs of consecutive slots that
+// share a target: {first slot index, target pc}, ascending by index. Ranged
+// cases make long runs, so the JIT backends binary-search these instead of
+// individual slots (one leaf per distinct run, not per key).
+struct GotoTableRun
+{
+	int32_t start;  // first slot index of the run
+	int32_t target; // target pc
+};
+std::vector<GotoTableRun> gototable_compress(const std::vector<int32_t>& table);
+
+// One entry of a GOTORANGES vector: an inclusive key range and its target pc.
+struct GotoRange
+{
+	int32_t start, end, target;
+};
+inline size_t gotoranges_count(const std::vector<int32_t>& table)
+{
+	return (table.size() - 1) / 3;
+}
+inline GotoRange gotoranges_at(const std::vector<int32_t>& table, size_t i)
+{
+	return {table[1 + i * 3], table[2 + i * 3], table[3 + i * 3]};
+}
+
+// Every pc a multi-target dispatch (GOTOTABLE/GOTORANGES) can jump to,
+// including its default, given the command and its vector argument. Empty for
+// any other command - single-target jumps keep their target in arg1 (see
+// command_is_goto).
+std::vector<int32_t> zasm_jump_targets(int command, const std::vector<int32_t>* vec);
+
 #endif

@@ -1476,6 +1476,139 @@ static void compile_single_command(CompilationState& state, x86::Compiler& cc, c
 			node->setArg(3, state.pc);
 		}
 		break;
+		case GOTORANGES:
+		{
+			// Range search; see the opcode's comment in defines.h. Binary search
+			// over the sorted ranges, comparing the key itself - no index math,
+			// so non-integral keys inside a range work like the interpreter's.
+			const auto& table = *instr.vecptr;
+			size_t num_ranges = gotoranges_count(table);
+
+			std::map<int, Label> bail_stubs;
+			auto target_label = [&](int pc) -> Label {
+				if (pc >= (int)state.start_pc && pc <= (int)state.final_pc)
+					return state.goto_labels[pc];
+				auto [it, fresh] = bail_stubs.try_emplace(pc, Label());
+				if (fresh)
+					it->second = cc.newLabel();
+				return it->second;
+			};
+
+			Label default_label = target_label(table[0]);
+			if (num_ranges == 0)
+			{
+				cc.jmp(default_label);
+			}
+			else
+			{
+				x86::Gp key = get_z_register(state, cc, arg1);
+
+				// Each leaf still bounds-checks its own range: the search only
+				// narrows to the range a matching key would be in, and a key in a
+				// gap between ranges reaches a leaf without belonging to it.
+				auto emit_tree = [&](auto&& self, size_t lo, size_t hi) -> void {
+					if (lo == hi)
+					{
+						auto range = gotoranges_at(table, lo);
+						cc.cmp(key, range.start);
+						cc.jl(default_label);
+						cc.cmp(key, range.end);
+						cc.jg(default_label);
+						cc.jmp(target_label(range.target));
+						return;
+					}
+					size_t mid = (lo + hi + 1) / 2;
+					Label right = cc.newLabel();
+					cc.cmp(key, gotoranges_at(table, mid).start);
+					cc.jge(right);
+					self(self, lo, mid - 1);
+					cc.bind(right);
+					self(self, mid, hi);
+				};
+				emit_tree(emit_tree, 0, num_ranges - 1);
+			}
+
+			for (auto& [pc, lbl] : bail_stubs)
+			{
+				cc.bind(lbl);
+				set_ctx_pc(state, cc, pc);
+				cc.mov(state.vResult, EXEC_RESULT_CONTINUE);
+				cc.jmp(state.L_End);
+			}
+		}
+		break;
+		case GOTOTABLE:
+		{
+			// Dense-switch dispatch; see the opcode's comment in defines.h. Emitted as
+			// a balanced compare tree over the table index - every branch is static,
+			// and an N-way switch costs ~log2(N) compares instead of a linear ladder.
+			const auto& table = *instr.vecptr;
+			int32_t min_key = table[0];
+			size_t num_targets = table.size() - 2;
+
+			// Targets outside the function bail like GOTO does; stubs bound after the tree.
+			std::map<int, Label> bail_stubs;
+			auto target_label = [&](int pc) -> Label {
+				if (pc >= (int)state.start_pc && pc <= (int)state.final_pc)
+					return state.goto_labels[pc];
+				auto [it, fresh] = bail_stubs.try_emplace(pc, Label());
+				if (fresh)
+					it->second = cc.newLabel();
+				return it->second;
+			};
+
+			Label default_label = target_label(table[1]);
+			auto runs = gototable_compress(table);
+			if (num_targets == 0)
+			{
+				cc.jmp(default_label);
+			}
+			else
+			{
+				x86::Gp key = get_z_register(state, cc, arg1);
+				x86::Gp idx = cc.newInt32();
+				cc.mov(idx, key);
+				cc.sub(idx, min_key);
+				x86::Gp q = div_10000(cc, idx);
+
+				// A key out of range, or not an exact multiple of 10000 past
+				// min_key, takes the default target.
+				x86::Gp t = cc.newInt32();
+				cc.imul(t, q, 10000);
+				cc.cmp(idx, t);
+				cc.jne(default_label);
+				cc.cmp(q, 0);
+				cc.jl(default_label);
+				cc.cmp(q, (int32_t)num_targets);
+				cc.jge(default_label);
+
+				// Binary search over runs of equal targets.
+				auto emit_tree = [&](auto&& self, size_t lo, size_t hi) -> void {
+					if (lo == hi)
+					{
+						cc.jmp(target_label(runs[lo].target));
+						return;
+					}
+					size_t mid = (lo + hi + 1) / 2;
+					Label right = cc.newLabel();
+					cc.cmp(q, runs[mid].start);
+					cc.jge(right);
+					self(self, lo, mid - 1);
+					cc.bind(right);
+					self(self, mid, hi);
+				};
+				emit_tree(emit_tree, 0, runs.size() - 1);
+			}
+
+			for (auto& [pc, lbl] : bail_stubs)
+			{
+				cc.bind(lbl);
+				set_ctx_pc(state, cc, pc);
+				cc.mov(state.vResult, EXEC_RESULT_CONTINUE);
+				cc.jmp(state.L_End);
+			}
+		}
+		break;
 		case ALLOCATEMEMV:
 		{
 			// reg[arg1] = allocate(size=arg2/10000, object_type=arg3).
