@@ -114,6 +114,20 @@ async function runReplay(zplay) {
 
   await consoleListener.waitFor(/Replay is active/);
 
+  // ZC_WEB_PRELOAD_FILES="localsrc:memfsdest,..." copies local files into the
+  // page's MEMFS (e.g. quest "Files" assets that only exist on the host).
+  if (process.env.ZC_WEB_PRELOAD_FILES) {
+    for (const pair of process.env.ZC_WEB_PRELOAD_FILES.split(',')) {
+      const [src, dest] = pair.split(':');
+      const b64 = fs.readFileSync(src).toString('base64');
+      await page.evaluate((dest, b64) => {
+        const bytes = Uint8Array.from(atob(b64), c => c.charCodeAt(0));
+        FS.mkdirTree(dest.substring(0, dest.lastIndexOf('/')));
+        FS.writeFile(dest, bytes);
+      }, dest, b64);
+    }
+  }
+
   // PROFILE=1 records a V8 CPU profile of the replay (from this point, so
   // load/compile time is excluded) and writes <output>/profile.cpuprofile.
   // Wasm frames are named thanks to the script modules' name section.
