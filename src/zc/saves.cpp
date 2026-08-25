@@ -18,6 +18,7 @@
 #include "pal.h"
 #include "tiles.h"
 #include "items.h"
+#include <algorithm>
 #include <cstddef>
 #include <cstdio>
 #include <system_error>
@@ -1130,6 +1131,21 @@ static int32_t read_saves(ReadMode read_mode, PACKFILE* f, std::vector<save_t>& 
 	return 0;
 }
 
+// The form a quest path takes in a save file: relative to the quest directory
+// when the quest lives under it, and always with forward slashes, so the save
+// file keeps working when moved to another installation or platform.
+static std::string portable_qstpath(std::string path)
+{
+	if (!util::is_relative_path(path))
+	{
+		fs::path quest_dir = fs::current_path() / fs::path(qstdir);
+		if (util::is_subpath_of(quest_dir, path))
+			path = fs::relative(path, quest_dir).string();
+	}
+	std::replace(path.begin(), path.end(), '\\', '/');
+	return path;
+}
+
 static int32_t write_save(PACKFILE* f, save_t* save)
 {
 	gamedata& game = *save->game;
@@ -1161,7 +1177,8 @@ static int32_t write_save(PACKFILE* f, save_t* save)
 	if(!p_iputw(1, f))
 		return 5;
 
-	qstpath_len=game.header.qstpath.length();
+	std::string qstpath_out = portable_qstpath(game.header.qstpath);
+	qstpath_len=qstpath_out.length();
 	
 	if(!p_putstr(game.get_name(),9,f))
 		return 6;
@@ -1216,7 +1233,7 @@ static int32_t write_save(PACKFILE* f, save_t* save)
 	if(!p_iputw(qstpath_len,f))
 		return 38;
 	
-	if(!pfwrite(game.header.qstpath.data(),qstpath_len,f))
+	if(!pfwrite(qstpath_out.data(),qstpath_len,f))
 		return 39;
 	
 	if(!pfwrite(game.header.icon,sizeof(game.header.icon),f))
@@ -2395,13 +2412,9 @@ static bool initialize_new_save(save_t* save, std::string& err)
 			save->path = create_path_for_new_save(save->header);
 	}
 
-	// Try to make relative to qstdir.
-	// TODO: this is a weird place to do this.
-	std::string rel_dir = (fs::current_path() / fs::path(qstdir)).string();
-	auto maybe_rel_qstpath = util::is_subpath_of(rel_dir, save->game->header.qstpath) ?
-		fs::relative(save->game->header.qstpath, rel_dir) :
-		fs::path(save->game->header.qstpath);
-	save->game->header.qstpath = maybe_rel_qstpath.string();
+	// write_save stores the portable form; also keep the in-memory header
+	// consistent with what will land on disk.
+	save->game->header.qstpath = portable_qstpath(save->game->header.qstpath);
 
 	save->game->set_maxlife(zinit.mcounter[crLIFE]);
 	save->game->set_life(zinit.mcounter[crLIFE]);
