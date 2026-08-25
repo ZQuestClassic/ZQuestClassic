@@ -5794,9 +5794,13 @@ void music_pause()
 void music_resume()
 {
 	//al_resume_duh(tmplayer);
+	zcmusic_correct_pause_drift(zcmusic);
 	zcmusic_pause(zcmusic, ZCM_RESUME);
 	if (zcmixer->oldtrack)
+	{
+		zcmusic_correct_pause_drift(zcmixer->oldtrack);
 		zcmusic_pause(zcmixer->oldtrack, ZCM_RESUME);
+	}
 	zc_midi_resume();
 }
 

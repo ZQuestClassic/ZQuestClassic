@@ -65,6 +65,10 @@ ZCM_EXTERN void zcmusic_exit();
 ZCM_EXTERN ZCMUSIC * zcmusic_load_file(const char *filename);
 ZCM_EXTERN bool zcmusic_play(ZCMUSIC* zcm, int32_t vol);
 ZCM_EXTERN bool zcmusic_pause(ZCMUSIC* zcm, int32_t pause);
+// Call while paused, before resuming: re-aligns a music stream to the
+// position implied by the frames elapsed, so pausing doesn't accumulate
+// drift between the music and the 60fps game logic.
+ZCM_EXTERN bool zcmusic_correct_pause_drift(ZCMUSIC* zcm);
 ZCM_EXTERN bool zcmusic_stop(ZCMUSIC* zcm);
 ZCM_EXTERN bool zcmusic_set_volume(ZCMUSIC* zcm, int32_t vol);
 ZCM_EXTERN void zcmusic_unload_file(ZCMUSIC* &zcm);
