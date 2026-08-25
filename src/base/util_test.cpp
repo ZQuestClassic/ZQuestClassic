@@ -129,6 +129,27 @@ static void test_is_relative_path()
 	assertTrue(util::is_relative_path("1:file.qst"));
 }
 
+static void test_md5_file()
+{
+	fs::path dir = fs::temp_directory_path() / "zc_util_test";
+	fs::remove_all(dir);
+	fs::create_directories(dir);
+	fs::path file = dir / "file.bin";
+
+	// Larger than the streaming buffer, with a partial chunk at the end, and
+	// bytes that would trip up a text-mode read.
+	std::string data;
+	data.reserve(200'000);
+	for (int i = 0; i < 200'000; i++)
+		data.push_back((char)(i * 31 + i / 251));
+	std::ofstream(file, std::ios::binary) << data;
+
+	assertTrue(util::md5_file(file) == util::md5_hash_bytes(data));
+	assertTrue(!util::md5_file(dir / "nope.bin").has_value());
+
+	fs::remove_all(dir);
+}
+
 static void test_checkPath()
 {
 	fs::path dir = fs::temp_directory_path() / "zc_util_test";
@@ -176,6 +197,7 @@ TestResults test_util(bool verbose)
 		{ "disallow_escapes", test_disallow_escapes },
 		{ "escape_string", test_escape_string },
 		{ "is_relative_path", test_is_relative_path },
+		{ "md5_file", test_md5_file },
 		{ "checkPath", test_checkPath },
 		{ "nearest_existing_directory", test_nearest_existing_directory },
 	};

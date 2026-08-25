@@ -46,6 +46,12 @@ struct gamedata_header
 	bool operator==(const gamedata_header&) const = default;
 
 	std::string qstpath;
+	// Content identity of the quest file (zquestheader::hash(), an md5 hex
+	// string - the same identity replays record), so the quest can be found
+	// even if renamed. Empty means unknown, as in saves from before it was
+	// recorded. The size lets a search skip hashing files that can't match.
+	std::string qst_hash;
+	dword qst_file_size = 0;
 	std::string replay_file;
 	std::string name;
 	std::string title;

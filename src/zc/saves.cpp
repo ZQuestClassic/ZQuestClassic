@@ -510,7 +510,15 @@ static int32_t read_saves(ReadMode read_mode, PACKFILE* f, std::vector<save_t>& 
 
 		// Convert path separators so save files work across platforms (hopefully)
 		util::regulate_path(game.header.qstpath);
-		
+
+		if (section_version >= 53)
+		{
+			if(!p_getwstr(&game.header.qst_hash,f))
+				return 39;
+			if(!p_igetl(&game.header.qst_file_size,f))
+				return 39;
+		}
+
 		if(!pfread(game.header.icon,sizeof(game.header.icon),f))
 			return 40;
 		
@@ -1378,6 +1386,12 @@ static int32_t write_save(PACKFILE* f, save_t* save, bool is_active_game)
 		return 38;
 	
 	if(!pfwrite(qstpath_out.data(),qstpath_len,f))
+		return 39;
+
+	if(!p_putwstr(game.header.qst_hash,f))
+		return 39;
+
+	if(!p_iputl(game.header.qst_file_size,f))
 		return 39;
 	
 	if(!pfwrite(game.header.icon,sizeof(game.header.icon),f))

@@ -11,8 +11,6 @@
 #include <fmt/format.h>
 #include "core/qrs.h"
 #include "core/qst.h"
-#include "base/md5.h"
-#include <fstream>
 #include "gamedata.h"
 
 using std::string;
@@ -979,25 +977,8 @@ std::string zquestheader::hash() const
 	if (!_hash.empty())
 		return _hash;
 
-	cvs_MD5Context ctx;
-	cvs_MD5Init(&ctx);
-	size_t buffer_size = 1<<20; // 1 MB
-	char *buffer = new char[buffer_size];
-
-	std::ifstream fin(filename, std::ifstream::binary);
-	while (fin)
-	{
-		fin.read(buffer, buffer_size);
-		size_t count = fin.gcount();
-		if (!count)
-			break;
-		cvs_MD5Update(&ctx, (const uint8_t*)buffer, count);
-	}
-
-	uint8_t md5sum[16];
-	cvs_MD5Final(md5sum, &ctx);
-	_hash = util::make_hex_string(std::begin(md5sum), std::end(md5sum));
-	delete[] buffer;
+	if (auto md5sum = util::md5_file(filename))
+		_hash = util::make_hex_string(md5sum->begin(), md5sum->end());
 
 	return _hash;
 }

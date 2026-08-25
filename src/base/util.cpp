@@ -954,6 +954,25 @@ namespace util
 		return md5sum;
 	}
 
+	std::optional<std::array<uint8_t, 16>> md5_file(const fs::path& path)
+	{
+		std::ifstream file(path, std::ios::binary);
+		if (!file)
+			return std::nullopt;
+
+		cvs_MD5Context ctx;
+		cvs_MD5Init(&ctx);
+		char buf[64 * 1024];
+		while (file.read(buf, sizeof(buf)) || file.gcount())
+			cvs_MD5Update(&ctx, (const uint8_t*)buf, (unsigned)file.gcount());
+		if (file.bad())
+			return std::nullopt;
+
+		std::array<uint8_t, 16> md5sum;
+		cvs_MD5Final(md5sum.data(), &ctx);
+		return md5sum;
+	}
+
 	uint8_t nibble(uint8_t byte, bool high)
 	{
 		if (high) return byte >> 4 & 0xF;

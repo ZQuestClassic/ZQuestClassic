@@ -7,10 +7,12 @@
 #include "base/zfix.h"
 #include "base/headers.h"
 #include <algorithm>
+#include <array>
 #include <cstdint>
 #include <filesystem>
 #include <functional>
 #include <map>
+#include <optional>
 #include <sstream>
 #include <string>
 #include <string_view>
@@ -148,6 +150,8 @@ namespace util
 	fs::path nearest_existing_directory(const fs::path& dir);
 	void open_web_link(std::string url);
 	std::array<uint8_t, 16> md5_hash_bytes(const std::string& data);
+	// Hash of a file's contents, or nullopt if it can't be read.
+	std::optional<std::array<uint8_t, 16>> md5_file(const fs::path& path);
 
 	template <typename T, std::size_t R, std::size_t C>
 	inline void copy_2d_array(T source[R][C] , T dest[R][C])

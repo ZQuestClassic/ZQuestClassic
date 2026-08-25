@@ -1247,21 +1247,52 @@ int32_t load_quest(gamedata *g, bool report, byte printmetadata)
 				search = search.substr(sep + 1);
 			}
 
-			// Last resort: look for the file name anywhere under the quest directory.
-			std::string filename = fs::path(saved_qstpath).filename().string();
-			if (!found && !filename.empty())
+			// Last resort: walk the quest directory looking for the quest by its file
+			// name, or by the file contents recorded in the save. A content match wins
+			// over a name match: the file may have been renamed, and a different quest
+			// could share its name. Only files of exactly the recorded size are hashed,
+			// so the walk stays cheap.
+			if (!found)
 			{
+				Z_error("Searching quest folder \"%s\" by file name and contents.\n", qstdir);
+
+				std::string filename = fs::path(saved_qstpath).filename().string();
+				bool has_hash = !g->header.qst_hash.empty();
+				fs::path name_match, hash_match;
+
+				auto matches_hash = [&](const fs::path& path) {
+					auto md5sum = util::md5_file(path);
+					return md5sum &&
+						util::make_hex_string(md5sum->begin(), md5sum->end()) == g->header.qst_hash;
+				};
+
 				std::error_code ec;
 				auto it = fs::recursive_directory_iterator(qstdir,
 					fs::directory_options::skip_permission_denied, ec);
 				for (auto end = fs::end(it); !ec && it != end; it.increment(ec))
 				{
-					if (it->path().filename() == filename && it->is_regular_file(ec))
+					if (!it->is_regular_file(ec))
+						continue;
+
+					if (has_hash && it->file_size(ec) == g->header.qst_file_size &&
+						matches_hash(it->path()))
 					{
-						if (try_path(it->path().string(), it->path().lexically_relative(qstdir).string()))
-							break;
+						hash_match = it->path();
+						break;
 					}
+
+					if (name_match.empty() && !filename.empty() && it->path().filename() == filename)
+						name_match = it->path();
 				}
+
+				if (!hash_match.empty())
+					Z_error("Found a quest file with matching contents.\n");
+				else if (!name_match.empty())
+					Z_error("Found a quest file with a matching file name.\n");
+
+				fs::path match = !hash_match.empty() ? hash_match : name_match;
+				if (!match.empty())
+					try_path(match.string(), match.lexically_relative(qstdir).string());
 			}
 		}
 	}
@@ -1284,7 +1315,21 @@ int32_t load_quest(gamedata *g, bool report, byte printmetadata)
 		}
 		
 		ret = loadquest(qstpath,&QHeader,&QMisc,tunes+ZC_MIDI_COUNT,false,skip_flags,printmetadata,report,qst_num);
-		
+
+		if (!ret)
+		{
+			// Record the quest file's content identity, so the save file can find it
+			// again even if it gets renamed.
+			std::string hash = QHeader.hash();
+			std::error_code ec;
+			auto size = fs::file_size(qstpath, ec);
+			if (!hash.empty() && !ec)
+			{
+				g->header.qst_hash = hash;
+				g->header.qst_file_size = (dword)size;
+			}
+		}
+
 		const char* title = g->header.title.c_str();
 		if(!title[0] || g->get_hasplayed() == 0)
 		{
