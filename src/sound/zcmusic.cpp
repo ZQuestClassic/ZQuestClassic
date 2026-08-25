@@ -5,6 +5,7 @@
 
 #include "base/zc_alleg.h" // TODO: why do we get "_malloca macro redefinition" in Windows debug builds without this include?
 #include <algorithm>
+#include <cmath>
 #include <cstring>
 #include <vector>
 
@@ -169,6 +170,13 @@ typedef struct ALSTREAMFILE : public ZCMUSIC
 	ALLEGRO_AUDIO_STREAM *s;
     char *fname;
     int32_t vol;
+    // Where playback would be if it stayed locked 1:1 to the 60fps game logic:
+    // advanced by speed/60 per zcmusic_poll and wrapped at the loop points.
+    // zcmusic_correct_pause_drift seeks the stream here on unpause.
+    double frame_clock;
+    double speed;
+    double loop_start, loop_end;                            // seconds; loop_end <= 0 = end of file
+    double length;
 } ALSTREAMFILE;
 
 typedef struct GMEFILE : public ZCMUSIC
@@ -278,7 +286,14 @@ bool zcmusic_poll(int32_t flags)                              /* = -1 */
 			case ZCMF_OGG:
 			case ZCMF_MP3:
 			case ZCMF_DUH:
+			{
+				ALSTREAMFILE* als = (ALSTREAMFILE*)*b;
+				als->frame_clock += als->speed / 60.0;
+				double end = als->loop_end > 0 ? als->loop_end : als->length;
+				if(end > als->loop_start && als->frame_clock >= end)
+					als->frame_clock = als->loop_start + fmod(als->frame_clock - als->loop_start, end - als->loop_start);
 				break;
+			}
 
 			case ZCMF_GME:
 				if(((GMEFILE*)*b)->emu)
@@ -516,6 +531,10 @@ bool zcmusic_play(ZCMUSIC* zcm, int32_t vol) /* = FALSE */
 				al_set_audio_stream_gain(((ALSTREAMFILE*)zcm)->s, vol / 255.0);
 				((ALSTREAMFILE*)zcm)->vol = vol;
 				ret = al_set_audio_stream_playing(((ALSTREAMFILE*)zcm)->s, true);
+				// Playback always begins at the start of the file here (a fresh
+				// load, or zcmusic_stop rewound it) - not at the decode position,
+				// which has already buffered ahead.
+				((ALSTREAMFILE*)zcm)->frame_clock = 0;
 			}
 			else
 			{
@@ -610,15 +629,66 @@ bool zcmusic_pause(ZCMUSIC* zcm, int32_t pause = -1)
 	return TRUE;
 }
 
+bool zcmusic_correct_pause_drift(ZCMUSIC* zcm)
+{
+	// Pausing an Allegro stream throws away its decoded-but-unplayed buffers
+	// (up to ~0.2s), so unpausing skips that audio and the music lands a
+	// little further ahead of the 60fps game logic on every pause. While
+	// still paused, seek back to where the frame count says playback should
+	// be; the jump is inaudible across the pause's silence.
+	if(zcm == NULL) return false;
+	if(zcm->playing != ZCM_PAUSED) return false;
+
+	switch(zcm->type & libflags)
+	{
+	case ZCMF_OGG:
+	case ZCMF_MP3:
+	case ZCMF_DUH:
+		break;
+
+	default:
+		return false;
+	}
+
+	ALSTREAMFILE* als = (ALSTREAMFILE*)zcm;
+	if(als->s == NULL) return false;
+
+	al_lock_mutex(playlistmutex);
+	double actual = al_get_audio_stream_position_secs(als->s);
+	bool ret = false;
+
+	// A large mismatch means the tracked position lost the plot (uncapped
+	// fps, heavy lag, unknown stream length): adopt the stream's position
+	// as the new baseline instead of making an audible jump.
+	if(fabs(actual - als->frame_clock) <= 0.5)
+	{
+		ret = al_seek_audio_stream_secs(als->s, als->frame_clock);
+
+		// The stream's feeder thread may have decoded one more fragment of
+		// pre-seek audio right as the pause landed; pausing again flushes it.
+		if(ret)
+		{
+			al_set_audio_stream_playing(als->s, false);
+			al_trace("music resync on unpause: %+dms\n", int32_t((als->frame_clock - actual) * 1000));
+		}
+	}
+
+	if(!ret)
+		als->frame_clock = actual;
+
+	al_unlock_mutex(playlistmutex);
+	return ret;
+}
+
 bool zcmusic_stop(ZCMUSIC* zcm)
 {
 	// this function will stop playback of 'zcm' and reset
 	// the stream position to the beginning.
-	if(zcm == NULL) return FALSE;
+	if (zcm == NULL) return FALSE;
 	
 	al_lock_mutex(playlistmutex);
 	
-	switch(zcm->type & libflags)
+	switch (zcm->type & libflags)
 	{
 	case ZCMF_OGG:
 	case ZCMF_MP3:
@@ -628,9 +698,9 @@ bool zcmusic_stop(ZCMUSIC* zcm)
 		break;
 		
 	case ZCMF_GME:
-		if(((GMEFILE*)zcm)->emu != NULL)
+		if (((GMEFILE*)zcm)->emu != NULL)
 		{
-			if(zcm->playing != ZCM_STOPPED) stop_audio_stream(((GMEFILE*)zcm)->stream);
+			if (zcm->playing != ZCM_STOPPED) stop_audio_stream(((GMEFILE*)zcm)->stream);
 		}
 		
 		break;
@@ -903,6 +973,10 @@ ALSTREAMFILE *load_alstream_file(const char *filename)
 
 	p->s = stream;
 	p->fadeoutframes = 0;
+	p->frame_clock = 0;
+	p->speed = 1.0;
+	p->loop_start = p->loop_end = 0;
+	p->length = al_get_audio_stream_length_secs(stream);
 
 	return p;
 
@@ -947,6 +1021,7 @@ void stream_setpos(ALSTREAMFILE* als, int32_t msecs)
 	if (als->s != NULL)
 	{
 		al_seek_audio_stream_secs(als->s, double(msecs) / 10000.0);
+		als->frame_clock = double(msecs) / 10000.0;
 	}
 }
 
@@ -954,7 +1029,10 @@ void stream_setspeed(ALSTREAMFILE* als, int32_t speed)
 {
 	if (als->s != NULL)
 	{
-		al_set_audio_stream_speed(als->s, float(speed / 10000.0));
+		// Allegro rejects speeds <= 0, leaving the stream at its old speed;
+		// only track a speed it accepted.
+		if (al_set_audio_stream_speed(als->s, float(speed / 10000.0)))
+			als->speed = speed / 10000.0;
 	}
 }
 
@@ -978,6 +1056,8 @@ void stream_setloop(ALSTREAMFILE* als, double start, double end)
 		if (end < start)
 			end = double(stream_getlength(als) / 10000.0);
 		al_set_audio_stream_loop_secs(als->s, start, end);
+		als->loop_start = start;
+		als->loop_end = end;
 	}
 }
 
