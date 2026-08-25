@@ -13,6 +13,7 @@
 #include <map>
 #include <sstream>
 #include <string>
+#include <string_view>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <vector>
@@ -113,6 +114,11 @@ namespace util
 	std::string get_ext(std::string const& path);
 	void regulate_path(char* buf);
 	void regulate_path(std::string& buf);
+	// Returns true if `path` is a relative path. Unlike the platform filesystem
+	// APIs, this recognizes both unix ("/foo") and Windows ("C:\foo") absolute
+	// paths no matter what platform is running, which matters for paths that were
+	// saved to disk on another platform.
+	bool is_relative_path(std::string_view path);
 	bool make_dirs_for_file(std::string& path);
 	char* zc_itoa(int32_t value, char* str, int32_t base = 10);
 	int64_t zc_atoi64(const char *str);

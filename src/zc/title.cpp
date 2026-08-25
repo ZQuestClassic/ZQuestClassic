@@ -4,6 +4,7 @@
 #include <ctype.h>
 #include <cstring>
 #include <memory>
+#include "base/util.h"
 #include "core/hotkey.h"
 #include "zalleg/files.h"
 #include "core/fonts.h"
@@ -1190,7 +1191,7 @@ bool prompt_for_quest_path(std::string current_qstpath)
 		snprintf(qstpath, 2048, "%s", qstdir);
 		jump_to_file_select = true;
 	}
-	else if (is_relative_filename(current_qstpath.c_str()))
+	else if (util::is_relative_path(current_qstpath))
 	{
 		// TODO: make `qstpath` use type fs::path
 		auto qstpath_fs = fs::path(qstdir) / fs::path(current_qstpath);

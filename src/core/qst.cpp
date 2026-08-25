@@ -2844,7 +2844,7 @@ int32_t loadquest(const char *filename, zquestheader *Header, miscQdata *Misc,
 	loading_qst_num = qst_num;
 	// In CI, builds are cached for replay tests, which can result in their build dates being earlier than what it would be locally.
 	// So to avoid a more-recently updated .qst file from hitting the "last saved in a newer version" prompt, we disable in CI.
-	if (!is_ci())
+	if (!is_ci() && !is_headless())
 		loadquest_report = report;
 
 	auto start = std::chrono::steady_clock::now();

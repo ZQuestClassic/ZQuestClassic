@@ -107,6 +107,28 @@ static void test_escape_string()
 	assertEqual(util::unescape_string(util::escape_string(tricky).c_str()), tricky);
 }
 
+static void test_is_relative_path()
+{
+	assertTrue(util::is_relative_path(""));
+	assertTrue(util::is_relative_path("file.qst"));
+	assertTrue(util::is_relative_path("quests/file.qst"));
+	assertTrue(util::is_relative_path("./file.qst"));
+	assertTrue(util::is_relative_path("..\\file.qst"));
+
+	// Absolute paths from either platform are recognized no matter which
+	// platform is running.
+	assertTrue(!util::is_relative_path("/home/user/file.qst"));
+	assertTrue(!util::is_relative_path("\\file.qst"));
+	assertTrue(!util::is_relative_path("C:\\Users\\user\\file.qst"));
+	assertTrue(!util::is_relative_path("c:/Users/user/file.qst"));
+	assertTrue(!util::is_relative_path("c:file.qst"));
+
+	// Only a leading letter followed by a colon counts as a drive.
+	assertTrue(!util::is_relative_path("a:b/file.qst"));
+	assertTrue(util::is_relative_path("dir/c:file.qst"));
+	assertTrue(util::is_relative_path("1:file.qst"));
+}
+
 static void test_checkPath()
 {
 	fs::path dir = fs::temp_directory_path() / "zc_util_test";
@@ -153,6 +175,7 @@ TestResults test_util(bool verbose)
 		{ "escape_characters", test_escape_characters },
 		{ "disallow_escapes", test_disallow_escapes },
 		{ "escape_string", test_escape_string },
+		{ "is_relative_path", test_is_relative_path },
 		{ "checkPath", test_checkPath },
 		{ "nearest_existing_directory", test_nearest_existing_directory },
 	};

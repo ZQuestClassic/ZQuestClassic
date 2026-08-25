@@ -334,6 +334,22 @@ namespace util
 		}
 	}
 	
+	bool is_relative_path(std::string_view path)
+	{
+		if (path.empty())
+			return true;
+
+		// Unix absolute path, or a Windows path rooted at the current drive.
+		if (path[0] == '/' || path[0] == '\\')
+			return false;
+
+		// Windows drive letter, ex: "C:".
+		if (path.size() >= 2 && path[1] == ':' && zc_isalpha(path[0]))
+			return false;
+
+		return true;
+	}
+
 	int32_t do_mkdir(const char* path, [[maybe_unused]] int32_t mode)
 	{
 #ifdef _WIN32
