@@ -1437,26 +1437,35 @@ int32_t load_quest(gamedata *g, bool report, byte printmetadata)
 		// The saved path may have been written by a different installation, or even on a
 		// different platform, so if it doesn't resolve just search for the quest by
 		// dropping leading directories one at a time, trying each suffix both in the
-		// quest directory and as-is (which resolves relative to the current directory).
-		// This lets save files keep working when quests (or entire folders of them) get
-		// moved around.
+		// quest directory and as-is (which resolves relative to the current directory) -
+		// and failing that, by looking for the file name anywhere under the quest
+		// directory. This lets save files keep working when quests (or entire folders of
+		// them) get moved around.
 		if (!exists(qstpath))
 		{
 			Z_error("File not found \"%s\". Searching...\n", qstpath);
 
-			auto try_path = [&](const std::string& candidate) {
-				if (!exists(candidate.c_str()))
-					return false;
-
-				snprintf(qstpath, 2048, "%s", candidate.c_str());
-				Z_error("Set quest path to \"%s\".\n", qstpath);
-				return true;
+			bool found = false;
+			// `stored` is the form the path takes in the save file, where relative
+			// paths resolve against the quest directory. On a hit, update the
+			// save's recorded path so the search isn't needed again.
+			auto try_path = [&](const std::string& candidate, const std::string& stored) {
+				if (exists(candidate.c_str()))
+				{
+					snprintf(qstpath, 2048, "%s", candidate.c_str());
+					g->header.qstpath = stored;
+					Z_error("Set quest path to \"%s\".\n", qstpath);
+					found = true;
+				}
+				return found;
 			};
 
 			std::string search = saved_qstpath;
-			while (true)
+			while (!found)
 			{
-				if (try_path((fs::path(qstdir) / fs::path(search)).string()) || try_path(search))
+				if (try_path((fs::path(qstdir) / fs::path(search)).string(), search))
+					break;
+				if (try_path(search, (fs::current_path() / fs::path(search)).string()))
 					break;
 
 				size_t sep = search.find_first_of("/\\");
@@ -1464,6 +1473,23 @@ int32_t load_quest(gamedata *g, bool report, byte printmetadata)
 					break;
 
 				search = search.substr(sep + 1);
+			}
+
+			// Last resort: look for the file name anywhere under the quest directory.
+			std::string filename = fs::path(saved_qstpath).filename().string();
+			if (!found && !filename.empty())
+			{
+				std::error_code ec;
+				auto it = fs::recursive_directory_iterator(qstdir,
+					fs::directory_options::skip_permission_denied, ec);
+				for (auto end = fs::end(it); !ec && it != end; it.increment(ec))
+				{
+					if (it->path().filename() == filename && it->is_regular_file(ec))
+					{
+						if (try_path(it->path().string(), it->path().lexically_relative(qstdir).string()))
+							break;
+					}
+				}
 			}
 		}
 	}
