@@ -40313,7 +40313,7 @@ j_command:
 
 		// These conditions almost never hit, so screen them all behind one predictable branch.
 		if (unlikely(earlyretval > -1 || ri->stack_overflow || hit_invalid_zasm ||
-			script_funcrun || type == ScriptType::Combo))
+			script_funcrun || (type == ScriptType::Combo && combopos_modified == i)))
 		{
 			if(earlyretval == RUNSCRIPT_SELFDELETE)
 			{
