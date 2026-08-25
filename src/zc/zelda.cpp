@@ -1423,88 +1423,49 @@ int32_t load_quest(gamedata *g, bool report, byte printmetadata)
 
 	if (!g->header.qstpath.empty())
 	{
-		if(is_relative_filename(g->get_qstpath()))
+		std::string saved_qstpath = g->get_qstpath();
+		if (util::is_relative_path(saved_qstpath))
 		{
-			auto qstpath_fs = fs::path(qstdir) / fs::path(g->get_qstpath());
-			sprintf(qstpath, "%s", qstpath_fs.string().c_str());
+			auto qstpath_fs = fs::path(qstdir) / fs::path(saved_qstpath);
+			snprintf(qstpath, 2048, "%s", qstpath_fs.string().c_str());
 		}
 		else
 		{
-			sprintf(qstpath,"%s", g->get_qstpath());
+			snprintf(qstpath, 2048, "%s", saved_qstpath.c_str());
 		}
 
-		// ZC paths are retarded.
-		// This is just an awful hack, and generally some of the worst code ever written, but it only ever gets run
-		// when there would be a "file not found error"... (it's easier than dealing with everything else. Sue me.)
-		//
-		// *side note*
-		// It does have a few perks though: You can now move around entire folders and sub-folders from one ZC directory to the next,
-		// and we can find them! You can even put all the ZC quests into different sub-directories and share save files, etc..
-		// ~Gleeok
-		if(!exists(qstpath))
+		// The saved path may have been written by a different installation, or even on a
+		// different platform, so if it doesn't resolve just search for the quest by
+		// dropping leading directories one at a time, trying each suffix both in the
+		// quest directory and as-is (which resolves relative to the current directory).
+		// This lets save files keep working when quests (or entire folders of them) get
+		// moved around.
+		if (!exists(qstpath))
 		{
 			Z_error("File not found \"%s\". Searching...\n", qstpath);
 
-			if(exists(g->get_qstpath())) //not found? -try this place first:
-			{
-				sprintf(qstpath,"%s", g->get_qstpath());
+			auto try_path = [&](const std::string& candidate) {
+				if (!exists(candidate.c_str()))
+					return false;
+
+				snprintf(qstpath, 2048, "%s", candidate.c_str());
 				Z_error("Set quest path to \"%s\".\n", qstpath);
-			}
-			else // Howsabout in here?
+				return true;
+			};
+
+			std::string search = saved_qstpath;
+			while (true)
 			{
-				std::string gQstPath = g->get_qstpath();
-				size_t bs1 = 0;
-				size_t bs2 = std::string::npos;
+				if (try_path((fs::path(qstdir) / fs::path(search)).string()) || try_path(search))
+					break;
 
-				// Keep searching through every parent directory as if it was the current one.
-				while(bs1 != std::string::npos || bs2 != std::string::npos)
-				{
-					bs1 = gQstPath.find_first_of('/');
-					if(bs1 != std::string::npos)
-					{
-						gQstPath = gQstPath.substr(bs1 + 1, std::string::npos);
-					}
-					else
-					{
-						bs2 = gQstPath.find_first_of('\\');
-						if(bs2 != std::string::npos)
-							gQstPath = gQstPath.substr(bs2 + 1, std::string::npos);
-					}
+				size_t sep = search.find_first_of("/\\");
+				if (sep == std::string::npos)
+					break;
 
-					if(exists(gQstPath.c_str())) //Quick! Try it now!
-					{
-						sprintf(qstpath,"%s", gQstPath.c_str());
-						Z_error("Set quest path to \"%s\".\n", qstpath);
-						break;
-					}
-					else //Still no dice eh?
-					{
-						char cwdbuf[260];
-						memset(cwdbuf,0,260*sizeof(char));
-						getcwd(cwdbuf, 260);
-
-						std::string path = cwdbuf;
-						std::string fn;
-
-						if(path.size() != 0 && 
-							!(*(path.end()-1)=='/' || *(path.end()-1)=='\\')
-							)
-						{
-							path += '/';
-						}
-
-						fn = path + gQstPath;
-
-						if(exists(fn.c_str())) //Last chance for hookers and blackjack truck stop
-						{
-							sprintf(qstpath,"%s", fn.c_str());
-							Z_error("Set quest path to \"%s\".\n", qstpath);
-							break;
-						}
-					}
-				} //while
+				search = search.substr(sep + 1);
 			}
-		}//end hack
+		}
 	}
 
 	if (replay_is_active() && !testingqst_name.empty())
@@ -1555,7 +1516,6 @@ int32_t load_quest(gamedata *g, bool report, byte printmetadata)
 			abort();
 		}
 
-		enter_sys_pal();
 		std::ostringstream oss;
 		if(ret == qe_no_qst)
 		{
@@ -1567,14 +1527,22 @@ int32_t load_quest(gamedata *g, bool report, byte printmetadata)
 			oss << "Error loading " << get_filename(qstpath)
 				<< ":\n" << qst_error[ret] << "\n" << qstpath;
 		}
-		InfoDialog("File Error",oss.str()).show();
-		
+
+		if (is_headless())
+		{
+			Z_error("File Error: %s\n", oss.str().c_str());
+		}
+		else
+		{
+			enter_sys_pal();
+			InfoDialog("File Error",oss.str()).show();
+			exit_sys_pal();
+		}
+
 		if(standalone_mode)
 		{
 			abort();
 		}
-		
-		exit_sys_pal();
 	}
 	
 	return ret;

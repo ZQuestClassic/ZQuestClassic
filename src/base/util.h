@@ -7,6 +7,7 @@
 #include "base/zdefs.h"
 #include <sstream>
 #include <string>
+#include <string_view>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <filesystem>
@@ -60,6 +61,11 @@ namespace util
 	bool valid_file(std::string const& path);
 	void regulate_path(char* buf);
 	void regulate_path(std::string& buf);
+	// Returns true if `path` is a relative path. Unlike the platform filesystem
+	// APIs, this recognizes both unix ("/foo") and Windows ("C:\foo") absolute
+	// paths no matter what platform is running, which matters for paths that were
+	// saved to disk on another platform.
+	bool is_relative_path(std::string_view path);
 	bool create_path(const char* path);
 	char* zc_itoa(int32_t value, char* str, int32_t base = 10);
 	int64_t zc_atoi64(const char *str);

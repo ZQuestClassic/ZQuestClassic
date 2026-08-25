@@ -3,6 +3,7 @@
 #include <ctype.h>
 #include <cstring>
 #include <memory>
+#include "base/util.h"
 #include "base/files.h"
 #include "base/hotkey.h"
 #include "base/zc_alleg.h"
@@ -1069,7 +1070,7 @@ bool prompt_for_quest_path(std::string current_qstpath)
 		sprintf(qstpath, "%s", qstdir);
 		jump_to_file_select = true;
 	}
-	else if (is_relative_filename(current_qstpath.c_str()))
+	else if (util::is_relative_path(current_qstpath))
 	{
 		// TODO: make `qstpath` use type fs::path
 		auto qstpath_fs = fs::path(qstdir) / fs::path(current_qstpath);
