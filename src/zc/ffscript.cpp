@@ -13786,7 +13786,7 @@ int32_t run_script_int(JittedScriptInstance* j_instance)
 	post_switch:
 		// These conditions almost never hit, so screen them all behind one predictable branch.
 		if (unlikely(earlyretval > -1 || ri->overflow || hit_invalid_zasm ||
-			old_script_funcrun || type == ScriptType::Combo))
+			old_script_funcrun || (type == ScriptType::Combo && combopos_modified == i)))
 		{
 			if(earlyretval == RUNSCRIPT_SELFDELETE)
 			{
