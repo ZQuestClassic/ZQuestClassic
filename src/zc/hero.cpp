@@ -28907,6 +28907,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		//bound(cx, 0, 240); //Fix crash during screen scroll when Hero is moving too quickly through a corner - DarkDragon
 		//bound(cy, 0, 168); //Fix crash during screen scroll when Hero is moving too quickly through a corner - DarkDragon
 		//y+8 could be 168 //Attempt to fix a frash where scrolling through the lower-left corner could crassh ZC as reported by Lut. -Z
+	bool faded_out_for_dmap_change = false;
 	switch(scrolldir)
 	{
 		case up:
@@ -28996,6 +28997,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	{
 		fade((specialcave > 0) ? (specialcave >= GUYCAVE) ? 10 : 11 : currcset, true, false);
 		darkroom = true;
+		faded_out_for_dmap_change = true;
 	}
 	else if(!darkroom)
 		lighting(false, false); // NES behaviour: fade to dark before scrolling
@@ -29184,6 +29186,34 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		ZScriptVersion::RunScrollingScript(scrolldir, cx, sx, sy, end_frames, true); //Waitdraw
 		FFCore.runGenericPassiveEngine(SCR_TIMING_PRE_DRAW);
 		RESTORE_HERO_POS;
+		// The scroll loop's last compose rests one step short of the settled
+		// position (classic vertical scrolling adds a further 3px offset), and
+		// the first frame after scrolling snaps the last bit into place.
+		// When the screen was blacked out for a DMap palette change the scroll
+		// is invisible, but the fade-in reveals the loop's final frame - so
+		// that snap would happen mid-fade, in plain view. Compose the final
+		// blacked-out frame at the settled position instead.
+		if (faded_out_for_dmap_change && cx <= 0)
+		{
+			switch(scrolldir)
+			{
+			case up:    sy = 0;   break;
+			case down:  sy = 176; break;
+			case left:  sx = 0;   break;
+			case right: sx = 256; break;
+			}
+			tx = sx; ty = sy; tx2 = sx; ty2 = sy;
+			switch(scrolldir)
+			{
+			case right: tx -= 256;  break;
+			case down:  ty -= 176;  break;
+			case left:  tx2 -= 256; break;
+			case up:    ty2 -= 176; break;
+			}
+			viewport.x = initial_viewport.x + (scrolldir==left ? -256 : scrolldir==right ? 256 : 0);
+			viewport.y = initial_viewport.y + (scrolldir==up ? -176 : scrolldir==down ? 176 : 0);
+		}
+
 		clear_bitmap(scrollbuf);
 		clear_bitmap(framebuf);
 		clear_a5_bmp(rti_infolayer.bitmap);
