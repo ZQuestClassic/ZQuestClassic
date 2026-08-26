@@ -89,7 +89,10 @@ static void _dosubscr()
 	set_clip_rect(framebuf, 0, 0, framebuf->w, framebuf->h);
 
 	// Copy the complete frame.
-	blit(framebuf,scrollbuf,0,playing_field_offset,0,0,256,176);
+	// Capture the screen as displayed, so presentation-only effects (the
+	// wavy distortion) stay baked into the frozen background while the
+	// subscreen is up.
+	blit(latest_screen_image(),scrollbuf,0,playing_field_offset,0,0,256,176);
 	
 	bool use_a = get_qr(qr_SELECTAWPN), use_x = get_qr(qr_SET_XBUTTON_ITEMS),
 		 use_y = get_qr(qr_SET_YBUTTON_ITEMS);

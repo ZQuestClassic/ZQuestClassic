@@ -631,9 +631,9 @@ static void do_recording_poll()
 			}
 		}
 
-		int depth = bitmap_color_depth(framebuf);
-		size_t len = framebuf->w * framebuf->h * BYTES_PER_PIXEL(depth);
-		uint32_t hash = XXH32(framebuf->dat, len, 0);
+		int depth = bitmap_color_depth(presentbuf);
+		size_t len = presentbuf->w * presentbuf->h * BYTES_PER_PIXEL(depth);
+		uint32_t hash = XXH32(presentbuf->dat, len, 0);
 		extern PALETTE* hw_palette;
 		hash += XXH32(hw_palette, sizeof(PALETTE), 0);
 		replay_step_gfx(hash);
@@ -1311,14 +1311,14 @@ static void maybe_take_snapshot()
 			// The segment's first frame always saves.
 			else if (!prev_gfx_hash_was_same || gfx_expected_changed
 				|| current_failing_gfx_segment_start_frame == frame_count)
-				save_snapshot(framebuf, RAMpal, frame_count, gfx_got_mismatch);
+				save_snapshot(presentbuf, RAMpal, frame_count, gfx_got_mismatch);
 			return;
 		}
 		else if (last_failing_gfx_frame != -1 && frame_count - last_failing_gfx_frame <= 10)
 		{
 			// Save a few frames after the last failing gfx, for context.
 			if (!prev_gfx_hash_was_same || gfx_expected_changed)
-				save_snapshot(framebuf, RAMpal, frame_count, gfx_got_mismatch);
+				save_snapshot(presentbuf, RAMpal, frame_count, gfx_got_mismatch);
 			return;
 		}
 	}
@@ -1328,7 +1328,7 @@ static void maybe_take_snapshot()
 	{
 		if (mode == ReplayMode::Assert && !prev_gfx_hash_was_same)
 		{
-			blit(framebuf, framebuf_history[framebuf_history_index].bitmap, 0, 0, 0, 0, framebuf->w, framebuf->h);
+			blit(presentbuf, framebuf_history[framebuf_history_index].bitmap, 0, 0, 0, 0, presentbuf->w, presentbuf->h);
 			framebuf_history[framebuf_history_index].frame = frame_count;
 			memcpy(framebuf_history[framebuf_history_index].pal, RAMpal, PAL_SIZE*sizeof(RGB));
 			framebuf_history_index = (framebuf_history_index + 1) % framebuf_history.size();
@@ -1336,7 +1336,7 @@ static void maybe_take_snapshot()
 		return;
 	}
 
-	save_snapshot(framebuf, RAMpal, frame_count, gfx_got_mismatch);
+	save_snapshot(presentbuf, RAMpal, frame_count, gfx_got_mismatch);
 }
 
 static void fail_replay(std::string error)
@@ -1478,7 +1478,7 @@ bool replay_start(ReplayMode mode_, std::filesystem::path path, int frame)
     {
         for (int i = 0; i < framebuf_history.size(); i++)
         {
-            framebuf_history[i].bitmap = create_bitmap_ex(8, framebuf->w, framebuf->h);
+            framebuf_history[i].bitmap = create_bitmap_ex(8, presentbuf->w, presentbuf->h);
             framebuf_history[i].frame = -1;
         }
     }

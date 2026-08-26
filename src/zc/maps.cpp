@@ -3992,6 +3992,7 @@ void draw_msgstr(byte layer)
 
 void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 {
+	framebuf_composed_since_present = true;
 	clear_a5_bmp(rti_infolayer.bitmap);
 	if((GameFlags & (GAMEFLAG_SCRIPTMENU_ACTIVE|GAMEFLAG_F6SCRIPT_ACTIVE))!=0)
 	{
