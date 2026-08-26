@@ -29251,6 +29251,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 	auto [wateraheadx2, wateraheady2] = lookahead_coords(scrolldir, new_hero_x + 11, new_hero_y + 15);
 	
 	bool nowinwater = false;
+	bool faded_out_for_dmap_change = false;
 	{
 		if(lastaction != inwind)
 		{
@@ -29320,6 +29321,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 		{
 			fade((specialcave > 0) ? (specialcave >= GUYCAVE) ? 10 : 11 : currcset, true, false);
 			darkroom = true;
+			faded_out_for_dmap_change = true;
 		}
 		else if(!darkroom)
 			lighting(false, false); // NES behaviour: fade to dark before scrolling
@@ -29558,6 +29560,19 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 		ZScriptVersion::RunScrollingScript(scrolldir, scroll_counter, sx, sy, end_frames, true); //Waitdraw
 		FFCore.runGenericPassiveEngine(SCR_TIMING_PRE_DRAW);
 		RESTORE_HERO_POS;
+
+		// The scroll loop's last compose rests one step short of the settled
+		// position (classic vertical scrolling adds a further 3px offset), and
+		// the first frame after scrolling snaps the last bit into place.
+		// When the screen was blacked out for a DMap palette change the scroll
+		// is invisible, but the fade-in reveals the loop's final frame - so
+		// that snap would happen mid-fade, in plain view. Compose the final
+		// blacked-out frame at the settled position instead.
+		if (faded_out_for_dmap_change && scroll_counter <= 0 && !align_counter && !pfo_counter)
+		{
+			viewport.x = new_viewport.x + new_region_offset_x;
+			viewport.y = new_viewport.y + new_region_offset_y;
+		}
 
 		clear_bitmap(framebuf);
 		clear_info_bmp();
