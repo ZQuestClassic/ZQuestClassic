@@ -1673,6 +1673,12 @@ void game_over(int32_t type)
 	int32_t curcset = SaveScreenSettings[SAVESC_CURSOR_CSET];
 	bool done=false;
 
+	// Old replay versions step frames from the input polls below, before the
+	// menu loop presents anything - and their recorded gfx hashes saw the menu
+	// as just composed. Mirror it into the presented bitmap so those frames
+	// hash (and snapshot) the menu instead of the stale last-presented image.
+	blit(framebuf, presentbuf, 0, 0, 0, 0, presentbuf->w, presentbuf->h);
+
 	if (replay_version_check(7))
 	{
 		zc_readrawkey(active_control_scheme->keys[btnS], true);

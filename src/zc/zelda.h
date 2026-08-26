@@ -238,6 +238,14 @@ extern BITMAP   *framebuf, *menu_bmp, *gui_bmp, *scrollbuf, *tmp_bmp, *tmp_scr, 
 				*msg_menu_bmp_buf, *msg_portrait_bmp_buf, *pricesdisplaybuf, *tb_page[3],
 				*temp_buf2, *prim_bmp,
 				*script_menu_buf, *f6_menu_buf;
+// The image actually displayed each frame: framebuf after the presentation-only transforms
+// in updatescr (wavy distortion, the no-subscreen recentering). Never draw game content here.
+extern BITMAP* presentbuf;
+// Whether framebuf has been composed (draw_screen) since the last present (updatescr).
+extern bool framebuf_composed_since_present;
+// The most recent image of the game screen: this frame's compose if one has happened,
+// otherwise the previous frame as displayed. The source for screen captures.
+BITMAP* latest_screen_image();
 extern BITMAP   *darkscr_bmp_curscr, *darkscr_bmp_scrollscr,
                 *darkscr_bmp_curscr_trans, *darkscr_bmp_scrollscr_trans;
 extern BITMAP *lightbeam_bmp;

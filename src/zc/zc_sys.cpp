@@ -3551,8 +3551,12 @@ void updatescr(bool allowwavy)
 	}
 	
 	//TODO: Optimize blit 'overcalls' -Gleeok
+	// Present from a separate bitmap: writing the recentered/wavy image back into
+	// framebuf would accumulate across frames whenever a blocking loop (fade, wipe)
+	// presents without recomposing framebuf.
 	BITMAP *source = nosubscr ? panorama : wavybuf;
-	blit(source, framebuf, 0, 0, 0, 0, framebuf->w, framebuf->h);
+	blit(source, presentbuf, 0, 0, 0, 0, presentbuf->w, presentbuf->h);
+	framebuf_composed_since_present = false;
 
 	update_hw_screen();
 }
@@ -3595,13 +3599,13 @@ int32_t onNonGUISnapshot()
 	{
 		BITMAP *b = create_bitmap_ex(8, 256, viewport.visible_height(show_bottom_8px));
 		clear_to_color(b,0);
-		blit(framebuf,b,0,playing_field_offset/2,0,0,b->w,b->h);
+		blit(presentbuf,b,0,playing_field_offset/2,0,0,b->w,b->h);
 		alleg4_save_bitmap(b, SnapshotScale, buf, realpal ? temppal : RAMpal);
 		destroy_bitmap(b);
 	}
 	else
 	{
-		alleg4_save_bitmap(framebuf, SnapshotScale, buf, realpal?temppal:RAMpal);
+		alleg4_save_bitmap(presentbuf, SnapshotScale, buf, realpal?temppal:RAMpal);
 	}
 	
 	return D_O_K;
@@ -4351,7 +4355,8 @@ void advanceframe(bool allowwavy, bool sfxcleanup, bool allowF6Script)
 void zapout()
 {
 	set_clip_rect(scrollbuf, 0, 0, scrollbuf->w, scrollbuf->h);
-	blit(framebuf,scrollbuf,0,0,256,0,256,framebuf->h);
+	BITMAP* src = latest_screen_image();
+	blit(src,scrollbuf,0,0,256,0,256,src->h);
 	
 	FFCore.runGenericPassiveEngine(SCR_TIMING_END_FRAME);
 	script_drawing_commands.Clear();
@@ -6574,14 +6579,17 @@ void updateShowBottomPixels()
 		blit(framebuf, new_framebuf, 0, 0, 0, 0, new_framebuf->w, new_framebuf->h);
 
 		destroy_bitmap(framebuf);
+		destroy_bitmap(presentbuf);
 		destroy_bitmap(script_menu_buf);
 		destroy_bitmap(f6_menu_buf);
 
 		framebuf = new_framebuf;
+		presentbuf = create_bitmap_ex(8, 256, target_bitmap_height);
+		clear_bitmap(presentbuf);
 		script_menu_buf = create_bitmap_ex(8, 256, target_bitmap_height);
 		f6_menu_buf = create_bitmap_ex(8, 256, target_bitmap_height);
 
-		rti_game.a4_bitmap = framebuf;
+		rti_game.a4_bitmap = presentbuf;
 		rti_game.set_size(framebuf->w, framebuf->h);
 		al_set_new_bitmap_flags(ALLEGRO_CONVERT_BITMAP);
 		al_destroy_bitmap(rti_game.bitmap);

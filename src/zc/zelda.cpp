@@ -249,6 +249,23 @@ BITMAP     *framebuf, *menu_bmp, *gui_bmp, *scrollbuf, *tmp_bmp, *tmp_scr, *scre
            *msg_portrait_display_buf, *msg_txt_display_buf, *msg_bg_display_buf,
 		   *pricesdisplaybuf, *tb_page[3], *prim_bmp,
 		   *script_menu_buf, *f6_menu_buf;
+// The image actually displayed each frame: framebuf after the presentation-only
+// transforms in updatescr (wavy distortion, the no-subscreen recentering). Kept
+// separate so those transforms never feed back into framebuf, which blocking
+// loops (fades, wipes) rely on persisting between frames.
+BITMAP* presentbuf;
+// Whether framebuf has been composed (draw_screen) since the last present
+// (updatescr). Tells captures of "the current screen" whether framebuf holds
+// this frame's image or still holds the previous frame's.
+bool framebuf_composed_since_present;
+
+// The most recent image of the game screen: this frame's compose if one has
+// happened, otherwise the previous frame as displayed. The source for anything
+// that captures the screen - menu and subscreen backdrops, warp wipes.
+BITMAP* latest_screen_image()
+{
+	return framebuf_composed_since_present ? framebuf : presentbuf;
+}
 BITMAP     *zcmouse[NUM_ZCMOUSE];
 DATAFILE   *sfxdata, *fontsdata, *mididata;
 size_t fontsdat_cnt = 0;
@@ -4454,6 +4471,8 @@ int main(int argc, char **argv)
 
 	// Note: These will be recreated in apply_qr_rule.
 	framebuf  = create_bitmap_ex(8,256,224);
+	presentbuf = create_bitmap_ex(8,256,224);
+	clear_bitmap(presentbuf);
 	script_menu_buf = create_bitmap_ex(8,256,224);
 	f6_menu_buf = create_bitmap_ex(8,256,224);
 

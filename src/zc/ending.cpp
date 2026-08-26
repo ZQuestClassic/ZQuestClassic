@@ -414,7 +414,7 @@ void ending()
 	}
 	
 	clear_bitmap(scrollbuf);
-	blit(framebuf,scrollbuf,0,0,0,0,framebuf->w,framebuf->h);
+	blit(latest_screen_image(),scrollbuf,0,0,0,0,framebuf->w,framebuf->h);
 	endingpal();
 	// draw the brick
 	puttile16(scrollbuf,3,256,0,csBOSS,0);
@@ -662,7 +662,7 @@ void ending_scripted()
 	draw_screen_clip_rect_x2=255;
     
 	clear_bitmap(scrollbuf);
-	blit(framebuf,scrollbuf,0,0,0,0,framebuf->w,framebuf->h);
+	blit(latest_screen_image(),scrollbuf,0,0,0,0,framebuf->w,framebuf->h);
 	endingpal();
     
         removeItemsOfFamily(game, itemsbuf, itype_ring);
