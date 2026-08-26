@@ -1017,7 +1017,16 @@ void stream_setpos(ALSTREAMFILE* als, int32_t msecs)
 {
 	if (als->s != NULL)
 	{
+		// A seek alone leaves ~0.2s of already-decoded audio queued, which
+		// would play out before the jump is heard. Stopping the stream
+		// discards that queue (any fragment decoded post-seek is fine), so
+		// the seek takes effect right away and playback stays aligned with
+		// the frame clock.
+		bool was_playing = al_get_audio_stream_playing(als->s);
 		al_seek_audio_stream_secs(als->s, double(msecs) / 10000.0);
+		al_set_audio_stream_playing(als->s, false);
+		if (was_playing)
+			al_set_audio_stream_playing(als->s, true);
 		als->frame_clock = double(msecs) / 10000.0;
 	}
 }
