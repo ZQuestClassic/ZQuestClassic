@@ -15053,7 +15053,7 @@ void FFScript::runF6Engine()
 			push_ri();
 			//
 			clear_bitmap(f6_menu_buf);
-			blit(framebuf, f6_menu_buf, 0, 0, 0, 0, framebuf->w, framebuf->h);
+			blit(latest_screen_image(), f6_menu_buf, 0, 0, 0, 0, f6_menu_buf->w, f6_menu_buf->h);
 			initZScriptGlobalScript(GLOBAL_SCRIPT_F6);
 			ScopedScriptEngineDataClear engine_data_guard{ScriptType::Global, GLOBAL_SCRIPT_F6};
 			int32_t openingwipe = black_opening_count;
@@ -15115,7 +15115,7 @@ void FFScript::runF6Engine()
 		else if (unsigned(QMisc.savemenu_f6 - 1) < NUM_SAVE_MENUS && QMisc.save_menus[QMisc.savemenu_f6 - 1].is_valid())
 		{
 			clear_bitmap(f6_menu_buf);
-			blit(framebuf, f6_menu_buf, 0, 0, 0, 0, framebuf->w, framebuf->h);
+			blit(latest_screen_image(), f6_menu_buf, 0, 0, 0, 0, f6_menu_buf->w, f6_menu_buf->h);
 
 			GameFlags &= ~GAMEFLAG_TRYQUIT;
 			GameFlags |= GAMEFLAG_F6SCRIPT_ACTIVE;
@@ -15131,7 +15131,7 @@ void FFScript::runOnDeathEngine()
 {
 	if(!playerscripts[SCRIPT_HERO_DEATH]->valid()) return; //No script to run
 	clear_bitmap(script_menu_buf);
-	blit(framebuf, script_menu_buf, 0, 0, 0, 0, framebuf->w, framebuf->h);
+	blit(latest_screen_image(), script_menu_buf, 0, 0, 0, 0, script_menu_buf->w, script_menu_buf->h);
 	initZScriptHeroScripts();
 	ScopedScriptEngineDataClear engine_data_guard{ScriptType::Hero, 0};
 	GameFlags |= GAMEFLAG_SCRIPTMENU_ACTIVE;
@@ -15217,7 +15217,7 @@ bool FFScript::runGenericFrozenEngine(const word script)
 		script_menu_buf = create_bitmap_ex(8, framebuf->w, framebuf->h);
 	}
 	clear_bitmap(script_menu_buf);
-	blit(framebuf, script_menu_buf, 0, 0, 0, 0, framebuf->w, framebuf->h);
+	blit(latest_screen_image(), script_menu_buf, 0, 0, 0, 0, script_menu_buf->w, script_menu_buf->h);
 	GameFlags |= GAMEFLAG_SCRIPTMENU_ACTIVE;
 	bool skipdraws = FFCore.skipscriptdraws;
 	FFCore.skipscriptdraws = false;
@@ -15267,7 +15267,7 @@ bool FFScript::runScriptedActiveSubscreen()
 	word passivesubscript = DMaps[cur_dmap].passive_sub_scrconfig.script;
 	word dmapactivescript = DMaps[cur_dmap].active_scrconfig.script;
 	clear_bitmap(script_menu_buf);
-	blit(framebuf, script_menu_buf, 0, 0, 0, 0, framebuf->w, framebuf->h);
+	blit(latest_screen_image(), script_menu_buf, 0, 0, 0, 0, script_menu_buf->w, script_menu_buf->h);
 	initZScriptScriptedActiveSubscreen();
 	ScopedScriptEngineDataClear engine_data_guard{ScriptType::ScriptedActiveSubscreen, 0};
 	GameFlags |= GAMEFLAG_SCRIPTMENU_ACTIVE;
@@ -15322,7 +15322,7 @@ bool FFScript::runScriptedActiveSubscreen()
 			//Reset the background image
 			game_loop();
 			clear_bitmap(script_menu_buf);
-			blit(framebuf, script_menu_buf, 0, 0, 0, 0, framebuf->w, framebuf->h);
+			blit(latest_screen_image(), script_menu_buf, 0, 0, 0, 0, script_menu_buf->w, script_menu_buf->h);
 			//Now loop without advancing frame, so that the subscreen script can draw immediately.
 		}
 	}
@@ -15339,7 +15339,7 @@ bool FFScript::runOnMapScriptEngine()
 	word onmap_script = DMaps[cur_dmap].onmap_scrconfig.script;
 	if(!onmap_script || !dmapscripts[onmap_script]->valid()) return false; //No script to run
 	clear_bitmap(script_menu_buf);
-	blit(framebuf, script_menu_buf, 0, 0, 0, 0, framebuf->w, framebuf->h);
+	blit(latest_screen_image(), script_menu_buf, 0, 0, 0, 0, script_menu_buf->w, script_menu_buf->h);
 	initZScriptOnMapScript();
 	ScopedScriptEngineDataClear engine_data_guard{ScriptType::OnMap, 0};
 	GameFlags |= GAMEFLAG_SCRIPTMENU_ACTIVE;
@@ -15375,7 +15375,7 @@ bool FFScript::runOnMapScriptEngine()
 			//Reset the background image
 			game_loop();
 			clear_bitmap(script_menu_buf);
-			blit(framebuf, script_menu_buf, 0, 0, 0, 0, framebuf->w, framebuf->h);
+			blit(latest_screen_image(), script_menu_buf, 0, 0, 0, 0, script_menu_buf->w, script_menu_buf->h);
 			//Now loop without advancing frame, so that the subscreen script can draw immediately.
 		}
 	}

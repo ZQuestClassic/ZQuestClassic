@@ -120,7 +120,10 @@ void dosubscr()
 	}
 	else
 	{
-		blit(framebuf,subscr_scrolling_bitmap,0,playing_field_offset,0,0,256,h);
+		// Capture the screen as displayed, so presentation-only effects (the
+		// wavy distortion) stay baked into the frozen background while the
+		// subscreen is up.
+		blit(latest_screen_image(),subscr_scrolling_bitmap,0,playing_field_offset,0,0,256,h);
 	}
 	
 	bool use_a = get_qr(qr_SELECTAWPN), use_x = get_qr(qr_SET_XBUTTON_ITEMS),

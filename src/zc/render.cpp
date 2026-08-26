@@ -75,7 +75,7 @@ static void init_render_tree()
 	al_set_new_bitmap_flags(base_flags_preserve_texture);
 	rti_game.bitmap = create_a5_bitmap(framebuf->w, framebuf->h);
 	rti_game.set_size(framebuf->w, framebuf->h);
-	rti_game.a4_bitmap = framebuf;
+	rti_game.a4_bitmap = presentbuf;
 	rti_infolayer.bitmap = create_a5_bitmap(framebuf->w, framebuf->h);
 	rti_infolayer.set_size(framebuf->w, framebuf->h);
 	// A child of the game layer (identity transform, same size), so the CRT filters apply

@@ -696,7 +696,7 @@ static void do_recording_poll()
 			}
 		}
 
-		uint32_t hash = hash_bitmap(framebuf);
+		uint32_t hash = hash_bitmap(presentbuf);
 		replay_step_gfx(hash);
 	}
 
@@ -1333,14 +1333,14 @@ static void maybe_take_snapshot()
 			// The segment's first frame always saves.
 			else if (!rs.prev_gfx_hash_was_same || rs.gfx_expected_changed
 				|| rs.current_failing_gfx_segment_start_frame == rs.frame_count)
-				save_snapshot(framebuf, RAMpal, rs.frame_count, rs.gfx_got_mismatch);
+				save_snapshot(presentbuf, RAMpal, rs.frame_count, rs.gfx_got_mismatch);
 			return;
 		}
 		else if (rs.last_failing_gfx_frame != -1 && rs.frame_count - rs.last_failing_gfx_frame <= 10)
 		{
 			// Save a few frames after the last failing gfx, for context.
 			if (!rs.prev_gfx_hash_was_same || rs.gfx_expected_changed)
-				save_snapshot(framebuf, RAMpal, rs.frame_count, rs.gfx_got_mismatch);
+				save_snapshot(presentbuf, RAMpal, rs.frame_count, rs.gfx_got_mismatch);
 			return;
 		}
 	}
@@ -1350,7 +1350,7 @@ static void maybe_take_snapshot()
 	{
 		if (rs.mode == ReplayMode::Assert && !rs.prev_gfx_hash_was_same)
 		{
-			blit(framebuf, rs.framebuf_history[rs.framebuf_history_index].bitmap, 0, 0, 0, 0, framebuf->w, framebuf->h);
+			blit(presentbuf, rs.framebuf_history[rs.framebuf_history_index].bitmap, 0, 0, 0, 0, presentbuf->w, presentbuf->h);
 			rs.framebuf_history[rs.framebuf_history_index].frame = rs.frame_count;
 			memcpy(rs.framebuf_history[rs.framebuf_history_index].pal, RAMpal, PAL_SIZE*sizeof(RGB));
 			rs.framebuf_history_index = (rs.framebuf_history_index + 1) % rs.framebuf_history.size();
@@ -1358,7 +1358,7 @@ static void maybe_take_snapshot()
 		return;
 	}
 
-	save_snapshot(framebuf, RAMpal, rs.frame_count, rs.gfx_got_mismatch);
+	save_snapshot(presentbuf, RAMpal, rs.frame_count, rs.gfx_got_mismatch);
 }
 
 static void fail_replay(std::string error)
@@ -1470,7 +1470,7 @@ bool replay_start(ReplayMode mode_, std::filesystem::path path, int frame)
     {
         for (int i = 0; i < rs.framebuf_history.size(); i++)
         {
-            rs.framebuf_history[i].bitmap = create_bitmap_ex(8, framebuf->w, framebuf->h);
+            rs.framebuf_history[i].bitmap = create_bitmap_ex(8, presentbuf->w, presentbuf->h);
             rs.framebuf_history[i].frame = -1;
         }
     }

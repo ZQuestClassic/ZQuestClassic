@@ -212,6 +212,14 @@ extern BITMAP   *framebuf, *menu_bmp, *gui_bmp, *scrollbuf, *scrollbuf_old, *tmp
 				*script_menu_buf, *f6_menu_buf;
 // The portion of the framebuf without the passive subscreen. Only used in extended height mode.
 extern BITMAP* framebuf_no_passive_subscreen;
+// The image actually displayed each frame: framebuf after the presentation-only transforms
+// in updatescr (wavy distortion, the no-subscreen recentering). Never draw game content here.
+extern BITMAP* presentbuf;
+// Whether framebuf has been composed (draw_screen) since the last present (updatescr).
+extern bool framebuf_composed_since_present;
+// The most recent image of the game screen: this frame's compose if one has happened,
+// otherwise the previous frame as displayed. The source for screen captures.
+BITMAP* latest_screen_image();
 extern BITMAP   *darkscr_bmp, *darkscr_bmp_trans;
 extern BITMAP *lightbeam_bmp;
 extern bool lightbeam_present;

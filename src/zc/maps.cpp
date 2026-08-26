@@ -4937,6 +4937,7 @@ static void draw_screen_post_passive_subscreen(BITMAP* dest, bool any_dark, cons
 // draws excluding the passive subscreen.
 void draw_screen(bool showhero, bool runGeneric, bool drawPassiveSubscreenSeparate)
 {
+	framebuf_composed_since_present = true;
 	bool classic_draw = get_qr(qr_CLASSIC_DRAWING_ORDER);
 	bool old_layer_draw_order = get_qr(qr_OLD_LAYER_DRAW_ORDER);
 	clear_info_bmp();
