@@ -52,6 +52,15 @@ int GetClassNullValue(std::string_view class_name)
 	return 0;
 }
 
+std::shared_ptr<ExprNode> ParseBreakpointExpression(const std::string& expression)
+{
+	ExpressionParser parser{expression};
+	if (auto node = parser.parseExpression())
+		return node.value();
+
+	return nullptr;
+}
+
 bool IsNull(int raw_value, std::string_view class_name)
 {
 	// Fast path. Must check all values in GetClassNullValue.
@@ -137,6 +146,11 @@ void Debugger::Clear()
 	current_stack_trace = std::nullopt;
 	selected_scope = nullptr;
 	breakpoints.clear();
+	value_breakpoints.clear();
+	value_bp_cached_ri = nullptr;
+	value_bp_cached_data = nullptr;
+	hit_breakpoint_source_file = nullptr;
+	hit_breakpoint_line = 0;
 	console_logs.clear();
 	variable_groups.clear();
 	watches.clear();
@@ -157,6 +171,10 @@ void Debugger::Init()
 	current_stack_trace = std::nullopt;
 	selected_scope = nullptr;
 	RemoveBreakpoints();
+	value_bp_cached_ri = nullptr;
+	value_bp_cached_data = nullptr;
+	hit_breakpoint_source_file = nullptr;
+	hit_breakpoint_line = 0;
 	console_logs.clear();
 	if (!zasm_debug_data.exists())
 		AddConsoleMessage("NOTE: This quest was made before debug data. For the debugger, only the console is enabled.");
@@ -183,27 +201,33 @@ void Debugger::Load()
 	for (auto& breakpoint_serialized : breakpoints_serialized_parts)
 	{
 		auto components = util::split(breakpoint_serialized, ",");
-		if (components.size() != 4)
+		if (components.size() < 3)
 			continue;
 
 		std::string& type_str = components[0];
-		std::string& enabled_str = components[1];
-		std::string& path = components[2];
-		std::string& line_str = components[3];
+		bool enabled = components[1] == "1";
 
-		if (type_str != "0")
-			continue;
+		if (type_str == "0" && components.size() == 4)
+		{
+			std::string& path = components[2];
+			std::string& line_str = components[3];
 
-		const SourceFile* source_file = zasm_debug_data.getSourceFile(path);
-		if (!source_file)
-			continue;
+			const SourceFile* source_file = zasm_debug_data.getSourceFile(path);
+			if (!source_file)
+				continue;
 
-		int line = std::stoi(line_str);
-		bool enabled = enabled_str == "1";
+			int line = std::stoi(line_str);
 
-		auto pcs = zasm_debug_data.resolveAllPcsFromSourceLocation(source_file, line);
-		for (pc_t pc : pcs)
-			AddBreakpoint(source_file, line, pc, enabled);
+			auto pcs = zasm_debug_data.resolveAllPcsFromSourceLocation(source_file, line);
+			for (pc_t pc : pcs)
+				AddBreakpoint(source_file, line, pc, enabled);
+		}
+		else if (type_str == "1")
+		{
+			// The expression may itself contain commas.
+			std::string expression = fmt::format("{}", fmt::join(components.begin() + 2, components.end(), ","));
+			AddValueChangeBreakpoint(std::move(expression), enabled);
+		}
 	}
 
 	std::string watches_serialized = zc_get_config(qst_cfg_header.c_str(), "debugger_watches", "");
@@ -234,12 +258,18 @@ void Debugger::Save()
 	std::vector<std::string> breakpoints_serialized_parts;
 	for (auto& breakpoint : breakpoints_deduped)
 	{
-		int type = (int)breakpoint.type;
-		if (type < 0)
+		if (breakpoint.type != Breakpoint::Type::Normal)
 			continue;
 
+		int type = (int)breakpoint.type;
 		int enabled = breakpoint.enabled ? 1 : 0;
 		breakpoints_serialized_parts.push_back(fmt::format("{},{},{},{}", type, enabled, breakpoint.source_file->path, breakpoint.line));
+	}
+
+	for (auto& breakpoint : value_breakpoints)
+	{
+		int enabled = breakpoint.enabled ? 1 : 0;
+		breakpoints_serialized_parts.push_back(fmt::format("{},{},{}", (int)breakpoint.type, enabled, breakpoint.expression));
 	}
 
 	std::string breakpoints_serialized = fmt::format("{}", fmt::join(breakpoints_serialized_parts, ";"));
@@ -304,6 +334,7 @@ void Debugger::RemoveBreakpoints()
 {
 	breakpoints.clear();
 	breakpoints_deduped.clear();
+	value_breakpoints.clear();
 	text_editor.SetBreakpoints({});
 	breakpoints_dirty = true;
 }
@@ -315,6 +346,200 @@ bool Debugger::HasBreakpoint(pc_t pc)
 	if (it != breakpoints.end() && !(target < *it))
 		return it->enabled;
 	return false;
+}
+
+void Debugger::AddValueChangeBreakpoint(std::string expression, bool enabled)
+{
+	if (HasValueChangeBreakpoint(expression))
+		return;
+
+	Breakpoint bp{};
+	bp.type = Breakpoint::Type::ValueChange;
+	bp.enabled = enabled;
+	bp.parsed_expression = ParseBreakpointExpression(expression);
+	bp.expression = std::move(expression);
+	value_breakpoints.push_back(std::move(bp));
+	breakpoints_dirty = true;
+}
+
+void Debugger::RemoveValueChangeBreakpoint(const std::string& expression)
+{
+	std::erase_if(value_breakpoints, [&](auto& bp){ return bp.expression == expression; });
+	breakpoints_dirty = true;
+}
+
+void Debugger::EditValueChangeBreakpoint(const std::string& old_expression, std::string new_expression)
+{
+	if (new_expression == old_expression || HasValueChangeBreakpoint(new_expression))
+		return;
+
+	for (auto& bp : value_breakpoints)
+	{
+		if (bp.expression != old_expression)
+			continue;
+
+		bp.expression = std::move(new_expression);
+		bp.parsed_expression = ParseBreakpointExpression(bp.expression);
+
+		// The old expression's remembered state no longer applies.
+		bp.last_value.reset();
+		bp.last_value_serialized.reset();
+		bp.last_value_display.clear();
+		bp.hit_value_display.clear();
+		bp.hit_value_prev_display.clear();
+
+		breakpoints_dirty = true;
+		break;
+	}
+}
+
+bool Debugger::HasValueChangeBreakpoint(const std::string& expression) const
+{
+	return std::any_of(value_breakpoints.begin(), value_breakpoints.end(), [&](auto& bp){ return bp.expression == expression; });
+}
+
+// Checks value-change breakpoints against the currently executing script. Expressions that don't
+// resolve right now (e.g. a local variable that is not in scope) are ignored, but the last
+// successfully resolved value is remembered so a change is still noticed once the expression
+// resolves again.
+Breakpoint* Debugger::CheckValueChangeBreakpoints(pc_t pc)
+{
+	extern refInfo *ri;
+
+	if (value_breakpoints.empty())
+		return nullptr;
+
+	bool any_to_check = false;
+	for (auto& bp : value_breakpoints)
+	{
+		if (bp.enabled && bp.parsed_expression)
+		{
+			any_to_check = true;
+		}
+		else
+		{
+			// Forget the last value so re-enabling a breakpoint doesn't immediately pause on a
+			// change made while it was disabled.
+			bp.last_value.reset();
+			bp.last_value_serialized.reset();
+		}
+	}
+	if (!any_to_check)
+		return nullptr;
+
+	const DebugScope* scope = zasm_debug_data.resolveScope(pc);
+
+	// Mid-prologue, parameters do not resolve correctly - wait until it finishes.
+	const DebugScope* fn_scope = scope;
+	while (fn_scope && fn_scope->tag != TAG_FUNCTION)
+		fn_scope = fn_scope->parent_index != -1 ? &zasm_debug_data.scopes[fn_scope->parent_index] : nullptr;
+	if (fn_scope && pc < zasm_debug_data.findFunctionPrologueEnd(fn_scope))
+		return nullptr;
+
+	if (!scope)
+		scope = &zasm_debug_data.scopes[0];
+
+	// Resolve the ScriptEngineData for the currently executing script, so stack and script
+	// variables read from the right place. ri only changes between script runs, so cache the
+	// linear search.
+	if (ri != value_bp_cached_ri)
+	{
+		value_bp_cached_ri = ri;
+		value_bp_cached_data = nullptr;
+		for (auto& named_data : active_object_dtor_script_datas)
+		{
+			if (&named_data->data->ref == ri)
+			{
+				value_bp_cached_data = named_data->data.get();
+				break;
+			}
+		}
+		if (!value_bp_cached_data)
+		{
+			for (auto& data : scriptEngineDatas | std::views::values)
+			{
+				if (&data.ref == ri)
+				{
+					value_bp_cached_data = &data;
+					break;
+				}
+			}
+		}
+	}
+
+	ScriptEngineData* prev_data = vm.current_data;
+	int prev_frame_index = vm.current_frame_index;
+	vm.current_data = value_bp_cached_data;
+	vm.current_frame_index = 0;
+
+	ExpressionEvaluator eval{zasm_debug_data, scope, vm};
+
+	Breakpoint* hit = nullptr;
+	for (auto& bp : value_breakpoints)
+	{
+		if (!bp.enabled || !bp.parsed_expression)
+			continue;
+
+		std::optional<DebugValue> value;
+		try {
+			value = eval.evaluate(bp.parsed_expression);
+		} catch (const std::exception&) {
+			continue;
+		}
+
+		const DebugType* type = value->type->asNonConst(zasm_debug_data);
+		bool serialize = type->isArray(zasm_debug_data) || type->isClass(zasm_debug_data);
+
+		bool changed;
+		std::string display;
+		if (serialize)
+		{
+			std::string serialized = ValueToStringFull(*value);
+			changed = bp.last_value_serialized && *bp.last_value_serialized != serialized;
+			display = std::move(serialized);
+			bp.last_value_serialized = display;
+			bp.last_value.reset();
+		}
+		else
+		{
+			display = ValueToStringSummary(*value);
+			changed = bp.last_value && *bp.last_value != value->raw_value;
+			bp.last_value = value->raw_value;
+			bp.last_value_serialized.reset();
+		}
+
+		// Comparison always uses the full value (stored just above); only the displayed strings
+		// are truncated.
+		constexpr size_t max_display_len = 120;
+		if (display.size() > max_display_len)
+			display = display.substr(0, max_display_len) + "...";
+
+		if (changed)
+		{
+			bp.hit_value_display = display;
+			bp.hit_value_prev_display = bp.last_value_display;
+			if (!hit)
+				hit = &bp;
+			al_trace("Value change breakpoint hit: %s (%s -> %s)\n",
+				bp.expression.c_str(), bp.last_value_display.c_str(), display.c_str());
+		}
+		bp.last_value_display = std::move(display);
+	}
+
+	vm.current_data = prev_data;
+	vm.current_frame_index = prev_frame_index;
+
+	if (hit)
+		breakpoints_dirty = true;
+
+	return hit;
+}
+
+void Debugger::FlashBreakpoints(const SourceFile* source_file, int line)
+{
+	hit_breakpoint_source_file = source_file;
+	hit_breakpoint_line = line;
+	hit_breakpoint_time = std::chrono::steady_clock::now();
 }
 
 void Debugger::AddWatchExpression(std::string expression)
@@ -516,6 +741,21 @@ void Debugger::SetState(State new_state)
 
 	if (!curscript || !ri)
 		return;
+
+	// The hit values only apply while paused on that breakpoint. PlayUntil is excluded because
+	// it's an internal state used to finish a function prologue before actually pausing.
+	if (new_state != State::Paused && new_state != State::PlayUntil)
+	{
+		for (auto& bp : value_breakpoints)
+		{
+			if (!bp.hit_value_display.empty() || !bp.hit_value_prev_display.empty())
+			{
+				bp.hit_value_display.clear();
+				bp.hit_value_prev_display.clear();
+				breakpoints_dirty = true;
+			}
+		}
+	}
 
 	state = new_state;
 	target_state = new_state;
@@ -1248,9 +1488,24 @@ void zscript_debugger_exec(pc_t pc)
 
 		debugger->SetState(Debugger::State::Paused);
 	}
-	else if (debugger->HasBreakpoint(pc))
+	else
 	{
-		debugger->SetState(Debugger::State::Paused);
+		// Check both kinds of breakpoints - even if a line breakpoint already pauses, the value
+		// breakpoints must still observe this instruction, both so their state stays current and
+		// so every one that changed gets its hit values and flash.
+		bool value_hit = debugger->CheckValueChangeBreakpoints(pc) != nullptr;
+		bool line_hit = debugger->HasBreakpoint(pc);
+
+		if (line_hit || value_hit)
+		{
+			auto [source_file, line] = line_hit ?
+				zasm_debug_data.resolveLocationSourceFile(pc) :
+				std::pair<const SourceFile*, int>{nullptr, 0};
+			if (source_file)
+				al_trace("Breakpoint hit: %s:%d\n", source_file->path.c_str(), line);
+			debugger->FlashBreakpoints(source_file, line);
+			debugger->SetState(Debugger::State::Paused);
+		}
 	}
 
 	if (debugger->state == Debugger::State::StepOver && ri == debugger->last_ri && ri->retsp <= debugger->last_retsp)

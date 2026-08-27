@@ -61,13 +61,24 @@ Breakpoints & Watch Window
 
 	* In the script text view, left-click on the gutter (the area to the left of the line numbers) to toggle a breakpoint.
 	* In the script text view, right-click to open the context menu: you can **Add**, **Remove**, or **Toggle Disable/Enable** breakpoints for specific lines.
+	* Right-click a breakpoint in the Breakpoints window to **Remove** or **Enable / Disable** it.
 	* Enable the ``on script start`` special breakpoint to pause whenever a new script begins.
 	* Enable the ``on error`` special breakpoint to pause whenever an error occurs.
+
+**Value Change Breakpoints**
+	Pause whenever an expression's value changes.
+
+	* Right-click a variable in the Variables or Watch window and select **Add breakpoint when value changes**.
+	* Arrays and class instances are compared by their contents, so changing a single element or member triggers a pause.
+	* When one triggers, it flashes in the Breakpoints window; hover it to see the old and new values.
+	* Right-click or double-click a value change breakpoint in the Breakpoints window to **Edit** its expression.
+	* If the expression can't currently be resolved (e.g. a local variable that is not in scope), it is skipped - but the last known value is remembered, and compared again once the expression resolves again.
 
 **Watch Window**
 	Monitor specific variables or expressions over time.
 
 	* Click the **+** button to add a new watch expression.
+	* Double-click a watch expression to edit it.
 	* Use the context menu to **Enable All**, **Disable All**, or **Clear All** watch expressions.
 	* Can also add a watch expression by right-clicking a variable in the Variables window or in the console
 

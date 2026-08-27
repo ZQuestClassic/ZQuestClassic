@@ -520,7 +520,9 @@ void DrawDebuggerControls(Debugger* debugger)
 	ImGui::SetWindowFontScale(old_scale);
 }
 
-void RenderDebugVariable(Debugger* debugger, Variable& var, std::vector<Variable*> parents, bool show_lhs = true)
+// out_double_clicked, if given, is set when this variable's own row (not a child's) is
+// double-clicked.
+void RenderDebugVariable(Debugger* debugger, Variable& var, std::vector<Variable*> parents, bool show_lhs = true, bool* out_double_clicked = nullptr)
 {
 	auto RevealDeclaration = [&]()
 	{
@@ -553,6 +555,15 @@ void RenderDebugVariable(Debugger* debugger, Variable& var, std::vector<Variable
 					expression += "->";
 			}
 			expression += var.name;
+
+			bool has_value_breakpoint = debugger->HasValueChangeBreakpoint(expression);
+			if (ImGui::MenuItem(has_value_breakpoint ? "Remove on-value-changed breakpoint" : "Add breakpoint when value changes"))
+			{
+				if (has_value_breakpoint)
+					debugger->RemoveValueChangeBreakpoint(expression);
+				else
+					debugger->AddValueChangeBreakpoint(expression);
+			}
 
 			auto it = std::find_if(debugger->watches.begin(), debugger->watches.end(), [&](auto& w){ return w.expression == expression; });
 			bool watch_exists = it != debugger->watches.end();
@@ -668,6 +679,9 @@ void RenderDebugVariable(Debugger* debugger, Variable& var, std::vector<Variable
 	}
 
 	ImGui::PopID();
+
+	if (out_double_clicked && row_hovered && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
+		*out_double_clicked = true;
 
 	if (row_hovered)
 		DrawVariableTooltip(debugger, &var, fmt::format("{} = {}", var.name, var.value_str));
@@ -862,10 +876,51 @@ void DrawLeftPaneContent(Debugger* debugger)
 		ImGui::BeginChild("WatchContent", ImVec2(0, GetHeightFor(weight_watch)), false, ImGuiWindowFlags_HorizontalScrollbar);
 		ImGui::PushStyleVar(ImGuiStyleVar_IndentSpacing, 6.0f);
 
-		for (auto& var : debugger->watch_variables)
+		// watch_variables is index-aligned with watches (each watch produces one variable).
+		for (int i = 0; i < debugger->watch_variables.size(); i++)
 		{
+			auto& var = debugger->watch_variables[i];
+			bool is_expression_watch = i < debugger->watches.size() && !debugger->watches[i].expression.empty();
+
+			ImGui::PushID(i);
+
 			std::vector<Variable*> parents;
-			RenderDebugVariable(debugger, var, parents);
+			bool double_clicked = false;
+			RenderDebugVariable(debugger, var, parents, true, &double_clicked);
+
+			// Double-click an expression watch to edit it.
+			if (double_clicked && is_expression_watch)
+				ImGui::OpenPopup("EditWatchPopup");
+
+			if (ImGui::BeginPopup("EditWatchPopup"))
+			{
+				static char buf[256];
+				if (ImGui::IsWindowAppearing())
+				{
+					snprintf(buf, sizeof(buf), "%s", debugger->watches[i].expression.c_str());
+					ImGui::SetKeyboardFocusHere(0);
+				}
+
+				bool submit = ImGui::InputText("##expr", buf, IM_ARRAYSIZE(buf), ImGuiInputTextFlags_EnterReturnsTrue);
+				ImGui::SameLine();
+				if (ImGui::Button("Save"))
+					submit = true;
+
+				if (submit)
+				{
+					std::string expression = buf;
+					if (!expression.empty() && i < debugger->watches.size())
+					{
+						debugger->watches[i].expression = std::move(expression);
+						debugger->variables_dirty = true;
+						ImGui::CloseCurrentPopup();
+					}
+				}
+
+				ImGui::EndPopup();
+			}
+
+			ImGui::PopID();
 		}
 
 		ImGui::PopStyleVar();
@@ -886,6 +941,10 @@ void DrawLeftPaneContent(Debugger* debugger)
 		{
 			std::set<std::pair<const SourceFile*, int>> seen;
 			debugger->breakpoints_deduped.clear();
+
+			for (auto& value_breakpoint : debugger->value_breakpoints)
+				debugger->breakpoints_deduped.push_back(value_breakpoint);
+
 			for (auto& breakpoint : debugger->breakpoints)
 			{
 				auto pair = std::make_pair(breakpoint.source_file, breakpoint.line);
@@ -954,36 +1013,48 @@ void DrawLeftPaneContent(Debugger* debugger)
 			{
 				auto& breakpoint = breaks[i];
 
-				// Checkbox for enabled.
-				ImGui::PushID(i); 
+				ImGui::PushID(i);
+
 				bool enabled = breakpoint.enabled;
 
-				ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0, 0));
-
-				if (ImGui::Checkbox("##enabled", &enabled))
+				auto set_enabled = [&](bool value)
 				{
-					breakpoint.enabled = enabled;
+					enabled = value;
+					breakpoint.enabled = value;
 					if (breakpoint.type == Breakpoint::Type::Normal)
 					{
 						for (auto& master_bp : debugger->breakpoints)
 						{
 							if (master_bp.source_file == breakpoint.source_file && master_bp.line == breakpoint.line)
-								master_bp.enabled = enabled;
+								master_bp.enabled = value;
 						}
 						debugger->UpdateTextEditorBreakpoints();
 					}
+					else if (breakpoint.type == Breakpoint::Type::ValueChange)
+					{
+						for (auto& master_bp : debugger->value_breakpoints)
+						{
+							if (master_bp.expression == breakpoint.expression)
+								master_bp.enabled = value;
+						}
+					}
 					else if (breakpoint.type == Breakpoint::Type::ScriptStart)
 					{
-						debugger->break_on_new_script = enabled;
+						debugger->break_on_new_script = value;
 					}
 					else if (breakpoint.type == Breakpoint::Type::Error)
 					{
-						debugger->break_on_error = enabled;
+						debugger->break_on_error = value;
 					}
-				}
+				};
+
+				// Checkbox for enabled.
+				ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0, 0));
+
+				if (ImGui::Checkbox("##enabled", &enabled))
+					set_enabled(enabled);
 
 				ImGui::PopStyleVar();
-				ImGui::PopID();
 
 				ImGui::SameLine();
 
@@ -994,6 +1065,10 @@ void DrawLeftPaneContent(Debugger* debugger)
 					const std::string& path = breakpoint.source_file->path;
 					size_t pos = path.find_last_of("/\\") + 1;
 					label = fmt::format("{}:{}", path.substr(pos), breakpoint.line);
+				}
+				else if (breakpoint.type == Breakpoint::Type::ValueChange)
+				{
+					label = breakpoint.expression;
 				}
 				else if (breakpoint.type == Breakpoint::Type::ScriptStart)
 				{
@@ -1007,7 +1082,27 @@ void DrawLeftPaneContent(Debugger* debugger)
 				if (!enabled)
 					ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.5f, 0.5f, 0.5f, 1.0f));
 
-				if (ImGui::Selectable(label.c_str()))
+				// Briefly flash every breakpoint that caused the current pause.
+				bool is_hit_breakpoint =
+					(breakpoint.type == Breakpoint::Type::Normal && breakpoint.source_file
+						&& breakpoint.source_file == debugger->hit_breakpoint_source_file
+						&& breakpoint.line == debugger->hit_breakpoint_line)
+					|| (breakpoint.type == Breakpoint::Type::ValueChange
+						&& (!breakpoint.hit_value_display.empty() || !breakpoint.hit_value_prev_display.empty()));
+				bool flashing = false;
+				if (is_hit_breakpoint)
+				{
+					constexpr float flash_duration = 1.5f;
+					float elapsed = std::chrono::duration<float>(std::chrono::steady_clock::now() - debugger->hit_breakpoint_time).count();
+					if (elapsed < flash_duration)
+					{
+						flashing = true;
+						float fade = 1.0f - elapsed / flash_duration;
+						ImGui::PushStyleColor(ImGuiCol_Header, ImVec4(1.0f, 0.75f, 0.1f, 0.6f * fade));
+					}
+				}
+
+				if (ImGui::Selectable(label.c_str(), flashing))
 				{
 					if (breakpoint.source_file)
 					{
@@ -1015,6 +1110,9 @@ void DrawLeftPaneContent(Debugger* debugger)
 						ImGui::SetWindowFocus("EditorPane");
 					}
 				}
+
+				if (flashing)
+					ImGui::PopStyleColor();
 
 				if (!enabled)
 					ImGui::PopStyleColor();
@@ -1025,6 +1123,80 @@ void DrawLeftPaneContent(Debugger* debugger)
 					std::string tooltip = fmt::format("{}:{}", path, breakpoint.line);
 					ImGui::SetTooltip("%s", tooltip.c_str());
 				}
+				else if (breakpoint.type == Breakpoint::Type::ValueChange && !breakpoint.hit_value_display.empty() && ImGui::IsItemHovered())
+				{
+					std::string tooltip = fmt::format("Old: {}\n\nNew: {}", breakpoint.hit_value_prev_display, breakpoint.hit_value_display);
+					ImGui::SetTooltip("%s", tooltip.c_str());
+				}
+
+				// Right-click a breakpoint for a context menu. The "on script start" / "on error"
+				// rows only have their checkbox.
+				if (breakpoint.type == Breakpoint::Type::Normal || breakpoint.type == Breakpoint::Type::ValueChange)
+				{
+					// OpenPopup must run at the same ID-stack level as BeginPopup, so defer it
+					// until the context menu is closed.
+					bool open_edit = false;
+
+					if (breakpoint.type == Breakpoint::Type::ValueChange && ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
+						open_edit = true;
+
+					if (ImGui::BeginPopupContextItem("BreakpointContextMenu"))
+					{
+						if (breakpoint.type == Breakpoint::Type::ValueChange && ImGui::MenuItem("Edit"))
+							open_edit = true;
+
+						if (ImGui::MenuItem(enabled ? "Disable" : "Enable"))
+							set_enabled(!enabled);
+
+						if (ImGui::MenuItem("Remove"))
+						{
+							if (breakpoint.type == Breakpoint::Type::Normal)
+							{
+								auto pcs = zasm_debug_data.resolveAllPcsFromSourceLocation(breakpoint.source_file, breakpoint.line);
+								for (pc_t pc : pcs)
+									debugger->RemoveBreakpoint(pc);
+							}
+							else
+							{
+								debugger->RemoveValueChangeBreakpoint(breakpoint.expression);
+							}
+						}
+
+						ImGui::EndPopup();
+					}
+
+					if (open_edit)
+						ImGui::OpenPopup("EditValueBreakpointPopup");
+
+					if (ImGui::BeginPopup("EditValueBreakpointPopup"))
+					{
+						static char buf[256];
+						if (ImGui::IsWindowAppearing())
+						{
+							snprintf(buf, sizeof(buf), "%s", breakpoint.expression.c_str());
+							ImGui::SetKeyboardFocusHere(0);
+						}
+
+						bool submit = ImGui::InputText("##expr", buf, IM_ARRAYSIZE(buf), ImGuiInputTextFlags_EnterReturnsTrue);
+						ImGui::SameLine();
+						if (ImGui::Button("Save"))
+							submit = true;
+
+						if (submit)
+						{
+							std::string expression = buf;
+							if (!expression.empty())
+							{
+								debugger->EditValueChangeBreakpoint(breakpoint.expression, std::move(expression));
+								ImGui::CloseCurrentPopup();
+							}
+						}
+
+						ImGui::EndPopup();
+					}
+				}
+
+				ImGui::PopID();
 			}
 		}
 		ImGui::EndChild();

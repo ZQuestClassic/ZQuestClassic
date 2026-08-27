@@ -341,6 +341,80 @@ static TestTask run_maths_replay_coroutine()
 	debugger->SetState(Debugger::State::Playing);
 }
 
+static TestTask run_value_change_breakpoints_replay_coroutine()
+{
+	auto* debugger = zscript_debugger_open();
+	assertTrue(debugger);
+
+	// Pause within the first for-loop iteration, where `firstTime` is true.
+	debugger->RemoveBreakpoints();
+	add_breakpoint(debugger, "maths.zs", "doMaths(firstTime, i);");
+	co_await WaitForPause(debugger);
+
+	debugger->RemoveBreakpoints();
+	debugger->AddValueChangeBreakpoint("firstTime");
+
+	// Round-trips through the config file.
+	debugger->Save();
+	debugger->RemoveBreakpoints();
+	assertSize(debugger->value_breakpoints, 0);
+	debugger->Load();
+	assertSize(debugger->value_breakpoints, 1);
+	assertEqual(debugger->value_breakpoints[0].expression, "firstTime"s);
+	assertTrue(debugger->value_breakpoints[0].enabled);
+	assertTrue(debugger->value_breakpoints[0].parsed_expression != nullptr);
+
+	// A second breakpoint that changes on the same instruction as the first.
+	debugger->AddValueChangeBreakpoint("!firstTime");
+
+	// Pauses when `firstTime = false;` runs after the first Waitframe. Until then the value is
+	// read many times without pausing, including in scopes where the expression does not resolve
+	// (which is ignored). Both breakpoints changed on that instruction, so both get hit values.
+	co_await PlayAndWaitForPause(debugger);
+	assertEqual(debugger->value_breakpoints[0].hit_value_display, "false"s);
+	assertEqual(debugger->value_breakpoints[0].hit_value_prev_display, "true"s);
+	assertEqual(debugger->value_breakpoints[1].hit_value_display, "true"s);
+	assertEqual(debugger->value_breakpoints[1].hit_value_prev_display, "false"s);
+	verify_variable(debugger, "firstTime", "false");
+
+	// The hit label clears on resume. `firstTime` is written every loop from now on but never
+	// changes value again, so the value breakpoint stays quiet; pause via a normal breakpoint.
+	// Also watch an array - those compare on their serialized contents.
+	add_breakpoint(debugger, "maths.zs", "Waitframe();");
+	debugger->AddValueChangeBreakpoint("Hero->Steps");
+	assertSize(debugger->value_breakpoints, 3);
+	co_await PlayAndWaitForPause(debugger);
+	assertEqual(debugger->value_breakpoints[0].hit_value_display, ""s);
+	assertEqual(debugger->value_breakpoints[0].hit_value_prev_display, ""s);
+	assertEqual(debugger->value_breakpoints[1].hit_value_display, ""s);
+	assertEqual(debugger->value_breakpoints[2].hit_value_display, ""s);
+	verify_variable(debugger, "firstTime", "false");
+
+	// Modify an array element while paused; the change is detected on resume.
+	verify_expression(debugger, "Hero->Steps[0] = 3", "3.0000");
+	co_await PlayAndWaitForPause(debugger);
+	assertEqual(debugger->value_breakpoints[2].hit_value_display,
+		"{3.0000, 1.0000, 2.0000, 1.0000, 1.0000, 2.0000, 1.0000, 1.0000}"s);
+	assertEqual(debugger->value_breakpoints[2].hit_value_prev_display,
+		"{1.0000, 1.0000, 2.0000, 1.0000, 1.0000, 2.0000, 1.0000, 1.0000}"s);
+
+	// Hero state persists in-process across tests - restore it.
+	verify_expression(debugger, "Hero->Steps[0] = 1", "1.0000");
+
+	// Editing a breakpoint reparses the expression and clears its remembered state.
+	debugger->EditValueChangeBreakpoint("Hero->Steps", "Hero->Steps[0]");
+	assertEqual(debugger->value_breakpoints[2].expression, "Hero->Steps[0]"s);
+	assertTrue(debugger->value_breakpoints[2].parsed_expression != nullptr);
+	assertTrue(!debugger->value_breakpoints[2].last_value.has_value());
+	assertTrue(!debugger->value_breakpoints[2].last_value_serialized.has_value());
+	assertEqual(debugger->value_breakpoints[2].last_value_display, ""s);
+	assertEqual(debugger->value_breakpoints[2].hit_value_display, ""s);
+	assertEqual(debugger->value_breakpoints[2].hit_value_prev_display, ""s);
+
+	debugger->RemoveBreakpoints();
+	debugger->SetState(Debugger::State::Playing);
+}
+
 static TestTask run_scopes_replay_coroutine()
 {
 	auto* debugger = zscript_debugger_open();
@@ -792,6 +866,30 @@ TestResults test_debugger([[maybe_unused]] bool verbose)
 
 	TEST("maths.zplay", tr, [](){
 		TestTask current_test = run_maths_replay_coroutine();
+		bool success = false;
+
+		test_update = [&](){
+			if (current_test.resume())
+				return;
+
+			auto& promise = current_test.handle.promise();
+			if (promise.has_failed)
+				fmt::println("error: {}", promise.failure_message);
+			else
+				success = true;
+
+			test_update = nullptr;
+		};
+
+		load_replay_file_deferred(ReplayMode::Replay, test_dir + "/replays/playground/maths.zplay");
+		init_and_run_main_zplayer_loop();
+
+		assertTrue(success);
+		return success;
+	});
+
+	TEST("maths.zplay (value change breakpoints)", tr, [](){
+		TestTask current_test = run_value_change_breakpoints_replay_coroutine();
 		bool success = false;
 
 		test_update = [&](){
