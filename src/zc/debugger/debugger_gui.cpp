@@ -692,6 +692,14 @@ void DrawLeftPaneContent(Debugger* debugger)
 	const auto& palette = debugger->text_editor.GetPalette();
 	auto stack_trace = debugger->current_stack_trace;
 
+	// Watches can change while no scripts are executing (e.g. the game is paused via the
+	// System menu or F3), so this can't wait for the periodic refresh in the exec hook.
+	if (debugger->variables_dirty)
+	{
+		debugger->UpdateVariables();
+		debugger->variables_dirty = false;
+	}
+
 	static bool show_files = false;
 	static bool show_variables = true;
 	static bool show_watch = false;
@@ -778,12 +786,6 @@ void DrawLeftPaneContent(Debugger* debugger)
 
 		if (debugger->state == Debugger::State::Paused)
 		{
-			if (debugger->variables_dirty)
-			{
-				debugger->UpdateVariables();
-				debugger->variables_dirty = false;
-			}
-
 			for (auto& [name, variables] : debugger->variable_groups)
 			{
 				if (variables.empty())
