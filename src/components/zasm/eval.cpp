@@ -44,7 +44,11 @@ bool ExpressionParser::match(char c)
 expected<std::shared_ptr<ExprNode>, std::string> ExpressionParser::parseExpression()
 {
 	try {
-		return parseAssignment();
+		auto node = parseAssignment();
+		skipWhitespace();
+		if (pos < input.size())
+			throw std::runtime_error("Unexpected input: " + input.substr(pos));
+		return node;
 	} catch (const std::exception& e) {
 		return make_unexpected(e.what());
 	}
@@ -214,7 +218,7 @@ std::shared_ptr<ExprNode> ExpressionParser::parseFactor()
 {
 	auto left = parseUnary();
 	skipWhitespace();
-	while (peek() == '*' || peek() == '/')
+	while (peek() == '*' || peek() == '/' || peek() == '%')
 	{
 		std::string op(1, get());
 		auto right = parseUnary();
@@ -288,25 +292,50 @@ std::shared_ptr<ExprNode> ExpressionParser::parsePrimary()
 		while (isdigit(peek()))
 			pos++;
 
-		bool is_long = false;
-		if (peek() == 'L')
-		{
-			is_long = true;
-			pos++;
-		}
+		std::string wholeStr = input.substr(start, pos - start);
+		if (wholeStr.size() > 10)
+			throw std::runtime_error("Number literal too large");
 
-		std::string numStr = input.substr(start, pos - start - (is_long ? 1 : 0));
-		int32_t val = std::stoi(numStr);
+		int64_t whole = std::stoll(wholeStr);
 
 		DebugValue dv;
-		if (is_long)
+		if (peek() == '.')
 		{
-			dv.raw_value = val;
+			pos++;
+			size_t frac_start = pos;
+			while (isdigit(peek()))
+				pos++;
+
+			std::string fracStr = input.substr(frac_start, pos - frac_start);
+			if (fracStr.empty())
+				throw std::runtime_error("Expected digits after decimal point");
+			if (fracStr.size() > 4)
+				throw std::runtime_error("Number literal has too many decimal places (max 4)");
+			fracStr.resize(4, '0'); // "5" is 0.5000
+
+			int64_t value = whole * FIXED_ONE + std::stoll(fracStr);
+			if (value > INT32_MAX)
+				throw std::runtime_error("Number literal too large");
+
+			dv.raw_value = value;
+			dv.type = &BasicTypes[TYPE_INT];
+		}
+		else if (peek() == 'L')
+		{
+			pos++;
+			if (whole > INT32_MAX)
+				throw std::runtime_error("Number literal too large");
+
+			dv.raw_value = whole;
 			dv.type = &BasicTypes[TYPE_LONG];
 		}
 		else
 		{
-			dv.raw_value = val * FIXED_ONE;
+			int64_t value = whole * FIXED_ONE;
+			if (value > INT32_MAX)
+				throw std::runtime_error("Number literal too large");
+
+			dv.raw_value = value;
 			dv.type = &BasicTypes[TYPE_INT];
 		}
 		left = std::make_shared<LiteralNode>(dv);
@@ -568,11 +597,17 @@ DebugValue ExpressionEvaluator::evaluate(std::shared_ptr<ExprNode> node)
 			}
 			else if (u->op == "~")
 			{
-				val.raw_value = ~val.raw_value;
+				// The engine's bitwise-not works on the integer part for fixed values
+				// (do_bitwisenot); longs operate on the raw value (do_bitwisenot32).
+				if (val.type->isFixed(debugData))
+					val.raw_value = ~(val.raw_value / FIXED_ONE) * FIXED_ONE;
+				else
+					val.raw_value = ~val.raw_value;
 			}
 			else if (u->op == "!")
 			{
 				val.raw_value = (val.raw_value == 0) ? FIXED_ONE : 0;
+				val.type = &BasicTypes[TYPE_BOOL];
 			}
 			return val;
 		}
@@ -851,6 +886,22 @@ DebugValue ExpressionEvaluator::evalBinaryOp(const std::string& op, DebugValue l
 	DebugValue res{};
 	res.type = resultIsFixed ? &BasicTypes[TYPE_INT] : &BasicTypes[TYPE_LONG];
 
+	if (op == "|" || op == "&" || op == "^")
+	{
+		// The engine's bitwise ops work on the integer part for fixed values (do_and
+		// etc.); longs operate on the raw value (do_and32 etc.).
+		int32_t l_bits = resultIsFixed ? l_val / FIXED_ONE : l_val;
+		int32_t r_bits = resultIsFixed ? r_val / FIXED_ONE : r_val;
+
+		int32_t bits;
+		if (op == "|") bits = l_bits | r_bits;
+		else if (op == "&") bits = l_bits & r_bits;
+		else bits = l_bits ^ r_bits;
+
+		res.raw_value = resultIsFixed ? bits * FIXED_ONE : bits;
+		return res;
+	}
+
 	if (op == "+")
 		res.raw_value = l_val + r_val;
 	else if (op == "-")
@@ -876,6 +927,14 @@ DebugValue ExpressionEvaluator::evalBinaryOp(const std::string& op, DebugValue l
 		}
 		else
 			res.raw_value = l_val / r_val;
+	}
+	else if (op == "%")
+	{
+		// The engine's modulo works on the raw value for both fixed and long values
+		// (do_mod), so 7.5 % 2 is 1.5. INT_MIN % -1 overflows, but x % -1 is always 0.
+		if (r_val == 0)
+			throw std::runtime_error("Modulo by zero");
+		res.raw_value = (r_val == -1) ? 0 : l_val % r_val;
 	}
 	return res;
 }

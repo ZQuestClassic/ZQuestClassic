@@ -737,6 +737,70 @@ TestResults test_parser([[maybe_unused]] bool verbose)
 			assertEqual(val.raw_value, 4 * FIXED_ONE);
 		}
 
+		// Number literals.
+		{
+			// Fixed-point decimals - up to 4 decimal places.
+			auto val = eval("1.5");
+			assertEqual(val.raw_value, 15000);
+			assertTrue(val.type->isFixed(debugData));
+			assertEqual(eval("0.5").raw_value, 5000);
+			assertEqual(eval("2.05").raw_value, 20500);
+			assertEqual(eval("12.3456").raw_value, 123456);
+			assertEqual(eval("-1.5").raw_value, -15000);
+			assertEqual(eval("1.5 + 1").raw_value, 25000);
+			assertThrows(eval("1.12345"));
+			assertThrows(eval("1."));
+
+			// Out of range.
+			assertEqual(eval("214748").raw_value, 2147480000);
+			assertThrows(eval("999999999"));
+			assertThrows(eval("99999999999999999999"));
+
+			// Trailing input is an error, not silently ignored.
+			assertThrows(eval("1 2"));
+			assertThrows(eval("1;"));
+			assertThrows(eval("1x"));
+		}
+
+		// Bitwise ops on plain (non-bitflags) values.
+		{
+			// Fixed values operate on the integer part, matching the engine (do_and etc.).
+			auto val = eval("6 & 3");
+			assertEqual(val.raw_value, 2 * FIXED_ONE);
+			assertTrue(val.type->isFixed(debugData));
+			assertEqual(eval("1 | 2").raw_value, 3 * FIXED_ONE);
+			assertEqual(eval("5 ^ 1").raw_value, 4 * FIXED_ONE);
+
+			// Longs operate on the raw value (do_and32 etc.).
+			val = eval("6L & 3L");
+			assertEqual(val.raw_value, 2);
+			assertTrue(val.type->isLong(debugData));
+			assertEqual(eval("1L | 2L").raw_value, 3);
+		}
+
+		// Modulo - works on the raw value for both fixed and long, matching the engine (do_mod).
+		{
+			assertEqual(eval("7 % 3").raw_value, 1 * FIXED_ONE);
+			assertEqual(eval("7.5 % 2").raw_value, 15000);
+			assertEqual(eval("7L % 3L").raw_value, 1);
+			assertThrows(eval("1 % 0"));
+		}
+
+		// Unary ops.
+		{
+			// '!' yields a bool.
+			auto val = eval("!0");
+			assertEqual(val.raw_value, FIXED_ONE);
+			assertTrue(val.type->isBool(debugData));
+			assertEqual(eval("!3").raw_value, 0);
+
+			// '~' works on the integer part for fixed values; raw for longs.
+			val = eval("~0");
+			assertEqual(val.raw_value, -1 * FIXED_ONE);
+			assertTrue(val.type->isFixed(debugData));
+			assertEqual(eval("~5L").raw_value, ~5);
+		}
+
 		// Variables.
 		{
 			const DebugSymbol* global_var = resolveSymbol(debugData, "GLOBAL_VAR", root_scope);
