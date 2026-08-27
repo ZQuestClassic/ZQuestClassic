@@ -155,6 +155,9 @@ static void add_breakpoint(Debugger* debugger, std::string path, std::string con
 			source_file = &file;
 	}
 
+	if (!source_file)
+		throw std::runtime_error(fmt::format("Failed to find source file: {}", path));
+
 	auto lines = util::split(source_file->contents, "\n");
 
 	int line = 0;
@@ -264,9 +267,20 @@ static TestTask run_maths_replay_save_breakpoints_coroutine()
 	auto* debugger = zscript_debugger_open();
 	assertTrue(debugger);
 
+	// The coroutine can first resume during the title screen (e.g. when the build
+	// folder has existing saves), before the quest and its debug data have loaded.
+	co_await WaitFor([]{ return zasm_debug_data.exists(); });
+
 	// Pause on first line.
 	debugger->RemoveBreakpoints();
 	add_breakpoint(debugger, "maths.zs", "bool firstTime = true;");
+
+	// Also save a function-call watch. The next test loads it at startup, and the
+	// GUI evaluates it during the opening frames - before any script has started,
+	// when there is no zasm program to execute. This used to crash.
+	debugger->RemoveWatches();
+	debugger->AddWatchExpression("DebugAdd(1, 2)");
+
 	co_await WaitForPause(debugger);
 
 	zscript_debugger_close();
@@ -277,9 +291,22 @@ static TestTask run_maths_replay_coroutine()
 	auto* debugger = zscript_debugger_open();
 	assertTrue(debugger);
 
+	// The coroutine can first resume during the title screen (e.g. when the build
+	// folder has existing saves), before the quest and its debug data have loaded.
+	co_await WaitFor([]{ return zasm_debug_data.exists(); });
+
 	// Should pause on first line from the last test, which saved breakpoints.
 	assertSize(debugger->breakpoints, 1);
+
+	// The function-call watch saved by the last test survived the round trip. Keep
+	// it while the opening frames play out: the GUI evaluates it before any script
+	// has started, when there is no zasm program to execute - this used to crash.
+	assertSize(debugger->watches, 1);
+	assertEqual(debugger->watches[0].expression, "DebugAdd(1, 2)"s);
+
 	co_await WaitForPause(debugger);
+
+	debugger->RemoveWatches();
 
 	verify_variable(debugger, "firstTime", "false"); // Not initialized yet.
 	verify_variable(debugger, "x", "0.0000");
@@ -346,6 +373,10 @@ static TestTask run_value_change_breakpoints_replay_coroutine()
 	auto* debugger = zscript_debugger_open();
 	assertTrue(debugger);
 
+	// The coroutine can first resume during the title screen (e.g. when the build
+	// folder has existing saves), before the quest and its debug data have loaded.
+	co_await WaitFor([]{ return zasm_debug_data.exists(); });
+
 	// Pause within the first for-loop iteration, where `firstTime` is true.
 	debugger->RemoveBreakpoints();
 	add_breakpoint(debugger, "maths.zs", "doMaths(firstTime, i);");
@@ -363,6 +394,19 @@ static TestTask run_value_change_breakpoints_replay_coroutine()
 	assertEqual(debugger->value_breakpoints[0].expression, "firstTime"s);
 	assertTrue(debugger->value_breakpoints[0].enabled);
 	assertTrue(debugger->value_breakpoints[0].parsed_expression != nullptr);
+
+	// Watches also round-trip, including expressions that contain commas.
+	debugger->RemoveWatches();
+	debugger->AddWatchExpression("firstTime");
+	debugger->AddWatchExpression("DebugAdd(1, 2)");
+	debugger->Save();
+	debugger->RemoveWatches();
+	assertSize(debugger->watches, 0);
+	debugger->Load();
+	assertSize(debugger->watches, 2);
+	assertEqual(debugger->watches[0].expression, "firstTime"s);
+	assertEqual(debugger->watches[1].expression, "DebugAdd(1, 2)"s);
+	debugger->RemoveWatches();
 
 	// A second breakpoint that changes on the same instruction as the first.
 	debugger->AddValueChangeBreakpoint("!firstTime");
@@ -419,6 +463,20 @@ static TestTask run_scopes_replay_coroutine()
 {
 	auto* debugger = zscript_debugger_open();
 	assertTrue(debugger);
+
+	// The coroutine can first resume during the title screen (e.g. when the build
+	// folder has existing saves), before the quest and its debug data have loaded.
+	co_await WaitFor([]{ return zasm_debug_data.exists(); });
+
+	// Script-instance reads with no script selected must be safe - watches evaluate
+	// even when the game is paused outside the debugger, with no script executing.
+	{
+		auto* prev = debugger->vm.current_data;
+		debugger->vm.current_data = nullptr;
+		assertEqual(debugger->vm.readScript(0), 0);
+		debugger->vm.writeScript(0, 0);
+		debugger->vm.current_data = prev;
+	}
 
 	debugger->RemoveBreakpoints();
 	add_breakpoint(debugger, "scopes.zs", "// end of B_fn");
@@ -634,6 +692,15 @@ static TestTask run_scopes_replay_coroutine()
 	}
 	verify_expression(debugger, "NUM_COMBO_POS", "176.0000");
 	verify_expression(debugger, "OP_OPAQUE", "128.0000");
+
+	// Decimal literals, bitwise/modulo on plain values, and trailing-input errors.
+	verify_expression(debugger, "1.5 + 1", "2.5000");
+	verify_expression(debugger, "6 & 3", "2.0000");
+	verify_expression(debugger, "1 | 2", "3.0000");
+	verify_expression(debugger, "7 % 3", "1.0000");
+	verify_expression(debugger, "7.5 % 2", "1.5000");
+	verify_expression(debugger, "!3", "false");
+	verify_expression_invalid(debugger, "1 2", "Unexpected input: 2");
 	verify_expression(debugger, "Hero->Step", "150.0000");
 	verify_expression(debugger, "f->X", "10.0000");
 	verify_expression(debugger, "f->EffectWidth", "16.0000");

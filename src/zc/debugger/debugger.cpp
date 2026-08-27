@@ -23,6 +23,7 @@
 #include <memory>
 #include <optional>
 #include <ranges>
+#include <set>
 #include <string>
 #include <utility>
 #include <vector>
@@ -216,7 +217,8 @@ void Debugger::Load()
 			if (!source_file)
 				continue;
 
-			int line = std::stoi(line_str);
+			// atoi, not stoi: a hand-edited config value must not throw.
+			int line = atoi(line_str.c_str());
 
 			auto pcs = zasm_debug_data.resolveAllPcsFromSourceLocation(source_file, line);
 			for (pc_t pc : pcs)
@@ -235,30 +237,41 @@ void Debugger::Load()
 	for (auto& watch_serialized : watches_serialized_parts)
 	{
 		auto components = util::split(watch_serialized, ",");
-		if (components.size() != 2)
+		if (components.size() < 2)
 			continue;
 
 		std::string& type_str = components[0];
-		std::string& expression = components[1];
-
 		if (type_str != "0")
 			continue;
 
-		AddWatchExpression(expression);
+		// The expression may itself contain commas.
+		std::string expression = fmt::format("{}", fmt::join(components.begin() + 1, components.end(), ","));
+		AddWatchExpression(std::move(expression));
 	}
 }
 
 void Debugger::Save()
 {
+	// Without debug data (e.g. the debugger was opened before a quest loaded),
+	// breakpoints never resolved, so saving would only clobber the stored ones.
+	if (!zasm_debug_data.exists())
+		return;
+
 	std::string qst_cfg_header = qst_cfg_header_from_path(qstpath);
 
 	if (selected_source_file)
 		zc_set_config(qst_cfg_header.c_str(), "debugger_active_file", selected_source_file->path.c_str());
 
+	// A line can map to multiple pcs (each its own Breakpoint entry) - serialize each
+	// source location just once. Don't use breakpoints_deduped: it's a GUI cache that
+	// can be stale, e.g. when the Breakpoints panel is collapsed.
+	std::set<std::pair<const SourceFile*, int>> seen;
 	std::vector<std::string> breakpoints_serialized_parts;
-	for (auto& breakpoint : breakpoints_deduped)
+	for (auto& breakpoint : breakpoints)
 	{
 		if (breakpoint.type != Breakpoint::Type::Normal)
+			continue;
+		if (!seen.insert({breakpoint.source_file, breakpoint.line}).second)
 			continue;
 
 		int type = (int)breakpoint.type;
@@ -644,11 +657,18 @@ void Debugger::UpdateTextEditorBreakpoints()
 
 void Debugger::SetSourceFile(const SourceFile* source_file)
 {
-	if (!source_file || selected_source_file == source_file)
+	if (selected_source_file == source_file)
 		return;
 
 	selected_source_file = source_file;
 	text_editor.SetText(source_file ? source_file->contents : "");
+
+	if (!source_file)
+	{
+		text_editor.SetBreakpoints({});
+		text_editor.SetExecutableLines({});
+		return;
+	}
 
 	UpdateTextEditorBreakpoints();
 
@@ -843,14 +863,20 @@ void Debugger::SetSelectedScriptIndex(int index)
 {
 	selected_script = &active_scripts[index];
 	current_stack_trace = FFCore.create_stack_trace(&selected_script->data->ref);
-
-	pc_t pc = current_stack_trace->frames[0].pc;
-	selected_scope = zasm_debug_data.resolveScope(pc);
+	selected_stack_frame_index = 0;
 	vm.current_data = selected_script->data;
 	vm.current_frame_index = 0;
 
-	if (current_stack_trace)
-		debugger->SetSourceFileAndLine(current_stack_trace->frames.front().source_file, current_stack_trace->frames.front().line);
+	if (current_stack_trace && !current_stack_trace->frames.empty())
+	{
+		selected_scope = zasm_debug_data.resolveScope(current_stack_trace->frames[0].pc);
+		SetSourceFileAndLine(current_stack_trace->frames.front().source_file, current_stack_trace->frames.front().line);
+	}
+	else
+	{
+		selected_scope = nullptr;
+	}
+
 	UpdateVariables();
 }
 
@@ -1378,6 +1404,8 @@ std::string Debugger::ValueToStringHelper(DebugValue value, ValueStringOptions o
 			int elided_zero_count = 0;
 			for (auto symbol : symbols)
 			{
+				if (symbol->flags & SYM_FLAG_HIDDEN)
+					continue;
 				if (opts.exclude_deprecated && (symbol->flags & SYM_FLAG_DEPRECATED))
 					continue;
 				if (auto v = vm.readObjectMember(value, symbol))

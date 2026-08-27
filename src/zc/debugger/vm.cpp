@@ -132,6 +132,9 @@ int32_t VM::readGlobal(int32_t idx)
 
 int32_t VM::readScript(int32_t idx)
 {
+	if (!current_data)
+		return 0;
+
 	auto ri = &current_data->ref;
 	if (unsigned(idx) >= ri->script_d.size())
 		return 0;
@@ -158,7 +161,6 @@ std::optional<DebugValue> VM::readObjectMember(DebugValue object, const DebugSym
 	if (sym->storage == LOC_REGISTER)
 	{
 		auto type = zasm_debug_data.getType(sym->type_id)->asNonConst(zasm_debug_data);
-		auto scope = zasm_debug_data.scopes[type->extra];
 		if (type->isArray(zasm_debug_data))
 		{
 			raw_value = find_or_create_internal_script_array({sym->offset, object.raw_value})->id;
@@ -294,6 +296,9 @@ void VM::writeGlobal(int32_t offset, int32_t value)
 
 void VM::writeScript(int32_t offset, int32_t value)
 {
+	if (!current_data)
+		return;
+
 	auto ri = &current_data->ref;
 	if (unsigned(offset) >= ri->script_d.size())
 		return;
@@ -338,7 +343,6 @@ bool VM::writeObjectMember(DebugValue object, const DebugSymbol* sym, DebugValue
 	if (sym->storage == LOC_REGISTER)
 	{
 		auto type = zasm_debug_data.getType(sym->type_id)->asNonConst(zasm_debug_data);
-		auto scope = zasm_debug_data.scopes[type->extra];
 		if (type->isArray(zasm_debug_data))
 			return false;
 

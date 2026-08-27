@@ -469,7 +469,6 @@ void DrawMenuBar(Debugger* debugger)
 void DrawDebuggerControls(Debugger* debugger)
 {
 	ImGuiIO& io = ImGui::GetIO();
-	float old_scale = ImGui::GetIO().FontGlobalScale;
 	ImGui::SetWindowFontScale(1.4);
 
 	// Calculate button size to fill the pane width.
@@ -517,7 +516,7 @@ void DrawDebuggerControls(Debugger* debugger)
 
 	ImGui::EndDisabled();
 
-	ImGui::SetWindowFontScale(old_scale);
+	ImGui::SetWindowFontScale(1.0f);
 }
 
 // out_double_clicked, if given, is set when this variable's own row (not a child's) is
@@ -1209,7 +1208,8 @@ void DrawLeftPaneContent(Debugger* debugger)
 	}
 
 	int frame_index = debugger->selected_stack_frame_index;
-	if (debugger->state == Debugger::State::Paused && stack_trace && debugger->selected_source_file == stack_trace->frames[frame_index].source_file)
+	if (debugger->state == Debugger::State::Paused && stack_trace && frame_index < (int)stack_trace->frames.size()
+		&& debugger->selected_source_file == stack_trace->frames[frame_index].source_file)
 		debugger->text_editor.SetLineHighlights({stack_trace->frames[frame_index].line});
 	else
 		debugger->text_editor.SetLineHighlights({});
