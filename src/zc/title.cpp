@@ -337,7 +337,7 @@ static void selectscreen()
 		int target_height = 46;
 		int target_width = target_height * aspect_ratio;
 		float scale = (float)target_height / al_get_bitmap_height(logo->bitmap);
-		int x = (al_get_bitmap_width(rti_game.bitmap) - target_width) / 2;
+		int x = (framebuf->w - target_width) / 2;
 		logo->set_transform({.x = (float)x, .y = 0, .xscale = scale, .yscale = scale});
 	}
 	else
@@ -1663,7 +1663,7 @@ static void actual_titlescreen()
 		int target_height = 46;
 		int target_width = target_height * aspect_ratio;
 		float scale = (float)target_height / al_get_bitmap_height(logo->bitmap);
-		int x = (al_get_bitmap_width(rti_game.bitmap) - target_width) / 2;
+		int x = (framebuf->w - target_width) / 2;
 		logo->set_transform({.x = (float)x, .y = 0, .xscale = scale, .yscale = scale});
 	}
 
