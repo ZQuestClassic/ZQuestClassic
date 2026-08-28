@@ -63,7 +63,27 @@ int32_t new_quest_list_proc(int32_t msg, DIALOG* d, int32_t c)
 	{
 	case MSG_START:
 		if (!widg->rti)
+		{
 			widg->rti = add_dlg_layer();
+			// Icons are true-color, so they render on this a5 layer. The DIALOG pointer
+			// is stable while the dialog runs, which is also this layer's lifetime.
+			widg->rti->render_cb = [widg, d](RenderTreeItem*, bool) {
+				auto const& rows = widg->getRows();
+				int32_t listsize = rows.size();
+				int32_t rowh = widg->rowHeight();
+				int32_t visrows = widg->visibleRowCount();
+				int32_t rowW = row_area_width(d, listsize, visrows);
+				int32_t x = d->x + 2;
+				al_set_clipping_rectangle(x, d->y + 2, rowW, d->h - 4);
+				for (int32_t i = d->d2; i < std::min(d->d2 + visrows, listsize); ++i)
+				{
+					int32_t y = d->y + 2 + (i - d->d2) * rowh;
+					if (ALLEGRO_BITMAP* icon = widg->getIconBitmap(i))
+						al_draw_scaled_bitmap(icon, 0, 0, 16, 16, x + 4, y + (rowh - ICON_DRAW) / 2, ICON_DRAW, ICON_DRAW, 0);
+				}
+				al_reset_clipping_rectangle();
+			};
+		}
 		clamp_list_pos(d, listsize, visrows);
 		break;
 
@@ -167,24 +187,8 @@ int32_t new_quest_list_proc(int32_t msg, DIALOG* d, int32_t c)
 				jwin_pal[jcBOXFG], -1);
 		}
 
-		// Icons are true-color: draw them on the dialog's a5 overlay.
-		if (widg->rti && widg->rti->bitmap)
-		{
-			ALLEGRO_BITMAP* oldtarg = al_get_target_bitmap();
-			zc_set_target_bitmap(widg->rti->bitmap);
-			al_set_clipping_rectangle(x, d->y + 2, rowW, d->h - 4);
-			al_clear_to_color(al_map_rgba(0, 0, 0, 0));
-
-			for(int32_t i = d->d2; i < std::min(d->d2 + visrows, listsize); ++i)
-			{
-				int32_t y = d->y + 2 + (i - d->d2) * rowh;
-				if (ALLEGRO_BITMAP* icon = widg->getIconBitmap(i))
-					al_draw_scaled_bitmap(icon, 0, 0, 16, 16, x + 4, y + (rowh - ICON_DRAW) / 2, ICON_DRAW, ICON_DRAW, 0);
-			}
-
-			al_reset_clipping_rectangle();
-			zc_set_target_bitmap(oldtarg);
-		}
+		if (widg->rti)
+			widg->rti->dirty = true;
 		break;
 	}
 
