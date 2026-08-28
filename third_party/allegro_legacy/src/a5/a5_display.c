@@ -42,6 +42,14 @@ static ALLEGRO_BITMAP * _a5_screen = NULL;
 static ALLEGRO_COLOR _a5_screen_palette[256];
 static uint32_t _a5_screen_palette_a5[256];
 static int _a5_screen_format = ALLEGRO_LEGACY_PIXEL_FORMAT_OTHER;
+// local edit
+// Callers re-set the palette every frame even when nothing about it changed (the player
+// does this on any screen that isn't cycling). Converting it again is wasted, and the
+// generation bump would needlessly invalidate every cached bitmap conversion downstream,
+// so only do the work when an entry actually differs. Compared field by field rather than
+// with memcmp: struct RGB carries a `filler` byte that callers don't necessarily set.
+static struct RGB _a5_last_a4_palette[PAL_SIZE];
+static unsigned char _a5_last_a4_palette_valid[PAL_SIZE];
 
 /* display thread data */
 static bool _a5_disable_threaded_display = false;
@@ -164,6 +172,10 @@ static bool _a5_setup_screen(int w, int h)
   // }
 
   _a5_screen_format = al_get_bitmap_format(_a5_screen);
+  // local edit
+  // The cached a5 palette was built for the old screen format, and set_palette skips
+  // rebuilding it while the a4 palette is unchanged - so drop the cache here.
+  memset(_a5_last_a4_palette_valid, 0, sizeof(_a5_last_a4_palette_valid));
   // if(pixel_format == ALLEGRO_PIXEL_FORMAT_ARGB_8888 || pixel_format == ALLEGRO_PIXEL_FORMAT_ABGR_8888 || pixel_format == ALLEGRO_PIXEL_FORMAT_RGBA_8888 || pixel_format == ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE)
   // {
   //   _a5_screen_format = ALLEGRO_LEGACY_PIXEL_FORMAT_8888;
@@ -203,6 +215,17 @@ static void _a5_destroy_screen(void)
   _a5_display = NULL;
 }
 
+// local edit
+// Bumped whenever something outside normal drawing may change what previously
+// rendered/presented frames look like: palette changes, and display events that
+// can invalidate textures or the window surface. Lets callers cache converted
+// bitmaps / skip redraws safely.
+static uint32_t _a5_render_generation = 1;
+uint32_t all_get_render_generation(void)
+{
+  return _a5_render_generation;
+}
+
 void all_process_display_events()
 {
   // local edit
@@ -212,6 +235,17 @@ void all_process_display_events()
   while (!al_is_event_queue_empty(_a5_display_thread_event_queue))
   {
     al_get_next_event(_a5_display_thread_event_queue, &event);
+    // local edit
+    switch(event.type)
+    {
+      case ALLEGRO_EVENT_DISPLAY_HALT_DRAWING:
+      case ALLEGRO_EVENT_DISPLAY_RESUME_DRAWING:
+      case ALLEGRO_EVENT_DISPLAY_RESIZE:
+      case ALLEGRO_EVENT_DISPLAY_SWITCH_IN:
+      case ALLEGRO_EVENT_DISPLAY_EXPOSE:
+        _a5_render_generation++;
+        break;
+    }
     switch(event.type)
     {
       case ALLEGRO_EVENT_DISPLAY_HALT_DRAWING:
@@ -490,11 +524,31 @@ static void a5_palette_from_a4_palette(const PALETTE a4_palette, ALLEGRO_COLOR *
 
 static void a5_display_set_palette(const struct RGB * palette, int from, int to, int vsync)
 {
+    int i;
+    int changed = 0;
+
+    for (i = from; i <= to; i++)
+    {
+      if (_a5_last_a4_palette_valid[i] &&
+          _a5_last_a4_palette[i].r == palette[i].r &&
+          _a5_last_a4_palette[i].g == palette[i].g &&
+          _a5_last_a4_palette[i].b == palette[i].b)
+        continue;
+
+      _a5_last_a4_palette[i] = palette[i];
+      _a5_last_a4_palette_valid[i] = 1;
+      changed = 1;
+    }
+
+    if (!changed)
+      return;
+
     a5_palette_from_a4_palette(palette, _a5_screen_palette, from, to);
     /*if (vsync)
     {
         a5_display_vsync();
     }*/
+    _a5_render_generation++;
 }
 
 static void a5_display_move_mouse(int x, int y)
