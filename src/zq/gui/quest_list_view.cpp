@@ -171,7 +171,7 @@ int32_t new_quest_list_proc(int32_t msg, DIALOG* d, int32_t c)
 		if (widg->rti && widg->rti->bitmap)
 		{
 			ALLEGRO_BITMAP* oldtarg = al_get_target_bitmap();
-			al_set_target_bitmap(widg->rti->bitmap);
+			zc_set_target_bitmap(widg->rti->bitmap);
 			al_set_clipping_rectangle(x, d->y + 2, rowW, d->h - 4);
 			al_clear_to_color(al_map_rgba(0, 0, 0, 0));
 
@@ -183,7 +183,7 @@ int32_t new_quest_list_proc(int32_t msg, DIALOG* d, int32_t c)
 			}
 
 			al_reset_clipping_rectangle();
-			al_set_target_bitmap(oldtarg);
+			zc_set_target_bitmap(oldtarg);
 		}
 		break;
 	}
