@@ -843,7 +843,11 @@ bool render_get_debug()
 }
 
 void RenderTreeItem::prepare() {}
-void RenderTreeItem::render(bool) {}
+void RenderTreeItem::render(bool bitmap_resized)
+{
+	if (render_cb)
+		render_cb(this, bitmap_resized);
+}
 
 // void CustomRTI::render(bool bitmap_resized)
 // {
@@ -1264,30 +1268,32 @@ void popup_zqdialog_end_a5()
 
 RenderTreeItem* add_dlg_layer(int x, int y, int w, int h)
 {
-	if(!active_dlg_rti) return nullptr;
-	if(w<0) w = screen->w-x;
-	if(h<0) h = screen->h-y;
+	if(w<0) w = (screen ? screen->w : zq_screen_w)-x;
+	if(h<0) h = (screen ? screen->h : zq_screen_h)-y;
 	set_bitmap_create_flags(true);
-	
-	LegacyBitmapRTI* rti = new LegacyBitmapRTI("dlg");
+
+	RenderTreeItem* rti = new RenderTreeItem("dlg");
 	rti->bitmap = al_create_bitmap(w,h);
 	rti->set_size(w, h);
 	clear_a5_bmp(rti->bitmap);
 	rti->set_transform({.x = x, .y = y});
-	rti->a4_bitmap = nullptr;
 	rti->visible = true;
 	rti->owned = true;
-	active_dlg_rti->add_child(rti);
+	// Not dirty: the draw pass clears and re-renders a dirty item's bitmap, which would
+	// erase content that imperative callers have already drawn into it. render_cb users
+	// mark dirty themselves whenever their source data changes.
+	rti->dirty = false;
+	if(active_dlg_rti)
+		active_dlg_rti->add_child(rti);
 
 	al_set_new_bitmap_flags(0);
 	return rti;
 }
 void remove_dlg_layer(RenderTreeItem* rti)
 {
-	if(active_dlg_rti)
-	{
-		active_dlg_rti->remove_child(rti);
-	}
+	if(!rti) return;
+
+	rti->remove();
 	delete rti;
 }
 
