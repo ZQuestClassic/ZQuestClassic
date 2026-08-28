@@ -18,9 +18,6 @@
 
 // TODO
 // - Only shows shortcuts from the Hotkey system, which excludes dialog-specific shortcuts.
-// - If too many hotkeys are configured, they won't fit on screen. Need a scroll container.
-// - Refactor building block RTIs for CSS box model-like behavior (margin, padding), and common drawing stuff
-//   (bg color, border, etc). And a text RTI component.
 
 // Repetitive.
 const std::set<int> group_skip_ids = {
@@ -266,31 +263,13 @@ const std::set<int> group_report_ids = {
 	ZQKEY_BUGGY_NEXT,
 };
 
-static ALLEGRO_COLOR hex(unsigned int h)
+// The group table: (group name, hotkeys). Built once - `layout` runs several times per
+// frame while the panel is open.
+static const std::vector<std::pair<std::string, const std::set<int>&>>& get_hotkey_groups()
 {
-	int r = (h>>16) & 0xff;
-	int g = (h>>8) & 0xff;
-	int b = (h) & 0xff;
-	return al_map_rgb(r, g, b);
-}
-
-class HotKeysRTI : public RenderTreeItem
-{
-public:
-	HotKeysRTI(std::string name) : RenderTreeItem(name) {};
-
-private:
-	void render([[maybe_unused]] bool bitmap_resized)
-	{
-		int num_columns = 3;
-		auto color_text = hex(0xadbac7);
-		auto color_entry_text = hex(0xdddd00);
-		auto color_bg = hex(0x22272f);
-		auto color_bg_secondary = hex(0x2d333b);
-
-		ALLEGRO_FONT* font = get_zc_font_a5(font_lfont_l);
-
-		std::set<int> group_misc_ids;
+	// Anything not categorized above.
+	static const std::set<int> group_misc_ids = []() {
+		std::set<int> ids;
 		for (int i = ZQKEY_UNDO; i < ZQKEY_MAX; i++)
 		{
 			if (group_skip_ids.contains(i)) continue;
@@ -303,51 +282,126 @@ private:
 			if (group_paste_ids.contains(i)) continue;
 			if (group_report_ids.contains(i)) continue;
 
-			group_misc_ids.insert(i);
+			ids.insert(i);
 		}
+		return ids;
+	}();
 
-		// Vector of (group name, hotkeys).
-		std::vector<std::pair<std::string, const std::set<int>&>> groups = {
-			{"Actions", group_action_ids},
-			{"Toggles", group_toggle_ids},
-			{"Map Navigation", group_map_navigation_ids},
-			{"Combo Navigation", group_combo_navigation_ids},
-			{"Dialogs", group_dialog_ids},
-			{"Import/Export", group_import_export_ids},
-			{"Copy/Paste", group_paste_ids},
-			{"Reports", group_report_ids},
-			{"Misc.", group_misc_ids},
-		};
+	static const std::vector<std::pair<std::string, const std::set<int>&>> groups = {
+		{"Actions", group_action_ids},
+		{"Toggles", group_toggle_ids},
+		{"Map Navigation", group_map_navigation_ids},
+		{"Combo Navigation", group_combo_navigation_ids},
+		{"Dialogs", group_dialog_ids},
+		{"Import/Export", group_import_export_ids},
+		{"Copy/Paste", group_paste_ids},
+		{"Reports", group_report_ids},
+		{"Misc.", group_misc_ids},
+	};
+	return groups;
+}
 
-		int padding = 0;
-		int margin = 15;
-		int group_margin = 10;
-		int entry_padding = 5;
-		int left = padding + margin;
-		int top = padding + margin;
-		int right = al_get_bitmap_width(bitmap) - padding - margin;
-		int bottom = al_get_bitmap_height(bitmap) - padding - margin;
-		int width = right - left;
-		int height = bottom - top;
-		int title_font_size = 2;
-		int entry_font_size = 1;
+static ALLEGRO_COLOR hex(unsigned int h)
+{
+	int r = (h>>16) & 0xff;
+	int g = (h>>8) & 0xff;
+	int b = (h) & 0xff;
+	return al_map_rgb(r, g, b);
+}
 
-		int x = left;
-		int y = top;
+// Dims the whole screen behind the panel: a single dark pixel, stretched over the
+// window by its transform.
+static RenderTreeItem rti_hotkeys_backdrop("hot_keys_backdrop");
+
+class HotKeysRTI : public RenderTreeItem
+{
+public:
+	HotKeysRTI(std::string name) : RenderTreeItem(name) {};
+
+private:
+	static constexpr int colwidth = 280;
+	static constexpr int panel_padding = 10;
+	static constexpr int group_margin = 10;
+	static constexpr int entry_padding = 5;
+	static constexpr int window_margin = 15;
+	static constexpr int title_font_size = 2;
+	static constexpr int entry_font_size = 1;
+
+	// The virtual box height the final measure used.
+	int layout_box_h = 0;
+
+	// Fit the panel to the window each frame: measure the content, and when it is too
+	// wide to fit, uniformly scale the panel down via the transform instead of clipping
+	// it. (A scroll container is a poor fit here - the overlay dismisses on any key
+	// release, so there is nothing to scroll it with.) Content flows into columns up to
+	// the given height, so a smaller scale also means a taller virtual box and fewer
+	// columns; step the scale down until the columns fit.
+	void prepare()
+	{
+		auto* root = get_root_rti();
+		int avail_w = root->width - 2*window_margin;
+		int avail_h = root->height - 2*window_margin;
+		if (avail_w <= 0 || avail_h <= 0)
+			return;
+
+		float scale = 1;
+		layout_box_h = avail_h;
+		auto size = layout(nullptr, layout_box_h);
+		while (size.first * scale > avail_w && scale > 0.35)
+		{
+			scale *= 0.85;
+			layout_box_h = (int)(avail_h / scale);
+			size = layout(nullptr, layout_box_h);
+		}
+		auto [w, h] = size;
+
+		if (w != width || h != height)
+		{
+			set_size(w, h);
+			dirty = true;
+		}
+		set_transform({
+			.x = (float)((int)(root->width - w*scale) / 2),
+			.y = (float)((int)(root->height - h*scale) / 2),
+			.xscale = scale,
+			.yscale = scale,
+		});
+		// Linear filtering, for legibility when the panel is scaled down.
+		bitmap_flags = get_bitmap_create_flags(true) | ALLEGRO_MIN_LINEAR | ALLEGRO_MAG_LINEAR;
+
+		rti_hotkeys_backdrop.set_transform({.xscale = (float)root->width, .yscale = (float)root->height});
+	}
+
+	void render([[maybe_unused]] bool bitmap_resized)
+	{
+		al_draw_filled_rectangle(0, 0, al_get_bitmap_width(bitmap), al_get_bitmap_height(bitmap), hex(0x22272f));
+		layout(bitmap, layout_box_h);
+	}
+
+	// Lays out the hotkey groups in columns of the given height, drawing to `dest` -
+	// or, when `dest` is null, only measuring. Returns the used (width, height).
+	std::pair<int, int> layout(ALLEGRO_BITMAP* dest, int box_h)
+	{
+		auto color_text = hex(0xadbac7);
+		auto color_entry_text = hex(0xdddd00);
+		auto color_bg_secondary = hex(0x2d333b);
+
+		ALLEGRO_FONT* font = get_zc_font_a5(font_lfont_l);
+
+		int height = box_h - panel_padding;
+		int x = panel_padding;
+		int y = panel_padding;
+		int max_y = 0;
 		int line_height = al_get_font_line_height(font);
-		int colwidth = (width - group_margin*(num_columns+1)) / num_columns;
 		auto ensure_space = [&](int vspace) {
 			if (y + vspace >= height)
 			{
-				y = top;
+				y = panel_padding;
 				x += colwidth + group_margin;
 			}
 		};
 
-		al_draw_filled_rectangle(0, 0, al_get_bitmap_width(bitmap), al_get_bitmap_height(bitmap), al_map_rgba_f(0, 0, 0, 0.6));
-		al_draw_filled_rectangle(left, top, right, bottom, color_bg);
-
-		for (const auto& group : groups)
+		for (const auto& group : get_hotkey_groups())
 		{
 			bool has_any = false;
 			for (int hotkey_index : group.second)
@@ -362,9 +416,13 @@ private:
 
 			// Require space for at least three entries, else break to next column.
 			ensure_space(line_height*title_font_size + 3*line_height*entry_font_size);
-			al_draw_filled_rectangle(x, y, x + colwidth, y + line_height*title_font_size, color_bg_secondary);
-			render_text(bitmap, font, group.first, x, y, title_font_size, color_text);
+			if (dest)
+			{
+				al_draw_filled_rectangle(x, y, x + colwidth, y + line_height*title_font_size, color_bg_secondary);
+				render_text(dest, font, group.first, x, y, title_font_size, color_text);
+			}
 			y += line_height*title_font_size;
+			max_y = std::max(max_y, y);
 
 			for (int hotkey_index : group.second)
 			{
@@ -386,24 +444,34 @@ private:
 				if (!hk1.empty())
 				{
 					ensure_space(line_height*entry_font_size);
-					int end_col_x = x + colwidth - entry_padding - al_get_text_width(font, hk1.c_str()) * entry_font_size;
-					render_text(bitmap, font, hk_name, x + entry_padding, y, entry_font_size, color_text);
-					render_text(bitmap, font, hk1, end_col_x, y, entry_font_size, color_entry_text);
+					if (dest)
+					{
+						int end_col_x = x + colwidth - entry_padding - al_get_text_width(font, hk1.c_str()) * entry_font_size;
+						render_text(dest, font, hk_name, x + entry_padding, y, entry_font_size, color_text);
+						render_text(dest, font, hk1, end_col_x, y, entry_font_size, color_entry_text);
+					}
 					y += line_height*entry_font_size;
 				}
 				if (!hk2.empty())
 				{
 					ensure_space(line_height*entry_font_size);
-					int end_col_x = x + colwidth - entry_padding - al_get_text_width(font, hk2.c_str()) * entry_font_size;
-					render_text(bitmap, font, hk2, end_col_x, y, entry_font_size, color_entry_text);
+					if (dest)
+					{
+						int end_col_x = x + colwidth - entry_padding - al_get_text_width(font, hk2.c_str()) * entry_font_size;
+						render_text(dest, font, hk2, end_col_x, y, entry_font_size, color_entry_text);
+					}
 					y += line_height*entry_font_size;
 				}
-				al_draw_line(x, y, x + colwidth, y, color_bg_secondary, 1);
+				if (dest)
+					al_draw_line(x, y, x + colwidth, y, color_bg_secondary, 1);
 				y += 1;
+				max_y = std::max(max_y, y);
 			}
 
 			y += group_margin;
 		}
+
+		return {x + colwidth + panel_padding, std::min(box_h, max_y + panel_padding)};
 	}
 };
 
@@ -413,11 +481,16 @@ static bool is_active = false;
 void hotkeys_run()
 {
 	auto parent = get_root_rti();
+	rti_hotkeys_backdrop.set_size(1, 1);
+	rti_hotkeys_backdrop.render_cb = [](RenderTreeItem*, bool) {
+		al_draw_filled_rectangle(0, 0, 1, 1, al_map_rgba_f(0, 0, 0, 0.6));
+	};
+	parent->add_child(&rti_hotkeys_backdrop);
 	parent->add_child(&rti_hotkeys);
-	rti_hotkeys.set_size(parent->width, parent->height);
 
 	zq_freeze_all_rti();
 	rti_hotkeys.freeze = false;
+	rti_hotkeys_backdrop.freeze = false;
 
 	zalleg_wait_for_all_keys_up();
 
@@ -444,6 +517,7 @@ void hotkeys_run()
 
 	clear_keybuf();
 	rti_hotkeys.remove();
+	rti_hotkeys_backdrop.remove();
 }
 
 void hotkeys_invalidate()
