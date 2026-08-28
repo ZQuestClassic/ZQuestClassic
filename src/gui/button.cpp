@@ -162,7 +162,7 @@ void spinner_loop(vector<string> const& strs, std::function<bool()> proc)
 	
 	popup_zqdialog_start();
 	jwin_draw_win(screen, (screen->w-popup_w)/2, (screen->h-popup_h)/2, popup_w, popup_h, FR_WIN);
-	
+
 	int ty = popup_y + vmargin;
 	for (string const& s : strs)
 	{
@@ -170,29 +170,32 @@ void spinner_loop(vector<string> const& strs, std::function<bool()> proc)
 		ty += fh + vspacing;
 	}
 	clear_keybuf();
-	popup_zqdialog_start_a5();
-	zqdialog_set_skiptint(true);
 	zq_push_unfrozen_dialogs(1);
-	
+
+	// The spinner arc renders on its own layer, sized to the popup - the framework
+	// clears the bitmap before each render, so only the current arc needs drawing.
 	double a = 0.0;
+	RenderTreeItem* spinner_rti = add_dlg_layer(popup_x, popup_y, popup_w, popup_h);
+	spinner_rti->render_cb = [&](RenderTreeItem*, bool) {
+		al_draw_arc(ax - popup_x, ay - popup_y, ar, a, width, a5color(jwin_pal[jcBOXFG]), thickness);
+	};
+
 	do
 	{
-		render_mark_dirty();
-		al_draw_arc(ax, ay, ar, a, width, a5color(jwin_pal[jcBOX]), thickness); //erase the last frame's arc
 		a = wrap_float(a + aspd, 0.0, 2 * PI);
-		al_draw_arc(ax, ay, ar, a, width, a5color(jwin_pal[jcBOXFG]), thickness); // draw the new frame's arc
+		spinner_rti->dirty = true;
 		update_hw_screen();
 	}
 	while (!proc());
-	
+
 	while(gui_mouse_b())
 		rest(1);
 	clear_keybuf();
-	
+
+	remove_dlg_layer(spinner_rti);
 	zq_pop_unfrozen_dialogs();
-	popup_zqdialog_end_a5();
 	popup_zqdialog_end();
-	
+
 	position_mouse_z(mz);
 }
 void joy_getbtn(string const& title, int& btn_ref, int stick_idx, bool stick)

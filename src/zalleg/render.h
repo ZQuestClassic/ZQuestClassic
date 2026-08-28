@@ -119,8 +119,8 @@ public:
 	int bitmap_flags = -1;
 	ALLEGRO_COLOR* tint = nullptr;
 	bool owned = false, owned_tint = false;
-	// When true, a4_bitmap -> bitmap will not happen, and neither will `cb` be called.
-	// `bitmap` will still be rendered.
+	// When true, a4_bitmap -> bitmap will not happen, and neither will render() (and so
+	// render_cb) be called. `bitmap` will still be drawn to the screen.
 	bool freeze = false;
 	bool dirty = true;
 	bool skip_tint = false;
@@ -183,6 +183,12 @@ public:
 	// the target bitmap and cleared before `render` is called, so all draw calls made within `render` will
 	// draw to `bitmap`.
 	virtual void render(bool bitmap_resized);
+	// Alternative to subclassing: the default render() invokes this, so owners of a plain item
+	// (e.g. from add_dlg_layer) can draw its content by setting a callback and marking `dirty`
+	// when their source data changes. Prefer this over drawing into `bitmap` imperatively -
+	// content drawn here needs no render_mark_dirty/zc_set_target_bitmap bookkeeping, since
+	// the framework itself schedules and observes the redraw.
+	std::function<void(RenderTreeItem* rti, bool bitmap_resized)> render_cb;
 
 	int width = 0;
 	int height = 0;

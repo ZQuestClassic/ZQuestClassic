@@ -13293,14 +13293,10 @@ int32_t d_dropdmaplist_proc(int32_t msg,DIALOG *d,int32_t c)
     return jwin_droplist_proc(msg,d,c);
 }
 
-void drawxmap(ALLEGRO_BITMAP* dest, int32_t themap, int32_t xoff, bool large, int dx, int dy)
+// Draws to the current target bitmap - called from a render item's render_cb, which
+// provides a cleared bitmap as the target.
+void drawxmap(int32_t themap, int32_t xoff, bool large, int dx, int dy)
 {
-	ALLEGRO_STATE old_state;
-	al_store_state(&old_state, ALLEGRO_STATE_TARGET_BITMAP);
-
-	zc_set_target_bitmap(dest);
-	al_clear_to_color(al_map_rgba(0, 0, 0, 0));
-
 	int32_t cols = (large ? 8 : 16);
 	int32_t col_width = large ? 22 : 11;
 	int32_t dot_width = (large ? 6 : 4);
@@ -13326,8 +13322,6 @@ void drawxmap(ALLEGRO_BITMAP* dest, int32_t themap, int32_t xoff, bool large, in
 			al_draw_filled_rectangle(dx + (x * col_width + dot_offset), dy + (y * l + 3), dx + (x * col_width + dot_offset + dot_width), dy + (y * l + l - 3), real_lc2(scr->color));
 		}
 	}
-
-	al_restore_state(&old_state);
 }
 
 ListData dmap_list(dmaplist, &font);

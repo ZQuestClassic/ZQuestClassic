@@ -1,6 +1,7 @@
 #include "zq/gui/dmap_minimap.h"
 #include "gui/common.h"
 #include "gui/dialog.h"
+#include "zalleg/render.h"
 #include "gui/dialog_runner.h"
 #include "gui/size.h"
 #include "gui/jwin.h"
@@ -9,7 +10,7 @@
 
 using namespace GUI;
 
-void drawxmap(ALLEGRO_BITMAP* dest, int32_t themap, int32_t xoff, bool large, int dx, int dy);
+void drawxmap(int32_t themap, int32_t xoff, bool large, int dx, int dy);
 
 namespace GUI
 {
@@ -24,6 +25,13 @@ namespace GUI
 		if (msg == MSG_START && !widg->rti)
 		{
 			widg->rti = add_dlg_layer();
+			// The map itself is true-color, so it renders on this a5 layer. The DIALOG
+			// pointer is stable while the dialog runs, which is also this layer's lifetime.
+			widg->rti->render_cb = [widg, d](RenderTreeItem*, bool) {
+				int32_t x = d->x + 6 + 3;
+				int32_t y = d->y + 9 + 3;
+				drawxmap(widg->cur_map - 1, widg->offset, widg->small_dmap, x, y);
+			};
 		}
 		else if (msg == MSG_END && widg->rti)
 		{
@@ -60,7 +68,7 @@ namespace GUI
 			}
 
 			jwin_draw_frame(screen, (x - frame_thickness) + 1, (y - frame_thickness) + 1, 180, 84, FR_DEEP);
-			drawxmap(widg->rti->bitmap, widg->cur_map-1, widg->offset, widg->small_dmap, x, y);
+			widg->rti->dirty = true;
 		}
 
 		return ret;
