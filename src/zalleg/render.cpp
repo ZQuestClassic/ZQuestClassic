@@ -12,6 +12,58 @@ using namespace std::chrono_literals;
 
 static int zc_mouse_x, zc_mouse_y;
 
+static inline uint64_t rotl64(uint64_t x, int r)
+{
+	return (x << r) | (x >> (64 - r));
+}
+
+// MurmurHash3 (x64/128 variant) body and finalizer, two 8-byte lanes per step.
+// The mixing here matters: a multiply-only construction (e.g. chained FNV) provably
+// loses single-byte differences when per-row hashes are chained - a multiply can only
+// move difference bits upward, where they truncate away, and a lane merge cancels what
+// is left - so a stale frame can hash as "unchanged" and be skipped. Murmur's rotations
+// spread differences across all bits, and the finalizer fully avalanches the result,
+// so chaining per-row hashes is safe.
+static uint64_t hash_bytes(const void* data, size_t len, uint64_t h)
+{
+	constexpr uint64_t c1 = 0x87c37b91114253d5ULL;
+	constexpr uint64_t c2 = 0x4cf5ad432745937fULL;
+	uint64_t h0 = h;
+	uint64_t h1 = h ^ 0x9e3779b97f4a7c15ULL;
+	const uint8_t* p = (const uint8_t*)data;
+	size_t n = len / 16;
+	for (size_t i = 0; i < n; i++)
+	{
+		uint64_t k0, k1;
+		memcpy(&k0, p, 8);
+		memcpy(&k1, p + 8, 8);
+		p += 16;
+		k0 *= c1; k0 = rotl64(k0, 31); k0 *= c2; h0 ^= k0;
+		h0 = rotl64(h0, 27); h0 += h1; h0 = h0 * 5 + 0x52dce729;
+		k1 *= c2; k1 = rotl64(k1, 33); k1 *= c1; h1 ^= k1;
+		h1 = rotl64(h1, 31); h1 += h0; h1 = h1 * 5 + 0x38495ab5;
+	}
+	for (size_t i = n * 16; i < len; i++)
+	{
+		h0 ^= p[i - n * 16];
+		h0 = rotl64(h0, 27) * 5 + 0x52dce729;
+	}
+	h = h0 ^ h1;
+	h ^= len;
+	h ^= h >> 33; h *= 0xff51afd7ed558ccdULL;
+	h ^= h >> 33; h *= 0xc4ceb9fe1a85ec53ULL;
+	h ^= h >> 33;
+	return h;
+}
+
+static uint64_t hash_value(uint64_t v, uint64_t h)
+{
+	h ^= v;
+	h ^= h >> 33; h *= 0xff51afd7ed558ccdULL;
+	h ^= h >> 33;
+	return h;
+}
+
 void RenderTreeItem::remove()
 {
 	if (parent)
@@ -657,10 +709,25 @@ void LegacyBitmapRTI::prepare()
 	bitmap_flags = get_bitmap_create_flags(true);
 }
 
-void LegacyBitmapRTI::render(bool)
+void LegacyBitmapRTI::render(bool size_changed)
 {
 	if (bitmap && a4_bitmap && (!a4_bitmap_rendered_once || !freeze))
 	{
+		// The conversion result depends only on these inputs - when none of them have
+		// changed since the last conversion, the texture already holds the right pixels,
+		// so skip the conversion and (much slower) texture upload. The generation counter
+		// covers palette changes and display events that may invalidate the texture.
+		uint64_t hash = 0xcbf29ce484222325ULL;
+		hash = hash_value(all_get_render_generation(), hash);
+		hash = hash_value(transparency_index, hash);
+		hash = hash_value(((uint64_t)(uint32_t)a4_bitmap->w << 32) | (uint32_t)a4_bitmap->h, hash);
+		size_t row_bytes = (size_t)a4_bitmap->w * BYTES_PER_PIXEL(bitmap_color_depth(a4_bitmap));
+		for (int y = 0; y < a4_bitmap->h; y++)
+			hash = hash_bytes(a4_bitmap->line[y], row_bytes, hash);
+		if (a4_bitmap_rendered_once && !size_changed && hash == a4_content_hash)
+			return;
+		a4_content_hash = hash;
+
 		all_set_transparent_palette_index(transparency_index);
 		all_render_a5_bitmap(a4_bitmap, bitmap);
 		all_set_transparent_palette_index(-1);

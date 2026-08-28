@@ -212,6 +212,11 @@ public:
 protected:
 	void prepare();
 	void render(bool);
+
+private:
+	// Signature of the inputs (pixels, palette, transparency) of the last a4->a5
+	// conversion, used to skip re-converting when the result would be identical.
+	uint64_t a4_content_hash = 0;
 };
 
 enum class TextJustify {
