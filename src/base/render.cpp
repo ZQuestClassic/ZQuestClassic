@@ -7,6 +7,8 @@
 #include "base/fonts.h"
 #include <fmt/format.h>
 #include "gui/jwin_a5.h"
+#include <chrono>
+#include <map>
 
 using namespace std::chrono_literals;
 
@@ -597,14 +599,83 @@ void LegacyBitmapRTI::prepare()
 	bitmap_flags = get_bitmap_create_flags(true);
 }
 
+// -render-timings: once a second, report what the legacy-bitmap content hashing costs
+// and how many conversions (+ texture uploads) it saved, per render item.
+static bool render_timings_enabled()
+{
+	static bool value = get_flag_bool("-render-timings").value_or(false);
+	return value;
+}
+
+static void render_timings_record(const std::string& name, int64_t hash_ns, std::optional<int64_t> convert_ns)
+{
+	struct Entry
+	{
+		int64_t hash_ns = 0, convert_ns = 0;
+		int hashes = 0, converts = 0, skips = 0;
+	};
+	static std::map<std::string, Entry> entries;
+	static double last_report_time = al_get_time();
+
+	auto& e = entries[name];
+	e.hash_ns += hash_ns;
+	e.hashes++;
+	if (convert_ns)
+	{
+		e.converts++;
+		e.convert_ns += *convert_ns;
+	}
+	else
+		e.skips++;
+
+	double now = al_get_time();
+	if (now - last_report_time < 1.0)
+		return;
+
+	last_report_time = now;
+	for (auto& [n, en] : entries)
+	{
+		fmt::print("[render-timings] {}: hashed {}x in {:.2f}ms (avg {:.3f}ms), converted {}x in {:.2f}ms, hash saved {} conversions\n",
+			n, en.hashes, en.hash_ns / 1e6, en.hashes ? en.hash_ns / 1e6 / en.hashes : 0.0,
+			en.converts, en.convert_ns / 1e6, en.skips);
+	}
+	entries.clear();
+}
+
+// -no-render-hash: diagnostic switch that restores the old behavior of converting
+// every frame without content hashing, for A/B measurements.
+static bool render_hash_disabled()
+{
+	static bool value = get_flag_bool("-render-hash").value_or(true);
+	return !value;
+}
+
 void LegacyBitmapRTI::render(bool size_changed)
 {
 	if (bitmap && a4_bitmap && (!a4_bitmap_rendered_once || !freeze))
 	{
+		if (render_hash_disabled())
+		{
+			all_set_transparent_palette_index(transparency_index);
+			all_render_a5_bitmap(a4_bitmap, bitmap);
+			all_set_transparent_palette_index(-1);
+			a4_bitmap_rendered_once = true;
+			return;
+		}
+
+		bool timings = render_timings_enabled();
+		auto time_now = [&]() -> int64_t {
+			if (!timings)
+				return 0;
+			return std::chrono::duration_cast<std::chrono::nanoseconds>(
+				std::chrono::steady_clock::now().time_since_epoch()).count();
+		};
+
 		// The conversion result depends only on these inputs - when none of them have
 		// changed since the last conversion, the texture already holds the right pixels,
 		// so skip the conversion and (much slower) texture upload. The generation counter
 		// covers palette changes and display events that may invalidate the texture.
+		int64_t t0 = time_now();
 		uint64_t hash = 0xcbf29ce484222325ULL;
 		hash = hash_value(all_get_render_generation(), hash);
 		hash = hash_value(transparency_index, hash);
@@ -612,13 +683,21 @@ void LegacyBitmapRTI::render(bool size_changed)
 		size_t row_bytes = (size_t)a4_bitmap->w * BYTES_PER_PIXEL(bitmap_color_depth(a4_bitmap));
 		for (int y = 0; y < a4_bitmap->h; y++)
 			hash = hash_bytes(a4_bitmap->line[y], row_bytes, hash);
+		int64_t t1 = time_now();
 		if (a4_bitmap_rendered_once && !size_changed && hash == a4_content_hash)
+		{
+			if (timings)
+				render_timings_record(name, t1 - t0, std::nullopt);
 			return;
+		}
+
 		a4_content_hash = hash;
 
 		all_set_transparent_palette_index(transparency_index);
 		all_render_a5_bitmap(a4_bitmap, bitmap);
 		a4_bitmap_rendered_once = true;
+		if (timings)
+			render_timings_record(name, t1 - t0, time_now() - t1);
 	}
 }
 

@@ -2,6 +2,7 @@
 #include "base/zc_alleg.h"
 #include "zconfig.h"
 #include "base/zsys.h"
+#include <fmt/format.h>
 #include <filesystem>
 #include <string>
 
@@ -52,6 +53,8 @@ static sentry_value_t on_crash_callback(const sentry_ucontext_t *uctx, sentry_va
 namespace fs = std::filesystem;
 
 static App app_id = App::undefined;
+static int argc;
+static char **argv;
 
 // No trailing slash.
 static std::string get_exe_folder_path()
@@ -95,9 +98,11 @@ void zapp_set_crash_cb(std::function<void()> cb)
 // TODO: move qst.cpp to base/
 int32_t get_qst_buffers();
 
-void common_main_setup(App id, int argc, char **argv)
+void common_main_setup(App id, int argc_, char **argv_)
 {
     app_id = id;
+	argc = argc_;
+	argv = argv_;
 
 	if (std::getenv("ZC_HEADLESS") != nullptr)
 	{
@@ -181,6 +186,18 @@ std::string zapp_get_exe_folder_path()
 {
 	static std::string folder_path = get_exe_folder_path();
 	return folder_path;
+}
+
+std::optional<bool> get_flag_bool(const char* name)
+{
+	int arg = used_switch(argc, argv, name);
+	if (arg) return true;
+
+	std::string no_name = fmt::format("-no{}", name);
+	arg = used_switch(argc, argv, no_name.c_str());
+	if (arg) return false;
+
+	return std::nullopt;
 }
 
 App get_app_id()
