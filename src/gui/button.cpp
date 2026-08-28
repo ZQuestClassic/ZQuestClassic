@@ -7,6 +7,7 @@
 #include "gui/dialog_runner.h"
 #include "gui/jwin.h"
 #include "gui/jwin_a5.h"
+#include "zalleg/render.h"
 #include "base/general.h"
 #include <algorithm>
 #include <utility>
@@ -176,6 +177,7 @@ void spinner_loop(vector<string> const& strs, std::function<bool()> proc)
 	double a = 0.0;
 	do
 	{
+		render_mark_dirty();
 		al_draw_arc(ax, ay, ar, a, width, a5color(jwin_pal[jcBOX]), thickness); //erase the last frame's arc
 		a = wrap_float(a + aspd, 0.0, 2 * PI);
 		al_draw_arc(ax, ay, ar, a, width, a5color(jwin_pal[jcBOXFG]), thickness); // draw the new frame's arc

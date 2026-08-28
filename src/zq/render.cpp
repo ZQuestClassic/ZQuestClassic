@@ -179,16 +179,24 @@ void render_zq()
 	
 	init_render_tree();
 	configure_render_tree();
-	
-	al_set_target_backbuffer(all_get_display());
-	al_clear_to_color(al_map_rgb(RAMpal[0].r, RAMpal[0].g, RAMpal[0].b));
-	
-	render_tree_draw(&rti_root);
-	if (render_get_debug())
-		render_tree_draw_debug(&rti_root);
 
-	al_flip_display();
-	
+	ALLEGRO_COLOR clear_color = al_map_rgb(RAMpal[0].r, RAMpal[0].g, RAMpal[0].b);
+	if (render_get_debug())
+	{
+		// The debug overlay reflects live state, so always draw when it is up.
+		al_set_target_backbuffer(all_get_display());
+		al_clear_to_color(clear_color);
+		render_tree_draw(&rti_root);
+		render_tree_draw_debug(&rti_root);
+		al_flip_display();
+	}
+	else
+	{
+		// Skips the draw and flip when nothing on screen has changed - otherwise an idle
+		// editor re-composites and re-presents the same pixels 60 times a second.
+		render_tree_draw_and_flip(&rti_root, clear_color);
+	}
+
 	screen = tmp;
 	al_restore_state(&oldstate);
 }

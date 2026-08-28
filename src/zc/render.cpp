@@ -23,6 +23,14 @@ RenderTreeItem rti_infolayer("info");
 LegacyBitmapRTI rti_menu("menu");
 LegacyBitmapRTI rti_gui("gui");
 LegacyBitmapRTI rti_screen("screen");
+// The overlay text (clock, FPS, replay state) draws on its own display-resolution layer
+// rather than being stamped into the backbuffer, so the render tree owns it like
+// everything else: the framework clears and redraws it when marked dirty, and a frame
+// that differs only in the overlay presents because of that pending redraw.
+static RenderTreeItem rti_overlay("overlay");
+static std::vector<std::string> overlay_lines_left, overlay_lines_right;
+static ALLEGRO_FONT* overlay_font;
+static int overlay_font_scale = 1;
 
 bool use_linear_bitmaps()
 {
@@ -111,6 +119,11 @@ static void init_render_tree()
 	rti_root.add_child(&rti_gui);
 	rti_root.add_child(&rti_screen);
 	rti_root.add_child(&rti_dialogs);
+	rti_root.add_child(&rti_overlay);
+	rti_overlay.render_cb = [](RenderTreeItem* rti, bool) {
+		render_text_lines(rti->bitmap, overlay_font, overlay_lines_left, TextJustify::left, TextAlignment::bottom, overlay_font_scale);
+		render_text_lines(rti->bitmap, overlay_font, overlay_lines_right, TextJustify::right, TextAlignment::bottom, overlay_font_scale);
+	};
 
 	gui_mouse_x = zc_gui_mouse_x;
 	gui_mouse_y = zc_gui_mouse_y;
@@ -377,7 +390,7 @@ void save_info_bmp()
 
 	ALLEGRO_STATE old_state;
 	al_store_state(&old_state, ALLEGRO_STATE_TARGET_BITMAP | ALLEGRO_STATE_BLENDER);
-	al_set_target_bitmap(infobmp_backup);
+	zc_set_target_bitmap(infobmp_backup);
 	al_clear_to_color(AL5_INVIS);
 	// Straight copy: overwrite the destination pixels rather than alpha-blend.
 	al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
@@ -399,7 +412,7 @@ void restore_info_bmp()
 
 	ALLEGRO_STATE old_state;
 	al_store_state(&old_state, ALLEGRO_STATE_TARGET_BITMAP | ALLEGRO_STATE_BLENDER);
-	al_set_target_bitmap(rti_infolayer.bitmap);
+	zc_set_target_bitmap(rti_infolayer.bitmap);
 	al_clear_to_color(AL5_INVIS);
 	al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
 	al_draw_bitmap(infobmp_backup, 0, 0, 0);
@@ -413,7 +426,7 @@ void start_info_bmp()
 #ifndef __EMSCRIPTEN__
 	info_bmp_written = true;
 	al_store_state(&infobmp_old_state, ALLEGRO_STATE_TARGET_BITMAP);
-	al_set_target_bitmap(rti_infolayer.bitmap);
+	zc_set_target_bitmap(rti_infolayer.bitmap);
 	al_set_clipping_rectangle(0, playing_field_offset, al_get_bitmap_width(rti_infolayer.bitmap), al_get_bitmap_height(rti_infolayer.bitmap)-playing_field_offset);
 #endif
 }
@@ -440,10 +453,6 @@ void render_zc()
 	init_render_tree();
 	configure_render_tree();
 	
-	al_set_target_backbuffer(all_get_display());
-	al_clear_to_color(al_map_rgb_f(0, 0, 0));
-	render_tree_draw(&rti_root);
-
 	ALLEGRO_FONT* a5font = get_zc_font_a5(font_gboraclepfont);
 	// Match the overlay text to the game's scale rather than using a fixed scale. The text is
 	// stamped into the backbuffer, so a fixed scale means its apparent size tracks the
@@ -483,15 +492,40 @@ void render_zc()
 		});
 	}
 
-	ALLEGRO_BITMAP* bitmap = al_get_backbuffer(all_get_display());
-	render_text_lines(bitmap, a5font, lines_left, TextJustify::left, TextAlignment::bottom, font_scale);
-	render_text_lines(bitmap, a5font, lines_right, TextJustify::right, TextAlignment::bottom, font_scale);
+	// The layer only needs redrawing when the text itself changes - marking it every frame
+	// would force a present every frame for as long as anything is shown, which would keep
+	// a paused game (a static "PAUSED") from ever skipping.
+	if (lines_left != overlay_lines_left || lines_right != overlay_lines_right ||
+		a5font != overlay_font || font_scale != overlay_font_scale)
+	{
+		overlay_lines_left = lines_left;
+		overlay_lines_right = lines_right;
+		overlay_font = a5font;
+		overlay_font_scale = font_scale;
+		rti_overlay.dirty = true;
+	}
+	ALLEGRO_DISPLAY* display = all_get_display();
+	rti_overlay.set_size(al_get_display_width(display), al_get_display_height(display));
+	rti_overlay.visible = !overlay_lines_left.empty() || !overlay_lines_right.empty();
+
+	ALLEGRO_COLOR clear_color = al_map_rgb_f(0, 0, 0);
 
 	if (render_get_debug())
+	{
+		// The debug overlay reflects live state, so always draw when it is up.
+		al_set_target_backbuffer(display);
+		al_clear_to_color(clear_color);
+		render_tree_draw(&rti_root);
 		render_tree_draw_debug(&rti_root);
+		al_flip_display();
+	}
+	else
+	{
+		// Skips the draw and flip when nothing on screen has changed - a paused game, the
+		// save screen, or a static title screen then costs (nearly) nothing.
+		render_tree_draw_and_flip(&rti_root, clear_color);
+	}
 
-    al_flip_display();
-	
 	screen = tmp;
 	al_restore_state(&oldstate);
 }

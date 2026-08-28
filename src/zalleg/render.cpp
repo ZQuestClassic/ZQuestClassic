@@ -14,6 +14,44 @@ using namespace std::chrono_literals;
 
 static int zc_mouse_x, zc_mouse_y;
 
+// Bumped whenever content the render tree composites changes in a way the tree itself
+// can't observe: an a4->a5 conversion doing work, direct a5 drawing into a dialog's
+// bitmap, or tree structure changes. render_tree_draw_and_flip uses it to know a new
+// frame must be presented.
+static uint64_t render_dirty_count = 1;
+void render_mark_dirty()
+{
+	render_dirty_count++;
+}
+
+// Bumped by the periodic safety refresh below; a LegacyBitmapRTI content-hash input, so
+// bumping it forces every legacy bitmap to re-convert.
+static uint64_t render_refresh_count;
+
+// Once a second, force the legacy bitmaps to re-convert (and, where frames can be
+// skipped, a fresh frame to be presented) even when nothing appears to have changed.
+// This bounds the damage of any missed invalidation - an untracked draw path, or a hash
+// blind spot - to a second of lag instead of a permanently stale window. Every drawing
+// entry point ticks it, so no app is left without the safety net. Returns whether this
+// call is the forced refresh.
+static bool render_refresh_tick()
+{
+	static double last_refresh_time = 0;
+	double now = al_get_time();
+	if (now - last_refresh_time < 1.0)
+		return false;
+
+	last_refresh_time = now;
+	render_refresh_count++;
+	return true;
+}
+
+void zc_set_target_bitmap(ALLEGRO_BITMAP* bitmap)
+{
+	render_mark_dirty();
+	al_set_target_bitmap(bitmap);
+}
+
 static inline uint64_t rotl64(uint64_t x, int r)
 {
 	return (x << r) | (x >> (64 - r));
@@ -66,6 +104,32 @@ static uint64_t hash_value(uint64_t v, uint64_t h)
 	return h;
 }
 
+// The a4 pixel hash dominates the cost of the conversion check, and render items can share
+// one a4 bitmap - in the launcher `rti_screen` and the active dialog's layer are literally
+// the same BITMAP, because init_render_tree runs after popup_zqdialog_start has already
+// repointed `screen`. Hash each distinct bitmap once per pass and reuse the result.
+static std::vector<std::pair<BITMAP*, uint64_t>> a4_pixel_hashes;
+
+static void a4_pixel_hash_begin_pass()
+{
+	a4_pixel_hashes.clear();
+}
+
+static uint64_t a4_pixel_hash(BITMAP* bmp)
+{
+	for (auto const& [cached, cached_hash] : a4_pixel_hashes)
+		if (cached == bmp)
+			return cached_hash;
+
+	uint64_t hash = hash_value(((uint64_t)(uint32_t)bmp->w << 32) | (uint32_t)bmp->h, 0xcbf29ce484222325ULL);
+	size_t row_bytes = (size_t)bmp->w * BYTES_PER_PIXEL(bitmap_color_depth(bmp));
+	for (int y = 0; y < bmp->h; y++)
+		hash = hash_bytes(bmp->line[y], row_bytes, hash);
+
+	a4_pixel_hashes.emplace_back(bmp, hash);
+	return hash;
+}
+
 void RenderTreeItem::remove()
 {
 	if (parent)
@@ -81,10 +145,19 @@ void RenderTreeItem::add_child(RenderTreeItem* child)
 	children.push_back(child);
 	child->parent = this;
 	child->mark_transform_dirty();
+	render_mark_dirty();
 }
 void RenderTreeItem::add_child_before(RenderTreeItem* child, RenderTreeItem* before_child)
 {
 	bool already_child = child->parent == this;
+	if (already_child)
+	{
+		// Already in the requested position - avoid pointless churn (this is called
+		// every frame for the dialog tint).
+		auto it = std::find(children.begin(), children.end(), before_child);
+		if (it != children.begin() && *std::prev(it) == child)
+			return;
+	}
 	if (child->parent)
 		child->parent->remove_child(child);
 	auto it = std::find(children.begin(), children.end(), before_child);
@@ -93,6 +166,7 @@ void RenderTreeItem::add_child_before(RenderTreeItem* child, RenderTreeItem* bef
 	child->parent = this;
 	if (!already_child)
 		child->mark_transform_dirty();
+	render_mark_dirty();
 }
 void RenderTreeItem::remove_child(RenderTreeItem* child)
 {
@@ -102,6 +176,7 @@ void RenderTreeItem::remove_child(RenderTreeItem* child)
 		children.erase(it);
 		child->parent = nullptr;
 		child->mark_transform_dirty();
+		render_mark_dirty();
 	}
 }
 void RenderTreeItem::remove_children()
@@ -111,6 +186,7 @@ void RenderTreeItem::remove_children()
 		(*it)->parent = nullptr;
 	}
 	children.clear();
+	render_mark_dirty();
 }
 std::vector<RenderTreeItem*> const& RenderTreeItem::get_children() const
 {
@@ -238,14 +314,19 @@ void clear_a5_bmp(ALLEGRO_COLOR col, ALLEGRO_BITMAP* bmp)
 	{
 		ALLEGRO_STATE old_state;
 		al_store_state(&old_state, ALLEGRO_STATE_TARGET_BITMAP);
-		
-		al_set_target_bitmap(bmp);
-		
+
+		zc_set_target_bitmap(bmp);
+
 		al_clear_to_color(col);
-		
+
 		al_restore_state(&old_state);
 	}
-	else al_clear_to_color(col);
+	else
+	{
+		// Clearing whatever is already bound - the tree can't see that either.
+		render_mark_dirty();
+		al_clear_to_color(col);
+	}
 }
 void clear_a5_bmp(ALLEGRO_BITMAP* bmp)
 {
@@ -468,6 +549,22 @@ static void render_tree_bake_item(RenderTreeItem* rti, float x, float y, float x
 		render_tree_bake_item(child, bx, by, bxs, bys);
 }
 
+// Whether children will be drawn into this item's own bitmap after it renders (see
+// render_tree_bake_children) - which means its contents are not a function of its render
+// inputs alone, so nothing may cache its way out of the redraw.
+static bool bakes_children(RenderTreeItem* rti)
+{
+	if (!rti->shader)
+		return false;
+	for (auto child : rti->get_children())
+	{
+		if (child->fullres_overlay && rti->overlay_shader)
+			continue;
+		return true;
+	}
+	return false;
+}
+
 // A shader draw covers only the item's own bitmap, so children drawn separately on top of it
 // escape the shader - the title logo stayed crisp and flat over a scanlined, curved game.
 // Bake them into the item's bitmap right after it renders, so they pass through the same
@@ -538,7 +635,7 @@ static void render_tree_draw_item(RenderTreeItem* rti, bool do_a4_only)
 				rti->render(size_changed);
 				al_set_target_backbuffer(all_get_display());
 			}
-			if (rti->shader && rti->has_children())
+			if (bakes_children(rti))
 				render_tree_bake_children(rti);
 		}
 	}
@@ -658,9 +755,11 @@ static void render_tree_draw_item_debug(RenderTreeItem* rti, int depth, std::vec
 
 void render_tree_draw(RenderTreeItem* rti)
 {
+	render_refresh_tick();
 	render_tree_draw_item_prepare(rti);
 	// Draw all a4 bitmaps to an a5 bitmap first.
 	// This might help a little in reducing GL context switches.
+	a4_pixel_hash_begin_pass();
 	render_tree_draw_item(rti, true);
 	render_tree_draw_item(rti, false);
 
@@ -669,6 +768,185 @@ void render_tree_draw(RenderTreeItem* rti)
 	// ex: tooltips
 	zc_mouse_x = gui_mouse_x();
 	zc_mouse_y = gui_mouse_y();
+}
+
+// Everything the composited output depends on that the dirty counter doesn't already
+// capture: tree structure/order, visibility, bitmap identity, sizes, transforms, tints.
+// Also reports whether any visible item has a redraw pending for the upcoming draw pass
+// (e.g. the editor minimap marks itself dirty when the map changes) - such a frame must
+// be drawn and presented. Legacy a4 items don't factor in here: the conversion pass
+// already ran, clearing their dirty flag and bumping the dirty counter if they changed.
+static uint64_t render_tree_signature_item(RenderTreeItem* rti, uint64_t h, bool& pending_render)
+{
+	h = hash_value((uintptr_t)rti, h);
+	h = hash_value(rti->visible, h);
+	if (!rti->visible)
+		return h;
+
+	if (rti->dirty && !rti->freeze && (rti->bitmap || (rti->width > 0 && rti->height > 0)))
+		pending_render = true;
+
+	h = hash_value((uintptr_t)rti->bitmap, h);
+	h = hash_value(((uint64_t)(uint32_t)rti->width << 32) | (uint32_t)rti->height, h);
+	auto& t = rti->get_transform();
+	h = hash_bytes(&t, sizeof(t), h);
+	if (rti->tint)
+		h = hash_bytes(rti->tint, sizeof(*rti->tint), h);
+	h = hash_value((uintptr_t)rti->shader, h);
+
+	for (auto child : rti->get_children())
+		h = render_tree_signature_item(child, h, pending_render);
+
+	return h;
+}
+
+// -render-verify: a (slow) diagnostic mode that checks the frame-skipping logic every frame.
+//
+// The invariant behind skipping redrawing a frame is "the composited output is identical to the
+// last presented frame" - so composite the tree to an offscreen bitmap every frame, hash the
+// pixels, and log an error if a skipped frame's output differs from the frame on screen. Catches
+// any draw path that forgot to mark itself dirty (see render_mark_dirty).
+//
+// Running in this mode after adding new GUI components is a good idea to catch places that are
+// missing a call to render_mark_dirty.
+static bool render_verify_enabled()
+{
+	static bool value = get_flag_bool("-render-verify").value_or(false);
+	return value;
+}
+
+static void render_verify(RenderTreeItem* rti, ALLEGRO_COLOR clear_color, bool presented)
+{
+	ALLEGRO_DISPLAY* display = all_get_display();
+	int w = al_get_display_width(display);
+	int h = al_get_display_height(display);
+
+	static ALLEGRO_BITMAP* verify_bitmap;
+	static ALLEGRO_BITMAP* baseline_bitmap;
+	if (verify_bitmap && (al_get_bitmap_width(verify_bitmap) != w || al_get_bitmap_height(verify_bitmap) != h))
+	{
+		al_destroy_bitmap(verify_bitmap);
+		al_destroy_bitmap(baseline_bitmap);
+		verify_bitmap = baseline_bitmap = nullptr;
+	}
+	if (!verify_bitmap)
+	{
+		set_bitmap_create_flags(true);
+		verify_bitmap = al_create_bitmap(w, h);
+		baseline_bitmap = al_create_bitmap(w, h);
+		al_set_new_bitmap_flags(0);
+	}
+
+	// On a skipped frame no visible item has a redraw pending (that would have forced a
+	// present), so this draw pass is free of side effects; on a presented frame the
+	// pending work was already consumed by the real draw pass.
+	ALLEGRO_STATE oldstate;
+	al_store_state(&oldstate, ALLEGRO_STATE_TARGET_BITMAP);
+	al_set_target_bitmap(verify_bitmap);
+	al_clear_to_color(clear_color);
+	render_tree_draw_item(rti, false);
+	al_restore_state(&oldstate);
+
+	uint64_t hash = 0xcbf29ce484222325ULL;
+	ALLEGRO_LOCKED_REGION* lr = al_lock_bitmap(verify_bitmap, ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE, ALLEGRO_LOCK_READONLY);
+	if (!lr)
+		return;
+
+	for (int y = 0; y < h; y++)
+		hash = hash_bytes((uint8_t*)lr->data + (size_t)y * lr->pitch, (size_t)w * 4, hash);
+	al_unlock_bitmap(verify_bitmap);
+
+	static uint64_t presented_hash;
+	static bool have_baseline;
+	static bool prev_frame_failed;
+	if (presented || !have_baseline)
+	{
+		presented_hash = hash;
+		have_baseline = true;
+		prev_frame_failed = false;
+		ALLEGRO_STATE state;
+		al_store_state(&state, ALLEGRO_STATE_TARGET_BITMAP);
+		al_set_target_bitmap(baseline_bitmap);
+		al_draw_bitmap(verify_bitmap, 0, 0, 0);
+		al_restore_state(&state);
+		return;
+	}
+
+	if (hash != presented_hash && !prev_frame_failed)
+	{
+		static int failures;
+		failures++;
+		fprintf(stderr, "[render-verify] FAIL #%d: skipped a frame whose output differs from the frame on screen - "
+			"some draw path is missing a render_mark_dirty\n", failures);
+		if (failures == 1)
+		{
+			al_save_bitmap("render_verify_stale.png", baseline_bitmap);
+			al_save_bitmap("render_verify_expected.png", verify_bitmap);
+			fprintf(stderr, "[render-verify] wrote render_verify_stale.png (on screen) and render_verify_expected.png (correct)\n");
+		}
+	}
+
+	prev_frame_failed = hash != presented_hash;
+}
+
+bool render_tree_draw_and_flip(RenderTreeItem* rti, ALLEGRO_COLOR clear_color)
+{
+#ifdef __EMSCRIPTEN__
+	// On web, presenting every frame is also what keeps input flowing: with frames skipped, mouse
+	// events stop arriving altogether inside a modal loop (an open menu stops highlighting and
+	// stops responding to clicks, while the keyboard still works).
+	ALLEGRO_DISPLAY* display = all_get_display();
+	al_set_target_backbuffer(display);
+	al_clear_to_color(clear_color);
+	render_tree_draw(rti);
+	al_flip_display();
+	return true;
+#else
+	// A forced refresh re-converts every legacy bitmap (the refresh counter is a content
+	// hash input) and must present the result, so it also breaks out of the skip below.
+	bool force_refresh = render_refresh_tick();
+
+	render_tree_draw_item_prepare(rti);
+	// Convert a4 bitmaps first - a conversion that does actual work marks the tree dirty.
+	a4_pixel_hash_begin_pass();
+	render_tree_draw_item(rti, true);
+
+	ALLEGRO_DISPLAY* display = all_get_display();
+	bool pending_render = false;
+	uint64_t sig = 0xcbf29ce484222325ULL;
+	sig = hash_value(render_dirty_count, sig);
+	sig = hash_value(all_get_render_generation(), sig);
+	sig = hash_value(((uint64_t)(uint32_t)al_get_display_width(display) << 32) | (uint32_t)al_get_display_height(display), sig);
+	sig = hash_bytes(&clear_color, sizeof(clear_color), sig);
+	sig = render_tree_signature_item(rti, sig, pending_render);
+
+	// When nothing changed, presenting again would show the identical frame - skip the
+	// draw and flip entirely so an idle app costs (nearly) nothing.
+	static uint64_t last_presented_sig;
+	if (!force_refresh && !pending_render && sig == last_presented_sig)
+	{
+		zc_mouse_x = gui_mouse_x();
+		zc_mouse_y = gui_mouse_y();
+		if (render_verify_enabled())
+			render_verify(rti, clear_color, false);
+		return false;
+	}
+
+	last_presented_sig = sig;
+
+	al_set_target_backbuffer(display);
+	al_clear_to_color(clear_color);
+	render_tree_draw_item(rti, false);
+
+	zc_mouse_x = gui_mouse_x();
+	zc_mouse_y = gui_mouse_y();
+
+	al_flip_display();
+	if (render_verify_enabled())
+		render_verify(rti, clear_color, true);
+
+	return true;
+#endif
 }
 
 void render_tree_draw_debug(RenderTreeItem* rti)
@@ -766,8 +1044,15 @@ void LegacyBitmapRTI::render(bool size_changed)
 {
 	if (bitmap && a4_bitmap && (!a4_bitmap_rendered_once || !freeze))
 	{
-		if (render_hash_disabled())
+		// A baked item's bitmap holds the conversion *plus* its children, so a skipped
+		// conversion would leave the previous bake in place and the bake below would draw
+		// the children on top of themselves.
+		if (render_hash_disabled() || bakes_children(this))
 		{
+			// The bitmap no longer matches the cached signature, so if this item stops
+			// baking, the next hash check must not skip over the leftover bake.
+			a4_content_dest = nullptr;
+			render_mark_dirty();
 			all_set_transparent_palette_index(transparency_index);
 			all_render_a5_bitmap(a4_bitmap, bitmap);
 			all_set_transparent_palette_index(-1);
@@ -788,15 +1073,13 @@ void LegacyBitmapRTI::render(bool size_changed)
 		// so skip the conversion and (much slower) texture upload. The generation counter
 		// covers palette changes and display events that may invalidate the texture.
 		int64_t t0 = time_now();
-		uint64_t hash = 0xcbf29ce484222325ULL;
+		uint64_t hash = a4_pixel_hash(a4_bitmap);
+		// Mixed in per item, since two items sharing one a4 bitmap can convert it differently.
 		hash = hash_value(all_get_render_generation(), hash);
+		hash = hash_value(render_refresh_count, hash);
 		hash = hash_value(transparency_index, hash);
-		hash = hash_value(((uint64_t)(uint32_t)a4_bitmap->w << 32) | (uint32_t)a4_bitmap->h, hash);
-		size_t row_bytes = (size_t)a4_bitmap->w * BYTES_PER_PIXEL(bitmap_color_depth(a4_bitmap));
-		for (int y = 0; y < a4_bitmap->h; y++)
-			hash = hash_bytes(a4_bitmap->line[y], row_bytes, hash);
 		int64_t t1 = time_now();
-		if (a4_bitmap_rendered_once && !size_changed && hash == a4_content_hash)
+		if (a4_bitmap_rendered_once && !size_changed && bitmap == a4_content_dest && hash == a4_content_hash)
 		{
 			if (timings)
 				render_timings_record(name, t1 - t0, std::nullopt);
@@ -804,6 +1087,8 @@ void LegacyBitmapRTI::render(bool size_changed)
 		}
 
 		a4_content_hash = hash;
+		a4_content_dest = bitmap;
+		render_mark_dirty();
 
 		all_set_transparent_palette_index(transparency_index);
 		all_render_a5_bitmap(a4_bitmap, bitmap);
@@ -1152,12 +1437,15 @@ void reload_dialog_tint()
 	auto& tint = get_dlg_tint();
 	if (!override_dlg_tint)
 	{
-		tint = al_premul_rgba(
+		// Nothing changes these config values at runtime (runtime tint changes go
+		// through override_dlg_tint), and this runs every frame - so read them once.
+		static ALLEGRO_COLOR config_tint = al_premul_rgba(
 			zc_get_config("ZQ_GUI","dlg_tint_r",0),
 			zc_get_config("ZQ_GUI","dlg_tint_g",0),
 			zc_get_config("ZQ_GUI","dlg_tint_b",0),
 			zc_get_config("ZQ_GUI","dlg_tint_a",128)
 		);
+		tint = config_tint;
 	}
 	rti_tint.tint = &tint;
 	if (!rti_tint.bitmap)

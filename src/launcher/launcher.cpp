@@ -325,15 +325,15 @@ static void render_launcher()
 {
 	ALLEGRO_STATE oldstate;
 	al_store_state(&oldstate, ALLEGRO_STATE_TARGET_BITMAP);
-	
+
 	init_render_tree();
 	configure_render_tree();
 
-	al_set_target_backbuffer(all_get_display());
-	al_clear_to_color(al_map_rgb_f(0, 0, 0));
-	render_tree_draw(&rti_root);
+	// Skips the draw and flip when nothing on screen has changed, which is most frames -
+	// otherwise an idle launcher burns a surprising amount of CPU/GPU converting and
+	// re-presenting the same pixels 60 times a second.
+	render_tree_draw_and_flip(&rti_root);
 
-	al_flip_display();
 	al_restore_state(&oldstate);
 }
 

@@ -730,7 +730,7 @@ bool grab_dataset(int32_t dataset)
 			draw_text_button(screen,buttonx+(114),buttony+(36),
 							 (90),(31),"Cancel",vc(0),vc(15),0,true);
 			
-			al_set_target_bitmap(rti_image->bitmap);
+			zc_set_target_bitmap(rti_image->bitmap);
 			clear_a5_bmp(AL5_PINK);
 			render_a4_a5(pic,0,0,0,0,std::min(pic->w,imagepos.tw()),std::min(pic->h,imagepos.th()),0,picbackpal);
 		}
@@ -745,7 +745,7 @@ bool grab_dataset(int32_t dataset)
 					row = vbound((gui_mouse_y()-palpos.y)/palpos.yscale,0,palpos.h-1);
 					
 					++f;
-					al_set_target_bitmap(rti_pal->bitmap);
+					zc_set_target_bitmap(rti_pal->bitmap);
 					if(oldrow != row)
 					{
 						oldrow = row;
@@ -816,9 +816,9 @@ bool grab_dataset(int32_t dataset)
 					bool t = i&2;
 					custom_vsync();
 					
-					al_set_target_bitmap(rti_image->bitmap);
+					zc_set_target_bitmap(rti_image->bitmap);
 					render_a4_a5(pic,0,0,0,0,std::min(pic->w,imagepos.tw()),std::min(pic->h,imagepos.th()),0,t?picbackpal:tmpbackpal);
-					al_set_target_bitmap(rti_pal->bitmap);
+					zc_set_target_bitmap(rti_pal->bitmap);
 					for(int i=0; i<palpos.w; i++)
 					{
 						int c = i+row*16;
@@ -833,7 +833,7 @@ bool grab_dataset(int32_t dataset)
 		
 		++f;
 		
-		al_set_target_bitmap(rti_pal->bitmap);
+		zc_set_target_bitmap(rti_pal->bitmap);
 		clear_a5_bmp();
 		for(int i=0; i<256; i++)
 		{
@@ -854,7 +854,7 @@ bool grab_dataset(int32_t dataset)
 		rest(1);
 	
 	popup_zqdialog_end();
-	al_set_target_bitmap(oldtarg);
+	zc_set_target_bitmap(oldtarg);
 	return (done == 2);
 }
 

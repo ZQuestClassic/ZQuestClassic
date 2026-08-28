@@ -210,10 +210,10 @@ void DrawVariableTooltip(Debugger* debugger, const Variable* var, const std::str
 			int h = user_bitmap->u_bmp->h;
 			tooltip_bmp = al_create_bitmap(w, h);
 			ALLEGRO_BITMAP* prev = al_get_target_bitmap();
-			al_set_target_bitmap(tooltip_bmp);
+			zc_set_target_bitmap(tooltip_bmp);
 			al_clear_to_color(al_map_rgba(0,0,0,0));
 			all_render_a5_bitmap(user_bitmap->u_bmp, tooltip_bmp);
-			al_set_target_bitmap(prev);
+			zc_set_target_bitmap(prev);
 		}
 	}
 

@@ -217,6 +217,8 @@ private:
 	// Signature of the inputs (pixels, palette, transparency) of the last a4->a5
 	// conversion, used to skip re-converting when the result would be identical.
 	uint64_t a4_content_hash = 0;
+	// The bitmap that signature describes.
+	ALLEGRO_BITMAP* a4_content_dest = nullptr;
 };
 
 enum class TextJustify {
@@ -251,6 +253,22 @@ void clear_a5_bmp(ALLEGRO_BITMAP* bmp = nullptr);
 void clear_a5_bmp(ALLEGRO_COLOR col, ALLEGRO_BITMAP* bmp = nullptr);
 ALLEGRO_BITMAP* create_a5_bitmap(int w, int h);
 void render_tree_draw(RenderTreeItem* rti);
+// Renders the tree to the backbuffer and flips the display - unless nothing has changed
+// since the last presented frame, in which case both are skipped. Returns whether a new
+// frame was presented. Assumes it is the only thing presenting to the display, and that
+// the same tree is passed every frame - anything drawn to the backbuffer outside the tree
+// is invisible to the signature and would be skipped along with everything else.
+bool render_tree_draw_and_flip(RenderTreeItem* rti, ALLEGRO_COLOR clear_color = al_map_rgb_f(0, 0, 0));
+// Notes that something the render tree can't observe has drawn into one of its bitmaps
+// (e.g. direct a5 drawing into the active dialog layer), so the next
+// render_tree_draw_and_flip must present a new frame.
+void render_mark_dirty();
+// Sets the target bitmap like al_set_target_bitmap, and conservatively assumes the new
+// target is about to be drawn into (see render_mark_dirty). Use this instead of
+// al_set_target_bitmap everywhere outside the render framework itself, so direct a5
+// drawing into a render-tree bitmap can never be missed by the changed-frame detection.
+// A mark for a bitmap that isn't part of the tree just costs one redundant frame.
+void zc_set_target_bitmap(ALLEGRO_BITMAP* bitmap);
 void render_tree_draw_debug(RenderTreeItem* rti);
 void render_set_debug(bool debug);
 bool render_get_debug();

@@ -13298,7 +13298,7 @@ void drawxmap(ALLEGRO_BITMAP* dest, int32_t themap, int32_t xoff, bool large, in
 	ALLEGRO_STATE old_state;
 	al_store_state(&old_state, ALLEGRO_STATE_TARGET_BITMAP);
 
-	al_set_target_bitmap(dest);
+	zc_set_target_bitmap(dest);
 	al_clear_to_color(al_map_rgba(0, 0, 0, 0));
 
 	int32_t cols = (large ? 8 : 16);

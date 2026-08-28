@@ -249,7 +249,7 @@ static ALLEGRO_BITMAP* prescale_logo_bitmap(ALLEGRO_BITMAP* src, int target_h = 
 
 	ALLEGRO_STATE oldstate;
 	al_store_state(&oldstate, ALLEGRO_STATE_TARGET_BITMAP | ALLEGRO_STATE_BLENDER);
-	al_set_target_bitmap(out);
+	zc_set_target_bitmap(out);
 	al_clear_to_color(al_map_rgba(0, 0, 0, 0));
 	al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
 	al_draw_scaled_bitmap(src, 0, 0, al_get_bitmap_width(src), al_get_bitmap_height(src), 0, 0, w, target_h, 0);

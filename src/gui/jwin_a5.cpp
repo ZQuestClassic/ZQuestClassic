@@ -1,6 +1,7 @@
 #include <ctype.h>
 #include <cstring>
 #include "zalleg/zalleg.h"
+#include "zalleg/render.h"
 #include <allegro/internal/aintern.h>
 #include "gui/jwin_a5.h"
 #include "gui/editbox.h"
@@ -41,12 +42,18 @@ ALLEGRO_COLOR a5color(int index)
 	return a5color(tmp);
 }
 
+// The drawing functions in this file render a5-natively into the active dialog layer,
+// outside any render item's render() - so each one marks the render tree dirty (see
+// render_mark_dirty), or the changed-frame detection could skip presenting them.
+
 void al_draw_hline(float x1, float y1, float x2, ALLEGRO_COLOR c)
 {
+	render_mark_dirty();
 	al_draw_line(x1,y1,x2,y1,c,1);
 }
 void al_draw_vline(float x1, float y1, float y2, ALLEGRO_COLOR c)
 {
+	render_mark_dirty();
 	al_draw_line(x1,y1,x1,y2,c,1);
 }
 void jwin_draw_frame_a5(int32_t x,int32_t y,int32_t w,int32_t h,int32_t style)
@@ -120,6 +127,7 @@ void jwin_draw_frame_a5(int32_t x,int32_t y,int32_t w,int32_t h,int32_t style)
 }
 void jwin_draw_win_a5(int32_t x,int32_t y,int32_t w,int32_t h,int32_t frame)
 {
+	render_mark_dirty();
 	al_draw_filled_rectangle(x+2,y+2,x+w-2,y+h-2,jwin_a5_pal(jcBOX));
 	jwin_draw_frame_a5(x, y, w, h, frame);
 }
@@ -171,11 +179,12 @@ void draw_question_button_a5(int32_t x, int32_t y, int32_t state)
 void draw_x_button_a5(int32_t x, int32_t y, int32_t state)
 {
 	ALLEGRO_COLOR c = jwin_a5_pal(jcBOXFG);
-	
+
+	render_mark_dirty();
 	jwin_draw_button_a5(x,y,16,14,state,0);
 	x += 4 + (state?1:0);
 	y += 3 + (state?1:0);
-	
+
 	al_draw_line(x,y,x+7,y+7,c,1);
 	al_draw_line(x+1,y,x+8,y+7,c,1);
 	al_draw_line(x,y+7,x+7,y,c,1);
@@ -225,7 +234,8 @@ void dither_rect_a5(int32_t x1, int32_t y1, int32_t x2, int32_t y2,
 	byte r1, r2, g1, g2, b1, b2;
 	int w = x2-x1+1;
 	int32_t red_rand_strength=0, green_rand_strength=0, blue_rand_strength=0;
-	
+
+	render_mark_dirty();
 	lfsrInit();
 	
 	al_unmap_rgb(c1,&r1,&g1,&b1);
@@ -281,7 +291,8 @@ void jwin_draw_titlebar_a5(int32_t x, int32_t y, int32_t w, int32_t h, const cha
 	
 	int32_t tx = x + 2;
 	int32_t ty = y + (h-height)/2;
-	
+
+	render_mark_dirty();
 	dither_rect_a5(x, y, x+w-1, y+h-1, jwin_a5_pal(jcTITLER), jwin_a5_pal(jcTITLEL));
 	
 	if(len>509)
@@ -387,6 +398,7 @@ int32_t jwin_win_proc_a5(int32_t msg, DIALOG *d, int32_t)
 
 void al_draw_int_rectangle(int x, int y, int w, int h, ALLEGRO_COLOR col, double width)
 {
+	render_mark_dirty();
 	al_draw_rectangle(x + 0.5, y + 0.5, x + w - 0.5, y + h - 0.5, col, width);
 }
 
