@@ -8,15 +8,18 @@
 #include "zq/render.h"
 #include "zq/zq_hotkey.h"
 
+#include <cassert>
+#include <set>
 #include <string>
 #include <vector>
-#include <set>
 
 // TODO
 // - Only shows shortcuts from the Hotkey system, which excludes dialog-specific shortcuts.
 
+namespace {
+
 // Repetitive.
-const std::set<int> group_skip_ids = {
+const std::vector<int> group_skip_ids = {
 	ZQKEY_LYR_1,
 	ZQKEY_LYR_2,
 	ZQKEY_LYR_3,
@@ -40,7 +43,7 @@ const std::set<int> group_skip_ids = {
 	ZQKEY_SCR_LPAL_15,
 };
 
-const std::set<int> group_action_ids = {
+const std::vector<int> group_action_ids = {
 	ZQKEY_SAVE,
 	ZQKEY_SAVEAS,
 	ZQKEY_OPEN,
@@ -71,7 +74,7 @@ const std::set<int> group_action_ids = {
 	ZQKEY_REDO,
 };
 
-const std::set<int> group_toggle_ids = {
+const std::vector<int> group_toggle_ids = {
 	ZQKEY_TOGGLE_DARK,
 	ZQKEY_DEBUG_CONSOLE,
 	ZQKEY_SHOW_FLAGS,
@@ -106,7 +109,7 @@ const std::set<int> group_toggle_ids = {
 	ZQKEY_SQUAREPANEL_DOWN,
 };
 
-const std::set<int> group_map_navigation_ids = {
+const std::vector<int> group_map_navigation_ids = {
 	ZQKEY_MINUS_MAP,
 	ZQKEY_PLUS_MAP,
 	ZQKEY_SCROLL_SCREEN_UP,
@@ -120,7 +123,7 @@ const std::set<int> group_map_navigation_ids = {
 	ZQKEY_GOTO_MAP,
 };
 
-const std::set<int> group_combo_navigation_ids = {
+const std::vector<int> group_combo_navigation_ids = {
 	ZQKEY_GOTO_PAGE,
 	ZQKEY_COMBO_PAGEUP,
 	ZQKEY_COMBO_PAGEDN,
@@ -130,7 +133,7 @@ const std::set<int> group_combo_navigation_ids = {
 	ZQKEY_SCROLL_COMBO_RIGHT,
 };
 
-const std::set<int> group_dialog_ids = {
+const std::vector<int> group_dialog_ids = {
 	ZQKEY_SCREEN_PAL,
 	ZQKEY_SECRET_COMBO,
 	ZQKEY_DOORS,
@@ -205,7 +208,7 @@ const std::set<int> group_dialog_ids = {
 	ZQKEY_BIND_HOTKEYS,
 };
 
-const std::set<int> group_import_export_ids = {
+const std::vector<int> group_import_export_ids = {
 	ZQKEY_IMPORT_COMBOS,
 	ZQKEY_EXPORT_COMBOS,
 	ZQKEY_IMPORT_DMAPS,
@@ -222,7 +225,7 @@ const std::set<int> group_import_export_ids = {
 	ZQKEY_EXPORT_TILES,
 };
 
-const std::set<int> group_paste_ids = {
+const std::vector<int> group_paste_ids = {
 	ZQKEY_COPY,
 	ZQKEY_PASTE,
 	ZQKEY_PASTEALL,
@@ -242,7 +245,7 @@ const std::set<int> group_paste_ids = {
 	ZQKEY_PASTE_PALETTE,
 };
 
-const std::set<int> group_report_ids = {
+const std::vector<int> group_report_ids = {
 	ZQKEY_INTEG_CHECK_ALL,
 	ZQKEY_INTEG_CHECK_SCREENS,
 	ZQKEY_INTEG_CHECK_WARPS,
@@ -255,45 +258,54 @@ const std::set<int> group_report_ids = {
 	ZQKEY_BUGGY_NEXT,
 };
 
-// The group table: (group name, hotkeys). Built once - `layout` runs several times per
-// frame while the panel is open.
-static const std::vector<std::pair<std::string, const std::set<int>&>>& get_hotkey_groups()
+struct HotkeyGroup
 {
-	// Anything not categorized above.
-	static const std::set<int> group_misc_ids = []() {
-		std::set<int> ids;
+	const char* name;
+	std::vector<int> ids;
+};
+
+// The groups, in draw order (as are the ids within each group).
+// Built once: `layout` runs several times per frame while the panel is open.
+const std::vector<HotkeyGroup>& get_hotkey_groups()
+{
+	static const std::vector<HotkeyGroup> groups = []() {
+		std::vector<HotkeyGroup> groups = {
+			{"Actions", group_action_ids},
+			{"Toggles", group_toggle_ids},
+			{"Map Navigation", group_map_navigation_ids},
+			{"Combo Navigation", group_combo_navigation_ids},
+			{"Dialogs", group_dialog_ids},
+			{"Import/Export", group_import_export_ids},
+			{"Copy/Paste", group_paste_ids},
+			{"Reports", group_report_ids},
+			{"Misc.", {}},
+		};
+
+		std::set<int> categorized(group_skip_ids.begin(), group_skip_ids.end());
+		for (const auto& group : groups)
+		{
+			for (int hotkey_index : group.ids)
+			{
+				[[maybe_unused]] bool inserted = categorized.insert(hotkey_index).second;
+				// Each hotkey belongs to exactly one group.
+				assert(inserted);
+			}
+		}
+
+		// Anything not categorized above.
+		auto& misc_ids = groups.back().ids;
 		for (int i = ZQKEY_UNDO; i < ZQKEY_MAX; i++)
 		{
-			if (group_skip_ids.contains(i)) continue;
-			if (group_action_ids.contains(i)) continue;
-			if (group_toggle_ids.contains(i)) continue;
-			if (group_map_navigation_ids.contains(i)) continue;
-			if (group_combo_navigation_ids.contains(i)) continue;
-			if (group_dialog_ids.contains(i)) continue;
-			if (group_import_export_ids.contains(i)) continue;
-			if (group_paste_ids.contains(i)) continue;
-			if (group_report_ids.contains(i)) continue;
-
-			ids.insert(i);
+			if (!categorized.contains(i))
+				misc_ids.push_back(i);
 		}
-		return ids;
-	}();
 
-	static const std::vector<std::pair<std::string, const std::set<int>&>> groups = {
-		{"Actions", group_action_ids},
-		{"Toggles", group_toggle_ids},
-		{"Map Navigation", group_map_navigation_ids},
-		{"Combo Navigation", group_combo_navigation_ids},
-		{"Dialogs", group_dialog_ids},
-		{"Import/Export", group_import_export_ids},
-		{"Copy/Paste", group_paste_ids},
-		{"Reports", group_report_ids},
-		{"Misc.", group_misc_ids},
-	};
+		return groups;
+	}();
 	return groups;
 }
 
-static ALLEGRO_COLOR hex(unsigned int h)
+ALLEGRO_COLOR hex(unsigned int h)
 {
 	int r = (h>>16) & 0xff;
 	int g = (h>>8) & 0xff;
@@ -314,7 +326,7 @@ private:
 		al_draw_filled_rectangle(0, 0, 1, 1, al_map_rgba_f(0, 0, 0, 0.6));
 	}
 };
-static BackdropRTI rti_hotkeys_backdrop("hot_keys_backdrop");
+BackdropRTI rti_hotkeys_backdrop("hot_keys_backdrop");
 
 class HotKeysRTI : public RenderTreeItem
 {
@@ -407,7 +419,7 @@ private:
 		for (const auto& group : get_hotkey_groups())
 		{
 			bool has_any = false;
-			for (int hotkey_index : group.second)
+			for (int hotkey_index : group.ids)
 			{
 				if (zq_hotkeys[hotkey_index].hotkey[0] || zq_hotkeys[hotkey_index].hotkey[1])
 				{
@@ -422,12 +434,12 @@ private:
 			if (dest)
 			{
 				al_draw_filled_rectangle(x, y, x + colwidth, y + line_height*title_font_size, color_bg_secondary);
-				render_text(dest, font, group.first, x, y, title_font_size, color_text);
+				render_text(dest, font, group.name, x, y, title_font_size, color_text);
 			}
 			y += line_height*title_font_size;
 			max_y = std::max(max_y, y);
 
-			for (int hotkey_index : group.second)
+			for (int hotkey_index : group.ids)
 			{
 				const auto& hotkey = zq_hotkeys[hotkey_index];
 				std::string hk_name = get_hotkey_name(hotkey_index);
@@ -478,8 +490,10 @@ private:
 	}
 };
 
-static HotKeysRTI rti_hotkeys("hot_keys");
-static bool is_active = false;
+HotKeysRTI rti_hotkeys("hot_keys");
+bool is_active = false;
+
+} // namespace
 
 void hotkeys_toggle_display(bool show)
 {
