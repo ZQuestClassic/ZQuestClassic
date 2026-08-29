@@ -817,21 +817,21 @@ char const* get_hotkey_helptext(uint hkey)
 		case ZQKEY_MAP_STYLES:
 			return "Edit the Map Styles";
 		case ZQKEY_MIDIS:
-			return "Edit Subscreens";
-		case ZQKEY_MISC_COLORS:
 			return "Edit MIDIs";
-		case ZQKEY_NEW:
+		case ZQKEY_MISC_COLORS:
 			return "Edit the quest's Misc Colors";
-		case ZQKEY_OPTIONS:
+		case ZQKEY_NEW:
 			return "Create a new .qst";
-		case ZQKEY_DEFAULT_PALETTES:
+		case ZQKEY_OPTIONS:
 			return "Open ZQ's Options dialog";
-		case ZQKEY_MAZE_PATH:
+		case ZQKEY_DEFAULT_PALETTES:
 			return "Default the quest's Palettes";
-		case ZQKEY_PLAY_MUSIC:
+		case ZQKEY_MAZE_PATH:
 			return "Edit the screen's Maze Path";
-		case ZQKEY_APPLY_TEMPLATE_ALL:
+		case ZQKEY_PLAY_MUSIC:
 			return "Play a music file in ZQ while you edit";
+		case ZQKEY_APPLY_TEMPLATE_ALL:
+			return "Apply the NES Dungeon template to all screens on this map";
 		case ZQKEY_REVERT:
 			return "Reverts changes made to the quest file, re-loading its last save";
 		case ZQKEY_PASTE_ROOMTYPE:
