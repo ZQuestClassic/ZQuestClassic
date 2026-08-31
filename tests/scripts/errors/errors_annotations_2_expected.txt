@@ -1,0 +1,45 @@
+stderr:
+
+Compiling 'errors_annotations_2.zs'
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+errors_annotations_2.zs Line 6 @ Columns 2-9 - Error S114: Annotation '@ExportRange' expected min <= max, but got 5 > -2
+
+4    @Export("Value"),
+5    @ExportRange(5, -2)
+6    int val;
+     ^~~~~~~
+
+
+Failure!
+Compile finished with exit code '114' (compiled with errors)
+
+stdout:
+
+{
+  "success": false,
+  "code": 114,
+  "diagnostics": [
+    {
+      "range": {
+        "start": {
+          "line": 5,
+          "character": 1
+        },
+        "end": {
+          "line": 5,
+          "character": 8
+        }
+      },
+      "severity": 1,
+      "message": "S114: Annotation '@ExportRange' expected min <= max, but got 5 > -2"
+    }
+  ],
+  "metadata": {
+    "currentFileSymbols": 3,
+    "symbols": 1,
+    "identifiers": 1,
+    "elided": true
+  }
+}
