@@ -23,6 +23,8 @@ for example, an `npc script` runs when an `npc` (an enemy) is alive.
 
 Instance Variables
 ------------------
+.. versionadded:: 3.0
+
 Declaring variables inside a script creates 'instance variables'. These variables will
 hold a different value for each instance of the script that is running. The `this` variable
 of scripts is now an instance variable.
@@ -38,6 +40,8 @@ instance variables cannot be accessed except by the script they belong to.
 
 Exported Variables
 ^^^^^^^^^^^^^^^^^^
+.. versionadded:: 3.0
+
 Script-scope variables can be annotated with some export-related :ref:`annotations<annotations>`.
 Exported variables can have their initial value modified in the Editor when setting
 up the script, similarly to `InitD[]`.
@@ -141,6 +145,8 @@ is `@Export()`, which is REQUIRED by the other annotations here.
 
 Static Functions
 ----------------
+.. versionadded:: 3.0
+
 Functions declared inside scripts work very similarly to variables; an 'instance function'
 can access all instance variables of the script, but any functions declared as `static`
 will be unable to access instance variables from the script. Static variables can still
@@ -160,6 +166,9 @@ Scripts are capable of being targetted with a number of :ref:`annotations<annota
 .. style:: zs_caption
 
 For `String` values, the number in parentheses is the maximum length, in characters.
+
+.. versionadded:: 3.0
+	`@ScriptInfo`, `@ScriptSetup`, `@ExportInitD0` - `@ExportInitD7`
 
 These annotations take a single value:
 
