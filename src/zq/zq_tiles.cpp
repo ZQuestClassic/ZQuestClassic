@@ -7041,8 +7041,8 @@ bool _handle_combo_move(ComboMoveProcess dest_process, optional<ComboMoveProcess
 		auto& movelist = vec.emplace_back(std::make_unique<ComboMoveList>(
 			combo_links, dest_process, source_process,
 			move
-			? "The combos used by the following screens will be partially cleared by the move."
-			: "The combos used by the following screens will be partially or completely overwritten by this process."
+			? "The combos used by the following door combo sets will be partially cleared by the move."
+			: "The combos used by the following door combo sets will be partially or completely overwritten by this process."
 			));
 		static const char* door_names[9] = {
 			"Wall", "Locked", "Shuttered", "Boss", "Bombed", "Open", "Unlocked", "Open Shuttered", "Open Boss"
