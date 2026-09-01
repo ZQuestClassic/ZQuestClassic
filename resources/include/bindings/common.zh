@@ -1046,3 +1046,16 @@ enum CornerIndex
 	CORNER_BL,
 	CORNER_BR,
 };
+
+// @versionadded 3.0
+@Bitflags("long")
+enum EnumExportDisplayFlags
+{
+	EXPDISP_RAW = 0x00L, // display the constant as-is (ex. `EXPDISP_RAW`)
+	EXPDISP_UNDERSCORE_SPACES = 0x01L, // change underscores to spaces (ex. `EXPDISP UNDERSCORE SPACES`)
+	EXPDISP_PROPER_CASE = 0x02L, // proper-case the name (ex. `Expdisp_Proper_Case`)
+	EXPDISP_TRIM_PREFIXES = 0x04L, // remove prefixes that are common to every constant (ex. `TRIM_PREFIXES`)
+	
+	EXPDISP_DEFAULT = EXPDISP_UNDERSCORE_SPACES | EXPDISP_PROPER_CASE | EXPDISP_TRIM_PREFIXES, // the default export display settings
+};
+

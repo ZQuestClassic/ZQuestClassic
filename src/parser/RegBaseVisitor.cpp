@@ -1056,6 +1056,7 @@ bool RegBaseVisitor::parse_annotations_data(ASTDataDeclList& node)
 		"ExportDropdown",
 		"ExportBitflags",
 		"ExportLongBitflags",
+		"ExportEnum",
 	};
 	static const vector<string> exclusive_keys = {
 		"ExportRange",
@@ -1063,6 +1064,7 @@ bool RegBaseVisitor::parse_annotations_data(ASTDataDeclList& node)
 		"ExportDropdown",
 		"ExportBitflags",
 		"ExportLongBitflags",
+		"ExportEnum",
 	};
 	
 	START_ANNOT_LIST(data, valid_keys)
@@ -1417,6 +1419,111 @@ bool RegBaseVisitor::parse_annotations_data(ASTDataDeclList& node)
 			if (failed) break;
 		}
 		node.export_data.export_custom_type = var_custom_export_type::custom_long_bitflags;
+	}
+	END_ANNOT()
+	START_ANNOT("ExportEnum")
+	{
+		if (!annots.contains("Export"))
+		{
+			handleError(CompileError::AnnotationError(&node, fmt::format("@{}() requires @Export() to function!", key).c_str()));
+			break;
+		}
+		if (!validate_annot_param_count(annot, 1, 2))
+			break;
+		if (!validate_annot_exclusions(key, annots, exclusive_keys))
+			break;
+		
+		AnnotParam_Parsed param_enum;
+		if (!parse_annot_param_as(annot, 0, param_enum, AnnotParam_Parsed::Type::ENUM_NAME))
+			break; // This will fail out if the enum is not registered yet
+		
+		int display_mode = EXPDISP_DEFAULT;
+		if (num_params > 1)
+		{
+			AnnotParam_Parsed param_display_mode;
+			if (!parse_annot_param_as(annot, 1, param_display_mode, AnnotParam_Parsed::Type::NUMBER))
+				break;
+			display_mode = param_display_mode.number.getZLong();
+			if (int unexpected = (display_mode & ~EXPDISP_ALL))
+			{
+				handleError(CompileError::AnnotationError(&annot,
+					fmt::format("Annotation '@{}' parameter 1; found unexpected bits '{}'",
+						key, unexpected)));
+				break;
+			}
+		}
+		
+		auto enum_type = static_cast<DataTypeCustom const*>(param_enum.enum_type);
+		assert(enum_type);
+		auto enum_node = dynamic_cast<ASTCustomDataTypeDef const*>(enum_type->getSource());
+		assert(enum_node);
+		ASTDataEnum const* definition = enum_node->definition.get();
+		
+		auto bit_mode = definition->getBitMode();
+		switch (bit_mode)
+		{
+			case ASTDataEnum::BIT_NONE:
+				node.export_data.export_custom_type = var_custom_export_type::custom_dropdown;
+				break;
+			case ASTDataEnum::BIT_LONG:
+				node.export_data.export_custom_type = var_custom_export_type::custom_long_bitflags;
+				break;
+			case ASTDataEnum::BIT_INT:
+				node.export_data.export_custom_type = var_custom_export_type::custom_bitflags;
+				break;
+		}
+		
+		auto& decls = definition->getDeclarations();
+		std::map<zfix, string> name_map {};
+		optional<string> prefix = definition->getDocumentationPrefix();
+		for (auto* decl : decls)
+		{
+			assert(decl && decl->manager);
+			Constant const* c = dynamic_cast<Constant const*>(decl->manager);
+			assert(c);
+			auto val = c->getCompileTimeValue();
+			auto name = c->getName();
+			assert(val && name);
+			
+			zfix list_key = zslongToFix(*val);
+			if (bit_mode != ASTDataEnum::BIT_NONE)
+			{
+				if (_check_power_2_value(list_key, bit_mode == ASTDataEnum::BIT_LONG))
+				{
+					// not a power of 2, cannot display
+					continue;
+				}
+			}
+			if (name_map.contains(list_key))
+			{
+				// enum has multiple repeated values... skip duplicates without error
+				continue;
+			}
+			name_map[list_key] = *name;
+		}
+		
+		for (auto [val, name] : name_map)
+		{
+			if (prefix && !prefix->empty() && (display_mode & EXPDISP_TRIM_PREFIXES) && name.starts_with(*prefix))
+				name = name.substr(prefix->size());
+			if (display_mode & EXPDISP_UNDERSCORE_SPACES)
+				util::replchar(name, '_', ' ');
+			if (display_mode & EXPDISP_PROPER_CASE)
+			{
+				char prev_char = 0;
+				static const vector<char> before_proper_chars = {0, '_', ' '};
+				for (size_t q = 0; q < name.size(); ++q)
+				{
+					char c = name[q];
+					if (util::contains(before_proper_chars, prev_char))
+						name[q] = toupper(c);
+					else
+						name[q] = tolower(c);
+					prev_char = c;
+				}
+			}
+			node.export_data.custom_export_names[val] = name;
+		}
 	}
 	END_ANNOT()
 	END_ANNOT_LIST()
