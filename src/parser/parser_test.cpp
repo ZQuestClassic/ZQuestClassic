@@ -166,6 +166,81 @@ TestResults test_parser([[maybe_unused]] bool verbose)
 		return true;
 	});
 
+	auto exports_results = runCompiler(test_dir + "/scripts/misc/exports.zs");
+	if (!exports_results->success)
+	{
+		tr.failed++;
+		return tr;
+	}
+
+	TEST("custom export metadata", tr, [&]{
+		auto& dsd = exports_results->zasmCompilerResult.theScripts.at("exports_test");
+		auto const& exports = dsd.script_d_exports.inner();
+		assertSize(exports, 10);
+
+		// Instance ids follow declaration order, not name order.
+		assertEqual(exports.at(1).name, "Zed"s);
+		assertEqual(exports.at(2).name, "Flags"s);
+		assertEqual(exports.at(9).name, "Tile CSet"s);
+
+		// @ExportDropdown: keys are the raw script values.
+		auto const& dd = exports.at(1);
+		assertEqual((int)dd.export_custom_type, (int)var_custom_export_type::custom_dropdown);
+		assertEqual(dd.custom_export_names.at(zfix(0)), "Apple"s);
+		assertEqual(dd.custom_export_names.at(zfix(1)), "Banana"s);
+		assertEqual(dd.custom_export_names.at(zfix(6)), "Grape"s);
+
+		// @ExportBitflags: keys are whole-number powers of 2.
+		auto const& fl = exports.at(2);
+		assertEqual((int)fl.export_custom_type, (int)var_custom_export_type::custom_bitflags);
+		assertEqual(fl.custom_export_names.at(zfix(1)), "Up"s);
+		assertEqual(fl.custom_export_names.at(zfix(2)), "Down"s);
+		assertEqual(fl.custom_export_names.at(zfix(16)), "Big"s);
+
+		// @ExportLongBitflags: keys are raw long values.
+		auto const& lf = exports.at(3);
+		assertEqual((int)lf.export_custom_type, (int)var_custom_export_type::custom_long_bitflags);
+		assertEqual(lf.custom_export_names.at(zslongToFix(1)), "First"s);
+		assertEqual(lf.custom_export_names.at(zslongToFix(2)), "Second"s);
+
+		// @ExportEnum: default display trims the common prefix, replaces
+		// underscores, and proper-cases.
+		auto const& en = exports.at(4);
+		assertEqual((int)en.export_custom_type, (int)var_custom_export_type::custom_dropdown);
+		assertSize(en.custom_export_names, 3);
+		assertEqual(en.custom_export_names.at(zfix(0)), "Apple"s);
+		// A duplicate value keeps the first-declared constant's name.
+		assertEqual(en.custom_export_names.at(zfix(6)), "Grape"s);
+
+		// EXPDISP_RAW keeps names untouched.
+		assertEqual(exports.at(5).custom_export_names.at(zfix(0)), "FRUIT_APPLE"s);
+
+		// A bitflags enum skips multi-bit values.
+		auto const& mv = exports.at(6);
+		assertEqual((int)mv.export_custom_type, (int)var_custom_export_type::custom_bitflags);
+		assertSize(mv.custom_export_names, 3);
+		assertEqual(mv.custom_export_names.at(zfix(4)), "Left"s);
+
+		// Prefix trimming must never empty a name (single-constant enum).
+		auto const& lonely_name = exports.at(7).custom_export_names.at(zfix(5));
+		if (lonely_name.empty())
+			throw std::runtime_error("single-constant enum export name is empty");
+
+		// @ExportEngineValue.
+		assertEqual((int)exports.at(8).engine_type, (int)special_engine_export::tile);
+		assertEqual((int)exports.at(9).engine_type, (int)special_engine_export::tile_cset);
+
+		// The prefix comes from the first two names; a name that doesn't
+		// share it is left untouched (a shorter one used to crash).
+		auto const& mx = exports.at(10);
+		assertSize(mx.custom_export_names, 4);
+		assertEqual(mx.custom_export_names.at(zfix(0)), "Potato"s);
+		assertEqual(mx.custom_export_names.at(zfix(2)), "Q"s);
+		assertEqual(mx.custom_export_names.at(zfix(3)), "Animal Dog"s);
+
+		return true;
+	});
+
 	TEST("debug data scopes", tr, [&]{
 		// Roundtrip.
 		auto encoded_debug_data = results->zasmCompilerResult.debugData.encode();

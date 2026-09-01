@@ -1,0 +1,67 @@
+stderr:
+
+Compiling 'exports.zs'
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+Pass 4: Analyzing Code
+Pass 5: Checking code paths
+Pass 6: Generating object code
+Pass 7: Assembling
+Success!
+Compile finished with exit code '0' (success)
+
+stdout:
+
+{
+  "success": true,
+  "diagnostics": [],
+  "metadata": {
+    "currentFileSymbols": 29,
+    "symbols": 31,
+    "identifiers": 41,
+    "elided": true
+  }
+}
+
+zasm:
+
+QUIT; void run() Body
+SETR D4 SP2; void run() Body Start
+SETR D2 SCR1; InlineFunc[void Trace(untyped)] Params Start
+PUSHR D2
+SETR D2 SCR2
+POP D3
+ADDR D2 D3
+PUSHR D2
+SETR D2 SCR4
+POP D3
+ADDR D2 D3
+PUSHR D2
+SETR D2 SCR5
+POP D3
+ADDR D2 D3
+PUSHR D2
+SETR D2 SCR6
+POP D3
+ADDR D2 D3
+PUSHR D2
+SETR D2 SCR7
+POP D3
+ADDR D2 D3
+PUSHR D2
+SETR D2 SCR8
+POP D3
+ADDR D2 D3
+PUSHR D2
+SETR D2 SCR9
+POP D3
+ADDR D2 D3
+PUSHR D2
+SETR D2 SCR10
+POP D3
+ADDR D2 D3; InlineFunc[void Trace(untyped)] Params End
+TRACER D2; InlineFunc[void Trace(untyped)] Body
+SETR D2 SCR3; InlineFunc[void Trace(long)] Params
+TRACELR D2; InlineFunc[void Trace(long)] Body
+RETURNFUNC; void run() Body End
