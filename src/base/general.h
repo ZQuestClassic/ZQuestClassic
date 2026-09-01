@@ -561,7 +561,7 @@ struct CheckListInfo
 {
 	std::string name, info;
 	byte flags;
-	static const byte DISABLED = 0x1;
+	static constexpr byte DISABLED = 0x1;
 	
 	CheckListInfo(std::string name = "", std::string info = "")
 		: name(std::move(name)), info(std::move(info)), flags(0)
