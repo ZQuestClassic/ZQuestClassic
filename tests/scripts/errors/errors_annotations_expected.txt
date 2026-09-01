@@ -92,7 +92,7 @@ errors_annotations.zs Line 13 @ Columns 1-23 - Error S114: Annotation '@ExportIn
       ^~~~~~~~~~~~~~~~~~~~~~
 
 
-errors_annotations.zs Line 14 @ Columns 1-16 - Error S114: Annotation 'ExportInitD5' found 0 parameters; expected >= 1 and <= 3
+errors_annotations.zs Line 14 @ Columns 1-16 - Error S114: Annotation '@ExportInitD5' found 0 parameters; expected >= 1 and <= 3
 
 12    @ExportInitD3("FooBar", 5, 6),
 13    @ExportInitD4(7, 8, 9),
@@ -100,7 +100,7 @@ errors_annotations.zs Line 14 @ Columns 1-16 - Error S114: Annotation 'ExportIni
       ^~~~~~~~~~~~~~~
 
 
-errors_annotations.zs Line 15 @ Columns 1-35 - Error S114: Annotation 'ExportInitD6' found 7 parameters; expected >= 1 and <= 3
+errors_annotations.zs Line 15 @ Columns 1-35 - Error S114: Annotation '@ExportInitD6' found 7 parameters; expected >= 1 and <= 3
 
 13    @ExportInitD4(7, 8, 9),
 14    @ExportInitD5(),
@@ -116,7 +116,7 @@ errors_annotations.zs Line 16 @ Columns 1-52 - Error S114: Annotation expected p
       ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
-errors_annotations.zs Line 26 @ Columns 1-10 - Error S114: Annotation 'Author' found 0 parameters; expected 1
+errors_annotations.zs Line 26 @ Columns 1-10 - Error S114: Annotation '@Author' found 0 parameters; expected 1
 
 24    }
 25    
@@ -323,7 +323,7 @@ stdout:
         }
       },
       "severity": 1,
-      "message": "S114: Annotation 'ExportInitD5' found 0 parameters; expected >= 1 and <= 3"
+      "message": "S114: Annotation '@ExportInitD5' found 0 parameters; expected >= 1 and <= 3"
     },
     {
       "range": {
@@ -337,7 +337,7 @@ stdout:
         }
       },
       "severity": 1,
-      "message": "S114: Annotation 'ExportInitD6' found 7 parameters; expected >= 1 and <= 3"
+      "message": "S114: Annotation '@ExportInitD6' found 7 parameters; expected >= 1 and <= 3"
     },
     {
       "range": {
@@ -365,7 +365,7 @@ stdout:
         }
       },
       "severity": 1,
-      "message": "S114: Annotation 'Author' found 0 parameters; expected 1"
+      "message": "S114: Annotation '@Author' found 0 parameters; expected 1"
     },
     {
       "range": {

@@ -602,6 +602,12 @@ enum class var_custom_export_type : uint8_t
 };
 extern const std::array<std::string, size_t(special_engine_export::max_value)> special_engine_export_names;
 std::string get_special_engine_export_name(special_engine_export idx);
+#define EXPDISP_UNDERSCORE_SPACES   0x01
+#define EXPDISP_PROPER_CASE         0x02
+#define EXPDISP_TRIM_PREFIXES       0x04
+#define EXPDISP_ALL                 (EXPDISP_UNDERSCORE_SPACES | EXPDISP_PROPER_CASE | EXPDISP_TRIM_PREFIXES)
+#define EXPDISP_DEFAULT             EXPDISP_ALL
+
 
 struct exported_variable
 {
