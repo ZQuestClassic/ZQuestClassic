@@ -1,0 +1,419 @@
+stderr:
+
+Compiling 'errors_exports.zs'
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+errors_exports.zs Line 11 @ Columns 12-25 - Error S114: @ExportDropdown() requires @Export() to function!
+
+ 9    // Requires @Export
+10    @ExportDropdown("A")
+11    nonstatic int no_export;
+                ^~~~~~~~~~~~~
+
+
+errors_exports.zs Line 15 @ Columns 2-21 - Error S114: Annotation '@ExportRange' is not compatible with '@ExportDropdown'
+
+13    // Conflicts with @ExportRange
+14    @Export("Conflict"),
+15    @ExportRange(0, 10),
+      ^~~~~~~~~~~~~~~~~~~
+
+
+errors_exports.zs Line 16 @ Columns 2-27 - Error S114: Annotation '@ExportDropdown' is not compatible with '@ExportRange'
+
+14    @Export("Conflict"),
+15    @ExportRange(0, 10),
+16    @ExportDropdown("A", "B")
+      ^~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+errors_exports.zs Line 21 @ Columns 2-22 - Error S114: Annotation '@ExportDropdown' is not compatible with '@ExportBitflags'
+
+19    // Two custom export types are mutually exclusive
+20    @Export("Two Customs"),
+21    @ExportDropdown("A"),
+      ^~~~~~~~~~~~~~~~~~~~
+
+
+errors_exports.zs Line 22 @ Columns 2-22 - Error S114: Annotation '@ExportBitflags' is not compatible with '@ExportDropdown'
+
+20    @Export("Two Customs"),
+21    @ExportDropdown("A"),
+22    @ExportBitflags("B")
+      ^~~~~~~~~~~~~~~~~~~~
+
+
+errors_exports.zs Line 27 @ Columns 2-19 - Error S114: Annotation '@ExportDropdown' found 0 parameters; expected >= 1
+
+25    // Zero params
+26    @Export("Empty Dropdown"),
+27    @ExportDropdown()
+      ^~~~~~~~~~~~~~~~~
+
+
+errors_exports.zs Line 32 @ Columns 2-28 - Error S114: Annotation '@ExportDropdown' cannot have multiple NUMBER parameters in a row!
+
+30    // Two numbers in a row
+31    @Export("Two Numbers"),
+32    @ExportDropdown(1, 2, "A")
+      ^~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+errors_exports.zs Line 37 @ Columns 2-25 - Error S114: Annotation '@ExportDropdown' last parameter must be a STRING!
+
+35    // Last param must be a string
+36    @Export("Trailing Number"),
+37    @ExportDropdown("A", 5)
+      ^~~~~~~~~~~~~~~~~~~~~~~
+
+
+errors_exports.zs Line 42 @ Columns 2-33 - Error S114: Annotation '@ExportDropdown' found multiple strings for value 0.0000!
+
+40    // Duplicate value
+41    @Export("Duplicate Value"),
+42    @ExportDropdown(0, "A", 0, "B")
+      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+errors_exports.zs Line 47 @ Columns 2-25 - Error S114: Annotation '@ExportBitflags' requires power-of-2 values, found bad value 5.0000!
+
+45    // Non-power-of-2 flag value
+46    @Export("Bad Flag"),
+47    @ExportBitflags(5, "A")
+      ^~~~~~~~~~~~~~~~~~~~~~~
+
+
+errors_exports.zs Line 52 @ Columns 2-27 - Error S114: Annotation '@ExportBitflags' requires power-of-2 values, found bad value 2.5000!
+
+50    // Non-power-of-2 decimal flag value
+51    @Export("Decimal Flag"),
+52    @ExportBitflags(2.5, "A")
+      ^~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+errors_exports.zs Line 58 @ Columns 17-27 - Error S113: @ExportBitflags() is incompatible with 'bool' variables!
+
+56    @Export("Bool Flags"),
+57    @ExportBitflags("A")
+58    nonstatic bool bool_flags;
+                     ^~~~~~~~~~
+
+
+errors_exports.zs Line 62 @ Column 2 - Line 63 @ Column 65 - Error S114: Annotation '@ExportBitflags' overflowed the available number of bits!
+
+60    // More names than available bits (18)
+61    @Export("Too Many Flags"),
+62    @ExportBitflags("F0", "F1", "F2", "F3", "F4", "F5", "F6", "F7", "F8", "F9",
+63        "F10", "F11", "F12", "F13", "F14", "F15", "F16", "F17", "F18")
+
+
+errors_exports.zs Line 69 @ Columns 12-28 - Error S114: Annotation '@ExportEngineValue' got "Bogus", but expected one of [Tile, Tile CSet, Combo, Combo CSet, Color, Item, Enemy, Counter, Sprite Data, SFX, MIDI, Music, Save Menu, Message String, Weapon Type, LWeapon Type, EWeapon Type, Dropset, Font, Bottle Type, Combo Type, Combo Flag]
+
+67    @Export("Bogus Engine"),
+68    @ExportEngineValue("Bogus")
+69    nonstatic int bogus_engine;
+                ^~~~~~~~~~~~~~~~
+
+
+errors_exports.zs Line 74 @ Columns 16-28 - Error S113: @ExportEngineValue() is incompatible with specified button types in @Export()!
+
+72    @Export("Btn Conflict", "some help text", "H"),
+73    @ExportEngineValue("Tile")
+74    nonstatic int btn_conflict;
+                    ^~~~~~~~~~~~
+
+
+errors_exports.zs Line 79 @ Columns 17-28 - Error S113: @ExportEngineValue() is incompatible with 'bool' variables!
+
+77    @Export("Bool Engine"),
+78    @ExportEngineValue("Color")
+79    nonstatic bool bool_engine;
+                     ^~~~~~~~~~~
+
+
+errors_exports.zs Line 83 @ Columns 2-31 - Error S114: Annotation '@ExportEnum' parameter 1; found unexpected bits '64'
+
+81    // Display mode contains unknown bits
+82    @Export("Bad Display"),
+83    @ExportEnum(PlainEnum, 0x40L)
+      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+errors_exports.zs Line 88 @ Columns 2-15 - Error S114: Annotation '@ExportEnum' found 0 parameters; expected >= 1 and <= 2
+
+86    // Zero params
+87    @Export("Empty Enum"),
+88    @ExportEnum()
+      ^~~~~~~~~~~~~
+
+
+Failure!
+Compile finished with exit code '114' (compiled with errors)
+
+stdout:
+
+{
+  "success": false,
+  "code": 114,
+  "diagnostics": [
+    {
+      "range": {
+        "start": {
+          "line": 10,
+          "character": 11
+        },
+        "end": {
+          "line": 10,
+          "character": 24
+        }
+      },
+      "severity": 1,
+      "message": "S114: @ExportDropdown() requires @Export() to function!"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 14,
+          "character": 1
+        },
+        "end": {
+          "line": 14,
+          "character": 20
+        }
+      },
+      "severity": 1,
+      "message": "S114: Annotation '@ExportRange' is not compatible with '@ExportDropdown'"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 15,
+          "character": 1
+        },
+        "end": {
+          "line": 15,
+          "character": 26
+        }
+      },
+      "severity": 1,
+      "message": "S114: Annotation '@ExportDropdown' is not compatible with '@ExportRange'"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 20,
+          "character": 1
+        },
+        "end": {
+          "line": 20,
+          "character": 21
+        }
+      },
+      "severity": 1,
+      "message": "S114: Annotation '@ExportDropdown' is not compatible with '@ExportBitflags'"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 21,
+          "character": 1
+        },
+        "end": {
+          "line": 21,
+          "character": 21
+        }
+      },
+      "severity": 1,
+      "message": "S114: Annotation '@ExportBitflags' is not compatible with '@ExportDropdown'"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 26,
+          "character": 1
+        },
+        "end": {
+          "line": 26,
+          "character": 18
+        }
+      },
+      "severity": 1,
+      "message": "S114: Annotation '@ExportDropdown' found 0 parameters; expected >= 1"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 31,
+          "character": 1
+        },
+        "end": {
+          "line": 31,
+          "character": 27
+        }
+      },
+      "severity": 1,
+      "message": "S114: Annotation '@ExportDropdown' cannot have multiple NUMBER parameters in a row!"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 36,
+          "character": 1
+        },
+        "end": {
+          "line": 36,
+          "character": 24
+        }
+      },
+      "severity": 1,
+      "message": "S114: Annotation '@ExportDropdown' last parameter must be a STRING!"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 41,
+          "character": 1
+        },
+        "end": {
+          "line": 41,
+          "character": 32
+        }
+      },
+      "severity": 1,
+      "message": "S114: Annotation '@ExportDropdown' found multiple strings for value 0.0000!"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 46,
+          "character": 1
+        },
+        "end": {
+          "line": 46,
+          "character": 24
+        }
+      },
+      "severity": 1,
+      "message": "S114: Annotation '@ExportBitflags' requires power-of-2 values, found bad value 5.0000!"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 51,
+          "character": 1
+        },
+        "end": {
+          "line": 51,
+          "character": 26
+        }
+      },
+      "severity": 1,
+      "message": "S114: Annotation '@ExportBitflags' requires power-of-2 values, found bad value 2.5000!"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 57,
+          "character": 16
+        },
+        "end": {
+          "line": 57,
+          "character": 26
+        }
+      },
+      "severity": 1,
+      "message": "S113: @ExportBitflags() is incompatible with 'bool' variables!"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 61,
+          "character": 1
+        },
+        "end": {
+          "line": 62,
+          "character": 64
+        }
+      },
+      "severity": 1,
+      "message": "S114: Annotation '@ExportBitflags' overflowed the available number of bits!"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 68,
+          "character": 11
+        },
+        "end": {
+          "line": 68,
+          "character": 27
+        }
+      },
+      "severity": 1,
+      "message": "S114: Annotation '@ExportEngineValue' got \"Bogus\", but expected one of [Tile, Tile CSet, Combo, Combo CSet, Color, Item, Enemy, Counter, Sprite Data, SFX, MIDI, Music, Save Menu, Message String, Weapon Type, LWeapon Type, EWeapon Type, Dropset, Font, Bottle Type, Combo Type, Combo Flag]"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 73,
+          "character": 15
+        },
+        "end": {
+          "line": 73,
+          "character": 27
+        }
+      },
+      "severity": 1,
+      "message": "S113: @ExportEngineValue() is incompatible with specified button types in @Export()!"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 78,
+          "character": 16
+        },
+        "end": {
+          "line": 78,
+          "character": 27
+        }
+      },
+      "severity": 1,
+      "message": "S113: @ExportEngineValue() is incompatible with 'bool' variables!"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 82,
+          "character": 1
+        },
+        "end": {
+          "line": 82,
+          "character": 30
+        }
+      },
+      "severity": 1,
+      "message": "S114: Annotation '@ExportEnum' parameter 1; found unexpected bits '64'"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 87,
+          "character": 1
+        },
+        "end": {
+          "line": 87,
+          "character": 14
+        }
+      },
+      "severity": 1,
+      "message": "S114: Annotation '@ExportEnum' found 0 parameters; expected >= 1 and <= 2"
+    }
+  ],
+  "metadata": {
+    "currentFileSymbols": 21,
+    "symbols": 7,
+    "identifiers": 7,
+    "elided": true
+  }
+}

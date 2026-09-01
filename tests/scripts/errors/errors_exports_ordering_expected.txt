@@ -1,0 +1,90 @@
+stderr:
+
+Compiling 'errors_exports_ordering.zs'
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+Pass 4: Analyzing Code
+errors_exports_ordering.zs Line 11 @ Columns 2-26 - Error T047: Type NOT_AN_ENUM has not been declared.
+
+ 9    // (the enum may not be registered yet), so this errors in Analysis.
+10    @Export("Not An Enum"),
+11    @ExportEnum(NOT_AN_ENUM)
+      ^~~~~~~~~~~~~~~~~~~~~~~~
+
+
+errors_exports_ordering.zs Line 18 @ Columns 16-27 - Error S113: @ExportEngineValue("Tile CSet") must be used on a variable immediately after a variable exported using @ExportEngineValue("Tile")!
+
+16    @Export("Orphan CSet"),
+17    @ExportEngineValue("Tile CSet")
+18    nonstatic int orphan_cset;
+                    ^~~~~~~~~~~
+
+
+errors_exports_ordering.zs Line 30 @ Columns 16-27 - Error S113: @ExportEngineValue("Combo CSet") must be used on a variable immediately after a variable exported using @ExportEngineValue("Combo")!
+
+28    @Export("Gapped CSet"),
+29    @ExportEngineValue("Combo CSet")
+30    nonstatic int gapped_cset;
+                    ^~~~~~~~~~~
+
+
+Failure!
+Compile finished with exit code '47' (compiled with errors)
+
+stdout:
+
+{
+  "success": false,
+  "code": 47,
+  "diagnostics": [
+    {
+      "range": {
+        "start": {
+          "line": 10,
+          "character": 1
+        },
+        "end": {
+          "line": 10,
+          "character": 25
+        }
+      },
+      "severity": 1,
+      "message": "T047: Type NOT_AN_ENUM has not been declared."
+    },
+    {
+      "range": {
+        "start": {
+          "line": 17,
+          "character": 15
+        },
+        "end": {
+          "line": 17,
+          "character": 26
+        }
+      },
+      "severity": 1,
+      "message": "S113: @ExportEngineValue(\"Tile CSet\") must be used on a variable immediately after a variable exported using @ExportEngineValue(\"Tile\")!"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 29,
+          "character": 15
+        },
+        "end": {
+          "line": 29,
+          "character": 26
+        }
+      },
+      "severity": 1,
+      "message": "S113: @ExportEngineValue(\"Combo CSet\") must be used on a variable immediately after a variable exported using @ExportEngineValue(\"Combo\")!"
+    }
+  ],
+  "metadata": {
+    "currentFileSymbols": 8,
+    "symbols": 7,
+    "identifiers": 7,
+    "elided": true
+  }
+}
