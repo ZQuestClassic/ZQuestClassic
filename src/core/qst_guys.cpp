@@ -13,6 +13,53 @@ extern bool fixpolsvoice;
 
 namespace {
 
+// The sound the engine hardcoded per weapon type, before enemies got a
+// configurable fire sound of their own.
+int16_t legacy_weapon_firesfx(int32_t weapon)
+{
+	switch (weapon)
+	{
+	case ewFireTrail:
+	case ewFlame:
+	case ewFlame2Trail:
+	case ewFlame2:
+		return WAV_FIRE;
+	case ewWind:
+	case ewMagic:
+		return WAV_WAND;
+	case ewIce:
+		return WAV_ZN1ICE;
+	case ewRock:
+		return WAV_ZN1ROCK;
+	case ewFireball2:
+	case ewFireball:
+		return WAV_ZN1FIREBALL;
+	case ewBrang:
+		return WAV_BRANG;
+	case ewBomb:case ewSBomb: case ewLitBomb:case ewLitSBomb:
+		return WAV_BOMB;
+	}
+
+	return 0;
+}
+
+// The weapon an enemy fires other than its own, which today is only the one
+// the 'Fire Octo' death effect uses - the enemy's own weapon shifted by the
+// editor's 'Weapon Offset'. Returns 0 if the enemy has no such weapon; see the
+// e2tFIREOCTO branch of `eStalfos::animate`.
+int32_t secondary_fire_weapon(const guydata& tempguy)
+{
+	if (tempguy.type != eeWALK || tempguy.attributes[1] != e2tFIREOCTO)
+		return 0;
+	if (!tempguy.weapon || tempguy.weapon == ewBrang)
+		return 0;
+
+	int32_t weapon = tempguy.weapon + tempguy.attributes[2];
+	if (weapon <= wEnemyWeapons || weapon >= wMax)
+		weapon = tempguy.weapon;
+	return weapon;
+}
+
 void guy_update_firesfx(guydata& tempguy)
 {
 	tempguy.firesfx = 0;
@@ -27,38 +74,7 @@ void guy_update_firesfx(guydata& tempguy)
 			if (get_qr(qr_8WAY_SHOT_SFX_DEP)) tempguy.firesfx = WAV_FIRE;
 			else
 			{
-				switch (tempguy.weapon)
-				{
-				case ewFireTrail:
-				case ewFlame:
-				case ewFlame2Trail:
-				case ewFlame2:
-					tempguy.firesfx = WAV_FIRE;
-					break;
-				case ewWind:
-				case ewMagic:
-					tempguy.firesfx = WAV_WAND;
-					break;
-				case ewIce:
-					tempguy.firesfx = WAV_ZN1ICE;
-					break;
-				case ewRock:
-					tempguy.firesfx = WAV_ZN1ROCK;
-					break;
-				case ewFireball2:
-				case ewFireball:
-					tempguy.firesfx = WAV_ZN1FIREBALL;
-					break;
-				case ewBrang:
-					tempguy.firesfx = WAV_BRANG;
-					break;
-				case ewBomb:case ewSBomb: case ewLitBomb:case ewLitSBomb:
-					tempguy.firesfx = WAV_BOMB;
-					break;
-				default:
-					tempguy.firesfx = 0;
-					break;
-				}
+				tempguy.firesfx = legacy_weapon_firesfx(tempguy.weapon);
 				break;
 			}
 		case 2: // Summon
@@ -77,40 +93,12 @@ void guy_update_firesfx(guydata& tempguy)
 		}
 		else
 		{
-			switch (tempguy.weapon)
-			{
-			case ewFireTrail:
-			case ewFlame:
-			case ewFlame2Trail:
-			case ewFlame2:
-				tempguy.firesfx = WAV_FIRE;
-				break;
-			case ewWind:
-			case ewMagic:
-				tempguy.firesfx = WAV_WAND;
-				break;
-			case ewIce:
-				tempguy.firesfx = WAV_ZN1ICE;
-				break;
-			case ewRock:
-				tempguy.firesfx = WAV_ZN1ROCK;
-				break;
-			case ewFireball2:
-			case ewFireball:
-				tempguy.firesfx = WAV_ZN1FIREBALL;
-				break;
-			case ewBrang:
-				tempguy.firesfx = WAV_BRANG;
-				break;
-			case ewBomb:case ewSBomb: case ewLitBomb:case ewLitSBomb:
-				tempguy.firesfx = WAV_BOMB;
-				break;
-			default:
-				tempguy.firesfx = 0;
-				break;
-			}
+			tempguy.firesfx = legacy_weapon_firesfx(tempguy.weapon);
 		}
 	}
+
+	// A secondary weapon is a different weapon, so it had a different sound.
+	tempguy.firesfx_secondary = legacy_weapon_firesfx(secondary_fire_weapon(tempguy));
 }
 
 // Whether the old `enemy::wpnsfx` returned the fire sound for this weapon.
@@ -145,36 +133,25 @@ bool firesfx_played_for_weapon(int32_t weapon)
 	return false;
 }
 
-// Before guy version 60, the fire sound only actually played for some weapon
-// types (see the old `enemy::wpnsfx`). Now that it plays for every weapon
-// type, zero it wherever the old engine kept quiet, so old quests (and the
+// Before guy version 60, the fire sounds only actually played for some weapon
+// types (see the old `enemy::wpnsfx`). Now that they play for every weapon
+// type, zero them wherever the old engine kept quiet, so old quests (and the
 // values auto-seeded by `guy_update_firesfx`) still sound the same.
 void guy_silence_unplayed_firesfx(guydata& tempguy)
 {
-	// Wizzrobes play the fire sound directly, for any weapon type.
-	if (tempguy.type == eeWIZZ)
-		return;
+	// Wizzrobes play the fire sound directly, for any weapon type. As do
+	// summoning enemies.
+	bool always_played = tempguy.type == eeWIZZ
+		|| ((tempguy.type == eeWALK || tempguy.type == eePROJECTILE) && (tempguy.attributes[0] == e1tSUMMON || tempguy.attributes[0] == e1tSUMMONLAYER));
 
-	// As do summoning enemies.
-	if ((tempguy.type == eeWALK || tempguy.type == eePROJECTILE) && (tempguy.attributes[0] == e1tSUMMON || tempguy.attributes[0] == e1tSUMMONLAYER))
-		return;
-
-	if (firesfx_played_for_weapon(tempguy.weapon))
-		return;
-
-	// The 'Fire Octo' death effect fires the weapon named by 'Weapon Offset'
-	// rather than the enemy's own weapon, so that one's sound played too.
-	if (tempguy.type == eeWALK && tempguy.attributes[1] == e2tFIREOCTO &&
-		tempguy.weapon && tempguy.weapon != ewBrang)
-	{
-		int32_t death_weapon = tempguy.weapon + tempguy.attributes[2];
-		if (death_weapon <= wEnemyWeapons || death_weapon >= wMax)
-			death_weapon = tempguy.weapon;
-		if (firesfx_played_for_weapon(death_weapon))
-			return;
-	}
-
-	tempguy.firesfx = 0;
+	// Each sound is gated by the weapon it belongs to, which for the secondary
+	// sound is a different weapon, so the two can differ. The 'Fire Octo' death
+	// effect always went through the per-weapon gate, even for the enemies
+	// above, so the secondary sound is gated no matter what.
+	if (!always_played && !firesfx_played_for_weapon(tempguy.weapon))
+		tempguy.firesfx = 0;
+	if (!firesfx_played_for_weapon(secondary_fire_weapon(tempguy)))
+		tempguy.firesfx_secondary = 0;
 }
 
 void guy_update_weaponflags(guydata& tempguy)
@@ -1865,9 +1842,16 @@ int32_t readguy_single(PACKFILE *f, word guyversion, word guy_cversion, zquesthe
 	//these could possible be combined but rather be safe...
 	if (guyversion < 51) //reimport the firesfx, zoria ducked up.
 	{
+		// Also seeds firesfx_secondary from the secondary weapon.
 		guy_update_firesfx(tempguy);
 	}
-	if (guyversion < 60) //the fire sound now plays for every weapon type
+	else if (guyversion < 60)
+	{
+		// A secondary weapon had no sound of its own yet, it just reused the
+		// enemy's own fire sound.
+		tempguy.firesfx_secondary = tempguy.firesfx;
+	}
+	if (guyversion < 60) //the fire sounds now play for every weapon type
 	{
 		guy_silence_unplayed_firesfx(tempguy);
 	}
@@ -1951,6 +1935,12 @@ int32_t readguy_single(PACKFILE *f, word guyversion, word guy_cversion, zquesthe
 		if(!p_igetl(&(tempguy.viewport_suspend_range), f))
 			return qe_invalid;
 		if(!p_igetl(&(tempguy.viewport_despawn_range), f))
+			return qe_invalid;
+	}
+
+	if(guyversion >= 60)
+	{
+		if(!p_igetw(&(tempguy.firesfx_secondary), f))
 			return qe_invalid;
 	}
 

@@ -10539,6 +10539,8 @@ int32_t writeguy_single(PACKFILE *f, guydata& guy)
 		return 104;
 	if (!p_iputl(guy.viewport_despawn_range, f))
 		return 105;
+	if (!p_iputw(guy.firesfx_secondary, f))
+		return 106;
 	return 0;
 }
 
