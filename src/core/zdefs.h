@@ -1171,6 +1171,8 @@ struct guydata
     int16_t frozenmisc[10];
     //v 34
     int16_t firesfx; //weapon fire (attack) sound
+    //v 60
+    int16_t firesfx_secondary; //fire sound for a weapon fired other than the enemy's own
     int32_t movement[32]; //Reserved for npc movement types and args. 
     int32_t new_weapon[32]; //Reserved for weapon patterns and args.
 	script_config scrconfig;
