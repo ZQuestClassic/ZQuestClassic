@@ -3283,7 +3283,10 @@ void weapon::limited_animate()
 			{
 				id = valid_item_id(parentitem) ? ((itemsbuf.get(parentitem).type==itype_sbomb) ? wSBomb:wBomb)
 						  : (id==wLitSBomb||id==wSBomb ? wSBomb : wBomb);
-				misc_wflags &= ~(WFLAG_BREAK_ON_SOLID|WFLAG_BREAK_WHEN_LANDING);
+				// The blast is effectively a new weapon: flags that only make sense for
+				// the lit bomb don't carry over. In particular the blast never moves,
+				// so 'No Collision When Still' would disarm it.
+				misc_wflags &= ~(WFLAG_BREAK_ON_SOLID|WFLAG_BREAK_WHEN_LANDING|WFLAG_NO_COLL_WHEN_STILL);
 				weap_timeout = 0;
 				hxofs=2000;
 				step = 0;
@@ -4319,7 +4322,8 @@ bool weapon::animate([[maybe_unused]] int32_t index)
 			if(clk==(misc-2) && step==0)
 			{
 				id = (id==ewLitSBomb||id==ewSBomb ? ewSBomb : ewBomb);
-				misc_wflags &= ~(WFLAG_BREAK_ON_SOLID|WFLAG_BREAK_WHEN_LANDING);
+				// See weapon::limited_animate for why these flags are dropped.
+				misc_wflags &= ~(WFLAG_BREAK_ON_SOLID|WFLAG_BREAK_WHEN_LANDING|WFLAG_NO_COLL_WHEN_STILL);
 				weap_timeout = 0;
 				hxofs=2000;
 			}

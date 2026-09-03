@@ -3,6 +3,7 @@
 #include "auto/arrays.zs"
 #include "auto/bitmap_load_rt_screen.zs"
 #include "auto/bug_arc_fill.zs"
+#include "auto/bug_bomb_blast_no_coll_when_still.zs"
 #include "auto/bug_compound_assign_side_effects.zs"
 #include "auto/bug_convert_rgb.zs"
 #include "auto/bug_deprecated_draw_layer.zs"
