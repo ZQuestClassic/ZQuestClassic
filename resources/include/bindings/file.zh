@@ -1,3 +1,9 @@
+// Load a file with `new file(path, mode)` or [FileSystem->LoadFile()].
+//
+// You can also use [file::Open] or [file::Create].
+//
+// # File modes
+//
 // Valid modes (details taken from http://www.cplusplus.com/reference/cstdio/fopen/):
 //
 // - "r" (read): Open file for input operations. The file must exist.
@@ -28,6 +34,7 @@
 // @zasm_ref REFFILE
 class file {
 	// @param mode - See [file] for details.
+	// @versionadded 3.0
 	// @zasm
 	//   POP D3
 	//   POP D2

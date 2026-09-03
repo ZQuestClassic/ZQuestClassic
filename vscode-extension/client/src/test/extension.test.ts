@@ -171,6 +171,14 @@ suite('ZScript extension', function () {
 
 		const uri = getDocUri('symbols.zs');
 
+		// Doc comment links encode the file and position of the symbol they point at.
+		// Strip out the position to keep the snapshot results stable.
+		const normalizeLinks = (value: string) =>
+			value.replace(/\(command:zscript\.openLink\?([^)]*)\)/g, (_match, payload: string) => {
+				const { file } = JSON.parse(decodeURIComponent(payload));
+				return `(command:zscript.openLink?${file})`;
+			});
+
 		const getHovers = async (version: string) => {
 			const positions = [
 				new vscode.Position(27, 16),
@@ -191,7 +199,10 @@ suite('ZScript extension', function () {
 				})
 				.flat()
 				.map(hover => ({
-					contents: hover.contents.map(c => c instanceof vscode.MarkdownString ? c.value : c),
+					contents: hover.contents.map(c => {
+						const value = c instanceof vscode.MarkdownString ? c.value : c;
+						return typeof value === 'string' ? normalizeLinks(value) : value;
+					}),
 					range: hover.range,
 				}));
 		};

@@ -1,7 +1,12 @@
 // A 2D canvas of pixels for drawing to.
 //
+// Create a new bitmap with `new bitmap(width, height)` or [Game->CreateBitmap].
+//
+// Load an internal bitmap with [Game->LoadBitmapID].
+//
 // @zasm_ref REFBITMAP
 class bitmap {
+	// @versionadded 3.0
 	// @zasm
 	//   POP D1
 	//   POP D0

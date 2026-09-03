@@ -2,8 +2,11 @@ const rgb INVALID_COLOR = <rgb>(-1);
 
 // Represents a set of palette colors. 256 `rgb` colors divided into 16 csets.
 //
+// Create a new paldata with `new paldata()` or [Graphics->CreatePalData].
+//
 // @zasm_ref REFPALDATA
 class paldata {
+	// @versionadded 3.0
 	// @zasm
 	//   CREATEPALDATA
 	internal paldata();

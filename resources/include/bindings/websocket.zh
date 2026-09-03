@@ -12,6 +12,8 @@ enum WebsocketType {
     WEBSOCKET_MESSAGE_TYPE_BINARY = 2L // send binary data
 };
 
+// Create a new websocket with `new websocket(url)`.
+//
 // @tutorial /tutorials/websockets
 // @versionadded 3.0
 // @zasm_ref REFWEBSOCKET

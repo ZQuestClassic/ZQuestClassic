@@ -2589,45 +2589,45 @@ RETURNFUNC; Func[int screendata::GetTileWarpScreen(int)] Body End               
 POP D2; Func[int screendata::GetTileWarpType(int)] Body Start                   | 2560 resources/include/bindings/screendata.zh:1919
 GETTILEWARPTYPE D2                                                              | 2561 resources/include/bindings/screendata.zh:1919
 RETURNFUNC; Func[int screendata::GetTileWarpType(int)] Body End                 | 2562 resources/include/bindings/screendata.zh:1919
-LOADRNG; Func[randgen randgen::randgen()] Body Start                            | 2563 resources/include/bindings/randgen.zh:5
-RETURNFUNC; Func[randgen randgen::randgen()] Body End                           | 2564 resources/include/bindings/randgen.zh:5
-POP REFRNG; Func[int randgen::Rand()] Body Start                                | 2565 resources/include/bindings/randgen.zh:12
-RNGRAND1                                                                        | 2566 resources/include/bindings/randgen.zh:12
-RETURNFUNC; Func[int randgen::Rand()] Body End                                  | 2567 resources/include/bindings/randgen.zh:12
-POP D2; Func[int randgen::Rand(int)] Body Start                                 | 2568 resources/include/bindings/randgen.zh:20
-POP REFRNG                                                                      | 2569 resources/include/bindings/randgen.zh:20
-RNGRAND2 D2                                                                     | 2570 resources/include/bindings/randgen.zh:20
-RETURNFUNC; Func[int randgen::Rand(int)] Body End                               | 2571 resources/include/bindings/randgen.zh:20
-POP D3; Func[int randgen::Rand(int, int)] Body Start                            | 2572 resources/include/bindings/randgen.zh:29
-POP D2                                                                          | 2573 resources/include/bindings/randgen.zh:29
-POP REFRNG                                                                      | 2574 resources/include/bindings/randgen.zh:29
-RNGRAND3 D2 D3                                                                  | 2575 resources/include/bindings/randgen.zh:29
-RETURNFUNC; Func[int randgen::Rand(int, int)] Body End                          | 2576 resources/include/bindings/randgen.zh:29
-POP REFRNG; Func[long randgen::LRand()] Body Start                              | 2577 resources/include/bindings/randgen.zh:36
-RNGLRAND1                                                                       | 2578 resources/include/bindings/randgen.zh:36
-RETURNFUNC; Func[long randgen::LRand()] Body End                                | 2579 resources/include/bindings/randgen.zh:36
-POP D2; Func[long randgen::LRand(long)] Body Start                              | 2580 resources/include/bindings/randgen.zh:44
-POP REFRNG                                                                      | 2581 resources/include/bindings/randgen.zh:44
-RNGLRAND2 D2                                                                    | 2582 resources/include/bindings/randgen.zh:44
-RETURNFUNC; Func[long randgen::LRand(long)] Body End                            | 2583 resources/include/bindings/randgen.zh:44
-POP D3; Func[long randgen::LRand(long, long)] Body Start                        | 2584 resources/include/bindings/randgen.zh:53
-POP D2                                                                          | 2585 resources/include/bindings/randgen.zh:53
-POP REFRNG                                                                      | 2586 resources/include/bindings/randgen.zh:53
-RNGLRAND3 D2 D3                                                                 | 2587 resources/include/bindings/randgen.zh:53
-RETURNFUNC; Func[long randgen::LRand(long, long)] Body End                      | 2588 resources/include/bindings/randgen.zh:53
-POP D2; Func[void randgen::SRand(long)] Body Start                              | 2589 resources/include/bindings/randgen.zh:61
-POP REFRNG                                                                      | 2590 resources/include/bindings/randgen.zh:61
-RNGSEED D2                                                                      | 2591 resources/include/bindings/randgen.zh:61
-RETURNFUNC; Func[void randgen::SRand(long)] Body End                            | 2592 resources/include/bindings/randgen.zh:61
-POP REFRNG; Func[long randgen::SRand()] Body Start                              | 2593 resources/include/bindings/randgen.zh:69
-RNGRSEED                                                                        | 2594 resources/include/bindings/randgen.zh:69
-RETURNFUNC; Func[long randgen::SRand()] Body End                                | 2595 resources/include/bindings/randgen.zh:69
-POP REFRNG; Func[void randgen::Free()] Body Start                               | 2596 resources/include/bindings/randgen.zh:81
-RNGFREE                                                                         | 2597 resources/include/bindings/randgen.zh:81
-RETURNFUNC; Func[void randgen::Free()] Body End                                 | 2598 resources/include/bindings/randgen.zh:81
-POP REFRNG; Func[void randgen::Own()] Body Start                                | 2599 resources/include/bindings/randgen.zh:91
-RNGOWN                                                                          | 2600 resources/include/bindings/randgen.zh:91
-RETURNFUNC; Func[void randgen::Own()] Body End                                  | 2601 resources/include/bindings/randgen.zh:91
+LOADRNG; Func[randgen randgen::randgen()] Body Start                            | 2563 resources/include/bindings/randgen.zh:8
+RETURNFUNC; Func[randgen randgen::randgen()] Body End                           | 2564 resources/include/bindings/randgen.zh:8
+POP REFRNG; Func[int randgen::Rand()] Body Start                                | 2565 resources/include/bindings/randgen.zh:15
+RNGRAND1                                                                        | 2566 resources/include/bindings/randgen.zh:15
+RETURNFUNC; Func[int randgen::Rand()] Body End                                  | 2567 resources/include/bindings/randgen.zh:15
+POP D2; Func[int randgen::Rand(int)] Body Start                                 | 2568 resources/include/bindings/randgen.zh:23
+POP REFRNG                                                                      | 2569 resources/include/bindings/randgen.zh:23
+RNGRAND2 D2                                                                     | 2570 resources/include/bindings/randgen.zh:23
+RETURNFUNC; Func[int randgen::Rand(int)] Body End                               | 2571 resources/include/bindings/randgen.zh:23
+POP D3; Func[int randgen::Rand(int, int)] Body Start                            | 2572 resources/include/bindings/randgen.zh:32
+POP D2                                                                          | 2573 resources/include/bindings/randgen.zh:32
+POP REFRNG                                                                      | 2574 resources/include/bindings/randgen.zh:32
+RNGRAND3 D2 D3                                                                  | 2575 resources/include/bindings/randgen.zh:32
+RETURNFUNC; Func[int randgen::Rand(int, int)] Body End                          | 2576 resources/include/bindings/randgen.zh:32
+POP REFRNG; Func[long randgen::LRand()] Body Start                              | 2577 resources/include/bindings/randgen.zh:39
+RNGLRAND1                                                                       | 2578 resources/include/bindings/randgen.zh:39
+RETURNFUNC; Func[long randgen::LRand()] Body End                                | 2579 resources/include/bindings/randgen.zh:39
+POP D2; Func[long randgen::LRand(long)] Body Start                              | 2580 resources/include/bindings/randgen.zh:47
+POP REFRNG                                                                      | 2581 resources/include/bindings/randgen.zh:47
+RNGLRAND2 D2                                                                    | 2582 resources/include/bindings/randgen.zh:47
+RETURNFUNC; Func[long randgen::LRand(long)] Body End                            | 2583 resources/include/bindings/randgen.zh:47
+POP D3; Func[long randgen::LRand(long, long)] Body Start                        | 2584 resources/include/bindings/randgen.zh:56
+POP D2                                                                          | 2585 resources/include/bindings/randgen.zh:56
+POP REFRNG                                                                      | 2586 resources/include/bindings/randgen.zh:56
+RNGLRAND3 D2 D3                                                                 | 2587 resources/include/bindings/randgen.zh:56
+RETURNFUNC; Func[long randgen::LRand(long, long)] Body End                      | 2588 resources/include/bindings/randgen.zh:56
+POP D2; Func[void randgen::SRand(long)] Body Start                              | 2589 resources/include/bindings/randgen.zh:64
+POP REFRNG                                                                      | 2590 resources/include/bindings/randgen.zh:64
+RNGSEED D2                                                                      | 2591 resources/include/bindings/randgen.zh:64
+RETURNFUNC; Func[void randgen::SRand(long)] Body End                            | 2592 resources/include/bindings/randgen.zh:64
+POP REFRNG; Func[long randgen::SRand()] Body Start                              | 2593 resources/include/bindings/randgen.zh:72
+RNGRSEED                                                                        | 2594 resources/include/bindings/randgen.zh:72
+RETURNFUNC; Func[long randgen::SRand()] Body End                                | 2595 resources/include/bindings/randgen.zh:72
+POP REFRNG; Func[void randgen::Free()] Body Start                               | 2596 resources/include/bindings/randgen.zh:84
+RNGFREE                                                                         | 2597 resources/include/bindings/randgen.zh:84
+RETURNFUNC; Func[void randgen::Free()] Body End                                 | 2598 resources/include/bindings/randgen.zh:84
+POP REFRNG; Func[void randgen::Own()] Body Start                                | 2599 resources/include/bindings/randgen.zh:94
+RNGOWN                                                                          | 2600 resources/include/bindings/randgen.zh:94
+RETURNFUNC; Func[void randgen::Own()] Body End                                  | 2601 resources/include/bindings/randgen.zh:94
 POP D2; Func[int Text::StringWidth(char32[], int)] Body Start                   | 2602 resources/include/bindings/text.zh:16
 POP D3                                                                          | 2603 resources/include/bindings/text.zh:16
 STRINGWIDTHR D3 D2                                                              | 2604 resources/include/bindings/text.zh:16
@@ -3397,201 +3397,201 @@ POP D2; Func[void sprite::OwnObject(untyped)] Body Start                        
 POP REFSPRITE                                                                   | 3368 resources/include/bindings/sprite.zh:489
 OBJ_OWN_CLASS D2 0                                                              | 3369 resources/include/bindings/sprite.zh:489
 RETURNFUNC; Func[void sprite::OwnObject(untyped)] Body End                      | 3370 resources/include/bindings/sprite.zh:489
-POP D1; Func[bitmap bitmap::bitmap(int, int)] Body Start                        | 3371 resources/include/bindings/bitmap.zh:9
-POP D0                                                                          | 3372 resources/include/bindings/bitmap.zh:9
-SETR D2 CREATEBITMAP                                                            | 3373 resources/include/bindings/bitmap.zh:9
-RETURNFUNC; Func[bitmap bitmap::bitmap(int, int)] Body End                      | 3374 resources/include/bindings/bitmap.zh:9
-POP D0; Func[int bitmap::GetPixel(int, int)] Body Start                         | 3375 resources/include/bindings/bitmap.zh:29
-POP D1                                                                          | 3376 resources/include/bindings/bitmap.zh:29
-POP D2                                                                          | 3377 resources/include/bindings/bitmap.zh:29
-GRAPHICSGETPIXEL D2                                                             | 3378 resources/include/bindings/bitmap.zh:29
-RETURNFUNC; Func[int bitmap::GetPixel(int, int)] Body End                       | 3379 resources/include/bindings/bitmap.zh:29
-GRAPHICSCOUNTCOLOR D2; Func[int bitmap::CountColor(bitmap, int, int, int, int)] Body Start | 3380 resources/include/bindings/bitmap.zh:38
-POPARGS D5 0.0006                                                               | 3381 resources/include/bindings/bitmap.zh:38
-RETURNFUNC; Func[int bitmap::CountColor(bitmap, int, int, int, int)] Body End   | 3382 resources/include/bindings/bitmap.zh:38
-BMPRECTR; Func[void bitmap::Rectangle(int, int, int, int, int, int, int, int, int, int, bool, int)] Body Start | 3383 resources/include/bindings/bitmap.zh:46
-POPARGS D5 0.0013                                                               | 3384 resources/include/bindings/bitmap.zh:46
-RETURNFUNC; Func[void bitmap::Rectangle(int, int, int, int, int, int, int, int, int, int, bool, int)] Body End | 3385 resources/include/bindings/bitmap.zh:46
-BMPCIRCLER; Func[void bitmap::Circle(int, int, int, int, int, int, int, int, int, bool, int)] Body Start | 3386 resources/include/bindings/bitmap.zh:56
-POPARGS D5 0.0012                                                               | 3387 resources/include/bindings/bitmap.zh:56
-RETURNFUNC; Func[void bitmap::Circle(int, int, int, int, int, int, int, int, int, bool, int)] Body End | 3388 resources/include/bindings/bitmap.zh:56
-BMPARCR; Func[void bitmap::Arc(int, int, int, int, int, int, int, int, int, int, int, bool, bool, int)] Body Start | 3389 resources/include/bindings/bitmap.zh:72
-POPARGS D5 0.0015                                                               | 3390 resources/include/bindings/bitmap.zh:72
-RETURNFUNC; Func[void bitmap::Arc(int, int, int, int, int, int, int, int, int, int, int, bool, bool, int)] Body End | 3391 resources/include/bindings/bitmap.zh:72
-BMPELLIPSER; Func[void bitmap::Ellipse(int, int, int, int, int, int, int, int, int, int, bool, int)] Body Start | 3392 resources/include/bindings/bitmap.zh:82
-POPARGS D5 0.0013                                                               | 3393 resources/include/bindings/bitmap.zh:82
-RETURNFUNC; Func[void bitmap::Ellipse(int, int, int, int, int, int, int, int, int, int, bool, int)] Body End | 3394 resources/include/bindings/bitmap.zh:82
-BMPLINER; Func[void bitmap::Line(int, int, int, int, int, int, int, int, int, int, int)] Body Start | 3395 resources/include/bindings/bitmap.zh:91
-POPARGS D5 0.0012                                                               | 3396 resources/include/bindings/bitmap.zh:91
-RETURNFUNC; Func[void bitmap::Line(int, int, int, int, int, int, int, int, int, int, int)] Body End | 3397 resources/include/bindings/bitmap.zh:91
-BMPSPLINER; Func[void bitmap::Spline(int, int, int, int, int, int, int, int, int, int, int)] Body Start | 3398 resources/include/bindings/bitmap.zh:100
-POPARGS D5 0.0012                                                               | 3399 resources/include/bindings/bitmap.zh:100
-RETURNFUNC; Func[void bitmap::Spline(int, int, int, int, int, int, int, int, int, int, int)] Body End | 3400 resources/include/bindings/bitmap.zh:100
-BMPPUTPIXELR; Func[void bitmap::PutPixel(int, int, int, int, int, int, int, int)] Body Start | 3401 resources/include/bindings/bitmap.zh:108
-POPARGS D5 0.0009                                                               | 3402 resources/include/bindings/bitmap.zh:108
-RETURNFUNC; Func[void bitmap::PutPixel(int, int, int, int, int, int, int, int)] Body End | 3403 resources/include/bindings/bitmap.zh:108
-BMPDRAWCHARR; Func[void bitmap::DrawCharacter(int, int, int, int, int, int, int, int, char32, int)] Body Start | 3404 resources/include/bindings/bitmap.zh:116
-POPARGS D5 0.0011                                                               | 3405 resources/include/bindings/bitmap.zh:116
-RETURNFUNC; Func[void bitmap::DrawCharacter(int, int, int, int, int, int, int, int, char32, int)] Body End | 3406 resources/include/bindings/bitmap.zh:116
-BMPDRAWINTR; Func[void bitmap::DrawInteger(int, int, int, int, int, int, int, int, int, int, int)] Body Start | 3407 resources/include/bindings/bitmap.zh:125
-POPARGS D5 0.0012                                                               | 3408 resources/include/bindings/bitmap.zh:125
-RETURNFUNC; Func[void bitmap::DrawInteger(int, int, int, int, int, int, int, int, int, int, int)] Body End | 3409 resources/include/bindings/bitmap.zh:125
-BMPDRAWTILER; Func[void bitmap::DrawTile(int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Body Start | 3410 resources/include/bindings/bitmap.zh:135
-POPARGS D5 0.0016                                                               | 3411 resources/include/bindings/bitmap.zh:135
-RETURNFUNC; Func[void bitmap::DrawTile(int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Body End | 3412 resources/include/bindings/bitmap.zh:135
-BMPDRAWMINITILE; Func[void bitmap::DrawMiniTile(int, int, int, int, CornerIndex, int, int)] Body Start | 3413 resources/include/bindings/bitmap.zh:147
-POPARGS D5 0.0008                                                               | 3414 resources/include/bindings/bitmap.zh:147
-RETURNFUNC; Func[void bitmap::DrawMiniTile(int, int, int, int, CornerIndex, int, int)] Body End | 3415 resources/include/bindings/bitmap.zh:147
-BMPDRAWTILECLOAKEDR; Func[void bitmap::DrawTileCloaked(int, int, int, int, int, int, int)] Body Start | 3416 resources/include/bindings/bitmap.zh:155
-POPARGS D5 0.0008                                                               | 3417 resources/include/bindings/bitmap.zh:155
-RETURNFUNC; Func[void bitmap::DrawTileCloaked(int, int, int, int, int, int, int)] Body End | 3418 resources/include/bindings/bitmap.zh:155
-BMPDRAWCOMBOR; Func[void bitmap::DrawCombo(int, int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Body Start | 3419 resources/include/bindings/bitmap.zh:161
-POPARGS D5 0.0017                                                               | 3420 resources/include/bindings/bitmap.zh:161
-RETURNFUNC; Func[void bitmap::DrawCombo(int, int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Body End | 3421 resources/include/bindings/bitmap.zh:161
-BMPDRAWCOMBOCLOAKEDR; Func[void bitmap::DrawComboCloaked(int, int, int, int, int, int, int)] Body Start | 3422 resources/include/bindings/bitmap.zh:172
-POPARGS D5 0.0008                                                               | 3423 resources/include/bindings/bitmap.zh:172
-RETURNFUNC; Func[void bitmap::DrawComboCloaked(int, int, int, int, int, int, int)] Body End | 3424 resources/include/bindings/bitmap.zh:172
-BMPQUADR; Func[void bitmap::Quad(int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, bitmap)] Body Start | 3425 resources/include/bindings/bitmap.zh:193
-POPARGS D5 0.0017                                                               | 3426 resources/include/bindings/bitmap.zh:193
-RETURNFUNC; Func[void bitmap::Quad(int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, bitmap)] Body End | 3427 resources/include/bindings/bitmap.zh:193
-BMPTRIANGLER; Func[void bitmap::Triangle(int, int, int, int, int, int, int, int, int, int, int, int, int, bitmap)] Body Start | 3428 resources/include/bindings/bitmap.zh:201
-POPARGS D5 0.0015                                                               | 3429 resources/include/bindings/bitmap.zh:201
-RETURNFUNC; Func[void bitmap::Triangle(int, int, int, int, int, int, int, int, int, int, int, int, int, bitmap)] Body End | 3430 resources/include/bindings/bitmap.zh:201
-BMPQUAD3DR; Func[void bitmap::Quad3D(int, int, int, int, int, int, int, int, bitmap)] Body Start | 3431 resources/include/bindings/bitmap.zh:230
-POPARGS D5 0.0010                                                               | 3432 resources/include/bindings/bitmap.zh:230
-RETURNFUNC; Func[void bitmap::Quad3D(int, int, int, int, int, int, int, int, bitmap)] Body End | 3433 resources/include/bindings/bitmap.zh:230
-BMPTRIANGLE3DR; Func[void bitmap::Triangle3D(int, int, int, int, int, int, int, int, bitmap)] Body Start | 3434 resources/include/bindings/bitmap.zh:237
-POPARGS D5 0.0010                                                               | 3435 resources/include/bindings/bitmap.zh:237
-RETURNFUNC; Func[void bitmap::Triangle3D(int, int, int, int, int, int, int, int, bitmap)] Body End | 3436 resources/include/bindings/bitmap.zh:237
-BMPFASTTILER; Func[void bitmap::FastTile(int, int, int, int, int, int)] Body Start | 3437 resources/include/bindings/bitmap.zh:247
-POPARGS D5 0.0007                                                               | 3438 resources/include/bindings/bitmap.zh:247
-RETURNFUNC; Func[void bitmap::FastTile(int, int, int, int, int, int)] Body End  | 3439 resources/include/bindings/bitmap.zh:247
-BMPFASTCOMBOR; Func[void bitmap::FastCombo(int, int, int, int, int, int)] Body Start | 3440 resources/include/bindings/bitmap.zh:255
-POPARGS D5 0.0007                                                               | 3441 resources/include/bindings/bitmap.zh:255
-RETURNFUNC; Func[void bitmap::FastCombo(int, int, int, int, int, int)] Body End | 3442 resources/include/bindings/bitmap.zh:255
-BMPDRAWSTRINGR; Func[void bitmap::DrawString(int, int, int, int, int, int, int, char32[], int)] Body Start | 3443 resources/include/bindings/bitmap.zh:263
-POPARGS D5 0.0010                                                               | 3444 resources/include/bindings/bitmap.zh:263
-RETURNFUNC; Func[void bitmap::DrawString(int, int, int, int, int, int, int, char32[], int)] Body End | 3445 resources/include/bindings/bitmap.zh:263
-BMPDRAWSTRINGR2; Func[void bitmap::DrawString(int, int, int, int, int, int, int, char32[], int, int, int)] Body Start | 3446 resources/include/bindings/bitmap.zh:272
-POPARGS D5 0.0012                                                               | 3447 resources/include/bindings/bitmap.zh:272
-RETURNFUNC; Func[void bitmap::DrawString(int, int, int, int, int, int, int, char32[], int, int, int)] Body End | 3448 resources/include/bindings/bitmap.zh:272
-BMPDRAWLAYERR; Func[void bitmap::DrawLayer(int, int, int, int, int, int, int, int)] Body Start | 3449 resources/include/bindings/bitmap.zh:281
-POPARGS D5 0.0009                                                               | 3450 resources/include/bindings/bitmap.zh:281
-RETURNFUNC; Func[void bitmap::DrawLayer(int, int, int, int, int, int, int, int)] Body End | 3451 resources/include/bindings/bitmap.zh:281
-BMPDRAWSCREENR; Func[void bitmap::DrawScreen(int, int, int, int, int, int)] Body Start | 3452 resources/include/bindings/bitmap.zh:288
-POPARGS D5 0.0007                                                               | 3453 resources/include/bindings/bitmap.zh:288
-RETURNFUNC; Func[void bitmap::DrawScreen(int, int, int, int, int, int)] Body End | 3454 resources/include/bindings/bitmap.zh:288
-BMPDRAWMAPDATA; Func[void bitmap::DrawMapdata(int, mapdata, int, int, int)] Body Start | 3455 resources/include/bindings/bitmap.zh:301
-POPARGS D5 0.0006                                                               | 3456 resources/include/bindings/bitmap.zh:301
-RETURNFUNC; Func[void bitmap::DrawMapdata(int, mapdata, int, int, int)] Body End | 3457 resources/include/bindings/bitmap.zh:301
-BMPBLIT; Func[void bitmap::Blit(int, untyped, int, int, int, int, int, int, int, int, int, int, int, int, int, bool)] Body Start | 3458 resources/include/bindings/bitmap.zh:332
-POPARGS D5 0.0017                                                               | 3459 resources/include/bindings/bitmap.zh:332
-RETURNFUNC; Func[void bitmap::Blit(int, untyped, int, int, int, int, int, int, int, int, int, int, int, int, int, bool)] Body End | 3460 resources/include/bindings/bitmap.zh:332
-BMPBLITTO; Func[void bitmap::BlitTo(int, untyped, int, int, int, int, int, int, int, int, int, int, int, int, int, bool)] Body Start | 3461 resources/include/bindings/bitmap.zh:369
-POPARGS D5 0.0017                                                               | 3462 resources/include/bindings/bitmap.zh:369
-RETURNFUNC; Func[void bitmap::BlitTo(int, untyped, int, int, int, int, int, int, int, int, int, int, int, int, int, bool)] Body End | 3463 resources/include/bindings/bitmap.zh:369
-BMPTILEBLIT; Func[void bitmap::TileBlit(int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, bool)] Body Start | 3464 resources/include/bindings/bitmap.zh:395
-POPARGS D5 0.0018                                                               | 3465 resources/include/bindings/bitmap.zh:395
-RETURNFUNC; Func[void bitmap::TileBlit(int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, bool)] Body End | 3466 resources/include/bindings/bitmap.zh:395
-BMPCOMBOBLIT; Func[void bitmap::ComboBlit(int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, bool)] Body Start | 3467 resources/include/bindings/bitmap.zh:420
-POPARGS D5 0.0018                                                               | 3468 resources/include/bindings/bitmap.zh:420
-RETURNFUNC; Func[void bitmap::ComboBlit(int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, bool)] Body End | 3469 resources/include/bindings/bitmap.zh:420
-BMPMODE7; Func[void bitmap::DrawPlane(int, untyped, int, int, int, int, int, int, int, int, int, int, bool)] Body Start | 3470 resources/include/bindings/bitmap.zh:431
-POPARGS D5 0.0014                                                               | 3471 resources/include/bindings/bitmap.zh:431
-RETURNFUNC; Func[void bitmap::DrawPlane(int, untyped, int, int, int, int, int, int, int, int, int, int, bool)] Body End | 3472 resources/include/bindings/bitmap.zh:431
-POP D2; Func[bool bitmap::isValid()] Body Start                                 | 3473 resources/include/bindings/bitmap.zh:441
-ISVALIDBITMAP D2                                                                | 3474 resources/include/bindings/bitmap.zh:441
-RETURNFUNC; Func[bool bitmap::isValid()] Body End                               | 3475 resources/include/bindings/bitmap.zh:441
-POP D2; Func[bool bitmap::isAllocated()] Body Start                             | 3476 resources/include/bindings/bitmap.zh:448
-ISALLOCATEDBITMAP D2                                                            | 3477 resources/include/bindings/bitmap.zh:448
-RETURNFUNC; Func[bool bitmap::isAllocated()] Body End                           | 3478 resources/include/bindings/bitmap.zh:448
-WRITEBITMAP; Func[void bitmap::Write(int, char32[], bool)] Body Start           | 3479 resources/include/bindings/bitmap.zh:456
-POPARGS D5 0.0004                                                               | 3480 resources/include/bindings/bitmap.zh:456
-RETURNFUNC; Func[void bitmap::Write(int, char32[], bool)] Body End              | 3481 resources/include/bindings/bitmap.zh:456
-READBITMAP; Func[void bitmap::Read(int, char32[])] Body Start                   | 3482 resources/include/bindings/bitmap.zh:466
-POPARGS D5 0.0003                                                               | 3483 resources/include/bindings/bitmap.zh:466
-RETURNFUNC; Func[void bitmap::Read(int, char32[])] Body End                     | 3484 resources/include/bindings/bitmap.zh:466
-REGENERATEBITMAP; Func[void bitmap::Create(int, int, int)] Body Start           | 3485 resources/include/bindings/bitmap.zh:475
-POPARGS D5 0.0004                                                               | 3486 resources/include/bindings/bitmap.zh:475
-RETURNFUNC; Func[void bitmap::Create(int, int, int)] Body End                   | 3487 resources/include/bindings/bitmap.zh:475
-BMPPOLYGONR; Func[void bitmap::Polygon(int, int, int[], int, int)] Body Start   | 3488 resources/include/bindings/bitmap.zh:480
-POPARGS D5 0.0006                                                               | 3489 resources/include/bindings/bitmap.zh:480
-RETURNFUNC; Func[void bitmap::Polygon(int, int, int[], int, int)] Body End      | 3490 resources/include/bindings/bitmap.zh:480
-BITMAPCLEARTOCOLOR; Func[void bitmap::ClearToColor(int, int)] Body Start        | 3491 resources/include/bindings/bitmap.zh:488
-POPARGS D5 0.0003                                                               | 3492 resources/include/bindings/bitmap.zh:488
-RETURNFUNC; Func[void bitmap::ClearToColor(int, int)] Body End                  | 3493 resources/include/bindings/bitmap.zh:488
-POP REFBITMAP; Func[void bitmap::Free()] Body Start                             | 3494 resources/include/bindings/bitmap.zh:500
-BITMAPFREE                                                                      | 3495 resources/include/bindings/bitmap.zh:500
-RETURNFUNC; Func[void bitmap::Free()] Body End                                  | 3496 resources/include/bindings/bitmap.zh:500
-POP REFBITMAP; Func[void bitmap::Own()] Body Start                              | 3497 resources/include/bindings/bitmap.zh:510
-BITMAPOWN                                                                       | 3498 resources/include/bindings/bitmap.zh:510
-RETURNFUNC; Func[void bitmap::Own()] Body End                                   | 3499 resources/include/bindings/bitmap.zh:510
-BMPFRAMER; Func[void bitmap::DrawFrame(int, int, int, int, int, int, int, bool, int)] Body Start | 3500 resources/include/bindings/bitmap.zh:517
-POPARGS D5 0.0010                                                               | 3501 resources/include/bindings/bitmap.zh:517
-RETURNFUNC; Func[void bitmap::DrawFrame(int, int, int, int, int, int, int, bool, int)] Body End | 3502 resources/include/bindings/bitmap.zh:517
-BMPWRITETILE; Func[void bitmap::WriteTile(int, int, int, int, bool, bool)] Body Start | 3503 resources/include/bindings/bitmap.zh:528
-POPARGS D5 0.0007                                                               | 3504 resources/include/bindings/bitmap.zh:528
-RETURNFUNC; Func[void bitmap::WriteTile(int, int, int, int, bool, bool)] Body End | 3505 resources/include/bindings/bitmap.zh:528
-BMPDITHER; Func[void bitmap::Dither(int, bitmap, int, int, int)] Body Start     | 3506 resources/include/bindings/bitmap.zh:538
-POPARGS D5 0.0006                                                               | 3507 resources/include/bindings/bitmap.zh:538
-RETURNFUNC; Func[void bitmap::Dither(int, bitmap, int, int, int)] Body End      | 3508 resources/include/bindings/bitmap.zh:538
-BMPREPLCOLOR; Func[void bitmap::ReplaceColors(int, int, int, int)] Body Start   | 3509 resources/include/bindings/bitmap.zh:546
-POPARGS D5 0.0005                                                               | 3510 resources/include/bindings/bitmap.zh:546
-RETURNFUNC; Func[void bitmap::ReplaceColors(int, int, int, int)] Body End       | 3511 resources/include/bindings/bitmap.zh:546
-BMPSHIFTCOLOR; Func[void bitmap::ShiftColors(int, int, int, int)] Body Start    | 3512 resources/include/bindings/bitmap.zh:554
-POPARGS D5 0.0005                                                               | 3513 resources/include/bindings/bitmap.zh:554
-RETURNFUNC; Func[void bitmap::ShiftColors(int, int, int, int)] Body End         | 3514 resources/include/bindings/bitmap.zh:554
-BMPMASKDRAW; Func[void bitmap::MaskedDraw(int, bitmap, int)] Body Start         | 3515 resources/include/bindings/bitmap.zh:562
-POPARGS D5 0.0004                                                               | 3516 resources/include/bindings/bitmap.zh:562
-RETURNFUNC; Func[void bitmap::MaskedDraw(int, bitmap, int)] Body End            | 3517 resources/include/bindings/bitmap.zh:562
-BMPMASKDRAW2; Func[void bitmap::MaskedDraw(int, bitmap, int, int)] Body Start   | 3518 resources/include/bindings/bitmap.zh:570
-POPARGS D5 0.0005                                                               | 3519 resources/include/bindings/bitmap.zh:570
-RETURNFUNC; Func[void bitmap::MaskedDraw(int, bitmap, int, int)] Body End       | 3520 resources/include/bindings/bitmap.zh:570
-BMPMASKDRAW3; Func[void bitmap::MaskedDraw(int, bitmap, int, int, int)] Body Start | 3521 resources/include/bindings/bitmap.zh:578
-POPARGS D5 0.0006                                                               | 3522 resources/include/bindings/bitmap.zh:578
-RETURNFUNC; Func[void bitmap::MaskedDraw(int, bitmap, int, int, int)] Body End  | 3523 resources/include/bindings/bitmap.zh:578
-BMPMASKBLIT; Func[void bitmap::MaskedBlit(int, bitmap, bitmap, bool)] Body Start | 3524 resources/include/bindings/bitmap.zh:587
-POPARGS D5 0.0005                                                               | 3525 resources/include/bindings/bitmap.zh:587
-RETURNFUNC; Func[void bitmap::MaskedBlit(int, bitmap, bitmap, bool)] Body End   | 3526 resources/include/bindings/bitmap.zh:587
-BMPMASKBLIT2; Func[void bitmap::MaskedBlit(int, bitmap, bitmap, bool, int)] Body Start | 3527 resources/include/bindings/bitmap.zh:596
-POPARGS D5 0.0006                                                               | 3528 resources/include/bindings/bitmap.zh:596
-RETURNFUNC; Func[void bitmap::MaskedBlit(int, bitmap, bitmap, bool, int)] Body End | 3529 resources/include/bindings/bitmap.zh:596
-BMPMASKBLIT3; Func[void bitmap::MaskedBlit(int, bitmap, bitmap, bool, int, int)] Body Start | 3530 resources/include/bindings/bitmap.zh:605
-POPARGS D5 0.0007                                                               | 3531 resources/include/bindings/bitmap.zh:605
-RETURNFUNC; Func[void bitmap::MaskedBlit(int, bitmap, bitmap, bool, int, int)] Body End | 3532 resources/include/bindings/bitmap.zh:605
-CLEARBITMAP; Func[void bitmap::Clear(int)] Body Start                           | 3533 resources/include/bindings/bitmap.zh:614
-POPARGS D5 0.0002                                                               | 3534 resources/include/bindings/bitmap.zh:614
-RETURNFUNC; Func[void bitmap::Clear(int)] Body End                              | 3535 resources/include/bindings/bitmap.zh:614
-BMPDRAWSCREENSOLID2R; Func[void bitmap::DrawScreenSolid(int, int, int, int, int, int)] Body Start | 3536 resources/include/bindings/bitmap.zh:619
-POPARGS D5 0.0007                                                               | 3537 resources/include/bindings/bitmap.zh:619
-RETURNFUNC; Func[void bitmap::DrawScreenSolid(int, int, int, int, int, int)] Body End | 3538 resources/include/bindings/bitmap.zh:619
-BMPDRAWSCREENSOLIDR; Func[void bitmap::DrawScreenSolidity(int, int, int, int, int, int)] Body Start | 3539 resources/include/bindings/bitmap.zh:625
-POPARGS D5 0.0007                                                               | 3540 resources/include/bindings/bitmap.zh:625
-RETURNFUNC; Func[void bitmap::DrawScreenSolidity(int, int, int, int, int, int)] Body End | 3541 resources/include/bindings/bitmap.zh:625
-BMPDRAWSCREENCOMBOTR; Func[void bitmap::DrawScreenComboTypes(int, int, int, int, int, int)] Body Start | 3542 resources/include/bindings/bitmap.zh:631
-POPARGS D5 0.0007                                                               | 3543 resources/include/bindings/bitmap.zh:631
-RETURNFUNC; Func[void bitmap::DrawScreenComboTypes(int, int, int, int, int, int)] Body End | 3544 resources/include/bindings/bitmap.zh:631
-BMPDRAWSCREENCOMBOFR; Func[void bitmap::DrawScreenComboFlags(int, int, int, int, int, int)] Body Start | 3545 resources/include/bindings/bitmap.zh:637
-POPARGS D5 0.0007                                                               | 3546 resources/include/bindings/bitmap.zh:637
-RETURNFUNC; Func[void bitmap::DrawScreenComboFlags(int, int, int, int, int, int)] Body End | 3547 resources/include/bindings/bitmap.zh:637
-BMPDRAWSCREENCOMBOIR; Func[void bitmap::DrawScreenComboIFlags(int, int, int, int, int, int)] Body Start | 3548 resources/include/bindings/bitmap.zh:643
-POPARGS D5 0.0007                                                               | 3549 resources/include/bindings/bitmap.zh:643
-RETURNFUNC; Func[void bitmap::DrawScreenComboIFlags(int, int, int, int, int, int)] Body End | 3550 resources/include/bindings/bitmap.zh:643
-BMPDRAWLAYERSOLIDR; Func[void bitmap::DrawLayerSolid(int, int, int, int, int, int, int, bool, int)] Body Start | 3551 resources/include/bindings/bitmap.zh:649
-POPARGS D5 0.0010                                                               | 3552 resources/include/bindings/bitmap.zh:649
-RETURNFUNC; Func[void bitmap::DrawLayerSolid(int, int, int, int, int, int, int, bool, int)] Body End | 3553 resources/include/bindings/bitmap.zh:649
-BMPDRAWLAYERSOLIDITYR; Func[void bitmap::DrawLayerSolidity(int, int, int, int, int, int, int, bool, int)] Body Start | 3554 resources/include/bindings/bitmap.zh:655
-POPARGS D5 0.0010                                                               | 3555 resources/include/bindings/bitmap.zh:655
-RETURNFUNC; Func[void bitmap::DrawLayerSolidity(int, int, int, int, int, int, int, bool, int)] Body End | 3556 resources/include/bindings/bitmap.zh:655
-BMPDRAWLAYERCTYPER; Func[void bitmap::DrawLayerComboTypes(int, int, int, int, int, int, int, bool, int)] Body Start | 3557 resources/include/bindings/bitmap.zh:661
-POPARGS D5 0.0010                                                               | 3558 resources/include/bindings/bitmap.zh:661
-RETURNFUNC; Func[void bitmap::DrawLayerComboTypes(int, int, int, int, int, int, int, bool, int)] Body End | 3559 resources/include/bindings/bitmap.zh:661
-BMPDRAWLAYERCFLAGR; Func[void bitmap::DrawLayerComboFlags(int, int, int, int, int, int, int, bool, int)] Body Start | 3560 resources/include/bindings/bitmap.zh:667
-POPARGS D5 0.0010                                                               | 3561 resources/include/bindings/bitmap.zh:667
-RETURNFUNC; Func[void bitmap::DrawLayerComboFlags(int, int, int, int, int, int, int, bool, int)] Body End | 3562 resources/include/bindings/bitmap.zh:667
-BMPDRAWLAYERCIFLAGR; Func[void bitmap::DrawLayerComboIFlags(int, int, int, int, int, int, int, bool, int)] Body Start | 3563 resources/include/bindings/bitmap.zh:673
-POPARGS D5 0.0010                                                               | 3564 resources/include/bindings/bitmap.zh:673
-RETURNFUNC; Func[void bitmap::DrawLayerComboIFlags(int, int, int, int, int, int, int, bool, int)] Body End | 3565 resources/include/bindings/bitmap.zh:673
+POP D1; Func[bitmap bitmap::bitmap(int, int)] Body Start                        | 3371 resources/include/bindings/bitmap.zh:14
+POP D0                                                                          | 3372 resources/include/bindings/bitmap.zh:14
+SETR D2 CREATEBITMAP                                                            | 3373 resources/include/bindings/bitmap.zh:14
+RETURNFUNC; Func[bitmap bitmap::bitmap(int, int)] Body End                      | 3374 resources/include/bindings/bitmap.zh:14
+POP D0; Func[int bitmap::GetPixel(int, int)] Body Start                         | 3375 resources/include/bindings/bitmap.zh:34
+POP D1                                                                          | 3376 resources/include/bindings/bitmap.zh:34
+POP D2                                                                          | 3377 resources/include/bindings/bitmap.zh:34
+GRAPHICSGETPIXEL D2                                                             | 3378 resources/include/bindings/bitmap.zh:34
+RETURNFUNC; Func[int bitmap::GetPixel(int, int)] Body End                       | 3379 resources/include/bindings/bitmap.zh:34
+GRAPHICSCOUNTCOLOR D2; Func[int bitmap::CountColor(bitmap, int, int, int, int)] Body Start | 3380 resources/include/bindings/bitmap.zh:43
+POPARGS D5 0.0006                                                               | 3381 resources/include/bindings/bitmap.zh:43
+RETURNFUNC; Func[int bitmap::CountColor(bitmap, int, int, int, int)] Body End   | 3382 resources/include/bindings/bitmap.zh:43
+BMPRECTR; Func[void bitmap::Rectangle(int, int, int, int, int, int, int, int, int, int, bool, int)] Body Start | 3383 resources/include/bindings/bitmap.zh:51
+POPARGS D5 0.0013                                                               | 3384 resources/include/bindings/bitmap.zh:51
+RETURNFUNC; Func[void bitmap::Rectangle(int, int, int, int, int, int, int, int, int, int, bool, int)] Body End | 3385 resources/include/bindings/bitmap.zh:51
+BMPCIRCLER; Func[void bitmap::Circle(int, int, int, int, int, int, int, int, int, bool, int)] Body Start | 3386 resources/include/bindings/bitmap.zh:61
+POPARGS D5 0.0012                                                               | 3387 resources/include/bindings/bitmap.zh:61
+RETURNFUNC; Func[void bitmap::Circle(int, int, int, int, int, int, int, int, int, bool, int)] Body End | 3388 resources/include/bindings/bitmap.zh:61
+BMPARCR; Func[void bitmap::Arc(int, int, int, int, int, int, int, int, int, int, int, bool, bool, int)] Body Start | 3389 resources/include/bindings/bitmap.zh:77
+POPARGS D5 0.0015                                                               | 3390 resources/include/bindings/bitmap.zh:77
+RETURNFUNC; Func[void bitmap::Arc(int, int, int, int, int, int, int, int, int, int, int, bool, bool, int)] Body End | 3391 resources/include/bindings/bitmap.zh:77
+BMPELLIPSER; Func[void bitmap::Ellipse(int, int, int, int, int, int, int, int, int, int, bool, int)] Body Start | 3392 resources/include/bindings/bitmap.zh:87
+POPARGS D5 0.0013                                                               | 3393 resources/include/bindings/bitmap.zh:87
+RETURNFUNC; Func[void bitmap::Ellipse(int, int, int, int, int, int, int, int, int, int, bool, int)] Body End | 3394 resources/include/bindings/bitmap.zh:87
+BMPLINER; Func[void bitmap::Line(int, int, int, int, int, int, int, int, int, int, int)] Body Start | 3395 resources/include/bindings/bitmap.zh:96
+POPARGS D5 0.0012                                                               | 3396 resources/include/bindings/bitmap.zh:96
+RETURNFUNC; Func[void bitmap::Line(int, int, int, int, int, int, int, int, int, int, int)] Body End | 3397 resources/include/bindings/bitmap.zh:96
+BMPSPLINER; Func[void bitmap::Spline(int, int, int, int, int, int, int, int, int, int, int)] Body Start | 3398 resources/include/bindings/bitmap.zh:105
+POPARGS D5 0.0012                                                               | 3399 resources/include/bindings/bitmap.zh:105
+RETURNFUNC; Func[void bitmap::Spline(int, int, int, int, int, int, int, int, int, int, int)] Body End | 3400 resources/include/bindings/bitmap.zh:105
+BMPPUTPIXELR; Func[void bitmap::PutPixel(int, int, int, int, int, int, int, int)] Body Start | 3401 resources/include/bindings/bitmap.zh:113
+POPARGS D5 0.0009                                                               | 3402 resources/include/bindings/bitmap.zh:113
+RETURNFUNC; Func[void bitmap::PutPixel(int, int, int, int, int, int, int, int)] Body End | 3403 resources/include/bindings/bitmap.zh:113
+BMPDRAWCHARR; Func[void bitmap::DrawCharacter(int, int, int, int, int, int, int, int, char32, int)] Body Start | 3404 resources/include/bindings/bitmap.zh:121
+POPARGS D5 0.0011                                                               | 3405 resources/include/bindings/bitmap.zh:121
+RETURNFUNC; Func[void bitmap::DrawCharacter(int, int, int, int, int, int, int, int, char32, int)] Body End | 3406 resources/include/bindings/bitmap.zh:121
+BMPDRAWINTR; Func[void bitmap::DrawInteger(int, int, int, int, int, int, int, int, int, int, int)] Body Start | 3407 resources/include/bindings/bitmap.zh:130
+POPARGS D5 0.0012                                                               | 3408 resources/include/bindings/bitmap.zh:130
+RETURNFUNC; Func[void bitmap::DrawInteger(int, int, int, int, int, int, int, int, int, int, int)] Body End | 3409 resources/include/bindings/bitmap.zh:130
+BMPDRAWTILER; Func[void bitmap::DrawTile(int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Body Start | 3410 resources/include/bindings/bitmap.zh:140
+POPARGS D5 0.0016                                                               | 3411 resources/include/bindings/bitmap.zh:140
+RETURNFUNC; Func[void bitmap::DrawTile(int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Body End | 3412 resources/include/bindings/bitmap.zh:140
+BMPDRAWMINITILE; Func[void bitmap::DrawMiniTile(int, int, int, int, CornerIndex, int, int)] Body Start | 3413 resources/include/bindings/bitmap.zh:152
+POPARGS D5 0.0008                                                               | 3414 resources/include/bindings/bitmap.zh:152
+RETURNFUNC; Func[void bitmap::DrawMiniTile(int, int, int, int, CornerIndex, int, int)] Body End | 3415 resources/include/bindings/bitmap.zh:152
+BMPDRAWTILECLOAKEDR; Func[void bitmap::DrawTileCloaked(int, int, int, int, int, int, int)] Body Start | 3416 resources/include/bindings/bitmap.zh:160
+POPARGS D5 0.0008                                                               | 3417 resources/include/bindings/bitmap.zh:160
+RETURNFUNC; Func[void bitmap::DrawTileCloaked(int, int, int, int, int, int, int)] Body End | 3418 resources/include/bindings/bitmap.zh:160
+BMPDRAWCOMBOR; Func[void bitmap::DrawCombo(int, int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Body Start | 3419 resources/include/bindings/bitmap.zh:166
+POPARGS D5 0.0017                                                               | 3420 resources/include/bindings/bitmap.zh:166
+RETURNFUNC; Func[void bitmap::DrawCombo(int, int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Body End | 3421 resources/include/bindings/bitmap.zh:166
+BMPDRAWCOMBOCLOAKEDR; Func[void bitmap::DrawComboCloaked(int, int, int, int, int, int, int)] Body Start | 3422 resources/include/bindings/bitmap.zh:177
+POPARGS D5 0.0008                                                               | 3423 resources/include/bindings/bitmap.zh:177
+RETURNFUNC; Func[void bitmap::DrawComboCloaked(int, int, int, int, int, int, int)] Body End | 3424 resources/include/bindings/bitmap.zh:177
+BMPQUADR; Func[void bitmap::Quad(int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, bitmap)] Body Start | 3425 resources/include/bindings/bitmap.zh:198
+POPARGS D5 0.0017                                                               | 3426 resources/include/bindings/bitmap.zh:198
+RETURNFUNC; Func[void bitmap::Quad(int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, bitmap)] Body End | 3427 resources/include/bindings/bitmap.zh:198
+BMPTRIANGLER; Func[void bitmap::Triangle(int, int, int, int, int, int, int, int, int, int, int, int, int, bitmap)] Body Start | 3428 resources/include/bindings/bitmap.zh:206
+POPARGS D5 0.0015                                                               | 3429 resources/include/bindings/bitmap.zh:206
+RETURNFUNC; Func[void bitmap::Triangle(int, int, int, int, int, int, int, int, int, int, int, int, int, bitmap)] Body End | 3430 resources/include/bindings/bitmap.zh:206
+BMPQUAD3DR; Func[void bitmap::Quad3D(int, int, int, int, int, int, int, int, bitmap)] Body Start | 3431 resources/include/bindings/bitmap.zh:235
+POPARGS D5 0.0010                                                               | 3432 resources/include/bindings/bitmap.zh:235
+RETURNFUNC; Func[void bitmap::Quad3D(int, int, int, int, int, int, int, int, bitmap)] Body End | 3433 resources/include/bindings/bitmap.zh:235
+BMPTRIANGLE3DR; Func[void bitmap::Triangle3D(int, int, int, int, int, int, int, int, bitmap)] Body Start | 3434 resources/include/bindings/bitmap.zh:242
+POPARGS D5 0.0010                                                               | 3435 resources/include/bindings/bitmap.zh:242
+RETURNFUNC; Func[void bitmap::Triangle3D(int, int, int, int, int, int, int, int, bitmap)] Body End | 3436 resources/include/bindings/bitmap.zh:242
+BMPFASTTILER; Func[void bitmap::FastTile(int, int, int, int, int, int)] Body Start | 3437 resources/include/bindings/bitmap.zh:252
+POPARGS D5 0.0007                                                               | 3438 resources/include/bindings/bitmap.zh:252
+RETURNFUNC; Func[void bitmap::FastTile(int, int, int, int, int, int)] Body End  | 3439 resources/include/bindings/bitmap.zh:252
+BMPFASTCOMBOR; Func[void bitmap::FastCombo(int, int, int, int, int, int)] Body Start | 3440 resources/include/bindings/bitmap.zh:260
+POPARGS D5 0.0007                                                               | 3441 resources/include/bindings/bitmap.zh:260
+RETURNFUNC; Func[void bitmap::FastCombo(int, int, int, int, int, int)] Body End | 3442 resources/include/bindings/bitmap.zh:260
+BMPDRAWSTRINGR; Func[void bitmap::DrawString(int, int, int, int, int, int, int, char32[], int)] Body Start | 3443 resources/include/bindings/bitmap.zh:268
+POPARGS D5 0.0010                                                               | 3444 resources/include/bindings/bitmap.zh:268
+RETURNFUNC; Func[void bitmap::DrawString(int, int, int, int, int, int, int, char32[], int)] Body End | 3445 resources/include/bindings/bitmap.zh:268
+BMPDRAWSTRINGR2; Func[void bitmap::DrawString(int, int, int, int, int, int, int, char32[], int, int, int)] Body Start | 3446 resources/include/bindings/bitmap.zh:277
+POPARGS D5 0.0012                                                               | 3447 resources/include/bindings/bitmap.zh:277
+RETURNFUNC; Func[void bitmap::DrawString(int, int, int, int, int, int, int, char32[], int, int, int)] Body End | 3448 resources/include/bindings/bitmap.zh:277
+BMPDRAWLAYERR; Func[void bitmap::DrawLayer(int, int, int, int, int, int, int, int)] Body Start | 3449 resources/include/bindings/bitmap.zh:286
+POPARGS D5 0.0009                                                               | 3450 resources/include/bindings/bitmap.zh:286
+RETURNFUNC; Func[void bitmap::DrawLayer(int, int, int, int, int, int, int, int)] Body End | 3451 resources/include/bindings/bitmap.zh:286
+BMPDRAWSCREENR; Func[void bitmap::DrawScreen(int, int, int, int, int, int)] Body Start | 3452 resources/include/bindings/bitmap.zh:293
+POPARGS D5 0.0007                                                               | 3453 resources/include/bindings/bitmap.zh:293
+RETURNFUNC; Func[void bitmap::DrawScreen(int, int, int, int, int, int)] Body End | 3454 resources/include/bindings/bitmap.zh:293
+BMPDRAWMAPDATA; Func[void bitmap::DrawMapdata(int, mapdata, int, int, int)] Body Start | 3455 resources/include/bindings/bitmap.zh:306
+POPARGS D5 0.0006                                                               | 3456 resources/include/bindings/bitmap.zh:306
+RETURNFUNC; Func[void bitmap::DrawMapdata(int, mapdata, int, int, int)] Body End | 3457 resources/include/bindings/bitmap.zh:306
+BMPBLIT; Func[void bitmap::Blit(int, untyped, int, int, int, int, int, int, int, int, int, int, int, int, int, bool)] Body Start | 3458 resources/include/bindings/bitmap.zh:337
+POPARGS D5 0.0017                                                               | 3459 resources/include/bindings/bitmap.zh:337
+RETURNFUNC; Func[void bitmap::Blit(int, untyped, int, int, int, int, int, int, int, int, int, int, int, int, int, bool)] Body End | 3460 resources/include/bindings/bitmap.zh:337
+BMPBLITTO; Func[void bitmap::BlitTo(int, untyped, int, int, int, int, int, int, int, int, int, int, int, int, int, bool)] Body Start | 3461 resources/include/bindings/bitmap.zh:374
+POPARGS D5 0.0017                                                               | 3462 resources/include/bindings/bitmap.zh:374
+RETURNFUNC; Func[void bitmap::BlitTo(int, untyped, int, int, int, int, int, int, int, int, int, int, int, int, int, bool)] Body End | 3463 resources/include/bindings/bitmap.zh:374
+BMPTILEBLIT; Func[void bitmap::TileBlit(int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, bool)] Body Start | 3464 resources/include/bindings/bitmap.zh:400
+POPARGS D5 0.0018                                                               | 3465 resources/include/bindings/bitmap.zh:400
+RETURNFUNC; Func[void bitmap::TileBlit(int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, bool)] Body End | 3466 resources/include/bindings/bitmap.zh:400
+BMPCOMBOBLIT; Func[void bitmap::ComboBlit(int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, bool)] Body Start | 3467 resources/include/bindings/bitmap.zh:425
+POPARGS D5 0.0018                                                               | 3468 resources/include/bindings/bitmap.zh:425
+RETURNFUNC; Func[void bitmap::ComboBlit(int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, bool)] Body End | 3469 resources/include/bindings/bitmap.zh:425
+BMPMODE7; Func[void bitmap::DrawPlane(int, untyped, int, int, int, int, int, int, int, int, int, int, bool)] Body Start | 3470 resources/include/bindings/bitmap.zh:436
+POPARGS D5 0.0014                                                               | 3471 resources/include/bindings/bitmap.zh:436
+RETURNFUNC; Func[void bitmap::DrawPlane(int, untyped, int, int, int, int, int, int, int, int, int, int, bool)] Body End | 3472 resources/include/bindings/bitmap.zh:436
+POP D2; Func[bool bitmap::isValid()] Body Start                                 | 3473 resources/include/bindings/bitmap.zh:446
+ISVALIDBITMAP D2                                                                | 3474 resources/include/bindings/bitmap.zh:446
+RETURNFUNC; Func[bool bitmap::isValid()] Body End                               | 3475 resources/include/bindings/bitmap.zh:446
+POP D2; Func[bool bitmap::isAllocated()] Body Start                             | 3476 resources/include/bindings/bitmap.zh:453
+ISALLOCATEDBITMAP D2                                                            | 3477 resources/include/bindings/bitmap.zh:453
+RETURNFUNC; Func[bool bitmap::isAllocated()] Body End                           | 3478 resources/include/bindings/bitmap.zh:453
+WRITEBITMAP; Func[void bitmap::Write(int, char32[], bool)] Body Start           | 3479 resources/include/bindings/bitmap.zh:461
+POPARGS D5 0.0004                                                               | 3480 resources/include/bindings/bitmap.zh:461
+RETURNFUNC; Func[void bitmap::Write(int, char32[], bool)] Body End              | 3481 resources/include/bindings/bitmap.zh:461
+READBITMAP; Func[void bitmap::Read(int, char32[])] Body Start                   | 3482 resources/include/bindings/bitmap.zh:471
+POPARGS D5 0.0003                                                               | 3483 resources/include/bindings/bitmap.zh:471
+RETURNFUNC; Func[void bitmap::Read(int, char32[])] Body End                     | 3484 resources/include/bindings/bitmap.zh:471
+REGENERATEBITMAP; Func[void bitmap::Create(int, int, int)] Body Start           | 3485 resources/include/bindings/bitmap.zh:480
+POPARGS D5 0.0004                                                               | 3486 resources/include/bindings/bitmap.zh:480
+RETURNFUNC; Func[void bitmap::Create(int, int, int)] Body End                   | 3487 resources/include/bindings/bitmap.zh:480
+BMPPOLYGONR; Func[void bitmap::Polygon(int, int, int[], int, int)] Body Start   | 3488 resources/include/bindings/bitmap.zh:485
+POPARGS D5 0.0006                                                               | 3489 resources/include/bindings/bitmap.zh:485
+RETURNFUNC; Func[void bitmap::Polygon(int, int, int[], int, int)] Body End      | 3490 resources/include/bindings/bitmap.zh:485
+BITMAPCLEARTOCOLOR; Func[void bitmap::ClearToColor(int, int)] Body Start        | 3491 resources/include/bindings/bitmap.zh:493
+POPARGS D5 0.0003                                                               | 3492 resources/include/bindings/bitmap.zh:493
+RETURNFUNC; Func[void bitmap::ClearToColor(int, int)] Body End                  | 3493 resources/include/bindings/bitmap.zh:493
+POP REFBITMAP; Func[void bitmap::Free()] Body Start                             | 3494 resources/include/bindings/bitmap.zh:505
+BITMAPFREE                                                                      | 3495 resources/include/bindings/bitmap.zh:505
+RETURNFUNC; Func[void bitmap::Free()] Body End                                  | 3496 resources/include/bindings/bitmap.zh:505
+POP REFBITMAP; Func[void bitmap::Own()] Body Start                              | 3497 resources/include/bindings/bitmap.zh:515
+BITMAPOWN                                                                       | 3498 resources/include/bindings/bitmap.zh:515
+RETURNFUNC; Func[void bitmap::Own()] Body End                                   | 3499 resources/include/bindings/bitmap.zh:515
+BMPFRAMER; Func[void bitmap::DrawFrame(int, int, int, int, int, int, int, bool, int)] Body Start | 3500 resources/include/bindings/bitmap.zh:522
+POPARGS D5 0.0010                                                               | 3501 resources/include/bindings/bitmap.zh:522
+RETURNFUNC; Func[void bitmap::DrawFrame(int, int, int, int, int, int, int, bool, int)] Body End | 3502 resources/include/bindings/bitmap.zh:522
+BMPWRITETILE; Func[void bitmap::WriteTile(int, int, int, int, bool, bool)] Body Start | 3503 resources/include/bindings/bitmap.zh:533
+POPARGS D5 0.0007                                                               | 3504 resources/include/bindings/bitmap.zh:533
+RETURNFUNC; Func[void bitmap::WriteTile(int, int, int, int, bool, bool)] Body End | 3505 resources/include/bindings/bitmap.zh:533
+BMPDITHER; Func[void bitmap::Dither(int, bitmap, int, int, int)] Body Start     | 3506 resources/include/bindings/bitmap.zh:543
+POPARGS D5 0.0006                                                               | 3507 resources/include/bindings/bitmap.zh:543
+RETURNFUNC; Func[void bitmap::Dither(int, bitmap, int, int, int)] Body End      | 3508 resources/include/bindings/bitmap.zh:543
+BMPREPLCOLOR; Func[void bitmap::ReplaceColors(int, int, int, int)] Body Start   | 3509 resources/include/bindings/bitmap.zh:551
+POPARGS D5 0.0005                                                               | 3510 resources/include/bindings/bitmap.zh:551
+RETURNFUNC; Func[void bitmap::ReplaceColors(int, int, int, int)] Body End       | 3511 resources/include/bindings/bitmap.zh:551
+BMPSHIFTCOLOR; Func[void bitmap::ShiftColors(int, int, int, int)] Body Start    | 3512 resources/include/bindings/bitmap.zh:559
+POPARGS D5 0.0005                                                               | 3513 resources/include/bindings/bitmap.zh:559
+RETURNFUNC; Func[void bitmap::ShiftColors(int, int, int, int)] Body End         | 3514 resources/include/bindings/bitmap.zh:559
+BMPMASKDRAW; Func[void bitmap::MaskedDraw(int, bitmap, int)] Body Start         | 3515 resources/include/bindings/bitmap.zh:567
+POPARGS D5 0.0004                                                               | 3516 resources/include/bindings/bitmap.zh:567
+RETURNFUNC; Func[void bitmap::MaskedDraw(int, bitmap, int)] Body End            | 3517 resources/include/bindings/bitmap.zh:567
+BMPMASKDRAW2; Func[void bitmap::MaskedDraw(int, bitmap, int, int)] Body Start   | 3518 resources/include/bindings/bitmap.zh:575
+POPARGS D5 0.0005                                                               | 3519 resources/include/bindings/bitmap.zh:575
+RETURNFUNC; Func[void bitmap::MaskedDraw(int, bitmap, int, int)] Body End       | 3520 resources/include/bindings/bitmap.zh:575
+BMPMASKDRAW3; Func[void bitmap::MaskedDraw(int, bitmap, int, int, int)] Body Start | 3521 resources/include/bindings/bitmap.zh:583
+POPARGS D5 0.0006                                                               | 3522 resources/include/bindings/bitmap.zh:583
+RETURNFUNC; Func[void bitmap::MaskedDraw(int, bitmap, int, int, int)] Body End  | 3523 resources/include/bindings/bitmap.zh:583
+BMPMASKBLIT; Func[void bitmap::MaskedBlit(int, bitmap, bitmap, bool)] Body Start | 3524 resources/include/bindings/bitmap.zh:592
+POPARGS D5 0.0005                                                               | 3525 resources/include/bindings/bitmap.zh:592
+RETURNFUNC; Func[void bitmap::MaskedBlit(int, bitmap, bitmap, bool)] Body End   | 3526 resources/include/bindings/bitmap.zh:592
+BMPMASKBLIT2; Func[void bitmap::MaskedBlit(int, bitmap, bitmap, bool, int)] Body Start | 3527 resources/include/bindings/bitmap.zh:601
+POPARGS D5 0.0006                                                               | 3528 resources/include/bindings/bitmap.zh:601
+RETURNFUNC; Func[void bitmap::MaskedBlit(int, bitmap, bitmap, bool, int)] Body End | 3529 resources/include/bindings/bitmap.zh:601
+BMPMASKBLIT3; Func[void bitmap::MaskedBlit(int, bitmap, bitmap, bool, int, int)] Body Start | 3530 resources/include/bindings/bitmap.zh:610
+POPARGS D5 0.0007                                                               | 3531 resources/include/bindings/bitmap.zh:610
+RETURNFUNC; Func[void bitmap::MaskedBlit(int, bitmap, bitmap, bool, int, int)] Body End | 3532 resources/include/bindings/bitmap.zh:610
+CLEARBITMAP; Func[void bitmap::Clear(int)] Body Start                           | 3533 resources/include/bindings/bitmap.zh:619
+POPARGS D5 0.0002                                                               | 3534 resources/include/bindings/bitmap.zh:619
+RETURNFUNC; Func[void bitmap::Clear(int)] Body End                              | 3535 resources/include/bindings/bitmap.zh:619
+BMPDRAWSCREENSOLID2R; Func[void bitmap::DrawScreenSolid(int, int, int, int, int, int)] Body Start | 3536 resources/include/bindings/bitmap.zh:624
+POPARGS D5 0.0007                                                               | 3537 resources/include/bindings/bitmap.zh:624
+RETURNFUNC; Func[void bitmap::DrawScreenSolid(int, int, int, int, int, int)] Body End | 3538 resources/include/bindings/bitmap.zh:624
+BMPDRAWSCREENSOLIDR; Func[void bitmap::DrawScreenSolidity(int, int, int, int, int, int)] Body Start | 3539 resources/include/bindings/bitmap.zh:630
+POPARGS D5 0.0007                                                               | 3540 resources/include/bindings/bitmap.zh:630
+RETURNFUNC; Func[void bitmap::DrawScreenSolidity(int, int, int, int, int, int)] Body End | 3541 resources/include/bindings/bitmap.zh:630
+BMPDRAWSCREENCOMBOTR; Func[void bitmap::DrawScreenComboTypes(int, int, int, int, int, int)] Body Start | 3542 resources/include/bindings/bitmap.zh:636
+POPARGS D5 0.0007                                                               | 3543 resources/include/bindings/bitmap.zh:636
+RETURNFUNC; Func[void bitmap::DrawScreenComboTypes(int, int, int, int, int, int)] Body End | 3544 resources/include/bindings/bitmap.zh:636
+BMPDRAWSCREENCOMBOFR; Func[void bitmap::DrawScreenComboFlags(int, int, int, int, int, int)] Body Start | 3545 resources/include/bindings/bitmap.zh:642
+POPARGS D5 0.0007                                                               | 3546 resources/include/bindings/bitmap.zh:642
+RETURNFUNC; Func[void bitmap::DrawScreenComboFlags(int, int, int, int, int, int)] Body End | 3547 resources/include/bindings/bitmap.zh:642
+BMPDRAWSCREENCOMBOIR; Func[void bitmap::DrawScreenComboIFlags(int, int, int, int, int, int)] Body Start | 3548 resources/include/bindings/bitmap.zh:648
+POPARGS D5 0.0007                                                               | 3549 resources/include/bindings/bitmap.zh:648
+RETURNFUNC; Func[void bitmap::DrawScreenComboIFlags(int, int, int, int, int, int)] Body End | 3550 resources/include/bindings/bitmap.zh:648
+BMPDRAWLAYERSOLIDR; Func[void bitmap::DrawLayerSolid(int, int, int, int, int, int, int, bool, int)] Body Start | 3551 resources/include/bindings/bitmap.zh:654
+POPARGS D5 0.0010                                                               | 3552 resources/include/bindings/bitmap.zh:654
+RETURNFUNC; Func[void bitmap::DrawLayerSolid(int, int, int, int, int, int, int, bool, int)] Body End | 3553 resources/include/bindings/bitmap.zh:654
+BMPDRAWLAYERSOLIDITYR; Func[void bitmap::DrawLayerSolidity(int, int, int, int, int, int, int, bool, int)] Body Start | 3554 resources/include/bindings/bitmap.zh:660
+POPARGS D5 0.0010                                                               | 3555 resources/include/bindings/bitmap.zh:660
+RETURNFUNC; Func[void bitmap::DrawLayerSolidity(int, int, int, int, int, int, int, bool, int)] Body End | 3556 resources/include/bindings/bitmap.zh:660
+BMPDRAWLAYERCTYPER; Func[void bitmap::DrawLayerComboTypes(int, int, int, int, int, int, int, bool, int)] Body Start | 3557 resources/include/bindings/bitmap.zh:666
+POPARGS D5 0.0010                                                               | 3558 resources/include/bindings/bitmap.zh:666
+RETURNFUNC; Func[void bitmap::DrawLayerComboTypes(int, int, int, int, int, int, int, bool, int)] Body End | 3559 resources/include/bindings/bitmap.zh:666
+BMPDRAWLAYERCFLAGR; Func[void bitmap::DrawLayerComboFlags(int, int, int, int, int, int, int, bool, int)] Body Start | 3560 resources/include/bindings/bitmap.zh:672
+POPARGS D5 0.0010                                                               | 3561 resources/include/bindings/bitmap.zh:672
+RETURNFUNC; Func[void bitmap::DrawLayerComboFlags(int, int, int, int, int, int, int, bool, int)] Body End | 3562 resources/include/bindings/bitmap.zh:672
+BMPDRAWLAYERCIFLAGR; Func[void bitmap::DrawLayerComboIFlags(int, int, int, int, int, int, int, bool, int)] Body Start | 3563 resources/include/bindings/bitmap.zh:678
+POPARGS D5 0.0010                                                               | 3564 resources/include/bindings/bitmap.zh:678
+RETURNFUNC; Func[void bitmap::DrawLayerComboIFlags(int, int, int, int, int, int, int, bool, int)] Body End | 3565 resources/include/bindings/bitmap.zh:678
 POP D2; Func[void bottledata::GetName(char32[])] Body Start                     | 3566 resources/include/bindings/bottledata.zh:57
 POP REFBOTTLETYPE                                                               | 3567 resources/include/bindings/bottledata.zh:57
 BOTTLENAMEGET D2                                                                | 3568 resources/include/bindings/bottledata.zh:57
@@ -3638,23 +3638,23 @@ POP D2; Func[void combotrigger::SetLabel(char32[])] Body Start                  
 POP REFCOMBOTRIGGER                                                             | 3609 resources/include/bindings/combotrigger.zh:1013
 CMBTRIG_SET_LABEL D2                                                            | 3610 resources/include/bindings/combotrigger.zh:1013
 RETURNFUNC; Func[void combotrigger::SetLabel(char32[])] Body End                | 3611 resources/include/bindings/combotrigger.zh:1013
-POP D2; Func[directory directory::directory(char32[])] Body Start               | 3612 resources/include/bindings/directory.zh:6
-LOADDIRECTORYR D2                                                               | 3613 resources/include/bindings/directory.zh:6
-RETURNFUNC; Func[directory directory::directory(char32[])] Body End             | 3614 resources/include/bindings/directory.zh:6
-POP D3; Func[bool directory::GetFilename(int, char32[])] Body Start             | 3615 resources/include/bindings/directory.zh:20
-POP D2                                                                          | 3616 resources/include/bindings/directory.zh:20
-POP REFDIRECTORY                                                                | 3617 resources/include/bindings/directory.zh:20
-DIRECTORYGET D2 D3                                                              | 3618 resources/include/bindings/directory.zh:20
-RETURNFUNC; Func[bool directory::GetFilename(int, char32[])] Body End           | 3619 resources/include/bindings/directory.zh:20
-POP REFDIRECTORY; Func[void directory::Reload()] Body Start                     | 3620 resources/include/bindings/directory.zh:27
-DIRECTORYRELOAD                                                                 | 3621 resources/include/bindings/directory.zh:27
-RETURNFUNC; Func[void directory::Reload()] Body End                             | 3622 resources/include/bindings/directory.zh:27
-POP REFDIRECTORY; Func[void directory::Free()] Body Start                       | 3623 resources/include/bindings/directory.zh:37
-DIRECTORYFREE                                                                   | 3624 resources/include/bindings/directory.zh:37
-RETURNFUNC; Func[void directory::Free()] Body End                               | 3625 resources/include/bindings/directory.zh:37
-POP REFDIRECTORY; Func[void directory::Own()] Body Start                        | 3626 resources/include/bindings/directory.zh:47
-DIRECTORYOWN                                                                    | 3627 resources/include/bindings/directory.zh:47
-RETURNFUNC; Func[void directory::Own()] Body End                                | 3628 resources/include/bindings/directory.zh:47
+POP D2; Func[directory directory::directory(char32[])] Body Start               | 3612 resources/include/bindings/directory.zh:9
+LOADDIRECTORYR D2                                                               | 3613 resources/include/bindings/directory.zh:9
+RETURNFUNC; Func[directory directory::directory(char32[])] Body End             | 3614 resources/include/bindings/directory.zh:9
+POP D3; Func[bool directory::GetFilename(int, char32[])] Body Start             | 3615 resources/include/bindings/directory.zh:23
+POP D2                                                                          | 3616 resources/include/bindings/directory.zh:23
+POP REFDIRECTORY                                                                | 3617 resources/include/bindings/directory.zh:23
+DIRECTORYGET D2 D3                                                              | 3618 resources/include/bindings/directory.zh:23
+RETURNFUNC; Func[bool directory::GetFilename(int, char32[])] Body End           | 3619 resources/include/bindings/directory.zh:23
+POP REFDIRECTORY; Func[void directory::Reload()] Body Start                     | 3620 resources/include/bindings/directory.zh:30
+DIRECTORYRELOAD                                                                 | 3621 resources/include/bindings/directory.zh:30
+RETURNFUNC; Func[void directory::Reload()] Body End                             | 3622 resources/include/bindings/directory.zh:30
+POP REFDIRECTORY; Func[void directory::Free()] Body Start                       | 3623 resources/include/bindings/directory.zh:40
+DIRECTORYFREE                                                                   | 3624 resources/include/bindings/directory.zh:40
+RETURNFUNC; Func[void directory::Free()] Body End                               | 3625 resources/include/bindings/directory.zh:40
+POP REFDIRECTORY; Func[void directory::Own()] Body Start                        | 3626 resources/include/bindings/directory.zh:50
+DIRECTORYOWN                                                                    | 3627 resources/include/bindings/directory.zh:50
+RETURNFUNC; Func[void directory::Own()] Body End                                | 3628 resources/include/bindings/directory.zh:50
 POP D2; Func[void dmapdata::GetName(char32[])] Body Start                       | 3629 resources/include/bindings/dmapdata.zh:342
 POP REFDMAPDATA                                                                 | 3630 resources/include/bindings/dmapdata.zh:342
 DMAPDATAGETNAMER D2                                                             | 3631 resources/include/bindings/dmapdata.zh:342
@@ -3719,119 +3719,119 @@ RETURNFUNC; Func[void eweapon::MakeAngular()] Body End                          
 POP D2; Func[void eweapon::MakeDirectional()] Body Start                        | 3690 resources/include/bindings/eweapon.zh:382
 EWPNMAKEDIRECTIONAL D2                                                          | 3691 resources/include/bindings/eweapon.zh:382
 RETURNFUNC; Func[void eweapon::MakeDirectional()] Body End                      | 3692 resources/include/bindings/eweapon.zh:382
-POP D3; Func[file file::file(char32[], char32[])] Body Start                    | 3693 resources/include/bindings/file.zh:37
-POP D2                                                                          | 3694 resources/include/bindings/file.zh:37
-SETV REFFILE 0                                                                  | 3695 resources/include/bindings/file.zh:37
-FILEOPENMODE D2 D3                                                              | 3696 resources/include/bindings/file.zh:37
-SETR D2 D3                                                                      | 3697 resources/include/bindings/file.zh:37
-RETURNFUNC; Func[file file::file(char32[], char32[])] Body End                  | 3698 resources/include/bindings/file.zh:37
-POP D2; Func[bool file::Open(char32[])] Body Start                              | 3699 resources/include/bindings/file.zh:62
-POP REFFILE                                                                     | 3700 resources/include/bindings/file.zh:62
-FILEOPEN D2                                                                     | 3701 resources/include/bindings/file.zh:62
-RETURNFUNC; Func[bool file::Open(char32[])] Body End                            | 3702 resources/include/bindings/file.zh:62
-POP D2; Func[bool file::Create(char32[])] Body Start                            | 3703 resources/include/bindings/file.zh:72
-POP REFFILE                                                                     | 3704 resources/include/bindings/file.zh:72
-FILECREATE D2                                                                   | 3705 resources/include/bindings/file.zh:72
-RETURNFUNC; Func[bool file::Create(char32[])] Body End                          | 3706 resources/include/bindings/file.zh:72
-POP D3; Func[bool file::OpenMode(char32[], char32[])] Body Start                | 3707 resources/include/bindings/file.zh:85
-POP D2                                                                          | 3708 resources/include/bindings/file.zh:85
-POP REFFILE                                                                     | 3709 resources/include/bindings/file.zh:85
-FILEOPENMODE D2 D3                                                              | 3710 resources/include/bindings/file.zh:85
-RETURNFUNC; Func[bool file::OpenMode(char32[], char32[])] Body End              | 3711 resources/include/bindings/file.zh:85
-POP REFFILE; Func[void file::Close()] Body Start                                | 3712 resources/include/bindings/file.zh:94
-FILECLOSE                                                                       | 3713 resources/include/bindings/file.zh:94
-RETURNFUNC; Func[void file::Close()] Body End                                   | 3714 resources/include/bindings/file.zh:94
-POP REFFILE; Func[void file::Free()] Body Start                                 | 3715 resources/include/bindings/file.zh:104
-FILEFREE                                                                        | 3716 resources/include/bindings/file.zh:104
-RETURNFUNC; Func[void file::Free()] Body End                                    | 3717 resources/include/bindings/file.zh:104
-POP REFFILE; Func[void file::Own()] Body Start                                  | 3718 resources/include/bindings/file.zh:114
-FILEOWN                                                                         | 3719 resources/include/bindings/file.zh:114
-RETURNFUNC; Func[void file::Own()] Body End                                     | 3720 resources/include/bindings/file.zh:114
-POP REFFILE; Func[bool file::isAllocated()] Body Start                          | 3721 resources/include/bindings/file.zh:122
-FILEISALLOCATED                                                                 | 3722 resources/include/bindings/file.zh:122
-RETURNFUNC; Func[bool file::isAllocated()] Body End                             | 3723 resources/include/bindings/file.zh:122
-POP REFFILE; Func[bool file::isValid()] Body Start                              | 3724 resources/include/bindings/file.zh:129
-FILEISVALID                                                                     | 3725 resources/include/bindings/file.zh:129
-RETURNFUNC; Func[bool file::isValid()] Body End                                 | 3726 resources/include/bindings/file.zh:129
-POP REFFILE; Func[bool file::Allocate()] Body Start                             | 3727 resources/include/bindings/file.zh:138
-FILEALLOCATE                                                                    | 3728 resources/include/bindings/file.zh:138
-RETURNFUNC; Func[bool file::Allocate()] Body End                                | 3729 resources/include/bindings/file.zh:138
-POP REFFILE; Func[bool file::Flush()] Body Start                                | 3730 resources/include/bindings/file.zh:145
-FILEFLUSH                                                                       | 3731 resources/include/bindings/file.zh:145
-RETURNFUNC; Func[bool file::Flush()] Body End                                   | 3732 resources/include/bindings/file.zh:145
-POP D0; Func[int file::ReadChars(char32[], int, int)] Body Start                | 3733 resources/include/bindings/file.zh:155
-POP D3                                                                          | 3734 resources/include/bindings/file.zh:155
-POP D2                                                                          | 3735 resources/include/bindings/file.zh:155
-POP REFFILE                                                                     | 3736 resources/include/bindings/file.zh:155
-FILEREADCHARS D2 D3                                                             | 3737 resources/include/bindings/file.zh:155
-RETURNFUNC; Func[int file::ReadChars(char32[], int, int)] Body End              | 3738 resources/include/bindings/file.zh:155
-POP D0; Func[int file::ReadInts(char32[], int, int)] Body Start                 | 3739 resources/include/bindings/file.zh:165
-POP D3                                                                          | 3740 resources/include/bindings/file.zh:165
-POP D2                                                                          | 3741 resources/include/bindings/file.zh:165
-POP REFFILE                                                                     | 3742 resources/include/bindings/file.zh:165
-FILEREADINTS D2 D3                                                              | 3743 resources/include/bindings/file.zh:165
-RETURNFUNC; Func[int file::ReadInts(char32[], int, int)] Body End               | 3744 resources/include/bindings/file.zh:165
-POP D0; Func[int file::WriteChars(char32[], int, int)] Body Start               | 3745 resources/include/bindings/file.zh:175
-POP D3                                                                          | 3746 resources/include/bindings/file.zh:175
-POP D2                                                                          | 3747 resources/include/bindings/file.zh:175
-POP REFFILE                                                                     | 3748 resources/include/bindings/file.zh:175
-FILEWRITECHARS D2 D3                                                            | 3749 resources/include/bindings/file.zh:175
-RETURNFUNC; Func[int file::WriteChars(char32[], int, int)] Body End             | 3750 resources/include/bindings/file.zh:175
-POP D0; Func[int file::WriteInts(char32[], int, int)] Body Start                | 3751 resources/include/bindings/file.zh:185
-POP D3                                                                          | 3752 resources/include/bindings/file.zh:185
-POP D2                                                                          | 3753 resources/include/bindings/file.zh:185
-POP REFFILE                                                                     | 3754 resources/include/bindings/file.zh:185
-FILEWRITEINTS D2 D3                                                             | 3755 resources/include/bindings/file.zh:185
-RETURNFUNC; Func[int file::WriteInts(char32[], int, int)] Body End              | 3756 resources/include/bindings/file.zh:185
-POP D2; Func[int file::ReadString(char32[])] Body Start                         | 3757 resources/include/bindings/file.zh:193
-POP REFFILE                                                                     | 3758 resources/include/bindings/file.zh:193
-FILEREADSTR D2                                                                  | 3759 resources/include/bindings/file.zh:193
-RETURNFUNC; Func[int file::ReadString(char32[])] Body End                       | 3760 resources/include/bindings/file.zh:193
-POP D2; Func[int file::WriteString(char32[])] Body Start                        | 3761 resources/include/bindings/file.zh:201
-POP REFFILE                                                                     | 3762 resources/include/bindings/file.zh:201
-FILEWRITESTR D2                                                                 | 3763 resources/include/bindings/file.zh:201
-RETURNFUNC; Func[int file::WriteString(char32[])] Body End                      | 3764 resources/include/bindings/file.zh:201
-POP REFFILE; Func[char32 file::GetChar()] Body Start                            | 3765 resources/include/bindings/file.zh:208
-FILEGETCHAR                                                                     | 3766 resources/include/bindings/file.zh:208
-RETURNFUNC; Func[char32 file::GetChar()] Body End                               | 3767 resources/include/bindings/file.zh:208
-POP D2; Func[char32 file::PutChar(char32)] Body Start                           | 3768 resources/include/bindings/file.zh:216
-POP REFFILE                                                                     | 3769 resources/include/bindings/file.zh:216
-FILEPUTCHAR D2                                                                  | 3770 resources/include/bindings/file.zh:216
-RETURNFUNC; Func[char32 file::PutChar(char32)] Body End                         | 3771 resources/include/bindings/file.zh:216
-POP D2; Func[char32 file::UngetChar(char32)] Body Start                         | 3772 resources/include/bindings/file.zh:224
-POP REFFILE                                                                     | 3773 resources/include/bindings/file.zh:224
-FILEUNGETCHAR D2                                                                | 3774 resources/include/bindings/file.zh:224
-RETURNFUNC; Func[char32 file::UngetChar(char32)] Body End                       | 3775 resources/include/bindings/file.zh:224
-POP D3; Func[bool file::Seek(long, bool)] Body Start                            | 3776 resources/include/bindings/file.zh:233
-POP D2                                                                          | 3777 resources/include/bindings/file.zh:233
-POP REFFILE                                                                     | 3778 resources/include/bindings/file.zh:233
-FILESEEK D2 D3                                                                  | 3779 resources/include/bindings/file.zh:233
-RETURNFUNC; Func[bool file::Seek(long, bool)] Body End                          | 3780 resources/include/bindings/file.zh:233
-POP REFFILE; Func[void file::Rewind()] Body Start                               | 3781 resources/include/bindings/file.zh:240
-FILEREWIND                                                                      | 3782 resources/include/bindings/file.zh:240
-RETURNFUNC; Func[void file::Rewind()] Body End                                  | 3783 resources/include/bindings/file.zh:240
-POP REFFILE; Func[void file::ClearError()] Body Start                           | 3784 resources/include/bindings/file.zh:247
-FILECLEARERR                                                                    | 3785 resources/include/bindings/file.zh:247
-RETURNFUNC; Func[void file::ClearError()] Body End                              | 3786 resources/include/bindings/file.zh:247
-POP D2; Func[void file::GetError(char32[])] Body Start                          | 3787 resources/include/bindings/file.zh:255
-POP REFFILE                                                                     | 3788 resources/include/bindings/file.zh:255
-FILEGETERROR D2                                                                 | 3789 resources/include/bindings/file.zh:255
-RETURNFUNC; Func[void file::GetError(char32[])] Body End                        | 3790 resources/include/bindings/file.zh:255
-POP REFFILE; Func[bool file::Remove()] Body Start                               | 3791 resources/include/bindings/file.zh:263
-FILEREMOVE                                                                      | 3792 resources/include/bindings/file.zh:263
-RETURNFUNC; Func[bool file::Remove()] Body End                                  | 3793 resources/include/bindings/file.zh:263
-POP D0; Func[int file::WriteBytes(char32[], int, int)] Body Start               | 3794 resources/include/bindings/file.zh:273
-POP D3                                                                          | 3795 resources/include/bindings/file.zh:273
-POP D2                                                                          | 3796 resources/include/bindings/file.zh:273
-POP REFFILE                                                                     | 3797 resources/include/bindings/file.zh:273
-FILEWRITEBYTES D2 D3                                                            | 3798 resources/include/bindings/file.zh:273
-RETURNFUNC; Func[int file::WriteBytes(char32[], int, int)] Body End             | 3799 resources/include/bindings/file.zh:273
-POP D0; Func[int file::ReadBytes(char32[], int, int)] Body Start                | 3800 resources/include/bindings/file.zh:283
-POP D3                                                                          | 3801 resources/include/bindings/file.zh:283
-POP D2                                                                          | 3802 resources/include/bindings/file.zh:283
-POP REFFILE                                                                     | 3803 resources/include/bindings/file.zh:283
-FILEREADBYTES D2 D3                                                             | 3804 resources/include/bindings/file.zh:283
-RETURNFUNC; Func[int file::ReadBytes(char32[], int, int)] Body End              | 3805 resources/include/bindings/file.zh:283
+POP D3; Func[file file::file(char32[], char32[])] Body Start                    | 3693 resources/include/bindings/file.zh:44
+POP D2                                                                          | 3694 resources/include/bindings/file.zh:44
+SETV REFFILE 0                                                                  | 3695 resources/include/bindings/file.zh:44
+FILEOPENMODE D2 D3                                                              | 3696 resources/include/bindings/file.zh:44
+SETR D2 D3                                                                      | 3697 resources/include/bindings/file.zh:44
+RETURNFUNC; Func[file file::file(char32[], char32[])] Body End                  | 3698 resources/include/bindings/file.zh:44
+POP D2; Func[bool file::Open(char32[])] Body Start                              | 3699 resources/include/bindings/file.zh:69
+POP REFFILE                                                                     | 3700 resources/include/bindings/file.zh:69
+FILEOPEN D2                                                                     | 3701 resources/include/bindings/file.zh:69
+RETURNFUNC; Func[bool file::Open(char32[])] Body End                            | 3702 resources/include/bindings/file.zh:69
+POP D2; Func[bool file::Create(char32[])] Body Start                            | 3703 resources/include/bindings/file.zh:79
+POP REFFILE                                                                     | 3704 resources/include/bindings/file.zh:79
+FILECREATE D2                                                                   | 3705 resources/include/bindings/file.zh:79
+RETURNFUNC; Func[bool file::Create(char32[])] Body End                          | 3706 resources/include/bindings/file.zh:79
+POP D3; Func[bool file::OpenMode(char32[], char32[])] Body Start                | 3707 resources/include/bindings/file.zh:92
+POP D2                                                                          | 3708 resources/include/bindings/file.zh:92
+POP REFFILE                                                                     | 3709 resources/include/bindings/file.zh:92
+FILEOPENMODE D2 D3                                                              | 3710 resources/include/bindings/file.zh:92
+RETURNFUNC; Func[bool file::OpenMode(char32[], char32[])] Body End              | 3711 resources/include/bindings/file.zh:92
+POP REFFILE; Func[void file::Close()] Body Start                                | 3712 resources/include/bindings/file.zh:101
+FILECLOSE                                                                       | 3713 resources/include/bindings/file.zh:101
+RETURNFUNC; Func[void file::Close()] Body End                                   | 3714 resources/include/bindings/file.zh:101
+POP REFFILE; Func[void file::Free()] Body Start                                 | 3715 resources/include/bindings/file.zh:111
+FILEFREE                                                                        | 3716 resources/include/bindings/file.zh:111
+RETURNFUNC; Func[void file::Free()] Body End                                    | 3717 resources/include/bindings/file.zh:111
+POP REFFILE; Func[void file::Own()] Body Start                                  | 3718 resources/include/bindings/file.zh:121
+FILEOWN                                                                         | 3719 resources/include/bindings/file.zh:121
+RETURNFUNC; Func[void file::Own()] Body End                                     | 3720 resources/include/bindings/file.zh:121
+POP REFFILE; Func[bool file::isAllocated()] Body Start                          | 3721 resources/include/bindings/file.zh:129
+FILEISALLOCATED                                                                 | 3722 resources/include/bindings/file.zh:129
+RETURNFUNC; Func[bool file::isAllocated()] Body End                             | 3723 resources/include/bindings/file.zh:129
+POP REFFILE; Func[bool file::isValid()] Body Start                              | 3724 resources/include/bindings/file.zh:136
+FILEISVALID                                                                     | 3725 resources/include/bindings/file.zh:136
+RETURNFUNC; Func[bool file::isValid()] Body End                                 | 3726 resources/include/bindings/file.zh:136
+POP REFFILE; Func[bool file::Allocate()] Body Start                             | 3727 resources/include/bindings/file.zh:145
+FILEALLOCATE                                                                    | 3728 resources/include/bindings/file.zh:145
+RETURNFUNC; Func[bool file::Allocate()] Body End                                | 3729 resources/include/bindings/file.zh:145
+POP REFFILE; Func[bool file::Flush()] Body Start                                | 3730 resources/include/bindings/file.zh:152
+FILEFLUSH                                                                       | 3731 resources/include/bindings/file.zh:152
+RETURNFUNC; Func[bool file::Flush()] Body End                                   | 3732 resources/include/bindings/file.zh:152
+POP D0; Func[int file::ReadChars(char32[], int, int)] Body Start                | 3733 resources/include/bindings/file.zh:162
+POP D3                                                                          | 3734 resources/include/bindings/file.zh:162
+POP D2                                                                          | 3735 resources/include/bindings/file.zh:162
+POP REFFILE                                                                     | 3736 resources/include/bindings/file.zh:162
+FILEREADCHARS D2 D3                                                             | 3737 resources/include/bindings/file.zh:162
+RETURNFUNC; Func[int file::ReadChars(char32[], int, int)] Body End              | 3738 resources/include/bindings/file.zh:162
+POP D0; Func[int file::ReadInts(char32[], int, int)] Body Start                 | 3739 resources/include/bindings/file.zh:172
+POP D3                                                                          | 3740 resources/include/bindings/file.zh:172
+POP D2                                                                          | 3741 resources/include/bindings/file.zh:172
+POP REFFILE                                                                     | 3742 resources/include/bindings/file.zh:172
+FILEREADINTS D2 D3                                                              | 3743 resources/include/bindings/file.zh:172
+RETURNFUNC; Func[int file::ReadInts(char32[], int, int)] Body End               | 3744 resources/include/bindings/file.zh:172
+POP D0; Func[int file::WriteChars(char32[], int, int)] Body Start               | 3745 resources/include/bindings/file.zh:182
+POP D3                                                                          | 3746 resources/include/bindings/file.zh:182
+POP D2                                                                          | 3747 resources/include/bindings/file.zh:182
+POP REFFILE                                                                     | 3748 resources/include/bindings/file.zh:182
+FILEWRITECHARS D2 D3                                                            | 3749 resources/include/bindings/file.zh:182
+RETURNFUNC; Func[int file::WriteChars(char32[], int, int)] Body End             | 3750 resources/include/bindings/file.zh:182
+POP D0; Func[int file::WriteInts(char32[], int, int)] Body Start                | 3751 resources/include/bindings/file.zh:192
+POP D3                                                                          | 3752 resources/include/bindings/file.zh:192
+POP D2                                                                          | 3753 resources/include/bindings/file.zh:192
+POP REFFILE                                                                     | 3754 resources/include/bindings/file.zh:192
+FILEWRITEINTS D2 D3                                                             | 3755 resources/include/bindings/file.zh:192
+RETURNFUNC; Func[int file::WriteInts(char32[], int, int)] Body End              | 3756 resources/include/bindings/file.zh:192
+POP D2; Func[int file::ReadString(char32[])] Body Start                         | 3757 resources/include/bindings/file.zh:200
+POP REFFILE                                                                     | 3758 resources/include/bindings/file.zh:200
+FILEREADSTR D2                                                                  | 3759 resources/include/bindings/file.zh:200
+RETURNFUNC; Func[int file::ReadString(char32[])] Body End                       | 3760 resources/include/bindings/file.zh:200
+POP D2; Func[int file::WriteString(char32[])] Body Start                        | 3761 resources/include/bindings/file.zh:208
+POP REFFILE                                                                     | 3762 resources/include/bindings/file.zh:208
+FILEWRITESTR D2                                                                 | 3763 resources/include/bindings/file.zh:208
+RETURNFUNC; Func[int file::WriteString(char32[])] Body End                      | 3764 resources/include/bindings/file.zh:208
+POP REFFILE; Func[char32 file::GetChar()] Body Start                            | 3765 resources/include/bindings/file.zh:215
+FILEGETCHAR                                                                     | 3766 resources/include/bindings/file.zh:215
+RETURNFUNC; Func[char32 file::GetChar()] Body End                               | 3767 resources/include/bindings/file.zh:215
+POP D2; Func[char32 file::PutChar(char32)] Body Start                           | 3768 resources/include/bindings/file.zh:223
+POP REFFILE                                                                     | 3769 resources/include/bindings/file.zh:223
+FILEPUTCHAR D2                                                                  | 3770 resources/include/bindings/file.zh:223
+RETURNFUNC; Func[char32 file::PutChar(char32)] Body End                         | 3771 resources/include/bindings/file.zh:223
+POP D2; Func[char32 file::UngetChar(char32)] Body Start                         | 3772 resources/include/bindings/file.zh:231
+POP REFFILE                                                                     | 3773 resources/include/bindings/file.zh:231
+FILEUNGETCHAR D2                                                                | 3774 resources/include/bindings/file.zh:231
+RETURNFUNC; Func[char32 file::UngetChar(char32)] Body End                       | 3775 resources/include/bindings/file.zh:231
+POP D3; Func[bool file::Seek(long, bool)] Body Start                            | 3776 resources/include/bindings/file.zh:240
+POP D2                                                                          | 3777 resources/include/bindings/file.zh:240
+POP REFFILE                                                                     | 3778 resources/include/bindings/file.zh:240
+FILESEEK D2 D3                                                                  | 3779 resources/include/bindings/file.zh:240
+RETURNFUNC; Func[bool file::Seek(long, bool)] Body End                          | 3780 resources/include/bindings/file.zh:240
+POP REFFILE; Func[void file::Rewind()] Body Start                               | 3781 resources/include/bindings/file.zh:247
+FILEREWIND                                                                      | 3782 resources/include/bindings/file.zh:247
+RETURNFUNC; Func[void file::Rewind()] Body End                                  | 3783 resources/include/bindings/file.zh:247
+POP REFFILE; Func[void file::ClearError()] Body Start                           | 3784 resources/include/bindings/file.zh:254
+FILECLEARERR                                                                    | 3785 resources/include/bindings/file.zh:254
+RETURNFUNC; Func[void file::ClearError()] Body End                              | 3786 resources/include/bindings/file.zh:254
+POP D2; Func[void file::GetError(char32[])] Body Start                          | 3787 resources/include/bindings/file.zh:262
+POP REFFILE                                                                     | 3788 resources/include/bindings/file.zh:262
+FILEGETERROR D2                                                                 | 3789 resources/include/bindings/file.zh:262
+RETURNFUNC; Func[void file::GetError(char32[])] Body End                        | 3790 resources/include/bindings/file.zh:262
+POP REFFILE; Func[bool file::Remove()] Body Start                               | 3791 resources/include/bindings/file.zh:270
+FILEREMOVE                                                                      | 3792 resources/include/bindings/file.zh:270
+RETURNFUNC; Func[bool file::Remove()] Body End                                  | 3793 resources/include/bindings/file.zh:270
+POP D0; Func[int file::WriteBytes(char32[], int, int)] Body Start               | 3794 resources/include/bindings/file.zh:280
+POP D3                                                                          | 3795 resources/include/bindings/file.zh:280
+POP D2                                                                          | 3796 resources/include/bindings/file.zh:280
+POP REFFILE                                                                     | 3797 resources/include/bindings/file.zh:280
+FILEWRITEBYTES D2 D3                                                            | 3798 resources/include/bindings/file.zh:280
+RETURNFUNC; Func[int file::WriteBytes(char32[], int, int)] Body End             | 3799 resources/include/bindings/file.zh:280
+POP D0; Func[int file::ReadBytes(char32[], int, int)] Body Start                | 3800 resources/include/bindings/file.zh:290
+POP D3                                                                          | 3801 resources/include/bindings/file.zh:290
+POP D2                                                                          | 3802 resources/include/bindings/file.zh:290
+POP REFFILE                                                                     | 3803 resources/include/bindings/file.zh:290
+FILEREADBYTES D2 D3                                                             | 3804 resources/include/bindings/file.zh:290
+RETURNFUNC; Func[int file::ReadBytes(char32[], int, int)] Body End              | 3805 resources/include/bindings/file.zh:290
 POP REFGENERICDATA; Func[bool genericdata::RunFrozen()] Body Start              | 3806 resources/include/bindings/genericdata.zh:71
 RUNGENFRZSCR D2                                                                 | 3807 resources/include/bindings/genericdata.zh:71
 RETURNFUNC; Func[bool genericdata::RunFrozen()] Body End                        | 3808 resources/include/bindings/genericdata.zh:71
@@ -4015,25 +4015,25 @@ POP D3; Func[void messagedata::Set(char32[])] Body Start                        
 POP REFMSGDATA                                                                  | 3986 resources/include/bindings/messagedata.zh:348
 MESSAGEDATASETSTRINGR D3                                                        | 3987 resources/include/bindings/messagedata.zh:348
 RETURNFUNC; Func[void messagedata::Set(char32[])] Body End                      | 3988 resources/include/bindings/messagedata.zh:348
-POP D2; Func[void musicdata::GetPath(char32[])] Body Start                      | 3989 resources/include/bindings/musicdata.zh:71
-POP REFMUSIC                                                                    | 3990 resources/include/bindings/musicdata.zh:71
-MUSICDATA_GETPATH D2                                                            | 3991 resources/include/bindings/musicdata.zh:71
-RETURNFUNC; Func[void musicdata::GetPath(char32[])] Body End                    | 3992 resources/include/bindings/musicdata.zh:71
-POP D2; Func[void musicdata::SetPath(char32[])] Body Start                      | 3993 resources/include/bindings/musicdata.zh:80
-POP REFMUSIC                                                                    | 3994 resources/include/bindings/musicdata.zh:80
-MUSICDATA_SETPATH D2                                                            | 3995 resources/include/bindings/musicdata.zh:80
-RETURNFUNC; Func[void musicdata::SetPath(char32[])] Body End                    | 3996 resources/include/bindings/musicdata.zh:80
-POP D2; Func[void musicdata::GetName(char32[])] Body Start                      | 3997 resources/include/bindings/musicdata.zh:88
-POP REFMUSIC                                                                    | 3998 resources/include/bindings/musicdata.zh:88
-MUSICDATA_GETNAME D2                                                            | 3999 resources/include/bindings/musicdata.zh:88
-RETURNFUNC; Func[void musicdata::GetName(char32[])] Body End                    | 4000 resources/include/bindings/musicdata.zh:88
-POP D2; Func[void musicdata::SetName(char32[])] Body Start                      | 4001 resources/include/bindings/musicdata.zh:96
-POP REFMUSIC                                                                    | 4002 resources/include/bindings/musicdata.zh:96
-MUSICDATA_SETNAME D2                                                            | 4003 resources/include/bindings/musicdata.zh:96
-RETURNFUNC; Func[void musicdata::SetName(char32[])] Body End                    | 4004 resources/include/bindings/musicdata.zh:96
-POP REFMUSIC; Func[void musicdata::Play()] Body Start                           | 4005 resources/include/bindings/musicdata.zh:107
-PLAY_MUSIC REFMUSIC                                                             | 4006 resources/include/bindings/musicdata.zh:107
-RETURNFUNC; Func[void musicdata::Play()] Body End                               | 4007 resources/include/bindings/musicdata.zh:107
+POP D2; Func[void musicdata::GetPath(char32[])] Body Start                      | 3989 resources/include/bindings/musicdata.zh:75
+POP REFMUSIC                                                                    | 3990 resources/include/bindings/musicdata.zh:75
+MUSICDATA_GETPATH D2                                                            | 3991 resources/include/bindings/musicdata.zh:75
+RETURNFUNC; Func[void musicdata::GetPath(char32[])] Body End                    | 3992 resources/include/bindings/musicdata.zh:75
+POP D2; Func[void musicdata::SetPath(char32[])] Body Start                      | 3993 resources/include/bindings/musicdata.zh:84
+POP REFMUSIC                                                                    | 3994 resources/include/bindings/musicdata.zh:84
+MUSICDATA_SETPATH D2                                                            | 3995 resources/include/bindings/musicdata.zh:84
+RETURNFUNC; Func[void musicdata::SetPath(char32[])] Body End                    | 3996 resources/include/bindings/musicdata.zh:84
+POP D2; Func[void musicdata::GetName(char32[])] Body Start                      | 3997 resources/include/bindings/musicdata.zh:92
+POP REFMUSIC                                                                    | 3998 resources/include/bindings/musicdata.zh:92
+MUSICDATA_GETNAME D2                                                            | 3999 resources/include/bindings/musicdata.zh:92
+RETURNFUNC; Func[void musicdata::GetName(char32[])] Body End                    | 4000 resources/include/bindings/musicdata.zh:92
+POP D2; Func[void musicdata::SetName(char32[])] Body Start                      | 4001 resources/include/bindings/musicdata.zh:100
+POP REFMUSIC                                                                    | 4002 resources/include/bindings/musicdata.zh:100
+MUSICDATA_SETNAME D2                                                            | 4003 resources/include/bindings/musicdata.zh:100
+RETURNFUNC; Func[void musicdata::SetName(char32[])] Body End                    | 4004 resources/include/bindings/musicdata.zh:100
+POP REFMUSIC; Func[void musicdata::Play()] Body Start                           | 4005 resources/include/bindings/musicdata.zh:111
+PLAY_MUSIC REFMUSIC                                                             | 4006 resources/include/bindings/musicdata.zh:111
+RETURNFUNC; Func[void musicdata::Play()] Body End                               | 4007 resources/include/bindings/musicdata.zh:111
 POP D2; Func[void npc::Max(int)] Body Start                                     | 4008 resources/include/bindings/npc.zh:632
 POP REFNPC                                                                      | 4009 resources/include/bindings/npc.zh:632
 SETR SPRITEMAXNPC D2                                                            | 4010 resources/include/bindings/npc.zh:632
@@ -4210,97 +4210,97 @@ POP D2; Func[void npcdata::GetName(char32[])] Body Start                        
 POP REFNPCDATA                                                                  | 4181 resources/include/bindings/npcdata.zh:548
 NPCDATAGETNAME D2                                                               | 4182 resources/include/bindings/npcdata.zh:548
 RETURNFUNC; Func[void npcdata::GetName(char32[])] Body End                      | 4183 resources/include/bindings/npcdata.zh:548
-CREATEPALDATA; Func[paldata paldata::paldata()] Body Start                      | 4184 resources/include/bindings/paldata.zh:9
-RETURNFUNC; Func[paldata paldata::paldata()] Body End                           | 4185 resources/include/bindings/paldata.zh:9
-POP D2; Func[paldata paldata::paldata(rgb)] Body Start                          | 4186 resources/include/bindings/paldata.zh:14
-CREATEPALDATACLR D2                                                             | 4187 resources/include/bindings/paldata.zh:14
-RETURNFUNC; Func[paldata paldata::paldata(rgb)] Body End                        | 4188 resources/include/bindings/paldata.zh:14
-POP D2; Func[void paldata::LoadLevelPalette(int)] Body Start                    | 4189 resources/include/bindings/paldata.zh:53
-POP REFPALDATA                                                                  | 4190 resources/include/bindings/paldata.zh:53
-PALDATALOADLEVEL D2                                                             | 4191 resources/include/bindings/paldata.zh:53
-RETURNFUNC; Func[void paldata::LoadLevelPalette(int)] Body End                  | 4192 resources/include/bindings/paldata.zh:53
-POP D2; Func[void paldata::LoadSpritePalette(int)] Body Start                   | 4193 resources/include/bindings/paldata.zh:63
-POP REFPALDATA                                                                  | 4194 resources/include/bindings/paldata.zh:63
-PALDATALOADSPRITE D2                                                            | 4195 resources/include/bindings/paldata.zh:63
-RETURNFUNC; Func[void paldata::LoadSpritePalette(int)] Body End                 | 4196 resources/include/bindings/paldata.zh:63
-POP REFPALDATA; Func[void paldata::LoadMainPalette()] Body Start                | 4197 resources/include/bindings/paldata.zh:70
-PALDATALOADMAIN                                                                 | 4198 resources/include/bindings/paldata.zh:70
-RETURNFUNC; Func[void paldata::LoadMainPalette()] Body End                      | 4199 resources/include/bindings/paldata.zh:70
-POP D2; Func[void paldata::LoadCyclePalette(int)] Body Start                    | 4200 resources/include/bindings/paldata.zh:78
-POP REFPALDATA                                                                  | 4201 resources/include/bindings/paldata.zh:78
-PALDATALOADCYCLE D2                                                             | 4202 resources/include/bindings/paldata.zh:78
-RETURNFUNC; Func[void paldata::LoadCyclePalette(int)] Body End                  | 4203 resources/include/bindings/paldata.zh:78
-POP D2; Func[void paldata::LoadBitmapPalette(int)] Body Start                   | 4204 resources/include/bindings/paldata.zh:87
-POP REFPALDATA                                                                  | 4205 resources/include/bindings/paldata.zh:87
-PALDATALOADBITMAP D2                                                            | 4206 resources/include/bindings/paldata.zh:87
-RETURNFUNC; Func[void paldata::LoadBitmapPalette(int)] Body End                 | 4207 resources/include/bindings/paldata.zh:87
-POP D2; Func[void paldata::WriteLevelPalette(int)] Body Start                   | 4208 resources/include/bindings/paldata.zh:96
-POP REFPALDATA                                                                  | 4209 resources/include/bindings/paldata.zh:96
-PALDATAWRITELEVEL D2                                                            | 4210 resources/include/bindings/paldata.zh:96
-RETURNFUNC; Func[void paldata::WriteLevelPalette(int)] Body End                 | 4211 resources/include/bindings/paldata.zh:96
-POP D3; Func[void paldata::WriteLevelCSet(int, int)] Body Start                 | 4212 resources/include/bindings/paldata.zh:106
-POP D2                                                                          | 4213 resources/include/bindings/paldata.zh:106
-POP REFPALDATA                                                                  | 4214 resources/include/bindings/paldata.zh:106
-PALDATAWRITELEVELCS D2 D3                                                       | 4215 resources/include/bindings/paldata.zh:106
-RETURNFUNC; Func[void paldata::WriteLevelCSet(int, int)] Body End               | 4216 resources/include/bindings/paldata.zh:106
-POP D2; Func[void paldata::WriteSpritePalette(int)] Body Start                  | 4217 resources/include/bindings/paldata.zh:115
-POP REFPALDATA                                                                  | 4218 resources/include/bindings/paldata.zh:115
-PALDATAWRITESPRITE D2                                                           | 4219 resources/include/bindings/paldata.zh:115
-RETURNFUNC; Func[void paldata::WriteSpritePalette(int)] Body End                | 4220 resources/include/bindings/paldata.zh:115
-POP D3; Func[void paldata::WriteSpriteCSet(int, int)] Body Start                | 4221 resources/include/bindings/paldata.zh:125
-POP D2                                                                          | 4222 resources/include/bindings/paldata.zh:125
-POP REFPALDATA                                                                  | 4223 resources/include/bindings/paldata.zh:125
-PALDATAWRITESPRITECS D2 D3                                                      | 4224 resources/include/bindings/paldata.zh:125
-RETURNFUNC; Func[void paldata::WriteSpriteCSet(int, int)] Body End              | 4225 resources/include/bindings/paldata.zh:125
-POP REFPALDATA; Func[void paldata::WriteMainPalette()] Body Start               | 4226 resources/include/bindings/paldata.zh:133
-PALDATAWRITEMAIN                                                                | 4227 resources/include/bindings/paldata.zh:133
-RETURNFUNC; Func[void paldata::WriteMainPalette()] Body End                     | 4228 resources/include/bindings/paldata.zh:133
-POP D2; Func[void paldata::WriteMainCSet(int)] Body Start                       | 4229 resources/include/bindings/paldata.zh:142
-POP REFPALDATA                                                                  | 4230 resources/include/bindings/paldata.zh:142
-PALDATAWRITEMAINCS D2                                                           | 4231 resources/include/bindings/paldata.zh:142
-RETURNFUNC; Func[void paldata::WriteMainCSet(int)] Body End                     | 4232 resources/include/bindings/paldata.zh:142
-POP D2; Func[void paldata::WriteCyclePalette(int)] Body Start                   | 4233 resources/include/bindings/paldata.zh:151
-POP REFPALDATA                                                                  | 4234 resources/include/bindings/paldata.zh:151
-PALDATAWRITECYCLE D2                                                            | 4235 resources/include/bindings/paldata.zh:151
-RETURNFUNC; Func[void paldata::WriteCyclePalette(int)] Body End                 | 4236 resources/include/bindings/paldata.zh:151
-POP D3; Func[void paldata::WriteCycleCSet(int, int)] Body Start                 | 4237 resources/include/bindings/paldata.zh:162
-POP D2                                                                          | 4238 resources/include/bindings/paldata.zh:162
-POP REFPALDATA                                                                  | 4239 resources/include/bindings/paldata.zh:162
-PALDATAWRITECYCLECS D2 D3                                                       | 4240 resources/include/bindings/paldata.zh:162
-RETURNFUNC; Func[void paldata::WriteCycleCSet(int, int)] Body End               | 4241 resources/include/bindings/paldata.zh:162
-POP D2; Func[bool paldata::ColorValid(int)] Body Start                          | 4242 resources/include/bindings/paldata.zh:170
-POP REFPALDATA                                                                  | 4243 resources/include/bindings/paldata.zh:170
-PALDATAVALIDCLR D2                                                              | 4244 resources/include/bindings/paldata.zh:170
-RETURNFUNC; Func[bool paldata::ColorValid(int)] Body End                        | 4245 resources/include/bindings/paldata.zh:170
-POP D2; Func[void paldata::ClearColor(int)] Body Start                          | 4246 resources/include/bindings/paldata.zh:179
-POP REFPALDATA                                                                  | 4247 resources/include/bindings/paldata.zh:179
-PALDATACLEARCLR D2                                                              | 4248 resources/include/bindings/paldata.zh:179
-RETURNFUNC; Func[void paldata::ClearColor(int)] Body End                        | 4249 resources/include/bindings/paldata.zh:179
-POP D2; Func[void paldata::ClearCSet(int)] Body Start                           | 4250 resources/include/bindings/paldata.zh:188
-POP REFPALDATA                                                                  | 4251 resources/include/bindings/paldata.zh:188
-PALDATACLEARCSET D2                                                             | 4252 resources/include/bindings/paldata.zh:188
-RETURNFUNC; Func[void paldata::ClearCSet(int)] Body End                         | 4253 resources/include/bindings/paldata.zh:188
-PALDATAMIX; Func[void paldata::Mix(paldata, paldata, int, int)] Body Start      | 4254 resources/include/bindings/paldata.zh:196
-POPARGS D5 0.0004                                                               | 4255 resources/include/bindings/paldata.zh:196
-POP REFPALDATA                                                                  | 4256 resources/include/bindings/paldata.zh:196
-RETURNFUNC; Func[void paldata::Mix(paldata, paldata, int, int)] Body End        | 4257 resources/include/bindings/paldata.zh:196
-PALDATAMIXCS; Func[void paldata::MixCSet(paldata, paldata, int, int, int)] Body Start | 4258 resources/include/bindings/paldata.zh:205
-POPARGS D5 0.0005                                                               | 4259 resources/include/bindings/paldata.zh:205
-POP REFPALDATA                                                                  | 4260 resources/include/bindings/paldata.zh:205
-RETURNFUNC; Func[void paldata::MixCSet(paldata, paldata, int, int, int)] Body End | 4261 resources/include/bindings/paldata.zh:205
-POP D2; Func[void paldata::Copy(paldata)] Body Start                            | 4262 resources/include/bindings/paldata.zh:214
-POP REFPALDATA                                                                  | 4263 resources/include/bindings/paldata.zh:214
-PALDATACOPY D2                                                                  | 4264 resources/include/bindings/paldata.zh:214
-RETURNFUNC; Func[void paldata::Copy(paldata)] Body End                          | 4265 resources/include/bindings/paldata.zh:214
-PALDATACOPYCSET; Func[void paldata::CopyCSet(paldata, int, int)] Body Start     | 4266 resources/include/bindings/paldata.zh:222
-POPARGS D5 0.0004                                                               | 4267 resources/include/bindings/paldata.zh:222
-RETURNFUNC; Func[void paldata::CopyCSet(paldata, int, int)] Body End            | 4268 resources/include/bindings/paldata.zh:222
-POP REFPALDATA; Func[void paldata::Free()] Body Start                           | 4269 resources/include/bindings/paldata.zh:234
-PALDATAFREE                                                                     | 4270 resources/include/bindings/paldata.zh:234
-RETURNFUNC; Func[void paldata::Free()] Body End                                 | 4271 resources/include/bindings/paldata.zh:234
-POP REFPALDATA; Func[void paldata::Own()] Body Start                            | 4272 resources/include/bindings/paldata.zh:244
-PALDATAOWN                                                                      | 4273 resources/include/bindings/paldata.zh:244
-RETURNFUNC; Func[void paldata::Own()] Body End                                  | 4274 resources/include/bindings/paldata.zh:244
+CREATEPALDATA; Func[paldata paldata::paldata()] Body Start                      | 4184 resources/include/bindings/paldata.zh:12
+RETURNFUNC; Func[paldata paldata::paldata()] Body End                           | 4185 resources/include/bindings/paldata.zh:12
+POP D2; Func[paldata paldata::paldata(rgb)] Body Start                          | 4186 resources/include/bindings/paldata.zh:17
+CREATEPALDATACLR D2                                                             | 4187 resources/include/bindings/paldata.zh:17
+RETURNFUNC; Func[paldata paldata::paldata(rgb)] Body End                        | 4188 resources/include/bindings/paldata.zh:17
+POP D2; Func[void paldata::LoadLevelPalette(int)] Body Start                    | 4189 resources/include/bindings/paldata.zh:56
+POP REFPALDATA                                                                  | 4190 resources/include/bindings/paldata.zh:56
+PALDATALOADLEVEL D2                                                             | 4191 resources/include/bindings/paldata.zh:56
+RETURNFUNC; Func[void paldata::LoadLevelPalette(int)] Body End                  | 4192 resources/include/bindings/paldata.zh:56
+POP D2; Func[void paldata::LoadSpritePalette(int)] Body Start                   | 4193 resources/include/bindings/paldata.zh:66
+POP REFPALDATA                                                                  | 4194 resources/include/bindings/paldata.zh:66
+PALDATALOADSPRITE D2                                                            | 4195 resources/include/bindings/paldata.zh:66
+RETURNFUNC; Func[void paldata::LoadSpritePalette(int)] Body End                 | 4196 resources/include/bindings/paldata.zh:66
+POP REFPALDATA; Func[void paldata::LoadMainPalette()] Body Start                | 4197 resources/include/bindings/paldata.zh:73
+PALDATALOADMAIN                                                                 | 4198 resources/include/bindings/paldata.zh:73
+RETURNFUNC; Func[void paldata::LoadMainPalette()] Body End                      | 4199 resources/include/bindings/paldata.zh:73
+POP D2; Func[void paldata::LoadCyclePalette(int)] Body Start                    | 4200 resources/include/bindings/paldata.zh:81
+POP REFPALDATA                                                                  | 4201 resources/include/bindings/paldata.zh:81
+PALDATALOADCYCLE D2                                                             | 4202 resources/include/bindings/paldata.zh:81
+RETURNFUNC; Func[void paldata::LoadCyclePalette(int)] Body End                  | 4203 resources/include/bindings/paldata.zh:81
+POP D2; Func[void paldata::LoadBitmapPalette(int)] Body Start                   | 4204 resources/include/bindings/paldata.zh:90
+POP REFPALDATA                                                                  | 4205 resources/include/bindings/paldata.zh:90
+PALDATALOADBITMAP D2                                                            | 4206 resources/include/bindings/paldata.zh:90
+RETURNFUNC; Func[void paldata::LoadBitmapPalette(int)] Body End                 | 4207 resources/include/bindings/paldata.zh:90
+POP D2; Func[void paldata::WriteLevelPalette(int)] Body Start                   | 4208 resources/include/bindings/paldata.zh:99
+POP REFPALDATA                                                                  | 4209 resources/include/bindings/paldata.zh:99
+PALDATAWRITELEVEL D2                                                            | 4210 resources/include/bindings/paldata.zh:99
+RETURNFUNC; Func[void paldata::WriteLevelPalette(int)] Body End                 | 4211 resources/include/bindings/paldata.zh:99
+POP D3; Func[void paldata::WriteLevelCSet(int, int)] Body Start                 | 4212 resources/include/bindings/paldata.zh:109
+POP D2                                                                          | 4213 resources/include/bindings/paldata.zh:109
+POP REFPALDATA                                                                  | 4214 resources/include/bindings/paldata.zh:109
+PALDATAWRITELEVELCS D2 D3                                                       | 4215 resources/include/bindings/paldata.zh:109
+RETURNFUNC; Func[void paldata::WriteLevelCSet(int, int)] Body End               | 4216 resources/include/bindings/paldata.zh:109
+POP D2; Func[void paldata::WriteSpritePalette(int)] Body Start                  | 4217 resources/include/bindings/paldata.zh:118
+POP REFPALDATA                                                                  | 4218 resources/include/bindings/paldata.zh:118
+PALDATAWRITESPRITE D2                                                           | 4219 resources/include/bindings/paldata.zh:118
+RETURNFUNC; Func[void paldata::WriteSpritePalette(int)] Body End                | 4220 resources/include/bindings/paldata.zh:118
+POP D3; Func[void paldata::WriteSpriteCSet(int, int)] Body Start                | 4221 resources/include/bindings/paldata.zh:128
+POP D2                                                                          | 4222 resources/include/bindings/paldata.zh:128
+POP REFPALDATA                                                                  | 4223 resources/include/bindings/paldata.zh:128
+PALDATAWRITESPRITECS D2 D3                                                      | 4224 resources/include/bindings/paldata.zh:128
+RETURNFUNC; Func[void paldata::WriteSpriteCSet(int, int)] Body End              | 4225 resources/include/bindings/paldata.zh:128
+POP REFPALDATA; Func[void paldata::WriteMainPalette()] Body Start               | 4226 resources/include/bindings/paldata.zh:136
+PALDATAWRITEMAIN                                                                | 4227 resources/include/bindings/paldata.zh:136
+RETURNFUNC; Func[void paldata::WriteMainPalette()] Body End                     | 4228 resources/include/bindings/paldata.zh:136
+POP D2; Func[void paldata::WriteMainCSet(int)] Body Start                       | 4229 resources/include/bindings/paldata.zh:145
+POP REFPALDATA                                                                  | 4230 resources/include/bindings/paldata.zh:145
+PALDATAWRITEMAINCS D2                                                           | 4231 resources/include/bindings/paldata.zh:145
+RETURNFUNC; Func[void paldata::WriteMainCSet(int)] Body End                     | 4232 resources/include/bindings/paldata.zh:145
+POP D2; Func[void paldata::WriteCyclePalette(int)] Body Start                   | 4233 resources/include/bindings/paldata.zh:154
+POP REFPALDATA                                                                  | 4234 resources/include/bindings/paldata.zh:154
+PALDATAWRITECYCLE D2                                                            | 4235 resources/include/bindings/paldata.zh:154
+RETURNFUNC; Func[void paldata::WriteCyclePalette(int)] Body End                 | 4236 resources/include/bindings/paldata.zh:154
+POP D3; Func[void paldata::WriteCycleCSet(int, int)] Body Start                 | 4237 resources/include/bindings/paldata.zh:165
+POP D2                                                                          | 4238 resources/include/bindings/paldata.zh:165
+POP REFPALDATA                                                                  | 4239 resources/include/bindings/paldata.zh:165
+PALDATAWRITECYCLECS D2 D3                                                       | 4240 resources/include/bindings/paldata.zh:165
+RETURNFUNC; Func[void paldata::WriteCycleCSet(int, int)] Body End               | 4241 resources/include/bindings/paldata.zh:165
+POP D2; Func[bool paldata::ColorValid(int)] Body Start                          | 4242 resources/include/bindings/paldata.zh:173
+POP REFPALDATA                                                                  | 4243 resources/include/bindings/paldata.zh:173
+PALDATAVALIDCLR D2                                                              | 4244 resources/include/bindings/paldata.zh:173
+RETURNFUNC; Func[bool paldata::ColorValid(int)] Body End                        | 4245 resources/include/bindings/paldata.zh:173
+POP D2; Func[void paldata::ClearColor(int)] Body Start                          | 4246 resources/include/bindings/paldata.zh:182
+POP REFPALDATA                                                                  | 4247 resources/include/bindings/paldata.zh:182
+PALDATACLEARCLR D2                                                              | 4248 resources/include/bindings/paldata.zh:182
+RETURNFUNC; Func[void paldata::ClearColor(int)] Body End                        | 4249 resources/include/bindings/paldata.zh:182
+POP D2; Func[void paldata::ClearCSet(int)] Body Start                           | 4250 resources/include/bindings/paldata.zh:191
+POP REFPALDATA                                                                  | 4251 resources/include/bindings/paldata.zh:191
+PALDATACLEARCSET D2                                                             | 4252 resources/include/bindings/paldata.zh:191
+RETURNFUNC; Func[void paldata::ClearCSet(int)] Body End                         | 4253 resources/include/bindings/paldata.zh:191
+PALDATAMIX; Func[void paldata::Mix(paldata, paldata, int, int)] Body Start      | 4254 resources/include/bindings/paldata.zh:199
+POPARGS D5 0.0004                                                               | 4255 resources/include/bindings/paldata.zh:199
+POP REFPALDATA                                                                  | 4256 resources/include/bindings/paldata.zh:199
+RETURNFUNC; Func[void paldata::Mix(paldata, paldata, int, int)] Body End        | 4257 resources/include/bindings/paldata.zh:199
+PALDATAMIXCS; Func[void paldata::MixCSet(paldata, paldata, int, int, int)] Body Start | 4258 resources/include/bindings/paldata.zh:208
+POPARGS D5 0.0005                                                               | 4259 resources/include/bindings/paldata.zh:208
+POP REFPALDATA                                                                  | 4260 resources/include/bindings/paldata.zh:208
+RETURNFUNC; Func[void paldata::MixCSet(paldata, paldata, int, int, int)] Body End | 4261 resources/include/bindings/paldata.zh:208
+POP D2; Func[void paldata::Copy(paldata)] Body Start                            | 4262 resources/include/bindings/paldata.zh:217
+POP REFPALDATA                                                                  | 4263 resources/include/bindings/paldata.zh:217
+PALDATACOPY D2                                                                  | 4264 resources/include/bindings/paldata.zh:217
+RETURNFUNC; Func[void paldata::Copy(paldata)] Body End                          | 4265 resources/include/bindings/paldata.zh:217
+PALDATACOPYCSET; Func[void paldata::CopyCSet(paldata, int, int)] Body Start     | 4266 resources/include/bindings/paldata.zh:225
+POPARGS D5 0.0004                                                               | 4267 resources/include/bindings/paldata.zh:225
+RETURNFUNC; Func[void paldata::CopyCSet(paldata, int, int)] Body End            | 4268 resources/include/bindings/paldata.zh:225
+POP REFPALDATA; Func[void paldata::Free()] Body Start                           | 4269 resources/include/bindings/paldata.zh:237
+PALDATAFREE                                                                     | 4270 resources/include/bindings/paldata.zh:237
+RETURNFUNC; Func[void paldata::Free()] Body End                                 | 4271 resources/include/bindings/paldata.zh:237
+POP REFPALDATA; Func[void paldata::Own()] Body Start                            | 4272 resources/include/bindings/paldata.zh:247
+PALDATAOWN                                                                      | 4273 resources/include/bindings/paldata.zh:247
+RETURNFUNC; Func[void paldata::Own()] Body End                                  | 4274 resources/include/bindings/paldata.zh:247
 POP REFPORTAL; Func[void portal::Remove()] Body Start                           | 4275 resources/include/bindings/portal.zh:52
 PORTALREMOVE                                                                    | 4276 resources/include/bindings/portal.zh:52
 RETURNFUNC; Func[void portal::Remove()] Body End                                | 4277 resources/include/bindings/portal.zh:52
@@ -4371,63 +4371,63 @@ RETURNFUNC; Func[void savedportal::Remove()] Body End                           
 POP REFSAVPORTAL; Func[portal savedportal::Generate()] Body Start               | 4342 resources/include/bindings/savedportal.zh:48
 SAVEDPORTALGENERATE                                                             | 4343 resources/include/bindings/savedportal.zh:48
 RETURNFUNC; Func[portal savedportal::Generate()] Body End                       | 4344 resources/include/bindings/savedportal.zh:48
-LOADSTACK; Func[stack stack::stack()] Body Start                                | 4345 resources/include/bindings/stack.zh:5
-RETURNFUNC; Func[stack stack::stack()] Body End                                 | 4346 resources/include/bindings/stack.zh:5
-POP REFSTACK; Func[void stack::Free()] Body Start                               | 4347 resources/include/bindings/stack.zh:27
-STACKFREE                                                                       | 4348 resources/include/bindings/stack.zh:27
-RETURNFUNC; Func[void stack::Free()] Body End                                   | 4349 resources/include/bindings/stack.zh:27
-POP REFSTACK; Func[void stack::Own()] Body Start                                | 4350 resources/include/bindings/stack.zh:37
-STACKOWN                                                                        | 4351 resources/include/bindings/stack.zh:37
-RETURNFUNC; Func[void stack::Own()] Body End                                    | 4352 resources/include/bindings/stack.zh:37
-POP REFSTACK; Func[void stack::Clear()] Body Start                              | 4353 resources/include/bindings/stack.zh:44
-STACKCLEAR                                                                      | 4354 resources/include/bindings/stack.zh:44
-RETURNFUNC; Func[void stack::Clear()] Body End                                  | 4355 resources/include/bindings/stack.zh:44
-POP D2; Func[void stack::PushBack(T)] Body Start                                | 4356 resources/include/bindings/stack.zh:54
-POP REFSTACK                                                                    | 4357 resources/include/bindings/stack.zh:54
-STACKPUSHBACK D2 0                                                              | 4358 resources/include/bindings/stack.zh:54
-RETURNFUNC; Func[void stack::PushBack(T)] Body End                              | 4359 resources/include/bindings/stack.zh:54
-POP D2; Func[void stack::PushFront(T)] Body Start                               | 4360 resources/include/bindings/stack.zh:64
-POP REFSTACK                                                                    | 4361 resources/include/bindings/stack.zh:64
-STACKPUSHFRONT D2 0                                                             | 4362 resources/include/bindings/stack.zh:64
-RETURNFUNC; Func[void stack::PushFront(T)] Body End                             | 4363 resources/include/bindings/stack.zh:64
-POP REFSTACK; Func[T stack::PopBack()] Body Start                               | 4364 resources/include/bindings/stack.zh:73
-STACKPOPBACK D2                                                                 | 4365 resources/include/bindings/stack.zh:73
-RETURNFUNC; Func[T stack::PopBack()] Body End                                   | 4366 resources/include/bindings/stack.zh:73
-POP REFSTACK; Func[T stack::PopFront()] Body Start                              | 4367 resources/include/bindings/stack.zh:82
-STACKPOPFRONT D2                                                                | 4368 resources/include/bindings/stack.zh:82
-RETURNFUNC; Func[T stack::PopFront()] Body End                                  | 4369 resources/include/bindings/stack.zh:82
-POP REFSTACK; Func[T stack::PeekBack()] Body Start                              | 4370 resources/include/bindings/stack.zh:91
-STACKPEEKBACK D2                                                                | 4371 resources/include/bindings/stack.zh:91
-RETURNFUNC; Func[T stack::PeekBack()] Body End                                  | 4372 resources/include/bindings/stack.zh:91
-POP REFSTACK; Func[T stack::PeekFront()] Body Start                             | 4373 resources/include/bindings/stack.zh:100
-STACKPEEKFRONT D2                                                               | 4374 resources/include/bindings/stack.zh:100
-RETURNFUNC; Func[T stack::PeekFront()] Body End                                 | 4375 resources/include/bindings/stack.zh:100
-POP D2; Func[T stack::Get(long)] Body Start                                     | 4376 resources/include/bindings/stack.zh:109
-POP REFSTACK                                                                    | 4377 resources/include/bindings/stack.zh:109
-STACKGET D2                                                                     | 4378 resources/include/bindings/stack.zh:109
-RETURNFUNC; Func[T stack::Get(long)] Body End                                   | 4379 resources/include/bindings/stack.zh:109
-POP D3; Func[void stack::Set(long, T)] Body Start                               | 4380 resources/include/bindings/stack.zh:120
-POP D2                                                                          | 4381 resources/include/bindings/stack.zh:120
-POP REFSTACK                                                                    | 4382 resources/include/bindings/stack.zh:120
-STACKSET D2 D3 0                                                                | 4383 resources/include/bindings/stack.zh:120
-RETURNFUNC; Func[void stack::Set(long, T)] Body End                             | 4384 resources/include/bindings/stack.zh:120
-POP D2; Func[void subscreendata::GetName(char32[])] Body Start                  | 4385 resources/include/bindings/subscreendata.zh:693
-POP REFSUBSCREENDATA                                                            | 4386 resources/include/bindings/subscreendata.zh:693
-SUBDATA_GET_NAME D2                                                             | 4387 resources/include/bindings/subscreendata.zh:693
-RETURNFUNC; Func[void subscreendata::GetName(char32[])] Body End                | 4388 resources/include/bindings/subscreendata.zh:693
-POP D2; Func[void subscreendata::SetName(char32[])] Body Start                  | 4389 resources/include/bindings/subscreendata.zh:701
-POP REFSUBSCREENDATA                                                            | 4390 resources/include/bindings/subscreendata.zh:701
-SUBDATA_SET_NAME D2                                                             | 4391 resources/include/bindings/subscreendata.zh:701
-RETURNFUNC; Func[void subscreendata::SetName(char32[])] Body End                | 4392 resources/include/bindings/subscreendata.zh:701
-SUBDATA_SWAP_PAGES; Func[void subscreendata::SwapPages(int, int)] Body Start    | 4393 resources/include/bindings/subscreendata.zh:708
-POPARGS D5 0.0003                                                               | 4394 resources/include/bindings/subscreendata.zh:708
-RETURNFUNC; Func[void subscreendata::SwapPages(int, int)] Body End              | 4395 resources/include/bindings/subscreendata.zh:708
-POP REFSUBSCREENDATA; Func[void subscreendata::Open()] Body Start               | 4396 resources/include/bindings/subscreendata.zh:717
-SUBDATA_OPEN                                                                    | 4397 resources/include/bindings/subscreendata.zh:717
-RETURNFUNC; Func[void subscreendata::Open()] Body End                           | 4398 resources/include/bindings/subscreendata.zh:717
-POP REFSUBSCREENDATA; Func[void subscreendata::Close()] Body Start              | 4399 resources/include/bindings/subscreendata.zh:727
-SUBDATA_CLOSE                                                                   | 4400 resources/include/bindings/subscreendata.zh:727
-RETURNFUNC; Func[void subscreendata::Close()] Body End                          | 4401 resources/include/bindings/subscreendata.zh:727
+LOADSTACK; Func[stack stack::stack()] Body Start                                | 4345 resources/include/bindings/stack.zh:8
+RETURNFUNC; Func[stack stack::stack()] Body End                                 | 4346 resources/include/bindings/stack.zh:8
+POP REFSTACK; Func[void stack::Free()] Body Start                               | 4347 resources/include/bindings/stack.zh:30
+STACKFREE                                                                       | 4348 resources/include/bindings/stack.zh:30
+RETURNFUNC; Func[void stack::Free()] Body End                                   | 4349 resources/include/bindings/stack.zh:30
+POP REFSTACK; Func[void stack::Own()] Body Start                                | 4350 resources/include/bindings/stack.zh:40
+STACKOWN                                                                        | 4351 resources/include/bindings/stack.zh:40
+RETURNFUNC; Func[void stack::Own()] Body End                                    | 4352 resources/include/bindings/stack.zh:40
+POP REFSTACK; Func[void stack::Clear()] Body Start                              | 4353 resources/include/bindings/stack.zh:47
+STACKCLEAR                                                                      | 4354 resources/include/bindings/stack.zh:47
+RETURNFUNC; Func[void stack::Clear()] Body End                                  | 4355 resources/include/bindings/stack.zh:47
+POP D2; Func[void stack::PushBack(T)] Body Start                                | 4356 resources/include/bindings/stack.zh:57
+POP REFSTACK                                                                    | 4357 resources/include/bindings/stack.zh:57
+STACKPUSHBACK D2 0                                                              | 4358 resources/include/bindings/stack.zh:57
+RETURNFUNC; Func[void stack::PushBack(T)] Body End                              | 4359 resources/include/bindings/stack.zh:57
+POP D2; Func[void stack::PushFront(T)] Body Start                               | 4360 resources/include/bindings/stack.zh:67
+POP REFSTACK                                                                    | 4361 resources/include/bindings/stack.zh:67
+STACKPUSHFRONT D2 0                                                             | 4362 resources/include/bindings/stack.zh:67
+RETURNFUNC; Func[void stack::PushFront(T)] Body End                             | 4363 resources/include/bindings/stack.zh:67
+POP REFSTACK; Func[T stack::PopBack()] Body Start                               | 4364 resources/include/bindings/stack.zh:76
+STACKPOPBACK D2                                                                 | 4365 resources/include/bindings/stack.zh:76
+RETURNFUNC; Func[T stack::PopBack()] Body End                                   | 4366 resources/include/bindings/stack.zh:76
+POP REFSTACK; Func[T stack::PopFront()] Body Start                              | 4367 resources/include/bindings/stack.zh:85
+STACKPOPFRONT D2                                                                | 4368 resources/include/bindings/stack.zh:85
+RETURNFUNC; Func[T stack::PopFront()] Body End                                  | 4369 resources/include/bindings/stack.zh:85
+POP REFSTACK; Func[T stack::PeekBack()] Body Start                              | 4370 resources/include/bindings/stack.zh:94
+STACKPEEKBACK D2                                                                | 4371 resources/include/bindings/stack.zh:94
+RETURNFUNC; Func[T stack::PeekBack()] Body End                                  | 4372 resources/include/bindings/stack.zh:94
+POP REFSTACK; Func[T stack::PeekFront()] Body Start                             | 4373 resources/include/bindings/stack.zh:103
+STACKPEEKFRONT D2                                                               | 4374 resources/include/bindings/stack.zh:103
+RETURNFUNC; Func[T stack::PeekFront()] Body End                                 | 4375 resources/include/bindings/stack.zh:103
+POP D2; Func[T stack::Get(long)] Body Start                                     | 4376 resources/include/bindings/stack.zh:112
+POP REFSTACK                                                                    | 4377 resources/include/bindings/stack.zh:112
+STACKGET D2                                                                     | 4378 resources/include/bindings/stack.zh:112
+RETURNFUNC; Func[T stack::Get(long)] Body End                                   | 4379 resources/include/bindings/stack.zh:112
+POP D3; Func[void stack::Set(long, T)] Body Start                               | 4380 resources/include/bindings/stack.zh:123
+POP D2                                                                          | 4381 resources/include/bindings/stack.zh:123
+POP REFSTACK                                                                    | 4382 resources/include/bindings/stack.zh:123
+STACKSET D2 D3 0                                                                | 4383 resources/include/bindings/stack.zh:123
+RETURNFUNC; Func[void stack::Set(long, T)] Body End                             | 4384 resources/include/bindings/stack.zh:123
+POP D2; Func[void subscreendata::GetName(char32[])] Body Start                  | 4385 resources/include/bindings/subscreendata.zh:695
+POP REFSUBSCREENDATA                                                            | 4386 resources/include/bindings/subscreendata.zh:695
+SUBDATA_GET_NAME D2                                                             | 4387 resources/include/bindings/subscreendata.zh:695
+RETURNFUNC; Func[void subscreendata::GetName(char32[])] Body End                | 4388 resources/include/bindings/subscreendata.zh:695
+POP D2; Func[void subscreendata::SetName(char32[])] Body Start                  | 4389 resources/include/bindings/subscreendata.zh:703
+POP REFSUBSCREENDATA                                                            | 4390 resources/include/bindings/subscreendata.zh:703
+SUBDATA_SET_NAME D2                                                             | 4391 resources/include/bindings/subscreendata.zh:703
+RETURNFUNC; Func[void subscreendata::SetName(char32[])] Body End                | 4392 resources/include/bindings/subscreendata.zh:703
+SUBDATA_SWAP_PAGES; Func[void subscreendata::SwapPages(int, int)] Body Start    | 4393 resources/include/bindings/subscreendata.zh:710
+POPARGS D5 0.0003                                                               | 4394 resources/include/bindings/subscreendata.zh:710
+RETURNFUNC; Func[void subscreendata::SwapPages(int, int)] Body End              | 4395 resources/include/bindings/subscreendata.zh:710
+POP REFSUBSCREENDATA; Func[void subscreendata::Open()] Body Start               | 4396 resources/include/bindings/subscreendata.zh:719
+SUBDATA_OPEN                                                                    | 4397 resources/include/bindings/subscreendata.zh:719
+RETURNFUNC; Func[void subscreendata::Open()] Body End                           | 4398 resources/include/bindings/subscreendata.zh:719
+POP REFSUBSCREENDATA; Func[void subscreendata::Close()] Body Start              | 4399 resources/include/bindings/subscreendata.zh:729
+SUBDATA_CLOSE                                                                   | 4400 resources/include/bindings/subscreendata.zh:729
+RETURNFUNC; Func[void subscreendata::Close()] Body End                          | 4401 resources/include/bindings/subscreendata.zh:729
 SUBPAGE_FIND_WIDGET_BY_LABEL; Func[subscreenwidget subscreenpage::GetWidget(char32[])] Body Start | 4402 resources/include/bindings/subscreenpage.zh:48
 POPARGS D5 0.0002                                                               | 4403 resources/include/bindings/subscreenpage.zh:48
 RETURNFUNC; Func[subscreenwidget subscreenpage::GetWidget(char32[])] Body End   | 4404 resources/include/bindings/subscreenpage.zh:48
@@ -4476,41 +4476,41 @@ RETURNFUNC; Func[bool subscreenwidget::CheckConditions()] Body End              
 POP REFSUBSCREENWIDG; Func[bool subscreenwidget::CheckVisible()] Body Start     | 4447 resources/include/bindings/subscreenwidget.zh:1096
 SUBWIDG_CHECK_VISIBLE D2                                                        | 4448 resources/include/bindings/subscreenwidget.zh:1096
 RETURNFUNC; Func[bool subscreenwidget::CheckVisible()] Body End                 | 4449 resources/include/bindings/subscreenwidget.zh:1096
-CREATEWEAPDATA; Func[weapondata weapondata::weapondata()] Body Start            | 4450 resources/include/bindings/weapondata.zh:23
-RETURNFUNC; Func[weapondata weapondata::weapondata()] Body End                  | 4451 resources/include/bindings/weapondata.zh:23
-POP D2; Func[void weapondata::CopyTo(weapondata)] Body Start                    | 4452 resources/include/bindings/weapondata.zh:233
-POP REFWEAPDATA                                                                 | 4453 resources/include/bindings/weapondata.zh:233
-WEAPDATA_COPY D2                                                                | 4454 resources/include/bindings/weapondata.zh:233
-RETURNFUNC; Func[void weapondata::CopyTo(weapondata)] Body End                  | 4455 resources/include/bindings/weapondata.zh:233
-POP D2; Func[void weapondata::ApplyTo(lweapon)] Body Start                      | 4456 resources/include/bindings/weapondata.zh:241
-POP REFWEAPDATA                                                                 | 4457 resources/include/bindings/weapondata.zh:241
-WEAPDATA_APPLY D2                                                               | 4458 resources/include/bindings/weapondata.zh:241
-RETURNFUNC; Func[void weapondata::ApplyTo(lweapon)] Body End                    | 4459 resources/include/bindings/weapondata.zh:241
-POP D2; Func[void weapondata::ApplyTo(eweapon)] Body Start                      | 4460 resources/include/bindings/weapondata.zh:249
-POP REFWEAPDATA                                                                 | 4461 resources/include/bindings/weapondata.zh:249
-WEAPDATA_APPLY D2                                                               | 4462 resources/include/bindings/weapondata.zh:249
-RETURNFUNC; Func[void weapondata::ApplyTo(eweapon)] Body End                    | 4463 resources/include/bindings/weapondata.zh:249
-POP D2; Func[websocket websocket::websocket(char32[])] Body Start               | 4464 resources/include/bindings/websocket.zh:22
-WEBSOCKET_LOAD D2                                                               | 4465 resources/include/bindings/websocket.zh:22
-RETURNFUNC; Func[websocket websocket::websocket(char32[])] Body End             | 4466 resources/include/bindings/websocket.zh:22
-POP D2; Func[void websocket::GetError(char32[])] Body Start                     | 4467 resources/include/bindings/websocket.zh:46
-POP REFWEBSOCKET                                                                | 4468 resources/include/bindings/websocket.zh:46
-WEBSOCKET_ERROR D2                                                              | 4469 resources/include/bindings/websocket.zh:46
-RETURNFUNC; Func[void websocket::GetError(char32[])] Body End                   | 4470 resources/include/bindings/websocket.zh:46
-POP D2; Func[void websocket::Send(char32[], WebsocketType)] Body Start          | 4471 resources/include/bindings/websocket.zh:55
-POP D3                                                                          | 4472 resources/include/bindings/websocket.zh:55
-POP REFWEBSOCKET                                                                | 4473 resources/include/bindings/websocket.zh:55
-WEBSOCKET_SEND D2 D3                                                            | 4474 resources/include/bindings/websocket.zh:55
-RETURNFUNC; Func[void websocket::Send(char32[], WebsocketType)] Body End        | 4475 resources/include/bindings/websocket.zh:55
-POP REFWEBSOCKET; Func[untyped[] websocket::Receive()] Body Start               | 4476 resources/include/bindings/websocket.zh:65
-WEBSOCKET_RECEIVE D2                                                            | 4477 resources/include/bindings/websocket.zh:65
-RETURNFUNC; Func[untyped[] websocket::Receive()] Body End                       | 4478 resources/include/bindings/websocket.zh:65
-POP REFWEBSOCKET; Func[void websocket::Free()] Body Start                       | 4479 resources/include/bindings/websocket.zh:83
-WEBSOCKET_FREE                                                                  | 4480 resources/include/bindings/websocket.zh:83
-RETURNFUNC; Func[void websocket::Free()] Body End                               | 4481 resources/include/bindings/websocket.zh:83
-POP REFWEBSOCKET; Func[void websocket::Own()] Body Start                        | 4482 resources/include/bindings/websocket.zh:95
-WEBSOCKET_OWN                                                                   | 4483 resources/include/bindings/websocket.zh:95
-RETURNFUNC; Func[void websocket::Own()] Body End                                | 4484 resources/include/bindings/websocket.zh:95
+CREATEWEAPDATA; Func[weapondata weapondata::weapondata()] Body Start            | 4450 resources/include/bindings/weapondata.zh:24
+RETURNFUNC; Func[weapondata weapondata::weapondata()] Body End                  | 4451 resources/include/bindings/weapondata.zh:24
+POP D2; Func[void weapondata::CopyTo(weapondata)] Body Start                    | 4452 resources/include/bindings/weapondata.zh:234
+POP REFWEAPDATA                                                                 | 4453 resources/include/bindings/weapondata.zh:234
+WEAPDATA_COPY D2                                                                | 4454 resources/include/bindings/weapondata.zh:234
+RETURNFUNC; Func[void weapondata::CopyTo(weapondata)] Body End                  | 4455 resources/include/bindings/weapondata.zh:234
+POP D2; Func[void weapondata::ApplyTo(lweapon)] Body Start                      | 4456 resources/include/bindings/weapondata.zh:242
+POP REFWEAPDATA                                                                 | 4457 resources/include/bindings/weapondata.zh:242
+WEAPDATA_APPLY D2                                                               | 4458 resources/include/bindings/weapondata.zh:242
+RETURNFUNC; Func[void weapondata::ApplyTo(lweapon)] Body End                    | 4459 resources/include/bindings/weapondata.zh:242
+POP D2; Func[void weapondata::ApplyTo(eweapon)] Body Start                      | 4460 resources/include/bindings/weapondata.zh:250
+POP REFWEAPDATA                                                                 | 4461 resources/include/bindings/weapondata.zh:250
+WEAPDATA_APPLY D2                                                               | 4462 resources/include/bindings/weapondata.zh:250
+RETURNFUNC; Func[void weapondata::ApplyTo(eweapon)] Body End                    | 4463 resources/include/bindings/weapondata.zh:250
+POP D2; Func[websocket websocket::websocket(char32[])] Body Start               | 4464 resources/include/bindings/websocket.zh:24
+WEBSOCKET_LOAD D2                                                               | 4465 resources/include/bindings/websocket.zh:24
+RETURNFUNC; Func[websocket websocket::websocket(char32[])] Body End             | 4466 resources/include/bindings/websocket.zh:24
+POP D2; Func[void websocket::GetError(char32[])] Body Start                     | 4467 resources/include/bindings/websocket.zh:48
+POP REFWEBSOCKET                                                                | 4468 resources/include/bindings/websocket.zh:48
+WEBSOCKET_ERROR D2                                                              | 4469 resources/include/bindings/websocket.zh:48
+RETURNFUNC; Func[void websocket::GetError(char32[])] Body End                   | 4470 resources/include/bindings/websocket.zh:48
+POP D2; Func[void websocket::Send(char32[], WebsocketType)] Body Start          | 4471 resources/include/bindings/websocket.zh:57
+POP D3                                                                          | 4472 resources/include/bindings/websocket.zh:57
+POP REFWEBSOCKET                                                                | 4473 resources/include/bindings/websocket.zh:57
+WEBSOCKET_SEND D2 D3                                                            | 4474 resources/include/bindings/websocket.zh:57
+RETURNFUNC; Func[void websocket::Send(char32[], WebsocketType)] Body End        | 4475 resources/include/bindings/websocket.zh:57
+POP REFWEBSOCKET; Func[untyped[] websocket::Receive()] Body Start               | 4476 resources/include/bindings/websocket.zh:67
+WEBSOCKET_RECEIVE D2                                                            | 4477 resources/include/bindings/websocket.zh:67
+RETURNFUNC; Func[untyped[] websocket::Receive()] Body End                       | 4478 resources/include/bindings/websocket.zh:67
+POP REFWEBSOCKET; Func[void websocket::Free()] Body Start                       | 4479 resources/include/bindings/websocket.zh:85
+WEBSOCKET_FREE                                                                  | 4480 resources/include/bindings/websocket.zh:85
+RETURNFUNC; Func[void websocket::Free()] Body End                               | 4481 resources/include/bindings/websocket.zh:85
+POP REFWEBSOCKET; Func[void websocket::Own()] Body Start                        | 4482 resources/include/bindings/websocket.zh:97
+WEBSOCKET_OWN                                                                   | 4483 resources/include/bindings/websocket.zh:97
+RETURNFUNC; Func[void websocket::Own()] Body End                                | 4484 resources/include/bindings/websocket.zh:97
 
 debug data:
 

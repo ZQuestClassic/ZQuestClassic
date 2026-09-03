@@ -13,6 +13,8 @@ enum ViewportMode
 //
 // For an example usage, see: https://github.com/ZQuestClassic/ZQuestClassic/blob/main/tests/scripts/playground/auto/viewport.zs
 //
+// Access with `Viewport->`.
+//
 // @versionadded 2.55.9 Basic, read-only access
 // @versionchanged 3.0 Full access via [Viewport->Mode]
 class Viewport {

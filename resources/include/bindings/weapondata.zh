@@ -9,7 +9,8 @@ enum WeapDataFlag
 	WDATA_SET_STEP,
 };
 
-// Represents settings for [lweapon]s and [eweapon]s.
+// Holds properties for the [lweapon] and [eweapon] classes.
+//
 // See [npcdata::WeaponData], [npc::WeaponData], [itemdata::WeaponData],
 // [combodata::MiscWeaponData], [combodata::LiftWeaponData].
 //

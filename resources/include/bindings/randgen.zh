@@ -1,5 +1,8 @@
+// Create a new randgen with `new randgen()` or [Game->LoadRNG].
+//
 // @zasm_ref REFRNG
 class randgen {
+	// @versionadded 3.0
 	// @zasm
 	//   LOADRNG
 	internal randgen();

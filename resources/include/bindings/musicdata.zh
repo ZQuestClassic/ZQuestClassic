@@ -1,3 +1,7 @@
+// Load with [Audio->LoadMusicData] or [Audio->GetMusicData].
+//
+// See: [Screen->Music], [dmapdata::Music], [mapdata::Music], [save_menu::Music].
+//
 // @versionadded 3.0
 // @zasm_ref REFMUSIC
 class musicdata {

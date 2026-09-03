@@ -1,5 +1,8 @@
+// Load a directory with `new directory(path)` or [FileSystem->LoadDirectory()].
+//
 // @zasm_ref REFDIRECTORY
 class directory {
+	// @versionadded 3.0
 	// @zasm
 	//   POP D2
 	//   LOADDIRECTORYR D2

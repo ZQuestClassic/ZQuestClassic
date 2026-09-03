@@ -1,5 +1,8 @@
+// Create a new stack with `new stack()` or [Game->LoadStack].
+//
 // @zasm_ref REFSTACK
 class stack<T> {
+	// @versionadded 3.0
 	// @zasm
 	//   LOADSTACK
 	internal stack();
