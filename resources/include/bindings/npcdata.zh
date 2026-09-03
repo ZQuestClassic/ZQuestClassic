@@ -440,6 +440,15 @@ class npcdata {
 	// @zasm_var NPCDATAFIRESFX
 	internal int WeaponSFX;
 
+	// The sfx used when the npc fires a weapon other than [npcdata::Weapon].
+	// Only the 'Fire Octo' death effect does so, and the weapon it fires is
+	// [npcdata::Weapon] plus the 'Weapon Offset' attribute.
+	// If 0 or less, no sound will be played.
+	//
+	// @versionadded 3.0
+	// @zasm_var NPCDATAFIRESFXSECONDARY
+	internal int WeaponSecondarySFX;
+
 	// The defense categories for the npc.
 	//
 	// @index [enum NPCDefenseIndex]
