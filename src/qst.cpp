@@ -13488,6 +13488,19 @@ int32_t readguys(PACKFILE *f, zquestheader *Header)
 	guysbuf[eCENT1].misc3 = 1;
 	guysbuf[eCENT2].misc3 = 1;
     }
+    // Whistle defence did not exist before guyversion 33. Quests too old to
+    // have per-enemy data in the file (guyversion<=3) take the defaults above
+    // verbatim, so apply the same 'ignore' rule that the per-enemy reading
+    // code applies when reading enemies from the file. Otherwise every enemy
+    // in an imported 1.9x/2.10 quest ends up vulnerable to the whistle.
+    if(guyversion < 33)
+    {
+        for(int32_t i=0; i<MAXGUYS; i++)
+        {
+            if(guysbuf[i].family != eeDIG)
+                guysbuf[i].defense[edefWhistle] = edIGNORE;
+        }
+    }
     if((Header->zelda_version <= 0x255) || (Header->zelda_version == 0x255 && Header->build < 47) )
     {
 	guysbuf[eWPOLSV].defense[edefWhistle] = ed1HKO;
