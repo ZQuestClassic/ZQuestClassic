@@ -701,6 +701,7 @@ void do_dev_qrs_zscript_command(std::string const& fname)
 		{ qr_STRINGS_DONT_SCROLL, "qr_STRINGS_DONT_SCROLL" },
 		{ qr_STRING_SEGMENTED_SCROLL, "qr_STRING_SEGMENTED_SCROLL" },
 		{ qr_SCRIPTS_SHARE_INITD, "qr_SCRIPTS_SHARE_INITD" },
+		{ qr_BROKEN_FFC_WRAP_CHANGERS, "qr_BROKEN_FFC_WRAP_CHANGERS" },
 		{ qr_DISABLE_F6, "qr_DISABLE_F6" },
 	};
 	static std::map<std::string, std::string> qr_compat_names = {

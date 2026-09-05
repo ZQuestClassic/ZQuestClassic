@@ -958,6 +958,8 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 		}
 		if (compatrule_version < 118)
 			set_qr(qr_BROKEN_SCC_MAP_ARGS, 1);
+		if (compatrule_version < 122)
+			set_qr(qr_BROKEN_FFC_WRAP_CHANGERS, 1);
 	}
 	else
 	{
@@ -1028,6 +1030,12 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 			set_qr(qr_KNOCKBACK_THROUGH_PLATFORMS, 1);
 			set_qr(qr_BROKEN_SIDEVIEW_SOLID_FFC_COLLISION, 1);
 			set_qr(qr_BROKEN_SCC_MAP_ARGS, 1);
+		}
+
+		// Older than 2.55.17?
+		if (tempheader.compareVer(2, 55, 17) < 0)
+		{
+			set_qr(qr_BROKEN_FFC_WRAP_CHANGERS, 1);
 		}
 	}
 

@@ -5021,6 +5021,24 @@ void zmap::update_combo_cycling()
     }
 }
 
+// Mirrors ffc_wrapped in zc/maps.cpp - see the comment there.
+static void prv_ffc_wrapped(ffcdata& ffc, bool horizontal, bool bottom = false)
+{
+	if (get_qr(qr_BROKEN_FFC_WRAP_CHANGERS))
+	{
+		if (bottom)
+			ffc.prev_changer_y = ffc.x.getZLong();
+		else if (horizontal)
+			ffc.prev_changer_y = ffc.y.getZLong();
+		else
+			ffc.prev_changer_x = ffc.x.getZLong();
+		return;
+	}
+
+	ffc.prev_changer_x = ffc.x.getZLong();
+	ffc.prev_changer_y = ffc.y.getZLong();
+}
+
 void zmap::update_freeform_combos()
 {
     if(!prv_mode||!prv_cmbcycle)
@@ -5155,7 +5173,9 @@ void zmap::update_freeform_combos()
                 if(prvscr.flags6&fWRAPAROUNDFF)
                 {
                     prvscr.ffcs[i].x = (288+(prvscr.ffcs[i].x+32));
-                    prvscr.ffcs[i].prev_changer_y = prvscr.ffcs[i].y.getZLong();
+                    prv_ffc_wrapped(prvscr.ffcs[i], true);
+                    prvscr.ffcs[i].changer_x = -1000;
+                    prvscr.ffcs[i].changer_y = -1000;
                 }
                 else
                 {
@@ -5169,7 +5189,9 @@ void zmap::update_freeform_combos()
                 if(prvscr.flags6&fWRAPAROUNDFF)
                 {
                     prvscr.ffcs[i].y = 208+(prvscr.ffcs[i].y+32);
-                    prvscr.ffcs[i].prev_changer_x = prvscr.ffcs[i].x.getZLong();
+                    prv_ffc_wrapped(prvscr.ffcs[i], false);
+                    prvscr.ffcs[i].changer_x = -1000;
+                    prvscr.ffcs[i].changer_y = -1000;
                 }
                 else
                 {
@@ -5183,7 +5205,9 @@ void zmap::update_freeform_combos()
                 if(prvscr.flags6&fWRAPAROUNDFF)
                 {
                     prvscr.ffcs[i].x = prvscr.ffcs[i].x-288-32;
-                    prvscr.ffcs[i].prev_changer_y = prvscr.ffcs[i].y.getZLong();
+                    prv_ffc_wrapped(prvscr.ffcs[i], true);
+                    prvscr.ffcs[i].changer_x = -1000;
+                    prvscr.ffcs[i].changer_y = -1000;
                 }
                 else
                 {
@@ -5197,7 +5221,9 @@ void zmap::update_freeform_combos()
                 if(prvscr.flags6&fWRAPAROUNDFF)
                 {
                     prvscr.ffcs[i].y = prvscr.ffcs[i].y-208-32;
-                    prvscr.ffcs[i].prev_changer_y = prvscr.ffcs[i].x.getZLong();
+                    prv_ffc_wrapped(prvscr.ffcs[i], false, true);
+                    prvscr.ffcs[i].changer_x = -1000;
+                    prvscr.ffcs[i].changer_y = -1000;
                 }
                 else
                 {

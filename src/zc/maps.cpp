@@ -3645,6 +3645,29 @@ void update_slopes()
 	}
 }
 
+// Called after an ffc wraps to the other side of the screen. The next frame's
+// changer check runs along the line from the ffc's previous position to its
+// new one, so start that line at the wrapped position - otherwise it spans the
+// whole screen and the ffc hits (and snaps to) any changer in the way. Old
+// quests keep the old behavior, which only refreshed one coordinate (with a
+// long-standing typo for the bottom edge).
+static void ffc_wrapped(ffcdata& ffc, bool horizontal, bool bottom = false)
+{
+	if (get_qr(qr_BROKEN_FFC_WRAP_CHANGERS))
+	{
+		if (bottom)
+			ffc.prev_changer_y = ffc.x.getZLong();
+		else if (horizontal)
+			ffc.prev_changer_y = ffc.y.getZLong();
+		else
+			ffc.prev_changer_x = ffc.x.getZLong();
+		return;
+	}
+
+	ffc.prev_changer_x = ffc.x.getZLong();
+	ffc.prev_changer_y = ffc.y.getZLong();
+}
+
 void update_freeform_combos()
 {
 	ffscript_engine(false);
@@ -3769,7 +3792,7 @@ void update_freeform_combos()
 				{
 					thisffc.x = wrap_right+(thisffc.x+32);
 					thisffc.solid_update(false);
-					thisffc.prev_changer_y = thisffc.y.getZLong();
+					ffc_wrapped(thisffc, true);
 					// Re-enable previous changer
 					thisffc.changer_x = -1000;
 					thisffc.changer_y = -1000;
@@ -3787,7 +3810,7 @@ void update_freeform_combos()
 				{
 					thisffc.x = thisffc.x-wrap_right-32;
 					thisffc.solid_update(false);
-					thisffc.prev_changer_y = thisffc.y.getZLong();
+					ffc_wrapped(thisffc, true);
 					thisffc.changer_x = -1000;
 					thisffc.changer_y = -1000;
 				}
@@ -3805,7 +3828,7 @@ void update_freeform_combos()
 				{
 					thisffc.y = wrap_bottom+(thisffc.y+32);
 					thisffc.solid_update(false);
-					thisffc.prev_changer_x = thisffc.x.getZLong();
+					ffc_wrapped(thisffc, false);
 					thisffc.changer_x = -1000;
 					thisffc.changer_y = -1000;
 				}
@@ -3822,7 +3845,7 @@ void update_freeform_combos()
 				{
 					thisffc.y = thisffc.y-wrap_bottom-32;
 					thisffc.solid_update(false);
-					thisffc.prev_changer_y = thisffc.x.getZLong();
+					ffc_wrapped(thisffc, false, true);
 					thisffc.changer_x = -1000;
 					thisffc.changer_y = -1000;
 				}

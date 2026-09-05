@@ -1151,6 +1151,11 @@ static GUI::ListData compatRulesList
 	{ "Strings Don't Scroll", qr_STRINGS_DONT_SCROLL,
 		"When enabled, strings will cut off when they reach their bottom margin, rather than scrolling."
 		"\n'Old String Margins' being enabled takes priority over this setting." + QRHINT({qr_OLD_STRING_EDITOR_MARGINS})},
+	{ "Wrapping FFCs check for changers across the whole screen", qr_BROKEN_FFC_WRAP_CHANGERS,
+		"If checked, on the frame after an FFC wraps around the screen (via the 'Wrap-Around FFCs' screen flag),"
+		" it checks for changers along the whole line from where it left the screen to where it re-entered,"
+		" so it hits (and jumps to) the lowest-numbered changer in that line - usually the one it just left."
+		"\nIf unchecked, the FFC only checks for changers from where it re-entered the screen." },
 };
 
 static GUI::ListData enemiesRulesList
