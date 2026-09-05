@@ -1308,7 +1308,15 @@ int32_t EditColors(const char *caption,int32_t first,int32_t count,byte *label)
 	
 	if(!bmp)
 		return 0;
-		
+	
+	// This dialog shows its own palette, but the editor's palette cycling
+	// (see cycle_palette) keeps running from the vsync hook and writes the
+	// current screen's palette to the hardware palette whenever a cycle
+	// steps - swapping out the colors on display until the next redraw.
+	// Pause it while the dialog is open.
+	int32_t old_cycle_on = CycleOn;
+	CycleOn = 0;
+	
 	for(int32_t i=0; i<16*count; i++)
 	{
 		int32_t x=int32_t(((i&15)<<3)*(1.5));
@@ -1490,6 +1498,7 @@ int32_t EditColors(const char *caption,int32_t first,int32_t count,byte *label)
 	//  gui_bg_color = vc(1);
 	
 	comeback();
+	CycleOn = old_cycle_on;
 	destroy_bitmap(bmp);
 	//delete[] buf;
 	zq_hide_screen(false);
