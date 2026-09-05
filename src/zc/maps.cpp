@@ -2918,6 +2918,29 @@ void update_slopes()
 	}
 }
 
+// Called after an ffc wraps to the other side of the screen. The next frame's
+// changer check runs along the line from the ffc's previous position to its
+// new one, so start that line at the wrapped position - otherwise it spans the
+// whole screen and the ffc hits (and snaps to) any changer in the way. Old
+// quests keep the old behavior, which only refreshed one coordinate (with a
+// long-standing typo for the bottom edge).
+static void ffc_wrapped(int32_t i, ffcdata const& ffc, bool horizontal, bool bottom = false)
+{
+	if (get_qr(qr_BROKEN_FFC_WRAP_CHANGERS))
+	{
+		if (bottom)
+			ffprvy[i] = ffc.x.getZLong();
+		else if (horizontal)
+			ffprvy[i] = ffc.y.getZLong();
+		else
+			ffprvx[i] = ffc.x.getZLong();
+		return;
+	}
+
+	ffprvx[i] = ffc.x.getZLong();
+	ffprvy[i] = ffc.y.getZLong();
+}
+
 void update_freeform_combos()
 {
 	ffscript_engine(false);
@@ -3023,7 +3046,7 @@ void update_freeform_combos()
 				{
 					thisffc.x = 288+(thisffc.x+32);
 					thisffc.solid_update(false);
-					ffprvy[i] = thisffc.y.getZLong();
+					ffc_wrapped(i, thisffc, true);
 					ffposx[i]=-1000; // Re-enable previous changer
 					ffposy[i]=-1000;
 				}
@@ -3040,7 +3063,7 @@ void update_freeform_combos()
 				{
 					thisffc.x = thisffc.x-288-32;
 					thisffc.solid_update(false);
-					ffprvy[i] = thisffc.y.getZLong();
+					ffc_wrapped(i, thisffc, true);
 					ffposx[i]=-1000;
 					ffposy[i]=-1000;
 				}
@@ -3058,7 +3081,7 @@ void update_freeform_combos()
 				{
 					thisffc.y = 208+(thisffc.y+32);
 					thisffc.solid_update(false);
-					ffprvx[i] = thisffc.x.getZLong();
+					ffc_wrapped(i, thisffc, false);
 					ffposx[i]=-1000;
 					ffposy[i]=-1000;
 				}
@@ -3075,7 +3098,7 @@ void update_freeform_combos()
 				{
 					thisffc.y = thisffc.y-208-32;
 					thisffc.solid_update(false);
-					ffprvy[i] = thisffc.x.getZLong();
+					ffc_wrapped(i, thisffc, false, true);
 					ffposx[i]=-1000;
 					ffposy[i]=-1000;
 				}
