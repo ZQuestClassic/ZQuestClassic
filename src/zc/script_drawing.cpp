@@ -6515,6 +6515,29 @@ void bmp_do_mode7r(BITMAP *bmp, int32_t *sdci, [[maybe_unused]] int32_t xoffset,
 
 
 //Draw]()
+// Allegro's stretch blits don't clip the source rect, so reading outside the
+// source bitmap crashes. When the source rect isn't fully inside `src`, copy
+// the in-bounds part of it into a temporary sw x sh bitmap - at the same
+// position within the rect, so the result isn't shifted or stretched - and
+// point sx/sy at that instead. Returns the temporary bitmap (caller destroys
+// it), or nullptr when the rect was already in bounds.
+static BITMAP* clip_blit_source_rect(BITMAP* src, int32_t& sx, int32_t& sy, int32_t sw, int32_t sh)
+{
+	if (sx >= 0 && sy >= 0 && sx + sw <= src->w && sy + sh <= src->h)
+		return nullptr;
+
+	BITMAP* tmp = create_bitmap_ex(8, sw, sh);
+	if (!tmp)
+		return nullptr;
+
+	clear_bitmap(tmp);
+	// blit() clips the source rect against `src` (shifting the destination to match).
+	blit(src, tmp, sx, sy, 0, 0, sw, sh);
+	sx = 0;
+	sy = 0;
+	return tmp;
+}
+
 void bmp_do_drawbitmapexr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 {
 	/*
@@ -6676,7 +6699,11 @@ void bmp_do_drawbitmapexr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t y
 		return;
 	}
 
-	bool stretched = (sw != dw || sh != dh);	
+	// Nothing to draw (and a negative size must not reach the temporary bitmaps below).
+	if (sw <= 0 || sh <= 0)
+		return;
+
+	bool stretched = (sw != dw || sh != dh);
 	BITMAP* subBmp = 0;
     
 	if(rot != 0 || mode != 0)    
@@ -6692,14 +6719,8 @@ void bmp_do_drawbitmapexr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t y
 		}
 	}
 	BITMAP* sbmp = sourceBitmap;
-	if (sx + sw > sbmp->w || sy + sh > sbmp->h)
-	{
-		sbmp = create_bitmap_ex(8, sw, sh);
-		clear_bitmap(sbmp);
-		blit(sourceBitmap, sbmp, sx, sy, 0, 0, std::min(sourceBitmap->w-sx, sw), std::min(sourceBitmap->h-sy, sh));
-		sx = 0;
-		sy = 0;
-	}
+	if (BITMAP* clipped = clip_blit_source_rect(sourceBitmap, sx, sy, sw, sh))
+		sbmp = clipped;
 	//dx = dx + xoffset; //don't do this here!
 	//dy = dy + yoffset; //Nor this. It auto-offsets the bitmap by +56. Hmm. The fix that gleeok made isn't being applied to these functions. -Z ( 17th April, 2019 )
     
@@ -8018,6 +8039,10 @@ void bmp_do_blittor(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset
 		return;
 	}
 	
+	// Nothing to draw (and a negative size must not reach the temporary bitmaps below).
+	if (sw <= 0 || sh <= 0)
+		return;
+
 	bool stretched = (sw != dw || sh != dh);
 	
 	BITMAP* newDest = sourceBitmap;
@@ -8037,14 +8062,8 @@ void bmp_do_blittor(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset
 		}
 	}
     
-	if (sx + sw > destBMP->w || sy + sh > destBMP->h)
-	{
-		newSource = create_bitmap_ex(8, sw, sh);
-		clear_bitmap(newSource);
-		blit(destBMP, newSource, sx, sy, 0, 0, std::min(destBMP->w-sx, sw), std::min(destBMP->h-sy, sh));
-		sx = 0;
-		sy = 0;
-	}
+	if (BITMAP* clipped = clip_blit_source_rect(destBMP, sx, sy, sw, sh))
+		newSource = clipped;
 	//dx = dx + xoffset; //don't do this here!
 	//dy = dy + yoffset; //Nor this. It auto-offsets the bitmap by +56. Hmm. The fix that gleeok made isn't being applied to these functions. -Z ( 17th April, 2019 )
     
