@@ -3251,7 +3251,11 @@ void draw_lens_over()
 	// Oh, what the heck.
 	static BITMAP *lens_scr = NULL;
 	static int32_t last_width = -1;
-	int32_t width = itemsbuf[current_item_id(itype_lens,true)].misc1;
+	// Use the lens that is actually active. Looking up the current lens item
+	// with a magic check fails once the magic has been spent, which would
+	// draw a circle of radius 0 (a fully black screen) for the remaining
+	// frames of the effect.
+	int32_t width = itemsbuf[unsigned(lensid) < MAXITEMS ? lensid : Hero.getLastLensID()].misc1;
 	
 	// Only redraw the circle if the size has changed
 	if(width != last_width)
