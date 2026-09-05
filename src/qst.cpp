@@ -3517,6 +3517,12 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 		set_qr(qr_BROKEN_LARGE_ARMOS_ANIM, 1);
 	}
 
+	// Older than 2.55.17?
+	if (tempheader.compareVer(2, 55, 17) < 0)
+	{
+		set_qr(qr_BROKEN_FFC_WRAP_CHANGERS, 1);
+	}
+
 	*Header = tempheader;
 	
 	return 0;

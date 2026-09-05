@@ -1039,6 +1039,11 @@ static GUI::ListData compatRulesList
 		" will always add 20 to their starting tile when they randomly start 'faster'."
 		"\nIf disabled, these enemies will instead add a multiple of 20 large enough"
 		" to be on a tile not in a row already used by the animation."},
+	{ "Wrapping FFCs check for changers across the whole screen", qr_BROKEN_FFC_WRAP_CHANGERS,
+		"If checked, on the frame after an FFC wraps around the screen (via the 'Wrap-Around FFCs' screen flag),"
+		" it checks for changers along the whole line from where it left the screen to where it re-entered,"
+		" so it hits (and jumps to) the lowest-numbered changer in that line - usually the one it just left."
+		"\nIf unchecked, the FFC only checks for changers from where it re-entered the screen." },
 };
 
 static GUI::ListData enemiesRulesList

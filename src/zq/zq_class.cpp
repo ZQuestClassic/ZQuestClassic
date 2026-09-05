@@ -5277,6 +5277,24 @@ void zmap::update_combo_cycling()
     }
 }
 
+// Mirrors ffc_wrapped in zc/maps.cpp - see the comment there.
+static void prv_ffc_wrapped(int32_t i, ffcdata const& ffc, bool horizontal, bool bottom = false)
+{
+	if (get_qr(qr_BROKEN_FFC_WRAP_CHANGERS))
+	{
+		if (bottom)
+			ffprvy[i] = ffc.x.getZLong();
+		else if (horizontal)
+			ffprvy[i] = ffc.y.getZLong();
+		else
+			ffprvx[i] = ffc.x.getZLong();
+		return;
+	}
+
+	ffprvx[i] = ffc.x.getZLong();
+	ffprvy[i] = ffc.y.getZLong();
+}
+
 void zmap::update_freeform_combos()
 {
     if(!prv_mode||!prv_cmbcycle)
@@ -5411,7 +5429,9 @@ void zmap::update_freeform_combos()
                 if(prvscr.flags6&fWRAPAROUNDFF)
                 {
                     prvscr.ffcs[i].x = (288+(prvscr.ffcs[i].x+32));
-                    ffprvy[i] = prvscr.ffcs[i].y.getZLong();
+                    prv_ffc_wrapped(i, prvscr.ffcs[i], true);
+                    ffposx[i] = -1000;
+                    ffposy[i] = -1000;
                 }
                 else
                 {
@@ -5425,7 +5445,9 @@ void zmap::update_freeform_combos()
                 if(prvscr.flags6&fWRAPAROUNDFF)
                 {
                     prvscr.ffcs[i].y = 208+(prvscr.ffcs[i].y+32);
-                    ffprvx[i] = prvscr.ffcs[i].x.getZLong();
+                    prv_ffc_wrapped(i, prvscr.ffcs[i], false);
+                    ffposx[i] = -1000;
+                    ffposy[i] = -1000;
                 }
                 else
                 {
@@ -5439,7 +5461,9 @@ void zmap::update_freeform_combos()
                 if(prvscr.flags6&fWRAPAROUNDFF)
                 {
                     prvscr.ffcs[i].x = prvscr.ffcs[i].x-288-32;
-                    ffprvy[i] = prvscr.ffcs[i].y.getZLong();
+                    prv_ffc_wrapped(i, prvscr.ffcs[i], true);
+                    ffposx[i] = -1000;
+                    ffposy[i] = -1000;
                 }
                 else
                 {
@@ -5453,7 +5477,9 @@ void zmap::update_freeform_combos()
                 if(prvscr.flags6&fWRAPAROUNDFF)
                 {
                     prvscr.ffcs[i].y = prvscr.ffcs[i].y-208-32;
-                    ffprvy[i] = prvscr.ffcs[i].x.getZLong();
+                    prv_ffc_wrapped(i, prvscr.ffcs[i], false, true);
+                    ffposx[i] = -1000;
+                    ffposy[i] = -1000;
                 }
                 else
                 {
