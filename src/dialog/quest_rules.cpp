@@ -1156,6 +1156,8 @@ static GUI::ListData compatRulesList
 		" it checks for changers along the whole line from where it left the screen to where it re-entered,"
 		" so it hits (and jumps to) the lowest-numbered changer in that line - usually the one it just left."
 		"\nIf unchecked, the FFC only checks for changers from where it re-entered the screen." },
+	{ "Can Turn While Charging Quake Hammer", qr_TURN_WHILE_CHARGING_HAMMER,
+		"If enabled, the player can change direction while charging the Quake Hammer, as in 2.50.0 and 2.50.1." },
 };
 
 static GUI::ListData enemiesRulesList

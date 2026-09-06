@@ -254,6 +254,12 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 	
 	if(tempheader.zelda_version < 0x250 || (tempheader.zelda_version == 0x250 && tempheader.build<29))
 	{
+		// 2.50.2 stopped the player from turning while charging the quake hammer.
+		set_qr(qr_TURN_WHILE_CHARGING_HAMMER, 1);
+	}
+	
+	if(tempheader.zelda_version < 0x250 || (tempheader.zelda_version == 0x250 && tempheader.build<29))
+	{
 		// qr_OFFSETEWPNCOLLISIONFIX
 		// All 'official' quests need this disabled.
 		// All 2.10 and lower quests need this enabled to preseve compatability.

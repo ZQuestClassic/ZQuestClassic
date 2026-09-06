@@ -32,6 +32,7 @@
 #include "auto/bug_unused_var_bad_opt.zs"
 #include "auto/call_limit.zs"
 #include "auto/classes.zs"
+#include "auto/compat_hammer_charge_turn.zs"
 #include "auto/compat_qrs.zs"
 #include "auto/falsy_coalescing.zs"
 #include "auto/ffc_script_runner.zs"

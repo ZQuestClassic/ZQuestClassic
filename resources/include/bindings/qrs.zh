@@ -2614,6 +2614,24 @@ enum QR
 	// @versionadded 3.0
 	qr_OLD_SCRIPTS_MESSAGE_DATA_BINARY_ENCODING,
 
+	// 'Wrapping FFCs check for changers across the whole screen'
+	//
+	// If checked, on the frame after an FFC wraps around the screen (via the 'Wrap-Around FFCs' screen flag), it checks for changers along the
+	// whole line from where it left the screen to where it re-entered, so it hits (and jumps to) the lowest-numbered changer in that line -
+	// usually the one it just left.
+	//
+	// If unchecked, the FFC only checks for changers from where it re-entered the screen.
+	//
+	// @versionadded 3.0
+	qr_BROKEN_FFC_WRAP_CHANGERS,
+
+	// 'Can Turn While Charging Quake Hammer'
+	//
+	// If enabled, the player can change direction while charging the Quake Hammer, as in 2.50.0 and 2.50.1.
+	//
+	// @versionadded 3.0
+	qr_TURN_WHILE_CHARGING_HAMMER,
+
 	// 'Old (Buggy) ZScript Volume Access'
 	//
 	// If enabled, Audio->AdjustMusicVolume() and Audio->AdjustSFXVolume() will use their old behavior, which was bugged and wrote directly to the
@@ -2965,6 +2983,14 @@ enum QR
 	//
 	// @versionadded 3.0
 	qr_STRING_SEGMENTED_SCROLL,
+
+	// 'Writing to some ->InitD[] affects others'
+	//
+	// If checked, writes to 'itemdata->InitD[]' also modify 'itemdata->PickupInitD[]' and 'itemdata->SpriteInitD[]', and writes to
+	// 'dmapdata->SubInitD[]' also modify 'dmapdata->PassiveSubInitD[]'.
+	//
+	// @versionadded 3.0
+	qr_SCRIPTS_SHARE_INITD,
 	qr_PARSER_250DIVISION = 80 * 8, // @deprecated
 
 	// 'Disable Tracing'

@@ -19765,7 +19765,7 @@ void HeroClass::get_move(int movedir, zfix& dx, zfix& dy, int32_t& facedir)
 		dy += (dx*slopeid);
 	}
 	
-	if((charging==0 || attack==wHammer) && spins==0 && attackclk!=HAMMERCHARGEFRAME && action != sideswimattacking && !(IsSideSwim() && get_qr(qr_SIDESWIMDIR) && (movedir == up || movedir == down))) //!DIRECTION SET
+	if((charging==0 || attack==wHammer) && spins==0 && (attackclk!=HAMMERCHARGEFRAME || get_qr(qr_TURN_WHILE_CHARGING_HAMMER)) && action != sideswimattacking && !(IsSideSwim() && get_qr(qr_SIDESWIMDIR) && (movedir == up || movedir == down))) //!DIRECTION SET
 	{
 		facedir = movedir;
 	}
@@ -20076,7 +20076,7 @@ void HeroClass::moveOld(int32_t d2)
         }
     }
     
-    if((charging==0 || attack==wHammer) && spins==0 && attackclk!=HAMMERCHARGEFRAME && action != sideswimattacking && !(IsSideSwim() && get_qr(qr_SIDESWIMDIR) && (d2 == up || d2 == down))) //!DIRECTION SET
+    if((charging==0 || attack==wHammer) && spins==0 && (attackclk!=HAMMERCHARGEFRAME || get_qr(qr_TURN_WHILE_CHARGING_HAMMER)) && action != sideswimattacking && !(IsSideSwim() && get_qr(qr_SIDESWIMDIR) && (d2 == up || d2 == down))) //!DIRECTION SET
     {
         dir=d2;
     }
@@ -20311,7 +20311,7 @@ void HeroClass::moveOld2(int32_t d2, int32_t forceRate)
 	hero_newstep = movepix;
 	hero_newstep_diag = movepix;
 
-	if((charging==0 || attack==wHammer) && spins==0 && attackclk!=HAMMERCHARGEFRAME && action != sideswimattacking && !(IsSideSwim() && get_qr(qr_SIDESWIMDIR) && (d2 == up || d2 == down))) //!DIRECTION SET
+	if((charging==0 || attack==wHammer) && spins==0 && (attackclk!=HAMMERCHARGEFRAME || get_qr(qr_TURN_WHILE_CHARGING_HAMMER)) && action != sideswimattacking && !(IsSideSwim() && get_qr(qr_SIDESWIMDIR) && (d2 == up || d2 == down))) //!DIRECTION SET
 	{
 		dir=d2;
 	}
