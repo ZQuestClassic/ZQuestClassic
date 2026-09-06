@@ -623,8 +623,10 @@ static void trigger_cswitch_block(const combined_handle_t& handle)
 
 	int32_t cmbofs = cmb.c_attributes[0].getTrunc();
 	int32_t csofs = cmb.c_attributes[1].getTrunc();
+	screen_combo_modify_preroutine(handle);
 	handle.modify_data(cmbofs);
 	handle.set_cset((handle.cset() + csofs) & 15);
+	screen_combo_modify_postroutine(handle);
 
 	int newcid = handle.data();
 	if(combobuf[newcid].animflags & AF_CYCLE)
@@ -648,8 +650,10 @@ static void trigger_cswitch_block(const combined_handle_t& handle)
 			continue;
 		if(!rpos_handle.data()) //Don't increment empty space
 			continue;
+		screen_combo_modify_preroutine(rpos_handle);
 		rpos_handle.modify_data(cmbofs);
 		rpos_handle.set_cset((rpos_handle.cset() + csofs) & 15);
+		screen_combo_modify_postroutine(rpos_handle);
 		int newcid2 = rpos_handle.data();
 		if(combobuf[newcid2].animflags & AF_CYCLE)
 		{
@@ -669,8 +673,10 @@ static void trigger_cswitch_block(const combined_handle_t& handle)
 			if (ffc_handle.ffc == ffc) return; // same ffc
 			if (ffcIsAt(ffc_handle, bx, by))
 			{
+				screen_combo_modify_preroutine(ffc_handle);
 				ffc_handle.modify_data(cmbofs);
 				ffc_handle.set_cset((ffc_handle.cset() + csofs) & 15);
+				screen_combo_modify_postroutine(ffc_handle);
 				int32_t newcid2 = ffc_handle.data();
 				if(combobuf[newcid2].animflags & AF_CYCLE)
 				{

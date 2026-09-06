@@ -7744,6 +7744,7 @@ void toggle_switches(dword flags, bool entry, const screen_handles_t& screen_han
 				//Increment the combo/cset by the attributes
 				int32_t cmbofs = cmb.c_attributes[0].getTrunc();
 				int32_t csofs = cmb.c_attributes[1].getTrunc();
+				if(is_active_screen && !entry) screen_combo_modify_preroutine(get_rpos_handle_for_screen(screen, lyr, pos));
 				oldData.insert(scr->data[pos]);
 				scr->data[pos] = BOUND_COMBO(scr->data[pos] + cmbofs);
 				scr->cset[pos] = (scr->cset[pos] + csofs) & 15;
@@ -7772,6 +7773,7 @@ void toggle_switches(dword flags, bool entry, const screen_handles_t& screen_han
 					combobuf[cmbid].aclk = 0;
 					combo_caches::drawing.refresh(cmbid);
 				}
+				if(is_active_screen && !entry) screen_combo_modify_postroutine(get_rpos_handle_for_screen(screen, lyr, pos));
 				togglegrid[pos] |= (1<<lyr); //Mark this pos toggled for this layer
 				if(cmb.type == cCSWITCH) return; //Switches don't toggle other layers
 				for(int32_t lyr2 = 0; lyr2 < 7; ++lyr2) //Toggle same pos on other layers, if flag set
@@ -7789,6 +7791,7 @@ void toggle_switches(dword flags, bool entry, const screen_handles_t& screen_han
 						continue; //This is a switch/block that will be hit later in the loop!
 					set<int32_t> oldData2;
 					//Increment the combo/cset by the original cmb's attributes
+					if(is_active_screen && !entry) screen_combo_modify_preroutine(get_rpos_handle_for_screen(screen, lyr2, pos));
 					oldData2.insert(scr_2->data[pos]);
 					scr_2->data[pos] = BOUND_COMBO(scr_2->data[pos] + cmbofs);
 					scr_2->cset[pos] = (scr_2->cset[pos] + csofs) & 15;
@@ -7817,6 +7820,7 @@ void toggle_switches(dword flags, bool entry, const screen_handles_t& screen_han
 						combobuf[cmbid2].aclk = 0;
 						combo_caches::drawing.refresh(cmbid2);
 					}
+					if(is_active_screen && !entry) screen_combo_modify_postroutine(get_rpos_handle_for_screen(screen, lyr2, pos));
 					togglegrid[pos] |= (1<<lyr2); //Mark this pos toggled for this layer
 				}
 			}
@@ -7917,6 +7921,7 @@ void toggle_gswitches(bool* states, bool entry, const screen_handles_t& screen_h
 					//Increment the combo/cset by the attributes
 					int32_t cmbofs = cmb.c_attributes[0].getTrunc();
 					int32_t csofs = cmb.c_attributes[1].getTrunc();
+					if(is_active_screen && !entry) screen_combo_modify_preroutine(get_rpos_handle_for_screen(screen, lyr, pos));
 					oldData.insert(scr->data[pos]);
 					scr->data[pos] = BOUND_COMBO(scr->data[pos] + cmbofs);
 					scr->cset[pos] = (scr->cset[pos] + csofs) & 15;
@@ -7944,6 +7949,7 @@ void toggle_gswitches(bool* states, bool entry, const screen_handles_t& screen_h
 						combobuf[cmbid].aclk = 0;
 						combo_caches::drawing.refresh(cmbid);
 					}
+					if(is_active_screen && !entry) screen_combo_modify_postroutine(get_rpos_handle_for_screen(screen, lyr, pos));
 					togglegrid[pos] |= (1<<lyr); //Mark this pos toggled for this layer
 					if(cmb.type == cCSWITCH) continue; //Switches don't toggle other layers
 					for(int32_t lyr2 = 0; lyr2 <= 6; ++lyr2) //Toggle same pos on other layers, if flag set
@@ -7961,6 +7967,7 @@ void toggle_gswitches(bool* states, bool entry, const screen_handles_t& screen_h
 							continue; //This is a switch/block that will be hit later in the loop!
 						set<int32_t> oldData2;
 						//Increment the combo/cset by the original cmb's attributes
+						if(is_active_screen && !entry) screen_combo_modify_preroutine(get_rpos_handle_for_screen(screen, lyr2, pos));
 						oldData2.insert(scr_2->data[pos]);
 						scr_2->data[pos] = BOUND_COMBO(scr_2->data[pos] + cmbofs);
 						scr_2->cset[pos] = (scr_2->cset[pos] + csofs) & 15;
@@ -7988,6 +7995,7 @@ void toggle_gswitches(bool* states, bool entry, const screen_handles_t& screen_h
 							combobuf[cmbid2].aclk = 0;
 							combo_caches::drawing.refresh(cmbid2);
 						}
+						if(is_active_screen && !entry) screen_combo_modify_postroutine(get_rpos_handle_for_screen(screen, lyr2, pos));
 						togglegrid[pos] |= (1<<lyr2); //Mark this pos toggled for this layer
 					}
 				}
