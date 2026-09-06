@@ -30761,11 +30761,27 @@ bool HeroClass::checkitems(int32_t index)
 					i--;
 			}
 		}
-		if(diagonalMovement || NO_GRIDLOCK)
+		// Only one item is checked per frame. Dummy items (ex: the leftover items in a shop after
+		// buying something) can never be picked up, so they must not be the one item checked, or
+		// a real item at the same spot could never be collected.
+		auto find_item_hit = [&](int32_t hx, int32_t hy, int32_t hz, int32_t hw, int32_t hh, int32_t hzs) -> int32_t
 		{
-			index=items.hit(x,y+(bigHitbox?0:8)-fakez,z,6,6,1);
+			for (int32_t i = 0; i < items.Count(); i++)
+			{
+				item* itm = (item*)items.spr(i);
+				if ((itm->pickup & ipDUMMY) && !(itm->pickup & ipMONEY))
+					continue;
+				if (!itm->hit(hx, hy, hz, hw, hh, hzs))
+					continue;
+				return i;
+			}
+			return -1;
+		};
+		if (diagonalMovement || NO_GRIDLOCK)
+		{
+			index = find_item_hit(x,y+(bigHitbox?0:8)-fakez,z,6,6,1);
 		}
-		else index=items.hit(x,y+(bigHitbox?0:8)-fakez,z,1,1,1);
+		else index = find_item_hit(x,y+(bigHitbox?0:8)-fakez,z,1,1,1);
 	}
 	
 	if(index==-1)

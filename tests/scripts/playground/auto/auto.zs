@@ -2,6 +2,7 @@
 
 #include "auto/bug_arc_fill.zs"
 #include "auto/bug_bitmap_blit_source_oob.zs"
+#include "auto/bug_dummy_item_blocks_pickup.zs"
 #include "auto/bug_empty_constructor.zs"
 #include "auto/bug_mod_int_min.zs"
 #include "auto/bug_nested_class_constructors.zs"
