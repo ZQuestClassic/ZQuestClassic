@@ -11,6 +11,7 @@ bool replay_compat_old_movement_off_by_one_bug();
 bool replay_compat_charging_during_scroll_bug();
 bool replay_compat_whistle_stuck_bug();
 bool replay_compat_hammer_trigger_lag_bug();
+bool replay_compat_ladder_water_sensitivity_bug();
 
 // Selects the zc::math mode for the current session, based on what math the
 // active replay (if any) was created with. Called from replay_start,

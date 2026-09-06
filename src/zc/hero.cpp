@@ -3068,8 +3068,9 @@ void HeroClass::draw(BITMAP* dest)
 		
 		if(action != casting && action != sideswimcasting)
 		{
-			// Keep this consistent with checkspecial2, line 7800-ish...
-			bool inwater = iswaterex_z3(MAPCOMBO(x+4,y+9), -1, x+4, y+9, true, false)  && iswaterex_z3(MAPCOMBO(x+4,y+15), -1, x+4, y+15, true, false) && iswaterex_z3(MAPCOMBO(x+11,y+9), -1, x+11, y+9, true, false) && iswaterex_z3(MAPCOMBO(x+11,y+15), -1, x+11, y+15, true, false);
+			// Keep this consistent with onWater()
+			int y2 = y+(replay_compat_ladder_water_sensitivity_bug() ? 15 : 14);
+			bool inwater = iswaterex_z3(MAPCOMBO(x+4,y+9), -1, x+4, y+9, true, false)  && iswaterex_z3(MAPCOMBO(x+4,y2), -1, x+4, y2, true, false) && iswaterex_z3(MAPCOMBO(x+11,y+9), -1, x+11, y+9, true, false) && iswaterex_z3(MAPCOMBO(x+11,y2), -1, x+11, y2, true, false);
 
 			optional<uint32_t> jumping_frame;
 
@@ -10865,8 +10866,10 @@ int HeroClass::onWater(bool drownonly)
 		return 0; // player isn't in water
 	int32_t water = 0;
 	int32_t types[4] = {0};
+	// The bottom edge is inset by 1 pixel like the top edge (and like pitfalls), so that with subpixel
+	// movement the check can't skip straight over the only positions where the player is fully in liquid.
 	int32_t x1 = x+4, x2 = x+11,
-		y1 = y+9, y2 = y+15;
+		y1 = y+9, y2 = y+(replay_compat_ladder_water_sensitivity_bug() ? 15 : 14);
 	if (get_qr(qr_SMARTER_WATER))
 	{
 		if (iswaterex_z3(0, -1, x1, y1, true, false) &&
