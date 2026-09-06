@@ -28360,6 +28360,16 @@ void HeroClass::calc_darkroom_hero(int32_t x1, int32_t y1, int32_t x2, int32_t y
 	handle_lighting(hx2,hy2,lamp.misc1,lamp.misc2,dir,darkscr_bmp_scrollscr);
 }
 
+// Generic scripts that run while scrolling should see the player as scrolling (LA_SCROLLING),
+// like the scripts run by run_scrolling_script do.
+void HeroClass::run_generic_scrolling(int32_t timing)
+{
+	actiontype lastaction = action;
+	action=scrolling; FFCore.setHeroAction(scrolling);
+	FFCore.runGenericPassiveEngine(timing);
+	action=lastaction; FFCore.setHeroAction(lastaction);
+}
+
 void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 {
 	if(action==freeze||action==sideswimfreeze)
@@ -28658,37 +28668,37 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	
 	lstep = (lstep + 6) % 12;
 	cx = scx;
-	FFCore.runGenericPassiveEngine(SCR_TIMING_WAITDRAW);
+	run_generic_scrolling(SCR_TIMING_WAITDRAW);
 	if((!( FFCore.system_suspend[susptGLOBALGAME] )) && FFCore.waitdraw(ScriptType::Global, GLOBAL_SCRIPT_GAME))
 	{
 		ZScriptVersion::RunScript(ScriptType::Global, GLOBAL_SCRIPT_GAME, GLOBAL_SCRIPT_GAME);
 		FFCore.waitdraw(ScriptType::Global, GLOBAL_SCRIPT_GAME) = false;
 	}
-	FFCore.runGenericPassiveEngine(SCR_TIMING_POST_GLOBAL_WAITDRAW);
+	run_generic_scrolling(SCR_TIMING_POST_GLOBAL_WAITDRAW);
 	if ( (!( FFCore.system_suspend[susptHEROACTIVE] )) && FFCore.waitdraw(ScriptType::Player) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
 	{
 		ZScriptVersion::RunScript(ScriptType::Player, SCRIPT_PLAYER_ACTIVE);
 		FFCore.waitdraw(ScriptType::Player) = false;
 	}
-	FFCore.runGenericPassiveEngine(SCR_TIMING_POST_PLAYER_WAITDRAW);
+	run_generic_scrolling(SCR_TIMING_POST_PLAYER_WAITDRAW);
 	if ( (!( FFCore.system_suspend[susptDMAPSCRIPT] )) && FFCore.waitdraw(ScriptType::DMap) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
 	{
 		ZScriptVersion::RunScript(ScriptType::DMap, DMaps[currdmap].script,currdmap);
 		FFCore.waitdraw(ScriptType::DMap) = false;
 	}
-	FFCore.runGenericPassiveEngine(SCR_TIMING_POST_DMAPDATA_ACTIVE_WAITDRAW);
+	run_generic_scrolling(SCR_TIMING_POST_DMAPDATA_ACTIVE_WAITDRAW);
 	if ( (!( FFCore.system_suspend[susptDMAPSCRIPT] )) && FFCore.waitdraw(ScriptType::ScriptedPassiveSubscreen) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
 	{
 		ZScriptVersion::RunScript(ScriptType::ScriptedPassiveSubscreen, DMaps[currdmap].passive_sub_script,currdmap);
 		FFCore.waitdraw(ScriptType::ScriptedPassiveSubscreen) = false;
 	}
-	FFCore.runGenericPassiveEngine(SCR_TIMING_POST_DMAPDATA_PASSIVESUBSCREEN_WAITDRAW);
+	run_generic_scrolling(SCR_TIMING_POST_DMAPDATA_PASSIVESUBSCREEN_WAITDRAW);
 	if ( (!( FFCore.system_suspend[susptSCREENSCRIPTS] )) && tmpscr->script != 0 && FFCore.waitdraw(ScriptType::Screen, currscr) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
 	{
 		ZScriptVersion::RunScript(ScriptType::Screen, tmpscr->script, currscr);  
 		FFCore.waitdraw(ScriptType::Screen, currscr) = 0;
 	}
-	FFCore.runGenericPassiveEngine(SCR_TIMING_POST_SCREEN_WAITDRAW);
+	run_generic_scrolling(SCR_TIMING_POST_SCREEN_WAITDRAW);
 	
 	word c = tmpscr->numFFC();
 	for ( word q = 0; q < c; ++q )
@@ -28702,18 +28712,18 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			}
 		}
 	}
-	FFCore.runGenericPassiveEngine(SCR_TIMING_POST_FFC_WAITDRAW);
-		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_COMBO_WAITDRAW);
+	run_generic_scrolling(SCR_TIMING_POST_FFC_WAITDRAW);
+		run_generic_scrolling(SCR_TIMING_POST_COMBO_WAITDRAW);
 	//Waitdraw for item scripts. 
 	FFCore.itemScriptEngineOnWaitdraw();
-	FFCore.runGenericPassiveEngine(SCR_TIMING_POST_ITEM_WAITDRAW);
-	FFCore.runGenericPassiveEngine(SCR_TIMING_POST_NPC_WAITDRAW);
+	run_generic_scrolling(SCR_TIMING_POST_ITEM_WAITDRAW);
+	run_generic_scrolling(SCR_TIMING_POST_NPC_WAITDRAW);
 	
 	//Sprite scripts on Waitdraw
 	FFCore.eweaponScriptEngineOnWaitdraw();
-	FFCore.runGenericPassiveEngine(SCR_TIMING_POST_EWPN_WAITDRAW);
+	run_generic_scrolling(SCR_TIMING_POST_EWPN_WAITDRAW);
 	FFCore.itemSpriteScriptEngineOnWaitdraw();
-	FFCore.runGenericPassiveEngine(SCR_TIMING_POST_ITEMSPRITE_WAITDRAW);
+	run_generic_scrolling(SCR_TIMING_POST_ITEMSPRITE_WAITDRAW);
 	
 	//This is no longer a do-while, as the first iteration is now slightly different. -Em
 	draw_screen(tmpscr,true,true);
@@ -28721,7 +28731,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	if(cx == scx)
 		rehydratelake(false);
 		
-	FFCore.runGenericPassiveEngine(SCR_TIMING_END_FRAME);
+	run_generic_scrolling(SCR_TIMING_END_FRAME);
 	advanceframe(true);
 	
 	if(Quit)
@@ -28750,17 +28760,17 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		if(get_qr(qr_FIXSCRIPTSDURINGSCROLLING))
 		{
 			script_drawing_commands.Clear();
-			FFCore.runGenericPassiveEngine(SCR_TIMING_START_FRAME);
+			run_generic_scrolling(SCR_TIMING_START_FRAME);
 			ZScriptVersion::RunScrollingScript(scrolldir, cx, sx, sy, end_frames, false); //Prewaitdraw
 			ZScriptVersion::RunScrollingScript(scrolldir, cx, sx, sy, end_frames, true); //Waitdraw
 		}
-		else FFCore.runGenericPassiveEngine(SCR_TIMING_START_FRAME);
+		else run_generic_scrolling(SCR_TIMING_START_FRAME);
 		draw_screen(tmpscr,true,true);
 		
 		if(cx == scx)
 			rehydratelake(false);
 			
-		FFCore.runGenericPassiveEngine(SCR_TIMING_END_FRAME);
+		run_generic_scrolling(SCR_TIMING_END_FRAME);
 		advanceframe(true);
 		
 		if(Quit)
@@ -28772,7 +28782,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		++cx;
 	}
 	script_drawing_commands.Clear();
-	FFCore.runGenericPassiveEngine(SCR_TIMING_START_FRAME);
+	run_generic_scrolling(SCR_TIMING_START_FRAME);
 	
 	
 	//clear Hero's last hits 
@@ -29184,7 +29194,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		SAVE_HERO_POS;
 		USE_COMPAT_HERO_POS;
 		ZScriptVersion::RunScrollingScript(scrolldir, cx, sx, sy, end_frames, true); //Waitdraw
-		FFCore.runGenericPassiveEngine(SCR_TIMING_PRE_DRAW);
+		run_generic_scrolling(SCR_TIMING_PRE_DRAW);
 		RESTORE_HERO_POS;
 		// The scroll loop's last compose rests one step short of the settled
 		// position (classic vertical scrolling adds a further 3px offset), and
@@ -29508,8 +29518,8 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 
 		SAVE_HERO_POS;
 		USE_COMPAT_HERO_POS;
-		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_DRAW);
-		FFCore.runGenericPassiveEngine(SCR_TIMING_END_FRAME);
+		run_generic_scrolling(SCR_TIMING_POST_DRAW);
+		run_generic_scrolling(SCR_TIMING_END_FRAME);
 
 		RESTORE_HERO_POS;
 		advanceframe(true/*,true,false*/);
@@ -29518,7 +29528,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		//Don't clear the last frame, unless 'fixed'
 		if(cx > 0 || get_qr(qr_FIXSCRIPTSDURINGSCROLLING))
 			script_drawing_commands.Clear();
-		FFCore.runGenericPassiveEngine(SCR_TIMING_START_FRAME);
+		run_generic_scrolling(SCR_TIMING_START_FRAME);
 		actiontype lastaction = action;
 		action=scrolling; FFCore.setHeroAction(scrolling);
 		FFCore.runF6Engine();
