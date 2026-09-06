@@ -5,6 +5,7 @@
 #include "auto/bug_block_unblockable_ignores_shields.zs"
 #include "auto/bug_dummy_item_blocks_pickup.zs"
 #include "auto/bug_empty_constructor.zs"
+#include "auto/bug_generic_script_scrolling_action.zs"
 #include "auto/bug_mod_int_min.zs"
 #include "auto/bug_nested_class_constructors.zs"
 #include "auto/bug_npc_shield_write.zs"
