@@ -347,8 +347,10 @@ void trigger_cswitch_block(int32_t layer, int32_t pos)
 	
 	int32_t cmbofs = (cmb.attributes[0]/10000L);
 	int32_t csofs = (cmb.attributes[1]/10000L);
+	screen_combo_modify_preroutine(scr,pos);
 	scr->data[pos] = BOUND_COMBO(cid + cmbofs);
 	scr->cset[pos] = (scr->cset[pos] + csofs) & 15;
+	screen_combo_modify_postroutine(scr,pos);
 	auto newcid = scr->data[pos];
 	if(combobuf[newcid].animflags & AF_CYCLE)
 	{
@@ -364,8 +366,10 @@ void trigger_cswitch_block(int32_t layer, int32_t pos)
 		if(!scr_2->data[pos]) //Don't increment empty space
 			continue;
 		newcombo const& cmb_2 = combobuf[scr_2->data[pos]];
+		screen_combo_modify_preroutine(scr_2,pos);
 		scr_2->data[pos] = BOUND_COMBO(scr_2->data[pos] + cmbofs);
 		scr_2->cset[pos] = (scr_2->cset[pos] + csofs) & 15;
+		screen_combo_modify_postroutine(scr_2,pos);
 		int32_t newcid2 = scr_2->data[pos];
 		if(combobuf[newcid2].animflags & AF_CYCLE)
 		{
@@ -424,8 +428,10 @@ void trigger_cswitch_block_ffc(int32_t pos)
 		if(!scr_2->data[pos2]) //Don't increment empty space
 			continue;
 		newcombo const& cmb_2 = combobuf[scr_2->data[pos2]];
+		screen_combo_modify_preroutine(scr_2,pos2);
 		scr_2->data[pos2] = BOUND_COMBO(scr_2->data[pos2] + cmbofs);
 		scr_2->cset[pos2] = (scr_2->cset[pos2] + csofs) & 15;
+		screen_combo_modify_postroutine(scr_2,pos2);
 		int32_t newcid2 = scr_2->data[pos2];
 		if(combobuf[newcid2].animflags & AF_CYCLE)
 		{

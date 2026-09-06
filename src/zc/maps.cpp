@@ -6444,6 +6444,7 @@ void toggle_switches(dword flags, bool entry, mapscr* m, mapscr* t)
 					//Increment the combo/cset by the attributes
 					int32_t cmbofs = (cmb.attributes[0]/10000L);
 					int32_t csofs = (cmb.attributes[1]/10000L);
+					if(iscurscr && !entry) screen_combo_modify_preroutine(scr,pos);
 					oldData.insert(scr->data[pos]);
 					scr->data[pos] = BOUND_COMBO(scr->data[pos] + cmbofs);
 					scr->cset[pos] = (scr->cset[pos] + csofs) & 15;
@@ -6466,6 +6467,7 @@ void toggle_switches(dword flags, bool entry, mapscr* m, mapscr* t)
 						combobuf[cmbid].cur_frame=0;
 						combobuf[cmbid].aclk = 0;
 					}
+					if(iscurscr && !entry) screen_combo_modify_postroutine(scr,pos);
 					togglegrid[pos] |= (1<<lyr); //Mark this pos toggled for this layer
 					if(cmb.type == cCSWITCH) continue; //Switches don't toggle other layers
 					for(int32_t lyr2 = 0; lyr2 < 7; ++lyr2) //Toggle same pos on other layers, if flag set
@@ -6482,6 +6484,7 @@ void toggle_switches(dword flags, bool entry, mapscr* m, mapscr* t)
 							continue; //This is a switch/block that will be hit later in the loop!
 						set<int32_t> oldData2;
 						//Increment the combo/cset by the original cmb's attributes
+						if(iscurscr && !entry) screen_combo_modify_preroutine(scr_2,pos);
 						oldData2.insert(scr_2->data[pos]);
 						scr_2->data[pos] = BOUND_COMBO(scr_2->data[pos] + cmbofs);
 						scr_2->cset[pos] = (scr_2->cset[pos] + csofs) & 15;
@@ -6504,6 +6507,7 @@ void toggle_switches(dword flags, bool entry, mapscr* m, mapscr* t)
 							combobuf[cmbid2].cur_frame=0;
 							combobuf[cmbid2].aclk = 0;
 						}
+						if(iscurscr && !entry) screen_combo_modify_postroutine(scr_2,pos);
 						togglegrid[pos] |= (1<<lyr2); //Mark this pos toggled for this layer
 					}
 				}
@@ -6581,6 +6585,7 @@ void toggle_gswitches(bool* states, bool entry, mapscr* m, mapscr* t)
 					//Increment the combo/cset by the attributes
 					int32_t cmbofs = (cmb.attributes[0]/10000L);
 					int32_t csofs = (cmb.attributes[1]/10000L);
+					if(iscurscr && !entry) screen_combo_modify_preroutine(scr,pos);
 					oldData.insert(scr->data[pos]);
 					scr->data[pos] = BOUND_COMBO(scr->data[pos] + cmbofs);
 					scr->cset[pos] = (scr->cset[pos] + csofs) & 15;
@@ -6603,6 +6608,7 @@ void toggle_gswitches(bool* states, bool entry, mapscr* m, mapscr* t)
 						combobuf[cmbid].cur_frame=0;
 						combobuf[cmbid].aclk = 0;
 					}
+					if(iscurscr && !entry) screen_combo_modify_postroutine(scr,pos);
 					togglegrid[pos] |= (1<<lyr); //Mark this pos toggled for this layer
 					if(cmb.type == cCSWITCH) continue; //Switches don't toggle other layers
 					for(int32_t lyr2 = 0; lyr2 < 7; ++lyr2) //Toggle same pos on other layers, if flag set
@@ -6619,6 +6625,7 @@ void toggle_gswitches(bool* states, bool entry, mapscr* m, mapscr* t)
 							continue; //This is a switch/block that will be hit later in the loop!
 						set<int32_t> oldData2;
 						//Increment the combo/cset by the original cmb's attributes
+						if(iscurscr && !entry) screen_combo_modify_preroutine(scr_2,pos);
 						oldData2.insert(scr_2->data[pos]);
 						scr_2->data[pos] = BOUND_COMBO(scr_2->data[pos] + cmbofs);
 						scr_2->cset[pos] = (scr_2->cset[pos] + csofs) & 15;
@@ -6641,6 +6648,7 @@ void toggle_gswitches(bool* states, bool entry, mapscr* m, mapscr* t)
 							combobuf[cmbid2].cur_frame=0;
 							combobuf[cmbid2].aclk = 0;
 						}
+						if(iscurscr && !entry) screen_combo_modify_postroutine(scr_2,pos);
 						togglegrid[pos] |= (1<<lyr2); //Mark this pos toggled for this layer
 					}
 				}
