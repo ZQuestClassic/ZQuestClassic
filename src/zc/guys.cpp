@@ -3701,7 +3701,7 @@ int32_t enemy::takehit(weapon *w, weapon* realweap)
 	shieldCanBlock=false;
 	
 	//if (family==eeFLOAT && flags&(inv_front|inv_back_inv_left|inv_right)) xdir=down;
-	if(!(w->unblockable&WPNUNB_BLOCK)&&((wpnId==wHookshot && hitshield(wpnx, wpny, xdir))
+	if(!(w->unblockable&WPNUNB_SHLD)&&((wpnId==wHookshot && hitshield(wpnx, wpny, xdir))
 			|| ((flags&inv_front && wpnDir==(xdir^down)) || (flags&inv_back && wpnDir==(xdir^up)) || (flags&inv_left && wpnDir==(xdir^(xdir&2?right:left))) || (flags&inv_right && wpnDir==(xdir^(dir&2?left:right)))))
 	  )
 		// The hammer should already be dealt with by subclasses (Walker etc.)
