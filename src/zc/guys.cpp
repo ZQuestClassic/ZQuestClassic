@@ -3768,7 +3768,7 @@ int32_t enemy::takehit(weapon *w, weapon* realweap)
 	int32_t xdir = dir;
 	shieldCanBlock=false;
 	
-	if(!(w->unblockable&WPNUNB_BLOCK)&&((wpnId==wHookshot && hitshield(wpnx, wpny, xdir))
+	if(!(w->unblockable&WPNUNB_SHLD)&&((wpnId==wHookshot && hitshield(wpnx, wpny, xdir))
 			|| ((flags&guy_shield_front && wpnDir==(xdir^down)) || (flags&guy_shield_back && wpnDir==(xdir^up)) || 
 				(flags&guy_shield_left && wpnDir==(xdir^(xdir&2?right:left))) || (flags&guy_shield_right && wpnDir==(xdir^(dir&2?left:right)))))
 	  )
