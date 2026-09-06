@@ -131,7 +131,13 @@ char *VerStrFromHex(int32_t version);
 char *ordinal(int32_t num);
 
 void clear_quest_tmpfile();
-PACKFILE *open_quest_file(int32_t *open_error, const char *filename, bool show_progress);
+// stream_decode: When true, legacy-encoded files decode on demand, skipping the usual checksum
+// check (which requires decoding the entire file). Readers that stop early (such as the quest
+// browser's icon/metadata scans) and prefer speed over validating file integrity should set this to
+// true. Files the on-demand path can't open still take the full path: this includes 1.84/1.90
+// quests (they use Allegro's old-crypt packfile format, where the password is applied per LZSS code
+// and needs a file-backed packfile) or invalid qst files.
+PACKFILE *open_quest_file(int32_t *open_error, const char *filename, bool show_progress, bool stream_decode = false);
 PACKFILE *open_quest_template(zquestheader *Header, const char *filename, bool validate);
 
 void clear_combo(int32_t i);
@@ -149,9 +155,11 @@ int32_t count_warprings(miscQdata *Misc);
 int32_t count_palcycles(miscQdata *Misc);
 
 std::string get_last_loaded_qstpath();
+// stream_decode: see open_quest_file.
 int32_t loadquest(const char *filename, zquestheader *Header, miscQdata *Misc,
 	zctune *tunes, bool show_progress, byte *skip_flags, byte printmetadata = 1,
-	bool report = true, byte qst_num = 0, dword tileset_flags = 0);
+	bool report = true, byte qst_num = 0, dword tileset_flags = 0,
+	bool stream_decode = false);
 
 // Snapshots the globals readheader writes straight into - quest rules,
 // map_count, FFCore.quest_format, the midi flags, and the zinfo flags - and
@@ -207,6 +215,10 @@ private:
 
 // Foreign tiles land in the grab scratch buffer (grabtilebuf).
 ScopedPartialQuestLoad make_partial_quest_load_guard();
+
+// > 0 while a ScopedPartialQuestLoad is active, i.e. the tile buffer being
+// read into is scratch, not the loaded quest's.
+extern int partial_quest_load_depth;
 
 bool valid_zqt(PACKFILE *f);
 bool valid_zqt(const char *filename);

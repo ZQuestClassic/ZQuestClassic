@@ -443,6 +443,16 @@ bool isonline(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t x3, int32_
 
 void reset_tile(tiledata *buf, int32_t t, int32_t format=1)
 {
+    // Already a blank tile of this format: nothing to do. Clearing a whole
+    // tile buffer is mostly this case, and a compare is far cheaper than
+    // a free plus calloc per tile.
+    static const byte zero_tile[1024] = {};
+    if(buf[t].format==format && buf[t].data!=NULL
+        && memcmp(buf[t].data, zero_tile, tilesize(format))==0)
+    {
+        return;
+    }
+
     buf[t].format=format;
     
     if(buf[t].data!=NULL)

@@ -814,7 +814,7 @@ bool scan_meta(Entry& e)
 	auto quest_load_guard = make_partial_quest_load_guard();
 
 	int32_t error = 0;
-	PACKFILE* f = open_quest_file(&error, e.path.c_str(), false);
+	PACKFILE* f = open_quest_file(&error, e.path.c_str(), false, /*stream_decode=*/true);
 	if (!f)
 		return false;
 
@@ -850,7 +850,8 @@ bool scan_icon(Entry& e)
 
 	miscQdata temp_misc = QMisc;
 	zquestheader h{};
-	int32_t ret = loadquest(e.path.c_str(), &h, &temp_misc, customtunes, false, skip_flags, 0, false);
+	int32_t ret = loadquest(e.path.c_str(), &h, &temp_misc, customtunes, false, skip_flags, 0, false,
+		0, 0, /*stream_decode=*/true);
 
 	bool ok = ret == qe_OK;
 	if (ok)

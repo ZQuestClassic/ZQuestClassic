@@ -318,21 +318,28 @@ bool valid_zqt(const char *filename)
 	At some point, an encoding layer was added. The two layers look like this:
 
 		1) The top layer is from us. See decode_file_007.
-			[0-24]    Preamble "Zelda Classic Quest File"
-			[25-28]   Initial decoding seed value.
-			[29-X]    Allegro-compressed payload (AKA "packed" file), but XOR'd based on seed value
-			[last 4]  Checksum
+			[0-23]    Preamble "Zelda Classic Quest File"
+			[24-27]   Initial decoding seed value.
+			[28-X]    Allegro-compressed payload (AKA "packed" file), but each byte
+			          XOR'd or subtracted with the keystream.
+			[last 4]  Two 16-bit checksums of the decoded payload.
 
-		2) The bottom layer is a "compressed packed file" from Allegro 4. The entire payload
-			is XOR'd with a password (datapwd). Once that is undone, the first four bytes are "slh!",
-			followed by a lzss compressed representation of the payload (from allergo' packfile compression).
-			The oldest quests skip the password part.
+		2) The bottom layer is a "compressed packed file" from Allegro 4. The entire
+			payload is XOR'd with a password (datapwd). Once that is undone, the first
+			four bytes are "slh!" (itself masked by the password), followed by a lzss
+			compressed representation of the payload (from allegro's packfile compression).
 
-	Simply, the job of this function is to peel away the top layer.
+			1.84/1.90-era quests use Allegro's older "old-crypt" variant instead, where
+			the password is applied per lzss code during decompression (see
+			PACKFILE_FLAG_OLD_CRYPT in allegro_legacy's file.c and lzss.c).
 
-	With this second layer of encryption, the data isn't any more secure, and adds a significant delay
-	in opening and saving files. There is no version field, so they decryption key is
-	found via trial-by-error (very slow!)
+	Simply, the job of this function is to peel away the top layer (the encoding).
+
+	There is no version field for the encoding method (there are five), so each is tried
+	until the checksum matches.
+
+	With this top layer, the data isn't any more secure, and it added a significant delay
+	to opening and saving files (opening less so now: see open_decoded_memory_007).
 
 	There are other file types of interest:
 		- .zqt: quest template files, skips top-layer encryption pass
@@ -345,7 +352,7 @@ bool valid_zqt(const char *filename)
 	files are now "slh!.AG ZC Enhanced Quest File".
 	The following command will take an existing qst file and upgrade it: `./zquest -unencrypt-qst <input> <output>`
 */
-PACKFILE *open_quest_file(int32_t *open_error, const char *filename, bool show_progress)
+PACKFILE *open_quest_file(int32_t *open_error, const char *filename, bool show_progress, bool stream_decode)
 {
 	if (show_progress)
 	{
@@ -398,8 +405,59 @@ PACKFILE *open_quest_file(int32_t *open_error, const char *filename, bool show_p
     
 	if(encrypted)
 	{
+		// Two replacements for decode_file_007's decrypt-everything-to-a-
+		// temp-file: full loads decode into memory (one pass, checksum
+		// verified before any section is parsed, no temp file, no second
+		// pass to find the encoding method); stream_decode readers that
+		// stop early (the quest browser's scans) decode on demand and skip
+		// the checksum. Anything neither can open takes the old path.
+		//
+		// The payload under the encoding is always an Allegro packed file
+		// here (`compressed` is set alongside `encrypted`), so both layer
+		// LZSS over the decoded bytes.
 		box_out("Decrypting...");
 		box_save_x();
+		if(!stream_decode)
+		{
+			if(PACKFILE* m = open_decoded_memory_007(filename, ENC_STR, top_layer_compressed, passwd))
+			{
+				packfile_password(passwd);
+				PACKFILE* fast = pack_fopen_unpack_parent(m);
+				packfile_password("");
+				if(fast)
+				{
+					box_out("okay.");
+					box_eol();
+					return fast;
+				}
+				// No recognizable packfile magic: an old-crypt packfile
+				// (1.90-era, password applied per LZSS code) or a raw
+				// payload. The path below handles both.
+				pack_fclose(m);
+			}
+		}
+		else
+		{
+			// Newest method first; a wrong one fails the packfile magic
+			// check four bytes in.
+			for(int32_t method = ENC_METHOD_MAX-1; method >= 0; --method)
+			{
+				PACKFILE* s = open_decoded_stream_007(filename, ENC_STR, method, top_layer_compressed, passwd);
+				if(!s)
+					break;
+				packfile_password(passwd);
+				PACKFILE* fast = pack_fopen_unpack_parent(s);
+				packfile_password("");
+				if(fast)
+				{
+					box_out("okay.");
+					box_eol();
+					return fast;
+				}
+				pack_fclose(s);
+			}
+		}
+
 		ret = decode_file_007(filename, tmpfilename, ENC_STR, ENC_METHOD_MAX-1, top_layer_compressed, passwd);
         
 		if(ret)
@@ -1820,16 +1878,20 @@ ScopedQuestHeaderGlobals::~ScopedQuestHeaderGlobals()
 	read_ext_zinfo = held_read_ext_zinfo;
 }
 
+int partial_quest_load_depth = 0;
+
 ScopedPartialQuestLoad::ScopedPartialQuestLoad(tiledata* tile_scratch)
 	: held_tilebuf(newtilebuf)
 	, held_colordata(colordata, colordata + psTOTAL255)
 	, held_last_maptile(DMapEditorLastMaptileUsed)
 {
 	newtilebuf = tile_scratch;
+	partial_quest_load_depth++;
 }
 
 ScopedPartialQuestLoad::~ScopedPartialQuestLoad()
 {
+	partial_quest_load_depth--;
 	newtilebuf = held_tilebuf;
 	memcpy(colordata, held_colordata.data(), held_colordata.size());
 	DMapEditorLastMaptileUsed = held_last_maptile;
@@ -1842,7 +1904,7 @@ ScopedPartialQuestLoad make_partial_quest_load_guard()
 
 //Internal function for loadquest wrapper
 // TODO: refactor to never mutate global state, to make loading partial qst files easier and less error prone. huge project.
-static int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Misc, zctune *tunes, bool show_progress, byte *skip_flags, byte printmetadata)
+static int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Misc, zctune *tunes, bool show_progress, byte *skip_flags, byte printmetadata, bool stream_decode)
 {
     DMapEditorLastMaptileUsed = 0;
     combosread=false;
@@ -1877,7 +1939,7 @@ static int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Mi
     // oldquest flag is set when an unencrypted qst file is suspected.
     bool oldquest = false;
     int32_t open_error=0;
-    PACKFILE *f=open_quest_file(&open_error, filename, show_progress);
+    PACKFILE *f=open_quest_file(&open_error, filename, show_progress, stream_decode);
     
     if (!f)
     {
@@ -2027,12 +2089,27 @@ static int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Mi
         }
 
         std::set<dword> seen_sections;
-        
+
+        // The sections the caller wants. Once all of them have been read
+        // there is no point going on: skipping the rest of the file still
+        // means decompressing (and, for legacy encodings, decoding) it.
+        std::set<dword> needed_sections;
+        for (dword id : {ID_RULES, ID_STRINGS, ID_MISC, ID_TILES, ID_COMBOS,
+            ID_COMBOALIASES, ID_CSETS, ID_MAPS, ID_DMAPS, ID_DOORS, ID_ITEMS,
+            ID_WEAPONS, ID_COLORS, ID_ICONS, ID_INITDATA, ID_GUYS,
+            ID_HEROSPRITES, ID_SUBSCREEN, ID_FFSCRIPT, ID_SFX, ID_MIDIS,
+            ID_CHEATS, ID_ITEMDROPSETS, ID_FAVORITES, ID_ADVMUSIC})
+        {
+            if (!get_bit(skip_flags, section_id_to_enum(id)))
+                needed_sections.insert(id);
+        }
+
         while(!pack_feof(f))
         {
             if (seen_sections.contains(section_id))
                 goto invalid;
             seen_sections.insert(section_id);
+            bool last_needed_section = needed_sections.erase(section_id) && needed_sections.empty();
 
 			if (int retval = maybe_skip_section(f, section_id, skip_flags); retval != qe_OK)
 			{
@@ -2514,6 +2591,9 @@ static int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Mi
             }
             
 	    
+            if(last_needed_section)
+                break;
+
             if(catchup)
             {
                 //section id
@@ -2766,7 +2846,7 @@ std::string get_last_loaded_qstpath()
 
 int32_t loadquest(const char *filename, zquestheader *Header, miscQdata *Misc,
 	zctune *tunes, bool show_progress, byte *skip_flags, byte printmetadata,
-	bool report, byte qst_num, dword tilesetflags)
+	bool report, byte qst_num, dword tilesetflags, bool stream_decode)
 {
 	loading_tileset_flags = tilesetflags;
 	const char* basename = get_filename(filename);
@@ -2783,7 +2863,7 @@ int32_t loadquest(const char *filename, zquestheader *Header, miscQdata *Misc,
 
 	auto start = std::chrono::steady_clock::now();
 	zprint2("Loading qst: %s\n", filename);
-	int32_t ret = _lq_int(filename, Header, Misc, tunes, show_progress, skip_flags, printmetadata);
+	int32_t ret = _lq_int(filename, Header, Misc, tunes, show_progress, skip_flags, printmetadata, stream_decode);
 	int32_t load_ms = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - start).count();
 	zprint2("Time to load qst: %d ms\n", load_ms);
 	if (ret)

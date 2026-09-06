@@ -14,6 +14,8 @@
 #include "zalleg/zalleg.h"
 #include <allegro/internal/aintern.h>
 #include <string>
+#include <memory>
+#include <vector>
 #include "base/util.h"
 #include "zsyssimple.h"
 #include "core/zdefs.h"
@@ -344,24 +346,385 @@ static int32_t enc_mask[ENC_METHOD_MAX]= {(int32_t)0x4C358938,(int32_t)0x91B2A2D
 static int32_t pvalue[ENC_METHOD_MAX]= {0x62E9,0x7D14,0x1A82,0x02BB,0xE09C};
 static int32_t qvalue[ENC_METHOD_MAX]= {0x3619,0xA26B,0xF03C,0x7B12,0x4E8F};
 
-static int32_t rand_007(int32_t method)
+static int32_t rand_007(int32_t method, int32_t& seed)
 {
-    int16_t BX = enc_seed >> 8;
-    int16_t CX = (enc_seed & 0xFF) << 8;
-    signed char AL = enc_seed >> 24;
+    int16_t BX = seed >> 8;
+    int16_t CX = (seed & 0xFF) << 8;
+    signed char AL = seed >> 24;
     signed char C = AL >> 7;
     signed char D = BX >> 15;
     AL <<= 1;
     BX = (BX << 1) | C;
     CX = (CX << 1) | D;
-    CX += enc_seed & 0xFFFF;
-    BX += (enc_seed >> 16) + C;
+    CX += seed & 0xFFFF;
+    BX += (seed >> 16) + C;
     //  CX += 0x62E9;
     //  BX += 0x3619 + D;
     CX += pvalue[method];
     BX += qvalue[method] + D;
-    enc_seed = (BX << 16) + CX;
+    seed = (BX << 16) + CX;
     return (CX << 16) + BX;
+}
+
+static int32_t rand_007(int32_t method)
+{
+    return rand_007(method, enc_seed);
+}
+
+// In-memory and streaming counterparts of decode_file_007. Both apply the
+// 007 cipher and then Allegro's packfile-password XOR (the decoded payload
+// stands in for the raw bytes of a file, which Allegro would XOR itself).
+namespace
+{
+// The 007 cipher plus the running checksum decode_file_007 keeps. Types and
+// expressions match decode_file_007 exactly; the checksum depends on them.
+struct Cipher007
+{
+	int32_t method = 0;
+	int32_t seed = 0;
+	int32_t r = 0;
+	int tog = 0;
+	int16_t c1 = 0, c2 = 0;
+
+	void init(int32_t key, int32_t m)
+	{
+		method = m;
+		seed = key ^ enc_mask[m];
+		r = 0;
+		tog = 0;
+		c1 = c2 = 0;
+	}
+
+	int step(int c)
+	{
+		if (tog)
+			c -= r;
+		else
+		{
+			r = rand_007(method, seed);
+			c ^= r;
+		}
+		tog ^= 1;
+		c &= 255;
+		c1 += c;
+		c2 = (c2 << 4) + (c2 >> 12) + c;
+		return c;
+	}
+
+	// The four bytes that follow the payload.
+	bool verify(const byte* chk)
+	{
+		int16_t check1 = chk[0] << 8;
+		check1 += chk[1] & 255;
+		int16_t check2 = chk[2] << 8;
+		check2 += chk[3] & 255;
+		int32_t rr = rand_007(method, seed);
+		check1 ^= rr;
+		check2 -= rr;
+		check1 &= 0xFFFF;
+		check2 &= 0xFFFF;
+		return check1 == c1 && check2 == c2;
+	}
+};
+
+// --- lazy stream: decodes as it is read; never verifies the checksum.
+struct Stream007
+{
+	PACKFILE* src = nullptr;
+	Cipher007 cipher;
+	long remaining = -1; // payload bytes left, or -1 if unknown (packed source)
+	int pushback = -1;
+	bool eof = false;
+	std::string pass;
+	size_t passpos = 0;
+
+	int getc()
+	{
+		if (pushback >= 0)
+		{
+			int c = pushback;
+			pushback = -1;
+			return c;
+		}
+		if (eof || remaining == 0)
+		{
+			eof = true;
+			return EOF;
+		}
+		int c = pack_getc(src);
+		if (c == EOF)
+		{
+			eof = true;
+			return EOF;
+		}
+		c = cipher.step(c);
+		if (remaining > 0)
+			remaining--;
+		if (!pass.empty())
+		{
+			c ^= (byte)pass[passpos++];
+			if (passpos == pass.size())
+				passpos = 0;
+		}
+		return c;
+	}
+};
+
+int s007_fclose(void* u)
+{
+	auto* s = (Stream007*)u;
+	pack_fclose(s->src);
+	delete s;
+	return 0;
+}
+int s007_getc(void* u) { return ((Stream007*)u)->getc(); }
+int s007_ungetc(int c, void* u)
+{
+	((Stream007*)u)->pushback = c & 255;
+	return c;
+}
+long s007_fread(void* p, long n, void* u)
+{
+	auto* s = (Stream007*)u;
+	byte* out = (byte*)p;
+	long i = 0;
+	for (; i < n; i++)
+	{
+		int c = s->getc();
+		if (c == EOF)
+			break;
+		out[i] = c;
+	}
+	return i;
+}
+int s007_putc(int, void*) { return EOF; }
+long s007_fwrite(const void*, long, void*) { return 0; }
+int s007_fseek(void* u, int offset)
+{
+	auto* s = (Stream007*)u;
+	for (int i = 0; i < offset; i++)
+		if (s->getc() == EOF)
+			return -1;
+	return 0;
+}
+int s007_feof(void* u) { return ((Stream007*)u)->eof; }
+int s007_ferror(void*) { return 0; }
+
+const PACKFILE_VTABLE s007_vtable =
+{
+	s007_fclose, s007_getc, s007_ungetc, s007_fread, s007_putc,
+	s007_fwrite, s007_fseek, s007_feof, s007_ferror
+};
+
+// --- memory packfile over an already-decoded, checksum-verified payload.
+struct MemStream
+{
+	std::vector<byte> data;
+	size_t pos = 0;
+};
+
+int mem_fclose(void* u)
+{
+	delete (MemStream*)u;
+	return 0;
+}
+int mem_getc(void* u)
+{
+	auto* m = (MemStream*)u;
+	return m->pos < m->data.size() ? m->data[m->pos++] : EOF;
+}
+int mem_ungetc(int c, void* u)
+{
+	auto* m = (MemStream*)u;
+	if (m->pos > 0)
+		m->pos--;
+	return c;
+}
+long mem_fread(void* p, long n, void* u)
+{
+	auto* m = (MemStream*)u;
+	long avail = (long)(m->data.size() - m->pos);
+	if (n > avail)
+		n = avail;
+	if (n > 0)
+	{
+		memcpy(p, m->data.data() + m->pos, n);
+		m->pos += n;
+	}
+	return n;
+}
+int mem_putc(int, void*) { return EOF; }
+long mem_fwrite(const void*, long, void*) { return 0; }
+int mem_fseek(void* u, int offset)
+{
+	auto* m = (MemStream*)u;
+	if (offset < 0 || m->pos + offset > m->data.size())
+		return -1;
+	m->pos += offset;
+	return 0;
+}
+int mem_feof(void* u)
+{
+	auto* m = (MemStream*)u;
+	return m->pos >= m->data.size();
+}
+int mem_ferror(void*) { return 0; }
+
+const PACKFILE_VTABLE mem_vtable =
+{
+	mem_fclose, mem_getc, mem_ungetc, mem_fread, mem_putc,
+	mem_fwrite, mem_fseek, mem_feof, mem_ferror
+};
+
+// Reads the whole source: the file itself, or its packed contents.
+bool read_source_007(const char* srcfile, bool packed, const char* password, std::vector<byte>& raw)
+{
+	raw.clear();
+	if (packed)
+	{
+		PACKFILE* src = zalleg_pack_fopen_password(srcfile, F_READ_PACKED, password);
+		if (!src && errno == EDOM)
+			src = zalleg_pack_fopen_password(srcfile, F_READ, password);
+		if (!src)
+			return false;
+		byte buf[65536];
+		while (true)
+		{
+			long n = pack_fread(buf, sizeof(buf), src);
+			if (n > 0)
+				raw.insert(raw.end(), buf, buf + n);
+			if (n < (long)sizeof(buf))
+				break;
+		}
+		pack_fclose(src);
+		return true;
+	}
+
+	FILE* fp = fopen(srcfile, "rb");
+	if (!fp)
+		return false;
+	fseek(fp, 0, SEEK_END);
+	long size = ftell(fp);
+	fseek(fp, 0, SEEK_SET);
+	if (size > 0)
+	{
+		raw.resize(size);
+		if (fread(raw.data(), 1, size, fp) != (size_t)size)
+			raw.clear();
+	}
+	fclose(fp);
+	return !raw.empty();
+}
+}
+
+PACKFILE* open_decoded_stream_007(const char* srcfile, const char* header, int32_t method, bool packed, const char* password)
+{
+	auto s = std::make_unique<Stream007>();
+	s->pass = password ? password : "";
+
+	if (packed)
+	{
+		s->src = zalleg_pack_fopen_password(srcfile, F_READ_PACKED, password);
+		if (!s->src && errno == EDOM)
+			s->src = zalleg_pack_fopen_password(srcfile, F_READ, password);
+	}
+	else
+	{
+		s->src = zalleg_pack_fopen_password(srcfile, F_READ, "");
+		if (s->src)
+		{
+			// Payload = file minus the header string, 4-byte key, and
+			// 4-byte checksum (see decode_file_007).
+			long size = (long)file_size_ex(srcfile) - 8 - (header ? (long)strlen(header) : 0);
+			if (size < 1)
+			{
+				pack_fclose(s->src);
+				return nullptr;
+			}
+			s->remaining = size;
+		}
+	}
+	if (!s->src)
+		return nullptr;
+
+	auto fail = [&]() {
+		pack_fclose(s->src);
+		return nullptr;
+	};
+
+	for (int i = 0; header && header[i]; i++)
+	{
+		int c = pack_getc(s->src);
+		if (c == EOF || (c & 255) != header[i])
+			return fail();
+	}
+
+	int32_t key = 0;
+	for (int i = 0; i < 4; i++)
+	{
+		int c = pack_getc(s->src);
+		if (c == EOF)
+			return fail();
+		key = (key << 8) | (c & 255);
+	}
+	s->cipher.init(key, method);
+
+	PACKFILE* pf = pack_fopen_vtable(&s007_vtable, s.get());
+	if (!pf)
+		return fail();
+	s.release();
+	return pf;
+}
+
+PACKFILE* open_decoded_memory_007(const char* srcfile, const char* header, bool packed, const char* password)
+{
+	std::vector<byte> raw;
+	if (!read_source_007(srcfile, packed, password, raw))
+		return nullptr;
+
+	size_t hlen = header ? strlen(header) : 0;
+	if (raw.size() < hlen + 8)
+		return nullptr;
+	if (hlen && memcmp(raw.data(), header, hlen) != 0)
+		return nullptr;
+
+	const byte* p = raw.data() + hlen;
+	int32_t key = (p[0] << 24) | (p[1] << 16) | (p[2] << 8) | p[3];
+	const byte* in = p + 4;
+	size_t payload_len = raw.size() - hlen - 8;
+	const byte* chk = in + payload_len;
+
+	auto mem = std::make_unique<MemStream>();
+	mem->data.resize(payload_len);
+
+	// Same order as decode_file_007's callers: newest method first, the
+	// checksum says whether it was the right one.
+	for (int32_t method = ENC_METHOD_MAX - 1; method >= 0; --method)
+	{
+		Cipher007 cipher;
+		cipher.init(key, method);
+		byte* out = mem->data.data();
+		for (size_t i = 0; i < payload_len; i++)
+			out[i] = cipher.step(in[i]);
+		if (!cipher.verify(chk))
+			continue;
+
+		if (password && password[0])
+		{
+			size_t plen = strlen(password), pp = 0;
+			for (size_t i = 0; i < payload_len; i++)
+			{
+				out[i] ^= (byte)password[pp++];
+				if (pp == plen)
+					pp = 0;
+			}
+		}
+		PACKFILE* pf = pack_fopen_vtable(&mem_vtable, mem.get());
+		if (pf)
+			mem.release();
+		return pf;
+	}
+	return nullptr;
 }
 
 void encode_007(byte *buf, dword size, dword key2, word *check1, word *check2, int32_t method)

@@ -298,8 +298,14 @@ int32_t readtiles(PACKFILE *f, tiledata *buf, zquestheader *Header, word version
 		}
 	}
 	
-	al_trace("Registering blank tiles\n");
-	register_blank_tiles();
+	// The blank-tile tables describe the loaded quest's tiles; a partial
+	// load into the scratch buffer must not overwrite them (and scanning
+	// every tile is a good chunk of a quest-browser icon load).
+	if (!partial_quest_load_depth)
+	{
+		al_trace("Registering blank tiles\n");
+		register_blank_tiles();
+	}
     
     //memset(temp_tile, 0, tilesize(tf32Bit));
     delete[] temp_tile;

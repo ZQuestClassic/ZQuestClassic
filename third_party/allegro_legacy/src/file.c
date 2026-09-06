@@ -1891,6 +1891,50 @@ PACKFILE *pack_fopen_vtable(AL_CONST PACKFILE_VTABLE *vtable, void *userdata)
 
 
 
+/* pack_fopen_unpack_parent:
+ *  Layers LZSS decompression over an already-open read packfile, the way
+ *  pack_fopen() does with F_READ_PACKED for a file on disk - except the
+ *  bytes come from `parent` (typically a pack_fopen_vtable() stream)
+ *  instead of a file descriptor. The current packfile_password() must be
+ *  the one the payload was written with (it is folded into the magic
+ *  number); the parent is expected to have already undone the password
+ *  XOR on its bytes. Reads the magic number: for a packed payload the
+ *  returned packfile decompresses from `parent` and owns it; for an
+ *  unpacked payload `parent` itself is returned. On error NULL is
+ *  returned and `parent` is left open.
+ */
+PACKFILE *pack_fopen_unpack_parent(PACKFILE *parent)
+{
+   PACKFILE *f;
+   long header;
+   ASSERT(parent);
+
+   header = pack_mgetl(parent);
+
+   if (header == encrypt_id(F_NOPACK_MAGIC, TRUE))
+      return parent;
+
+   if (header != encrypt_id(F_PACK_MAGIC, TRUE)) {
+      *allegro_errno = EDOM;
+      return NULL;
+   }
+
+   if ((f = create_packfile(TRUE)) == NULL)
+      return NULL;
+
+   f->normal.flags = PACKFILE_FLAG_PACK;
+   f->normal.unpack_data = create_lzss_unpack_data();
+   if (!f->normal.unpack_data) {
+      free_packfile(f);
+      return NULL;
+   }
+   f->normal.parent = parent;
+   f->normal.todo = LONG_MAX;
+   return f;
+}
+
+
+
 /* pack_fclose:
  *  Closes a file after it has been read or written.
  *  Returns zero on success. On error it returns an error code which is
@@ -2912,9 +2956,12 @@ static int normal_refill_buffer(PACKFILE *f)
       else {
 	 f->normal.buf_size = pack_fread(f->normal.buf, MIN(F_BUF_SIZE, f->normal.todo), f->normal.parent);
       }
-      if (f->normal.parent->normal.flags & PACKFILE_FLAG_EOF)
+      /* Go through the vtable: the parent may not be a normal packfile
+       * (see pack_fopen_unpack_parent).
+       */
+      if (pack_feof(f->normal.parent))
 	 f->normal.todo = 0;
-      if (f->normal.parent->normal.flags & PACKFILE_FLAG_ERROR)
+      if (pack_ferror(f->normal.parent))
 	 goto Error;
    }
    else {

@@ -51,6 +51,20 @@ bool decode_007(byte *buf, dword size, dword key, word check1, word check2, int3
 void encode_007(byte *buf, dword size, dword key, word *check1, word *check2, int32_t method);
 int32_t encode_file_007(const char *srcfile, const char *destfile, int32_t key, const char *header, int32_t method);
 int32_t decode_file_007(const char *srcfile, const char *destfile, const char *header, int32_t method, bool packed, const char *password);
+// In-memory and streaming replacements for decode_file_007 (which decrypts
+// to a temp file). `password` is Allegro's packfile password for both the
+// packed source (if `packed`) and the decoded payload; the returned
+// packfile already has it applied, so open it with the same password set.
+//
+// Memory: reads the whole source once, tries each encoding method newest
+// first, and verifies the checksum before returning a packfile over the
+// decoded payload. Null if the file can't be read, the header string
+// doesn't match, or no method's checksum matches.
+PACKFILE* open_decoded_memory_007(const char* srcfile, const char* header, bool packed, const char* password);
+// Stream: decodes on demand with the given method and never checks the
+// checksum, for readers that stop early. Null if the file can't be opened
+// or its header string doesn't match.
+PACKFILE* open_decoded_stream_007(const char* srcfile, const char* header, int32_t method, bool packed, const char* password);
 void copy_file(const char *src, const char *dest);
 
 struct MaybeLegacyEncodedResult
