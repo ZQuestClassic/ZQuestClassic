@@ -146,6 +146,7 @@ AL_LEGACY_FUNC(int, get_filename_encoding, (void));
 AL_LEGACY_FUNC(void, packfile_password, (AL_CONST char *password));
 AL_LEGACY_FUNC(PACKFILE *, pack_fopen, (AL_CONST char *filename, AL_CONST char *mode));
 AL_LEGACY_FUNC(PACKFILE *, pack_fopen_vtable, (AL_CONST PACKFILE_VTABLE *vtable, void *userdata));
+AL_LEGACY_FUNC(PACKFILE *, pack_fopen_unpack_parent, (PACKFILE *parent));
 AL_LEGACY_FUNC(int, pack_fclose, (PACKFILE *f));
 AL_LEGACY_FUNC(int, pack_fseek, (PACKFILE *f, int offset));
 AL_LEGACY_FUNC(PACKFILE *, pack_fopen_chunk, (PACKFILE *f, int pack));
