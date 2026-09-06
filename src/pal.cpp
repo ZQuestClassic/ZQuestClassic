@@ -613,7 +613,14 @@ void cycle_palette()
                 if(++palpos[i] >= (c.count>>4))
                     palpos[i]=0;
                     
-                byte *si = colordata + CSET(level*pdLEVEL+poFADE1+1+palpos[i])*3;
+                // Cycles longer than the 8 dedicated cycle csets continue into the next level
+                // palette's csets, as they did in 1.90-2.53 when a level palette was 13 csets.
+                // Skip over the csets added to level palettes since then to keep that behavior.
+                // See https://discord.com/channels/876899628556091432/1400979610572820520.
+                int32_t cset_ofs = poFADE1+1+palpos[i];
+                if (cset_ofs >= poNEWCSETS)
+                    cset_ofs += pdLEVEL - (poNEWCSETS - poLEVEL);
+                byte *si = colordata + CSET(level*pdLEVEL+cset_ofs)*3;
                 si += (c.first&15)*3;
                 
                 for(int32_t col=c.first&15; col<=(c.count&15); col++)
