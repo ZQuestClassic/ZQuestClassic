@@ -20767,27 +20767,27 @@ void set_register(int32_t arg, int32_t value)
 				{
 					case 0:
 					{
-						(ri->d[rINDEX2])? (GuyH::getNPC()->flags |= inv_front) : (GuyH::getNPC()->flags &= ~inv_front);
+						(value)? (GuyH::getNPC()->flags |= inv_front) : (GuyH::getNPC()->flags &= ~inv_front);
 						break;
 					}
 					case 1:
 					{
-						(ri->d[rINDEX2])? (GuyH::getNPC()->flags |= inv_left) : (GuyH::getNPC()->flags &= ~inv_left);
+						(value)? (GuyH::getNPC()->flags |= inv_left) : (GuyH::getNPC()->flags &= ~inv_left);
 						break;
 					}
 					case 2:
 					{
-						(ri->d[rINDEX2])? (GuyH::getNPC()->flags |= inv_right) : (GuyH::getNPC()->flags &= ~inv_right);
+						(value)? (GuyH::getNPC()->flags |= inv_right) : (GuyH::getNPC()->flags &= ~inv_right);
 						break;
 					}
 					case 3:
 					{
-						(ri->d[rINDEX2])? (GuyH::getNPC()->flags |= inv_back) : (GuyH::getNPC()->flags &= ~inv_back);
+						(value)? (GuyH::getNPC()->flags |= inv_back) : (GuyH::getNPC()->flags &= ~inv_back);
 						break;
 					}
 					case 4: //shield can be broken
 					{
-						(ri->d[rINDEX2])? (GuyH::getNPC()->flags |= guy_bkshield) : (GuyH::getNPC()->flags &= ~guy_bkshield);
+						(value)? (GuyH::getNPC()->flags |= guy_bkshield) : (GuyH::getNPC()->flags &= ~guy_bkshield);
 						break;
 					}
 					default:
