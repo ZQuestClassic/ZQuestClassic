@@ -257,7 +257,6 @@ def do_web_packaging():
             [
                 'docs/ghost',
                 'docs/tango',
-                'docs/ZScript_Additions.txt',
             ],
         ),
         *glob(resources_dir, '**/*.pdf'),

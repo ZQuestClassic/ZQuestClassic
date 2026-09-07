@@ -382,3 +382,33 @@ All generic scripts settings in editor are set up in the ``Init Data`` menu.
 When a script runs in a 'Frozen Mode', everything (or, nearly everything) in the
 entire engine will be paused. Other scripts will not run either, unless specifically
 stated as an exception.
+
+.. _waitdraw_support:
+
+Waitdraw support
+----------------
+
+:ref:`Waitdraw()<globals_fun_waitdraw>` pauses a script partway through the frame,
+and resumes it after the engine has updated the Hero, enemies, weapons, and
+collisions, but before the screen is drawn. Exactly where each script type resumes
+is listed on the :ref:`Frame Timings<frame_timings>` page.
+
+Which script types can use it:
+
+- Global, Hero, DMap (all slots), Screen, Combo, NPC, LWeapon, EWeapon, and
+  Itemsprite scripts: always supported.
+- FFC scripts: supported unless the |qr| ``No FFC Waitdraw()`` is on, in which
+  case calling it logs a script error and does nothing.
+- Itemdata scripts: supported unless the |qr| ``No Item Script Waitdraw()`` is
+  on, in which case the call is ignored.
+- Generic scripts (passive or frozen) and Subscreen scripts: not supported; the
+  call is ignored. Passive generic scripts should use
+  :ref:`WaitTo()<globals_fun_waitto>` instead, which offers far finer control.
+
+Only the first call to ``Waitdraw()`` in a frame pauses the script; calling it a
+second time in the same frame does nothing until the next
+:ref:`Waitframe()<globals_fun_waitframe>`.
+
+.. seealso::
+
+	:ref:`Frame Timings<frame_timings>`

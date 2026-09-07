@@ -133,3 +133,8 @@ Some special characters must be escaped with a backwards slash followed by an es
 	+------------------------+---------------------------------------+
 	| ``\x00`` to ``\xFF``   | Insert arbitrary hex character code   |
 	+------------------------+---------------------------------------+
+	| ``\`` then a newline   | Line continuation. Neither the        |
+	|                        | backslash nor the newline is kept, so |
+	|                        | a string literal can be split across  |
+	|                        | lines.                                |
+	+------------------------+---------------------------------------+

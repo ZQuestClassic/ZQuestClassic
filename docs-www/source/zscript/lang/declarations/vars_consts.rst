@@ -38,6 +38,39 @@ Declaring a ``constant`` is extremely similar to declaring a
 - A constant must have an initializer; without one, it will compile error.
 - A constant's value cannot be modified after its initializer.
 - If the entire initializer expression is "compile-time constant", then the value of the constant is also "compile-time constant"
+- Constants can be declared in any scope (file, namespace, script, class, function, or block), not only at file scope. The constant is only visible within that scope.
+- Outside of a function body, the initializer *must* be compile-time constant.
+
+Inside a function body (including any block within it), the initializer does not have to
+be compile-time constant - it may read an engine value, call a function, and so on. Such
+a constant behaves like a normal variable that is initialized at runtime, except that
+assigning to it afterwards is a compile error, and it cannot be used where a |ctc| is
+required (array sizes, `case` values, `repeat()`, etc.).
+
+.. zscript::
+
+	void run()
+	{
+		const int max_hp = Hero->MaxHP; // read when this line runs
+		<error>max_hp = 5;</error> // Error C036: Variable max_hp is constant and cannot be changed.
+	}
+
+At any other scope, the same initializer is an error:
+
+.. zscript::
+	:style: body
+
+	<error>const int MAX_HP = Hero->MaxHP;</error> // Error C062: Constant MAX_HP is not at function scope, and the value is not constant at compile-time.
+
+Function parameters can also be declared `const`, which prevents the function body
+from reassigning them:
+
+.. zscript::
+
+	void foo(const int x, const bool flag)
+	{
+		<error>x = 5;</error> // Error C036: Variable x is constant and cannot be changed.
+	}
 
 .. _compiletime_const:
 

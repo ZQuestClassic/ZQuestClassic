@@ -36,8 +36,33 @@ Primitive Types
 	|               | typecasting. Used by char/string literals.                            |
 	+---------------+-----------------------------------------------------------------------+
 	| `rgb`         | Color type, used to represent color values. See:                      |
-	|               | :ref:`CreateRGB<globals_graphics_fun_creatergb>`                      |
+	|               | :ref:`CreateRGB<globals_graphics_fun_creatergb>`. Holds a value from  |
+	|               | `0L` to `0xFFFFFFL` (or `0x3F3F3FL` if the compatibility |qr|         |
+	|               | ``Scripts use 6-bit color (0-63) instead of 8-bit (0-255)`` is on).   |
+	|               | Does not implicitly cast to other primitive types.                    |
 	+---------------+-----------------------------------------------------------------------+
+
+.. note::
+	`int` and `float` are the *same type* to the compiler; the two names exist only for readability.
+	This means two functions that differ only by `int` vs `float` in their parameters have the same
+	signature, and declaring both is an error (``Error S004: Function ... was already declared with that type signature``).
+
+.. note::
+	:ref:`Character literals<zslang_literals>` (ex. `'a'`) have the type `char32`, and
+	:ref:`string literals<string_literals>` have the type `char32[]`. When several overloads of a
+	function could accept one of these literals, the overload taking `char32` / `char32[]` is chosen
+	over one taking `int` / `int[]`.
+
+	.. zscript::
+
+		void foo(char32 c) { Trace(1); }
+		void foo(int n) { Trace(2); }
+
+	.. zscript::
+		:style: body
+
+		foo('c'); // prints '1.0000'
+		foo(16);  // prints '2.0000'
 
 .. _types_const:
 

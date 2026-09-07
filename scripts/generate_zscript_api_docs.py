@@ -760,6 +760,7 @@ rst_toc(
         'zscript/lang/control_flow/index',
         'zscript/lang/ranges',
         'zscript/lang/scripts',
+        'zscript/lang/frame_timings',
         'zscript/lang/annotations',
         'zscript/lang/options',
         'zscript/lang/compiler_directives',

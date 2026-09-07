@@ -170,10 +170,27 @@ Also, adjacent strings are automatically merged by the compiler. Ex:
 
 .. zscript::
 	:style: body
-	
+
 	printf("This is a string"
 		" split across multiple lines!\n");
 	// prints 'This is a string split across multiple lines!'
+
+Strings are terminated by a `0` (``NULL``) character, which takes up one element of the
+array. A string literal used as an initializer therefore needs one more element than
+it has characters. This is handled automatically when the size is omitted, but an
+explicit size must account for it:
+
+.. zscript::
+	:style: body
+
+	char32 a[] = "hello";    // size 6
+	char32 b[8] = "hello";   // fine; the extra elements are 0
+
+Limits
+------
+
+An array can hold at most `214748` elements. Attempting to declare or resize an
+array past this size fails with a script error.
 
 Temporary array values
 ----------------------

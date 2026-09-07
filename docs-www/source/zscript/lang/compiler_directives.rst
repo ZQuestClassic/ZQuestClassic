@@ -94,6 +94,11 @@ directory rather than a file.
 Note that the ``include paths`` set in the editor apply to all quests;
 using the `#includepath` directive can allow you to set per-quest paths.
 
+All `#includepath` directives in a file are processed before any of that file's
+`#include` / `import` directives, so the order they appear in within the file
+does not matter. Paths added this way remain in effect for the rest of the compile,
+including files included later.
+
 .. _directive_optionval:
 
 Changing Options

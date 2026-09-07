@@ -1422,11 +1422,11 @@ stdout:
         "loc": {
           "range": {
             "start": {
-              "line": 149,
+              "line": 158,
               "character": 14
             },
             "end": {
-              "line": 149,
+              "line": 158,
               "character": 19
             }
           },
@@ -1615,17 +1615,17 @@ stdout:
         "loc": {
           "range": {
             "start": {
-              "line": 789,
+              "line": 837,
               "character": 14
             },
             "end": {
-              "line": 789,
+              "line": 837,
               "character": 20
             }
           },
           "uri": "URI"
         },
-        "doc": "Prints the specified format_string to the output console, using the given\nargs to fill in parts of the string that are specially marked. Does not\ninclude a newline character after the string."
+        "doc": "Prints the specified format_string to the output console, using the given\nargs to fill in parts of the string that are specially marked. Does not\ninclude a newline character after the string.\n\nEach `%` in the format string, followed by a letter, is replaced by the next\nargument, formatted according to that letter:\n\n\n- `%d`: A number. Decimal places are only printed if the value has any.\n- `%f`: A number, always printed with decimal places (trailing zeros trimmed).\n- `%i`: A number, printed as an integer (the decimal portion is dropped).\n- `%l`: A `long`. Prints the raw 32-bit value, so `1` prints as `10000`.\n- `%s`: A string. Prints `<NULL>` for a null pointer.\n- `%c`: A single character.\n- `%p`: A pointer. Identical to `%i`.\n- `%x` / `%X`: The integer portion in hexadecimal, lowercase / uppercase.\n  Always prefixed with `0x`.\n- `%b`: The integer portion in binary.\n- `%B`: The raw 32-bit (`long`) value in binary.\n- `%a` followed by any of the above letters: An array, printed as\n  `{ a, b, c }`, with each element formatted per the second letter.\n  Ex. `%ad` prints an array of numbers, `%as` an array of strings.\n- `%%`: A literal `%` character.\n\nA minimum number of digits may be given between the `%` and the letter, for\nthe numeric formats (`d f i l p x X b B`, and `%a` of these): `%5d` pads the\ninteger portion with spaces to at least 5 digits, and `%05d` pads it with\nzeros instead. The maximum is 10 digits (32 for `%b` / `%B`).\n\nAny other letter after a `%` is an error. If the format string uses more\narguments than were passed, the missing arguments are read as `0` (or, if\nthe QR `qr_PRINTF_NO_0FILL` is on, the rest of the format string is printed\nas-is).\n\n```\nprintf(\"%d %f %i %x %02d %s %ad\\n\", 5, 5, 2.5, 255, 7, \"hi\", {1, 2});\n// prints: 5 5.0 2 0xff 07 hi { 1, 2 }\n```"
       },
       "5620": {
         "loc": {
@@ -1675,7 +1675,7 @@ stdout:
           },
           "uri": "URI"
         },
-        "doc": "How fast it goes. See [`the vroom method`](command:zscript.openLink?%7B%22file%22%3A%22metadata.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A32%2C%22character%22%3A9%7D%2C%22end%22%3A%7B%22line%22%3A32%2C%22character%22%3A14%7D%7D%7D) or [`speed`](command:zscript.openLink?%7B%22file%22%3A%22metadata.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A24%2C%22character%22%3A8%7D%2C%22end%22%3A%7B%22line%22%3A24%2C%22character%22%3A13%7D%7D%7D) or [`x`](command:zscript.openLink?%7B%22file%22%3A%22metadata.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A17%2C%22character%22%3A4%7D%2C%22end%22%3A%7B%22line%22%3A17%2C%22character%22%3A5%7D%7D%7D) or [`Waitframe()`](command:zscript.openLink?%7B%22file%22%3A%22global.zh%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A102%2C%22character%22%3A14%7D%2C%22end%22%3A%7B%22line%22%3A102%2C%22character%22%3A23%7D%7D%7D) or [`bitmap`](command:zscript.openLink?%7B%22file%22%3A%22bitmap.zh%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A7%2C%22character%22%3A6%7D%2C%22end%22%3A%7B%22line%22%3A7%2C%22character%22%3A12%7D%7D%7D) or [`bitmap::Width`](command:zscript.openLink?%7B%22file%22%3A%22bitmap.zh%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A18%2C%22character%22%3A20%7D%2C%22end%22%3A%7B%22line%22%3A18%2C%22character%22%3A25%7D%7D%7D)"
+        "doc": "How fast it goes. See [`the vroom method`](command:zscript.openLink?%7B%22file%22%3A%22metadata.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A32%2C%22character%22%3A9%7D%2C%22end%22%3A%7B%22line%22%3A32%2C%22character%22%3A14%7D%7D%7D) or [`speed`](command:zscript.openLink?%7B%22file%22%3A%22metadata.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A24%2C%22character%22%3A8%7D%2C%22end%22%3A%7B%22line%22%3A24%2C%22character%22%3A13%7D%7D%7D) or [`x`](command:zscript.openLink?%7B%22file%22%3A%22metadata.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A17%2C%22character%22%3A4%7D%2C%22end%22%3A%7B%22line%22%3A17%2C%22character%22%3A5%7D%7D%7D) or [`Waitframe()`](command:zscript.openLink?%7B%22file%22%3A%22global.zh%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A103%2C%22character%22%3A14%7D%2C%22end%22%3A%7B%22line%22%3A103%2C%22character%22%3A23%7D%7D%7D) or [`bitmap`](command:zscript.openLink?%7B%22file%22%3A%22bitmap.zh%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A7%2C%22character%22%3A6%7D%2C%22end%22%3A%7B%22line%22%3A7%2C%22character%22%3A12%7D%7D%7D) or [`bitmap::Width`](command:zscript.openLink?%7B%22file%22%3A%22bitmap.zh%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A18%2C%22character%22%3A20%7D%2C%22end%22%3A%7B%22line%22%3A18%2C%22character%22%3A25%7D%7D%7D)"
       },
       "5615": {
         "loc": {
@@ -1780,17 +1780,17 @@ stdout:
         "loc": {
           "range": {
             "start": {
-              "line": 780,
+              "line": 794,
               "character": 23
             },
             "end": {
-              "line": 780,
+              "line": 794,
               "character": 34
             }
           },
           "uri": "URI"
         },
-        "doc": "Returns the [`degrees`](command:zscript.openLink?%7B%22file%22%3A%22global.zh%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A780%2C%22character%22%3A39%7D%2C%22end%22%3A%7B%22line%22%3A780%2C%22character%22%3A46%7D%7D%7D) value, wrapped between [-180,180)\n\n\n**@alias** WrapDeg"
+        "doc": "Returns the [`degrees`](command:zscript.openLink?%7B%22file%22%3A%22global.zh%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A794%2C%22character%22%3A39%7D%2C%22end%22%3A%7B%22line%22%3A794%2C%22character%22%3A46%7D%7D%7D) value, wrapped between [-180,180)\n\n\n**@alias** WrapDeg"
       },
       "5624": {
         "loc": {
@@ -1909,7 +1909,7 @@ stdout:
           },
           "uri": "URI"
         },
-        "doc": "There was a bug that would result in randomly choosing between functions of the same name.\nIn this case, the internal binding \"itoa\" vs the function in string_functions.zh \"itoa\".\n\nNow, the expected result is to prefer the binding function over any other global function.\n\nfeed me to [`itoa()`](command:zscript.openLink?%7B%22file%22%3A%22global.zh%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A656%2C%22character%22%3A13%7D%2C%22end%22%3A%7B%22line%22%3A656%2C%22character%22%3A17%7D%7D%7D).",
+        "doc": "There was a bug that would result in randomly choosing between functions of the same name.\nIn this case, the internal binding \"itoa\" vs the function in string_functions.zh \"itoa\".\n\nNow, the expected result is to prefer the binding function over any other global function.\n\nfeed me to [`itoa()`](command:zscript.openLink?%7B%22file%22%3A%22global.zh%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A670%2C%22character%22%3A13%7D%2C%22end%22%3A%7B%22line%22%3A670%2C%22character%22%3A17%7D%7D%7D).",
         "name": "s",
         "type": "char32[]"
       },
@@ -1927,7 +1927,7 @@ stdout:
           },
           "uri": "URI"
         },
-        "doc": "How fast it goes. See [`the vroom method`](command:zscript.openLink?%7B%22file%22%3A%22metadata.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A32%2C%22character%22%3A9%7D%2C%22end%22%3A%7B%22line%22%3A32%2C%22character%22%3A14%7D%7D%7D) or [`speed`](command:zscript.openLink?%7B%22file%22%3A%22metadata.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A24%2C%22character%22%3A8%7D%2C%22end%22%3A%7B%22line%22%3A24%2C%22character%22%3A13%7D%7D%7D) or [`x`](command:zscript.openLink?%7B%22file%22%3A%22metadata.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A17%2C%22character%22%3A4%7D%2C%22end%22%3A%7B%22line%22%3A17%2C%22character%22%3A5%7D%7D%7D) or [`Waitframe()`](command:zscript.openLink?%7B%22file%22%3A%22global.zh%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A102%2C%22character%22%3A14%7D%2C%22end%22%3A%7B%22line%22%3A102%2C%22character%22%3A23%7D%7D%7D) or [`bitmap`](command:zscript.openLink?%7B%22file%22%3A%22bitmap.zh%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A7%2C%22character%22%3A6%7D%2C%22end%22%3A%7B%22line%22%3A7%2C%22character%22%3A12%7D%7D%7D) or [`bitmap::Width`](command:zscript.openLink?%7B%22file%22%3A%22bitmap.zh%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A18%2C%22character%22%3A20%7D%2C%22end%22%3A%7B%22line%22%3A18%2C%22character%22%3A25%7D%7D%7D)",
+        "doc": "How fast it goes. See [`the vroom method`](command:zscript.openLink?%7B%22file%22%3A%22metadata.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A32%2C%22character%22%3A9%7D%2C%22end%22%3A%7B%22line%22%3A32%2C%22character%22%3A14%7D%7D%7D) or [`speed`](command:zscript.openLink?%7B%22file%22%3A%22metadata.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A24%2C%22character%22%3A8%7D%2C%22end%22%3A%7B%22line%22%3A24%2C%22character%22%3A13%7D%7D%7D) or [`x`](command:zscript.openLink?%7B%22file%22%3A%22metadata.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A17%2C%22character%22%3A4%7D%2C%22end%22%3A%7B%22line%22%3A17%2C%22character%22%3A5%7D%7D%7D) or [`Waitframe()`](command:zscript.openLink?%7B%22file%22%3A%22global.zh%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A103%2C%22character%22%3A14%7D%2C%22end%22%3A%7B%22line%22%3A103%2C%22character%22%3A23%7D%7D%7D) or [`bitmap`](command:zscript.openLink?%7B%22file%22%3A%22bitmap.zh%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A7%2C%22character%22%3A6%7D%2C%22end%22%3A%7B%22line%22%3A7%2C%22character%22%3A12%7D%7D%7D) or [`bitmap::Width`](command:zscript.openLink?%7B%22file%22%3A%22bitmap.zh%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A18%2C%22character%22%3A20%7D%2C%22end%22%3A%7B%22line%22%3A18%2C%22character%22%3A25%7D%7D%7D)",
         "name": "speed",
         "type": "int"
       },

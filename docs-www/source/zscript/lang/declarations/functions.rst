@@ -171,7 +171,12 @@ you to pass MORE than the total number of parameters.
 
 To allow variadic parameters, simply declare a final parameter to your function,
 using an array type, preceded by `...`. All the extra parameters that are passed
-will be placed into this array, in order.
+will be placed into this array, in order. If no extra parameters are passed, the
+array has a size of 0.
+
+.. note::
+	A function cannot have both :ref:`optional parameters<func_opt_params>` and a
+	variadic parameter.
 
 .. tab-set::
 
@@ -261,6 +266,10 @@ This is usually `0`/`NULL`, but can be set manually as well.
 
 	// will return 1 always unless declared elsewhere
 	int damage_multiplier() : default 1;
+
+The default value must be a |ctc| whose type matches the function's return type.
+`NULL` is `untyped`, so it is accepted as the default for any return type, but
+for example `ffc foo() : default 1;` is an error, as `int` does not cast to `ffc`.
 
 This could be useful if these functions would be defined in another script
 that you don't know if will be included or not- you can effectively use

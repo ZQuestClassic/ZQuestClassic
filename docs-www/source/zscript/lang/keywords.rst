@@ -281,6 +281,8 @@ Most operators are left-associative, except assignment operators and the Ternary
 		2. `/ 0`, after producing the error, will return either `214748.3647` or `-214748.3647`, matching the sign of the dividend.
 	4. As the `int` type is not a real integer, 'Integer Division' does not exist- i.e. `5 / 2 == 2.5`, instead of `5 / 2 == 2`.
 	5. Short-circuit for boolean operations is the default, though can be disabled with a :ref:`compiler option<zslang_options>`.
+	6. Assignment is an expression, and evaluates to the assigned value. This allows things like `while((x += 2) < 20)` or `a = b = 0;`.
+	7. An assignment used as an operand of the ternary operator `?:` must be wrapped in parentheses, ex. `x ? (y = 1) : (y = 2)`. Without the parentheses it is a syntax error.
 
 .. _typecasting:
 

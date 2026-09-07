@@ -202,13 +202,22 @@ class Input {
 	// @delete
 	internal Input();
 
-	// Whether the given button is down (or 'pressed').
+	// Whether the given button was newly pressed this frame. This is true for
+	// exactly one frame per physical press, on the first frame the button is
+	// held down.
+	//
+	// Writing to this only affects the current frame; the engine resets it from
+	// the real controller state next frame.
 	//
 	// @index [enum Button]
 	// @zasm_var BUTTONPRESS
 	internal bool Press[];
 
-	// Whether the given button is down (or 'pressed').
+	// Whether the given button is currently held down.
+	//
+	// Writing to this only affects the current frame (ex. writing `false` "eats"
+	// the input for the rest of the frame); the engine resets it from the real
+	// controller state next frame.
 	//
 	// @index [enum Button]
 	// @zasm_var BUTTONINPUT

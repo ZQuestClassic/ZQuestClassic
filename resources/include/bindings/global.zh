@@ -50,6 +50,7 @@ enum GenericScriptEvent
 	GENSCR_NUMEVENT //N/A (max value)
 };
 
+// See: https://docs.zquestclassic.com/zscript/lang/frame_timings
 enum ScriptTiming
 {
 	SCR_TIMING_INIT = -1,
@@ -114,8 +115,16 @@ internal void Waitframe();
 internal void Waitframes(int count);
 
 // When called the first time in a frame, the script ends running for a portion
-// of time. The engine will proceed with part of a frame of gameplay, allowing
-// other engine activities to occur, before resuming this script.
+// of time. The engine will proceed with part of a frame of gameplay (updating
+// the Hero, enemies, weapons, and collisions), before resuming this script just
+// before the screen is drawn. Calling this again in the same frame has no
+// further effect until the next [Waitframe].
+//
+// Supported by global, hero, dmapdata, screendata, combodata, npc, lweapon,
+// eweapon, and itemsprite scripts. FFC scripts support it unless the QR
+// [qr_NOFFCWAITDRAW] is on, and itemdata scripts unless [qr_NOITEMWAITDRAW] is
+// on. Generic and subscreen scripts do not support it (the call does nothing);
+// passive generic scripts should use [WaitTo] instead.
 //
 // @zasm
 //   WAITDRAW
@@ -411,6 +420,9 @@ internal void DestroyArray(untyped[] arr);
 // Takes an Object parameter. Grants ownership of the object to the currently
 // running script.
 //
+// This can only be used on custom user objects (not builtin objects like [bitmap]).
+// For builin objects, use `->Own()` instead.
+//
 // @zasm
 //   POP D2
 //   ZCLASS_OWN D2
@@ -422,6 +434,8 @@ internal void OwnObject(untyped obj);
 // 
 // Objects that are stored in global variables (or other global objects)
 // are also considered to be global.
+//
+// This can only be used on custom user objects (not builtin objects like [bitmap]).
 //
 // @zasm
 //   POP D2
@@ -783,6 +797,40 @@ internal constexpr int WrapDegrees(int degrees);
 // Prints the specified format_string to the output console, using the given
 // args to fill in parts of the string that are specially marked. Does not
 // include a newline character after the string.
+//
+// Each `%` in the format string, followed by a letter, is replaced by the next
+// argument, formatted according to that letter:
+//
+// - `%d`: A number. Decimal places are only printed if the value has any.
+// - `%f`: A number, always printed with decimal places (trailing zeros trimmed).
+// - `%i`: A number, printed as an integer (the decimal portion is dropped).
+// - `%l`: A `long`. Prints the raw 32-bit value, so `1` prints as `10000`.
+// - `%s`: A string. Prints `<NULL>` for a null pointer.
+// - `%c`: A single character.
+// - `%p`: A pointer. Identical to `%i`.
+// - `%x` / `%X`: The integer portion in hexadecimal, lowercase / uppercase.
+//   Always prefixed with `0x`.
+// - `%b`: The integer portion in binary.
+// - `%B`: The raw 32-bit (`long`) value in binary.
+// - `%a` followed by any of the above letters: An array, printed as
+//   `{ a, b, c }`, with each element formatted per the second letter.
+//   Ex. `%ad` prints an array of numbers, `%as` an array of strings.
+// - `%%`: A literal `%` character.
+//
+// A minimum number of digits may be given between the `%` and the letter, for
+// the numeric formats (`d f i l p x X b B`, and `%a` of these): `%5d` pads the
+// integer portion with spaces to at least 5 digits, and `%05d` pads it with
+// zeros instead. The maximum is 10 digits (32 for `%b` / `%B`).
+//
+// Any other letter after a `%` is an error. If the format string uses more
+// arguments than were passed, the missing arguments are read as `0` (or, if
+// the QR `qr_PRINTF_NO_0FILL` is on, the rest of the format string is printed
+// as-is).
+//
+// ```
+// printf("%d %f %i %x %02d %s %ad\n", 5, 5, 2.5, 255, 7, "hi", {1, 2});
+// // prints: 5 5.0 2 0xff 07 hi { 1, 2 }
+// ```
 //
 // @zasm
 //   PRINTFVARG

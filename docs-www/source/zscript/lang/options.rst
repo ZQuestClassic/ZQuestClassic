@@ -48,6 +48,16 @@ You can also manually set options to the special value :zs_kw:`default`,
 which will inherit the settings **directly** from the menu
 in the editor, ignoring all the scopes above.
 
+Option Values
+-------------
+
+Other than :zs_kw:`inherit` and :zs_kw:`default`, the value given to
+:zs_kw:`#option` is an ordinary |ctc| expression. The named values are
+constants: :zs_kw:`off` is `0`, :zs_kw:`on` is `1`, :zs_kw:`error` is `2`,
+and :zs_kw:`warn` is `3`, so `#option NO_LOGGING 1` is the same as
+`#option NO_LOGGING on`. For options that only understand on/off, any
+non-zero value acts as :zs_kw:`on`.
+
 What are all the options?
 -------------------------
 

@@ -142,6 +142,9 @@ The ``STRING_SWITCH_CASE_INSENSITIVE`` :ref:`option<zslang_options>`, if `on`, w
 make any of these `switch` statements it affects compare their values
 case-insensitively.
 
+A single `switch` must use either all string `case`\ s or all numeric `case`\ s.
+Mixing the two gives ``Error C081: Switch contains both strings and numbers``.
+
 .. plans::
 
 	``STRING_SWITCH_CASE_INSENSITIVE`` may become deprecated in favor
