@@ -25,6 +25,7 @@
 #include "auto/bug_npcdata_arrays_wrong_ref.zs"
 #include "auto/bug_object_deleted_during_constructor.zs"
 #include "auto/bug_opt_var_across_waitframe.zs"
+#include "auto/bug_region_ffc_solid_first_frame.zs"
 #include "auto/bug_script_draw_error_logging.zs"
 #include "auto/bug_spawn_screen_oob.zs"
 #include "auto/bug_string_16bit_index.zs"

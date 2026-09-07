@@ -6478,6 +6478,10 @@ static void load_a_screen_and_layers_init(int screen, bool screen_overlay, bool 
 		base_scr->ffcs[i].current_screen = screen;
 		base_scr->ffcs[i].update_current_screen();
 		base_scr->ffcs[i].updateSolid();
+		// The offset above moved the ffc away from its stored position, so refresh the
+		// solid-collision previous position too. Otherwise the first frame's solid update
+		// reads the offset as a real move and sweeps the hero/enemies along with it.
+		base_scr->ffcs[i].solid_update(false);
 	}
 }
 
