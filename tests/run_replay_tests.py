@@ -54,6 +54,7 @@ import shlex
 import shutil
 import subprocess
 import sys
+import threading
 import time
 
 from argparse import ArgumentTypeError
@@ -588,12 +589,63 @@ def prompt_for_gh_auth():
     return Github(token), repo
 
 
+def upstream_fetched_recently(max_age_hours: float) -> bool:
+    try:
+        git_dir = Path(
+            subprocess.check_output(
+                ['git', 'rev-parse', '--git-common-dir'],
+                cwd=root_dir,
+                encoding='utf-8',
+            ).strip()
+        )
+        if not git_dir.is_absolute():
+            git_dir = root_dir / git_dir
+        fetch_head = git_dir / 'FETCH_HEAD'
+        age_seconds = time.time() - fetch_head.stat().st_mtime
+        return age_seconds < max_age_hours * 3600
+    except Exception:
+        return False
+
+
+def fetch_upstream_tags(timeout_seconds: float = 10):
+    """Refresh local tags from upstream, so the latest nightly is visible.
+
+    Only the local tags are read afterwards, so this is a best-effort freshness
+    step: it is skipped when a fetch happened recently, and it gives up quietly
+    when offline or slow.
+    """
+    if upstream_fetched_recently(max_age_hours=6):
+        return
+
+    env = dict(os.environ, GIT_TERMINAL_PROMPT='0')
+    try:
+        subprocess.run(
+            ['git', 'fetch', '--quiet', 'upstream'],
+            cwd=root_dir,
+            env=env,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            timeout=timeout_seconds,
+        )
+    except (subprocess.TimeoutExpired, OSError):
+        pass
+
+
+def start_fetch_upstream_tags() -> threading.Thread:
+    # Runs while the user answers the prompts, so the wait is hidden.
+    thread = threading.Thread(target=fetch_upstream_tags, daemon=True)
+    thread.start()
+    return thread
+
+
 def prompt_to_create_compare_report(failing_test_results_list: list[ReplayTestResults]):
     if not cutie.prompt_yes_or_no(
         'Would you like to generate a compare report?', default_is_yes=True
     ):
         return
     print()
+
+    fetch_thread = start_fetch_upstream_tags()
 
     # TODO: support filtering the failing tests
     # runs = [r for r in test_results.runs[-1] if not r.success]
@@ -640,12 +692,9 @@ def prompt_to_create_compare_report(failing_test_results_list: list[ReplayTestRe
             tag = args.baseline_version
             print(f'using baseline version: {tag}\n')
         else:
-            # Get latest tags.
-            subprocess.run(
-                ['git', 'fetch', 'upstream'],
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL,
-            )
+            # Wait for the fetch started before the first prompt, so the tag
+            # lookups below see the latest nightly.
+            fetch_thread.join()
 
             most_recent_nightly = get_recent_release_tag(
                 ['--match', '*.*.*-nightly*', '--match', '*.*.*-prerelease*']
