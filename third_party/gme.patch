@@ -1,0 +1,104 @@
+Implements FDS (Famicom Disk System) bankswitching and the $8000-DFFF RAM
+area for NSF playback, so NSFs that use FDS expansion audio no longer play
+as silence.
+
+Taken from https://github.com/libgme/game-music-emu/pull/167 (which builds
+on https://github.com/libgme/game-music-emu/pull/134). Remove this patch
+once the pinned gme commit includes that change.
+
+diff --git a/gme/Nes_Fds_Apu.h b/gme/Nes_Fds_Apu.h
+index b12cf93b..ae0ae4f8 100644
+--- a/gme/Nes_Fds_Apu.h
++++ b/gme/Nes_Fds_Apu.h
+@@ -24,6 +24,9 @@ class Nes_Fds_Apu {
+ 	int read( blip_time_t time, unsigned addr );
+ 	void end_frame( blip_time_t );
+ 
++	// FDS has a RAM area at $8000-DFFF
++	enum { sram_addr = 0x8000 };
++	unsigned char sram [0x6000];
+ public:
+ 	Nes_Fds_Apu();
+ 	void write_( unsigned addr, int data );
+diff --git a/gme/Nsf_Emu.cpp b/gme/Nsf_Emu.cpp
+index 860cb503..8aae0d45 100644
+--- a/gme/Nsf_Emu.cpp
++++ b/gme/Nsf_Emu.cpp
+@@ -545,6 +545,17 @@ void Nsf_Emu::cpu_write_misc( nes_addr_t addr, int data )
+ 				return;
+ 			}
+ 		}
++
++		// FDS has RAM at $8000-DFFF; checked after the expansion chips
++		// so their registers in this range keep precedence
++		if ( fds )
++		{
++			if ( (unsigned) (addr - fds->sram_addr) < sizeof fds->sram )
++			{
++				fds->sram [addr - fds->sram_addr] = data;
++				return;
++			}
++		}
+ 	}
+ 	#endif
+ 
+@@ -575,6 +586,21 @@ blargg_err_t Nsf_Emu::start_track_( int track )
+ 
+ 	cpu::reset( unmapped_code ); // also maps low_mem
+ 	cpu::map_code( sram_addr, sizeof sram, sram );
++	#if !NSF_EMU_APU_ONLY
++	if (fds)
++	{
++		// On FDS $6000-DFFF is all RAM and the bank writes below copy
++		// into it, so zero and map it before selecting the banks
++		memset( fds->sram, 0, sizeof fds->sram );
++		cpu::map_code( fds->sram_addr, sizeof fds->sram, fds->sram );
++
++		// For FDS the initial load values at $076 and $077
++		// specify the banks used for $6000-7FFF as well as $E000-FFFF
++		cpu_write( bank_select_addr - 2, initial_banks [bank_count - 2] );
++		cpu_write( bank_select_addr - 1, initial_banks [bank_count - 1] );
++	}
++	#endif
++
+ 	for ( int i = 0; i < bank_count; ++i )
+ 		cpu_write( bank_select_addr + i, initial_banks [i] );
+ 
+diff --git a/gme/nes_cpu_io.h b/gme/nes_cpu_io.h
+index 6f8b08ff..da58fc43 100644
+--- a/gme/nes_cpu_io.h
++++ b/gme/nes_cpu_io.h
+@@ -9,6 +9,8 @@
+ 
+ #include "blargg_source.h"
+ 
++#include <cstring>
++
+ int Nsf_Emu::cpu_read( nes_addr_t addr )
+ {
+ 	int result, i;
+@@ -79,6 +81,24 @@ void Nsf_Emu::cpu_write( nes_addr_t addr, int data )
+ 		return;
+ 	}
+ 
++	#if !NSF_EMU_APU_ONLY
++	if ( fds && ( addr >= 0x5FF6 && addr <= 0x5FFD ) )
++	{
++		int32_t offset = rom.mask_addr( data * (int32_t) bank_size );
++		if ( offset >= rom.size() )
++			set_warning( "Invalid bank" );
++		unsigned bank = addr - 0x5FF6;
++		byte* out = sram;
++		if ( bank >= 2 )
++		{
++			out = fds->sram;
++			bank -= 2;
++		}
++		memcpy( &out [bank * bank_size], rom.at_addr( offset ), bank_size );
++		return;
++	}
++	#endif
++
+ 	unsigned bank = addr - bank_select_addr;
+ 	if ( bank < bank_count )
+ 	{
