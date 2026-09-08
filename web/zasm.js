@@ -96,6 +96,7 @@ function ensureEmFunctions() {
   emFunctions.writepodarr = rawEngineExport('em_writepodarr');
   emFunctions.classRead = rawEngineExport('em_class_read');
   emFunctions.classWrite = rawEngineExport('em_class_write');
+  emFunctions.stringCompare = rawEngineExport('em_string_compare');
 }
 
 async function compileOneModule(name, ptr, size) {
@@ -123,6 +124,7 @@ async function compileOneModule(name, ptr, size) {
         writepodarr: emFunctions.writepodarr,
         class_read: emFunctions.classRead,
         class_write: emFunctions.classWrite,
+        string_compare: emFunctions.stringCompare,
       },
     });
 

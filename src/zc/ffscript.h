@@ -902,6 +902,10 @@ int32_t jit_pod_read(int32_t arrayptr, int32_t index, int32_t pc, int32_t no_neg
 void jit_pod_write(int32_t arrayptr, int32_t index, int32_t value, int32_t type, int32_t pc, int32_t no_neg);
 int32_t jit_allocatemem(int32_t size, int32_t object_type, int32_t pc);
 void jit_writepodarr(int32_t id, int32_t pc);
+// STRCMPR/STRICMPR for the JITs: returns the (in)sensitive strcmp result of the two string
+// arrays. The consumers that follow compare it against 0, which is how check_cmp reads a
+// string comparison (negative/zero/positive -> CMP_LT/CMP_EQ/CMP_GT).
+int32_t jit_string_compare(int32_t arrayptr_a, int32_t arrayptr_b, int32_t insensitive, int32_t pc);
 
 bool is_guarded_script_register(int reg);
 void do_set(int reg, int value);

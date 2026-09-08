@@ -90,6 +90,7 @@ struct CompilationState
 	uint8_t f_idx_writepodarr;
 	uint8_t f_idx_class_read;
 	uint8_t f_idx_class_write;
+	uint8_t f_idx_string_compare;
 
 	uint8_t l_idx_j_instance;
 	uint8_t l_idx_ri;
@@ -627,6 +628,10 @@ static bool command_is_compiled(int command)
 	case COMPARER:
 	case COMPAREV:
 	case COMPAREV2:
+	// Comparison producers too (see command_is_compare_producer); a consumer
+	// following an interpreted STRCMPR would have no result to test.
+	case STRCMPR:
+	case STRICMPR:
 	case GOTO:
 	case GOTOTABLE:
 	case GOTORANGES:
@@ -776,6 +781,15 @@ constexpr uint8_t l_idx_scratch2 = 1;
 constexpr uint8_t l_idx_cmp1 = 1;
 constexpr uint8_t l_idx_cmp2 = 2;
 
+// The commands that produce a comparison result for the SETx/GOTOx consumers
+// that follow. STRCMPR/STRICMPR (string switch) belong here too: the
+// interpreter reads their result through the same check_cmp path.
+static bool command_is_compare_producer(int command)
+{
+	return command == COMPARER || command == COMPAREV || command == COMPAREV2 ||
+		   command == STRCMPR || command == STRICMPR;
+}
+
 static bool command_is_goto_consumer(int command)
 {
 	return command == GOTOCMP || command == GOTOTRUE || command == GOTOFALSE ||
@@ -792,6 +806,9 @@ struct CmpGroup
 	pc_t cmp_pc;
 	bool arg1_is_imm;
 	bool arg2_is_imm;
+	// A STRCMPR/STRICMPR producer: the operands are the engine's strcmp result
+	// (captured once into l_idx_cmp1) and 0, which is how check_cmp reads it.
+	bool is_strcmp;
 	// With more than one real consumer, snapshot the operand values into the
 	// reserved locals up-front, so a SETx consumer overwriting an operand
 	// register can't corrupt a later one.
@@ -805,8 +822,9 @@ static CmpGroup analyze_comparison(const zasm_script* script, pc_t i)
 	g.cmp_pc = i;
 
 	int command = script->zasm[i].command;
+	g.is_strcmp = command == STRCMPR || command == STRICMPR;
 	g.arg1_is_imm = false;
-	g.arg2_is_imm = command != COMPARER;
+	g.arg2_is_imm = command == COMPAREV || command == COMPAREV2;
 	if (command == COMPAREV2)
 		std::swap(g.arg1_is_imm, g.arg2_is_imm);
 
@@ -823,7 +841,7 @@ static CmpGroup analyze_comparison(const zasm_script* script, pc_t i)
 	for (pc_t j : g.consumers)
 		if (script->zasm[j].command != NOP)
 			real_consumers++;
-	g.capture = real_consumers > 1;
+	g.capture = g.is_strcmp || real_consumers > 1;
 
 	return g;
 }
@@ -836,6 +854,18 @@ static void emit_cmp_capture(CompilationState& state, const zasm_script* script,
 	WasmAssembler& wasm = *state.wasm;
 	int arg1 = script->zasm[g.cmp_pc].arg1;
 	int arg2 = script->zasm[g.cmp_pc].arg2;
+	if (g.is_strcmp)
+	{
+		// The snapshot is the comparison result itself: the engine compares the
+		// two string arrays once, and every consumer tests it against 0.
+		get_z_register(state, arg1);
+		get_z_register(state, arg2);
+		wasm.emitI32Const(script->zasm[g.cmp_pc].command == STRICMPR ? 1 : 0);
+		wasm.emitI32Const(g.cmp_pc);
+		wasm.emitCall(state.f_idx_string_compare);
+		wasm.emitLocalSet(l_idx_cmp1);
+		return;
+	}
 	if (!g.arg1_is_imm) { get_z_register(state, arg1); wasm.emitLocalSet(l_idx_cmp1); }
 	if (!g.arg2_is_imm) { get_z_register(state, arg2); wasm.emitLocalSet(l_idx_cmp2); }
 }
@@ -844,6 +874,14 @@ static void emit_cmp_capture(CompilationState& state, const zasm_script* script,
 static void emit_cmp_operands(CompilationState& state, const zasm_script* script, const CmpGroup& g, bool cmp_bool)
 {
 	WasmAssembler& wasm = *state.wasm;
+	if (g.is_strcmp)
+	{
+		// check_cmp reads a string comparison as its result against 0 (a
+		// bool-cast string comparison is never emitted).
+		wasm.emitLocalGet(l_idx_cmp1);
+		wasm.emitI32Const(0);
+		return;
+	}
 	auto push_operand = [&](int arg, bool is_imm, uint8_t local){
 		if (is_imm)
 		{
@@ -2077,7 +2115,7 @@ struct StructuredFnSink : StructSink
 				wasm.emitCall(state->f_idx_runtime_debug);
 			}
 
-			if (command == COMPARER || command == COMPAREV || command == COMPAREV2)
+			if (command_is_compare_producer(command))
 			{
 				// Emit the operand snapshot (if any); the consumers emit as
 				// they are reached - SETx below, a GOTOx terminator in
@@ -2323,7 +2361,7 @@ static bool collect_cmp_groups(const zasm_script* script, pc_t start_pc, pc_t fi
 	for (pc_t i = start_pc; i <= final_pc; i++)
 	{
 		int command = script->zasm[i].command;
-		if (command != COMPARER && command != COMPAREV && command != COMPAREV2)
+		if (!command_is_compare_producer(command))
 			continue;
 
 		CmpGroup g = analyze_comparison(script, i);
@@ -2811,7 +2849,7 @@ static std::vector<YielderRegionPlan> detect_yielder_regions(const zasm_script* 
 				if (it == structured_zasm.start_pc_to_function.end() || structured_zasm.functions[it->second].may_yield)
 					ok = false;
 			}
-			else if (command == COMPARER || command == COMPAREV || command == COMPAREV2)
+			else if (command_is_compare_producer(command))
 			{
 				CmpGroup g = analyze_comparison(script, i);
 				if (!g.consumers.empty())
@@ -2861,7 +2899,7 @@ static std::vector<YielderRegionPlan> detect_yielder_regions(const zasm_script* 
 				continue;
 			}
 			int command = script->zasm[i].command;
-			if (command != COMPARER && command != COMPAREV && command != COMPAREV2)
+			if (!command_is_compare_producer(command))
 				continue;
 			CmpGroup g = analyze_comparison(script, i);
 			if (g.consumers.empty())
@@ -3085,7 +3123,7 @@ static WasmAssembler compile_function(CompilationState& state, const zasm_script
 				wasm.emitCall(state.f_idx_runtime_debug);
 			}
 
-			if (command == COMPARER || command == COMPAREV || command == COMPAREV2)
+			if (command_is_compare_producer(command))
 			{
 				i = compile_comparison(state, script, cfg, num_frames, current_rank, current_block_index, i);
 				continue;
@@ -3459,6 +3497,7 @@ static bool wasm_codegen(zasm_script* script, WasmCodegenResult& out)
 	state.f_idx_writepodarr = comp.builder.importFunction("writepodarr", 2, 0);
 	state.f_idx_class_read = comp.builder.importFunction("class_read", 3, 1);
 	state.f_idx_class_write = comp.builder.importFunction("class_write", 4, 0);
+	state.f_idx_string_compare = comp.builder.importFunction("string_compare", 4, 1);
 
 	// params
 	state.l_idx_j_instance = 0;
@@ -4028,6 +4067,11 @@ extern "C" int em_class_read(int id, int index, int pc)
 extern "C" void em_class_write(int id, int index, int value, int pc)
 {
 	jit_class_write(id, index, value, pc);
+}
+
+extern "C" int em_string_compare(int arrayptr_a, int arrayptr_b, int insensitive, int pc)
+{
+	return jit_string_compare(arrayptr_a, arrayptr_b, insensitive, pc);
 }
 
 #endif

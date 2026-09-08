@@ -2088,6 +2088,28 @@ static void compile_single_command(CompilationState& state, x86::Compiler& cc, c
 			set_z_register(state, cc, arg1, dividend.r32());
 		}
 		break;
+		case STRCMPR:
+		case STRICMPR:
+		{
+			// A string comparison is a comparison producer like COMPARER: the
+			// consumers that follow branch on the flags. The helper returns the
+			// strcmp result, and comparing it against 0 yields exactly the flags
+			// check_cmp derives from a string comparison. (loop_extras drained
+			// the stack cache, so nothing between here and the consumers emits a
+			// flag-clobbering bounds check.)
+			x86::Gp a = get_z_register(state, cc, arg1);
+			x86::Gp b = get_z_register(state, cc, arg2);
+			x86::Gp result = cc.newInt32();
+			InvokeNode* node;
+			cc.invoke(&node, jit_string_compare, FuncSignature::build<int32_t, int32_t, int32_t, int32_t, int32_t>(state.calling_convention));
+			node->setArg(0, a);
+			node->setArg(1, b);
+			node->setArg(2, command == STRICMPR ? 1 : 0);
+			node->setArg(3, state.pc);
+			node->setRet(0, result);
+			cc.cmp(result, 0);
+		}
+		break;
 		case COMPAREV:
 		{
 			int val = arg2;
@@ -2194,7 +2216,7 @@ struct LoopOps
 	}
 	void loop_extras(int command)
 	{
-		if (command == COMPAREV || command == COMPARER || command == COMPAREV2)
+		if (command == COMPAREV || command == COMPARER || command == COMPAREV2 || command == STRCMPR || command == STRICMPR)
 		{
 			// Compare commands emit a cmp, but so does the stack check. So flush the stack here so
 			// that it doesn't need to be done in the cache flush policy above, which would interrupt

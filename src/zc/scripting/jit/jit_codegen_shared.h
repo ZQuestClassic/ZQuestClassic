@@ -593,6 +593,12 @@ inline bool jit_command_is_compiled_shared(int command)
 	case COMPARER:
 	case COMPAREV:
 	case COMPAREV2:
+	// String comparisons (string switch) produce a comparison result just like
+	// COMPARER does, and their consumers are compiled - so they must be too: an
+	// interpreted STRCMPR leaves the host flags (and the JIT-held SWITCHKEY)
+	// unrelated to the result the following GOTOCMP branches on.
+	case STRCMPR:
+	case STRICMPR:
 	case GOTO:
 	case QUIT:
 	case CALLFUNC:

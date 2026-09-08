@@ -9270,6 +9270,17 @@ int32_t jit_allocatemem(int32_t size, int32_t object_type, int32_t pc)
 	ri->pc = pc;
 	return allocatemem(size, true, curScriptType, curScriptIndex, (script_object_type)object_type);
 }
+int32_t jit_string_compare(int32_t arrayptr_a, int32_t arrayptr_b, int32_t insensitive, int32_t pc)
+{
+	ri->pc = pc;
+	string strA;
+	string strB;
+	ArrayH::getString(arrayptr_a, strA);
+	ArrayH::getString(arrayptr_b, strB);
+	int32_t result = insensitive ? stricmp(strA.c_str(), strB.c_str()) : strcmp(strA.c_str(), strB.c_str());
+	ri->cmp_strcache = result;
+	return result;
+}
 void jit_writepodarr(int32_t id, int32_t pc)
 {
 	ri->pc = pc;
