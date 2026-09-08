@@ -32,9 +32,13 @@ The following types are objects that are tracked by the garbage collector:
 	- :ref:`paldata<classes_paldata>`
 	- :ref:`randgen<classes_randgen>`
 	- :ref:`stack<classes_stack>`
+	- :ref:`weapondata<classes_weapondata>`
 	- :ref:`websocket<classes_websocket>`
 
-Note: there are other object types, but they are never explicitly created or deleted by scripts.
+Note: a `weapondata` obtained from engine data (such as :ref:`npc->WeaponData<classes_npc_var_weapondata>`)
+is a handle to data the engine owns. The handle is managed like any other object, but the
+underlying data lives on regardless. Only a `weapondata` created with ``new weapondata()``
+is freed by the garbage collector.
 
 How it works
 ------------
@@ -51,14 +55,16 @@ The ZScript garbage collector has two ways for knowing when to delete objects:
 
 Variables only retain a reference to an object if the variable is typed as an object.
 Storing an object pointer in an `int` or `untyped` variable does *not* count as a
-reference, so the object may be deleted while that variable still points at it:
+reference, so the object may be deleted while that variable still points at it. This applies to
+global variables too: a global `untyped` variable neither keeps its object alive nor persists it
+to the save file.
 
 .. zscript::
 	:style: body
 
-	bitmap b = Game->CreateBitmap(64, 64); // 'b' retains a reference
-	untyped u = Game->CreateBitmap(64, 64); // no reference! may be deleted at the next Waitframe
-	int i = <int>(Game->CreateBitmap(64, 64)); // no reference either
+	bitmap b = new bitmap(64, 64); // 'b' retains a reference
+	untyped u = new bitmap(64, 64); // no reference! may be deleted the next time the script yields or ends
+	int i = <int>(new bitmap(64, 64)); // no reference either
 
 Containers are different. When a value is stored into an `untyped[]` array or a
 `stack<untyped>`, the compiler records whether that value is an object, so these
@@ -68,13 +74,13 @@ containers *do* retain the objects put into them. An `int[]` array never does:
 	:style: body
 
 	untyped arr[2];
-	arr[0] = Game->CreateBitmap(64, 64); // retained by the array
+	arr[0] = new bitmap(64, 64); // retained by the array
 
 	stack<untyped> st = new stack<untyped>();
-	st->PushBack(Game->CreateBitmap(64, 64)); // retained by the stack
+	st->PushBack(new bitmap(64, 64)); // retained by the stack
 
 	int nums[2];
-	nums[0] = <int>(Game->CreateBitmap(64, 64)); // NOT retained - 'int[]' never holds objects
+	nums[0] = <int>(new bitmap(64, 64)); // NOT retained - 'int[]' never holds objects
 
 If you must store an object in a plain `int` or `untyped` variable, call |OwnObject| (for custom
 objects) or ``->Own`` (for builtin objects like bitmap) on it so its reference count is always
@@ -84,7 +90,7 @@ globalize it via |GlobalObject|.
 .. zscript::
 	:style: body
 
-	bitmap b = Game->CreateBitmap(64, 64);
+	bitmap b = new bitmap(64, 64);
 	b->Own(); // the running script now holds a reference
 	untyped u = b; // safe: the object outlives this variable
 
@@ -98,6 +104,7 @@ globalize it via |GlobalObject|.
 	- :ref:`custom class<classes>` instances: |OwnObject|
 	- builtin objects (`bitmap`, `directory`, `file`, `paldata`, `randgen`, `stack`, `websocket`): `obj->Own()`
 	- :ref:`arrays and strings<arrays>`: |OwnArray|
+	- `weapondata`: cannot be owned; keep it in an object-typed variable or container instead
 
 	Likewise, only custom class objects can be globalized. To keep any other object alive
 	indefinitely, store it in a global variable (or inside a global object).
@@ -117,9 +124,9 @@ reference is removed (as local variable going out of scope, or being overwritten
 
 New objects have an implicit reference added to an "autorelease pool" (a construct borrowed
 from Objective-C). This reference is removed the next time the script yields (such as by
-calling Waitframe), or the first time it is stored somewhere (such as being assigned to an object
-variable, or being inserted into array). If the object has not been stored somewhere by then, or
-made global, it is deleted when the script yields.
+calling Waitframe), the first time it is stored somewhere (such as being assigned to an object
+variable, or being inserted into an array), or when it is owned. If the object has not been
+stored somewhere, owned, or made global by then, it is deleted when the script yields.
 
 For objects with cyclical references (or self-references), their deletion is deferred until
 a full garbage collection run. When an object is found to be unreachable by
@@ -129,7 +136,9 @@ exactly it runs is subject to change.
 
 For a custom class object, script ownership can be revoked by calling |GlobalObject|. You can
 delete a global object by making it no longer global (call |OwnObject| on it) - once all other
-references are unassigned, the garbage collector will eventually delete it.
+references are unassigned, the garbage collector will eventually delete it. Note that
+|OwnObject| also makes the calling script the owner of the object, so it stays alive at least
+until that script ends.
 
 When a script terminates, objects it owns will lose a reference count, calling their
 destructors immediately if their reference count is now zero.
@@ -142,12 +151,9 @@ int arrays do not retain objects, but untyped arrays do).
 	Prior to this version, only globalized objects persist to the save file.
 
 .. caution::
-	References to internal arrays (such as :ref:`Screen->D[]<globals_screen_var_d>`) never persist to save files.
-
-	Additionally, only custom user objects, arrays, and stacks persist to save files - no other builtin
-	types do (like bitmaps).
-
-	Instead, they are restored as null when a save file is reloaded.
+	Only custom class objects, arrays, and stacks persist to save files. References to any
+	other object (such as a bitmap or file), and to internal arrays like
+	:ref:`Screen->D[]<globals_screen_var_d>`, are restored as null when the save is loaded.
 
 .. caution::
 	You should not expect destructors to run at any specific time, or even at all. You should only
