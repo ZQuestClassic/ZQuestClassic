@@ -984,25 +984,17 @@ static a64::Gp compile_modv(CompilationState& state, a64::Compiler& cc, a64::Gp 
 		return imm_to_reg(cc, 0);
 	}
 
-	if (arg2 > 0 && (arg2 & (-arg2)) == arg2)
-	{
-		// Power of 2. Same masking behavior as the x64 backend (which differs
-		// from C % for negative dividends; kept for parity - fixed-point
-		// values mean this is essentially never hit).
-		cc.and_(arg1, arg1, arg2 - 1);
-		return arg1;
-	}
-	else
-	{
-		// rem = arg1 - (arg1 / divisor) * divisor. sdiv rounds toward zero,
-		// so this matches C (and x86 idiv) remainder semantics.
-		a64::Gp divisor = imm_to_reg(cc, arg2);
-		a64::Gp quot = cc.newInt32();
-		a64::Gp rem = cc.newInt32();
-		cc.sdiv(quot, arg1, divisor);
-		cc.msub(rem, quot, divisor, arg1);
-		return rem;
-	}
+	// No power-of-two mask shortcut: `x & (2^k - 1)` only equals C's `%` for a
+	// non-negative x, and a negative dividend is easy to reach (`long` values,
+	// or a divisor like 6.5536 whose raw value is 65536).
+	// rem = arg1 - (arg1 / divisor) * divisor. sdiv rounds toward zero, so
+	// this matches C (and x86 idiv) remainder semantics.
+	a64::Gp divisor = imm_to_reg(cc, arg2);
+	a64::Gp quot = cc.newInt32();
+	a64::Gp rem = cc.newInt32();
+	cc.sdiv(quot, arg1, divisor);
+	cc.msub(rem, quot, divisor, arg1);
+	return rem;
 }
 
 // Computes (base + value) / 10000 into a fresh register for a stack offset.

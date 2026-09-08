@@ -996,25 +996,16 @@ static x86::Gp compile_modv(CompilationState& state, x86::Compiler& cc, x86::Gp 
 		return val;
 	}
 
-	// https://stackoverflow.com/a/8022107/2788187
-	if (arg2 > 0 && (arg2 & (-arg2)) == arg2)
-	{
-		// Power of 2.
-		// Because numbers in zscript are fixed point, "2" is really "20000"... so this won't
-		// ever really be utilized.
-		cc.and_(arg1, arg2 - 1);
-		return arg1;
-	}
-	else
-	{
-		x86::Gp divisor = cc.newInt32();
-		cc.mov(divisor, arg2);
-		x86::Gp rem = cc.newInt32();
-		zero(cc, rem);
-		cc.cdq(rem, arg1);
-		cc.idiv(rem, arg1, divisor);
-		return rem;
-	}
+	// No power-of-two mask shortcut: `x & (2^k - 1)` only equals C's `%` for a
+	// non-negative x, and a negative dividend is easy to reach (`long` values,
+	// or a divisor like 6.5536 whose raw value is 65536).
+	x86::Gp divisor = cc.newInt32();
+	cc.mov(divisor, arg2);
+	x86::Gp rem = cc.newInt32();
+	zero(cc, rem);
+	cc.cdq(rem, arg1);
+	cc.idiv(rem, arg1, divisor);
+	return rem;
 }
 
 // Every command here must be reflected in command_is_compiled!

@@ -16,6 +16,7 @@
 #include "auto/bug_empty_constructor.zs"
 #include "auto/bug_generic_script_scrolling_action.zs"
 #include "auto/bug_jit_class_arrays.zs"
+#include "auto/bug_jit_mod_pow2_negative.zs"
 #include "auto/bug_jit_range_loop.zs"
 #include "auto/bug_jit_stack_overflow.zs"
 #include "auto/bug_jit_string_switch.zs"
