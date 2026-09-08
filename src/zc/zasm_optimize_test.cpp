@@ -356,7 +356,23 @@ TestResults test_zasm_optimize([[maybe_unused]] bool verbose)
 
 		// Comparing w/o CMP_SETI on expressions w/ CMP_SETI removes CMP_SETI.
 		EXPECT(name, expr(reg(2), CMP_EQ, reg(3)),
+			evaluate_binary_op(CMP_NE, expr(reg(2), CMP_EQ|CMP_SETI, reg(3)), num_zero));
+		// ... and the reverse adds it.
+		EXPECT(name, expr(reg(2), CMP_EQ|CMP_SETI, reg(3)),
+			evaluate_binary_op(CMP_NE|CMP_SETI, expr(reg(2), CMP_EQ, reg(3)), num_zero));
+
+		// An expression w/ CMP_SETI is 0 or 10000, never 1: (x i== y) == 0.0001 -> false.
+		EXPECT(name, num_zero,
 			evaluate_binary_op(CMP_EQ, expr(reg(2), CMP_EQ|CMP_SETI, reg(3)), num_one));
+		// (x i< y) == true, as the compiler emits it (bool-cast compare against 10000) -> x < y
+		EXPECT(name, expr(reg(2), CMP_LT, reg(3)),
+			evaluate_binary_op(CMP_EQ|CMP_BOOL, expr(reg(2), CMP_LT|CMP_SETI, reg(3)), num(10000)));
+		// (x i< y) != 2 -> always true (the expression is 0 or 10000).
+		EXPECT(name, num_one,
+			evaluate_binary_op(CMP_NE, expr(reg(2), CMP_LT|CMP_SETI, reg(3)), num(20000)));
+		// (x i!= 0) == 1 -> x != 0, keeping the value form of the outer comparison.
+		EXPECT(name, expr(reg(2), CMP_NE, num_zero),
+			evaluate_binary_op(CMP_EQ, evaluate_binary_op(CMP_NE|CMP_SETI, reg(2), num_zero), num(10000)));
 
 		// Weird stuff.
 		// 0 <= (10 < D(2)) -> true
@@ -365,8 +381,8 @@ TestResults test_zasm_optimize([[maybe_unused]] bool verbose)
 		// 0 > (10 < D(2)) -> false
 		EXPECT(name, num_zero,
 			evaluate_binary_op(CMP_GT, num(0), expr(num(10), CMP_LT, reg(2))));
-		// 0 >= (10 < D(2)) -> 10 < D(2)
-		EXPECT(name, expr(num(10), CMP_LT, reg(2)),
+		// 0 >= (10 < D(2)) -> 10 >= D(2)
+		EXPECT(name, expr(num(10), CMP_GE, reg(2)),
 			evaluate_binary_op(CMP_GE, num(0), expr(num(10), CMP_LT, reg(2))));
 		// 0 < (10 < D(2)) -> 10 < D(2)
 		EXPECT(name, expr(num(10), CMP_LT, reg(2)),

@@ -792,45 +792,45 @@ SimulationValue evaluate_binary_op(int cmp, SimulationValue a, SimulationValue b
 		flags = cmp & CMP_FLAGS;
 	}
 
-	int true_as_int = (a.data & CMP_SETI) ? 10000 : 1;
-	if (!seti)
-	{
-		if (a.type == ValueType::Expression) a.data = a.data & ~CMP_SETI;
-		if (b.type == ValueType::Expression) b.data = b.data & ~CMP_SETI;
-	}
+	// The consumer re-materializes the comparison from the returned expression's
+	// flags, so a returned expression must carry the consumer's SETI (its value
+	// form), not the form of whatever comparison it was derived from.
+	auto with_seti = [&](SimulationValue v) {
+		if (v.type == ValueType::Expression)
+			v.data = seti ? (v.data | CMP_SETI) : (v.data & ~CMP_SETI);
+		return v;
+	};
 
-	if (flags == CMP_EQ && a.type == ValueType::Expression && b == num_one)
-		return a;
-	if (flags == CMP_EQ && a.type == ValueType::Expression && b == num_zero)
+	if (a.type == ValueType::Expression && b.is_number())
 	{
-		if (!seti)
-			a.data = a.data & ~CMP_SETI;
-		auto result = a.negate();
-		if (seti)
-			result.data |= CMP_SETI;
-		return result;
-	}
-
-	if (flags == CMP_EQ && ((a.is_number() && a.data == 0) || (b.is_number() && b.data == 0)))
-	{
-		const auto& not_int = a.is_number() ? b : a;
-		if (not_int.type == ValueType::Expression)
-			return not_int.negate();
-	}
-
-	if (flags == CMP_NE && ((a.is_number() && a.data) || (b.is_number() && b.data)))
-	{
-		const auto& not_int = a.is_number() ? b : a;
-		if (not_int.type == ValueType::Expression)
-			return not_int.negate();
-	}
-
-	if (flags == CMP_NE && ((a.is_number() && a.data == 0) || (b.is_number() && b.data == 0)))
-	{
-		const auto& not_int = a.is_number() ? b : a;
-		if (not_int.type == ValueType::Expression)
-			return not_int;
-		return expr(not_int, CMP_NE, num(0));
+		// An expression takes exactly two values at runtime: 0, or its "true" value
+		// (10000 or 1 depending on its own SETI). Evaluate the comparison against
+		// the number for both, exactly as check_cmp would, and fold to a constant,
+		// the expression, or its negation. Doing this exhaustively (rather than by
+		// pattern) is what keeps e.g. `(x < y) == true` (a bool-cast compare against
+		// 10000), `<int>(x < y) != 2` (never false) and `<int>(x != 0) == 1` right.
+		int a_true = (a.data & CMP_SETI) ? 10000 : 1;
+		auto holds = [&](int v) {
+			if (boolcast)
+			{
+				// check_cmp only defines == and != for bool-cast comparisons.
+				bool lhs = v != 0;
+				bool rhs = b.data != 0;
+				if (flags == CMP_EQ) return lhs == rhs;
+				if (flags == CMP_NE) return lhs != rhs;
+				return false;
+			}
+			bool r = false;
+			if (flags & CMP_EQ) r |= v == b.data;
+			if (flags & CMP_LT) r |= v < b.data;
+			if (flags & CMP_GT) r |= v > b.data;
+			return r;
+		};
+		bool when_false = holds(0);
+		bool when_true = holds(a_true);
+		if (when_false == when_true)
+			return num(when_true ? (seti ? 10000 : 1) : 0);
+		return with_seti(when_true ? a : a.negate());
 	}
 
 	if (a.type == ValueType::Register && b.is_number())
@@ -863,41 +863,6 @@ SimulationValue evaluate_binary_op(int cmp, SimulationValue a, SimulationValue b
 		result.op1 = std::make_shared<SimulationValue>(a);
 		result.op2 = std::make_shared<SimulationValue>(b);
 		return result;
-	}
-
-	if (a.type == ValueType::Expression && b.is_number())
-	{
-		int b_val = boolcast ? (b.data ? 1 : 0) : b.data;
-
-		// Check the integer value of the expression against b.
-		bool could_gt = true_as_int > b_val || 0 > b_val;
-		bool could_lt = true_as_int < b_val || 0 < b_val;
-		bool could_eq = true_as_int == b_val || 0 == b_val;
-
-		if (flags == CMP_EQ && !could_eq)
-			return num_zero;
-		if (flags == CMP_GT && !could_gt)
-			return num_zero;
-		if (flags == CMP_LT && !could_lt)
-			return num_zero;
-
-		bool must_gt = 0 > b_val;
-		bool must_lt = true_as_int < b_val;
-
-		if ((flags & CMP_GT) && must_gt)
-			return num_one;
-		if ((flags & CMP_LT) && must_lt)
-			return num_one;
-
-		bool must_ge = 0 >= b_val;
-		bool must_le = true_as_int <= b_val;
-
-		if (flags == CMP_GE && must_ge)
-			return num_one;
-		if (flags == CMP_LE && must_le)
-			return num_one;
-
-		return a;
 	}
 
 	return {ValueType::Unknown};
@@ -1802,22 +1767,56 @@ static bool optimize_reduce_comparisons(OptContext& ctx)
 
 			if (successor_uses_d2)
 			{
-				if (state.d[2].is_expression())
+				// The comparison result written to D2 must survive for the successors.
+				// It is re-materialized from D2's own expression with a SETCMP. That
+				// SETCMP overwrites D2, which the compare feeding it may read, so it
+				// must come right after that compare - which means it can only share
+				// the branch's compare when both compile to the very same instructions.
+				// When the branch folded to a constant, D2's compare is emitted on its
+				// own ahead of the (unconditional or absent) jump.
+				if (!state.d[2].is_expression())
 				{
-					// TODO: wasm jit backend currently can only handle pairs of a COMPARE with a single SETX/GOTOX.
-					if (is_web())
-						break;
+					// Folded to a constant (or otherwise not re-materializable) but
+					// live-out: reducing would leave the successors a stale D2.
+					break;
+				}
 
-					expression_zasm.insert(expression_zasm.end() - 1, ffscript{SETCMP, D(2), state.d[2].data});
+				// TODO: wasm jit backend currently can only handle pairs of a COMPARE with a single SETX/GOTOX.
+				if (is_web())
+					break;
+
+				std::vector<ffscript> d2_zasm;
+				SimulationValue d2_expr = state.d[2];
+				if (!compile_conditional(d2_expr, d2_zasm))
+					break;
+				ffscript d2_set{SETCMP, D(2), d2_expr.data};
+
+				bool branch_is_constant = expression_zasm.empty() || expression_zasm.back().command == GOTO;
+				if (branch_is_constant)
+				{
+					d2_zasm.push_back(d2_set);
+					expression_zasm.insert(expression_zasm.begin(), d2_zasm.begin(), d2_zasm.end());
 				}
 				else
 				{
-					// The comparison result written to D2 folded to a constant (or is
-					// otherwise not a re-materializable expression), but D2 is live-out.
-					// Reducing the block here would drop the D2 write and leave a stale
-					// value for successor blocks, so bail on this reduction.
-					break;
+					auto same = [](const ffscript& a, const ffscript& b) {
+						return a.command == b.command && a.arg1 == b.arg1 && a.arg2 == b.arg2 && a.arg3 == b.arg3;
+					};
+					bool same_compare = d2_zasm.size() + 1 == expression_zasm.size();
+					for (size_t i = 0; same_compare && i < d2_zasm.size(); i++)
+						same_compare = same(d2_zasm[i], expression_zasm[i]);
+					if (!same_compare)
+						break;
+
+					expression_zasm.insert(expression_zasm.end() - 1, d2_set);
 				}
+			}
+
+			if (expression_zasm.size() > final_pc - j + 1)
+			{
+				// Should never happen.
+				ASSERT(false);
+				break;
 			}
 
 			std::copy(expression_zasm.begin(), expression_zasm.end(), &C(j));

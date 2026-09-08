@@ -68,11 +68,11 @@ rewrite 0: 6 -> 2 commands
 11: COMPAREV        D2               1      
 	D2 = Bool(D2)
 12: SETMOREI        D2              
-	D2 = Bool(D2)
+	D2 = IBool(D2)
 13: COMPAREV        D2               0      
-	D2 = Bool(D2)
+	D2 = IBool(D2)
 14: GOTOCMP         16               ==     
-	D2 = Bool(D2)
+	D2 = IBool(D2)
 rewrite 10: 5 -> 2 commands
 10: COMPAREV        D2               0      
 11: GOTOCMP         16               ==     

@@ -65,11 +65,11 @@ rewrite 0: 4 -> 2 commands
 15: COMPAREV        D2               1      
 	D2 = D3 < D2
 16: SETMOREI        D2              
-	D2 = D3 < D2
+	D2 = D3 I< D2
 17: COMPAREV        D2               0      
-	D2 = D3 < D2
+	D2 = D3 I< D2
 18: GOTOCMP         20               ==     
-	D2 = D3 < D2
+	D2 = D3 I< D2
 rewrite 10: 9 -> 2 commands
 10: COMPARER        D3               D2     
 11: GOTOCMP         20               >=     

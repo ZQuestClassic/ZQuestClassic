@@ -69,11 +69,11 @@ rewrite 7: 4 -> 2 commands
 21: COMPAREV        D2               1      
 	D2 = D2 == D3
 22: SETMOREI        D2              
-	D2 = D2 == D3
+	D2 = D2 I== D3
 23: COMPAREV        D2               1      
-	D2 = D2 == D3
+	D2 = D2 I== D3
 24: GOTOMORE        27              
-	D2 = D2 == D3
+	D2 = D2 I== D3
 rewrite 18: 7 -> 2 commands
 18: COMPARER        D2               D3     
 19: GOTOCMP         27               ==     

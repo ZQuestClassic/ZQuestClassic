@@ -1,0 +1,503 @@
+stderr:
+
+Compiling 'bug_opt_bool_compare_folding.zs'
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+Pass 4: Analyzing Code
+Pass 5: Checking code paths
+Pass 6: Generating object code
+Pass 7: Assembling
+Success!
+Compile finished with exit code '0' (success)
+
+stdout:
+
+{
+  "success": true,
+  "diagnostics": [],
+  "metadata": {
+    "currentFileSymbols": 13,
+    "symbols": 21,
+    "identifiers": 94,
+    "elided": true
+  }
+}
+
+zasm:
+
+QUIT; void run() Body
+PUSHARGSV 0 0.0003; void run() Body Start
+SETR D4 SP2
+ALLOCATEMEMV D2 100 0
+STORE_OBJECT D2 0.0002
+LOAD D2 0.0002; InlineFunc[void Game::GetSaveName(char32[])] Params
+GETSAVENAME D2; InlineFunc[void Game::GetSaveName(char32[])] Body
+ALLOCATEMEMV D2 19 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
+WRITEPODSTRING D2 "[Test] Running %s\n"
+PUSHR D2
+LOAD D2 0.0002
+PUSHVARGR D2
+MARK_TYPE_VARG 0.0009; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
+LOAD D2 0.0002; InlineFunc[int Game::GetGenericScript(char32[])] Params
+GETGENERICSCRIPT D2; InlineFunc[int Game::GetGenericScript(char32[])] Body
+STORE D2 0.0001
+LOAD D2 0.0001; if() #9 Test
+COMPAREV D2 -1
+SETCMP D2 I==
+COMPAREV D2 0
+GOTOCMP 30 ==; Test 'if'
+ALLOCATEMEMV D2 53 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start AND if() #9 Body Start
+WRITEPODSTRING D2 "[Test] failed to start - could not find test script\n"
+PUSHR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
+GAMEEXIT; InlineFunc[void Game::Exit()] Body AND if() #9 Body End
+NOP
+LOAD D2 0.0001; InlineFunc[genericdata Game::LoadGenericData(int)] Params
+LOADGENERICDATA D2; InlineFunc[genericdata Game::LoadGenericData(int)] Body Start
+SETR D2 REFGENERICDATA; InlineFunc[genericdata Game::LoadGenericData(int)] Body End
+STORE D2 0
+SETV D2 1
+PUSHR D2
+LOAD D2 0
+POP D3
+PUSHR D2
+PUSHR D3
+POP D2
+CASTBOOLI D2
+POP REFGENERICDATA
+SETR GENDATARUNNING D2
+LOAD D2 0; while() #1 Test
+PUSHR D2
+POP REFGENERICDATA
+SETR D2 GENDATARUNNING
+COMPAREV D2 0
+GOTOCMP 53 ==; Test 'while'
+WAITFRAME; InlineFunc[void Waitframe()] Body AND while() #1 Body
+GOTO 45; while() #1 End
+CALLFUNC 0.0242; UsrFunc[void End()] Call AND [Opt:NeverRet]
+REF_REMOVE 0.0002; [Opt:NeverRet] AND void run() Body End
+PUSHARGSV 0 0.0009; void run() Body Start
+SETR D4 SP2
+PUSHR D4
+PUSHV 0; UsrFunc[void Init(int)] Params
+CALLFUNC 0.0220; UsrFunc[void Init(int)] Call
+POP D4
+ALLOCATEMEMV D2 4 0
+PUSHR D2
+WRITEPODARRAY D2 {-3,0,2,5}
+POP D2
+STORE_OBJECT D2 0.0008
+ALLOCATEMEMV D2 4 0
+PUSHR D2
+WRITEPODARRAY D2 {1961,1481,1961,1582}
+POP D2
+STORE_OBJECT D2 0.0007
+STOREV 0 0.0006; for() #5 setup
+LOAD D2 0.0006; for() #5 LoopTest
+COMPAREV D2 4
+SETCMP D2 I<
+COMPAREV D2 0
+GOTOCMP 216 ==; for() #5 TestFail?
+LOAD D2 0.0008; for() #5 Body Start
+PUSHR D2
+LOAD D2 0.0006
+POP D0
+READPODARRAYR D2 D2
+STORE D2 0.0005
+LOAD D2 0.0008
+PUSHR D2
+LOAD D2 0.0006
+ADDV D2 1
+MODV D2 4
+POP D0
+READPODARRAYR D2 D2
+STORE D2 0.0004
+PUSHARGSR D4 0.0002; UsrFunc[void AssertEqual(int, int)] Params Start
+LOAD D2 0.0005; UsrFunc[int classify(int, int)] Params Start
+PUSHR D2
+LOAD D2 0.0004
+PUSHR D2; UsrFunc[int classify(int, int)] Params End
+CALLFUNC 0.0319; UsrFunc[int classify(int, int)] Call
+POP D4
+PUSHR D2
+LOAD D2 0.0007
+PUSHR D2
+LOAD D2 0.0006
+POP D0
+READPODARRAYR D2 D2
+PUSHR D2; UsrFunc[void AssertEqual(int, int)] Params End
+CALLFUNC 0.0249; UsrFunc[void AssertEqual(int, int)] Call
+POP D4
+LOAD D2 0.0005
+PUSHR D2
+LOAD D2 0.0004
+POP D3
+COMPARER D3 D2
+SETCMP D2 I<
+COMPAREV D2 1
+SETCMP D2 BI==
+COMPAREV D2 0
+GOTOCMP 119 ==
+SETV D2 1
+GOTO 120
+SETV D2 0
+STORE D2 0.0003
+LOAD D2 0.0005
+COMPAREV D2 0
+SETCMP D2 I!=
+COMPAREV D2 1
+SETCMP D2 I==
+COMPAREV D2 0
+GOTOCMP 130 ==
+SETV D2 1
+GOTO 131
+SETV D2 0
+STORE D2 0.0002
+LOAD D2 0.0005
+PUSHR D2
+LOAD D2 0.0004
+POP D3
+COMPARER D3 D2
+SETCMP D2 I<
+COMPAREV D2 2
+SETCMP D2 I!=
+COMPAREV D2 0
+GOTOCMP 144 ==
+SETV D2 1
+GOTO 145
+SETV D2 0
+STORE D2 0.0001
+PUSHR D4
+LOAD D2 0.0003; UsrFunc[void AssertEqual(int, int)] Params Start
+PUSHR D2
+LOAD D2 0.0005
+PUSHR D2
+LOAD D2 0.0004
+POP D3
+COMPARER D3 D2
+SETCMP D2 I<
+COMPAREV D2 0
+GOTOCMP 159 ==
+SETV D2 1
+GOTO 160
+SETV D2 0
+PUSHR D2; UsrFunc[void AssertEqual(int, int)] Params End
+CALLFUNC 0.0249; UsrFunc[void AssertEqual(int, int)] Call
+PEEK D4
+LOAD D2 0.0002; UsrFunc[void AssertEqual(int, int)] Params Start
+PUSHR D2
+LOAD D2 0.0005
+COMPAREV D2 0
+SETCMP D2 I!=
+COMPAREV D2 0
+GOTOCMP 172 ==
+SETV D2 1
+GOTO 173
+SETV D2 0
+PUSHR D2; UsrFunc[void AssertEqual(int, int)] Params End
+CALLFUNC 0.0249; UsrFunc[void AssertEqual(int, int)] Call
+PEEK D4
+LOAD D2 0.0001; UsrFunc[void AssertEqual(int, int)] Params Start
+PUSHR D2
+PUSHV 1; UsrFunc[void AssertEqual(int, int)] Params End
+CALLFUNC 0.0249; UsrFunc[void AssertEqual(int, int)] Call
+POP D4
+LOAD D2 0.0005
+PUSHR D2
+LOAD D2 0.0004
+POP D3
+COMPARER D3 D2
+SETCMP D2 I<
+COMPAREV D2 1
+SETCMP D2 BI==
+STORE D2 0
+LOAD D2 0; if() #21 Test
+COMPAREV D2 0.0001
+SETCMP D2 I==
+COMPAREV D2 0
+GOTOCMP 199 ==; Test 'if'
+ALLOCATEMEMV D2 40 0; UsrFunc[void Fail(char32[])] Params Start AND if() #21 Body Start
+WRITEPODSTRING D2 "a 10000/0 result can never equal 0.0001"
+PUSHR D2; UsrFunc[void Fail(char32[])] Params End
+CALLFUNC 0.0293; UsrFunc[void Fail(char32[])] Call AND [Opt:NeverRet] AND if() #21 Body End
+NOP
+PUSHR D4
+LOAD D2 0; UsrFunc[void AssertEqual(bool, bool)] Params Start
+PUSHR D2
+LOAD D2 0.0005
+PUSHR D2
+LOAD D2 0.0004
+POP D3
+COMPARER D3 D2
+SETCMP D2 I<
+PUSHR D2; UsrFunc[void AssertEqual(bool, bool)] Params End
+CALLFUNC 0.0271; UsrFunc[void AssertEqual(bool, bool)] Call
+POP D4; for() #5 Body End
+LOAD D2 0.0006; for() #5 LoopIncrement
+ADDV D2 1
+STORE D2 0.0006
+GOTO 72; for() #5 End
+NOP
+CALLFUNC 0.0242; UsrFunc[void End()] Call AND [Opt:NeverRet]
+REF_REMOVE 0.0007
+REF_REMOVE 0.0008; [Opt:NeverRet] AND void run() Body End
+SETR D4 SP2; Func[void Init(int)] Body Start
+ALLOCATEMEMV D2 35 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
+WRITEPODSTRING D2 "[Test] started: dmap %d screen %d\n"
+PUSHR D2
+PUSHVARGV 5
+LOAD D2 0
+PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
+LOAD D2 0; if() #8 Test
+COMPAREV D2 0
+SETCMP D2 I!=
+COMPAREV D2 0
+GOTOCMP 239 ==; Test 'if'
+PUSHV 5; InlineFunc[void hero::Warp(int, int)] Params Start AND if() #8 Body Start
+LOAD D2 0; InlineFunc[void hero::Warp(int, int)] Params End
+POP D3; InlineFunc[void hero::Warp(int, int)] Body Start
+WARPR D3 D2; InlineFunc[void hero::Warp(int, int)] Body End
+WAITFRAME; InlineFunc[void Waitframe()] Body AND if() #8 Body End
+NOP
+POP D5
+RETURNFUNC; Func[void Init(int)] Body End
+SETR D4 SP2; Func[void End()] Body Start
+ALLOCATEMEMV D2 13 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
+WRITEPODSTRING D2 "[Test] done\n"
+PUSHR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
+GAMEEXIT; InlineFunc[void Game::Exit()] Body AND [Opt:NeverRet] AND Func[void End()] Body End
+SETR D4 SP2; Func[void AssertEqual(int, int)] Body Start
+LOAD D2 0; if() #22 Test
+PUSHR D2
+LOAD D2 0.0001
+POP D3
+COMPARER D3 D2
+SETCMP D2 I!=
+COMPAREV D2 0
+GOTOCMP 268 ==; Test 'if'
+ALLOCATEMEMV D2 49 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start AND if() #22 Body Start
+WRITEPODSTRING D2 "[Test] failed assertion: expected %d but got %d\n"
+PUSHR D2
+LOAD D2 0
+PUSHVARGR D2
+LOAD D2 0.0001
+PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
+GAMEEXIT; InlineFunc[void Game::Exit()] Body AND if() #22 Body End
+NOP
+POPARGS D5 0.0002
+RETURNFUNC; Func[void AssertEqual(int, int)] Body End
+SETR D4 SP2; Func[void AssertEqual(bool, bool)] Body Start
+LOAD D2 0; if() #23 Test
+PUSHR D2
+LOAD D2 0.0001
+POP D3
+COMPARER D3 D2
+SETCMP D2 BI!=
+COMPAREV D2 0
+GOTOCMP 290 ==; Test 'if'
+ALLOCATEMEMV D2 49 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start AND if() #23 Body Start
+WRITEPODSTRING D2 "[Test] failed assertion: expected %d but got %d\n"
+PUSHR D2
+LOAD D2 0
+PUSHVARGR D2
+LOAD D2 0.0001
+PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
+GAMEEXIT; InlineFunc[void Game::Exit()] Body AND if() #23 Body End
+NOP
+POPARGS D5 0.0002
+RETURNFUNC; Func[void AssertEqual(bool, bool)] Body End
+SETR D4 SP2; Func[void Fail(char32[])] Body Start
+MARK_TYPE_STACK 0.0009 0
+REF_INC 0
+LOAD D2 0; InlineFunc[int strlen(char32[])] Params Start AND if() #1 Test
+SETR D3 D2; InlineFunc[int strlen(char32[])] Params End
+STRINGLENGTH D2 D3; InlineFunc[int strlen(char32[])] Body
+COMPAREV D2 0
+SETCMP D2 I>
+COMPAREV D2 0
+GOTOCMP 312 ==; Test 'if'
+ALLOCATEMEMV D2 24 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start AND if() #1 Body Start
+WRITEPODSTRING D2 "[Test] failed test: %s\n"
+PUSHR D2
+LOAD D2 0
+PUSHVARGR D2
+MARK_TYPE_VARG 0.0009; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
+GOTO 317; if() #1 Body End
+ALLOCATEMEMV D2 20 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start AND if() #1 Else Start
+WRITEPODSTRING D2 "[Test] failed test\n"
+PUSHR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End AND if() #1 Else End
+NOP
+GAMEEXIT; InlineFunc[void Game::Exit()] Body AND [Opt:NeverRet] AND Func[void Fail(char32[])] Body End
+PUSHV 0; Func[int classify(int, int)] Body Start
+SETR D4 SP2
+STOREV 0 0
+LOAD D2 0.0002; if() #10 Test
+PUSHR D2
+LOAD D2 0.0001
+POP D3
+COMPARER D3 D2
+SETCMP D2 I<
+COMPAREV D2 1
+SETCMP D2 BI==
+COMPAREV D2 0
+GOTOCMP 335 ==; Test 'if'
+LOAD D2 0; if() #10 Body Start
+ORV D2 1
+STORE D2 0; if() #10 Body End
+NOP
+LOAD D2 0.0002; if() #11 Test
+PUSHR D2
+LOAD D2 0.0001
+POP D3
+COMPARER D3 D2
+SETCMP D2 I<
+COMPAREV D2 1
+SETCMP D2 BI!=
+COMPAREV D2 0
+GOTOCMP 349 ==; Test 'if'
+LOAD D2 0; if() #11 Body Start
+ORV D2 2
+STORE D2 0; if() #11 Body End
+NOP
+LOAD D2 0.0002; if() #12 Test
+PUSHR D2
+LOAD D2 0.0001
+POP D3
+COMPARER D3 D2
+SETCMP D2 I<
+COMPAREV D2 0
+SETCMP D2 BI==
+COMPAREV D2 0
+GOTOCMP 363 ==; Test 'if'
+LOAD D2 0; if() #12 Body Start
+ORV D2 4
+STORE D2 0; if() #12 Body End
+NOP
+LOAD D2 0.0002; if() #13 Test
+PUSHR D2
+LOAD D2 0.0001
+POP D3
+COMPARER D3 D2
+SETCMP D2 I<
+COMPAREV D2 2
+SETCMP D2 I!=
+COMPAREV D2 0
+GOTOCMP 377 ==; Test 'if'
+LOAD D2 0; if() #13 Body Start
+ORV D2 8
+STORE D2 0; if() #13 Body End
+NOP
+LOAD D2 0.0002; if() #14 Test
+PUSHR D2
+LOAD D2 0.0001
+POP D3
+COMPARER D3 D2
+SETCMP D2 I<
+COMPAREV D2 2
+SETCMP D2 I==
+COMPAREV D2 0
+GOTOCMP 391 ==; Test 'if'
+LOAD D2 0; if() #14 Body Start
+ORV D2 16
+STORE D2 0; if() #14 Body End
+NOP
+LOAD D2 0.0002; if() #15 Test
+COMPAREV D2 0
+SETCMP D2 I!=
+COMPAREV D2 1
+SETCMP D2 I==
+COMPAREV D2 0
+GOTOCMP 402 ==; Test 'if'
+LOAD D2 0; if() #15 Body Start
+ORV D2 32
+STORE D2 0; if() #15 Body End
+NOP
+LOAD D2 0.0002; if() #16 Test
+COMPAREV D2 0
+SETCMP D2 I==
+COMPAREV D2 1
+SETCMP D2 I==
+COMPAREV D2 0
+GOTOCMP 413 ==; Test 'if'
+LOAD D2 0; if() #16 Body Start
+ORV D2 64
+STORE D2 0; if() #16 Body End
+NOP
+LOAD D2 0.0002; if() #17 Test
+PUSHR D2
+LOAD D2 0.0001
+POP D3
+COMPARER D3 D2
+SETCMP D2 I<
+COMPAREV D2 1
+SETCMP D2 I==
+COMPAREV D2 0
+GOTOCMP 427 ==; Test 'if'
+LOAD D2 0; if() #17 Body Start
+ORV D2 128
+STORE D2 0; if() #17 Body End
+NOP
+LOAD D2 0.0002; if() #18 Test
+PUSHR D2
+LOAD D2 0.0001
+POP D3
+COMPARER D3 D2
+SETCMP D2 I<
+COMPAREV D2 0.5000
+SETCMP D2 I>
+COMPAREV D2 0
+GOTOCMP 441 ==; Test 'if'
+LOAD D2 0; if() #18 Body Start
+ORV D2 256
+STORE D2 0; if() #18 Body End
+NOP
+LOAD D2 0.0002; if() #19 Test
+COMPAREV D2 1
+SETCMP D2 BI==
+COMPAREV D2 0
+GOTOCMP 450 ==; Test 'if'
+LOAD D2 0; if() #19 Body Start
+ORV D2 512
+STORE D2 0; if() #19 Body End
+NOP
+LOAD D2 0.0002; if() #20 Test
+PUSHR D2
+LOAD D2 0.0001
+POP D3
+COMPARER D3 D2
+SETCMP D2 I<
+PUSHR D2
+LOAD D2 0.0001
+PUSHR D2
+LOAD D2 0.0002
+POP D3
+COMPARER D3 D2
+SETCMP D2 I>
+POP D3
+COMPARER D3 D2
+SETCMP D2 BI==
+COMPAREV D2 0
+GOTOCMP 472 ==; Test 'if'
+LOAD D2 0; if() #20 Body Start
+ORV D2 1024
+STORE D2 0; if() #20 Body End
+NOP
+LOAD D2 0; return Start
+POPARGS D5 0.0003; return End
+RETURNFUNC; Func[int classify(int, int)] Body End

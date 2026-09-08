@@ -7,11 +7,11 @@
 3: COMPAREV        D2               1823720000
 	D2 = !IBool(SPRITE_TILE)
 4: SETCMP          D2               BI==   
-	D2 = 0
+	D2 = !IBool(SPRITE_TILE)
 5: COMPAREV        D2               1      
-	D2 = 0
+	D2 = !IBool(SPRITE_TILE)
 6: GOTOCMP         9                ==     
-	D2 = 0
+	D2 = !IBool(SPRITE_TILE)
 inferred D2: 1
 9: TRACEV          2               
 	D2 = 1
@@ -26,11 +26,11 @@ rewrite 6: GOTOCMP         9                ==
 3: COMPAREV        D2               1823720000
 	D2 = !IBool(D2)
 4: SETCMP          D2               BI==   
-	D2 = 0
+	D2 = !IBool(D2)
 5: COMPAREV        D2               1      
-	D2 = 0
+	D2 = !IBool(D2)
 6: GOTOCMP         9                ==     
-	D2 = 0
+	D2 = !IBool(D2)
 rewrite 1: 6 -> 0 commands
 1: NOP            
 2: NOP            

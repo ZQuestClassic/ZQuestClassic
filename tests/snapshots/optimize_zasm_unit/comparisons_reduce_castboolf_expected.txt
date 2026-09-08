@@ -75,7 +75,7 @@ rewrite 0: 4 -> 2 commands
 	D2 = (Bool(D2)) == (Bool(D3))
 	D3 = Bool(D3)
 17: SETMOREI        D2              
-	D2 = (Bool(D2)) == (Bool(D3))
+	D2 = (Bool(D2)) I== (Bool(D3))
 	D3 = Bool(D3)
 18: CASTBOOLF       D2              
 	D2 = (Bool(D2)) == (Bool(D3))

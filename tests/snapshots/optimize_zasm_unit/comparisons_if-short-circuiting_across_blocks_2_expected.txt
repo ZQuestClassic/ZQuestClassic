@@ -61,11 +61,11 @@ rewrite 0: 4 -> 2 commands
 10: COMPAREV        D2               1      
 	D2 = !Bool(D2)
 11: SETMOREI        D2              
-	D2 = !Bool(D2)
+	D2 = !IBool(D2)
 12: COMPAREV        D2               0      
-	D2 = !Bool(D2)
+	D2 = !IBool(D2)
 13: GOTOCMP         15               ==     
-	D2 = !Bool(D2)
+	D2 = !IBool(D2)
 rewrite 7: 7 -> 2 commands
 7: COMPAREV        D2               0      
 8: GOTOCMP         15               !=     

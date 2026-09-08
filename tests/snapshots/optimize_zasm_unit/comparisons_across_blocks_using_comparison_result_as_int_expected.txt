@@ -4,15 +4,15 @@
 1: GOTOFALSE       5               
 inferred D2: 1
 5: SETCMP          D2               I!=    
-	D2 = Bool(D2)
+	D2 = IBool(D2)
 6: NOP            
-	D2 = Bool(D2)
+	D2 = IBool(D2)
 	side_effects
 7: NOP            
-	D2 = Bool(D2)
+	D2 = IBool(D2)
 	side_effects
 8: GOTO            10              
-	D2 = Bool(D2)
+	D2 = IBool(D2)
 	side_effects
 rewrite 1: GOTOCMP         5                !=     
 

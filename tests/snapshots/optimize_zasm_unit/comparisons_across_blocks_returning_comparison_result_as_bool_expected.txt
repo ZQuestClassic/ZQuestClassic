@@ -58,14 +58,14 @@ rewrite 0: 4 -> 3 commands
 6: COMPAREV        D2               1      
 	D2 = Bool(D2)
 7: SETMOREI        D2              
-	D2 = Bool(D2)
+	D2 = IBool(D2)
 8: COMPAREV        D2               0      
-	D2 = Bool(D2)
+	D2 = IBool(D2)
 9: GOTOCMP         12               ==     
-	D2 = Bool(D2)
+	D2 = IBool(D2)
 rewrite 5: 5 -> 3 commands
 5: COMPAREV        D2               0      
-6: SETCMP          D2               !=     
+6: SETCMP          D2               I!=    
 7: GOTOCMP         12               ==     
 8: NOP            
 9: NOP            
@@ -76,7 +76,7 @@ Function run_none-0
     3: NOP                                          [Block 1 -> 2, 3]
     4: NOP
     5: COMPAREV        INPUTEX2         0
-    6: SETCMP          D2               !=
+    6: SETCMP          D2               I!=
     7: GOTOCMP         12               ==
     8: NOP                                          [Block 2 -> 4]
     9: NOP

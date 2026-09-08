@@ -25,11 +25,11 @@ rewrite 3: GOTOCMP         12               ==
 
 7: COMPAREV        D2               0      
 8: SETCMP          D2               I!=    
-	D2 = Bool(D2)
+	D2 = IBool(D2)
 9: COMPAREV        D2               0      
-	D2 = Bool(D2)
+	D2 = IBool(D2)
 10: GOTOTRUE        12              
-	D2 = Bool(D2)
+	D2 = IBool(D2)
 inferred D2: 0
 12: QUIT           
 	D2 = 0

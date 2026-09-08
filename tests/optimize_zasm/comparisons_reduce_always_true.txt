@@ -1,4 +1,6 @@
-; Reduce a complex comparison that always evaluate to true.
+; Reduce a chain of comparisons: (tile == 0) == true, branching on its negation.
+; The bool-cast compare against a nonzero value keeps the inner comparison (it is
+; not always true or always false), so this folds to a single compare on tile.
 Function run_none-0
     0: SETR            D2               SPRITE_TILE [Block 0 -> 1, 2]
     1: COMPAREV        D2               0
