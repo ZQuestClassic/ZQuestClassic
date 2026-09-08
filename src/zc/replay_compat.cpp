@@ -99,6 +99,15 @@ bool replay_compat_ladder_water_sensitivity_bug()
 	return !replay_version_check(66);
 }
 
+// https://discord.com/channels/876899628556091432/1436871556763619501
+bool replay_compat_hammer_pound_reach_bug()
+{
+	if (check_2_55(17))
+		return true;
+
+	return !replay_version_check(67);
+}
+
 // Trig, inverse trig, and log/pow switched from libm (and the replay-only Q15
 // trig) to the deterministic tables in zc_math.cpp in replay version 59 /
 // ZC 2.55.15. This owns the entire mode policy so zc_math.cpp needs no

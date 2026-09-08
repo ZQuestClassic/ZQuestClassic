@@ -4260,7 +4260,20 @@ bool HeroClass::checkstab()
 		for_every_ffc([&](const ffc_handle_t& ffc_handle) {
 			ffc_handle.ffc->recently_hit = false;
 		});
-			
+		
+		if(dir==up && get_qr(qr_OLD_210_HAMMER_POUND_REACH) && !replay_compat_hammer_pound_reach_bug())
+		{
+			// 2.10 found the pounded combos at fixed offsets from the player,
+			// not from the hammer sprite. Facing up, its probes sit 6 pixels
+			// higher than the ones derived from the sprite, which reaches one
+			// tile further when standing halfway between two tiles vertically.
+			//
+			// Note: 2.10's other directions differ by a few pixels too, but only
+			// the up direction is known to make a difference for compat.
+			wx=x.getInt();
+			wy=y.getInt()-13;
+		}
+		
 		if(dir==up && (x.getInt()&15)==0)
 		{
 			check_pound_block(wx,wy);

@@ -733,6 +733,13 @@ static GUI::ListData compatRulesList
 		" takes priority. If this rule is disabled, the flippers take priority."
 		" Note that flippers always take priority when entering into water from"
 		" the left or right, regardless of this rule."},
+	{ "Hammer pounds facing up use 2.10 reach", qr_OLD_210_HAMMER_POUND_REACH,
+		"If enabled, a hammer pound while facing up affects the combos at 2.10's"
+		" fixed offsets from the player, 6 pixels higher than later versions. This"
+		" reaches one tile further when the player is standing halfway between"
+		" two tiles vertically, such as after walking up as far as possible"
+		" against solid water. Some 2.10 quests require this to pound a post"
+		" across a gap."},
 	{ "BS Zelda uses walking sprites for swimming", qr_COPIED_SWIM_SPRITES,
 		"In older versions of ZC, BS Zelda animation didn't use swimming sprites,"
 		" and thus defaulted to walking sprites. This QR simulates this behavior"},
