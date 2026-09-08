@@ -1443,7 +1443,14 @@ static void compile_plain_command(CompilationState& state, const zasm_script* sc
 				wasm.emitElse();
 				wasm.emitI32Const(0);
 				wasm.emitCall(state.f_idx_log_error);
+				// sign(dividend) * MAX_SIGNED_32, like the interpreter (whose sign(0) is 1).
+				get_z_register(state, arg1);
+				wasm.emitI32Const(31);
+				wasm.emitI32ShrS();
+				wasm.emitI32Const(1);
+				wasm.emitI32Or();
 				wasm.emitI32Const(MAX_SIGNED_32);
+				wasm.emitI32Mul();
 				wasm.emitEnd();
 			});
 		}
@@ -1469,7 +1476,14 @@ static void compile_plain_command(CompilationState& state, const zasm_script* sc
 				{
 					wasm.emitI32Const(0);
 					wasm.emitCall(state.f_idx_log_error);
+					// sign(dividend) * MAX_SIGNED_32, like the interpreter (whose sign(0) is 1).
+					get_z_register(state, arg1);
+					wasm.emitI32Const(31);
+					wasm.emitI32ShrS();
+					wasm.emitI32Const(1);
+					wasm.emitI32Or();
 					wasm.emitI32Const(MAX_SIGNED_32);
+					wasm.emitI32Mul();
 					return;
 				}
 
