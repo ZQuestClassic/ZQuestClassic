@@ -46,6 +46,7 @@
 #include "auto/global_objects.zs"
 #include "auto/init_scripts.zs"
 #include "auto/instant_reload_on_death.zs"
+#include "auto/jit_arith_semantics.zs"
 #include "auto/jit_mult_pow2.zs"
 #include "auto/jit_shifts.zs"
 #include "auto/jit_yielder_hot_loop.zs"

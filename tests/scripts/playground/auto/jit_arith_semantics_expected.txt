@@ -1,0 +1,1441 @@
+stderr:
+
+Compiling 'jit_arith_semantics.zs'
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+Pass 4: Analyzing Code
+jit_arith_semantics.zs Line 223 @ Columns 13-26 - Warning S108: Arrays should be explicitly typed - change `bool` to `bool[]`
+
+221    // Bool equality with different raw truthy values.
+222    bool b1 = vals[6] != 0;
+223    bool b2 = <bool>vals[6];
+                 ^~~~~~~~~~~~~
+
+
+Pass 5: Checking code paths
+Pass 6: Generating object code
+Pass 7: Assembling
+Success!
+Compile finished with exit code '0' (success)
+
+stdout:
+
+{
+  "success": true,
+  "diagnostics": [
+    {
+      "range": {
+        "start": {
+          "line": 222,
+          "character": 12
+        },
+        "end": {
+          "line": 222,
+          "character": 25
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `bool` to `bool[]`"
+    }
+  ],
+  "metadata": {
+    "currentFileSymbols": 35,
+    "symbols": 51,
+    "identifiers": 378,
+    "elided": true
+  }
+}
+
+zasm:
+
+QUIT; void run() Body
+PUSHARGSV 0 0.0003; void run() Body Start
+SETR D4 SP2
+ALLOCATEMEMV D2 100 0
+STORE_OBJECT D2 0.0002
+LOAD D2 0.0002; InlineFunc[void Game::GetSaveName(char32[])] Params
+GETSAVENAME D2; InlineFunc[void Game::GetSaveName(char32[])] Body
+ALLOCATEMEMV D2 19 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
+WRITEPODSTRING D2 "[Test] Running %s\n"
+PUSHR D2
+LOAD D2 0.0002
+PUSHVARGR D2
+MARK_TYPE_VARG 0.0009; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
+LOAD D2 0.0002; InlineFunc[int Game::GetGenericScript(char32[])] Params
+GETGENERICSCRIPT D2; InlineFunc[int Game::GetGenericScript(char32[])] Body
+STORE D2 0.0001
+LOAD D2 0.0001; if() #9 Test
+COMPAREV D2 -1
+SETCMP D2 I==
+COMPAREV D2 0
+GOTOCMP 30 ==; Test 'if'
+ALLOCATEMEMV D2 53 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start AND if() #9 Body Start
+WRITEPODSTRING D2 "[Test] failed to start - could not find test script\n"
+PUSHR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
+GAMEEXIT; InlineFunc[void Game::Exit()] Body AND if() #9 Body End
+NOP
+LOAD D2 0.0001; InlineFunc[genericdata Game::LoadGenericData(int)] Params
+LOADGENERICDATA D2; InlineFunc[genericdata Game::LoadGenericData(int)] Body Start
+SETR D2 REFGENERICDATA; InlineFunc[genericdata Game::LoadGenericData(int)] Body End
+STORE D2 0
+SETV D2 1
+PUSHR D2
+LOAD D2 0
+POP D3
+PUSHR D2
+PUSHR D3
+POP D2
+CASTBOOLI D2
+POP REFGENERICDATA
+SETR GENDATARUNNING D2
+LOAD D2 0; while() #1 Test
+PUSHR D2
+POP REFGENERICDATA
+SETR D2 GENDATARUNNING
+COMPAREV D2 0
+GOTOCMP 53 ==; Test 'while'
+WAITFRAME; InlineFunc[void Waitframe()] Body AND while() #1 Body
+GOTO 45; while() #1 End
+CALLFUNC 0.1332; UsrFunc[void End()] Call AND [Opt:NeverRet]
+REF_REMOVE 0.0002; [Opt:NeverRet] AND void run() Body End
+PUSHARGSV 0 0.0012; void run() Body Start
+SETR D4 SP2
+PUSHR D4
+PUSHV 0; UsrFunc[void Init(int)] Params
+CALLFUNC 0.1310; UsrFunc[void Init(int)] Call
+POP D4
+ALLOCATEMEMV D2 19 0
+PUSHR D2
+WRITEPODARRAY D2 {-3,-1.5,-0.0001,0,0.0001,1.5,3,7.25,-7.25,214748.3647,-214748.3648,100000,-100000,0.5,-0.5,2,-2,65536,-65536}
+POP D2
+STORE_OBJECT D2 0.0011
+STOREV 19 0.0010
+ALLOCATEMEMV D2 5 0
+PUSHR D2
+WRITEPODARRAY D2 {0,1,3,7,31}
+POP D2
+STORE_OBJECT D2 0.0009
+STOREV 0 0.0008; for() #5 setup
+LOAD D2 0.0008; for() #5 LoopTest
+PUSHR D2
+LOAD D2 0.0010
+POP D3
+COMPARER D3 D2
+SETCMP D2 I<
+COMPAREV D2 0
+GOTOCMP 717 ==; for() #5 TestFail?
+LOAD D2 0.0011; for() #5 Body Start
+PUSHR D2
+LOAD D2 0.0008
+POP D0
+READPODARRAYR D2 D2
+STORE D2 0.0007
+ALLOCATEMEMV D2 12 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
+WRITEPODSTRING D2 "--- x = %d\n"
+PUSHR D2
+LOAD D2 0.0007
+PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
+PUSHR D4
+ALLOCATEMEMV D2 6 0; UsrFunc[void p(char32[], int)] Params Start
+WRITEPODSTRING D2 "x % 2"
+PUSHR D2
+LOAD D2 0.0007
+MODV D2 2
+PUSHR D2; UsrFunc[void p(char32[], int)] Params End
+CALLFUNC 0.1339; UsrFunc[void p(char32[], int)] Call
+PEEK D4
+ALLOCATEMEMV D2 11 0; UsrFunc[void p(char32[], int)] Params Start
+WRITEPODSTRING D2 "x % 0.0002"
+PUSHR D2
+LOAD D2 0.0007
+MODV D2 0.0002
+PUSHR D2; UsrFunc[void p(char32[], int)] Params End
+CALLFUNC 0.1339; UsrFunc[void p(char32[], int)] Call
+PEEK D4
+ALLOCATEMEMV D2 11 0; UsrFunc[void p(char32[], int)] Params Start
+WRITEPODSTRING D2 "x % 6.5536"
+PUSHR D2
+LOAD D2 0.0007
+MODV D2 6.5536
+PUSHR D2; UsrFunc[void p(char32[], int)] Params End
+CALLFUNC 0.1339; UsrFunc[void p(char32[], int)] Call
+PEEK D4
+ALLOCATEMEMV D2 7 0; UsrFunc[void p(char32[], int)] Params Start
+WRITEPODSTRING D2 "x % -2"
+PUSHR D2
+LOAD D2 0.0007
+MODV D2 -2
+PUSHR D2; UsrFunc[void p(char32[], int)] Params End
+CALLFUNC 0.1339; UsrFunc[void p(char32[], int)] Call
+PEEK D4
+ALLOCATEMEMV D2 12 0; UsrFunc[void p(char32[], int)] Params Start
+WRITEPODSTRING D2 "x % -0.0001"
+PUSHR D2
+LOAD D2 0.0007
+MODV D2 -0.0001
+PUSHR D2; UsrFunc[void p(char32[], int)] Params End
+CALLFUNC 0.1339; UsrFunc[void p(char32[], int)] Call
+PEEK D4
+ALLOCATEMEMV D2 11 0; UsrFunc[void p(char32[], int)] Params Start
+WRITEPODSTRING D2 "x % 0.0001"
+PUSHR D2
+LOAD D2 0.0007
+MODV D2 0.0001
+PUSHR D2; UsrFunc[void p(char32[], int)] Params End
+CALLFUNC 0.1339; UsrFunc[void p(char32[], int)] Call
+PEEK D4
+ALLOCATEMEMV D2 6 0; UsrFunc[void p(char32[], int)] Params Start
+WRITEPODSTRING D2 "x % 3"
+PUSHR D2
+LOAD D2 0.0007
+MODV D2 3
+PUSHR D2; UsrFunc[void p(char32[], int)] Params End
+CALLFUNC 0.1339; UsrFunc[void p(char32[], int)] Call
+PEEK D4
+ALLOCATEMEMV D2 8 0; UsrFunc[void p(char32[], int)] Params Start
+WRITEPODSTRING D2 "x % 1.5"
+PUSHR D2
+LOAD D2 0.0007
+MODV D2 1.5000
+PUSHR D2; UsrFunc[void p(char32[], int)] Params End
+CALLFUNC 0.1339; UsrFunc[void p(char32[], int)] Call
+PEEK D4
+ALLOCATEMEMV D2 6 0; UsrFunc[void p(char32[], int)] Params Start
+WRITEPODSTRING D2 "x / 3"
+PUSHR D2
+LOAD D2 0.0007
+DIVV D2 3
+PUSHR D2; UsrFunc[void p(char32[], int)] Params End
+CALLFUNC 0.1339; UsrFunc[void p(char32[], int)] Call
+PEEK D4
+ALLOCATEMEMV D2 7 0; UsrFunc[void p(char32[], int)] Params Start
+WRITEPODSTRING D2 "x / -3"
+PUSHR D2
+LOAD D2 0.0007
+DIVV D2 -3
+PUSHR D2; UsrFunc[void p(char32[], int)] Params End
+CALLFUNC 0.1339; UsrFunc[void p(char32[], int)] Call
+PEEK D4
+ALLOCATEMEMV D2 11 0; UsrFunc[void p(char32[], int)] Params Start
+WRITEPODSTRING D2 "x / 0.0001"
+PUSHR D2
+LOAD D2 0.0007
+DIVV D2 0.0001
+PUSHR D2; UsrFunc[void p(char32[], int)] Params End
+CALLFUNC 0.1339; UsrFunc[void p(char32[], int)] Call
+PEEK D4
+ALLOCATEMEMV D2 8 0; UsrFunc[void p(char32[], int)] Params Start
+WRITEPODSTRING D2 "x / 0.5"
+PUSHR D2
+LOAD D2 0.0007
+DIVV D2 0.5000
+PUSHR D2; UsrFunc[void p(char32[], int)] Params End
+CALLFUNC 0.1339; UsrFunc[void p(char32[], int)] Call
+PEEK D4
+ALLOCATEMEMV D2 6 0; UsrFunc[void p(char32[], int)] Params Start
+WRITEPODSTRING D2 "3 / x"
+PUSHR D2
+LOAD D2 0.0007
+DIVV2 3 D2
+PUSHR D2; UsrFunc[void p(char32[], int)] Params End
+CALLFUNC 0.1339; UsrFunc[void p(char32[], int)] Call
+PEEK D4
+ALLOCATEMEMV D2 6 0; UsrFunc[void p(char32[], int)] Params Start
+WRITEPODSTRING D2 "x * 3"
+PUSHR D2
+LOAD D2 0.0007
+MULTV D2 3
+PUSHR D2; UsrFunc[void p(char32[], int)] Params End
+CALLFUNC 0.1339; UsrFunc[void p(char32[], int)] Call
+PEEK D4
+ALLOCATEMEMV D2 9 0; UsrFunc[void p(char32[], int)] Params Start
+WRITEPODSTRING D2 "x * -1.5"
+PUSHR D2
+LOAD D2 0.0007
+MULTV D2 -1.5000
+PUSHR D2; UsrFunc[void p(char32[], int)] Params End
+CALLFUNC 0.1339; UsrFunc[void p(char32[], int)] Call
+PEEK D4
+ALLOCATEMEMV D2 16 0; UsrFunc[void p(char32[], int)] Params Start
+WRITEPODSTRING D2 "x * 214748.3647"
+PUSHR D2
+LOAD D2 0.0007
+MULTV D2 214748.3647
+PUSHR D2; UsrFunc[void p(char32[], int)] Params End
+CALLFUNC 0.1339; UsrFunc[void p(char32[], int)] Call
+PEEK D4
+ALLOCATEMEMV D2 6 0; UsrFunc[void p(char32[], int)] Params Start
+WRITEPODSTRING D2 "x & 3"
+PUSHR D2
+LOAD D2 0.0007
+ANDV D2 3
+PUSHR D2; UsrFunc[void p(char32[], int)] Params End
+CALLFUNC 0.1339; UsrFunc[void p(char32[], int)] Call
+PEEK D4
+ALLOCATEMEMV D2 7 0; UsrFunc[void p(char32[], int)] Params Start
+WRITEPODSTRING D2 "x & -2"
+PUSHR D2
+LOAD D2 0.0007
+ANDV D2 -2
+PUSHR D2; UsrFunc[void p(char32[], int)] Params End
+CALLFUNC 0.1339; UsrFunc[void p(char32[], int)] Call
+PEEK D4
+ALLOCATEMEMV D2 8 0; UsrFunc[void p(char32[], int)] Params Start
+WRITEPODSTRING D2 "x & 0.5"
+PUSHR D2
+LOAD D2 0.0007
+ANDV D2 0.5000
+PUSHR D2; UsrFunc[void p(char32[], int)] Params End
+CALLFUNC 0.1339; UsrFunc[void p(char32[], int)] Call
+PEEK D4
+ALLOCATEMEMV D2 6 0; UsrFunc[void p(char32[], int)] Params Start
+WRITEPODSTRING D2 "x | 3"
+PUSHR D2
+LOAD D2 0.0007
+ORV D2 3
+PUSHR D2; UsrFunc[void p(char32[], int)] Params End
+CALLFUNC 0.1339; UsrFunc[void p(char32[], int)] Call
+PEEK D4
+ALLOCATEMEMV D2 7 0; UsrFunc[void p(char32[], int)] Params Start
+WRITEPODSTRING D2 "x | -2"
+PUSHR D2
+LOAD D2 0.0007
+ORV D2 -2
+PUSHR D2; UsrFunc[void p(char32[], int)] Params End
+CALLFUNC 0.1339; UsrFunc[void p(char32[], int)] Call
+PEEK D4
+ALLOCATEMEMV D2 6 0; UsrFunc[void p(char32[], int)] Params Start
+WRITEPODSTRING D2 "x ^ 3"
+PUSHR D2
+LOAD D2 0.0007
+XORV D2 3
+PUSHR D2; UsrFunc[void p(char32[], int)] Params End
+CALLFUNC 0.1339; UsrFunc[void p(char32[], int)] Call
+PEEK D4
+ALLOCATEMEMV D2 7 0; UsrFunc[void p(char32[], int)] Params Start
+WRITEPODSTRING D2 "x ^ -1"
+PUSHR D2
+LOAD D2 0.0007
+XORV D2 -1
+PUSHR D2; UsrFunc[void p(char32[], int)] Params End
+CALLFUNC 0.1339; UsrFunc[void p(char32[], int)] Call
+PEEK D4
+ALLOCATEMEMV D2 3 0; UsrFunc[void p(char32[], int)] Params Start
+WRITEPODSTRING D2 "~x"
+PUSHR D2
+LOAD D2 0.0007
+BITNOT D2
+PUSHR D2; UsrFunc[void p(char32[], int)] Params End
+CALLFUNC 0.1339; UsrFunc[void p(char32[], int)] Call
+PEEK D4
+ALLOCATEMEMV D2 7 0; UsrFunc[void p(char32[], int)] Params Start
+WRITEPODSTRING D2 "x << 1"
+PUSHR D2
+LOAD D2 0.0007
+LSHIFTV D2 1
+PUSHR D2; UsrFunc[void p(char32[], int)] Params End
+CALLFUNC 0.1339; UsrFunc[void p(char32[], int)] Call
+PEEK D4
+ALLOCATEMEMV D2 7 0; UsrFunc[void p(char32[], int)] Params Start
+WRITEPODSTRING D2 "x << 3"
+PUSHR D2
+LOAD D2 0.0007
+LSHIFTV D2 3
+PUSHR D2; UsrFunc[void p(char32[], int)] Params End
+CALLFUNC 0.1339; UsrFunc[void p(char32[], int)] Call
+PEEK D4
+ALLOCATEMEMV D2 7 0; UsrFunc[void p(char32[], int)] Params Start
+WRITEPODSTRING D2 "x >> 1"
+PUSHR D2
+LOAD D2 0.0007
+RSHIFTV D2 1
+PUSHR D2; UsrFunc[void p(char32[], int)] Params End
+CALLFUNC 0.1339; UsrFunc[void p(char32[], int)] Call
+PEEK D4
+ALLOCATEMEMV D2 7 0; UsrFunc[void p(char32[], int)] Params Start
+WRITEPODSTRING D2 "x >> 3"
+PUSHR D2
+LOAD D2 0.0007
+RSHIFTV D2 3
+PUSHR D2; UsrFunc[void p(char32[], int)] Params End
+CALLFUNC 0.1339; UsrFunc[void p(char32[], int)] Call
+PEEK D4
+ALLOCATEMEMV D2 8 0; UsrFunc[void p(char32[], int)] Params Start
+WRITEPODSTRING D2 "x >> 31"
+PUSHR D2
+LOAD D2 0.0007
+RSHIFTV D2 31
+PUSHR D2; UsrFunc[void p(char32[], int)] Params End
+CALLFUNC 0.1339; UsrFunc[void p(char32[], int)] Call
+PEEK D4
+ALLOCATEMEMV D2 7 0; UsrFunc[void p(char32[], int)] Params Start
+WRITEPODSTRING D2 "Abs(x)"
+PUSHR D2
+LOAD D2 0.0007; InlineFunc[int Abs(int)] Params
+ABS D2; InlineFunc[int Abs(int)] Body
+PUSHR D2; UsrFunc[void p(char32[], int)] Params End
+CALLFUNC 0.1339; UsrFunc[void p(char32[], int)] Call
+PEEK D4
+ALLOCATEMEMV D2 10 0; UsrFunc[void p(char32[], int)] Params Start
+WRITEPODSTRING D2 "Min(x, 1)"
+PUSHR D2
+LOAD D2 0.0007; InlineFunc[int Min(...int[])] Params Start
+PUSHVARGR D2
+PUSHVARGV 1; InlineFunc[int Min(...int[])] Params End
+MINVARG; InlineFunc[int Min(...int[])] Body
+PUSHR D2; UsrFunc[void p(char32[], int)] Params End
+CALLFUNC 0.1339; UsrFunc[void p(char32[], int)] Call
+PEEK D4
+ALLOCATEMEMV D2 10 0; UsrFunc[void p(char32[], int)] Params Start
+WRITEPODSTRING D2 "Max(x, 1)"
+PUSHR D2
+LOAD D2 0.0007; InlineFunc[int Max(...int[])] Params Start
+PUSHVARGR D2
+PUSHVARGV 1; InlineFunc[int Max(...int[])] Params End
+MAXVARG; InlineFunc[int Max(...int[])] Body
+PUSHR D2; UsrFunc[void p(char32[], int)] Params End
+CALLFUNC 0.1339; UsrFunc[void p(char32[], int)] Call
+PEEK D4
+ALLOCATEMEMV D2 11 0; UsrFunc[void p(char32[], int)] Params Start
+WRITEPODSTRING D2 "Min(x, -1)"
+PUSHR D2
+LOAD D2 0.0007; InlineFunc[int Min(...int[])] Params Start
+PUSHVARGR D2
+PUSHVARGV -1; InlineFunc[int Min(...int[])] Params End
+MINVARG; InlineFunc[int Min(...int[])] Body
+PUSHR D2; UsrFunc[void p(char32[], int)] Params End
+CALLFUNC 0.1339; UsrFunc[void p(char32[], int)] Call
+PEEK D4
+ALLOCATEMEMV D2 11 0; UsrFunc[void p(char32[], int)] Params Start
+WRITEPODSTRING D2 "Max(x, -1)"
+PUSHR D2
+LOAD D2 0.0007; InlineFunc[int Max(...int[])] Params Start
+PUSHVARGR D2
+PUSHVARGV -1; InlineFunc[int Max(...int[])] Params End
+MAXVARG; InlineFunc[int Max(...int[])] Body
+PUSHR D2; UsrFunc[void p(char32[], int)] Params End
+CALLFUNC 0.1339; UsrFunc[void p(char32[], int)] Call
+PEEK D4
+ALLOCATEMEMV D2 9 0; UsrFunc[void p(char32[], int)] Params Start
+WRITEPODSTRING D2 "Floor(x)"
+PUSHR D2
+LOAD D2 0.0007; InlineFunc[int Floor(int)] Params
+FLOOR D2; InlineFunc[int Floor(int)] Body
+PUSHR D2; UsrFunc[void p(char32[], int)] Params End
+CALLFUNC 0.1339; UsrFunc[void p(char32[], int)] Call
+PEEK D4
+ALLOCATEMEMV D2 11 0; UsrFunc[void p(char32[], int)] Params Start
+WRITEPODSTRING D2 "Ceiling(x)"
+PUSHR D2
+LOAD D2 0.0007; InlineFunc[int Ceiling(int)] Params
+CEILING D2; InlineFunc[int Ceiling(int)] Body
+PUSHR D2; UsrFunc[void p(char32[], int)] Params End
+CALLFUNC 0.1339; UsrFunc[void p(char32[], int)] Call
+PEEK D4
+ALLOCATEMEMV D2 7 0; UsrFunc[void p(char32[], bool)] Params Start
+WRITEPODSTRING D2 "x != 0"
+PUSHR D2
+LOAD D2 0.0007
+COMPAREV D2 0
+SETCMP D2 I!=
+PUSHR D2; UsrFunc[void p(char32[], bool)] Params End
+CALLFUNC 0.1355; UsrFunc[void p(char32[], bool)] Call
+PEEK D4
+ALLOCATEMEMV D2 3 0; UsrFunc[void p(char32[], bool)] Params Start
+WRITEPODSTRING D2 "!x"
+PUSHR D2
+LOAD D2 0.0007
+COMPAREV D2 0
+SETCMP D2 I==
+PUSHR D2; UsrFunc[void p(char32[], bool)] Params End
+CALLFUNC 0.1355; UsrFunc[void p(char32[], bool)] Call
+PEEK D4
+ALLOCATEMEMV D2 16 0; UsrFunc[void p(char32[], bool)] Params Start
+WRITEPODSTRING D2 "(bool)x == true"
+PUSHR D2
+LOAD D2 0.0007
+COMPAREV D2 1
+SETCMP D2 BI==
+PUSHR D2; UsrFunc[void p(char32[], bool)] Params End
+CALLFUNC 0.1355; UsrFunc[void p(char32[], bool)] Call
+PEEK D4
+ALLOCATEMEMV D2 3 0; UsrFunc[void p(char32[], int)] Params Start
+WRITEPODSTRING D2 "-x"
+PUSHR D2
+LOAD D2 0.0007
+SUBV2 0 D2
+PUSHR D2; UsrFunc[void p(char32[], int)] Params End
+CALLFUNC 0.1339; UsrFunc[void p(char32[], int)] Call
+PEEK D4
+ALLOCATEMEMV D2 6 0; UsrFunc[void p(char32[], int)] Params Start
+WRITEPODSTRING D2 "3 - x"
+PUSHR D2
+LOAD D2 0.0007
+SUBV2 3 D2
+PUSHR D2; UsrFunc[void p(char32[], int)] Params End
+CALLFUNC 0.1339; UsrFunc[void p(char32[], int)] Call
+POP D4
+LOAD D2 0.0011
+PUSHR D2
+LOAD D2 0.0008
+ADDV D2 5
+PUSHR D2
+LOAD D2 0.0010
+POP D3
+MODR D3 D2
+SETR D2 D3
+POP D0
+READPODARRAYR D2 D2
+STORE D2 0.0006
+PUSHR D4
+ALLOCATEMEMV D2 6 0; UsrFunc[void p(char32[], int)] Params Start
+WRITEPODSTRING D2 "x % y"
+PUSHR D2
+LOAD D2 0.0007
+PUSHR D2
+LOAD D2 0.0006
+POP D3
+MODR D3 D2
+PUSHR D3; UsrFunc[void p(char32[], int)] Params End
+CALLFUNC 0.1339; UsrFunc[void p(char32[], int)] Call
+PEEK D4
+ALLOCATEMEMV D2 6 0; UsrFunc[void p(char32[], int)] Params Start
+WRITEPODSTRING D2 "x / y"
+PUSHR D2
+LOAD D2 0.0007
+PUSHR D2
+LOAD D2 0.0006
+POP D3
+DIVR D3 D2
+PUSHR D3; UsrFunc[void p(char32[], int)] Params End
+CALLFUNC 0.1339; UsrFunc[void p(char32[], int)] Call
+PEEK D4
+ALLOCATEMEMV D2 6 0; UsrFunc[void p(char32[], int)] Params Start
+WRITEPODSTRING D2 "x * y"
+PUSHR D2
+LOAD D2 0.0007
+PUSHR D2
+LOAD D2 0.0006
+POP D3
+MULTR D2 D3
+PUSHR D2; UsrFunc[void p(char32[], int)] Params End
+CALLFUNC 0.1339; UsrFunc[void p(char32[], int)] Call
+PEEK D4
+ALLOCATEMEMV D2 6 0; UsrFunc[void p(char32[], int)] Params Start
+WRITEPODSTRING D2 "x & y"
+PUSHR D2
+LOAD D2 0.0007
+PUSHR D2
+LOAD D2 0.0006
+POP D3
+ANDR D2 D3
+PUSHR D2; UsrFunc[void p(char32[], int)] Params End
+CALLFUNC 0.1339; UsrFunc[void p(char32[], int)] Call
+PEEK D4
+ALLOCATEMEMV D2 6 0; UsrFunc[void p(char32[], int)] Params Start
+WRITEPODSTRING D2 "x | y"
+PUSHR D2
+LOAD D2 0.0007
+PUSHR D2
+LOAD D2 0.0006
+POP D3
+ORR D2 D3
+PUSHR D2; UsrFunc[void p(char32[], int)] Params End
+CALLFUNC 0.1339; UsrFunc[void p(char32[], int)] Call
+PEEK D4
+ALLOCATEMEMV D2 6 0; UsrFunc[void p(char32[], int)] Params Start
+WRITEPODSTRING D2 "x ^ y"
+PUSHR D2
+LOAD D2 0.0007
+PUSHR D2
+LOAD D2 0.0006
+POP D3
+XORR D2 D3
+PUSHR D2; UsrFunc[void p(char32[], int)] Params End
+CALLFUNC 0.1339; UsrFunc[void p(char32[], int)] Call
+PEEK D4
+ALLOCATEMEMV D2 9 0; UsrFunc[void p(char32[], int)] Params Start
+WRITEPODSTRING D2 "Min(x,y)"
+PUSHR D2
+LOAD D2 0.0007; InlineFunc[int Min(...int[])] Params Start
+PUSHVARGR D2
+LOAD D2 0.0006
+PUSHVARGR D2; InlineFunc[int Min(...int[])] Params End
+MINVARG; InlineFunc[int Min(...int[])] Body
+PUSHR D2; UsrFunc[void p(char32[], int)] Params End
+CALLFUNC 0.1339; UsrFunc[void p(char32[], int)] Call
+PEEK D4
+ALLOCATEMEMV D2 9 0; UsrFunc[void p(char32[], int)] Params Start
+WRITEPODSTRING D2 "Max(x,y)"
+PUSHR D2
+LOAD D2 0.0007; InlineFunc[int Max(...int[])] Params Start
+PUSHVARGR D2
+LOAD D2 0.0006
+PUSHVARGR D2; InlineFunc[int Max(...int[])] Params End
+MAXVARG; InlineFunc[int Max(...int[])] Body
+PUSHR D2; UsrFunc[void p(char32[], int)] Params End
+CALLFUNC 0.1339; UsrFunc[void p(char32[], int)] Call
+PEEK D4
+ALLOCATEMEMV D2 6 0; UsrFunc[void p(char32[], bool)] Params Start
+WRITEPODSTRING D2 "x < y"
+PUSHR D2
+LOAD D2 0.0007
+PUSHR D2
+LOAD D2 0.0006
+POP D3
+COMPARER D3 D2
+SETCMP D2 I<
+PUSHR D2; UsrFunc[void p(char32[], bool)] Params End
+CALLFUNC 0.1355; UsrFunc[void p(char32[], bool)] Call
+PEEK D4
+ALLOCATEMEMV D2 7 0; UsrFunc[void p(char32[], bool)] Params Start
+WRITEPODSTRING D2 "x <= y"
+PUSHR D2
+LOAD D2 0.0007
+PUSHR D2
+LOAD D2 0.0006
+POP D3
+COMPARER D3 D2
+SETCMP D2 I<=
+PUSHR D2; UsrFunc[void p(char32[], bool)] Params End
+CALLFUNC 0.1355; UsrFunc[void p(char32[], bool)] Call
+PEEK D4
+ALLOCATEMEMV D2 7 0; UsrFunc[void p(char32[], bool)] Params Start
+WRITEPODSTRING D2 "x == y"
+PUSHR D2
+LOAD D2 0.0007
+PUSHR D2
+LOAD D2 0.0006
+POP D3
+COMPARER D3 D2
+SETCMP D2 I==
+PUSHR D2; UsrFunc[void p(char32[], bool)] Params End
+CALLFUNC 0.1355; UsrFunc[void p(char32[], bool)] Call
+PEEK D4
+ALLOCATEMEMV D2 7 0; UsrFunc[void p(char32[], bool)] Params Start
+WRITEPODSTRING D2 "x != y"
+PUSHR D2
+LOAD D2 0.0007
+PUSHR D2
+LOAD D2 0.0006
+POP D3
+COMPARER D3 D2
+SETCMP D2 I!=
+PUSHR D2; UsrFunc[void p(char32[], bool)] Params End
+CALLFUNC 0.1355; UsrFunc[void p(char32[], bool)] Call
+PEEK D4
+ALLOCATEMEMV D2 6 0; UsrFunc[void p(char32[], int)] Params Start
+WRITEPODSTRING D2 "x - y"
+PUSHR D2
+LOAD D2 0.0007
+PUSHR D2
+LOAD D2 0.0006
+POP D3
+SUBR D3 D2
+PUSHR D3; UsrFunc[void p(char32[], int)] Params End
+CALLFUNC 0.1339; UsrFunc[void p(char32[], int)] Call
+PEEK D4
+ALLOCATEMEMV D2 6 0; UsrFunc[void p(char32[], int)] Params Start
+WRITEPODSTRING D2 "x + y"
+PUSHR D2
+LOAD D2 0.0007
+PUSHR D2
+LOAD D2 0.0006
+POP D3
+ADDR D2 D3
+PUSHR D2; UsrFunc[void p(char32[], int)] Params End
+CALLFUNC 0.1339; UsrFunc[void p(char32[], int)] Call
+PEEK D4
+ALLOCATEMEMV D2 15 0; UsrFunc[void p(char32[], bool)] Params Start
+WRITEPODSTRING D2 "x % 2 == y % 2"
+PUSHR D2
+LOAD D2 0.0007
+MODV D2 2
+PUSHR D2
+LOAD D2 0.0006
+MODV D2 2
+POP D3
+COMPARER D3 D2
+SETCMP D2 I==
+PUSHR D2; UsrFunc[void p(char32[], bool)] Params End
+CALLFUNC 0.1355; UsrFunc[void p(char32[], bool)] Call
+POP D4
+LOAD D2 0.0011
+PUSHR D2
+POP D0
+READPODARRAYV D2 3
+STORE D2 0.0005
+PUSHR D4
+ALLOCATEMEMV D2 9 0; UsrFunc[void p(char32[], int)] Params Start
+WRITEPODSTRING D2 "x / zero"
+PUSHR D2
+LOAD D2 0.0007
+PUSHR D2
+LOAD D2 0.0005
+POP D3
+DIVR D3 D2
+PUSHR D3; UsrFunc[void p(char32[], int)] Params End
+CALLFUNC 0.1339; UsrFunc[void p(char32[], int)] Call
+PEEK D4
+ALLOCATEMEMV D2 9 0; UsrFunc[void p(char32[], int)] Params Start
+WRITEPODSTRING D2 "x % zero"
+PUSHR D2
+LOAD D2 0.0007
+PUSHR D2
+LOAD D2 0.0005
+POP D3
+MODR D3 D2
+PUSHR D3; UsrFunc[void p(char32[], int)] Params End
+CALLFUNC 0.1339; UsrFunc[void p(char32[], int)] Call
+PEEK D4
+ALLOCATEMEMV D2 10 0; UsrFunc[void p(char32[], int)] Params Start
+WRITEPODSTRING D2 "-3 / zero"
+PUSHR D2
+LOAD D2 0.0005
+DIVV2 -3 D2
+PUSHR D2; UsrFunc[void p(char32[], int)] Params End
+CALLFUNC 0.1339; UsrFunc[void p(char32[], int)] Call
+POP D4
+STOREV 0 0.0004; for() #6 setup
+LOAD D2 0.0004; for() #6 LoopTest
+COMPAREV D2 5
+SETCMP D2 I<
+COMPAREV D2 0
+GOTOCMP 712 ==; for() #6 TestFail?
+LOAD D2 0.0009; for() #6 Body Start
+PUSHR D2
+LOAD D2 0.0004
+POP D0
+READPODARRAYR D2 D2
+STORE D2 0.0003
+PUSHR D4
+ALLOCATEMEMV D2 7 0; UsrFunc[void p(char32[], int)] Params Start
+WRITEPODSTRING D2 "x << c"
+PUSHR D2
+LOAD D2 0.0007
+PUSHR D2
+LOAD D2 0.0003
+POP D3
+LSHIFTR D3 D2
+PUSHR D3; UsrFunc[void p(char32[], int)] Params End
+CALLFUNC 0.1339; UsrFunc[void p(char32[], int)] Call
+PEEK D4
+ALLOCATEMEMV D2 7 0; UsrFunc[void p(char32[], int)] Params Start
+WRITEPODSTRING D2 "x >> c"
+PUSHR D2
+LOAD D2 0.0007
+PUSHR D2
+LOAD D2 0.0003
+POP D3
+RSHIFTR D3 D2
+PUSHR D3; UsrFunc[void p(char32[], int)] Params End
+CALLFUNC 0.1339; UsrFunc[void p(char32[], int)] Call
+PEEK D4
+ALLOCATEMEMV D2 7 0; UsrFunc[void p(char32[], int)] Params Start
+WRITEPODSTRING D2 "1 << c"
+PUSHR D2
+LOAD D2 0.0003
+SETV D3 1
+LSHIFTR D3 D2
+PUSHR D3; UsrFunc[void p(char32[], int)] Params End
+CALLFUNC 0.1339; UsrFunc[void p(char32[], int)] Call
+PEEK D4
+ALLOCATEMEMV D2 8 0; UsrFunc[void p(char32[], int)] Params Start
+WRITEPODSTRING D2 "-8 >> c"
+PUSHR D2
+LOAD D2 0.0003
+SETV D3 -8
+RSHIFTR D3 D2
+PUSHR D3; UsrFunc[void p(char32[], int)] Params End
+CALLFUNC 0.1339; UsrFunc[void p(char32[], int)] Call
+POP D4; for() #6 Body End
+LOAD D2 0.0004; for() #6 LoopIncrement
+ADDV D2 1
+STORE D2 0.0004
+GOTO 656; for() #6 End
+NOP; for() #5 Body End
+LOAD D2 0.0008; for() #5 LoopIncrement
+ADDV D2 1
+STORE D2 0.0008
+GOTO 73; for() #5 End
+NOP
+ALLOCATEMEMV D2 11 0
+PUSHR D2
+WRITEPODARRAY D2 {-0.0003,-0.0001,0,0.0001,0.0003,6.5536,-6.5536,214748.3647,-214748.3648,1234.5678,-1234.5678}
+POP D2
+STORE_OBJECT D2 0.0008
+STOREV 11 0.0007
+STOREV 0 0.0006; for() #7 setup
+LOAD D2 0.0006; for() #7 LoopTest
+PUSHR D2
+LOAD D2 0.0007
+POP D3
+COMPARER D3 D2
+SETCMP D2 I<
+COMPAREV D2 0
+GOTOCMP 1018 ==; for() #7 TestFail?
+LOAD D2 0.0008; for() #7 Body Start
+PUSHR D2
+LOAD D2 0.0006
+POP D0
+READPODARRAYR D2 D2
+STORE D2 0.0005
+ALLOCATEMEMV D2 14 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
+WRITEPODSTRING D2 "--- lx = %ld\n"
+PUSHR D2
+LOAD D2 0.0005
+PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
+PUSHR D4
+ALLOCATEMEMV D2 8 0; UsrFunc[void pl(char32[], long)] Params Start
+WRITEPODSTRING D2 "lx % 2L"
+PUSHR D2
+LOAD D2 0.0005
+MODV D2 0.0002
+PUSHR D2; UsrFunc[void pl(char32[], long)] Params End
+CALLFUNC 0.1371; UsrFunc[void pl(char32[], long)] Call
+PEEK D4
+ALLOCATEMEMV D2 8 0; UsrFunc[void pl(char32[], long)] Params Start
+WRITEPODSTRING D2 "lx % 4L"
+PUSHR D2
+LOAD D2 0.0005
+MODV D2 0.0004
+PUSHR D2; UsrFunc[void pl(char32[], long)] Params End
+CALLFUNC 0.1371; UsrFunc[void pl(char32[], long)] Call
+PEEK D4
+ALLOCATEMEMV D2 12 0; UsrFunc[void pl(char32[], long)] Params Start
+WRITEPODSTRING D2 "lx % 65536L"
+PUSHR D2
+LOAD D2 0.0005
+MODV D2 6.5536
+PUSHR D2; UsrFunc[void pl(char32[], long)] Params End
+CALLFUNC 0.1371; UsrFunc[void pl(char32[], long)] Call
+PEEK D4
+ALLOCATEMEMV D2 9 0; UsrFunc[void pl(char32[], long)] Params Start
+WRITEPODSTRING D2 "lx % -4L"
+PUSHR D2
+LOAD D2 0.0005
+MODV D2 -0.0004
+PUSHR D2; UsrFunc[void pl(char32[], long)] Params End
+CALLFUNC 0.1371; UsrFunc[void pl(char32[], long)] Call
+PEEK D4
+ALLOCATEMEMV D2 8 0; UsrFunc[void pl(char32[], long)] Params Start
+WRITEPODSTRING D2 "lx % 3L"
+PUSHR D2
+LOAD D2 0.0005
+MODV D2 0.0003
+PUSHR D2; UsrFunc[void pl(char32[], long)] Params End
+CALLFUNC 0.1371; UsrFunc[void pl(char32[], long)] Call
+PEEK D4
+ALLOCATEMEMV D2 8 0; UsrFunc[void pl(char32[], long)] Params Start
+WRITEPODSTRING D2 "lx % 1L"
+PUSHR D2
+LOAD D2 0.0005
+MODV D2 0.0001
+PUSHR D2; UsrFunc[void pl(char32[], long)] Params End
+CALLFUNC 0.1371; UsrFunc[void pl(char32[], long)] Call
+PEEK D4
+ALLOCATEMEMV D2 9 0; UsrFunc[void pl(char32[], long)] Params Start
+WRITEPODSTRING D2 "lx % -1L"
+PUSHR D2
+LOAD D2 0.0005
+MODV D2 -0.0001
+PUSHR D2; UsrFunc[void pl(char32[], long)] Params End
+CALLFUNC 0.1371; UsrFunc[void pl(char32[], long)] Call
+PEEK D4
+ALLOCATEMEMV D2 8 0; UsrFunc[void pl(char32[], long)] Params Start
+WRITEPODSTRING D2 "lx / 3L"
+PUSHR D2
+LOAD D2 0.0005
+DIVV D2 0.0003
+PUSHR D2; UsrFunc[void pl(char32[], long)] Params End
+CALLFUNC 0.1371; UsrFunc[void pl(char32[], long)] Call
+PEEK D4
+ALLOCATEMEMV D2 9 0; UsrFunc[void pl(char32[], long)] Params Start
+WRITEPODSTRING D2 "lx / -1L"
+PUSHR D2
+LOAD D2 0.0005
+DIVV D2 -0.0001
+PUSHR D2; UsrFunc[void pl(char32[], long)] Params End
+CALLFUNC 0.1371; UsrFunc[void pl(char32[], long)] Call
+PEEK D4
+ALLOCATEMEMV D2 8 0; UsrFunc[void pl(char32[], long)] Params Start
+WRITEPODSTRING D2 "lx * 3L"
+PUSHR D2
+LOAD D2 0.0005
+MULTV D2 0.0003
+PUSHR D2; UsrFunc[void pl(char32[], long)] Params End
+CALLFUNC 0.1371; UsrFunc[void pl(char32[], long)] Call
+PEEK D4
+ALLOCATEMEMV D2 8 0; UsrFunc[void pl(char32[], long)] Params Start
+WRITEPODSTRING D2 "lx * lx"
+PUSHR D2
+LOAD D2 0.0005
+PUSHR D2
+LOAD D2 0.0005
+POP D3
+MULTR D2 D3
+PUSHR D2; UsrFunc[void pl(char32[], long)] Params End
+CALLFUNC 0.1371; UsrFunc[void pl(char32[], long)] Call
+PEEK D4
+ALLOCATEMEMV D2 8 0; UsrFunc[void pl(char32[], long)] Params Start
+WRITEPODSTRING D2 "lx & 3L"
+PUSHR D2
+LOAD D2 0.0005
+ANDV32 D2 0.0003
+PUSHR D2; UsrFunc[void pl(char32[], long)] Params End
+CALLFUNC 0.1371; UsrFunc[void pl(char32[], long)] Call
+PEEK D4
+ALLOCATEMEMV D2 9 0; UsrFunc[void pl(char32[], long)] Params Start
+WRITEPODSTRING D2 "lx & -4L"
+PUSHR D2
+LOAD D2 0.0005
+ANDV32 D2 -0.0004
+PUSHR D2; UsrFunc[void pl(char32[], long)] Params End
+CALLFUNC 0.1371; UsrFunc[void pl(char32[], long)] Call
+PEEK D4
+ALLOCATEMEMV D2 8 0; UsrFunc[void pl(char32[], long)] Params Start
+WRITEPODSTRING D2 "lx | 5L"
+PUSHR D2
+LOAD D2 0.0005
+ORV32 D2 0.0005
+PUSHR D2; UsrFunc[void pl(char32[], long)] Params End
+CALLFUNC 0.1371; UsrFunc[void pl(char32[], long)] Call
+PEEK D4
+ALLOCATEMEMV D2 9 0; UsrFunc[void pl(char32[], long)] Params Start
+WRITEPODSTRING D2 "lx ^ -1L"
+PUSHR D2
+LOAD D2 0.0005
+XORV32 D2 -0.0001
+PUSHR D2; UsrFunc[void pl(char32[], long)] Params End
+CALLFUNC 0.1371; UsrFunc[void pl(char32[], long)] Call
+PEEK D4
+ALLOCATEMEMV D2 4 0; UsrFunc[void pl(char32[], long)] Params Start
+WRITEPODSTRING D2 "~lx"
+PUSHR D2
+LOAD D2 0.0005
+BITNOT32 D2
+PUSHR D2; UsrFunc[void pl(char32[], long)] Params End
+CALLFUNC 0.1371; UsrFunc[void pl(char32[], long)] Call
+PEEK D4
+ALLOCATEMEMV D2 9 0; UsrFunc[void pl(char32[], long)] Params Start
+WRITEPODSTRING D2 "lx << 1L"
+PUSHR D2
+LOAD D2 0.0005
+LSHIFTV32 D2 0.0001
+PUSHR D2; UsrFunc[void pl(char32[], long)] Params End
+CALLFUNC 0.1371; UsrFunc[void pl(char32[], long)] Call
+PEEK D4
+ALLOCATEMEMV D2 10 0; UsrFunc[void pl(char32[], long)] Params Start
+WRITEPODSTRING D2 "lx << 31L"
+PUSHR D2
+LOAD D2 0.0005
+LSHIFTV32 D2 0.0031
+PUSHR D2; UsrFunc[void pl(char32[], long)] Params End
+CALLFUNC 0.1371; UsrFunc[void pl(char32[], long)] Call
+PEEK D4
+ALLOCATEMEMV D2 9 0; UsrFunc[void pl(char32[], long)] Params Start
+WRITEPODSTRING D2 "lx >> 1L"
+PUSHR D2
+LOAD D2 0.0005
+RSHIFTV32 D2 0.0001
+PUSHR D2; UsrFunc[void pl(char32[], long)] Params End
+CALLFUNC 0.1371; UsrFunc[void pl(char32[], long)] Call
+PEEK D4
+ALLOCATEMEMV D2 10 0; UsrFunc[void pl(char32[], long)] Params Start
+WRITEPODSTRING D2 "lx >> 31L"
+PUSHR D2
+LOAD D2 0.0005
+RSHIFTV32 D2 0.0031
+PUSHR D2; UsrFunc[void pl(char32[], long)] Params End
+CALLFUNC 0.1371; UsrFunc[void pl(char32[], long)] Call
+POP D4
+LOAD D2 0.0008
+PUSHR D2
+LOAD D2 0.0006
+ADDV D2 3
+PUSHR D2
+LOAD D2 0.0007
+POP D3
+MODR D3 D2
+SETR D2 D3
+POP D0
+READPODARRAYR D2 D2
+STORE D2 0.0004
+PUSHR D4
+ALLOCATEMEMV D2 8 0; UsrFunc[void pl(char32[], long)] Params Start
+WRITEPODSTRING D2 "lx % ly"
+PUSHR D2
+LOAD D2 0.0005
+PUSHR D2
+LOAD D2 0.0004
+POP D3
+MODR D3 D2
+PUSHR D3; UsrFunc[void pl(char32[], long)] Params End
+CALLFUNC 0.1371; UsrFunc[void pl(char32[], long)] Call
+PEEK D4
+ALLOCATEMEMV D2 8 0; UsrFunc[void pl(char32[], long)] Params Start
+WRITEPODSTRING D2 "lx / ly"
+PUSHR D2
+LOAD D2 0.0005
+PUSHR D2
+LOAD D2 0.0004
+POP D3
+DIVR D3 D2
+PUSHR D3; UsrFunc[void pl(char32[], long)] Params End
+CALLFUNC 0.1371; UsrFunc[void pl(char32[], long)] Call
+PEEK D4
+ALLOCATEMEMV D2 8 0; UsrFunc[void pl(char32[], long)] Params Start
+WRITEPODSTRING D2 "lx & ly"
+PUSHR D2
+LOAD D2 0.0005
+PUSHR D2
+LOAD D2 0.0004
+POP D3
+ANDR32 D2 D3
+PUSHR D2; UsrFunc[void pl(char32[], long)] Params End
+CALLFUNC 0.1371; UsrFunc[void pl(char32[], long)] Call
+PEEK D4
+ALLOCATEMEMV D2 8 0; UsrFunc[void pl(char32[], long)] Params Start
+WRITEPODSTRING D2 "lx | ly"
+PUSHR D2
+LOAD D2 0.0005
+PUSHR D2
+LOAD D2 0.0004
+POP D3
+ORR32 D2 D3
+PUSHR D2; UsrFunc[void pl(char32[], long)] Params End
+CALLFUNC 0.1371; UsrFunc[void pl(char32[], long)] Call
+PEEK D4
+ALLOCATEMEMV D2 8 0; UsrFunc[void pl(char32[], long)] Params Start
+WRITEPODSTRING D2 "lx ^ ly"
+PUSHR D2
+LOAD D2 0.0005
+PUSHR D2
+LOAD D2 0.0004
+POP D3
+XORR32 D2 D3
+PUSHR D2; UsrFunc[void pl(char32[], long)] Params End
+CALLFUNC 0.1371; UsrFunc[void pl(char32[], long)] Call
+PEEK D4
+ALLOCATEMEMV D2 8 0; UsrFunc[void pl(char32[], long)] Params Start
+WRITEPODSTRING D2 "Abs(lx)"
+PUSHR D2
+LOAD D2 0.0005; InlineFunc[int Abs(int)] Params
+ABS D2; InlineFunc[int Abs(int)] Body
+PUSHR D2; UsrFunc[void pl(char32[], long)] Params End
+CALLFUNC 0.1371; UsrFunc[void pl(char32[], long)] Call
+POP D4
+LOAD D2 0.0008
+PUSHR D2
+POP D0
+READPODARRAYV D2 2
+STORE D2 0.0003
+PUSHR D4
+ALLOCATEMEMV D2 11 0; UsrFunc[void pl(char32[], long)] Params Start
+WRITEPODSTRING D2 "lx / lzero"
+PUSHR D2
+LOAD D2 0.0005
+PUSHR D2
+LOAD D2 0.0003
+POP D3
+DIVR D3 D2
+PUSHR D3; UsrFunc[void pl(char32[], long)] Params End
+CALLFUNC 0.1371; UsrFunc[void pl(char32[], long)] Call
+PEEK D4
+ALLOCATEMEMV D2 11 0; UsrFunc[void pl(char32[], long)] Params Start
+WRITEPODSTRING D2 "lx % lzero"
+PUSHR D2
+LOAD D2 0.0005
+PUSHR D2
+LOAD D2 0.0003
+POP D3
+MODR D3 D2
+PUSHR D3; UsrFunc[void pl(char32[], long)] Params End
+CALLFUNC 0.1371; UsrFunc[void pl(char32[], long)] Call
+POP D4; for() #7 Body End
+LOAD D2 0.0006; for() #7 LoopIncrement
+ADDV D2 1
+STORE D2 0.0006
+GOTO 725; for() #7 End
+NOP
+ALLOCATEMEMV D2 24 0
+PUSHR D2
+WRITEPODARRAY D2 {-3,-2,-1,0,1,2,3,4,5,6,7,8,9,10,1.5,-1.5,0.0001,-0.0001,214748.3647,-214748.3648,100,-100,2.9999,3.0001}
+POP D2
+STORE_OBJECT D2 0.0006
+STOREV 0 0.0005; for() #8 setup
+LOAD D2 0.0005; for() #8 LoopTest
+COMPAREV D2 24
+SETCMP D2 I<
+COMPAREV D2 0
+GOTOCMP 1148 ==; for() #8 TestFail?
+LOAD D2 0.0006; for() #8 Body Start
+PUSHR D2
+LOAD D2 0.0005
+POP D0
+READPODARRAYR D2 D2
+STORE D2 0.0004
+STOREV 0 0.0003
+LOAD D2 0.0004; switch() #1 Key
+SETR SWITCHKEY D2; Store key
+GOTOTABLE SWITCHKEY {0,0.1064,0.104,0.1043,0.1046,0.1049,0.1052,0.1055,0.1058,0.1061}; switch() #1 jump table [0..7]
+SETV D2 1; Case block
+STORE D2 0.0003
+GOTO 1066; break 1;
+SETV D2 2; Case block
+STORE D2 0.0003
+GOTO 1066; break 1;
+SETV D2 3; Case block
+STORE D2 0.0003
+GOTO 1066; break 1;
+SETV D2 4; Case block
+STORE D2 0.0003
+GOTO 1066; break 1;
+SETV D2 5; Case block
+STORE D2 0.0003
+GOTO 1066; break 1;
+SETV D2 6; Case block
+STORE D2 0.0003
+GOTO 1066; break 1;
+SETV D2 7; Case block
+STORE D2 0.0003
+GOTO 1066; break 1;
+SETV D2 8; Case block
+STORE D2 0.0003
+GOTO 1066; break 1;
+SETV D2 -1; Case block
+STORE D2 0.0003
+STOREV 0 0.0002; break 1;
+LOAD D2 0.0004; switch() #2 Key
+SETR SWITCHKEY D2; Store key
+GOTOTABLE SWITCHKEY {-3,0.1093,0.107,0.1073,0.1076,0.1079,0.1082,0.1085,0.1088,0.1091}; switch() #2 jump table [-3..4]
+SETV D2 1; Case block
+STORE D2 0.0002
+GOTO 1093; break 1;
+SETV D2 2; Case block
+STORE D2 0.0002
+GOTO 1093; break 1;
+SETV D2 3; Case block
+STORE D2 0.0002
+GOTO 1093; break 1;
+SETV D2 4; Case block
+STORE D2 0.0002
+GOTO 1093; break 1;
+SETV D2 5; Case block
+STORE D2 0.0002
+GOTO 1093; break 1;
+SETV D2 6; Case block
+STORE D2 0.0002
+GOTO 1093; break 1;
+SETV D2 7; Case block
+STORE D2 0.0002
+GOTO 1093; break 1;
+SETV D2 8; Case block
+STORE D2 0.0002
+STOREV 0 0.0001; break 1;
+LOAD D2 0.0004; switch() #3 Key
+SETR SWITCHKEY D2; Store key
+GOTORANGES SWITCHKEY {0.1109,-100,-50,0.1106,0,3,0.1097,5,7,0.11,100,100,0.1103}; switch() #3 range search (4 ranges)
+SETV D2 1; Case block
+STORE D2 0.0001
+GOTO 1111; break 1;
+SETV D2 2; Case block
+STORE D2 0.0001
+GOTO 1111; break 1;
+SETV D2 3; Case block
+STORE D2 0.0001
+GOTO 1111; break 1;
+SETV D2 4; Case block
+STORE D2 0.0001
+GOTO 1111; break 1;
+SETV D2 -1; Case block
+STORE D2 0.0001
+STOREV 0 0
+LOAD D2 0.0004; switch() #4 Key
+SETR SWITCHKEY D2; Store key
+GOTORANGES SWITCHKEY {0.1129,0,0,0.1124,1,1,0.1127,1000,1000,0.1115,2000,2000,0.1118,3000,3000,0.1121}; switch() #4 range search (5 ranges)
+SETV D2 1; Case block
+STORE D2 0
+GOTO 1129; break 1;
+SETV D2 2; Case block
+STORE D2 0
+GOTO 1129; break 1;
+SETV D2 3; Case block
+STORE D2 0
+GOTO 1129; break 1;
+SETV D2 4; Case block
+STORE D2 0
+GOTO 1129; break 1;
+SETV D2 5; Case block
+STORE D2 0
+ALLOCATEMEMV D2 21 0; break 1; AND InlineFunc[void printf(char32[], ...untyped[])] Params Start
+WRITEPODSTRING D2 "SW k=%d %d %d %d %d\n"
+PUSHR D2
+LOAD D2 0.0004
+PUSHVARGR D2
+LOAD D2 0.0003
+PUSHVARGR D2
+LOAD D2 0.0002
+PUSHVARGR D2
+LOAD D2 0.0001
+PUSHVARGR D2
+LOAD D2 0
+PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End AND for() #8 Body End
+LOAD D2 0.0005; for() #8 LoopIncrement
+ADDV D2 1
+STORE D2 0.0005
+GOTO 1025; for() #8 End
+NOP
+STOREV 0 0.0005
+STOREV 0 0.0004; for() #9 setup
+LOAD D2 0.0004; for() #9 LoopTest
+COMPAREV D2 4
+SETCMP D2 I<
+COMPAREV D2 0
+GOTOCMP 1215 ==; for() #9 TestFail?
+PUSHR D4; switch() #5 Key AND for() #9 Body Start
+LOAD D2 0.0004; UsrFunc[int passthru(int)] Params Start
+PUSHR D2; UsrFunc[int passthru(int)] Params End
+CALLFUNC 0.1387; UsrFunc[int passthru(int)] Call
+POP D4
+SETR SWITCHKEY D2; Store key
+COMPAREV SWITCHKEY 0
+GOTOCMP 1169 ==; case '0'
+COMPAREV SWITCHKEY 1
+GOTOCMP 1186 ==; case '10000'
+COMPAREV SWITCHKEY 2
+GOTOCMP 1190 ==; case '20000'
+GOTO 1207; switch() #5 NoMatch
+PUSHR D4; Case block AND switch() #6 Key
+LOAD D2 0.0004; UsrFunc[int passthru(int)] Params Start
+ADDV D2 1
+PUSHR D2; UsrFunc[int passthru(int)] Params End
+CALLFUNC 0.1387; UsrFunc[int passthru(int)] Call
+POP D4
+SETR SWITCHKEY D2; Store key
+COMPAREV SWITCHKEY 1
+GOTOCMP 1182 !=; case '10000' AND switch() #6 NoMatch
+LOAD D2 0.0005; Case block
+ADDV D2 1
+STORE D2 0.0005
+GOTO 1185; break 1;
+LOAD D2 0.0005; Case block
+ADDV D2 1000
+STORE D2 0.0005
+GOTO 1210; break 1; AND break 1;
+LOAD D2 0.0005; Case block
+ADDV D2 10
+STORE D2 0.0005
+GOTO 1210; break 1;
+PUSHR D4; Case block AND switch() #7 Key
+LOAD D2 0.0004; UsrFunc[int passthru(int)] Params Start
+ADDV D2 1
+PUSHR D2; UsrFunc[int passthru(int)] Params End
+CALLFUNC 0.1387; UsrFunc[int passthru(int)] Call
+POP D4
+SETR SWITCHKEY D2; Store key
+COMPAREV SWITCHKEY 3
+GOTOCMP 1203 !=; case '30000' AND switch() #7 NoMatch
+LOAD D2 0.0005; Case block
+ADDV D2 100
+STORE D2 0.0005
+GOTO 1206; break 1;
+LOAD D2 0.0005; Case block
+ADDV D2 1000
+STORE D2 0.0005
+GOTO 1210; break 1; AND break 1;
+LOAD D2 0.0005; Case block
+ADDV D2 10000
+STORE D2 0.0005
+NOP; break 1; AND for() #9 Body End
+LOAD D2 0.0004; for() #9 LoopIncrement
+ADDV D2 1
+STORE D2 0.0004
+GOTO 1151; for() #9 End
+NOP
+ALLOCATEMEMV D2 15 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
+WRITEPODSTRING D2 "NESTED acc=%d\n"
+PUSHR D2
+LOAD D2 0.0005
+PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
+LOAD D2 0.0011
+PUSHR D2
+POP D0
+READPODARRAYV D2 6
+COMPAREV D2 0
+SETCMP D2 I!=
+STORE D2 0.0004
+LOAD D2 0.0011
+PUSHR D2
+POP D0
+READPODARRAYV D2 6
+STORE D2 0.0003
+STOREV 1 0.0002
+ALLOCATEMEMV D2 47 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
+WRITEPODSTRING D2 "BOOL %d %d %d eq12=%d eq13=%d eq23=%d ne12=%d\n"
+PUSHR D2
+LOAD D2 0.0004
+PUSHVARGR D2
+LOAD D2 0.0003
+PUSHVARGR D2
+LOAD D2 0.0002
+PUSHVARGR D2
+LOAD D2 0.0004
+PUSHR D2
+LOAD D2 0.0003
+POP D3
+COMPARER D3 D2
+SETCMP D2 BI==
+PUSHVARGR D2
+LOAD D2 0.0004
+PUSHR D2
+LOAD D2 0.0002
+POP D3
+COMPARER D3 D2
+SETCMP D2 BI==
+PUSHVARGR D2
+LOAD D2 0.0003
+PUSHR D2
+LOAD D2 0.0002
+POP D3
+COMPARER D3 D2
+SETCMP D2 BI==
+PUSHVARGR D2
+LOAD D2 0.0004
+PUSHR D2
+LOAD D2 0.0003
+POP D3
+COMPARER D3 D2
+SETCMP D2 BI!=
+PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
+LOAD D2 0.0011
+PUSHR D2
+POP D0
+READPODARRAYV D2 6
+STORE D2 0.0001
+LOAD D2 0.0001
+STORE D2 0
+ALLOCATEMEMV D2 16 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
+WRITEPODSTRING D2 "BOOL2 %d %d %d\n"
+PUSHR D2
+LOAD D2 0
+PUSHVARGR D2
+LOAD D2 0
+PUSHR D2
+LOAD D2 0.0002
+POP D3
+COMPARER D3 D2
+SETCMP D2 BI==
+PUSHVARGR D2
+LOAD D2 0
+PUSHR D2
+LOAD D2 0.0001
+COMPAREV D2 0
+SETCMP D2 I>
+POP D3
+COMPARER D3 D2
+SETCMP D2 BI==
+PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
+CALLFUNC 0.1332; UsrFunc[void End()] Call AND [Opt:NeverRet]
+REF_REMOVE 0.0006
+REF_REMOVE 0.0008
+REF_REMOVE 0.0009
+REF_REMOVE 0.0011; [Opt:NeverRet] AND void run() Body End
+SETR D4 SP2; Func[void Init(int)] Body Start
+ALLOCATEMEMV D2 35 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
+WRITEPODSTRING D2 "[Test] started: dmap %d screen %d\n"
+PUSHR D2
+PUSHVARGV 5
+LOAD D2 0
+PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
+LOAD D2 0; if() #8 Test
+COMPAREV D2 0
+SETCMP D2 I!=
+COMPAREV D2 0
+GOTOCMP 1329 ==; Test 'if'
+PUSHV 5; InlineFunc[void hero::Warp(int, int)] Params Start AND if() #8 Body Start
+LOAD D2 0; InlineFunc[void hero::Warp(int, int)] Params End
+POP D3; InlineFunc[void hero::Warp(int, int)] Body Start
+WARPR D3 D2; InlineFunc[void hero::Warp(int, int)] Body End
+WAITFRAME; InlineFunc[void Waitframe()] Body AND if() #8 Body End
+NOP
+POP D5
+RETURNFUNC; Func[void Init(int)] Body End
+SETR D4 SP2; Func[void End()] Body Start
+ALLOCATEMEMV D2 13 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
+WRITEPODSTRING D2 "[Test] done\n"
+PUSHR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
+GAMEEXIT; InlineFunc[void Game::Exit()] Body AND [Opt:NeverRet] AND Func[void End()] Body End
+SETR D4 SP2; Func[void p(char32[], int)] Body Start
+MARK_TYPE_STACK 0.0009 0.0001
+REF_INC 0.0001
+ALLOCATEMEMV D2 11 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
+WRITEPODSTRING D2 "P %s = %d\n"
+PUSHR D2
+LOAD D2 0.0001
+PUSHVARGR D2
+MARK_TYPE_VARG 0.0009
+LOAD D2 0
+PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
+REF_REMOVE 0.0001
+POPARGS D5 0.0002
+RETURNFUNC; Func[void p(char32[], int)] Body End
+SETR D4 SP2; Func[void p(char32[], bool)] Body Start
+MARK_TYPE_STACK 0.0009 0.0001
+REF_INC 0.0001
+ALLOCATEMEMV D2 11 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
+WRITEPODSTRING D2 "P %s = %d\n"
+PUSHR D2
+LOAD D2 0.0001
+PUSHVARGR D2
+MARK_TYPE_VARG 0.0009
+LOAD D2 0
+PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
+REF_REMOVE 0.0001
+POPARGS D5 0.0002
+RETURNFUNC; Func[void p(char32[], bool)] Body End
+SETR D4 SP2; Func[void pl(char32[], long)] Body Start
+MARK_TYPE_STACK 0.0009 0.0001
+REF_INC 0.0001
+ALLOCATEMEMV D2 12 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
+WRITEPODSTRING D2 "P %s = %ld\n"
+PUSHR D2
+LOAD D2 0.0001
+PUSHVARGR D2
+MARK_TYPE_VARG 0.0009
+LOAD D2 0
+PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
+REF_REMOVE 0.0001
+POPARGS D5 0.0002
+RETURNFUNC; Func[void pl(char32[], long)] Body End
+SETR D4 SP2; Func[int passthru(int)] Body Start
+LOAD D2 0; return Start
+POP D5; return End
+RETURNFUNC; Func[int passthru(int)] Body End
