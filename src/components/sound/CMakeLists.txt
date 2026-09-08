@@ -2,6 +2,7 @@ FetchContent_Declare(
 	gme_external
 	GIT_REPOSITORY https://github.com/libgme/game-music-emu
 	GIT_TAG        05a2aa29e8eae29316804fdd28ceaa96c74a1531
+	PATCH_COMMAND  git restore . && git apply ${CMAKE_SOURCE_DIR}/third_party/gme.patch
 	EXCLUDE_FROM_ALL
 )
 set(GME_YM2612_EMU "Nuked" CACHE STRING "Which YM2612 emulator to use: \"Nuked\" (LGPLv2.1+), \"MAME\" (GPLv2+), or \"GENS\" (LGPLv2.1+)")
