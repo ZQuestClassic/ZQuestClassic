@@ -17,12 +17,12 @@ An annotation is written as an :zs_meta:`@`, the annotation's name, and then its
 parameters in parentheses, placed directly before the thing it applies to.
 Annotations may take a number of parameters.
 
-Multiple annotations can be applied to the same target, either by listing them
-on separate lines, or as a comma-separated list.
+Multiple annotations can be applied to the same target by listing them as a
+comma-separated list.
 
 .. zscript::
 
-	@Author("EmilyV")
+	@Author("EmilyV"),
 	@InitD0("Speed"), @InitD1("Damage")
 	ffc script Example
 	{

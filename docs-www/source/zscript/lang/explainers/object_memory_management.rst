@@ -100,8 +100,7 @@ globalize it via |GlobalObject|.
 	- :ref:`arrays and strings<arrays>`: |OwnArray|
 
 	Likewise, only custom class objects can be globalized. To keep any other object alive
-	indefinitely, store it in a global variable (or inside a global object) - that also makes
-	it persist to the save file.
+	indefinitely, store it in a global variable (or inside a global object).
 
 Objects made global with |GlobalObject| are never deleted by the garbage collector.
 
@@ -143,8 +142,12 @@ int arrays do not retain objects, but untyped arrays do).
 	Prior to this version, only globalized objects persist to the save file.
 
 .. caution::
-	References to internal arrays (such as :ref:`Screen->D[]<globals_screen_var_d>`) never persist to save files. They will
-	be replaced with null.
+	References to internal arrays (such as :ref:`Screen->D[]<globals_screen_var_d>`) never persist to save files.
+
+	Additionally, only custom user objects, arrays, and stacks persist to save files - no other builtin
+	types do (like bitmaps).
+
+	Instead, they are restored as null when a save file is reloaded.
 
 .. caution::
 	You should not expect destructors to run at any specific time, or even at all. You should only

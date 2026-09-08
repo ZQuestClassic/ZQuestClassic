@@ -114,11 +114,9 @@ internal void Waitframe();
 //   WAITFRAMESR D2
 internal void Waitframes(int count);
 
-// When called the first time in a frame, the script ends running for a portion
-// of time. The engine will proceed with part of a frame of gameplay (updating
-// the Hero, enemies, weapons, and collisions), before resuming this script just
-// before the screen is drawn. Calling this again in the same frame has no
-// further effect until the next [Waitframe].
+// Pauses the script for a portion of the frame. The engine will proceed with
+// part of a frame of gameplay (updating the Hero, enemies, weapons, and
+// collisions), before resuming this script just before the screen is drawn.
 //
 // Supported by global, hero, dmapdata, screendata, combodata, npc, lweapon,
 // eweapon, and itemsprite scripts. FFC scripts support it unless the QR

@@ -405,10 +405,6 @@ Which script types can use it:
   call is ignored. Passive generic scripts should use
   :ref:`WaitTo()<globals_fun_waitto>` instead, which offers far finer control.
 
-Only the first call to ``Waitdraw()`` in a frame pauses the script; calling it a
-second time in the same frame does nothing until the next
-:ref:`Waitframe()<globals_fun_waitframe>`.
-
 .. seealso::
 
 	:ref:`Frame Timings<frame_timings>`
