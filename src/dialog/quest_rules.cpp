@@ -1046,6 +1046,13 @@ static GUI::ListData compatRulesList
 		"\nIf unchecked, the FFC only checks for changers from where it re-entered the screen." },
 	{ "Can Turn While Charging Quake Hammer", qr_TURN_WHILE_CHARGING_HAMMER,
 		"If enabled, the player can change direction while charging the Quake Hammer, as in 2.50.0 and 2.50.1." },
+	{ "Hammer pounds facing up use 2.10 reach", qr_OLD_210_HAMMER_POUND_REACH,
+		"If enabled, a hammer pound while facing up affects the combos at 2.10's"
+		" fixed offsets from the player, 6 pixels higher than later versions. This"
+		" reaches one tile further when the player is standing halfway between"
+		" two tiles vertically, such as after walking up as far as possible"
+		" against solid water. Some 2.10 quests require this to pound a post"
+		" across a gap."},
 };
 
 static GUI::ListData enemiesRulesList
