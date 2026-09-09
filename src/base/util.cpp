@@ -1,5 +1,6 @@
 #include "base/util.h"
 #include "base/process_management.h"
+#include <climits>
 #include <cstdlib>
 #include <fstream>
 #include <sstream>
@@ -13,6 +14,63 @@ using namespace std;
 namespace fs = std::filesystem;
 
 #define PATH_MODE		0755
+
+namespace
+{
+
+// best(pi, si) is the best score for matching pattern[pi:] within
+// str[si:], where for pi > 0 pattern[pi-1] matched at si-1. Memoized
+// on (pi, si), so a pattern whose characters each occur many times in
+// `str` stays polynomial instead of exploring every combination.
+struct FuzzyMatcher
+{
+	std::string_view pattern, str;
+	std::vector<int> memo; // INT_MAX = not computed yet
+
+	FuzzyMatcher(std::string_view pattern, std::string_view str)
+		: pattern(pattern), str(str), memo(pattern.size() * (str.size() + 1), INT_MAX)
+	{}
+
+	int best(size_t pi, size_t si)
+	{
+		if (pi == pattern.size())
+			return 0;
+
+		int& slot = memo[pi * (str.size() + 1) + si];
+		if (slot != INT_MAX)
+			return slot;
+
+		char pc = tolower((uint8_t)pattern[pi]);
+		int result = INT_MIN;
+		for (size_t s = si; s < str.size(); s++)
+		{
+			if (tolower((uint8_t)str[s]) != pc)
+				continue;
+
+			// Penalize the gap since the previous match (or the start).
+			int step = -(int)(s - si);
+			// No gap: a match at the very start scores 15, one directly
+			// after the previous match scores 30.
+			if (s == si)
+				step += pi > 0 ? 30 : 15;
+			// After a separator - important for file paths.
+			if (s > si)
+			{
+				char prev = str[s - 1];
+				if (prev == '/' || prev == '\\' || prev == '_' || prev == '.')
+					step += 20;
+			}
+
+			int rest = best(pi + 1, s + 1);
+			if (rest != INT_MIN)
+				result = std::max(result, step + rest);
+		}
+
+		return slot = result;
+	}
+};
+
+} // end anonymous namespace
 
 namespace util
 {
@@ -86,6 +144,19 @@ namespace util
 		}
 
 		return result;
+	}
+
+	std::optional<int> fuzzy_match_score(std::string_view pattern, std::string_view str)
+	{
+		if (pattern.empty())
+			return 0;
+
+		int score = FuzzyMatcher(pattern, str).best(0, 0);
+		if (score == INT_MIN)
+			return std::nullopt;
+		// Prefer shorter strings: the same characters matched in a short
+		// string are a closer match.
+		return score - (int)str.size();
 	}
 
 	std::string read_text_file(fs::path path)

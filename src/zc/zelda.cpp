@@ -4256,6 +4256,8 @@ int main(int argc, char **argv)
 		}
 		extern TestResults test_zc_math(bool);
 		success &= run_tests(test_zc_math, "test_zc_math", verbose);
+		extern TestResults test_util(bool);
+		success &= run_tests(test_util, "test_util", verbose);
 		if (success)
 			printf("all tests passed\n");
 		exit(success ? 0 : 1);

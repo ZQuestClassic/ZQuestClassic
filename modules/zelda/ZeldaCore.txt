@@ -6,6 +6,7 @@ set(ZELDA_CORE_SOURCES
 ################################
 src/zscriptversion.cpp
 src/base/zc_math_test.cpp
+src/base/util_test.cpp
 src/test_runner/test_runner.cpp
 src/zc/ffscript.cpp
 src/zc/script_debug.cpp
