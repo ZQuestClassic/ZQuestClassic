@@ -16,6 +16,7 @@
 #include "zq/zq_tiles.h"
 #include "zq/zquest.h"
 #include "zalleg/packfile.h"
+#include "test_runner/test_runner.h"
 #include <fstream>
 
 extern bool is_zq_replay_test;
@@ -951,16 +952,25 @@ void zeditor_handle_commands()
 
 		set_headless_mode();
 
-		// TODO: convert to TestRunner.
-
+		bool verbose = zapp_check_switch("-verbose") || zapp_check_switch("-v");
 		bool success = true;
+
+		// TODO: convert to TestRunner.
 		if (!partial_load_test(test_dir))
 		{
 			success = false;
 			printf("partial_load_test failed\n");
 		}
+
+		extern TestResults test_zquest(bool);
+		extern void set_zquest_test_dir(std::string const&);
+		set_zquest_test_dir(test_dir);
+		if (!run_tests(test_zquest, "test_zquest", verbose)) success = false;
+
 		if (success)
 			printf("all tests passed\n");
+		else
+			printf("tests failed\n");
 		zq_exit(success ? 0 : 1);
 	}
 
