@@ -316,7 +316,7 @@ int32_t get_version_and_build(PACKFILE *f, word *version, word *build)
     int32_t ret;
     *version=0;
     *build=0;
-    byte temp_map_count=map_count;
+    word temp_map_count=map_count;
     byte temp_midi_flags[MIDIFLAGS_SIZE];
     memcpy(temp_midi_flags, midi_flags, MIDIFLAGS_SIZE);
     
@@ -880,6 +880,11 @@ static bool init_section(zquestheader *Header, int32_t section_id, miscQdata *Mi
       return false;
       */
     
+    // The template's header is read for the section readers' sake (their
+    // compat fixups key off the source quest's format and rules); the
+    // loaded quest's own header globals come back when this leaves scope.
+    ScopedQuestHeaderGlobals header_globals_guard;
+
     //setPackfilePassword(datapwd);
     f=open_quest_template(Header, filename, validate);
     
@@ -1224,17 +1229,33 @@ void free_newtilebuf()
     }
 }
 
-ScopedPartialQuestLoad::ScopedPartialQuestLoad(tiledata* tile_scratch)
-	: held_tilebuf(newtilebuf)
-	, held_colordata(colordata, colordata + psTOTAL255)
-	, held_format(FFCore.quest_format, FFCore.quest_format + versiontypesLAST)
-	, held_last_maptile(DMapEditorLastMaptileUsed)
-	, held_quest_rules(quest_rules, quest_rules + QUESTRULES_NEW_SIZE)
+ScopedQuestHeaderGlobals::ScopedQuestHeaderGlobals()
+	: held_quest_rules(quest_rules, quest_rules + QUESTRULES_NEW_SIZE)
 	, held_extra_rules(extra_rules, extra_rules + EXTRARULES_SIZE)
+	, held_format(FFCore.quest_format, FFCore.quest_format + versiontypesLAST)
 	, held_map_count(map_count)
 	, held_midi_flags(midi_flags, midi_flags + MIDIFLAGS_SIZE)
 	, held_read_zinfo(read_zinfo)
 	, held_read_ext_zinfo(read_ext_zinfo)
+{
+}
+
+ScopedQuestHeaderGlobals::~ScopedQuestHeaderGlobals()
+{
+	memcpy(quest_rules, held_quest_rules.data(), held_quest_rules.size());
+	memcpy(extra_rules, held_extra_rules.data(), held_extra_rules.size());
+	unpack_qrs();
+	std::copy(held_format.begin(), held_format.end(), FFCore.quest_format);
+	map_count = held_map_count;
+	memcpy(midi_flags, held_midi_flags.data(), held_midi_flags.size());
+	read_zinfo = held_read_zinfo;
+	read_ext_zinfo = held_read_ext_zinfo;
+}
+
+ScopedPartialQuestLoad::ScopedPartialQuestLoad(tiledata* tile_scratch)
+	: held_tilebuf(newtilebuf)
+	, held_colordata(colordata, colordata + psTOTAL255)
+	, held_last_maptile(DMapEditorLastMaptileUsed)
 {
 	newtilebuf = tile_scratch;
 }
@@ -1243,15 +1264,7 @@ ScopedPartialQuestLoad::~ScopedPartialQuestLoad()
 {
 	newtilebuf = held_tilebuf;
 	memcpy(colordata, held_colordata.data(), held_colordata.size());
-	std::copy(held_format.begin(), held_format.end(), FFCore.quest_format);
 	DMapEditorLastMaptileUsed = held_last_maptile;
-	memcpy(quest_rules, held_quest_rules.data(), held_quest_rules.size());
-	memcpy(extra_rules, held_extra_rules.data(), held_extra_rules.size());
-	unpack_qrs();
-	map_count = held_map_count;
-	memcpy(midi_flags, held_midi_flags.data(), held_midi_flags.size());
-	read_zinfo = held_read_zinfo;
-	read_ext_zinfo = held_read_ext_zinfo;
 }
 
 void free_grabtilebuf()

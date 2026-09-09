@@ -25496,6 +25496,31 @@ static bool partial_load_test(const char* test_dir)
 		return false;
 	}
 
+	// Quest > Defaults reads a section out of the default template while a
+	// quest is open; its header must not stick either.
+	int32_t prev_format[versiontypesLAST];
+	memcpy(prev_format, FFCore.quest_format, sizeof(prev_format));
+	if (!init_combos(true, &header))
+	{
+		printf("failed to reset combos from the template\n");
+		return false;
+	}
+	if (map_count != prev_map_count)
+	{
+		printf("unexpected modification after default combos: map_count == %d, should be %d\n", map_count, prev_map_count);
+		return false;
+	}
+	if (memcmp(quest_rules, prev_quest_rules, sizeof(prev_quest_rules)) != 0)
+	{
+		printf("unexpected modification after default combos: quest rules changed\n");
+		return false;
+	}
+	if (memcmp(FFCore.quest_format, prev_format, sizeof(prev_format)) != 0)
+	{
+		printf("unexpected modification after default combos: quest format changed\n");
+		return false;
+	}
+
 	// TODO should run replay. Currently, resaving classic_1st.qst fails its replay (see test_save in test_zeditor.py)
 
 	return true;

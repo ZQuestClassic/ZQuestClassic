@@ -210,15 +210,36 @@ int32_t loadquest(const char *filename, zquestheader *Header, miscQdata *Misc,
 char *byte_conversion(int32_t number, int32_t format);
 char *byte_conversion2(int32_t number1, int32_t number2, int32_t format1, int32_t format2);
 
+// Snapshots the globals readheader writes straight into - quest rules,
+// map_count, FFCore.quest_format, the midi flags, and the zinfo flags - and
+// restores them when it leaves scope. Wrap any header read of a quest file
+// other than the loaded one in this; nothing else puts those back. (A
+// skip_flags loadquest restores the rules and map_count itself, but not
+// the rest.)
+class ScopedQuestHeaderGlobals
+{
+public:
+	ScopedQuestHeaderGlobals();
+	~ScopedQuestHeaderGlobals();
+	ScopedQuestHeaderGlobals(ScopedQuestHeaderGlobals const&) = delete;
+	ScopedQuestHeaderGlobals& operator=(ScopedQuestHeaderGlobals const&) = delete;
+
+private:
+	std::vector<byte> held_quest_rules;
+	std::vector<byte> held_extra_rules;
+	std::vector<int32_t> held_format;
+	word held_map_count;
+	std::vector<byte> held_midi_flags;
+	bool held_read_zinfo;
+	bool held_read_ext_zinfo;
+};
+
 // Reads data from another quest file without disturbing the currently
 // loaded quest. Points the global tile buffer at `tile_scratch` for the
 // guard's lifetime (a foreign quest's tiles land there; the contents are
 // the caller's to use and clear), and snapshots/restores the other globals
-// a partial read writes: colordata, DMapEditorLastMaptileUsed, and
-// everything readheader writes straight into globals - quest rules,
-// map_count, FFCore.quest_format, the midi flags, and the zinfo flags.
-// (loadquest restores the rules and map_count itself when given skip
-// flags, but a bare readheader call restores nothing.)
+// a partial read writes: colordata, DMapEditorLastMaptileUsed, and the
+// header globals (see ScopedQuestHeaderGlobals).
 //
 // Use with skip_flags to read select sections, or around a bare readheader;
 // see the quest browser's scan_meta/scan_icon and the tile grabber's
@@ -232,16 +253,10 @@ public:
 	ScopedPartialQuestLoad& operator=(ScopedPartialQuestLoad const&) = delete;
 
 private:
+	ScopedQuestHeaderGlobals held_header_globals;
 	tiledata* held_tilebuf;
 	std::vector<byte> held_colordata;
-	std::vector<int32_t> held_format;
 	int32_t held_last_maptile;
-	std::vector<byte> held_quest_rules;
-	std::vector<byte> held_extra_rules;
-	word held_map_count;
-	std::vector<byte> held_midi_flags;
-	bool held_read_zinfo;
-	bool held_read_ext_zinfo;
 };
 
 bool valid_zqt(PACKFILE *f);
