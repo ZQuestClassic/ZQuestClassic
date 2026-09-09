@@ -86,6 +86,23 @@ DialogRef DialogRunner::push(shared_ptr<Widget> owner, DIALOG dlg, bool nofocus)
 	return DialogRef(this, pos);
 }
 
+Widget* DialogRunner::findWidget(DIALOG* d)
+{
+	if(!(d->flags&D_NEW_GUI))
+		return nullptr;
+	// Same walk as new_gui_event: the runner's own DIALOG sits at index 0
+	// with a marker in dp3, and widgets[i] owns alDialog[i+1].
+	DIALOG* p = d - 1;
+	for(size_t i = 0; ; --p, ++i)
+	{
+		if(p->dp3 == &newGuiMarker)
+		{
+			auto* dr = static_cast<DialogRunner*>(p->dp);
+			return i < dr->widgets.size() ? dr->widgets[i].get() : nullptr;
+		}
+	}
+}
+
 void DialogRunner::realize(shared_ptr<Widget> root)
 {
 	alDialog.push_back({
