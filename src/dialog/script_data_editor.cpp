@@ -263,13 +263,13 @@ std::shared_ptr<GUI::Widget> ScriptDataDialog::view()
 								hAlign = 0.0,
 								onSelectFunc = [&, set_arg](int32_t t, int32_t,int32_t,int32_t)
 								{
-									set_arg(t);
+									set_arg(t * 10000);
 								}
 							);
 							widget_data.main_widget = tswatch;
 							widget_data.set_widg_val = [&, tswatch](int val)
 								{
-									tswatch->setTile(val);
+									tswatch->setTile(val / 10000);
 								};
 							instvar_grid->add(tswatch);
 							break;
@@ -289,7 +289,7 @@ std::shared_ptr<GUI::Widget> ScriptDataDialog::view()
 								GUI::SelTileSwatch* tswatch = (GUI::SelTileSwatch*)(prev_widget_data->main_widget.get());
 								widget_data.set_widg_val = [&, tswatch](int val)
 								{
-									tswatch->setCSet(val);
+									tswatch->setCSet(val / 10000);
 								};
 								tswatch->setCSet(args[idx]);
 								tswatch->setRowSpan(2);
@@ -298,8 +298,8 @@ std::shared_ptr<GUI::Widget> ScriptDataDialog::view()
 								auto set_cset = set_arg;
 								tswatch->setOnSelectFunc([&, set_tile, set_cset](int t, int cs, int, int)
 								{
-									set_tile(t);
-									set_cset(cs);
+									set_tile(t * 10000);
+									set_cset(cs * 10000);
 								});
 							}
 							break;
@@ -313,13 +313,13 @@ std::shared_ptr<GUI::Widget> ScriptDataDialog::view()
 								hAlign = 0.0,
 								onSelectFunc = [&, set_arg](int32_t cmb, int32_t)
 								{
-									set_arg(cmb);
+									set_arg(cmb * 10000);
 								}
 							);
 							widget_data.main_widget = cswatch;
 							widget_data.set_widg_val = [&, cswatch](int val)
 								{
-									cswatch->setCombo(val);
+									cswatch->setCombo(val / 10000);
 								};
 							instvar_grid->add(cswatch);
 							break;
@@ -339,7 +339,7 @@ std::shared_ptr<GUI::Widget> ScriptDataDialog::view()
 								GUI::SelComboSwatch* cswatch = (GUI::SelComboSwatch*)(prev_widget_data->main_widget.get());
 								widget_data.set_widg_val = [&, cswatch](int val)
 								{
-									cswatch->setCSet(val);
+									cswatch->setCSet(val / 10000);
 								};
 								cswatch->setCSet(args[idx]);
 								cswatch->setRowSpan(2);
@@ -348,8 +348,8 @@ std::shared_ptr<GUI::Widget> ScriptDataDialog::view()
 								auto set_cset = set_arg;
 								cswatch->setOnSelectFunc([&, set_combo, set_cset](int c, int cs)
 								{
-									set_combo(c);
-									set_cset(cs);
+									set_combo(c * 10000);
+									set_cset(cs * 10000);
 								});
 							}
 							break;
@@ -363,13 +363,13 @@ std::shared_ptr<GUI::Widget> ScriptDataDialog::view()
 								val = args[idx],
 								onValChangedFunc = [&, set_arg](byte val)
 								{
-									set_arg(val);
+									set_arg(val * 10000);
 								}
 							);
 							widget_data.main_widget = csel;
 							widget_data.set_widg_val = [&, csel](int val)
 								{
-									csel->setVal(val);
+									csel->setVal(val / 10000);
 								};
 							instvar_grid->add(csel);
 							break;
@@ -443,13 +443,13 @@ std::shared_ptr<GUI::Widget> ScriptDataDialog::view()
 								selectedValue = args[idx],
 								onSelectFunc = [&, set_arg](int32_t val)
 								{
-									set_arg(val);
+									set_arg(val * 10000);
 								}
 							);
 							widget_data.main_widget = ddl;
 							widget_data.set_widg_val = [&, ddl](int val)
 								{
-									ddl->setSelectedValue(val);
+									ddl->setSelectedValue(val / 10000);
 								};
 							instvar_grid->add(ddl);
 							break;
