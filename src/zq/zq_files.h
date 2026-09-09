@@ -23,6 +23,7 @@ int32_t customOpen(char const* path);
 char* get_qst_name(char const* def_path = nullptr);
 bool should_open_as_readonly(std::string_view path);
 int32_t onOpen();
+int32_t onOpenFile();
 int32_t onRevert();
 int32_t get_import_map_bias();
 int32_t onImport_Map();

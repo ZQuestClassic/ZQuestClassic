@@ -47,6 +47,9 @@ public:
 
 	int32_t getSelectedIndex() const;
 	void setSelectedIndex(int32_t index, bool scroll_into_view = true);
+	// The row at the top of the viewport.
+	int32_t getScrollIndex() const;
+	void setScrollIndex(int32_t index);
 	// Returns nullptr if the list is empty.
 	QuestListRow const* getSelectedRow() const;
 
@@ -96,7 +99,7 @@ private:
 	std::vector<QuestListRow> rows;
 	// Parallel to `rows`; created lazily during draw, owned by this widget.
 	std::vector<ALLEGRO_BITMAP*> iconBitmaps;
-	int32_t selectedIndex;
+	int32_t selectedIndex, scrollIndex = 0;
 	int32_t message, msg_d;
 	std::function<bool()> onIdleFunc;
 	GUI::function<void(int32_t)> onSelectFunc;

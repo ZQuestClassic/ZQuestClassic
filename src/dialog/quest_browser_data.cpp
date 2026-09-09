@@ -1,6 +1,7 @@
 #include "dialog/quest_browser_data.h"
 #include "dialog/quest_browser.h"
 #include "base/version.h"
+#include "base/zapp.h"
 #include "zc/ffscript.h"
 #include "core/misctypes.h"
 #include "core/qst.h"
@@ -11,7 +12,10 @@
 #include <fmt/format.h>
 #include <algorithm>
 #include <cstring>
+#include <chrono>
 #include <filesystem>
+#include <mutex>
+#include <thread>
 #include <fstream>
 #include <map>
 #include <sstream>
@@ -304,15 +308,9 @@ static void platform_curate_found(std::vector<FoundQuest>&)
 {
 }
 
-// Returns the new version string the first time an update is found, else "".
+// Returns the newer version's string if there is one, else "".
 static std::string platform_check_for_update()
 {
-	static bool checked = false;
-	if (checked || !zc_get_config(quest_browser::CFG_SECTION, "check_for_updates", 1))
-		return "";
-
-	checked = true;
-
 	std::string output;
 	if (!run_and_get_output(locate_zapp_file(ZUPDATER_FILE), {"-headless", "-print-next-release"}, output))
 		return "";
@@ -740,9 +738,75 @@ std::string display_name_for_path(std::string const& path)
 	return fs::path(path).filename().string();
 }
 
-std::string check_for_update()
+static std::string found_update;
+static bool update_check_done = false;
+
+// Shared with the worker thread. Detached, so a check still waiting on
+// the network when the editor exits doesn't hold exit up; the shared_ptr
+// keeps the slot alive for it either way.
+struct UpdateCheck
 {
-	return platform_check_for_update();
+	std::mutex mutex;
+	bool done = false;
+	std::string result;
+};
+static std::shared_ptr<UpdateCheck> pending_update_check;
+
+void start_update_check()
+{
+	if (update_check_done || pending_update_check)
+		return;
+
+	// Read the setting here, not on the worker: Allegro's config store
+	// isn't thread-safe, and the dialog writes to it.
+	bool enabled = zc_get_config(CFG_SECTION, "check_for_updates", 1) != 0;
+
+	auto check = std::make_shared<UpdateCheck>();
+	pending_update_check = check;
+	std::thread([check, enabled]()
+	{
+		std::string result;
+		// Testing aid: `-fake-update <version>` reports that version after
+		// 200 ms instead of running the updater, to exercise the indicator
+		// and the first-show rebuild without a network or a newer release.
+		if (auto fake = get_flag_string("-fake-update"))
+		{
+			std::this_thread::sleep_for(std::chrono::milliseconds(200));
+			result = *fake;
+		}
+		else if (enabled)
+			result = platform_check_for_update();
+		std::lock_guard<std::mutex> lock(check->mutex);
+		check->result = result;
+		check->done = true;
+	}).detach();
+}
+
+bool poll_update_check()
+{
+	if (update_check_done)
+		return true;
+	if (!pending_update_check)
+		start_update_check();
+
+	std::lock_guard<std::mutex> lock(pending_update_check->mutex);
+	if (!pending_update_check->done)
+		return false;
+
+	found_update = pending_update_check->result;
+	update_check_done = true;
+	pending_update_check.reset();
+	return true;
+}
+
+std::string known_update()
+{
+	return found_update;
+}
+
+bool update_checked()
+{
+	return update_check_done;
 }
 
 bool scan_meta(Entry& e)

@@ -593,6 +593,19 @@ int32_t onOpen()
 	return D_O_K;
 }
 
+// File > Open File: straight to the OS file picker, skipping the browser.
+int32_t onOpenFile()
+{
+	restore_mouse();
+
+	if(checksave()==0)
+		return D_O_K;
+
+	if(char* name = get_qst_name())
+		open_quest(name);
+	return D_O_K;
+}
+
 int32_t onRevert()
 {
     if(!alert_confirm("Confirm Revert","Are you sure you want to lose all changes since last save?"))
