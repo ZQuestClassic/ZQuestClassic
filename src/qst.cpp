@@ -342,20 +342,46 @@ int32_t get_version_and_build(PACKFILE *f, word *version, word *build)
 }
 
 
+// Skips the body of the section whose id was just read: its version,
+// legacy cversion, any per-section extras ahead of the size field, and
+// the size's worth of data. Leaves the file at the next section id.
+static int skip_section_body(PACKFILE* f, dword section_id)
+{
+	word s_version;
+	if (!p_igetw(&s_version,f))
+		return qe_invalid;
+	word c_version;
+	if (!p_igetw(&c_version,f))
+		return qe_invalid;
+	// Sections that grew a field between the version and the size.
+	if (section_id == ID_RULES && s_version > 16)
+	{
+		dword dummy;
+		if (!p_igetl(&dummy,f))
+			return qe_invalid;
+	}
+	if (section_id == ID_FFSCRIPT && s_version >= 18)
+	{
+		word dummy;
+		if (!p_igetw(&dummy,f))
+			return qe_invalid;
+	}
+	dword section_length;
+	if (!p_igetl(&section_length,f))
+		return qe_invalid;
+	if (pack_fseek(f, section_length))
+		return qe_invalid;
+	return qe_OK;
+}
+
+// Advances `f` (positioned at a section id, i.e. just past the header) to
+// the requested section, leaving it at that section's version field.
 bool find_section(PACKFILE *f, int32_t section_id_requested)
 {
-
     if(!f)
     {
         return false;
     }
-    
-    int32_t section_id_read;
-    bool catchup=false;
-    word dummy;
-    byte tempbyte;
-    char tempbuf[65536];
-    
     
     switch(section_id_requested)
     {
@@ -384,96 +410,20 @@ bool find_section(PACKFILE *f, int32_t section_id_requested)
         break;
     }
     
-    dword section_size;
-    
-    //section id
-    if(!p_mgetl(&section_id_read,f))
-    {
-        return false;
-    }
-    
     while(!pack_feof(f))
     {
-        switch(section_id_read)
+        dword section_id_read;
+        if(!p_mgetl(&section_id_read,f))
         {
-        case ID_RULES:
-        case ID_STRINGS:
-        case ID_MISC:
-        case ID_TILES:
-        case ID_COMBOS:
-        case ID_CSETS:
-        case ID_MAPS:
-        case ID_DMAPS:
-        case ID_DOORS:
-        case ID_ITEMS:
-        case ID_WEAPONS:
-        case ID_COLORS:
-        case ID_ICONS:
-        case ID_INITDATA:
-        case ID_GUYS:
-        case ID_MIDIS:
-        case ID_CHEATS:
-            catchup=false;
-            break;
-            
-        default:
-            break;
+            return false;
         }
         
-        
-        while(catchup)
-        {
-            //section id
-            section_id_read=(section_id_read<<8);
-            
-            if(!p_getc(&tempbyte,f))
-            {
-                return false;
-            }
-            
-            section_id_read+=tempbyte;
-        }
-        
-        if(section_id_read==section_id_requested)
+        if(section_id_read==(dword)section_id_requested)
         {
             return true;
         }
-        else
-        {
-            //section version info
-            if(!p_igetw(&dummy,f))
-            {
-                return false;
-            }
-            
-            if(!p_igetw(&dummy,f))
-            {
-                return false;
-            }
-            
-            //section size
-            if(!p_igetl(&section_size,f))
-            {
-                return false;
-            }
-            
-            //pack_fseek(f, section_size);
-            while(section_size>65535)
-            {
-                pfread(tempbuf,65535,f);
-                tempbuf[65535]=0;
-                section_size-=65535;
-            }
-            
-            if(section_size>0)
-            {
-                pfread(tempbuf,section_size,f);
-                tempbuf[section_size]=0;
-            }
-        }
         
-        //section id
-        if(!p_mgetl(&section_id_read,f))
+        if(skip_section_body(f, section_id_read) != qe_OK)
         {
             return false;
         }
@@ -481,10 +431,6 @@ bool find_section(PACKFILE *f, int32_t section_id_requested)
     
     return false;
 }
-
-
-
-
 
 bool valid_zqt(PACKFILE *f)
 {
@@ -21446,46 +21392,8 @@ static int maybe_skip_section(PACKFILE* f, dword& section_id, const byte* skip_f
 	bool skip = section_enum >= 0 && get_bit(skip_flags, section_enum);
 	if (skip)
 	{
-		word s_version;
-		if (!p_igetw(&s_version,f))
-		{
-			return qe_invalid;
-		}
-
-		word c_version;
-		if (!p_igetw(&c_version,f))
-		{
-			return qe_invalid;
-		}
-
-		if (section_id == ID_RULES && s_version > 16)
-		{
-			dword dummy;
-			if (!p_igetl(&dummy,f))
-			{
-				return qe_invalid;
-			}
-		}
-
-		if (section_id == ID_FFSCRIPT && s_version >= 18)
-		{
-			word dummy;
-			if (!p_igetw(&dummy,f))
-			{
-				return qe_invalid;
-			}
-		}
-
-		dword section_length;
-		if (!p_igetl(&section_length,f))
-		{
-			return qe_invalid;
-		}
-
-		if (pack_fseek(f, section_length))
-		{
-			return qe_invalid;
-		}
+		if (int ret = skip_section_body(f, section_id); ret != qe_OK)
+			return ret;
 
 		if (!pack_feof(f))
 		{
