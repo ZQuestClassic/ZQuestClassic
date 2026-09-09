@@ -551,6 +551,11 @@ int32_t do_OpenQuest()
 	return onOpen();
 }
 
+int32_t do_OpenQuestFile()
+{
+	return onOpenFile();
+}
+
 int32_t do_NewQuest()
 {
 	return onNew();
@@ -1076,6 +1081,7 @@ static NewMenu file_menu
 {
 	{ "&New", do_NewQuest },
 	{ "&Open", do_OpenQuest },
+	{ "Open &File...", do_OpenQuestFile },
 	{ "Recent", &recent_menu },
 	{},
 	{ "&Save", onSave, MENUID_FILE_SAVE },

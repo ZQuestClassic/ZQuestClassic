@@ -67,8 +67,16 @@ std::string format_date(uint64_t mtime);
 // Stand-in name for untitled quests: the path relative to the quests
 // folder, or just the filename.
 std::string display_name_for_path(std::string const& path);
-// Returns the new version string the first time an update is found, else "".
-std::string check_for_update();
+// The update check runs the updater as a subprocess, which waits on the
+// network, so it runs on a background thread: start it (idempotent, once
+// per process), then poll until it reports done. Its result is cached.
+void start_update_check();
+// True once the check has finished; the result is then in known_update().
+bool poll_update_check();
+// The newer version the check found, or "" if none was found or it
+// hasn't finished yet.
+std::string known_update();
+bool update_checked();
 
 }
 

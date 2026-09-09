@@ -17,6 +17,7 @@ enum App {
 
 void common_main_setup(App id, int argc, char **argv);
 std::optional<bool> get_flag_bool(const char* name);
+std::optional<std::string> get_flag_string(const char* name);
 std::string zapp_get_exe_folder_path();
 App get_app_id();
 bool is_web();

@@ -200,6 +200,13 @@ std::optional<bool> get_flag_bool(const char* name)
 	return std::nullopt;
 }
 
+std::optional<std::string> get_flag_string(const char* name)
+{
+	int arg = used_switch(argc, argv, name);
+	if (arg == 0) return std::nullopt;
+	return argv[arg + 1];
+}
+
 App get_app_id()
 {
     return app_id;
