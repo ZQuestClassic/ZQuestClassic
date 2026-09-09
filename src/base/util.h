@@ -102,6 +102,14 @@ namespace util
 	std::vector<std::string> split(const std::string& str, const std::string& delim);
 	std::vector<std::string> split_args(const std::string &str);
 	std::string longest_common_prefix(const std::string& str1, const std::string& str2);
+	// Scores how well `pattern` matches `str` as a case-insensitive
+	// subsequence: every pattern character must appear in `str`, in order.
+	// Adjacent matches, a match at the start, and matches right after a
+	// separator (/ \ _ .) score higher; gaps and longer strings score
+	// lower. Higher is better, and scores are comparable across strings for
+	// one pattern. Empty if there is no match; an empty pattern matches
+	// everything with 0.
+	std::optional<int> fuzzy_match_score(std::string_view pattern, std::string_view str);
 	std::string read_text_file(fs::path path);
 	std::istream &portable_get_line(std::istream &is, std::string &t);
 	std::string cropPath(std::string filepath);

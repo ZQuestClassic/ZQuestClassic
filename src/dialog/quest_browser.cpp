@@ -13,6 +13,7 @@
 #include <algorithm>
 #include <cstring>
 #include <filesystem>
+#include <optional>
 
 namespace fs = std::filesystem;
 
@@ -20,19 +21,21 @@ using quest_browser::Entry;
 
 enum { SORT_RECENT, SORT_EDITED, SORT_ZCVER };
 
-static bool matches_filter(Entry const& e, std::string const& filter)
+// The filter's best fuzzy score against the entry's title, author, and
+// filename, or empty if none of them match.
+static std::optional<int> filter_score(Entry const& e, std::string const& filter)
 {
-	if (filter.empty())
-		return true;
-
-	auto contains_ci = [](std::string const& haystack, std::string const& needle) {
-		auto it = std::search(haystack.begin(), haystack.end(), needle.begin(), needle.end(),
-			[](char a, char b) { return tolower((uint8_t)a) == tolower((uint8_t)b); });
-		return it != haystack.end();
-	};
-
-	return contains_ci(e.title, filter) || contains_ci(e.author, filter)
-		|| contains_ci(e.path, filter);
+	// Only the filename, not the whole path: a fuzzy match needs the letters in order, not
+	// adjacent, and a long path (shared by every entry) has many short patterns in it.
+	std::string const filename = fs::path(e.path).filename().string();
+	std::optional<int> best;
+	for (std::string const* field : {&e.title, &e.author, &filename})
+	{
+		auto score = util::fuzzy_match_score(filter, *field);
+		if (score && (!best || *score > *best))
+			best = score;
+	}
+	return best;
 }
 
 QuestBrowserDialog::QuestBrowserDialog()
@@ -49,13 +52,21 @@ void QuestBrowserDialog::refreshRows()
 	auto const& entries = quest_browser::entries();
 
 	std::vector<size_t> order;
+	std::vector<int> scores(entries.size());
 	for (size_t i = 0; i < entries.size(); i++)
 	{
-		if (matches_filter(entries[i], filter))
+		if (auto score = filter_score(entries[i], filter))
+		{
 			order.push_back(i);
+			scores[i] = *score;
+		}
 	}
 
 	std::stable_sort(order.begin(), order.end(), [&](size_t ai, size_t bi) {
+		// While filtering, the best matches come first; the sort mode
+		// only breaks ties.
+		if (!filter.empty() && scores[ai] != scores[bi])
+			return scores[ai] > scores[bi];
 		auto const& a = entries[ai];
 		auto const& b = entries[bi];
 		switch(sortMode)
@@ -290,7 +301,7 @@ std::shared_ptr<GUI::Widget> QuestBrowserDialog::view()
 		maxLength = 64,
 		width = 120_px,
 		focused = true, // type right away to filter
-		tooltip = "Filter by title, author, or path",
+		tooltip = "Filter by title, author, or filename.\nLetters only need to appear in order;\nthe best matches sort first.",
 		onValChangedFunc = [&](GUI::TextField::type, std::string_view text, int32_t)
 		{
 			filter = std::string(text);

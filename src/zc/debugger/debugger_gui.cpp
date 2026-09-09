@@ -253,76 +253,6 @@ void DrawVariableTooltip(Debugger* debugger, const Variable* var, const std::str
 	}
 }
 
-// Recursive helper to find the best fuzzy match score.
-int RecursiveMatch(const char* pattern, const char* str, int currentScore, const char* matchStart)
-{
-	if (*pattern == '\0')
-		return currentScore;
-
-	// Scan through the string for all occurrences of the pattern.
-	char pc = tolower(*pattern);
-	const char* s = str;
-	int bestRecursiveScore = INT_MIN;
-
-	while (*s)
-	{
-		if (tolower(*s) == pc)
-		{
-			// Found a match for the current char. Calculate score for this step.
-			int stepScore = 0;
-
-			// Distance penalty.
-			// If matchStart is null, we penalize distance from start of string slightly less.
-			int distance = (matchStart == nullptr) ? (int)(s - str) : (int)(s - matchStart);
-			stepScore -= distance;
-
-			// Sequential bonus.
-			if (matchStart && s == matchStart + 1)
-				stepScore += 15;
-
-			// Start of string bonus.
-			if (s == str)
-				stepScore += 15;
-
-			// Separator bonus.
-			// (Matches after / _ . are very important for file paths)
-			if (s > str)
-			{
-				char prev = *(s - 1);
-				if (prev == '/' || prev == '\\' || prev == '_' || prev == '.')
-					stepScore += 20;
-			}
-
-			// Try to match the Rest of the pattern from s+1.
-			int rest = RecursiveMatch(pattern + 1, s + 1, currentScore + stepScore, s);
-
-			// Keep the best result.
-			if (rest > bestRecursiveScore)
-				bestRecursiveScore = rest;
-		}
-
-		s++;
-	}
-
-	return bestRecursiveScore;
-}
-
-// Higher score is better. Returns INT_MIN if no match.
-int FuzzyMatchScore(const char* pattern, const char* str)
-{
-	// Fast path: Empty pattern matches everything.
-	if (!*pattern) return 0;
-
-	int score = RecursiveMatch(pattern, str, 0, nullptr);
-	if (score != INT_MIN)
-	{
-		// Penalty: Length of the string (prefer shorter exact matches).
-		score -= (int)strlen(str);
-	}
-
-	return score;
-}
-
 ImVec4 U32ToImVec4(ImU32 color)
 {
 	float a = ((color >> 24) & 0xFF) / 255.0f;
@@ -1565,9 +1495,8 @@ void DrawFileSelector(Debugger* debugger)
 			ranked_files.clear();
 			for (const auto& source_file : zasm_debug_data.source_files)
 			{
-				int score = FuzzyMatchScore(search_buf, source_file.path.c_str());
-				if (score != INT_MIN)
-					ranked_files.push_back({ score, &source_file });
+				if (auto score = util::fuzzy_match_score(search_buf, source_file.path))
+					ranked_files.push_back({ *score, &source_file });
 			}
 			std::sort(ranked_files.begin(), ranked_files.end(), [](const auto& a, const auto& b) {
 				return a.first > b.first;
