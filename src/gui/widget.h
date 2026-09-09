@@ -229,6 +229,12 @@ public:
 	 */
 	void setDisabled(bool disabled) noexcept;
 
+	/* Text shown in a tooltip after the mouse rests on this widget. Empty
+	 * (the default) means no tooltip. Only the editor renders tooltips.
+	 */
+	void setTooltip(std::string const& text) { tooltip = text; }
+	std::string const& getTooltip() const noexcept { return tooltip; }
+
 	/* Returns true if this widget should be disabled initially. */
 	inline bool getDisabled() const noexcept
 	{
@@ -363,6 +369,7 @@ protected:
 	std::any userData;
 	DialogRef frameDialog, frameTextDialog;
 	std::string frameText;
+	std::string tooltip;
 
 	/* Sets the widget's width if it hasn't been overridden. */
 	void setPreferredWidth(Size newWidth) noexcept;

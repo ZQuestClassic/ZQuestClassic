@@ -163,6 +163,37 @@ void ttip_uninstall(int id)
 		rti_tooltip.active_tooltip_id = 0;
 }
 
+// GUI widget tooltips (see gui/common.h). One id is enough: only one widget
+// is hovered at a time, and reusing the id restarts the timer when the text
+// or area changes.
+static int gui_tooltip_id = 0;
+
+void gui_tooltip_show(std::string const& text, int32_t x, int32_t y, int32_t w, int32_t h)
+{
+	if (!gui_tooltip_id)
+		gui_tooltip_id = ttip_register_id();
+
+	// Prefer sitting just above the widget; fall back to below it when
+	// there's no room. ttip_install adds 16 to tip_y (it expects a mouse
+	// position), so cancel that out.
+	FONT* oldfont = font;
+	font = get_custom_font(CFONT_TTIP);
+	auto [tw, th] = get_box_text_size(text.c_str(), 1);
+	font = oldfont;
+	int32_t tip_y = y - th - 2;
+	if (tip_y < 0)
+		tip_y = y + h + 2;
+	ttip_install(gui_tooltip_id, text, x, y, w, h, x, tip_y - 16);
+	// Widgets already look hoverable; skip the highlight box.
+	ttip_set_highlight_thickness(gui_tooltip_id, 0);
+}
+
+void gui_tooltip_hide()
+{
+	if (gui_tooltip_id)
+		ttip_uninstall(gui_tooltip_id);
+}
+
 void ttip_uninstall_all()
 {
 	tooltips.clear();
@@ -259,7 +290,7 @@ void ToolTipRTI::prepare()
 
 	rti_text.set_transform({tooltip->tip_x, tooltip->tip_y, 1, 1});
 
-	rti_highlight.visible = TooltipsHighlight;
+	rti_highlight.visible = TooltipsHighlight && tooltip->highlight_thickness > 0;
 	if (rti_highlight.visible && rti_highlight.pos != tooltip->trigger_area)
 	{
 		add_highlight(tooltip->trigger_area, tooltip->highlight_thickness);
