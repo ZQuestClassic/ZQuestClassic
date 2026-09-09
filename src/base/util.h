@@ -7,6 +7,7 @@
 #include "base/zdefs.h"
 #include <sstream>
 #include <string>
+#include <optional>
 #include <string_view>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -45,6 +46,14 @@ namespace util
 	void sanitize_spaces_ok(std::string& str);
 	size_t split(const std::string &txt, std::vector<std::string> &strs, char ch);
 	std::vector<std::string> split_args(const std::string &str);
+	// Scores how well `pattern` matches `str` as a case-insensitive
+	// subsequence: every pattern character must appear in `str`, in order.
+	// Adjacent matches, a match at the start, and matches right after a
+	// separator (/ \ _ .) score higher; gaps and longer strings score
+	// lower. Higher is better, and scores are comparable across strings for
+	// one pattern. Empty if there is no match; an empty pattern matches
+	// everything with 0.
+	std::optional<int> fuzzy_match_score(std::string_view pattern, std::string_view str);
 	std::string read_text_file(fs::path path);
 	std::istream &portable_get_line(std::istream &is, std::string &t);
 	std::string cropPath(std::string filepath);
