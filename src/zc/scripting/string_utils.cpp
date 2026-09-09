@@ -72,11 +72,12 @@ const char* zs_formatter(const char* format, int32_t arg, int32_t mindig, dword 
 				
 				if(tempbool) //add decimal places
 				{
-					arg = abs(arg);
+					// Unsigned magnitude: abs(INT_MIN) is undefined.
+					uint32_t mag = neg ? 0u - (uint32_t)arg : (uint32_t)arg;
 					auto ind = strlen(argbuf);
 					argbuf[ind++] = '.';
-					for(int div = 1000; div > 0; div /= 10)
-						argbuf[ind++] = '0' + (arg/div)%10;
+					for(uint32_t div = 1000; div > 0; div /= 10)
+						argbuf[ind++] = '0' + (mag/div)%10;
 					for(--ind; argbuf[ind]=='0' && argbuf[ind-1]!='.'; --ind)
 					{
 						argbuf[ind] = 0;
