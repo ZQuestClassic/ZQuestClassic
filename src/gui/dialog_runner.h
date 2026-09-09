@@ -39,6 +39,11 @@ public:
 		}
 	}
 
+	/* Returns the widget that pushed the given DIALOG, or null if it isn't
+	 * part of a running new-GUI dialog.
+	 */
+	static Widget* findWidget(DIALOG* d);
+
 	/* Add a DIALOG and connect it to its owner.
 	 * This should always be called as
 	 * runner.push(shared_from_this(), DIALOG { ... });

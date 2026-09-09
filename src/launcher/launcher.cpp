@@ -366,6 +366,14 @@ void ttip_uninstall_all()
 {
 	
 }
+void gui_tooltip_show(std::string const&, int32_t, int32_t, int32_t, int32_t)
+{
+	
+}
+void gui_tooltip_hide()
+{
+	
+}
 
 // TODO: I experimented with making zcbase/zcgui shared/object libraries, and the followed was needed to compile zlauncher:
 // The following is needed because of ~mapscr, which is in zcbase.

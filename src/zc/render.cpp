@@ -541,4 +541,12 @@ void ttip_uninstall_all()
 {
 	
 }
+void gui_tooltip_show(std::string const&, int32_t, int32_t, int32_t, int32_t)
+{
+	
+}
+void gui_tooltip_hide()
+{
+	
+}
 
