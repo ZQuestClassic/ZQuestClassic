@@ -157,14 +157,16 @@ int32_t loadquest(const char *filename, zquestheader *Header, miscQdata *Misc,
 // loaded quest. Points the global tile buffer at `tile_scratch` for the
 // guard's lifetime (a foreign quest's tiles land there; the contents are
 // the caller's to use and clear), and snapshots/restores the other globals
-// a partial read writes: colordata, FFCore.quest_format (which a bare
-// readheader call memsets), and DMapEditorLastMaptileUsed. loadquest
-// itself restores quest rules and map_count when given skip flags, on
-// success and error paths both.
+// a partial read writes: colordata, DMapEditorLastMaptileUsed, and
+// everything readheader writes straight into globals - quest rules,
+// map_count, FFCore.quest_format, the midi flags, and the zinfo flags.
+// (loadquest restores the rules and map_count itself when given skip
+// flags, but a bare readheader call restores nothing.)
 //
-// Use with skip_flags to read select sections; see the quest browser's
-// scan_icon and the tile grabber's load_imagebuf. Create one via
-// make_partial_quest_load_guard(), which supplies the usual scratch buffer:
+// Use with skip_flags to read select sections, or around a bare readheader;
+// see the quest browser's scan_meta/scan_icon and the tile grabber's
+// load_imagebuf. Create one via make_partial_quest_load_guard(), which
+// supplies the usual scratch buffer:
 //
 //   auto quest_load_guard = make_partial_quest_load_guard();
 class ScopedPartialQuestLoad
@@ -180,6 +182,12 @@ private:
 	std::vector<byte> held_colordata;
 	std::vector<int32_t> held_format;
 	int32_t held_last_maptile;
+	std::vector<byte> held_quest_rules;
+	std::vector<byte> held_extra_rules;
+	word held_map_count;
+	bitstring held_midi_bitstr;
+	bool held_read_zinfo;
+	bool held_read_ext_zinfo;
 };
 
 // Foreign tiles land in the grab scratch buffer (grabtilebuf).

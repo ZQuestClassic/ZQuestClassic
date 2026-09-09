@@ -1889,6 +1889,12 @@ ScopedPartialQuestLoad::ScopedPartialQuestLoad(tiledata* tile_scratch)
 	, held_colordata(colordata, colordata + psTOTAL255)
 	, held_format(FFCore.quest_format, FFCore.quest_format + versiontypesLAST)
 	, held_last_maptile(DMapEditorLastMaptileUsed)
+	, held_quest_rules(quest_rules, quest_rules + QUESTRULES_NEW_SIZE)
+	, held_extra_rules(extra_rules, extra_rules + EXTRARULES_SIZE)
+	, held_map_count(map_count)
+	, held_midi_bitstr(midi_bitstr)
+	, held_read_zinfo(read_zinfo)
+	, held_read_ext_zinfo(read_ext_zinfo)
 {
 	newtilebuf = tile_scratch;
 }
@@ -1899,6 +1905,13 @@ ScopedPartialQuestLoad::~ScopedPartialQuestLoad()
 	memcpy(colordata, held_colordata.data(), held_colordata.size());
 	std::copy(held_format.begin(), held_format.end(), FFCore.quest_format);
 	DMapEditorLastMaptileUsed = held_last_maptile;
+	memcpy(quest_rules, held_quest_rules.data(), held_quest_rules.size());
+	memcpy(extra_rules, held_extra_rules.data(), held_extra_rules.size());
+	unpack_qrs();
+	map_count = held_map_count;
+	midi_bitstr = held_midi_bitstr;
+	read_zinfo = held_read_zinfo;
+	read_ext_zinfo = held_read_ext_zinfo;
 }
 
 ScopedPartialQuestLoad make_partial_quest_load_guard()

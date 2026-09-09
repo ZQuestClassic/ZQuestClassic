@@ -5,6 +5,7 @@
 #include "base/zapp.h"
 #include "dialog/compilezscript.h"
 #include "dialog/quest_browser.h"
+#include "dialog/quest_browser_data.h"
 #include "dialog/quest_rules.h"
 #include "zc_list_data.h"
 #include "zc/ffscript.h"
@@ -904,6 +905,35 @@ static bool partial_load_test(std::string test_dir)
 	if (DMaps[0].cont != cont)
 	{
 		printf("unexpected modification: DMaps[0].cont == %d, should be %d\n", DMaps[0].cont, cont);
+		return false;
+	}
+
+	// The quest browser reads other quests' headers and icons while a quest
+	// is open. Neither may leak the other quest's globals into the editor:
+	// a leaked map_count made every layer look invalid.
+	word prev_map_count = map_count;
+	byte prev_quest_rules[QUESTRULES_NEW_SIZE];
+	memcpy(prev_quest_rules, quest_rules, sizeof(prev_quest_rules));
+	quest_browser::Entry entry;
+	entry.path = ptux_path.string();
+	if (!quest_browser::scan_meta(entry))
+	{
+		printf("failed to scan PTUX.qst metadata\n");
+		return false;
+	}
+	if (!quest_browser::scan_icon(entry))
+	{
+		printf("failed to scan PTUX.qst icon\n");
+		return false;
+	}
+	if (map_count != prev_map_count)
+	{
+		printf("unexpected modification: map_count == %d, should be %d\n", map_count, prev_map_count);
+		return false;
+	}
+	if (memcmp(quest_rules, prev_quest_rules, sizeof(prev_quest_rules)) != 0)
+	{
+		printf("unexpected modification: quest rules changed\n");
 		return false;
 	}
 
