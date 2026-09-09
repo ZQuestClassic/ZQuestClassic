@@ -318,9 +318,10 @@ QuestListView::QuestListView():
 	rti(nullptr), selectedIndex(0), message(-1), msg_d(-1)
 {
 	// Fill most of the program window, with a comfortable gap between the
-	// dialog window and the application window.
-	int32_t sw = screen ? screen->w : 640;
-	int32_t sh = screen ? screen->h : 480;
+	// dialog window and the application window. (The quest browser passes
+	// its own width; this is the fallback.)
+	int32_t sw = zq_screen_w;
+	int32_t sh = zq_screen_h;
 	setPreferredWidth(Size::pixels(sw - 130));
 	// Leaves room for the selected-quest path label and footer below the
 	// list, snapped down to whole rows so no partial-row gap shows at the
@@ -408,6 +409,24 @@ void QuestListView::setSelectedIndex(int32_t index, bool scroll_into_view)
 	}
 }
 
+int32_t QuestListView::getScrollIndex() const
+{
+	if (alDialog)
+		return alDialog->d2;
+	return scrollIndex;
+}
+
+void QuestListView::setScrollIndex(int32_t index)
+{
+	scrollIndex = index;
+	if (alDialog)
+	{
+		alDialog->d2 = index;
+		clamp_list_range(alDialog.operator->(), rows.size(), visibleRowCount());
+		pendDraw();
+	}
+}
+
 QuestListRow const* QuestListView::getSelectedRow() const
 {
 	if (rows.empty())
@@ -477,7 +496,7 @@ void QuestListView::realize(DialogRunner& runner)
 		fgColor, bgColor,
 		0, // key
 		getFlags(), // flags
-		selectedIndex, 0, // d1, d2
+		selectedIndex, scrollIndex, // d1, d2
 		nullptr, widgFont, this // dp, dp2, dp3
 	});
 }

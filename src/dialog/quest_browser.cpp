@@ -41,6 +41,7 @@ QuestBrowserDialog::QuestBrowserDialog()
 		(int32_t)SORT_RECENT, (int32_t)SORT_ZCVER);
 	if (!quest_browser::gathered())
 		quest_browser::gather();
+	quest_browser::start_update_check();
 }
 
 void QuestBrowserDialog::refreshRows()
@@ -97,7 +98,7 @@ void QuestBrowserDialog::refreshRows()
 	}
 
 	questList->setEmptyText(filter.empty()
-		? "No quests found - use \"Open Quest\" or \"Scan Folder\" to add some."
+		? "No quests found - use \"Browse for File\" or \"Scan Folder\" to add some."
 		: "No quests match filter.");
 
 	// Keep the same quest selected when rows shift (background scans can
@@ -121,7 +122,7 @@ void QuestBrowserDialog::refreshRows()
 		}
 	}
 
-	updatePathLabel();
+	updateSelection();
 }
 
 bool QuestBrowserDialog::pumpScan()
@@ -163,15 +164,36 @@ bool QuestBrowserDialog::pumpScan()
 
 	quest_browser::persist();
 
-	std::string new_version = quest_browser::check_for_update();
-	if (!new_version.empty())
+	if (!quest_browser::update_checked())
 	{
-		updateVersion = new_version;
-		statusLabel->setText(fmt::format("Update available: {}", new_version));
-		return true;
+		if (!quest_browser::poll_update_check())
+			return false; // still waiting on the network; keep the dialog responsive
+		std::string new_version = quest_browser::known_update();
+		if (!new_version.empty())
+		{
+			if (updateSlot)
+				showUpdate(new_version);
+			else
+			{
+				// The footer was laid out without room for the label (the
+				// check hadn't run yet). Rebuild the view; it now knows.
+				if (auto const* sel = questList->getSelectedRow())
+					rerunSelectPath = sel->path;
+				rerunScroll = questList->getScrollIndex();
+				refresh_dlg();
+			}
+			return true;
+		}
 	}
 
 	return false;
+}
+
+void QuestBrowserDialog::showUpdate(std::string const& version)
+{
+	updateVersion = version;
+	updateLabel->setText("Update available");
+	updateLabel->setTooltip(fmt::format("New version available: {} (click to open release notes)", version));
 }
 
 // Local dev builds tack ".local"/"+local" onto the last release tag; strip
@@ -197,18 +219,20 @@ bool QuestBrowserDialog::pickSelected()
 	return true;
 }
 
-void QuestBrowserDialog::updatePathLabel()
+void QuestBrowserDialog::updateSelection()
 {
 	if (!pathLabel)
 		return;
 
-	std::string path;
-	if (auto const* row = questList->getSelectedRow())
-		path = row->path;
+	auto const* row = questList->getSelectedRow();
+	std::string path = row ? row->path : "";
 	// Keep the tail when truncating - it's the informative part.
 	if (path.size() > pathLabelLen && pathLabelLen > 3)
 		path = "..." + path.substr(path.size() - (pathLabelLen - 3));
 	pathLabel->setText(fmt::format("{:<{}}", path, pathLabelLen));
+
+	if (openButton)
+		openButton->setDisabled(!row);
 }
 
 std::shared_ptr<GUI::Widget> QuestBrowserDialog::view()
@@ -216,45 +240,32 @@ std::shared_ptr<GUI::Widget> QuestBrowserDialog::view()
 	using namespace GUI::Builder;
 	using namespace GUI::Props;
 
-	// Size the path label to roughly the list width.
-	int32_t sw = screen ? screen->w : 640;
-	pathLabelLen = std::max(40, (sw - 140) / 7);
+	// Size from the logical screen, not `screen`, which is null during a
+	// refresh_dlg() rebuild.
+	int32_t sw = zq_screen_w;
+	// The list sets the dialog's width; every other row aligns to its edges.
+	int32_t list_w = sw - 110;
+	// Path label capacity, in characters, roughly the list's width.
+	pathLabelLen = std::max(40, (list_w - 20) / 7);
 
-	// The layout system packs row contents at their natural widths (grids
-	// never stretch cells), so to left/right-justify groups within one line,
-	// measure the groups and insert a spacer covering the leftover width.
-	// If GUI::Grid ever learns a stretch primitive (a spacer that absorbs a
-	// row's excess width), all of this measurement code - and the launcher's
-	// space-padded-label equivalents - could be deleted.
-	FONT* dlgfont = GUI_DEF_FONT;
-	int32_t pad2 = 2 * DEFAULT_PADDING_INT;
-	int32_t th = text_height(dlgfont);
-	int32_t list_w = sw - 130; // keep in sync with QuestListView's preferred width
-	auto button_w = [&](char const* s) {
-		return 16 + gui_text_width(dlgfont, s) + pad2;
+	// Grids never stretch cells, so a row that should span the list's width
+	// gets a spacer sized to the leftover: measure the row's other widgets,
+	// then insert a blank label covering the difference. Rows get no padding
+	// of their own so their first and last widgets line up with the list.
+	// If GUI::Grid ever learns a stretch primitive, this measurement (and
+	// the launcher's space-padded-label equivalent) could be deleted.
+	int32_t row_w = list_w + 2 * DEFAULT_PADDING_INT; // the list's total width
+	auto spacer_for = [&](std::vector<std::shared_ptr<GUI::Widget>> const& widgets)
+	{
+		int32_t used = 0;
+		for (auto const& w : widgets)
+		{
+			w->calculateSize();
+			used += w->getTotalWidth();
+		}
+		return Label(text = "", hPadding = 0_px,
+			width = GUI::Size::pixels(std::max(0, row_w - used)));
 	};
-
-	int32_t buttons_w = button_w("New Quest") + button_w("Open Quest...")
-		+ button_w("Scan Folder...");
-	int32_t filter_w = text_length(dlgfont, "Filter:") + pad2
-		+ 120 + pad2 // the filter TextField's forced width
-		+ text_length(dlgfont, "Sort:") + pad2
-		+ 3 * th + text_length(dlgfont, "Recently Opened") + pad2;
-	int32_t top_spacer = std::max(8, list_w - buttons_w - filter_w);
-
-	int32_t checkbox_w = std::max(th + 4, 14) + 4
-		+ gui_text_width(dlgfont, "Automatically open most recent quest") + 2 + pad2;
-	// The checkbox sits on the button row's left side; spacers keep the
-	// Load Quest button centered within the list width anyway.
-	int32_t load_w = button_w("Load Quest");
-	int32_t load_spacer_l = std::max(8, (list_w - load_w) / 2 - checkbox_w);
-	int32_t load_spacer_r = std::max(8, (list_w - load_w) / 2);
-
-	// The footer holds the update-available message (left, empty until a
-	// background check finds one) and the current version (right edge).
-	std::string version_text = fmt::format("v{}", getVersionString());
-	int32_t version_w = text_length(dlgfont, version_text.c_str()) + pad2;
-	int32_t status_w = std::max(8, list_w - version_w);
 
 	static const GUI::ListData sortList
 	{
@@ -263,78 +274,152 @@ std::shared_ptr<GUI::Widget> QuestBrowserDialog::view()
 		{ "ZC Version", SORT_ZCVER }
 	};
 
+	// Top row: actions that open a quest on the left, filter and sort on
+	// the right. Keep "open" out of the other button names so the only
+	// button called Open is the one that opens the selection.
+	std::shared_ptr<GUI::Widget> newBtn = Button(text = "&New Quest",
+		onClick = message::NEW_QUEST,
+		tooltip = "Create a new quest from a tileset");
+	std::shared_ptr<GUI::Widget> browseBtn = Button(text = "&Browse for File...",
+		onClick = message::BROWSE_FILE,
+		tooltip = "Pick a quest file to open.\nIt is also added to this list.");
+	std::shared_ptr<GUI::Widget> filterLabel = Label(text = "Filter:");
+	std::shared_ptr<GUI::Widget> filterField = TextField(
+		type = GUI::TextField::type::TEXT,
+		text = filter, // survives a refresh_dlg() rebuild
+		maxLength = 64,
+		width = 120_px,
+		focused = true, // type right away to filter
+		tooltip = "Filter by title, author, or path",
+		onValChangedFunc = [&](GUI::TextField::type, std::string_view text, int32_t)
+		{
+			filter = std::string(text);
+			refreshRows();
+		});
+	std::shared_ptr<GUI::Widget> sortLabel = Label(text = "Sort:");
+	std::shared_ptr<GUI::Widget> sortDrop = DropDownList(data = sortList,
+		selectedValue = sortMode,
+		onSelectFunc = [&](int32_t val)
+		{
+			sortMode = val;
+			zc_set_config(quest_browser::CFG_SECTION, "sort_mode", val);
+			refreshRows();
+		});
+
+	// Open (the default button) sits at the right edge; Scan Folder, which
+	// only manages the list, sits at the left as a secondary action.
+	std::shared_ptr<GUI::Widget> scanBtn = Button(text = "Scan &Folder...",
+		onClick = message::SCAN_FOLDER,
+		tooltip = "Add every quest in a folder to this list");
+	openButton = Button(text = "&Open", minwidth = 70_px,
+		onClick = message::PICK,
+		tooltip = "Open the selected quest\n(or press Enter / double-click it)");
+
+	// The footer holds the auto-open checkbox (left) and, at the right
+	// edge, the current version followed by the update notice once the
+	// background check finds one.
+	std::shared_ptr<GUI::Widget> autoOpen = Checkbox(
+		text = "Automatically open most recent quest",
+		checked = OpenLastQuest != 0,
+		// The checkbox draws its box 2px left of its origin; nudge it over
+		// so the box lines up with the list's edge.
+		leftPadding = GUI::Size::pixels(DEFAULT_PADDING_INT + 2),
+		tooltip = "On startup, skip this window and open\nthe last quest you had open",
+		onToggleFunc = [&](bool state)
+		{
+			OpenLastQuest = state ? 1 : 0;
+			zc_set_config("zquest", "open_last_quest", OpenLastQuest);
+		});
+	std::string version_text = fmt::format("v{}", getVersionString());
+	std::shared_ptr<GUI::Widget> versionLabel = Label(text = version_text,
+		tooltip = "Open this version's release notes",
+		onPressFunc = []()
+		{
+			util::open_web_link(release_page_url(getVersionString()));
+		});
+	// "Update available" sits right of the version link once the update
+	// check finds something. The row is laid out once, so it only gets a
+	// cell when the check has already found an update; if the check (which
+	// runs in the background from the first show) finishes later and finds
+	// one, pumpScan rebuilds the view via refresh_dlg().
+	updateVersion = quest_browser::known_update();
+	updateSlot = !updateVersion.empty();
+	updateLabel = Label(text = "Update available", maxLines = 1,
+		textColor = vc(14),
+		onPressFunc = [&]()
+		{
+			if (!updateVersion.empty())
+				util::open_web_link(release_page_url(updateVersion));
+		});
+	if (updateSlot)
+		showUpdate(updateVersion);
+	else
+	{
+		updateLabel->overrideWidth(0_px);
+		updateLabel->setHPadding(0_px);
+		updateLabel->setText("");
+	}
+
 	std::shared_ptr<GUI::Window> window = Window(
 		title = "Quests",
 		onClose = message::QUIT,
+		onEnter = message::PICK, // Open is the default button
 		Column(
 			Row(
-				Button(text = "&New Quest", onClick = message::NEW_QUEST),
-				Button(text = "&Open Quest...", onClick = message::OPEN_QUEST),
-				Button(text = "Scan &Folder...", onClick = message::SCAN_FOLDER),
-				Label(text = "", width = GUI::Size::pixels(top_spacer)),
-				Label(text = "Filter:"),
-				TextField(
-					type = GUI::TextField::type::TEXT,
-					maxLength = 64,
-					width = 120_px,
-					focused = true, // type right away to filter
-					onValChangedFunc = [&](GUI::TextField::type, std::string_view text, int32_t)
-					{
-						filter = std::string(text);
-						refreshRows();
-					}),
-				Label(text = "Sort:"),
-				DropDownList(data = sortList,
-					selectedValue = sortMode,
-					onSelectFunc = [&](int32_t val)
-					{
-						sortMode = val;
-						zc_set_config(quest_browser::CFG_SECTION, "sort_mode", val);
-						refreshRows();
-					})
+				hPadding = 0_px,
+				newBtn,
+				browseBtn,
+				spacer_for({newBtn, browseBtn, filterLabel, filterField, sortLabel, sortDrop}),
+				filterLabel,
+				filterField,
+				sortLabel,
+				sortDrop
 			),
 			questList = QuestListView(
+				width = GUI::Size::pixels(list_w),
 				onDClick = message::PICK,
 				onSelectFunc = [&](int32_t)
 				{
-					updatePathLabel();
+					updateSelection();
 				}
 			),
 			pathLabel = Label(text = std::string(pathLabelLen, ' '), hAlign = 0.0),
 			Row(
+				hPadding = 0_px,
 				topMargin = 16_px,
-				Checkbox(
-					text = "Automatically open most recent quest",
-					checked = OpenLastQuest != 0,
-					onToggleFunc = [&](bool state)
-					{
-						OpenLastQuest = state ? 1 : 0;
-						zc_set_config("zquest", "open_last_quest", OpenLastQuest);
-					}),
-				Label(text = "", width = GUI::Size::pixels(load_spacer_l)),
-				Button(text = "&Load Quest", onClick = message::PICK),
-				Label(text = "", width = GUI::Size::pixels(load_spacer_r))
+				scanBtn,
+				spacer_for({scanBtn, openButton}),
+				openButton
 			),
 			Row(
-				statusLabel = Label(text = "", maxLines = 1,
-					width = GUI::Size::pixels(status_w),
-					textColor = vc(14),
-					onPressFunc = [&]()
-					{
-						if (!updateVersion.empty())
-							util::open_web_link(release_page_url(updateVersion));
-					}),
-				Label(text = version_text,
-					onPressFunc = []()
-					{
-						util::open_web_link(release_page_url(getVersionString()));
-					})
+				hPadding = 0_px,
+				autoOpen,
+				spacer_for({autoOpen, versionLabel, updateLabel}),
+				versionLabel,
+				updateLabel
 			)
 		)
 	);
 
 	questList->setOnIdleFunc([this]() { return pumpScan(); });
 	refreshRows();
+
+	// After a refresh_dlg() rebuild, put the list back where it was.
+	if (!rerunSelectPath.empty())
+	{
+		auto const& rows = questList->getRows();
+		for (size_t i = 0; i < rows.size(); i++)
+		{
+			if (rows[i].path == rerunSelectPath)
+			{
+				questList->setSelectedIndex((int32_t)i, false);
+				break;
+			}
+		}
+		questList->setScrollIndex(rerunScroll);
+		rerunSelectPath.clear();
+		updateSelection();
+	}
 	return window;
 }
 
@@ -346,7 +431,7 @@ bool QuestBrowserDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 		res = result::NEW_QUEST;
 		return true;
 
-	case message::OPEN_QUEST:
+	case message::BROWSE_FILE:
 	{
 		if (char* name = get_qst_name(nullptr))
 		{
