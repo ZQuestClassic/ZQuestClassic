@@ -1,5 +1,7 @@
 #include "gui/common.h"
+#include "gui/dialog_runner.h"
 #include "gui/jwin.h"
+#include "gui/widget.h"
 
 namespace GUI
 {
@@ -20,6 +22,28 @@ void findScrollingPane(DIALOG* d, DIALOG** sp, int32_t* index)
 
 int32_t newGUIProcImpl(int32_t msg, DIALOG* d, int32_t c, int32_t (*base)(int32_t, DIALOG*, int32_t))
 {
+	// Tooltips: any widget with tooltip text shows it while hovered.
+	if(d->flags&D_NEW_GUI)
+	{
+		switch(msg)
+		{
+		case MSG_GOTMOUSE:
+			if(Widget* w = DialogRunner::findWidget(d))
+				if(!w->getTooltip().empty())
+					gui_tooltip_show(w->getTooltip(), d->x, d->y, d->w, d->h);
+			break;
+
+		case MSG_LOSTMOUSE:
+		case MSG_END:
+		// Typing dismisses it too (until the mouse leaves and comes back),
+		// so it doesn't pop up over a field the user is working in.
+		case MSG_CHAR:
+		case MSG_XCHAR:
+			gui_tooltip_hide();
+			break;
+		}
+	}
+
 	if(d->flags&D_SCROLLING)
 	{
 		// This widget is in a scrolling pane and needs some special handling.
