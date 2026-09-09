@@ -58,6 +58,7 @@ void setZScriptVersion(int32_t) { } //bleh...
 #include "dialog/cheat_codes.h"
 #include "dialog/quest_browser.h"
 #include "dialog/quest_browser_data.h"
+#include "test_runner/test_runner.h"
 #include "dialog/set_password.h"
 #include "dialog/foodlg.h"
 #include "dialog/quest_rules.h"
@@ -25639,14 +25640,25 @@ int32_t main(int32_t argc,char **argv)
 			Z_error_fatal("failed to load sfx_dat");
 		}
 
+		bool verbose = used_switch(argc, argv, "-verbose") || used_switch(argc, argv, "-v");
 		bool success = true;
+
+		// TODO: convert to TestRunner.
 		if (!partial_load_test(test_dir))
 		{
 			success = false;
 			printf("partial_load_test failed\n");
 		}
+
+		extern TestResults test_zquest(bool);
+		extern void set_zquest_test_dir(std::string const&);
+		set_zquest_test_dir(test_dir);
+		if (!run_tests(test_zquest, "test_zquest", verbose)) success = false;
+
 		if (success)
 			printf("all tests passed\n");
+		else
+			printf("tests failed\n");
 		exit(success ? 0 : 1);
 	}
 
