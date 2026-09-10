@@ -243,13 +243,9 @@ std::optional<std::string> prompt_for_existing_folder(std::string prompt, std::s
 		int ret = jwin_dfile_select_ex(prompt.c_str(), path, ext.c_str(), 2048, -1, -1, get_zc_font(font_lfont));
 		if (ret != FS_EXPLORER)
 		{
-			if (!jwin_dfile_select_ex(prompt.c_str(), path, ext.c_str(), 2048, -1, -1, get_zc_font(font_lfont)))
-			{
-				blit(tmp_scr,screen,0,0,0,0,screen->w,screen->h);
-				return std::nullopt;
-			}
-
 			blit(tmp_scr,screen,0,0,0,0,screen->w,screen->h);
+			if (!ret)
+				return std::nullopt;
 			return path;
 		}
 	}
