@@ -118,14 +118,14 @@ void zasm_pipeline_init(bool force_precompile)
 
 void zasm_pipeline_shutdown()
 {
-	jit_shutdown();
-
 	if (worker_pool)
 	{
 		worker_pool->terminate();
 		delete worker_pool;
 		worker_pool = nullptr;
 	}
+
+	jit_shutdown();
 
 	pipeline_initialized = false;
 }
