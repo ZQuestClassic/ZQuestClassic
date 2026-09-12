@@ -6,6 +6,7 @@ import {
 	ProposedFeatures,
 	InitializeParams,
 	DidChangeConfigurationNotification,
+	DidChangeConfigurationParams,
 	CompletionItem,
 	TextDocumentPositionParams,
 	TextDocumentSyncKind,
@@ -36,6 +37,20 @@ import { onDocumentHighlight } from './document-highlight.js';
 // Create a connection for the server, using Node's IPC as a transport.
 // Also include all preview / proposed LSP features.
 const connection = createConnection(ProposedFeatures.all);
+
+// A rejected promise nobody awaits would otherwise kill the server process
+// (node's default since v15), and the client never restarts a server that
+// dies before initialization finishes, so every feature would stay silently
+// dead for the rest of the session. Log to stderr (the client forwards it
+// to the output channel) and keep running.
+process.on('unhandledRejection', (reason) => {
+	const text = reason instanceof Error ? reason.stack ?? reason.message : String(reason);
+	process.stderr.write(`[zscript-lsp] unhandled promise rejection: ${text}\n`);
+});
+process.on('uncaughtException', (e) => {
+	process.stderr.write(`[zscript-lsp] uncaught exception: ${e.stack ?? e.message}\n`);
+	process.exit(1);
+});
 
 // Create a simple text document manager.
 const documents: TextDocuments<TextDocument> = new TextDocuments(TextDocument);
@@ -147,9 +162,17 @@ connection.onInitialize(async (params: InitializeParams) => {
 });
 
 connection.onInitialized(async () => {
+	try {
+		await onInitialized();
+	} catch (e) {
+		connection.console.error(`Failed to initialize: ${e}`);
+	}
+});
+
+async function onInitialized() {
 	if (hasConfigurationCapability) {
 		// Register for all configuration changes.
-		connection.client.register(DidChangeConfigurationNotification.type, undefined);
+		await connection.client.register(DidChangeConfigurationNotification.type, undefined);
 	}
 	if (hasWorkspaceFolderCapability) {
 		connection.workspace.onDidChangeWorkspaceFolders(event => {
@@ -175,7 +198,7 @@ connection.onInitialized(async () => {
 	}).catch(e => {
 		connection.console.error(`Failed to build initial cache: ${e}`);
 	});
-});
+}
 
 // The global settings, used when the `workspace/configuration` request is not supported by the client.
 // Please note that this is not the case when using this server with the client provided in this example
@@ -187,6 +210,14 @@ let globalSettings: Settings = defaultSettings;
 const documentSettings: Map<string, Thenable<Settings>> = new Map();
 
 connection.onDidChangeConfiguration(async (change) => {
+	try {
+		await onDidChangeConfiguration(change);
+	} catch (e) {
+		connection.console.error(`Failed to apply configuration change: ${e}`);
+	}
+});
+
+async function onDidChangeConfiguration(change: DidChangeConfigurationParams) {
 	if (configUpdateController) {
 		configUpdateController.abort();
 	}
@@ -217,7 +248,7 @@ connection.onDidChangeConfiguration(async (change) => {
 	const settings = await getDocumentSettings('');
 	await Promise.all([...jobPromises, updateCompletionItems(settings, connection, signal)]);
 	await scanWorkspace();
-});
+}
 
 connection.onDidChangeWatchedFiles(e => {
 	// TODO: probably have to re-init?
@@ -583,6 +614,9 @@ function createJob(doc: TextDocument) {
 
 						docJobResults.set(doc.uri, result);
 					}
+				})
+				.catch(e => {
+					connection.console.error(`Failed to process ${doc.uri}: ${e}`);
 				})
 				.finally(() => {
 					if (cancelled) {

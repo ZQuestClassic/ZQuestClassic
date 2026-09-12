@@ -15,6 +15,20 @@ import {
 
 let client: LanguageClient;
 
+function createConsoleOutputChannel(name: string): vscode.OutputChannel {
+	const write = (value: string) => console.log(`[${name}] ${value.replace(/\n$/, '')}`);
+	return {
+		name,
+		append: write,
+		appendLine: write,
+		replace: write,
+		clear() {},
+		show() {},
+		hide() {},
+		dispose() {},
+	};
+}
+
 export function activate(context: ExtensionContext) {
 	vscode.languages.registerDocumentFormattingEditProvider('zscript', {
         async provideDocumentFormattingEdits(document: vscode.TextDocument): Promise<vscode.TextEdit[]> {
@@ -80,6 +94,13 @@ export function activate(context: ExtensionContext) {
 			isTrusted: true,
 		},
 	};
+
+	// Under the test harness, echo the server's output channel (its console
+	// output and stderr) to the extension host's stdout so it lands in the
+	// test log instead of a panel nobody can read in CI.
+	if (process.env.TEST_ZSCRIPT) {
+		clientOptions.outputChannel = createConsoleOutputChannel('ZScript Language Server');
+	}
 
 	// Create the language client and start the client.
 	client = new LanguageClient(
