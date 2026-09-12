@@ -502,6 +502,7 @@ async function processScript(uri: string, content: string, signal: AbortSignal):
 			connection,
 			uri,
 			cwd,
+			signal,
 			args,
 		});
 
@@ -551,7 +552,9 @@ function createJob(doc: TextDocument) {
 		reject = reject_;
 	});
 
-	const controller = new AbortController();
+	// Each run gets its own controller: restart() aborts the current one, and
+	// the restarted run must not inherit an already-aborted signal.
+	let controller = new AbortController();
 	let restarting = false;
 	let cancelled = false;
 	let result: JobResult | null = null;
@@ -559,9 +562,14 @@ function createJob(doc: TextDocument) {
 		doc,
 		start() {
 			console.log(`start ${doc.uri}`);
-			processScript(doc.uri, doc.getText(), controller.signal)
+			controller = new AbortController();
+			const signal = controller.signal;
+			processScript(doc.uri, doc.getText(), signal)
 				.then(r => {
-					if (r) {
+					// A cancelled or restarted run may still finish (or already have
+					// finished) with output from a stale document or an old compiler
+					// version. Never publish it, or it clobbers the newer job's result.
+					if (r && !signal.aborted) {
 						result = r;
 
 						connection.sendDiagnostics({ uri: doc.uri, diagnostics: r.diagnostics });
