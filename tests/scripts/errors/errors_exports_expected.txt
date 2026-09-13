@@ -4,156 +4,220 @@ Compiling 'errors_exports.zs'
 Pass 1: Parsing
 Pass 2: Preprocessing
 Pass 3: Registration
-errors_exports.zs Line 11 @ Columns 12-25 - Error S114: @ExportDropdown() requires @Export() to function!
+errors_exports.zs Line 14 @ Columns 12-25 - Error S114: @ExportDropdown() requires @Export() to function!
 
- 9    // Requires @Export
-10    @ExportDropdown("A")
-11    nonstatic int no_export;
+12    // Requires @Export
+13    @ExportDropdown("A")
+14    nonstatic int no_export;
                 ^~~~~~~~~~~~~
 
 
-errors_exports.zs Line 15 @ Columns 2-21 - Error S114: Annotation '@ExportRange' is not compatible with '@ExportDropdown'
+errors_exports.zs Line 18 @ Columns 2-21 - Error S114: Annotation '@ExportRange' is not compatible with '@ExportDropdown'
 
-13    // Conflicts with @ExportRange
-14    @Export("Conflict"),
-15    @ExportRange(0, 10),
+16    // Conflicts with @ExportRange
+17    @Export("Conflict"),
+18    @ExportRange(0, 10),
       ^~~~~~~~~~~~~~~~~~~
 
 
-errors_exports.zs Line 16 @ Columns 2-27 - Error S114: Annotation '@ExportDropdown' is not compatible with '@ExportRange'
+errors_exports.zs Line 19 @ Columns 2-27 - Error S114: Annotation '@ExportDropdown' is not compatible with '@ExportRange'
 
-14    @Export("Conflict"),
-15    @ExportRange(0, 10),
-16    @ExportDropdown("A", "B")
+17    @Export("Conflict"),
+18    @ExportRange(0, 10),
+19    @ExportDropdown("A", "B")
       ^~~~~~~~~~~~~~~~~~~~~~~~~
 
 
-errors_exports.zs Line 21 @ Columns 2-22 - Error S114: Annotation '@ExportDropdown' is not compatible with '@ExportBitflags'
+errors_exports.zs Line 24 @ Columns 2-22 - Error S114: Annotation '@ExportDropdown' is not compatible with '@ExportBitflags'
 
-19    // Two custom export types are mutually exclusive
-20    @Export("Two Customs"),
-21    @ExportDropdown("A"),
+22    // Two custom export types are mutually exclusive
+23    @Export("Two Customs"),
+24    @ExportDropdown("A"),
       ^~~~~~~~~~~~~~~~~~~~
 
 
-errors_exports.zs Line 22 @ Columns 2-22 - Error S114: Annotation '@ExportBitflags' is not compatible with '@ExportDropdown'
+errors_exports.zs Line 25 @ Columns 2-22 - Error S114: Annotation '@ExportBitflags' is not compatible with '@ExportDropdown'
 
-20    @Export("Two Customs"),
-21    @ExportDropdown("A"),
-22    @ExportBitflags("B")
+23    @Export("Two Customs"),
+24    @ExportDropdown("A"),
+25    @ExportBitflags("B")
       ^~~~~~~~~~~~~~~~~~~~
 
 
-errors_exports.zs Line 27 @ Columns 2-19 - Error S114: Annotation '@ExportDropdown' found 0 parameters; expected >= 1
+errors_exports.zs Line 30 @ Columns 2-19 - Error S114: Annotation '@ExportDropdown' found 0 parameters; expected >= 1
 
-25    // Zero params
-26    @Export("Empty Dropdown"),
-27    @ExportDropdown()
+28    // Zero params
+29    @Export("Empty Dropdown"),
+30    @ExportDropdown()
       ^~~~~~~~~~~~~~~~~
 
 
-errors_exports.zs Line 32 @ Columns 2-28 - Error S114: Annotation '@ExportDropdown' cannot have multiple NUMBER parameters in a row!
+errors_exports.zs Line 35 @ Columns 2-28 - Error S114: Annotation '@ExportDropdown' cannot have multiple NUMBER parameters in a row!
 
-30    // Two numbers in a row
-31    @Export("Two Numbers"),
-32    @ExportDropdown(1, 2, "A")
+33    // Two numbers in a row
+34    @Export("Two Numbers"),
+35    @ExportDropdown(1, 2, "A")
       ^~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
-errors_exports.zs Line 37 @ Columns 2-25 - Error S114: Annotation '@ExportDropdown' last parameter must be a STRING!
+errors_exports.zs Line 40 @ Columns 2-25 - Error S114: Annotation '@ExportDropdown' last parameter must be a STRING!
 
-35    // Last param must be a string
-36    @Export("Trailing Number"),
-37    @ExportDropdown("A", 5)
+38    // Last param must be a string
+39    @Export("Trailing Number"),
+40    @ExportDropdown("A", 5)
       ^~~~~~~~~~~~~~~~~~~~~~~
 
 
-errors_exports.zs Line 42 @ Columns 2-33 - Error S114: Annotation '@ExportDropdown' found multiple strings for value 0.0000!
+errors_exports.zs Line 45 @ Columns 2-33 - Error S114: Annotation '@ExportDropdown' found multiple strings for value 0.0000!
 
-40    // Duplicate value
-41    @Export("Duplicate Value"),
-42    @ExportDropdown(0, "A", 0, "B")
+43    // Duplicate value
+44    @Export("Duplicate Value"),
+45    @ExportDropdown(0, "A", 0, "B")
       ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
-errors_exports.zs Line 47 @ Columns 2-25 - Error S114: Annotation '@ExportBitflags' requires power-of-2 values, found bad value 5.0000!
+errors_exports.zs Line 50 @ Columns 2-25 - Error S114: Annotation '@ExportBitflags' requires power-of-2 values, found bad value 5.0000!
 
-45    // Non-power-of-2 flag value
-46    @Export("Bad Flag"),
-47    @ExportBitflags(5, "A")
+48    // Non-power-of-2 flag value
+49    @Export("Bad Flag"),
+50    @ExportBitflags(5, "A")
       ^~~~~~~~~~~~~~~~~~~~~~~
 
 
-errors_exports.zs Line 52 @ Columns 2-27 - Error S114: Annotation '@ExportBitflags' requires power-of-2 values, found bad value 2.5000!
+errors_exports.zs Line 55 @ Columns 2-27 - Error S114: Annotation '@ExportBitflags' requires power-of-2 values, found bad value 2.5000!
 
-50    // Non-power-of-2 decimal flag value
-51    @Export("Decimal Flag"),
-52    @ExportBitflags(2.5, "A")
+53    // Non-power-of-2 decimal flag value
+54    @Export("Decimal Flag"),
+55    @ExportBitflags(2.5, "A")
       ^~~~~~~~~~~~~~~~~~~~~~~~~
 
 
-errors_exports.zs Line 58 @ Columns 17-27 - Error S113: @ExportBitflags() is incompatible with 'bool' variables!
+errors_exports.zs Line 61 @ Columns 17-27 - Error S113: @ExportBitflags() is incompatible with 'bool' variables!
 
-56    @Export("Bool Flags"),
-57    @ExportBitflags("A")
-58    nonstatic bool bool_flags;
+59    @Export("Bool Flags"),
+60    @ExportBitflags("A")
+61    nonstatic bool bool_flags;
                      ^~~~~~~~~~
 
 
-errors_exports.zs Line 62 @ Column 2 - Line 63 @ Column 65 - Error S114: Annotation '@ExportBitflags' overflowed the available number of bits!
+errors_exports.zs Line 66 @ Columns 17-32 - Error S113: @ExportLongBitflags() is incompatible with 'bool' variables!
 
-60    // More names than available bits (18)
-61    @Export("Too Many Flags"),
-62    @ExportBitflags("F0", "F1", "F2", "F3", "F4", "F5", "F6", "F7", "F8", "F9",
-63        "F10", "F11", "F12", "F13", "F14", "F15", "F16", "F17", "F18")
+64    @Export("Bool Long Flags"),
+65    @ExportLongBitflags("A")
+66    nonstatic bool bool_long_flags;
+                     ^~~~~~~~~~~~~~~
 
 
-errors_exports.zs Line 69 @ Columns 12-28 - Error S114: Annotation '@ExportEngineValue' got "Bogus", but expected one of [Tile, Tile CSet, Combo, Combo CSet, Color, Item, Enemy, Counter, Sprite Data, SFX, MIDI, Music, Save Menu, Message String, Weapon Type, LWeapon Type, EWeapon Type, Dropset, Font, Bottle Type, Combo Type, Combo Flag]
+errors_exports.zs Line 70 @ Column 2 - Line 71 @ Column 65 - Error S114: Annotation '@ExportBitflags' overflowed the available number of bits!
 
-67    @Export("Bogus Engine"),
-68    @ExportEngineValue("Bogus")
-69    nonstatic int bogus_engine;
+68    // More names than available bits (18)
+69    @Export("Too Many Flags"),
+70    @ExportBitflags("F0", "F1", "F2", "F3", "F4", "F5", "F6", "F7", "F8", "F9",
+71        "F10", "F11", "F12", "F13", "F14", "F15", "F16", "F17", "F18")
+
+
+errors_exports.zs Line 77 @ Columns 12-28 - Error S114: Annotation '@ExportEngineValue' got "Bogus", but expected one of [Tile, Tile CSet, Combo, Combo CSet, Color, Item, Enemy, Counter, Sprite Data, SFX, MIDI, Music, Save Menu, Message String, Weapon Type, LWeapon Type, EWeapon Type, Dropset, Font, Bottle Type, Combo Type, Combo Flag]
+
+75    @Export("Bogus Engine"),
+76    @ExportEngineValue("Bogus")
+77    nonstatic int bogus_engine;
                 ^~~~~~~~~~~~~~~~
 
 
-errors_exports.zs Line 74 @ Columns 16-28 - Error S113: @ExportEngineValue() is incompatible with specified button types in @Export()!
+errors_exports.zs Line 82 @ Columns 16-28 - Error S113: @ExportEngineValue() is incompatible with specified button types in @Export()!
 
-72    @Export("Btn Conflict", "some help text", "H"),
-73    @ExportEngineValue("Tile")
-74    nonstatic int btn_conflict;
+80    @Export("Btn Conflict", "some help text", "H"),
+81    @ExportEngineValue("Tile")
+82    nonstatic int btn_conflict;
                     ^~~~~~~~~~~~
 
 
-errors_exports.zs Line 79 @ Columns 17-28 - Error S113: @ExportEngineValue() is incompatible with 'bool' variables!
+errors_exports.zs Line 87 @ Columns 17-28 - Error S113: @ExportEngineValue() is incompatible with 'bool' variables!
 
-77    @Export("Bool Engine"),
-78    @ExportEngineValue("Color")
-79    nonstatic bool bool_engine;
+85    @Export("Bool Engine"),
+86    @ExportEngineValue("Color")
+87    nonstatic bool bool_engine;
                      ^~~~~~~~~~~
 
 
-errors_exports.zs Line 85 @ Columns 17-28 - Error S113: @ExportEngineValue() is incompatible with 'long' variables! Only 'int' variables may be used.
+errors_exports.zs Line 93 @ Columns 17-28 - Error S113: @ExportEngineValue() is incompatible with 'long' variables! Only 'int' variables may be used.
 
-83    @Export("Long Engine"),
-84    @ExportEngineValue("Tile")
-85    nonstatic long long_engine;
+91    @Export("Long Engine"),
+92    @ExportEngineValue("Tile")
+93    nonstatic long long_engine;
                      ^~~~~~~~~~~
 
 
-errors_exports.zs Line 89 @ Columns 2-31 - Error S114: Annotation '@ExportEnum' parameter 1; found unexpected bits '64'
+errors_exports.zs Line 98 @ Columns 17-35 - Error S113: @ExportBitflags() uses 'int' values, which is incompatible with 'long' variables! Use '@ExportLongBitflags()' instead.
 
-87    // Display mode contains unknown bits
-88    @Export("Bad Display"),
-89    @ExportEnum(PlainEnum, 0x40L)
-      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+96    @Export("Int Flags Long Var"),
+97    @ExportBitflags("Up", "Down")
+98    nonstatic long int_flags_long_var;
+                     ^~~~~~~~~~~~~~~~~~
 
 
-errors_exports.zs Line 94 @ Columns 2-15 - Error S114: Annotation '@ExportEnum' found 0 parameters; expected >= 1 and <= 2
+errors_exports.zs Line 103 @ Columns 16-34 - Error S113: @ExportLongBitflags() uses 'long' values, which is incompatible with 'int' variables! Use '@ExportBitflags()' instead.
 
-92    // Zero params
-93    @Export("Empty Enum"),
-94    @ExportEnum()
-      ^~~~~~~~~~~~~
+101    @Export("Long Flags Int Var"),
+102    @ExportLongBitflags("First", "Second")
+103    nonstatic int long_flags_int_var;
+                     ^~~~~~~~~~~~~~~~~~
+
+
+errors_exports.zs Line 108 @ Columns 17-32 - Error S113: @ExportDropdown() uses 'int' values, which is incompatible with 'long' variables! Use 'long' values (ex. '1L' instead of '1'), or start the list with '0L' if it has no values.
+
+106    @Export("Int Dropdown Long Var"),
+107    @ExportDropdown(0, "Zero", 1, "One")
+108    nonstatic long int_dd_long_var;
+                      ^~~~~~~~~~~~~~~
+
+
+errors_exports.zs Line 113 @ Columns 17-33 - Error S113: @ExportDropdown() uses 'int' values, which is incompatible with 'long' variables! Use 'long' values (ex. '1L' instead of '1'), or start the list with '0L' if it has no values.
+
+111    @Export("No Values Long Var"),
+112    @ExportDropdown("Zero", "One")
+113    nonstatic long no_vals_long_var;
+                      ^~~~~~~~~~~~~~~~
+
+
+errors_exports.zs Line 118 @ Columns 16-33 - Error S113: @ExportEnum() uses 'long' values, which is incompatible with 'int' variables! Use a 'long' variable; '@Bitflags("long")' enums have 'long' values.
+
+116    @Export("Long Enum Int Var"),
+117    @ExportEnum(LongFlags)
+118    nonstatic int long_enum_int_var;
+                     ^~~~~~~~~~~~~~~~~
+
+
+errors_exports.zs Line 123 @ Columns 17-34 - Error S113: @ExportEnum() uses 'int' values, which is incompatible with 'long' variables! Use an 'int' variable; only '@Bitflags("long")' enums have 'long' values.
+
+121    @Export("Int Enum Long Var"),
+122    @ExportEnum(PlainEnum)
+123    nonstatic long int_enum_long_var;
+                      ^~~~~~~~~~~~~~~~~
+
+
+errors_exports.zs Line 128 @ Columns 17-35 - Error S113: @ExportRange() uses 'int' values, which is incompatible with 'long' variables! Use 'long' values (ex. '1L' instead of '1').
+
+126    @Export("Int Range Long Var"),
+127    @ExportRange(0, 100)
+128    nonstatic long int_range_long_var;
+                      ^~~~~~~~~~~~~~~~~~
+
+
+errors_exports.zs Line 132 @ Columns 2-31 - Error S114: Annotation '@ExportEnum' parameter 1; found unexpected bits '64'
+
+130    // Display mode contains unknown bits
+131    @Export("Bad Display"),
+132    @ExportEnum(PlainEnum, 0x40L)
+       ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+errors_exports.zs Line 137 @ Columns 2-15 - Error S114: Annotation '@ExportEnum' found 0 parameters; expected >= 1 and <= 2
+
+135    // Zero params
+136    @Export("Empty Enum"),
+137    @ExportEnum()
+       ^~~~~~~~~~~~~
 
 
 Failure!
@@ -168,11 +232,11 @@ stdout:
     {
       "range": {
         "start": {
-          "line": 10,
+          "line": 13,
           "character": 11
         },
         "end": {
-          "line": 10,
+          "line": 13,
           "character": 24
         }
       },
@@ -182,11 +246,11 @@ stdout:
     {
       "range": {
         "start": {
-          "line": 14,
+          "line": 17,
           "character": 1
         },
         "end": {
-          "line": 14,
+          "line": 17,
           "character": 20
         }
       },
@@ -196,11 +260,11 @@ stdout:
     {
       "range": {
         "start": {
-          "line": 15,
+          "line": 18,
           "character": 1
         },
         "end": {
-          "line": 15,
+          "line": 18,
           "character": 26
         }
       },
@@ -210,11 +274,11 @@ stdout:
     {
       "range": {
         "start": {
-          "line": 20,
+          "line": 23,
           "character": 1
         },
         "end": {
-          "line": 20,
+          "line": 23,
           "character": 21
         }
       },
@@ -224,11 +288,11 @@ stdout:
     {
       "range": {
         "start": {
-          "line": 21,
+          "line": 24,
           "character": 1
         },
         "end": {
-          "line": 21,
+          "line": 24,
           "character": 21
         }
       },
@@ -238,11 +302,11 @@ stdout:
     {
       "range": {
         "start": {
-          "line": 26,
+          "line": 29,
           "character": 1
         },
         "end": {
-          "line": 26,
+          "line": 29,
           "character": 18
         }
       },
@@ -252,11 +316,11 @@ stdout:
     {
       "range": {
         "start": {
-          "line": 31,
+          "line": 34,
           "character": 1
         },
         "end": {
-          "line": 31,
+          "line": 34,
           "character": 27
         }
       },
@@ -266,11 +330,11 @@ stdout:
     {
       "range": {
         "start": {
-          "line": 36,
+          "line": 39,
           "character": 1
         },
         "end": {
-          "line": 36,
+          "line": 39,
           "character": 24
         }
       },
@@ -280,11 +344,11 @@ stdout:
     {
       "range": {
         "start": {
-          "line": 41,
+          "line": 44,
           "character": 1
         },
         "end": {
-          "line": 41,
+          "line": 44,
           "character": 32
         }
       },
@@ -294,11 +358,11 @@ stdout:
     {
       "range": {
         "start": {
-          "line": 46,
+          "line": 49,
           "character": 1
         },
         "end": {
-          "line": 46,
+          "line": 49,
           "character": 24
         }
       },
@@ -308,11 +372,11 @@ stdout:
     {
       "range": {
         "start": {
-          "line": 51,
+          "line": 54,
           "character": 1
         },
         "end": {
-          "line": 51,
+          "line": 54,
           "character": 26
         }
       },
@@ -322,11 +386,11 @@ stdout:
     {
       "range": {
         "start": {
-          "line": 57,
+          "line": 60,
           "character": 16
         },
         "end": {
-          "line": 57,
+          "line": 60,
           "character": 26
         }
       },
@@ -336,11 +400,25 @@ stdout:
     {
       "range": {
         "start": {
-          "line": 61,
+          "line": 65,
+          "character": 16
+        },
+        "end": {
+          "line": 65,
+          "character": 31
+        }
+      },
+      "severity": 1,
+      "message": "S113: @ExportLongBitflags() is incompatible with 'bool' variables!"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 69,
           "character": 1
         },
         "end": {
-          "line": 62,
+          "line": 70,
           "character": 64
         }
       },
@@ -350,11 +428,11 @@ stdout:
     {
       "range": {
         "start": {
-          "line": 68,
+          "line": 76,
           "character": 11
         },
         "end": {
-          "line": 68,
+          "line": 76,
           "character": 27
         }
       },
@@ -364,11 +442,11 @@ stdout:
     {
       "range": {
         "start": {
-          "line": 73,
+          "line": 81,
           "character": 15
         },
         "end": {
-          "line": 73,
+          "line": 81,
           "character": 27
         }
       },
@@ -378,11 +456,11 @@ stdout:
     {
       "range": {
         "start": {
-          "line": 78,
+          "line": 86,
           "character": 16
         },
         "end": {
-          "line": 78,
+          "line": 86,
           "character": 27
         }
       },
@@ -392,11 +470,11 @@ stdout:
     {
       "range": {
         "start": {
-          "line": 84,
+          "line": 92,
           "character": 16
         },
         "end": {
-          "line": 84,
+          "line": 92,
           "character": 27
         }
       },
@@ -406,11 +484,109 @@ stdout:
     {
       "range": {
         "start": {
-          "line": 88,
+          "line": 97,
+          "character": 16
+        },
+        "end": {
+          "line": 97,
+          "character": 34
+        }
+      },
+      "severity": 1,
+      "message": "S113: @ExportBitflags() uses 'int' values, which is incompatible with 'long' variables! Use '@ExportLongBitflags()' instead."
+    },
+    {
+      "range": {
+        "start": {
+          "line": 102,
+          "character": 15
+        },
+        "end": {
+          "line": 102,
+          "character": 33
+        }
+      },
+      "severity": 1,
+      "message": "S113: @ExportLongBitflags() uses 'long' values, which is incompatible with 'int' variables! Use '@ExportBitflags()' instead."
+    },
+    {
+      "range": {
+        "start": {
+          "line": 107,
+          "character": 16
+        },
+        "end": {
+          "line": 107,
+          "character": 31
+        }
+      },
+      "severity": 1,
+      "message": "S113: @ExportDropdown() uses 'int' values, which is incompatible with 'long' variables! Use 'long' values (ex. '1L' instead of '1'), or start the list with '0L' if it has no values."
+    },
+    {
+      "range": {
+        "start": {
+          "line": 112,
+          "character": 16
+        },
+        "end": {
+          "line": 112,
+          "character": 32
+        }
+      },
+      "severity": 1,
+      "message": "S113: @ExportDropdown() uses 'int' values, which is incompatible with 'long' variables! Use 'long' values (ex. '1L' instead of '1'), or start the list with '0L' if it has no values."
+    },
+    {
+      "range": {
+        "start": {
+          "line": 117,
+          "character": 15
+        },
+        "end": {
+          "line": 117,
+          "character": 32
+        }
+      },
+      "severity": 1,
+      "message": "S113: @ExportEnum() uses 'long' values, which is incompatible with 'int' variables! Use a 'long' variable; '@Bitflags(\"long\")' enums have 'long' values."
+    },
+    {
+      "range": {
+        "start": {
+          "line": 122,
+          "character": 16
+        },
+        "end": {
+          "line": 122,
+          "character": 33
+        }
+      },
+      "severity": 1,
+      "message": "S113: @ExportEnum() uses 'int' values, which is incompatible with 'long' variables! Use an 'int' variable; only '@Bitflags(\"long\")' enums have 'long' values."
+    },
+    {
+      "range": {
+        "start": {
+          "line": 127,
+          "character": 16
+        },
+        "end": {
+          "line": 127,
+          "character": 34
+        }
+      },
+      "severity": 1,
+      "message": "S113: @ExportRange() uses 'int' values, which is incompatible with 'long' variables! Use 'long' values (ex. '1L' instead of '1')."
+    },
+    {
+      "range": {
+        "start": {
+          "line": 131,
           "character": 1
         },
         "end": {
-          "line": 88,
+          "line": 131,
           "character": 30
         }
       },
@@ -420,11 +596,11 @@ stdout:
     {
       "range": {
         "start": {
-          "line": 93,
+          "line": 136,
           "character": 1
         },
         "end": {
-          "line": 93,
+          "line": 136,
           "character": 14
         }
       },
@@ -433,9 +609,9 @@ stdout:
     }
   ],
   "metadata": {
-    "currentFileSymbols": 22,
-    "symbols": 8,
-    "identifiers": 8,
+    "currentFileSymbols": 33,
+    "symbols": 19,
+    "identifiers": 19,
     "elided": true
   }
 }

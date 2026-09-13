@@ -17,9 +17,9 @@ stdout:
   "success": true,
   "diagnostics": [],
   "metadata": {
-    "currentFileSymbols": 29,
-    "symbols": 31,
-    "identifiers": 41,
+    "currentFileSymbols": 31,
+    "symbols": 33,
+    "identifiers": 45,
     "elided": true
   }
 }
@@ -62,6 +62,14 @@ SETR D2 SCR10
 POP D3
 ADDR D2 D3; InlineFunc[void Trace(untyped)] Params End
 TRACER D2; InlineFunc[void Trace(untyped)] Body
-SETR D2 SCR3; InlineFunc[void Trace(long)] Params
+SETR D2 SCR3; InlineFunc[void Trace(long)] Params Start
+PUSHR D2
+SETR D2 SCR11
+POP D3
+ADDR D2 D3
+PUSHR D2
+SETR D2 SCR12
+POP D3
+ADDR D2 D3; InlineFunc[void Trace(long)] Params End
 TRACELR D2; InlineFunc[void Trace(long)] Body
 RETURNFUNC; void run() Body End

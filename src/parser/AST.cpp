@@ -1112,7 +1112,8 @@ ASTDataDeclList::ASTDataDeclList(ASTDataDeclList const& other)
 	: ASTDecl(other),
 	  baseType(other.baseType), readonly(other.readonly), internal(other.internal),
 	  is_static(other.is_static), is_nonstatic(other.is_nonstatic), handled_staticness(other.handled_staticness),
-	  was_exported(other.was_exported), was_range_exported(other.was_range_exported), export_data(other.export_data)
+	  was_exported(other.was_exported), was_range_exported(other.was_range_exported), export_data(other.export_data),
+	  export_val_conv(other.export_val_conv), export_val_conv_annot(other.export_val_conv_annot)
 {
 	for (auto it = other.declarations_.cbegin();
 	     it != other.declarations_.cend(); ++it)

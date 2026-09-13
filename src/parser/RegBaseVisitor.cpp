@@ -197,6 +197,54 @@ void RegBaseVisitor::handle_data_decl_registry(ASTDataDecl& host)
 			special_export = false;
 		}
 		
+		// A value list is written using either the 'int' convention (values
+		// scaled by 10000) or the 'long' convention (raw values). The stored
+		// value is raw bits: an 'int' variable sees raw 10000 as 1, a 'long'
+		// variable sees it as 10000L. Values written in the wrong convention
+		// therefore reach the script 10000x off from what the annotation
+		// named. (bool exports were already rejected above.)
+		if (!type->isBool() && list->export_val_conv != ASTDataDeclList::ExportValConv::UNSET)
+		{
+			bool vals_long = list->export_val_conv == ASTDataDeclList::ExportValConv::LONG_VAL;
+			bool var_long = type_id == ZTID_LONG || type_id == ZTID_RGBDATA;
+			if (vals_long != var_long)
+			{
+				string const& annot_key = list->export_val_conv_annot;
+				string hint;
+				if (annot_key == "ExportBitflags")
+					hint = " Use '@ExportLongBitflags()' instead.";
+				else if (annot_key == "ExportLongBitflags")
+					hint = " Use '@ExportBitflags()' instead.";
+				else if (annot_key == "ExportEnum")
+				{
+					// Named enums can't declare a base type; only @Bitflags("long")
+					// makes one 'long'.
+					if (vals_long)
+						hint = " Use a 'long' variable; '@Bitflags(\"long\")' enums have 'long' values.";
+					else
+						hint = " Use an 'int' variable; only '@Bitflags(\"long\")' enums have 'long' values.";
+				}
+				else if (vals_long)
+					hint = " Use 'int' values (ex. '1' instead of '1L').";
+				else if (annot_key == "ExportDropdown")
+					hint = " Use 'long' values (ex. '1L' instead of '1'), or start the list with '0L' if it has no values.";
+				else hint = " Use 'long' values (ex. '1L' instead of '1').";
+				handleError(CompileError::ExportError(&host, fmt::format(
+					"@{}() uses '{}' values, which is incompatible with '{}' variables!{}",
+					annot_key, vals_long ? "long" : "int", type->getName(), hint)));
+				
+				list->export_data.export_custom_type = var_custom_export_type::none;
+				list->export_data.custom_export_names.clear();
+				custom_export = false;
+				if (list->was_range_exported)
+				{
+					list->export_data.min = -214748.3648_zf;
+					list->export_data.max = 214748.3647_zf;
+					list->was_range_exported = false;
+				}
+			}
+		}
+		
 		assert(!(special_export && custom_export)); // should have been prevented at the annotation level
 		
 		if (list->export_data.btn_type > -1)
@@ -697,6 +745,8 @@ bool RegBaseVisitor::parse_annot_param_as(ASTAnnotation& annot, size_t idx, Anno
 				if (auto val = ident->getCompileTimeValue(this, scope))
 				{
 					output.number = zslongToFix(*val);
+					if (auto rty = ident->getReadType(scope, this))
+						output.is_long = rty->isLong();
 					output.ty = ty;
 					return true;
 				}
@@ -713,6 +763,8 @@ bool RegBaseVisitor::parse_annot_param_as(ASTAnnotation& annot, size_t idx, Anno
 				if (auto val = expr->getCompileTimeValue(this, scope))
 				{
 					output.number = zslongToFix(*val);
+					if (auto rty = expr->getReadType(scope, this))
+						output.is_long = rty->isLong();
 					output.ty = ty;
 					return true;
 				}
@@ -1077,6 +1129,14 @@ bool RegBaseVisitor::parse_annotations_data(ASTDataDeclList& node)
 	};
 	
 	START_ANNOT_LIST(data, valid_keys)
+	// Records whether an annotation's values use the 'int' or 'long' storage
+	// convention, so the declaration can check it against the variable's type.
+	auto set_val_conv = [&node](string const& annot_key, bool is_long)
+	{
+		node.export_val_conv = is_long ? ASTDataDeclList::ExportValConv::LONG_VAL
+			: ASTDataDeclList::ExportValConv::INT_VAL;
+		node.export_val_conv_annot = annot_key;
+	};
 	START_ANNOT("Export")
 	{
 		if (node.getDeclarations().size() > 1)
@@ -1126,6 +1186,8 @@ bool RegBaseVisitor::parse_annotations_data(ASTDataDeclList& node)
 			break;
 		if (!parse_annot_param_as(annot, 1, p_max, AnnotParam_Parsed::Type::NUMBER))
 			break;
+		
+		set_val_conv(key, p_min.is_long || p_max.is_long);
 		
 		if (p_min.number > p_max.number)
 		{
@@ -1187,6 +1249,7 @@ bool RegBaseVisitor::parse_annotations_data(ASTDataDeclList& node)
 		if (!validate_annot_exclusions(key, annots, exclusive_keys))
 			break;
 		zfix list_key = 0;
+		bool vals_long = false;
 		if (!num_params)
 		{
 			handleError(CompileError::AnnotationError(&annot,
@@ -1195,8 +1258,12 @@ bool RegBaseVisitor::parse_annotations_data(ASTDataDeclList& node)
 		}
 		else
 		{
+			// Parse every param before assigning any keys: a 'long' value
+			// anywhere in the list makes the whole list 'long', including the
+			// implicit increment for names that come before it.
 			bool failed = false;
 			bool was_int = false;
+			vector<std::pair<AnnotParam_Parsed::Type, AnnotParam_Parsed>> params;
 			for (size_t q = 0; q < num_params; ++q)
 			{
 				AnnotParam_Parsed param;
@@ -1213,41 +1280,43 @@ bool RegBaseVisitor::parse_annotations_data(ASTDataDeclList& node)
 					failed = true;
 					break;
 				}
-				switch (*ty)
+				if (*ty == AnnotParam_Parsed::Type::NUMBER)
 				{
-					case AnnotParam_Parsed::Type::STRING_UNESCAPED:
+					if (was_int)
 					{
-						if (node.export_data.custom_export_names.contains(list_key))
-						{
-							handleError(CompileError::AnnotationError(&annot,
-								fmt::format("Annotation '@{}' found multiple strings for value {}!", key, list_key)));
-							failed = true;
-							break;
-						}
-						node.export_data.custom_export_names[list_key] = param.str;
-						list_key += 1;
-						was_int = false;
+						handleError(CompileError::AnnotationError(&annot,
+							fmt::format("Annotation '@{}' cannot have multiple NUMBER parameters in a row!", key)));
+						failed = true;
 						break;
 					}
-					case AnnotParam_Parsed::Type::NUMBER:
-					{
-						if (was_int)
-						{
-							handleError(CompileError::AnnotationError(&annot,
-								fmt::format("Annotation '@{}' cannot have multiple NUMBER parameters in a row!", key)));
-							failed = true;
-							break;
-						}
-						list_key = param.number;
-						was_int = true;
-						break;
-					}
+					vals_long = vals_long || param.is_long;
 				}
-				if (failed) break;
+				was_int = *ty == AnnotParam_Parsed::Type::NUMBER;
+				params.emplace_back(*ty, param);
+			}
+			if (failed) break;
+			
+			for (auto const& [ty, param] : params)
+			{
+				if (ty == AnnotParam_Parsed::Type::NUMBER)
+				{
+					list_key = param.number;
+					continue;
+				}
+				if (node.export_data.custom_export_names.contains(list_key))
+				{
+					handleError(CompileError::AnnotationError(&annot,
+						fmt::format("Annotation '@{}' found multiple strings for value {}!", key, list_key)));
+					failed = true;
+					break;
+				}
+				node.export_data.custom_export_names[list_key] = param.str;
+				list_key += vals_long ? 0.0001_zf : 1_zf;
 			}
 			if (failed) break;
 		}
 		node.export_data.export_custom_type = var_custom_export_type::custom_dropdown;
+		set_val_conv(key, vals_long);
 	}
 	END_ANNOT()
 	START_ANNOT("ExportBitflags")
@@ -1338,6 +1407,7 @@ bool RegBaseVisitor::parse_annotations_data(ASTDataDeclList& node)
 			if (failed) break;
 		}
 		node.export_data.export_custom_type = var_custom_export_type::custom_bitflags;
+		set_val_conv(key, false);
 	}
 	END_ANNOT()
 	START_ANNOT("ExportLongBitflags")
@@ -1428,6 +1498,7 @@ bool RegBaseVisitor::parse_annotations_data(ASTDataDeclList& node)
 			if (failed) break;
 		}
 		node.export_data.export_custom_type = var_custom_export_type::custom_long_bitflags;
+		set_val_conv(key, true);
 	}
 	END_ANNOT()
 	START_ANNOT("ExportEnum")
@@ -1469,6 +1540,9 @@ bool RegBaseVisitor::parse_annotations_data(ASTDataDeclList& node)
 		ASTDataEnum const* definition = enum_node->definition.get();
 		
 		auto bit_mode = definition->getBitMode();
+		// Named enums can't declare a base type, so only @Bitflags("long")
+		// makes one 'long'.
+		set_val_conv(key, bit_mode == ASTDataEnum::BIT_LONG);
 		switch (bit_mode)
 		{
 			case ASTDataEnum::BIT_NONE:

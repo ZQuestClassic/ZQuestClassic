@@ -176,7 +176,7 @@ TestResults test_parser([[maybe_unused]] bool verbose)
 	TEST("custom export metadata", tr, [&]{
 		auto& dsd = exports_results->zasmCompilerResult.theScripts.at("exports_test");
 		auto const& exports = dsd.script_d_exports.inner();
-		assertSize(exports, 10);
+		assertSize(exports, 12);
 
 		// Instance ids follow declaration order, not name order.
 		assertEqual(exports.at(1).name, "Zed"s);
@@ -237,6 +237,21 @@ TestResults test_parser([[maybe_unused]] bool verbose)
 		assertEqual(mx.custom_export_names.at(zfix(0)), "Potato"s);
 		assertEqual(mx.custom_export_names.at(zfix(2)), "Q"s);
 		assertEqual(mx.custom_export_names.at(zfix(3)), "Animal Dog"s);
+
+		// A 'long' dropdown keys off raw long values, and the implicit
+		// increment steps by one long unit rather than one int unit.
+		auto const& ldd = exports.at(11);
+		assertEqual((int)ldd.export_custom_type, (int)var_custom_export_type::custom_dropdown);
+		assertEqual(ldd.custom_export_names.at(zslongToFix(0)), "Zero"s);
+		assertEqual(ldd.custom_export_names.at(zslongToFix(1)), "One"s);
+
+		// A 'long' value anywhere in the list makes the whole list 'long',
+		// including the implicit increment for names before it.
+		auto const& mld = exports.at(12);
+		assertSize(mld.custom_export_names, 3);
+		assertEqual(mld.custom_export_names.at(zslongToFix(0)), "Zero"s);
+		assertEqual(mld.custom_export_names.at(zslongToFix(1)), "One"s);
+		assertEqual(mld.custom_export_names.at(zslongToFix(5)), "Five"s);
 
 		return true;
 	});

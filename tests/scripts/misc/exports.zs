@@ -74,10 +74,22 @@ generic script exports_test
 	@ExportEnum(Mixed)
 	nonstatic int mixed = 0;
 
+	// A 'long' variable needs 'long' values; the implicit increment must
+	// step by one long unit, so "One" lands on 1L and not 1.
+	@Export("Long Dropdown"),
+	@ExportDropdown(0L, "Zero", "One")
+	nonstatic long long_dropdown = 0L;
+
+	// A 'long' value anywhere in the list makes the whole list 'long', so
+	// "Zero" and "One" land on 0L and 1L even though they precede 5L.
+	@Export("Mixed Long Dropdown"),
+	@ExportDropdown("Zero", "One", 5L, "Five")
+	nonstatic long mixed_long_dropdown = 0L;
+
 	void run()
 	{
 		// Keep the variables alive.
 		Trace(z_dropdown + a_flags + fruit + fruit_raw + move + lonely + tile + tile_cset + mixed);
-		Trace(m_longflags);
+		Trace(m_longflags + long_dropdown + mixed_long_dropdown);
 	}
 }

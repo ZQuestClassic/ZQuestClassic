@@ -55,6 +55,14 @@ A value in [square brackets] indicates an 'optional' value.
 Many of these annotations conflict with one another, and cannot be used together. The notable exception
 is `@Export()`, which is REQUIRED by the other annotations here.
 
+.. note::
+	The values an annotation supplies must match the exported variable's type. Use `int`
+	values (ex. `1`) and `@ExportBitflags()` for an `int` variable, and `long` values
+	(ex. `1L`) and `@ExportLongBitflags()` for a `long` variable. An `@ExportEnum()` enum has
+	`int` values unless it is declared `@Bitflags("long")`, so only such an enum may be used
+	with a `long` variable. A mismatch is a compile error, as the two kinds of value are
+	stored differently.
+
 .. table::
 	:widths: auto
 	

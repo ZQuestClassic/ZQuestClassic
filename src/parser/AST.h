@@ -440,6 +440,8 @@ namespace ZScript
 		Type ty = Type::NONE;
 		string str {};
 		zfix number {};
+		// Whether a NUMBER param was written as a 'long' value (ex. '1L').
+		bool is_long = false;
 		DataType const* enum_type = nullptr;
 		operator bool() const {return ty != Type::NONE;}
 	};
@@ -1084,6 +1086,16 @@ namespace ZScript
 		bool was_exported;
 		bool was_range_exported;
 		exported_variable export_data;
+		
+		// Which storage convention the values supplied by a value-list export
+		// annotation use. 'int' values are scaled by 10000; 'long' values are
+		// raw. The stored value is raw bits: an 'int' variable sees raw 10000
+		// as 1, a 'long' variable sees it as 10000L. Values written in the
+		// wrong convention therefore reach the script 10000x off from what
+		// the annotation named.
+		enum class ExportValConv { UNSET, INT_VAL, LONG_VAL };
+		ExportValConv export_val_conv = ExportValConv::UNSET;
+		std::string export_val_conv_annot;
 
 		owning_ptr<ASTAnnotationList> data_annotation {};
 	protected:
