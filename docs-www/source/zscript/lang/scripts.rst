@@ -94,6 +94,8 @@ is `@Export()`, which is REQUIRED by the other annotations here.
 	|                       |                                                                       | is only usable on a variable directly after           |
 	|                       |                                                                       | a variable exported with 'Tile' mode (causing         |
 	|                       |                                                                       | the two variables to share a gui widget)              |
+	|                       |                                                                       |                                                       |
+	|                       |                                                                       | | If used on a non-`int` variable, errors.            |
 	+-----------------------+-----------------------------------------------------------------------+-------------------------------------------------------+
 	| `@ExportDropdown`     | Takes many parameters. At least 1 required.                           | Sets the exported value to use a dropdown list,       |
 	|                       |                                                                       | displaying the specified options for the user         |

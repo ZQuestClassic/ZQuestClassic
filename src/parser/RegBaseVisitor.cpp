@@ -188,6 +188,15 @@ void RegBaseVisitor::handle_data_decl_registry(ASTDataDecl& host)
 			}
 		}
 		
+		// Engine values are whole-number ids, and the editor stores them scaled
+		// as 'int' values. Other types would silently round-trip wrong.
+		if (special_export && type_id != ZTID_FLOAT)
+		{
+			handleError(CompileError::ExportError(&host, fmt::format("@ExportEngineValue() is incompatible with '{}' variables! Only 'int' variables may be used.", type->getName())));
+			list->export_data.engine_type = special_engine_export::none;
+			special_export = false;
+		}
+		
 		assert(!(special_export && custom_export)); // should have been prevented at the annotation level
 		
 		if (list->export_data.btn_type > -1)

@@ -132,19 +132,27 @@ errors_exports.zs Line 79 @ Columns 17-28 - Error S113: @ExportEngineValue() is 
                      ^~~~~~~~~~~
 
 
-errors_exports.zs Line 83 @ Columns 2-31 - Error S114: Annotation '@ExportEnum' parameter 1; found unexpected bits '64'
+errors_exports.zs Line 85 @ Columns 17-28 - Error S113: @ExportEngineValue() is incompatible with 'long' variables! Only 'int' variables may be used.
 
-81    // Display mode contains unknown bits
-82    @Export("Bad Display"),
-83    @ExportEnum(PlainEnum, 0x40L)
+83    @Export("Long Engine"),
+84    @ExportEngineValue("Tile")
+85    nonstatic long long_engine;
+                     ^~~~~~~~~~~
+
+
+errors_exports.zs Line 89 @ Columns 2-31 - Error S114: Annotation '@ExportEnum' parameter 1; found unexpected bits '64'
+
+87    // Display mode contains unknown bits
+88    @Export("Bad Display"),
+89    @ExportEnum(PlainEnum, 0x40L)
       ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
-errors_exports.zs Line 88 @ Columns 2-15 - Error S114: Annotation '@ExportEnum' found 0 parameters; expected >= 1 and <= 2
+errors_exports.zs Line 94 @ Columns 2-15 - Error S114: Annotation '@ExportEnum' found 0 parameters; expected >= 1 and <= 2
 
-86    // Zero params
-87    @Export("Empty Enum"),
-88    @ExportEnum()
+92    // Zero params
+93    @Export("Empty Enum"),
+94    @ExportEnum()
       ^~~~~~~~~~~~~
 
 
@@ -384,11 +392,25 @@ stdout:
     {
       "range": {
         "start": {
-          "line": 82,
+          "line": 84,
+          "character": 16
+        },
+        "end": {
+          "line": 84,
+          "character": 27
+        }
+      },
+      "severity": 1,
+      "message": "S113: @ExportEngineValue() is incompatible with 'long' variables! Only 'int' variables may be used."
+    },
+    {
+      "range": {
+        "start": {
+          "line": 88,
           "character": 1
         },
         "end": {
-          "line": 82,
+          "line": 88,
           "character": 30
         }
       },
@@ -398,11 +420,11 @@ stdout:
     {
       "range": {
         "start": {
-          "line": 87,
+          "line": 93,
           "character": 1
         },
         "end": {
-          "line": 87,
+          "line": 93,
           "character": 14
         }
       },
@@ -411,9 +433,9 @@ stdout:
     }
   ],
   "metadata": {
-    "currentFileSymbols": 21,
-    "symbols": 7,
-    "identifiers": 7,
+    "currentFileSymbols": 22,
+    "symbols": 8,
+    "identifiers": 8,
     "elided": true
   }
 }

@@ -78,6 +78,12 @@ ffc script BadExports
 	@ExportEngineValue("Color")
 	nonstatic bool bool_engine;
 
+	// Engine value is incompatible with long (stored unscaled, but the
+	// editor treats engine values as int)
+	@Export("Long Engine"),
+	@ExportEngineValue("Tile")
+	nonstatic long long_engine;
+
 	// Display mode contains unknown bits
 	@Export("Bad Display"),
 	@ExportEnum(PlainEnum, 0x40L)
