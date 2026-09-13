@@ -258,7 +258,7 @@ std::shared_ptr<GUI::Widget> ScriptDataDialog::view()
 						case special_engine_export::tile:
 						{
 							auto tswatch = SelTileSwatch(
-								tile = args[idx],
+								tile = args[idx] / 10000,
 								showvals = false,
 								hAlign = 0.0,
 								onSelectFunc = [&, set_arg](int32_t t, int32_t,int32_t,int32_t)
@@ -291,7 +291,7 @@ std::shared_ptr<GUI::Widget> ScriptDataDialog::view()
 								{
 									tswatch->setCSet(val / 10000);
 								};
-								tswatch->setCSet(args[idx]);
+								tswatch->setCSet(args[idx] / 10000);
 								tswatch->setRowSpan(2);
 								instvar_grid->add(_d); // setRowSpan doesn't update the grid, so add a dummy to eat the space
 								auto set_tile = prev_widget_data->set_arg;
@@ -308,7 +308,7 @@ std::shared_ptr<GUI::Widget> ScriptDataDialog::view()
 						case special_engine_export::combo:
 						{
 							auto cswatch = SelComboSwatch(
-								combo = args[idx],
+								combo = args[idx] / 10000,
 								showvals = false,
 								hAlign = 0.0,
 								onSelectFunc = [&, set_arg](int32_t cmb, int32_t)
@@ -341,7 +341,7 @@ std::shared_ptr<GUI::Widget> ScriptDataDialog::view()
 								{
 									cswatch->setCSet(val / 10000);
 								};
-								cswatch->setCSet(args[idx]);
+								cswatch->setCSet(args[idx] / 10000);
 								cswatch->setRowSpan(2);
 								instvar_grid->add(_d); // setRowSpan doesn't update the grid, so add a dummy to eat the space
 								auto set_combo = prev_widget_data->set_arg;
@@ -360,7 +360,7 @@ std::shared_ptr<GUI::Widget> ScriptDataDialog::view()
 							auto csel = ColorSel(
 								fitParent = true, width = 100_px,
 								hAlign = 0.0,
-								val = args[idx],
+								val = args[idx] / 10000,
 								onValChangedFunc = [&, set_arg](byte val)
 								{
 									set_arg(val * 10000);
@@ -440,7 +440,7 @@ std::shared_ptr<GUI::Widget> ScriptDataDialog::view()
 							auto ddl = DropDownList(
 								fitParent = true, width = 200_px,
 								data = *ld,
-								selectedValue = args[idx],
+								selectedValue = args[idx] / 10000,
 								onSelectFunc = [&, set_arg](int32_t val)
 								{
 									set_arg(val * 10000);
