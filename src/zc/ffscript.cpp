@@ -17368,7 +17368,7 @@ int32_t FFScript::combo_script_engine([[maybe_unused]] const bool preload, const
 				if (waitdraw && !data.waitdraw) return; //waitdraw not set
 
 				ZScriptVersion::RunScript(ScriptType::Combo, script, combopos_ref);
-				if (waitdraw) data.waitdraw = true;
+				if (waitdraw) data.waitdraw = false;
 			}
 		}
 	});
