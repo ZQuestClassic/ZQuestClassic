@@ -39,7 +39,7 @@ class Quest:
 
 def _should_ignore_key(key: str) -> bool:
     # qst.gz files are compressed for the web build. Never needed in a local copy of the database.
-    if key.endswith('.qst.gz'):
+    if key.lower().endswith('.qst.gz'):
         return True
 
     # I think DigitalOcean s3 buckets create an object for folders made in the UI...
@@ -202,7 +202,7 @@ class Database:
             for release in quest.releases:
                 for index, resource_hash in enumerate(release.resource_hashes):
                     resource = release.resources[index]
-                    if resource.endswith('.qst'):
+                    if resource.lower().endswith('.qst'):
                         key = f'{quest.id}/{release.name}/{resource}'
                         qst_key_by_hash[resource_hash] = (key, release)
 
