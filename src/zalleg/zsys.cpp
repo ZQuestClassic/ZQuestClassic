@@ -213,10 +213,13 @@ char datapwd[8]   = "longtan";
 
 void (*zc_log_cb)(const char*);
 
-static void log_console(int32_t attributes, const char* str)
+static void log_console(int32_t attributes, const char* str, bool is_error = false)
 {
 	safe_al_trace(str);
-	zscript_coloured_console.safeprint(attributes, str);
+	if (!zconsole_is_muted())
+		zscript_coloured_console.safeprint(attributes, str);
+	else if (is_error)
+		fputs(str, stderr); // Muting is for stdout; nobody wants a silent failure.
 	if (zc_log_cb)
 		zc_log_cb(str);
 }
@@ -230,7 +233,7 @@ static void log_console(int32_t attributes, const char* str)
     vsnprintf(buf, 256, format, ap);
     va_end(ap);
 
-	log_console(CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_INTENSITY | CConsoleLoggerEx::COLOR_BACKGROUND_BLACK, buf);
+	log_console(CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_INTENSITY | CConsoleLoggerEx::COLOR_BACKGROUND_BLACK, buf, true);
 	zapp_reporting_add_breadcrumb("error_fatal", buf);
 #ifndef __EMSCRIPTEN__
     if (!zscript_coloured_console.valid() && !is_headless())
@@ -250,7 +253,7 @@ void Z_error(const char *format,...)
     vsnprintf(buf, 256, format, ap);
     va_end(ap);
 
-    log_console((CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_INTENSITY | CConsoleLoggerEx::COLOR_BACKGROUND_BLACK), buf);
+    log_console((CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_INTENSITY | CConsoleLoggerEx::COLOR_BACKGROUND_BLACK), buf, true);
 	zapp_reporting_add_breadcrumb("error", buf);
 }
 

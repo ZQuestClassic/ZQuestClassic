@@ -48,6 +48,18 @@ extern bool DragAspect;
 extern double aspect_ratio;
 extern int window_min_width, window_min_height;
 
+static bool console_muted = false;
+
+void zconsole_set_muted(bool muted)
+{
+	console_muted = muted;
+}
+
+bool zconsole_is_muted()
+{
+	return console_muted;
+}
+
 namespace
 {
 
@@ -62,7 +74,8 @@ FILE * trace_file;
 int32_t zc_trace_handler(const char * msg)
 {
 #ifndef _WIN32
-	printf("%s", msg);
+	if (!console_muted)
+		printf("%s", msg);
 #endif
 
 	if(trace_file == 0)
@@ -191,6 +204,18 @@ void zalleg_setup_allegro(App id, int argc, char **argv)
 	if (used_switch(argc, argv, "-headless") || std::getenv("ZC_HEADLESS") != nullptr)
 	{
 		set_headless_mode();
+	}
+
+	// A -dump-* command's stdout is its output - JSON, a list to diff - so the startup
+	// banner and quest-load chatter have to stay off it. This has to happen before the
+	// banner is printed, which is why it is here and not in the command itself.
+	for (int i = 1; i < argc; i++)
+	{
+		if (strncmp(argv[i], "-dump-", 6) == 0)
+		{
+			zconsole_set_muted(true);
+			break;
+		}
 	}
 
 	Z_message("Initializing Allegro... ");

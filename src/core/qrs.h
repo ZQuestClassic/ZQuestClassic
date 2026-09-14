@@ -287,6 +287,8 @@ enum //Rule Templates
 	sz_ruletemplate
 };
 
+// May return nullptr.
+const char* qr_name(int index);
 void unpack_qrs();
 extern bool _qrs_unpacked[qr_MAX];
 #define get_qr(index) (_qrs_unpacked[index])

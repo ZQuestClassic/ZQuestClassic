@@ -73,6 +73,13 @@ bool zalleg_alleg4_save_bitmap(BITMAP* bitmap, int scale, const char* filename, 
 void zalleg_update_bmp_size(BITMAP** bmp_ptr, int w, int h);
 int32_t zalleg_save_midi(const char *filename, MIDI *midi);
 void zc_trace_clear();
+// Stops console output (Z_message, zprint2, the quest loader's progress chatter) from
+// reaching stdout, while still writing it to allegro.log. Z_error / Z_error_fatal go to
+// stderr instead so a failure is never silent. For commands whose stdout is meant to be
+// piped somewhere - see zplayer's -dump-qrs / -dump-screen.
+void zconsole_set_muted(bool muted);
+bool zconsole_is_muted();
+
 void safe_al_trace(const char* str);
 void safe_al_trace(std::string const& str);
 

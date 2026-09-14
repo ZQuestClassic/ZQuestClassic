@@ -139,6 +139,29 @@ void zplayer_handle_commands()
 		do_load_and_quit_command(path.c_str(), jit_precompile);
 	}
 
+	int dump_qrs_arg = zapp_check_switch("-dump-qrs", {"qst"});
+	if (dump_qrs_arg > 0)
+	{
+		std::string path = zapp_get_arg_string(dump_qrs_arg + 1);
+		do_dump_qrs_command(path.c_str());
+	}
+
+	int dump_dmaps_arg = zapp_check_switch("-dump-dmaps", {"qst"});
+	if (dump_dmaps_arg > 0)
+	{
+		std::string path = zapp_get_arg_string(dump_dmaps_arg + 1);
+		do_dump_dmaps_command(path.c_str());
+	}
+
+	int dump_screen_arg = zapp_check_switch("-dump-screen", {"qst", "map", "screen"});
+	if (dump_screen_arg > 0)
+	{
+		std::string path = zapp_get_arg_string(dump_screen_arg + 1);
+		int map = zapp_get_arg_int(dump_screen_arg + 2);
+		int screen = zapp_get_arg_int(dump_screen_arg + 3);
+		do_dump_screen_command(path.c_str(), map, screen);
+	}
+
 	int extract_zasm_arg = zapp_check_switch("-extract-zasm", {"qst"});
 	if (extract_zasm_arg > 0)
 	{

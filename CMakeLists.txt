@@ -804,7 +804,20 @@ set(core_sources
 	src/core/weapon_data.cpp
 	src/core/zdefs.cpp
 )
-add_library(core STATIC ${core_sources})
+# The qr_* value -> name table is generated from the enum in qrs.h so the two cannot
+# drift. Regenerates whenever qrs.h or the generator changes.
+set(qr_names_cpp ${CMAKE_CURRENT_BINARY_DIR}/generated/qr_names.cpp)
+add_custom_command(
+	OUTPUT ${qr_names_cpp}
+	COMMAND ${PYTHON} ${CMAKE_CURRENT_SOURCE_DIR}/scripts/gen_qr_names.py
+		${CMAKE_CURRENT_SOURCE_DIR}/src/core/qrs.h ${qr_names_cpp}
+	DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/scripts/gen_qr_names.py
+		${CMAKE_CURRENT_SOURCE_DIR}/src/core/qrs.h
+	COMMENT "Generating quest rule name table"
+	VERBATIM
+)
+
+add_library(core STATIC ${core_sources} ${qr_names_cpp})
 target_link_libraries(core PUBLIC zalleg scc zasm)
 
 # std::execution supplementation.

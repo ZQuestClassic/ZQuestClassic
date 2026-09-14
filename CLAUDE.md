@@ -95,6 +95,38 @@ You can run other replays too, but they take awhile. So it's best to run these s
 When running `zplayer` or `zeditor` directly (e.g. to run a single replay outside the
 test harness), always pass `-headless`, and give replay paths as absolute paths.
 
+## Inspecting quest data
+
+Three `zplayer` commands dump quest data.
+
+`-dump-screen <qst> <map> <screen>` prints one screen as JSON: every non-empty position
+with its combo, combo type, screen flag and the combo's *own* inherent flag (all with
+human-readable names), plus screen flags, the secret combo table, layers and FFCs.
+
+```bash
+build/Release/zplayer -headless -dump-screen /abs/path/quest.qst 6 50 | jq .
+```
+
+Each FFC entry also carries its script id, InitD and velocity, so a script placement can
+be located by dumping screens and filtering on `script`.
+
+`-dump-dmaps <qst>` prints one line per dmap (`index map=N level=N type=N xoff=N name=...`),
+which is how to find the dmap to start a test-mode replay on for a given map.
+
+`-dump-qrs <qst>` prints every quest rule as `qr_NAME 0|1`, with the quest's version on
+stderr. This is the fastest way to chase a `[compat]` bug report where a quest behaves
+differently after being resaved in an older version - dump both files and diff the rule
+sets, and the culprit falls out:
+
+```bash
+diff <(zplayer -headless -dump-qrs quest.qst) \
+     <(zplayer -headless -dump-qrs quest_resaved_in_2.50.2.qst)
+```
+
+Build numbers for the legacy versions are in the `getVerStr` switch in
+`src/core/zdefs.cpp`. Note that they do not uniquely identify a release - 2.53.0 final
+and every 2.53.1 build are all build 33.
+
 ## Commit messages
 
 The changelog is built from commit messages, so keep these rules in mind:
