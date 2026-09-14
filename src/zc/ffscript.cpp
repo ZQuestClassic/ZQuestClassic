@@ -40951,7 +40951,7 @@ void FFScript::do_file_readchars()
 		{
 			--q;
 			--ri->d[rEXP1];
-			ungetc(am.get(q), f->file); //Put the character back before overwriting it
+			ungetc(am.get(q) / 10000, f->file); //Put the character back before overwriting it
 		}
 		am.set(q,0); //Force null-termination
 		ri->d[rEXP1] *= 10000L;
