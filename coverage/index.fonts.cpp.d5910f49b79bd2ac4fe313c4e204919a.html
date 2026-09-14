@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2026-09-14 02:26:05</td>
+      <td>2026-09-14 08:27:20</td>
     </tr>
   </table>
 </div>
@@ -81,12 +81,12 @@
     <tr><td><a href="#l461">get_font_cfgname[abi:cxx11](bool, unsigned int, std::optional&lt;unsigned int&gt;) (line 461)</a></td><td>called 9702 times, returned 9702 times</td><td>42.0%</td></tr>
     <tr><td><a href="#l444">get_font_prefid() (line 444)</a></td><td>called 20097 times, returned 20097 times</td><td>83.0%</td></tr>
     <tr><td><a href="#l453">get_font_prefix[abi:cxx11](std::optional&lt;unsigned int&gt;) (line 453)</a></td><td>called 20097 times, returned 20097 times</td><td>75.0%</td></tr>
-    <tr><td><a href="#l35">get_zc_font(int) (line 35)</a></td><td>called 154120342 times, returned 154120342 times</td><td>66.0%</td></tr>
-    <tr><td><a href="#l42">get_zc_font_a5(int) (line 42)</a></td><td>called 11222 times, returned 11222 times</td><td>66.0%</td></tr>
+    <tr><td><a href="#l35">get_zc_font(int) (line 35)</a></td><td>called 153405954 times, returned 153405954 times</td><td>66.0%</td></tr>
+    <tr><td><a href="#l42">get_zc_font_a5(int) (line 42)</a></td><td>called 13516 times, returned 13516 times</td><td>66.0%</td></tr>
     <tr><td><a href="#l49">get_zc_fontname(int) (line 49)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l243">initFonts() (line 243)</a></td><td>called 693 times, returned 693 times</td><td>85.0%</td></tr>
     <tr><td><a href="#l477">init_custom_fonts() (line 477)</a></td><td>called 693 times, returned 693 times</td><td>62.0%</td></tr>
-    <tr><td><a href="#l83">init_fontpal() (line 83)</a></td><td>called 79689 times, returned 79689 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l83">init_fontpal() (line 83)</a></td><td>called 79588 times, returned 79588 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l236">initfont(int, FONT*, char const*) (line 236)</a></td><td>called 693 times, returned 693 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l230">initfont(int, int, char const*) (line 230)</a></td><td>called 69300 times, returned 69300 times</td><td>75.0%</td></tr>
     <tr><td><a href="#l56">isBrokenFont(int) (line 56)</a></td><td>not called</td><td>0.0%</td></tr>
@@ -351,7 +351,7 @@
       <td class="lineno"><a id="l35" href="#l35">35</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">154120342</td>
+      <td class="linecount coveredLine">153405954</td>
       <td class="src coveredLine"><span class="n">FONT</span><span class="w"> </span><span class="o">*</span><span class="nf">get_zc_font</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">index</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -367,12 +367,12 @@
         <details class="linebranchDetails">
         <summary class="linebranchSummary">1/2</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 154120342 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 153405954 times.</div>
           <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">154120342</td>
+      <td class="linecount partialCoveredLine">153405954</td>
       <td class="src partialCoveredLine"><span class="w">	</span><span class="k">if</span><span class="p">(</span><span class="kt">unsigned</span><span class="p">(</span><span class="n">index</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">font_max</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -386,7 +386,7 @@
       <td class="lineno"><a id="l39" href="#l39">39</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">154120342</td>
+      <td class="linecount coveredLine">153405954</td>
       <td class="src coveredLine"><span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="n">a4fonts</span><span class="p">[</span><span class="n">index</span><span class="p">];</span></td>
     </tr>
     <tr class="source-line">
@@ -407,7 +407,7 @@
       <td class="lineno"><a id="l42" href="#l42">42</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">11222</td>
+      <td class="linecount coveredLine">13516</td>
       <td class="src coveredLine"><span class="n">ALLEGRO_FONT</span><span class="o">*</span><span class="w"> </span><span class="nf">get_zc_font_a5</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">index</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -423,12 +423,12 @@
         <details class="linebranchDetails">
         <summary class="linebranchSummary">1/2</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 11222 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 13516 times.</div>
           <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">11222</td>
+      <td class="linecount partialCoveredLine">13516</td>
       <td class="src partialCoveredLine"><span class="w">	</span><span class="k">if</span><span class="p">(</span><span class="kt">unsigned</span><span class="p">(</span><span class="n">index</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">font_max</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -442,7 +442,7 @@
       <td class="lineno"><a id="l46" href="#l46">46</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">11222</td>
+      <td class="linecount coveredLine">13516</td>
       <td class="src coveredLine"><span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="n">a5fonts</span><span class="p">[</span><span class="n">index</span><span class="p">];</span></td>
     </tr>
     <tr class="source-line">
@@ -701,7 +701,7 @@
       <td class="lineno"><a id="l83" href="#l83">83</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">79689</td>
+      <td class="linecount coveredLine">79588</td>
       <td class="src coveredLine"><span class="kt">void</span><span class="w"> </span><span class="nf">init_fontpal</span><span class="p">()</span></td>
     </tr>
     <tr class="source-line">
@@ -724,12 +724,12 @@
         <details class="linebranchDetails">
         <summary class="linebranchSummary">2/2</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 78999 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 78898 times.</div>
           <div class="takenBranch">&check; Branch 1 taken 690 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount coveredLine">79689</td>
+      <td class="linecount coveredLine">79588</td>
       <td class="src coveredLine"><span class="w">	</span><span class="k">if</span><span class="p">(</span><span class="n">did_init_fontpal</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
@@ -827,7 +827,7 @@
       <td class="lineno"><a id="l100" href="#l100">100</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">79689</td>
+      <td class="linecount coveredLine">79588</td>
       <td class="src coveredLine"><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
@@ -1550,8 +1550,8 @@
         <details class="linebranchDetails">
         <summary class="linebranchSummary">2/2</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 60297 times.</div>
-          <div class="takenBranch">&check; Branch 1 taken 9696 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 60398 times.</div>
+          <div class="takenBranch">&check; Branch 1 taken 9595 times.</div>
         </div>
         </details>
       </td>
@@ -1562,7 +1562,7 @@
       <td class="lineno"><a id="l200" href="#l200">200</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">60297</td>
+      <td class="linecount coveredLine">60398</td>
       <td class="src coveredLine"><span class="w">		</span><span class="k">return</span><span class="w"> </span><span class="k">nullptr</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
@@ -1583,7 +1583,7 @@
       <td class="lineno"><a id="l203" href="#l203">203</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">9696</td>
+      <td class="linecount coveredLine">9595</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">get_palette</span><span class="p">(</span><span class="n">oldpal</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
@@ -1597,14 +1597,14 @@
       <td class="lineno"><a id="l205" href="#l205">205</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">9696</td>
+      <td class="linecount coveredLine">9595</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">init_fontpal</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l206" href="#l206">206</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">9696</td>
+      <td class="linecount coveredLine">9595</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">zc_set_palette</span><span class="p">(</span><span class="n">fontpal</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
@@ -1618,21 +1618,21 @@
       <td class="lineno"><a id="l208" href="#l208">208</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">9696</td>
+      <td class="linecount coveredLine">9595</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">all_set_transparent_palette_index</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l209" href="#l209">209</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">9696</td>
+      <td class="linecount coveredLine">9595</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">ALLEGRO_BITMAP</span><span class="o">*</span><span class="w"> </span><span class="n">a5bmp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">all_get_a5_bitmap</span><span class="p">(</span><span class="n">bmp</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l210" href="#l210">210</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">9696</td>
+      <td class="linecount coveredLine">9595</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">all_set_transparent_palette_index</span><span class="p">(</span><span class="mi">-1</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
@@ -1646,14 +1646,14 @@
       <td class="lineno"><a id="l212" href="#l212">212</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">9696</td>
+      <td class="linecount coveredLine">9595</td>
       <td class="src coveredLine"><span class="w">	</span><span class="kt">int</span><span class="w"> </span><span class="n">ranges</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mi">32</span><span class="p">,</span><span class="w"> </span><span class="mi">126</span><span class="p">};</span><span class="w"> </span><span class="c1">//space to tilde</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l213" href="#l213">213</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">9696</td>
+      <td class="linecount coveredLine">9595</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">ALLEGRO_FONT</span><span class="o">*</span><span class="w"> </span><span class="n">a5font</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">al_grab_font_from_bitmap</span><span class="p">(</span><span class="n">a5bmp</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">ranges</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
@@ -1667,21 +1667,21 @@
       <td class="lineno"><a id="l215" href="#l215">215</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">9696</td>
+      <td class="linecount coveredLine">9595</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">al_destroy_bitmap</span><span class="p">(</span><span class="n">a5bmp</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l216" href="#l216">216</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">9696</td>
+      <td class="linecount coveredLine">9595</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">zc_set_palette</span><span class="p">(</span><span class="n">oldpal</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l217" href="#l217">217</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">9696</td>
+      <td class="linecount coveredLine">9595</td>
       <td class="src coveredLine"><span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="n">a5font</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">

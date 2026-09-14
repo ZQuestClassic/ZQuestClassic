@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2026-09-14 02:26:05</td>
+      <td>2026-09-14 08:27:20</td>
     </tr>
   </table>
 </div>
@@ -41,9 +41,9 @@
     </tr>
     <tr>
       <th scope="row">Lines:</th>
-      <td>46</td>
-      <td>107</td>
-      <td class="coverage-low">43.0%</td>
+      <td>52</td>
+      <td>124</td>
+      <td class="coverage-low">41.9%</td>
     </tr>
     <tr>
       <th scope="row">Functions:</th>
@@ -53,9 +53,9 @@
     </tr>
     <tr>
       <th scope="row">Branches:</th>
-      <td>41</td>
-      <td>178</td>
-      <td class="coverage-low">23.0%</td>
+      <td>50</td>
+      <td>206</td>
+      <td class="coverage-low">24.3%</td>
     </tr>
   </table>
 </div>
@@ -75,7 +75,7 @@
     </tr>
     <tr><td><a href="#l34">do_extract_zasm_command(char const*) (line 34)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l48">do_extract_zasm_command(char const*)::$_0::operator()(zasm_script*) const (line 48)</a></td><td>not called</td><td>0.0%</td></tr>
-    <tr><td><a href="#l17">do_load_and_quit_command(char const*, bool) (line 17)</a></td><td>called 53 times, returned 53 times</td><td>50.0%</td></tr>
+    <tr><td><a href="#l17">do_load_and_quit_command(char const*, bool) (line 17)</a></td><td>called 54 times, returned 54 times</td><td>50.0%</td></tr>
     <tr><td><a href="#l69">zplayer_handle_commands() (line 69)</a></td><td>called 808 times, returned 686 times</td><td>31.0%</td></tr>
   </table>
 </details>
@@ -207,7 +207,7 @@
       <td class="lineno"><a id="l17" href="#l17">17</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">53</td>
+      <td class="linecount coveredLine">54</td>
       <td class="src coveredLine"><span class="kt">void</span><span class="w"> </span><span class="nf">do_load_and_quit_command</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">quest_path</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">jit_precompile</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -221,14 +221,14 @@
       <td class="lineno"><a id="l19" href="#l19">19</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">53</td>
+      <td class="linecount coveredLine">54</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">byte</span><span class="w"> </span><span class="n">skip_flags</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">};</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l20" href="#l20">20</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">53</td>
+      <td class="linecount coveredLine">54</td>
       <td class="src coveredLine"><span class="w">	</span><span class="kt">int</span><span class="w"> </span><span class="n">ret</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">loadquest</span><span class="p">(</span><span class="n">quest_path</span><span class="p">,</span><span class="o">&amp;</span><span class="n">QHeader</span><span class="p">,</span><span class="o">&amp;</span><span class="n">QMisc</span><span class="p">,</span><span class="n">tunes</span><span class="o">+</span><span class="n">ZC_MIDI_COUNT</span><span class="p">,</span><span class="nb">false</span><span class="p">,</span><span class="n">skip_flags</span><span class="p">,</span><span class="nb">true</span><span class="p">,</span><span class="nb">false</span><span class="p">,</span><span class="mh">0xFF</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
@@ -237,12 +237,12 @@
         <details class="linebranchDetails">
         <summary class="linebranchSummary">1/2</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 53 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 54 times.</div>
           <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">53</td>
+      <td class="linecount partialCoveredLine">54</td>
       <td class="src partialCoveredLine"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">ret</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -263,7 +263,7 @@
       <td class="lineno"><a id="l24" href="#l24">24</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">53</td>
+      <td class="linecount coveredLine">54</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">strcpy</span><span class="p">(</span><span class="n">qstpath</span><span class="p">,</span><span class="w"> </span><span class="n">quest_path</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
@@ -272,12 +272,12 @@
         <details class="linebranchDetails">
         <summary class="linebranchSummary">1/2</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 53 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 54 times.</div>
           <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">53</td>
+      <td class="linecount partialCoveredLine">54</td>
       <td class="src partialCoveredLine"><span class="w">	</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;Hash: %s</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">QHeader</span><span class="p">.</span><span class="n">hash</span><span class="p">().</span><span class="n">c_str</span><span class="p">());</span></td>
     </tr>
     <tr class="source-line">
@@ -293,12 +293,12 @@
         <details class="linebranchDetails">
         <summary class="linebranchSummary">1/2</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 53 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 54 times.</div>
           <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">53</td>
+      <td class="linecount partialCoveredLine">54</td>
       <td class="src partialCoveredLine"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">jit_precompile</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -312,7 +312,7 @@
       <td class="lineno"><a id="l29" href="#l29">29</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">53</td>
+      <td class="linecount coveredLine">54</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">zasm_pipeline_init</span><span class="p">(</span><span class="nb">true</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
@@ -326,14 +326,14 @@
       <td class="lineno"><a id="l31" href="#l31">31</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">53</td>
+      <td class="linecount coveredLine">54</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">zapp_exit</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l32" href="#l32">32</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">53</td>
+      <td class="linecount coveredLine">54</td>
       <td class="src coveredLine"><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
@@ -1250,7 +1250,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">688</td>
-      <td class="src partialCoveredLine"><span class="w">	</span><span class="kt">int</span><span class="w"> </span><span class="n">extract_zasm_arg</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zapp_check_switch</span><span class="p">(</span><span class="s">&quot;-extract-zasm&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="s">&quot;qst&quot;</span><span class="p">});</span></td>
+      <td class="src partialCoveredLine"><span class="w">	</span><span class="kt">int</span><span class="w"> </span><span class="n">dump_qrs_arg</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zapp_check_switch</span><span class="p">(</span><span class="s">&quot;-dump-qrs&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="s">&quot;qst&quot;</span><span class="p">});</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l143" href="#l143">143</a></td>
@@ -1264,7 +1264,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">688</td>
-      <td class="src partialCoveredLine"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">extract_zasm_arg</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span></td>
+      <td class="src partialCoveredLine"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">dump_qrs_arg</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l144" href="#l144">144</a></td>
@@ -1278,14 +1278,14 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">		</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zapp_get_arg_string</span><span class="p">(</span><span class="n">extract_zasm_arg</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span></td>
+      <td class="src uncoveredLine"><span class="w">		</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zapp_get_arg_string</span><span class="p">(</span><span class="n">dump_qrs_arg</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l146" href="#l146">146</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">		</span><span class="n">do_extract_zasm_command</span><span class="p">(</span><span class="n">path</span><span class="p">.</span><span class="n">c_str</span><span class="p">());</span></td>
+      <td class="src uncoveredLine"><span class="w">		</span><span class="n">do_dump_qrs_command</span><span class="p">(</span><span class="n">path</span><span class="p">.</span><span class="n">c_str</span><span class="p">());</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l147" href="#l147">147</a></td>
@@ -1315,7 +1315,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">688</td>
-      <td class="src partialCoveredLine"><span class="w">	</span><span class="kt">int</span><span class="w"> </span><span class="n">create_save_arg</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zapp_check_switch</span><span class="p">(</span><span class="s">&quot;-create-save&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="s">&quot;qst&quot;</span><span class="p">});</span></td>
+      <td class="src partialCoveredLine"><span class="w">	</span><span class="kt">int</span><span class="w"> </span><span class="n">dump_dmaps_arg</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zapp_check_switch</span><span class="p">(</span><span class="s">&quot;-dump-dmaps&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="s">&quot;qst&quot;</span><span class="p">});</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l150" href="#l150">150</a></td>
@@ -1329,7 +1329,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">688</td>
-      <td class="src partialCoveredLine"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">create_save_arg</span><span class="p">)</span></td>
+      <td class="src partialCoveredLine"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">dump_dmaps_arg</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l151" href="#l151">151</a></td>
@@ -1343,21 +1343,21 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">		</span><span class="n">set_headless_mode</span><span class="p">();</span></td>
+      <td class="src uncoveredLine"><span class="w">		</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zapp_get_arg_string</span><span class="p">(</span><span class="n">dump_dmaps_arg</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l153" href="#l153">153</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">		</span><span class="n">do_dump_dmaps_command</span><span class="p">(</span><span class="n">path</span><span class="p">.</span><span class="n">c_str</span><span class="p">());</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l154" href="#l154">154</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">		</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zapp_get_arg_string</span><span class="p">(</span><span class="n">create_save_arg</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span></td>
+      <td class="src uncoveredLine"><span class="w">	</span><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l155" href="#l155">155</a></td>
@@ -1369,58 +1369,74 @@
     <tr class="source-line">
       <td class="lineno"><a id="l156" href="#l156">156</a></td>
       <td class="linebranch">
+        <details class="linebranchDetails">
+        <summary class="linebranchSummary">2/4</summary>
+        <div class="linebranchContents">
+          <div class="takenBranch">&check; Branch 0 taken 688 times.</div>
+          <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
+          <div class="takenBranch">&check; Branch 2 taken 688 times.</div>
+          <div class="notTakenBranch">&cross; Branch 3 not taken.</div>
+        </div>
+        </details>
       </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">		</span><span class="n">gamedata</span><span class="o">*</span><span class="w"> </span><span class="n">new_game</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">gamedata</span><span class="p">();</span></td>
+      <td class="linecount partialCoveredLine">688</td>
+      <td class="src partialCoveredLine"><span class="w">	</span><span class="kt">int</span><span class="w"> </span><span class="n">dump_screen_arg</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zapp_check_switch</span><span class="p">(</span><span class="s">&quot;-dump-screen&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="s">&quot;qst&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;map&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;screen&quot;</span><span class="p">});</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l157" href="#l157">157</a></td>
       <td class="linebranch">
+        <details class="linebranchDetails">
+        <summary class="linebranchSummary">1/2</summary>
+        <div class="linebranchContents">
+          <div class="takenBranch">&check; Branch 0 taken 688 times.</div>
+          <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
+        </div>
+        </details>
       </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">		</span><span class="n">new_game</span><span class="o">-&gt;</span><span class="n">header</span><span class="p">.</span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;hiro&quot;</span><span class="p">;</span></td>
+      <td class="linecount partialCoveredLine">688</td>
+      <td class="src partialCoveredLine"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">dump_screen_arg</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l158" href="#l158">158</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">		</span><span class="n">new_game</span><span class="o">-&gt;</span><span class="n">header</span><span class="p">.</span><span class="n">qstpath</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">path</span><span class="p">;</span></td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">	</span><span class="p">{</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l159" href="#l159">159</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">		</span><span class="n">new_game</span><span class="o">-&gt;</span><span class="n">set_maxlife</span><span class="p">(</span><span class="mi">3</span><span class="o">*</span><span class="mi">16</span><span class="p">);</span></td>
+      <td class="src uncoveredLine"><span class="w">		</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zapp_get_arg_string</span><span class="p">(</span><span class="n">dump_screen_arg</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l160" href="#l160">160</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">		</span><span class="n">new_game</span><span class="o">-&gt;</span><span class="n">set_life</span><span class="p">(</span><span class="mi">3</span><span class="o">*</span><span class="mi">16</span><span class="p">);</span></td>
+      <td class="src uncoveredLine"><span class="w">		</span><span class="kt">int</span><span class="w"> </span><span class="n">map</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zapp_get_arg_int</span><span class="p">(</span><span class="n">dump_screen_arg</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">2</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l161" href="#l161">161</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">		</span><span class="n">new_game</span><span class="o">-&gt;</span><span class="n">set_maxbombs</span><span class="p">(</span><span class="mi">8</span><span class="p">);</span></td>
+      <td class="src uncoveredLine"><span class="w">		</span><span class="kt">int</span><span class="w"> </span><span class="n">screen</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zapp_get_arg_int</span><span class="p">(</span><span class="n">dump_screen_arg</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">3</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l162" href="#l162">162</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">		</span><span class="n">new_game</span><span class="o">-&gt;</span><span class="n">set_continue_dmap</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span></td>
+      <td class="src uncoveredLine"><span class="w">		</span><span class="n">do_dump_screen_command</span><span class="p">(</span><span class="n">path</span><span class="p">.</span><span class="n">c_str</span><span class="p">(),</span><span class="w"> </span><span class="n">map</span><span class="p">,</span><span class="w"> </span><span class="n">screen</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l163" href="#l163">163</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">		</span><span class="n">new_game</span><span class="o">-&gt;</span><span class="n">set_continue_scrn</span><span class="p">(</span><span class="mh">0xFF</span><span class="p">);</span></td>
+      <td class="src uncoveredLine"><span class="w">	</span><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l164" href="#l164">164</a></td>
@@ -1432,55 +1448,248 @@
     <tr class="source-line">
       <td class="lineno"><a id="l165" href="#l165">165</a></td>
       <td class="linebranch">
+        <details class="linebranchDetails">
+        <summary class="linebranchSummary">2/4</summary>
+        <div class="linebranchContents">
+          <div class="takenBranch">&check; Branch 0 taken 688 times.</div>
+          <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
+          <div class="takenBranch">&check; Branch 2 taken 688 times.</div>
+          <div class="notTakenBranch">&cross; Branch 3 not taken.</div>
+        </div>
+        </details>
       </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="k">auto</span><span class="w"> </span><span class="n">r</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">saves_create_slot</span><span class="p">(</span><span class="n">new_game</span><span class="p">);</span><span class="w"> </span><span class="o">!</span><span class="n">r</span><span class="p">)</span></td>
+      <td class="linecount partialCoveredLine">688</td>
+      <td class="src partialCoveredLine"><span class="w">	</span><span class="kt">int</span><span class="w"> </span><span class="n">extract_zasm_arg</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zapp_check_switch</span><span class="p">(</span><span class="s">&quot;-extract-zasm&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="s">&quot;qst&quot;</span><span class="p">});</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l166" href="#l166">166</a></td>
       <td class="linebranch">
+        <details class="linebranchDetails">
+        <summary class="linebranchSummary">1/2</summary>
+        <div class="linebranchContents">
+          <div class="takenBranch">&check; Branch 0 taken 688 times.</div>
+          <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
+        </div>
+        </details>
       </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">			</span><span class="n">Z_error_fatal</span><span class="p">(</span><span class="s">&quot;failed to create save file: %s</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">r</span><span class="p">.</span><span class="n">error</span><span class="p">().</span><span class="n">c_str</span><span class="p">());</span></td>
+      <td class="linecount partialCoveredLine">688</td>
+      <td class="src partialCoveredLine"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">extract_zasm_arg</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l167" href="#l167">167</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="w">	</span><span class="p">{</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l168" href="#l168">168</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">		</span><span class="n">zapp_exit</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span></td>
+      <td class="src uncoveredLine"><span class="w">		</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zapp_get_arg_string</span><span class="p">(</span><span class="n">extract_zasm_arg</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l169" href="#l169">169</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">	</span><span class="p">}</span></td>
+      <td class="src uncoveredLine"><span class="w">		</span><span class="n">do_extract_zasm_command</span><span class="p">(</span><span class="n">path</span><span class="p">.</span><span class="n">c_str</span><span class="p">());</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l170" href="#l170">170</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">	</span><span class="p">}</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l171" href="#l171">171</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l171" href="#l171">171</a></td>
+      <td class="lineno"><a id="l172" href="#l172">172</a></td>
+      <td class="linebranch">
+        <details class="linebranchDetails">
+        <summary class="linebranchSummary">2/4</summary>
+        <div class="linebranchContents">
+          <div class="takenBranch">&check; Branch 0 taken 688 times.</div>
+          <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
+          <div class="takenBranch">&check; Branch 2 taken 688 times.</div>
+          <div class="notTakenBranch">&cross; Branch 3 not taken.</div>
+        </div>
+        </details>
+      </td>
+      <td class="linecount partialCoveredLine">688</td>
+      <td class="src partialCoveredLine"><span class="w">	</span><span class="kt">int</span><span class="w"> </span><span class="n">create_save_arg</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zapp_check_switch</span><span class="p">(</span><span class="s">&quot;-create-save&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="s">&quot;qst&quot;</span><span class="p">});</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l173" href="#l173">173</a></td>
+      <td class="linebranch">
+        <details class="linebranchDetails">
+        <summary class="linebranchSummary">1/2</summary>
+        <div class="linebranchContents">
+          <div class="takenBranch">&check; Branch 0 taken 688 times.</div>
+          <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
+        </div>
+        </details>
+      </td>
+      <td class="linecount partialCoveredLine">688</td>
+      <td class="src partialCoveredLine"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">create_save_arg</span><span class="p">)</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l174" href="#l174">174</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">	</span><span class="p">{</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l175" href="#l175">175</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">		</span><span class="n">set_headless_mode</span><span class="p">();</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l176" href="#l176">176</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l177" href="#l177">177</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">		</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zapp_get_arg_string</span><span class="p">(</span><span class="n">create_save_arg</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l178" href="#l178">178</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l179" href="#l179">179</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">		</span><span class="n">gamedata</span><span class="o">*</span><span class="w"> </span><span class="n">new_game</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">gamedata</span><span class="p">();</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l180" href="#l180">180</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">		</span><span class="n">new_game</span><span class="o">-&gt;</span><span class="n">header</span><span class="p">.</span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;hiro&quot;</span><span class="p">;</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l181" href="#l181">181</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">		</span><span class="n">new_game</span><span class="o">-&gt;</span><span class="n">header</span><span class="p">.</span><span class="n">qstpath</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">path</span><span class="p">;</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l182" href="#l182">182</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">		</span><span class="n">new_game</span><span class="o">-&gt;</span><span class="n">set_maxlife</span><span class="p">(</span><span class="mi">3</span><span class="o">*</span><span class="mi">16</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l183" href="#l183">183</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">		</span><span class="n">new_game</span><span class="o">-&gt;</span><span class="n">set_life</span><span class="p">(</span><span class="mi">3</span><span class="o">*</span><span class="mi">16</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l184" href="#l184">184</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">		</span><span class="n">new_game</span><span class="o">-&gt;</span><span class="n">set_maxbombs</span><span class="p">(</span><span class="mi">8</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l185" href="#l185">185</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">		</span><span class="n">new_game</span><span class="o">-&gt;</span><span class="n">set_continue_dmap</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l186" href="#l186">186</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">		</span><span class="n">new_game</span><span class="o">-&gt;</span><span class="n">set_continue_scrn</span><span class="p">(</span><span class="mh">0xFF</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l187" href="#l187">187</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l188" href="#l188">188</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="k">auto</span><span class="w"> </span><span class="n">r</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">saves_create_slot</span><span class="p">(</span><span class="n">new_game</span><span class="p">);</span><span class="w"> </span><span class="o">!</span><span class="n">r</span><span class="p">)</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l189" href="#l189">189</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">			</span><span class="n">Z_error_fatal</span><span class="p">(</span><span class="s">&quot;failed to create save file: %s</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">r</span><span class="p">.</span><span class="n">error</span><span class="p">().</span><span class="n">c_str</span><span class="p">());</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l190" href="#l190">190</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l191" href="#l191">191</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">		</span><span class="n">zapp_exit</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l192" href="#l192">192</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">	</span><span class="p">}</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l193" href="#l193">193</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l194" href="#l194">194</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">3/4</summary>
         <div class="linebranchContents">
           <div class="takenBranch">&check; Branch 0 taken 688 times.</div>
           <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
-          <div class="takenBranch">&check; Branch 2 taken 571 times.</div>
-          <div class="takenBranch">&check; Branch 3 taken 117 times.</div>
+          <div class="takenBranch">&check; Branch 2 taken 117 times.</div>
+          <div class="takenBranch">&check; Branch 3 taken 571 times.</div>
         </div>
         </details>
       </td>
@@ -1488,21 +1697,21 @@
       <td class="src partialCoveredLine"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">zapp_check_switch</span><span class="p">(</span><span class="s">&quot;-no_console&quot;</span><span class="p">))</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l172" href="#l172">172</a></td>
+      <td class="lineno"><a id="l195" href="#l195">195</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">117</td>
       <td class="src coveredLine"><span class="w">		</span><span class="n">console_enabled</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l173" href="#l173">173</a></td>
+      <td class="lineno"><a id="l196" href="#l196">196</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">808</td>
       <td class="src coveredLine"><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l174" href="#l174">174</a></td>
+      <td class="lineno"><a id="l197" href="#l197">197</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
