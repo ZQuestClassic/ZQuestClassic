@@ -637,9 +637,9 @@ static void compile_compare_goto(CompilationState& state, a64::Compiler& cc, int
 	else if (command == GOTOLESS)
 	{
 		if (get_qr(qr_GOTOLESSNOTEQUAL))
-			emit_cond_branch(state, cc, a64::CondCode::kLE, goto_labels[arg1], goto_distance(state, arg1));
-		else
 			emit_cond_branch(state, cc, a64::CondCode::kLT, goto_labels[arg1], goto_distance(state, arg1));
+		else
+			emit_cond_branch(state, cc, a64::CondCode::kLE, goto_labels[arg1], goto_distance(state, arg1));
 	}
 	else
 	{

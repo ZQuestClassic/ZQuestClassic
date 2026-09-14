@@ -24,6 +24,7 @@
 */
 
 #include "zc/scripting/jit/jit_wasm.h"
+#include "core/qrs.h"
 
 #include "allegro/debug.h"
 #include "allegro/file.h"
@@ -986,7 +987,10 @@ static void emit_cmp_goto_value(CompilationState& state, const zasm_script* scri
 		case GOTOTRUE: wasm.emitI32Eq(); break;
 		case GOTOFALSE: wasm.emitI32Ne(); break;
 		case GOTOMORE: wasm.emitI32GeS(); break;
-		case GOTOLESS: wasm.emitI32LeS(); break;
+		case GOTOLESS:
+			// `<=` unless the compat rule makes GOTOLESS strict, like the interpreter.
+			if (get_qr(qr_GOTOLESSNOTEQUAL)) wasm.emitI32LtS(); else wasm.emitI32LeS();
+			break;
 	}
 }
 

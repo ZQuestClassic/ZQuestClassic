@@ -17510,7 +17510,7 @@ int command_to_cmp(int command, int arg)
 		case GOTOMORE:
 			return CMP_GE;
 		case GOTOLESS:
-			return get_qr(qr_GOTOLESSNOTEQUAL) ? CMP_LE : CMP_LT;
+			return get_qr(qr_GOTOLESSNOTEQUAL) ? CMP_LT : CMP_LE;
 
 		case SETTRUE:
 			return CMP_EQ;

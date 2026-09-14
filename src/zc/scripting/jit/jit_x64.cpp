@@ -679,9 +679,9 @@ static void compile_compare_goto(CompilationState& state, x86::Compiler& cc, int
 	else if (command == GOTOLESS)
 	{
 		if (get_qr(qr_GOTOLESSNOTEQUAL))
-			cc.jle(goto_labels[arg1]);
-		else
 			cc.jl(goto_labels[arg1]);
+		else
+			cc.jle(goto_labels[arg1]);
 	}
 	else
 	{
