@@ -964,6 +964,9 @@ class itemdata {
 
 	// Fills the buffer with the item's Name.
 	//
+	// If the buffer is too small, it is resized to fit.
+	//
+	// @versionchanged 2.55.17 The buffer is now resized to fit if it is too small (it used to be truncated, with an error).
 	// @zasm
 	//   POP D2
 	//   POP REFITEMDATA
@@ -972,6 +975,9 @@ class itemdata {
 
 	// Fills the buffer with the item's Display Name.
 	//
+	// If the buffer is too small, it is resized to fit.
+	//
+	// @versionchanged 2.55.17 The buffer is now resized to fit if it is too small (it used to be truncated, with an error).
 	// @zasm
 	//   POP D2
 	//   POP REFITEMDATA
@@ -990,6 +996,9 @@ class itemdata {
 	// This automatically handles display names, including special instances
 	// such as the contents of Bottles.
 	//
+	// If the buffer is too small, it is resized to fit.
+	//
+	// @versionchanged 2.55.17 The buffer is now resized to fit if it is too small (it used to be truncated, with an error).
 	// @zasm
 	//   POP D2
 	//   POP REFITEMDATA

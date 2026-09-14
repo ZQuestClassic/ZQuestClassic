@@ -550,6 +550,9 @@ class npcdata {
 
 	// Puts the text of the npc name into string 'ptr'.
 	//
+	// If the buffer is too small, it is resized to fit.
+	//
+	// @versionchanged 2.55.17 The buffer is now resized to fit if it is too small (it used to be truncated, with an error).
 	// @zasm
 	//   POP D2
 	//   POP REFNPCDATA

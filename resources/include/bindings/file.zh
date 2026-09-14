@@ -153,6 +153,10 @@ class file {
 
 	// Reads a section of characters from the file.
 	//
+	// If [count] is given and the buffer has no room for it (starting at [pos]),
+	// the buffer is resized to fit. If [count] is -1, reads as much as fits in the buffer.
+	//
+	// @versionchanged 2.55.17 The buffer is now resized to fit an explicit [count] (it used to be truncated).
 	// @zasm
 	//   POP D0
 	//   POP D3
@@ -163,6 +167,10 @@ class file {
 
 	// Reads a section of binary data from the file.
 	//
+	// If [count] is given and the buffer has no room for it (starting at [pos]),
+	// the buffer is resized to fit. If [count] is -1, reads as much as fits in the buffer.
+	//
+	// @versionchanged 2.55.17 The buffer is now resized to fit an explicit [count] (it used to be truncated).
 	// @zasm
 	//   POP D0
 	//   POP D3
@@ -193,6 +201,10 @@ class file {
 
 	// Reads a section of characters from the file.
 	//
+	// Reads one line (up to and including the newline, or the end of the file) into the buffer.
+	// If the buffer is too small, it is resized to fit the whole line.
+	//
+	// @versionchanged 2.55.17 The buffer is now resized to fit the whole line (it used to read only as much as fit, leaving the rest for the next call).
 	// @zasm
 	//   POP D2
 	//   POP REFFILE
@@ -255,6 +267,9 @@ class file {
 
 	// Stores a string describing the current error into the buffer provided.
 	//
+	// If the buffer is too small, it is resized to fit.
+	//
+	// @versionchanged 2.55.17 The buffer is now resized to fit if it is too small (it used to be truncated, with an error).
 	// @zasm
 	//   POP D2
 	//   POP REFFILE
@@ -281,6 +296,10 @@ class file {
 
 	// Reads a section of binary data from the file.
 	//
+	// If [count] is given and the buffer has no room for it (starting at [pos]),
+	// the buffer is resized to fit. If [count] is -1, reads as much as fits in the buffer.
+	//
+	// @versionchanged 2.55.17 The buffer is now resized to fit an explicit [count] (it used to be truncated).
 	// @zasm
 	//   POP D0
 	//   POP D3

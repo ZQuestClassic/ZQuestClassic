@@ -184,11 +184,11 @@ std::optional<int32_t> websocket_run_command(word command)
 			int32_t arrayptr = get_register(sarg1);
 			if (auto ws = user_websockets.check(GET_REF(websocketref)))
 			{
-				ArrayH::setArray(arrayptr, ws->get_error(), true);
+				ArrayH::setArray(arrayptr, ws->get_error());
 			}
 			else
 			{
-				ArrayH::setArray(arrayptr, "Invalid pointer", true);
+				ArrayH::setArray(arrayptr, "Invalid pointer");
 			}
 			break;
 		}
@@ -232,13 +232,13 @@ std::optional<int32_t> websocket_run_command(word command)
 				ArrayManager am(ws->message_array_id);
 				if (message_type == WebSocketMessageType::Text)
 				{
-					ArrayH::setArray(ws->message_array_id, message, true);
-					am.resize(message.size() + 1); // even though resize is true above, it doesn't actually always resize...
+					ArrayH::setArray(ws->message_array_id, message);
+					am.resize(message.size() + 1); // setArray only grows; shrink to fit too
 				}
 				else
 				{
-					ArrayH::setArray(ws->message_array_id, message.size(), message.data(), false, true);
-					am.resize(message.size()); // even though resize is true above, it doesn't actually always resize...
+					ArrayH::setArray(ws->message_array_id, message.size(), message.data(), false);
+					am.resize(message.size()); // setArray only grows; shrink to fit too
 				}
 
 				if (ZScriptVersion::gc_arrays())

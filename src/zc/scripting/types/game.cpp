@@ -43,8 +43,7 @@ void do_getsavename()
 {
 	int32_t arrayptr = get_register(sarg1);
 	
-	if(ArrayH::setArray(arrayptr, string(game->get_name())) == SH::_Overflow)
-		Z_scripterrlog("Array supplied to 'Game->GetSaveName' not large enough\n");
+	ArrayH::setArray(arrayptr, string(game->get_name()));
 }
 
 void do_getscreenflags()
@@ -93,8 +92,7 @@ void do_getmessage(const bool v)
 		MsgStr::EncodingType::Binary :
 		MsgStr::EncodingType::Ascii;
 	std::string text = MsgStrings[ID].serialize(encoding_type);
-	if(ArrayH::setArray(arrayptr, text, true) == SH::_Overflow)
-		Z_scripterrlog("Array supplied to 'Game->GetMessage' not large enough\n");
+	ArrayH::setArray(arrayptr, text);
 }
 
 void do_setmessage(const bool v)
@@ -122,8 +120,7 @@ void do_getdmapname(const bool v)
 	if(BC::checkDMapID(ID) != SH::_NoError)
 		return;
 		
-	if(ArrayH::setArray(arrayptr, string(DMaps[ID].name)) == SH::_Overflow)
-		Z_scripterrlog("Array supplied to 'Game->GetDMapName' not large enough\n");
+	ArrayH::setArray(arrayptr, string(DMaps[ID].name));
 }
 
 void do_setdmapname(const bool v)
@@ -149,13 +146,7 @@ void do_getdmaptitle(const bool v)
 	if(BC::checkDMapID(ID) != SH::_NoError)
 		return;
 		
-	if (!get_qr(qr_OLD_DMAP_INTRO_STRINGS))
-	{
-		ArrayManager am(arrayptr);
-		am.resize(DMaps[ID].title.size() + 1);
-	}
-	if(ArrayH::setArray(arrayptr, string(DMaps[ID].title)) == SH::_Overflow)
-		Z_scripterrlog("Array supplied to 'Game->GetDMapTitle' not large enough\n");
+	ArrayH::setArray(arrayptr, string(DMaps[ID].title));
 }
 
 
@@ -191,8 +182,7 @@ void do_getdmapintro(const bool v)
 	if(BC::checkDMapID(ID) != SH::_NoError)
 		return;
 		
-	if(ArrayH::setArray(arrayptr, string(DMaps[ID].intro)) == SH::_Overflow)
-		Z_scripterrlog("Array supplied to 'Game->GetDMapIntro' not large enough\n");
+	ArrayH::setArray(arrayptr, string(DMaps[ID].intro));
 }
 
 

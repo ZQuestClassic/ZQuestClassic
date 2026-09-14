@@ -2144,35 +2144,37 @@ void ArrayH::setElement(const int32_t ptr, int32_t offset, const int32_t value, 
 	am.set(offset, value, type);
 }
 
-int32_t ArrayH::setArray(const int32_t ptr, string const& s2, bool resize)
+// Writes a null-terminated string into a script array, growing the array if it is too small.
+// Only internal arrays (backed by engine data) can't grow: those get as much of the string
+// as fits (still null-terminated), an error is logged, and _Overflow is returned.
+int32_t ArrayH::setArray(const int32_t ptr, string const& s2)
 {
 	ArrayManager am(ptr);
 	
 	if (am.invalid())
 		return _InvalidPointer;
 	
-	size_t i;
-	
-	if(am.can_resize() && resize)
-		am.resize_min(s2.size()+1);
+	size_t needed = s2.size() + 1;
+	if (am.can_resize())
+		am.resize_min(needed);
 	
 	size_t sz = am.size();
-	for(i = 0; i < s2.size(); i++)
+	int32_t ret = _NoError;
+	size_t count = s2.size();
+	if (needed > sz)
 	{
-		if(i >= sz)
-		{
-			am.set(sz-1,'\0');
+		logArrayTooSmall(sz, needed);
+		if (sz == 0)
 			return _Overflow;
-		}
-		
-		if(BC::checkUserArrayIndex(i, sz) == _NoError)
-			am.set(i,s2[i] * 10000);
+		count = sz - 1;
+		ret = _Overflow;
 	}
 	
-	if(BC::checkUserArrayIndex(i, sz) == _NoError)
-		am.set(i,'\0');
-		
-	return _NoError;
+	for (size_t i = 0; i < count; i++)
+		am.set(i, s2[i] * 10000);
+	am.set(count, '\0');
+	
+	return ret;
 }
 
 void FFScript::release_sprite_owned_objects(int32_t sprite_id)
@@ -5305,7 +5307,6 @@ void FFScript::do_convert_from_rgb()
 
 	ArrayManager am(buf);
 	if (am.invalid()) return;
-	int32_t zscript_array_size = am.size();
 	int32_t target_size;
 	
 	switch (color_space)
@@ -5317,9 +5318,11 @@ void FFScript::do_convert_from_rgb()
 			target_size = 3;
 	}
 
-	if (zscript_array_size < target_size)
+	if (am.can_resize())
+		am.resize_min(target_size);
+	if (am.size() < target_size)
 	{
-		scripting_log_error_with_context("Array not large enough. Should be at least size {}", target_size);
+		ArrayH::logArrayTooSmall(am.size(), target_size);
 		return;
 	}
 	
@@ -6714,8 +6717,7 @@ void item_display_name(const bool setter)
 	}
 	else
 	{
-		if(ArrayH::setArray(arrayptr, itemsbuf.get(ID).display_name) == SH::_Overflow)
-			Z_scripterrlog("Array supplied to 'itemdata->GetDisplayName()' not large enough\n");
+		ArrayH::setArray(arrayptr, itemsbuf.get(ID).display_name);
 	}
 }
 void item_shown_name()
@@ -6724,8 +6726,7 @@ void item_shown_name()
 	if(invalid_item_id(ID))
 		return;
 	int32_t arrayptr = get_register(sarg1);
-	if(ArrayH::setArray(arrayptr, itemsbuf.get(ID).get_name()) == SH::_Overflow)
-		Z_scripterrlog("Array supplied to 'itemdata->GetShownName()' not large enough\n");
+	ArrayH::setArray(arrayptr, itemsbuf.get(ID).get_name());
 }
 
 void FFScript::do_getDMapData_dmapname([[maybe_unused]] const bool v)
@@ -6736,8 +6737,7 @@ void FFScript::do_getDMapData_dmapname([[maybe_unused]] const bool v)
 	if(BC::checkDMapID(ID) != SH::_NoError)
 		return;
 		
-	if(ArrayH::setArray(arrayptr, string(DMaps[ID].name)) == SH::_Overflow)
-		Z_scripterrlog("Array supplied to 'dmapdata->GetName()' not large enough\n");
+	ArrayH::setArray(arrayptr, string(DMaps[ID].name));
 }
 
 void FFScript::do_setDMapData_dmapname([[maybe_unused]] const bool v)
@@ -6764,13 +6764,7 @@ void FFScript::do_getDMapData_dmaptitle([[maybe_unused]] const bool v)
 	if(BC::checkDMapID(ID) != SH::_NoError)
 		return;
 		
-	if (!get_qr(qr_OLD_DMAP_INTRO_STRINGS))
-	{
-		ArrayManager am(arrayptr);
-		am.resize(DMaps[ID].title.size() + 1);
-	}
-	if(ArrayH::setArray(arrayptr, string(DMaps[ID].title)) == SH::_Overflow)
-		Z_scripterrlog("Array supplied to 'dmapdata->GetTitle()' not large enough\n");
+	ArrayH::setArray(arrayptr, string(DMaps[ID].title));
 }
 
 void FFScript::do_setDMapData_dmaptitle([[maybe_unused]] const bool v)
@@ -6805,8 +6799,7 @@ void FFScript::do_getDMapData_dmapintro([[maybe_unused]] const bool v)
 	if(BC::checkDMapID(ID) != SH::_NoError)
 		return;
 		
-	if(ArrayH::setArray(arrayptr, string(DMaps[ID].intro)) == SH::_Overflow)
-		Z_scripterrlog("Array supplied to 'dmapdata->GetIntro()' not large enough\n");
+	ArrayH::setArray(arrayptr, string(DMaps[ID].intro));
 }
 
 void FFScript::do_setDMapData_dmapintro([[maybe_unused]] const bool v)
@@ -6836,8 +6829,7 @@ void FFScript::do_getDMapData_music([[maybe_unused]] const bool v)
 	if (auto* amus = checkMusic(find_or_make_dmap_music(ID)))
 		path = amus->enhanced.path;
 	
-	if(ArrayH::setArray(arrayptr, path) == SH::_Overflow)
-		Z_scripterrlog("Array supplied to 'dmapdata->GetMusic()' not large enough\n");
+	ArrayH::setArray(arrayptr, path);
 }
 
 void FFScript::do_setDMapData_music([[maybe_unused]] const bool v)
@@ -6907,8 +6899,7 @@ void FFScript::do_messagedata_getstring([[maybe_unused]] const bool v)
 		MsgStr::EncodingType::Binary :
 		MsgStr::EncodingType::Ascii;
 	std::string text = MsgStrings[ID].serialize(encoding_type);
-	if(ArrayH::setArray(arrayptr, text, true) == SH::_Overflow)
-		Z_scripterrlog("Array supplied to 'messagedata->Get()' not large enough\n");
+	ArrayH::setArray(arrayptr, text);
 }
 
 void FFScript::do_loadcombodata(const bool v)
@@ -8961,8 +8952,7 @@ void do_get_enh_music_filename(const bool v)
 	if (auto* amus = checkMusic(find_or_make_dmap_music(ID)))
 		path = amus->enhanced.path;
 		
-	if(ArrayH::setArray(arrayptr, path) == SH::_Overflow)
-		Z_scripterrlog("Array supplied to 'Game->GetDMapMusicFilename' not large enough\n");
+	ArrayH::setArray(arrayptr, path);
 }
 
 void do_get_enh_music_track(const bool v)
@@ -9081,8 +9071,7 @@ void do_getitemname()
 		return;
 	}
 	
-	if(ArrayH::setArray(arrayptr, itemsbuf.get(itmid).name) == SH::_Overflow)
-		Z_scripterrlog("Array supplied to 'itemdata->GetName' not large enough\n");
+	ArrayH::setArray(arrayptr, itemsbuf.get(itmid).name);
 }
 
 void do_getffcscript()
@@ -12824,8 +12813,7 @@ int32_t run_script_int(JittedScriptInstance* j_instance)
 					break;
 				}
 				
-				if(ArrayH::setArray(arrayptr, QMisc.bottle_types[id].name) == SH::_Overflow)
-					Z_scripterrlog("Array supplied to 'bottledata->GetName()' not large enough\n");
+				ArrayH::setArray(arrayptr, QMisc.bottle_types[id].name);
 				break;
 			}
 			case BOTTLENAMESET:
@@ -12852,8 +12840,7 @@ int32_t run_script_int(JittedScriptInstance* j_instance)
 					break;
 				}
 				
-				if(ArrayH::setArray(arrayptr, QMisc.bottle_shop_types[id].name) == SH::_Overflow)
-					Z_scripterrlog("Array supplied to 'bottleshopdata->GetName()' not large enough\n");
+				ArrayH::setArray(arrayptr, QMisc.bottle_shop_types[id].name);
 				break;
 			}
 			case BSHOPNAMESET:
@@ -13151,10 +13138,7 @@ int32_t run_script_int(JittedScriptInstance* j_instance)
 					char buffer[256] = {0};
 					strcpy(buffer,ZI.getItemClassName(element));
 					buffer[255] = '\0';
-					if(ArrayH::setArray(buf_pointer, buffer) == SH::_Overflow)
-					{
-						Z_scripterrlog("Dest string supplied to 'Module->GetItemClass()' is not large enough\n");
-					}
+					ArrayH::setArray(buf_pointer, buffer);
 				}
 			
 				break;
@@ -13287,9 +13271,7 @@ int32_t run_script_int(JittedScriptInstance* j_instance)
 				if(ZCSubscreen* sub = checkSubData(GET_REF(subscreendataref)))
 				{
 					auto aptr = get_register(sarg1);
-					if(ArrayH::setArray(aptr, sub->name, true) == SH::_Overflow)
-						Z_scripterrlog("Array supplied to 'subscreendata->GetName()' not large enough,"
-							" and couldn't be resized!\n");
+					ArrayH::setArray(aptr, sub->name);
 				}
 				break;
 			}
@@ -13447,9 +13429,7 @@ int32_t run_script_int(JittedScriptInstance* j_instance)
 				if(SubscrWidget* widg = checkSubWidg(GET_REF(subscreenwidgref)))
 				{
 					auto aptr = get_register(sarg1);
-					if(ArrayH::setArray(aptr, widg->override_text, true) == SH::_Overflow)
-						Z_scripterrlog("Array supplied to 'subscreenwidget->GetSelTextOverride()' not large enough,"
-							" and couldn't be resized!\n");
+					ArrayH::setArray(aptr, widg->override_text);
 				}
 				break;
 			}
@@ -13467,9 +13447,7 @@ int32_t run_script_int(JittedScriptInstance* j_instance)
 				if(SubscrWidget* widg = checkSubWidg(GET_REF(subscreenwidgref)))
 				{
 					auto aptr = get_register(sarg1);
-					if(ArrayH::setArray(aptr, widg->label, true) == SH::_Overflow)
-						Z_scripterrlog("Array supplied to 'subscreenwidget->GetLabel()' not large enough,"
-							" and couldn't be resized!\n");
+					ArrayH::setArray(aptr, widg->label);
 				}
 				break;
 			}
@@ -13523,9 +13501,7 @@ int32_t run_script_int(JittedScriptInstance* j_instance)
 					if(str)
 					{
 						auto aptr = get_register(sarg1);
-						if(ArrayH::setArray(aptr, *str, true) == SH::_Overflow)
-							Z_scripterrlog("Array supplied to 'subscreenwidget->GetText()' not large enough,"
-								" and couldn't be resized!\n");
+						ArrayH::setArray(aptr, *str);
 					}
 				}
 				break;
@@ -13584,9 +13560,7 @@ int32_t run_script_int(JittedScriptInstance* j_instance)
 				if(auto* trig = get_combo_trigger(GET_REF(combotriggerref)))
 				{
 					auto aptr = get_register(sarg1);
-					if(ArrayH::setArray(aptr, trig->label, true) == SH::_Overflow)
-						Z_scripterrlog("Array supplied to 'combotrigger->GetLabel()' not large enough,"
-							" and couldn't be resized!\n");
+					ArrayH::setArray(aptr, trig->label);
 				}
 				break;
 			}
@@ -15995,10 +15969,7 @@ void FFScript::do_xtoa()
 	}
 	string str = oss.str();
 	if(ArrayH::setArray(arrayptr_a, str) == SH::_Overflow)
-	{
-		scripting_log_error_with_context("Dest string parameter not large enough");
 		set_register(sarg1, 0);
-	}
 	else set_register(sarg1, str.size() * 10000);
 }
 
@@ -16057,10 +16028,7 @@ void FFScript::do_strcat()
 	//strcpy(str_c, strA.c_str());
 	string strC = strA + strB;
 	if(ArrayH::setArray(arrayptr_a, strC) == SH::_Overflow)
-	{
-		scripting_log_error_with_context("Dest string parameter is too small. Size is: {}", strA.size());
 		set_register(sarg1, 0);
-	}
 	else set_register(sarg1, arrayptr_a); //returns the pointer to the dest
 }
 void FFScript::do_strspn()
@@ -16160,10 +16128,7 @@ void FFScript::do_itoa()
 	string strA(buf);
 	
 	if(ArrayH::setArray(arrayptr_a, strA) == SH::_Overflow)
-	{
-		scripting_log_error_with_context("Dest string parameter is too small. Size is: {}", strA.size());
 		set_register(sarg1, -1);
-	}
 	else set_register(sarg1, ret); //returns the number of digits used
 }
 
@@ -16192,10 +16157,7 @@ void FFScript::do_itoacat()
 		strB[pos] = '0';
 		string strC = strA + strB;
 		if(ArrayH::setArray(arrayptr_a, strC) == SH::_Overflow)
-		{
-			scripting_log_error_with_context("Dest string parameter is too small. Size is: {}", strA.size());
 			set_register(sarg1, 0);
-		}
 		else set_register(sarg1, arrayptr_a); //returns the pointer to the dest
 		return;
 	}
@@ -16206,10 +16168,7 @@ void FFScript::do_itoacat()
 	
 	string strC = strA + strB;
 	if(ArrayH::setArray(arrayptr_a, strC) == SH::_Overflow)
-	{
-		scripting_log_error_with_context("Dest string parameter is too small. Size is: {}", strA.size());
 		set_register(sarg1, 0);
-	}
 	else set_register(sarg1, arrayptr_a); //returns the pointer to the dest
 }
 
@@ -16222,8 +16181,7 @@ void FFScript::do_strcpy(const bool a, const bool b)
 
 	ArrayH::getString(arrayptr_a, strA);
 
-	if(ArrayH::setArray(arrayptr_b, strA) == SH::_Overflow)
-		scripting_log_error_with_context("Dest string parameter is too small. Size is: {}", strA.size());
+	ArrayH::setArray(arrayptr_b, strA);
 }
 void FFScript::do_arraycpy(const bool a, const bool b)
 {

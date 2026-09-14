@@ -165,6 +165,11 @@ void do_file_readchars()
 		if(count == 0) return;
 
 		ArrayManager am(arrayptr);
+		if (am.invalid())
+			return;
+		// An explicit count says how much room is needed.
+		if (count > 0 && am.can_resize())
+			am.resize_min(pos + count);
 		int32_t sz = am.size();
 		if(sz <= 0)
 			return;
@@ -211,6 +216,10 @@ void do_file_readbytes()
 		if(count == 0) return;
 
 		ArrayManager am(arrayptr);
+		if (am.invalid())
+			return;
+		if (count > 0 && am.can_resize())
+			am.resize_min(pos + count);
 		int32_t sz = am.size();
 		if(sz <= 0)
 			return;
@@ -238,35 +247,34 @@ void do_file_readstring()
 	if(user_file* f = checkFile(GET_REF(fileref), true))
 	{
 		ArrayManager am(arrayptr);
-		int32_t sz = am.size();
-		if(sz <= 0)
+		if (am.invalid())
 			return;
-		int32_t limit = sz;
-		int32_t c;
-		word q;
-		for(q = 0; q < limit; ++q)
+		// Arrays that can grow take the whole line. Only internal arrays are capped at
+		// their fixed size (leaving room for the null terminator); the rest of the line
+		// stays in the file for the next read.
+		bool growable = am.can_resize();
+		int32_t sz = am.size();
+		size_t limit = growable ? MAX_ZC_ARRAY_SIZE - 1 : (sz > 0 ? sz - 1 : 0);
+		string line;
+		while (line.size() < limit)
 		{
-			c = fgetc(f->file);
+			int32_t c = fgetc(f->file);
 			if(feof(f->file) || ferror(f->file))
 				break;
 			if(c <= 0)
 				break;
-			am.set(q,c * 10000L);
-			++ri->d[rEXP1]; //Don't count nullchar towards length
+			line += char(c);
 			if(c == '\n')
-			{
-				++q;
 				break;
-			}
 		}
-		if(q >= limit)
-		{
-			--q;
-			--ri->d[rEXP1];
-			ungetc(am.get(q), f->file); //Put the character back before overwriting it
-		}
-		am.set(q,0); //Force null-termination
-		ri->d[rEXP1] *= 10000L;
+		if (growable)
+			am.resize_min(line.size() + 1);
+		if (am.size() <= 0)
+			return;
+		for (size_t q = 0; q < line.size(); ++q)
+			am.set(q, line[q] * 10000L);
+		am.set(line.size(), 0); //Force null-termination
+		SET_D(rEXP1, line.size() * 10000L); //Don't count nullchar towards length
 		check_file_error(GET_REF(fileref));
 	}
 }
@@ -283,6 +291,10 @@ void do_file_readints()
 		if(count == 0) return;
 
 		ArrayManager am(arrayptr);
+		if (am.invalid())
+			return;
+		if (count > 0 && am.can_resize())
+			am.resize_min(pos + count);
 		int32_t sz = am.size();
 		if(sz <= 0)
 			return;

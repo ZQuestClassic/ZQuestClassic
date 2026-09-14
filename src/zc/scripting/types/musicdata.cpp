@@ -216,8 +216,7 @@ std::optional<int32_t> musicdata_run_command(word command)
 				else break;
 			}
 			auto arrayptr = get_register(sarg1);
-			if (ArrayH::setArray(arrayptr, str, true) == SH::_Overflow)
-				scripting_log_error_with_context("Array supplied not large enough, and couldn't be resized!");
+			ArrayH::setArray(arrayptr, str);
 			break;
 		}
 		case MUSICDATA_GETNAME:
@@ -230,8 +229,7 @@ std::optional<int32_t> musicdata_run_command(word command)
 				else break;
 			}
 			auto arrayptr = get_register(sarg1);
-			if (ArrayH::setArray(arrayptr, str, true) == SH::_Overflow)
-				scripting_log_error_with_context("Array supplied not large enough, and couldn't be resized!");
+			ArrayH::setArray(arrayptr, str);
 			break;
 		}
 		case MUSICDATA_SETPATH:

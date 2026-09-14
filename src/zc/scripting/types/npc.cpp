@@ -536,8 +536,7 @@ void do_getnpcname()
 		
 	word ID = (GuyH::getNPC()->id & 0xFFF);
 	
-	if(ArrayH::setArray(arrayptr, guy_string[ID]) == SH::_Overflow)
-		Z_scripterrlog("Array supplied to 'npc->GetName' not large enough\n");
+	ArrayH::setArray(arrayptr, guy_string[ID]);
 }
 
 void do_getnpcdata_getname()
@@ -550,8 +549,7 @@ void do_getnpcdata_getname()
 		return;
 	}
 		
-	if(ArrayH::setArray(arrayptr, guy_string[npc_id]) == SH::_Overflow)
-		Z_scripterrlog("Array supplied to 'npcdata->GetName()' not large enough\n");
+	ArrayH::setArray(arrayptr, guy_string[npc_id]);
 }
 
 void do_isdeadnpc()

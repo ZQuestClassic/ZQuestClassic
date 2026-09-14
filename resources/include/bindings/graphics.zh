@@ -133,6 +133,10 @@ class Graphics {
 	//   POPARGS D5 0.0003
 	internal rgb CreateRGB(int r, int g, int b);
 
+	// Writes the components of [color] in the given [color_space] into [buf] (3 values, or 4 for [CSPACE_CMYK]).
+	// If the buffer is too small, it is resized to fit.
+	//
+	// @versionchanged 2.55.17 The buffer is now resized to fit if it is too small (it used to be truncated, with an error).
 	// @zasm
 	//   CONVERTFROMRGB
 	//   POPARGS D5 0.0003

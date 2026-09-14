@@ -5,8 +5,11 @@ class ZInfo {
 
 	// Copies the name of the specified item class into the buffer.
 	//
+	// If the buffer is too small, it is resized to fit.
+	//
 	// @param [ItemType] itemclass_id
 	// @versionadded 3.0
+	// @versionchanged 2.55.17 The buffer is now resized to fit if it is too small (it used to be truncated, with an error). Known as `Module->GetItemClass` in 2.55.
 	// @zasm
 	//   POP D2
 	//   POP D3

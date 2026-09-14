@@ -53,8 +53,7 @@ void do_directory_get()
 	{
 		char buf[2048] = {0};
 		set_register(sarg1, dir->get(indx, buf) ? 10000L : 0L);
-		if(ArrayH::setArray(arrayptr, string(buf)) == SH::_Overflow)
-			scripting_log_error_with_context("Array is not large enough");
+		ArrayH::setArray(arrayptr, string(buf));
 	}
 	else set_register(sarg1, 0L);
 }

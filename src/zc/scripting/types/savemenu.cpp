@@ -359,8 +359,7 @@ std::optional<int32_t> savemenu_run_command(word command)
 			if (SaveMenu* menu = checkSaveMenu(GET_REF(savemenuref)))
 			{
 				auto arrayptr = get_register(sarg1);
-				if (ArrayH::setArray(arrayptr, menu->name, true) == SH::_Overflow)
-					Z_scripterrlog("Array supplied to 'SaveMenu->GetName()' not large enough, and couldn't be resized!\n");
+				ArrayH::setArray(arrayptr, menu->name);
 			}
 			break;
 		}
@@ -433,8 +432,7 @@ std::optional<int32_t> savemenu_run_command(word command)
 				{
 					SaveMenuOption& opt = menu->options[opt_idx];
 					auto arrayptr = get_register(sarg2);
-					if (ArrayH::setArray(arrayptr, opt.text, true) == SH::_Overflow)
-						Z_scripterrlog("Array supplied to 'SaveMenu->GetString()' not large enough, and couldn't be resized!\n");
+					ArrayH::setArray(arrayptr, opt.text);
 				}
 			}
 			break;
@@ -513,8 +511,7 @@ std::optional<int32_t> savemenu_run_command(word command)
 				{
 					auto& misc_text = menu->misc_texts[misc_text_idx];
 					auto arrayptr = get_register(sarg2);
-					if (ArrayH::setArray(arrayptr, misc_text.text, true) == SH::_Overflow)
-						Z_scripterrlog("Array supplied to 'SaveMenu->GetMiscTextString()' not large enough, and couldn't be resized!\n");
+					ArrayH::setArray(arrayptr, misc_text.text);
 				}
 			}
 			break;

@@ -41,6 +41,8 @@ class websocket {
 
 	// Gets the current websocket error message (if any).
 	//
+	// If the buffer is too small, it is resized to fit.
+	//
 	// @zasm
 	//   POP D2
 	//   POP REFWEBSOCKET

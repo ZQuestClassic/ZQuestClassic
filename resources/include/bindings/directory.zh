@@ -15,6 +15,9 @@ class directory {
 
 	// Loads the name of the [index] file (0 <= [index] < [Size])
 	//
+	// If the buffer is too small, it is resized to fit.
+	//
+	// @versionchanged 2.55.17 The buffer is now resized to fit if it is too small (it used to be truncated, with an error).
 	// @zasm
 	//   POP D3
 	//   POP D2

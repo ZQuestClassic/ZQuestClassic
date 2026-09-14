@@ -68,6 +68,8 @@ class musicdata {
 	// Fills the buffer with the music path to the enhanced music file being used.
 	// Empty string indicates enhanced music will not be used, and only the [MIDI] will be played.
 	//
+	// If the buffer is too small, it is resized to fit.
+	//
 	// @zasm
 	//   POP D2
 	//   POP REFMUSIC
@@ -84,6 +86,8 @@ class musicdata {
 	internal void SetPath(char32[] filename);
 	
 	// Fills the buffer with the name of this musicdata.
+	//
+	// If the buffer is too small, it is resized to fit.
 	//
 	// @zasm
 	//   POP D2

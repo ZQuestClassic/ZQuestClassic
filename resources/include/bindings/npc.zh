@@ -663,6 +663,10 @@ class npc {
 	//   SETR D2 NPCSUBMERGED
 	internal bool Submerged();
 
+	// Fills the buffer with the npc's name.
+	// If the buffer is too small, it is resized to fit.
+	//
+	// @versionchanged 2.55.17 The buffer is now resized to fit if it is too small (it used to be truncated, with an error).
 	// @zasm
 	//   POP D2
 	//   POP REFNPC

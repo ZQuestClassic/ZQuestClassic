@@ -364,11 +364,8 @@ void do_sprintf(const bool v, const bool varg)
 		ArrayH::getString(format_arrayptr, formatstr, MAX_ZC_ARRAY_SIZE);
 		
 		string output = zs_sprintf(formatstr.c_str(), num_args, varg ? zspr_varg_getter : zspr_stack_getter);
-		if(ArrayH::setArray(dest_arrayptr, output, true) == SH::_Overflow)
-		{
-			Z_scripterrlog("Dest string supplied to 'sprintf()' not large enough and cannot be resized\n");
+		if(ArrayH::setArray(dest_arrayptr, output) == SH::_Overflow)
 			SET_D(rEXP1, ArrayH::strlen(dest_arrayptr) * 10000);
-		}
 		else SET_D(rEXP1, output.size() * 10000);
 	}
 	if(varg)
@@ -397,11 +394,8 @@ void do_sprintfarr()
 				return arg_am.get(next_arg);
 			});
 		
-		if(ArrayH::setArray(dest_arrayptr, output, true) == SH::_Overflow)
-		{
-			Z_scripterrlog("Dest string supplied to 'sprintfa()' not large enough and cannot be resized\n");
+		if(ArrayH::setArray(dest_arrayptr, output) == SH::_Overflow)
 			SET_D(rEXP1, ArrayH::strlen(dest_arrayptr) * 10000);
-		}
 		else SET_D(rEXP1, output.size() * 10000);
 	}
 }

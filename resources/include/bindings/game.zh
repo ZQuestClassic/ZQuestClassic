@@ -1021,6 +1021,9 @@ class Game {
 
 	// Loads the save file name into the buffer.
 	//
+	// If the buffer is too small, it is resized to fit.
+	//
+	// @versionchanged 2.55.17 The buffer is now resized to fit if it is too small (it used to be truncated, with an error).
 	// @zasm
 	//   POP D2
 	//   GETSAVENAME D2
@@ -1523,6 +1526,10 @@ class Game {
 	//   POPARGS D5 0.0002
 	internal int SwapOverlaySubscreens(int sub_id_1, int sub_id_2);
 
+	// Loads the raw data of ZQ Message [string] into the buffer.
+	// If the buffer is too small, it is resized to fit.
+	//
+	// @versionchanged 2.55.17 The buffer is now resized to fit if it is too small (it used to be truncated, with an error).
 	// @zasm
 	//   POP D2
 	//   POP D3
@@ -1788,6 +1795,7 @@ class Game {
 	internal int GetSubscreenScript(char32[] name);
 
 	// @deprecated Use [dmapdata::GetMusic] instead!
+	// @versionchanged 2.55.17 The buffer is now resized to fit if it is too small (it used to be truncated, with an error).
 	// @zasm
 	//   POP D2
 	//   POP D3
@@ -1807,6 +1815,7 @@ class Game {
 	internal void SetDMapEnhancedMusic(int dmap, char32[] filename, int track);
 
 	// @deprecated Use [dmapdata::GetName] instead!
+	// @versionchanged 2.55.17 The buffer is now resized to fit if it is too small (it used to be truncated, with an error).
 	// @zasm
 	//   POP D2
 	//   POP D3
@@ -1821,6 +1830,7 @@ class Game {
 	internal void SetDMapName(int DMap, char32[] buffer);
 
 	// @deprecated Use [dmapdata::GetTitle] instead!
+	// @versionchanged 2.55.17 The buffer is now resized to fit if it is too small (it used to be truncated, with an error).
 	// @zasm
 	//   POP D2
 	//   POP D3
@@ -1835,6 +1845,7 @@ class Game {
 	internal void SetDMapTitle(int DMap, char32[] buffer);
 
 	// @deprecated Use [dmapdata::GetIntro] instead!
+	// @versionchanged 2.55.17 The buffer is now resized to fit if it is too small (it used to be truncated, with an error).
 	// @zasm
 	//   POP D2
 	//   POP D3

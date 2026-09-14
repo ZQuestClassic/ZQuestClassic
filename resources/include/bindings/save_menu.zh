@@ -47,6 +47,8 @@ class save_menu
 
 	// Fills the buffer with the name of this save menu
 	//
+	// If the buffer is too small, it is resized to fit.
+	//
 	// @zasm
 	//   POP D2
 	//   POP REFSAVEMENU
@@ -200,6 +202,8 @@ class save_menu
 
 	// Fills the buffer with the string for option [index]
 	//
+	// If the buffer is too small, it is resized to fit.
+	//
 	// @zasm
 	//   POP D3
 	//   POP D2
@@ -293,6 +297,8 @@ class save_menu
 	internal void SwapMiscTexts(int index_1, int index_2);
 
 	// Fills the buffer with the string for misc text [index]
+	//
+	// If the buffer is too small, it is resized to fit.
 	//
 	// @zasm
 	//   POP D3

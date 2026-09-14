@@ -109,13 +109,23 @@ public:
 	template <typename T>
 	static int32_t getArray(const int32_t ptr, const size_t size, size_t userOffset, const size_t userStride, const size_t refArrayOffset, T *refArray);
 	
-	static int32_t setArray(const int32_t ptr, string const& s2, bool resize = false);
-
-	//Puts values of a client <type> array into a zscript array. returns 0 on success. Overloaded
-	template <typename T>
-	static int32_t setArray(const int32_t ptr, const size_t size, T *refArray, bool x10k = true, bool resize = false)
+	// Logs the error for an array that is too small for an operation and can't be grown
+	// (only internal arrays can't be).
+	static void logArrayTooSmall(size_t size, size_t needed)
 	{
-		return setArray(ptr, size, 0, 0, 0, refArray, x10k, resize);
+		_scripting_log_error_with_context("Array is too small and cannot be resized: size is {}, but at least {} is needed", size, needed);
+	}
+
+	// Writes a string into a zscript array, growing the array if needed. Returns _Overflow
+	// only when the array can't be grown (internal arrays).
+	static int32_t setArray(const int32_t ptr, string const& s2);
+
+	// Puts values of a client <type> array into a zscript array, growing the array if needed.
+	// Returns 0 on success, or _Overflow when the array is too small and can't be grown.
+	template <typename T>
+	static int32_t setArray(const int32_t ptr, const size_t size, T *refArray, bool x10k = true)
+	{
+		return setArray(ptr, size, 0, 0, 0, refArray, x10k);
 	}
 
 	static INLINE int32_t checkUserArrayIndex(const int32_t index, const dword size, const bool neg = false)
@@ -130,22 +140,25 @@ public:
 	}
 
 	template <typename T>
-	static int32_t setArray(const int32_t ptr, const size_t size, word userOffset, const word userStride, const word refArrayOffset, T *refArray, bool x10k = true, bool resize = false)
+	static int32_t setArray(const int32_t ptr, const size_t size, word userOffset, const word userStride, const word refArrayOffset, T *refArray, bool x10k = true)
 	{
 		ArrayManager am(ptr);
 		
 		if (am.invalid())
 			return _InvalidPointer;
 		
-		if(am.can_resize() && resize)
-			am.resize_min((userStride+1)*size);
-			
+		size_t needed = userOffset + (userStride+1)*size;
+		if (am.can_resize())
+			am.resize_min(needed);
+		
 		size_t j = 0, k = userStride;
 		size_t sz = am.size();
+		if (needed > sz)
+			logArrayTooSmall(sz, needed);
 		for(size_t i = 0; j < size; i++)
 		{
 			if(i >= sz)
-				return _Overflow; //Resize?
+				return _Overflow;
 				
 			if (userOffset > 0)
 			{

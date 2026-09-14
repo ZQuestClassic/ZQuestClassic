@@ -584,6 +584,9 @@ internal int strnicmp(char32[] str1, char32[] str2, int num_chars);
 
 // Copies the string [src] to [dest].
 //
+// If [dest] is too small, it is resized to fit.
+//
+// @versionchanged 2.55.17 [dest] is now resized to fit if it is too small (it used to be truncated, with an error).
 // @zasm
 //   POP D3
 //   POP D2
@@ -593,6 +596,9 @@ internal void strcpy(char32[] dest, char32[] src);
 // Appends the value [val] on the end of the [dest] string; combining [itoa]
 // with [strcat].
 //
+// If [dest] is too small, it is resized to fit.
+//
+// @versionchanged 2.55.17 [dest] is now resized to fit if it is too small (it used to be truncated, with an error).
 // @zasm
 //   POP D3
 //   POP D2
@@ -662,6 +668,9 @@ internal void convcase(char32[] string);
 // Converts the value [val] to a string, and writes to [dest].
 // Returns the number of characters used.
 //
+// If [dest] is too small, it is resized to fit.
+//
+// @versionchanged 2.55.17 [dest] is now resized to fit if it is too small (it used to be truncated, with an error).
 // @zasm
 //   POP D3
 //   POP D2
@@ -671,6 +680,9 @@ internal int itoa(char32[] dest, int val);
 // Converts [val] to a string, as hexadecimal, and writes to [dest].
 // Returns the number of characters used.
 //
+// If [dest] is too small, it is resized to fit.
+//
+// @versionchanged 2.55.17 [dest] is now resized to fit if it is too small (it used to be truncated, with an error).
 // @zasm
 //   POP D3
 //   POP D2
@@ -686,6 +698,9 @@ internal int xtoi(char32[] str);
 
 // Appends [src] to the end of [dest]. Returns [dest].
 //
+// If [dest] is too small, it is resized to fit.
+//
+// @versionchanged 2.55.17 [dest] is now resized to fit if it is too small (it used to be truncated, with an error).
 // @zasm
 //   POP D1
 //   POP D0
