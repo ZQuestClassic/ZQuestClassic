@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2026-06-28 20:51:46</td>
+      <td>2026-09-14 02:26:05</td>
     </tr>
   </table>
 </div>
@@ -41,9 +41,9 @@
     </tr>
     <tr>
       <th scope="row">Lines:</th>
-      <td>98</td>
-      <td>118</td>
-      <td class="coverage-medium">83.1%</td>
+      <td>108</td>
+      <td>132</td>
+      <td class="coverage-medium">81.8%</td>
     </tr>
     <tr>
       <th scope="row">Functions:</th>
@@ -53,9 +53,9 @@
     </tr>
     <tr>
       <th scope="row">Branches:</th>
-      <td>268</td>
-      <td>1002</td>
-      <td class="coverage-low">26.7%</td>
+      <td>299</td>
+      <td>1084</td>
+      <td class="coverage-low">27.6%</td>
     </tr>
   </table>
 </div>
@@ -74,7 +74,7 @@
       <th>Block coverage</th>
     </tr>
     <tr><td><a href="#l10">bool gd_compare&lt;char&gt;(char, char) (line 10)</a></td><td>called 17 times, returned 17 times</td><td>100.0%</td></tr>
-    <tr><td><a href="#l10">bool gd_compare&lt;int&gt;(int, int) (line 10)</a></td><td>called 525568 times, returned 525568 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l10">bool gd_compare&lt;int&gt;(int, int) (line 10)</a></td><td>called 529664 times, returned 529664 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l10">bool gd_compare&lt;saved_user_object&gt;(saved_user_object, saved_user_object) (line 10)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l10">bool gd_compare&lt;savedportal&gt;(savedportal, savedportal) (line 10)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l10">bool gd_compare&lt;short&gt;(short, short) (line 10)</a></td><td>called 623 times, returned 623 times</td><td>100.0%</td></tr>
@@ -83,7 +83,7 @@
     <tr><td><a href="#l10">bool gd_compare&lt;unsigned int&gt;(unsigned int, unsigned int) (line 10)</a></td><td>called 66305 times, returned 66305 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l10">bool gd_compare&lt;unsigned short&gt;(unsigned short, unsigned short) (line 10)</a></td><td>called 1756 times, returned 1756 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l15">gd_compare(char const*, char const*) (line 15)</a></td><td>called 1 time, returned 1 time</td><td>100.0%</td></tr>
-    <tr><td><a href="#l20">test_saves(bool) (line 20)</a></td><td>called 1 time, returned 1 time</td><td>45.0%</td></tr>
+    <tr><td><a href="#l20">test_saves(bool) (line 20)</a></td><td>called 1 time, returned 1 time</td><td>46.0%</td></tr>
     <tr><td><a href="#l7">unsigned long countof&lt;1024ul, int&gt;(int (&amp;) [1024ul]) (line 7)</a></td><td>called 1025 times, returned 1025 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l7">unsigned long countof&lt;107ul, short&gt;(short (&amp;) [107ul]) (line 7)</a></td><td>called 108 times, returned 108 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l7">unsigned long countof&lt;107ul, unsigned short&gt;(unsigned short (&amp;) [107ul]) (line 7)</a></td><td>not called</td><td>0.0%</td></tr>
@@ -171,7 +171,7 @@
       <td class="lineno"><a id="l10" href="#l10">10</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">1020896</td>
+      <td class="linecount coveredLine">1024992</td>
       <td class="src coveredLine"><span class="k">static</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">gd_compare</span><span class="p">(</span><span class="n">T</span><span class="w"> </span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="n">T</span><span class="w"> </span><span class="n">b</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -185,7 +185,7 @@
       <td class="lineno"><a id="l12" href="#l12">12</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">1020896</td>
+      <td class="linecount coveredLine">1024992</td>
       <td class="src coveredLine"><span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">b</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
@@ -1025,203 +1025,203 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="c1">// For nested bounded_maps with large bounds: compares without materializing</span></td>
+      <td class="src "><span class="w">	</span><span class="cp">#define SAVE_TEST_VECTOR_MAP(field) tr.total++; for (int i = 0; i &lt; game-&gt;field.size(); ++i) {\</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l123" href="#l123">123</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="c1">// default entries (operator== reads via const get()), and only walks the</span></td>
+      <td class="src "><span class="cp">		auto&amp; basemap = game-&gt;field[i];\</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l124" href="#l124">124</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="c1">// populated entries when printing a mismatch.</span></td>
+      <td class="src "><span class="cp">		auto&amp; savemap = save.game-&gt;field[i];\</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l125" href="#l125">125</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="cp">#define SAVE_TEST_SPARSE_MAP_2D(field) tr.total++; if (!(game-&gt;field == save.game-&gt;field)) {\</span></td>
+      <td class="src "><span class="cp">		for (auto&amp; [key, val] : basemap)\</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l126" href="#l126">126</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">		printf(&quot;game-&gt;%s != save.game-&gt;%s\n&quot;, #field, #field);\</span></td>
+      <td class="src "><span class="cp">		{\</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l127" href="#l127">127</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">		for (auto const&amp; [i, inner] : game-&gt;field.inner()) {\</span></td>
+      <td class="src "><span class="cp">			if (!savemap.contains(key))\</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l128" href="#l128">128</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">			for (auto const&amp; [j, v] : inner.inner()) {\</span></td>
+      <td class="src "><span class="cp">			{\</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l129" href="#l129">129</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">				if (!gd_compare(v, save.game-&gt;field.get(i).get(j)))\</span></td>
+      <td class="src "><span class="cp">				printf(&quot;game-&gt;%s[%d][%d] != save.game-&gt;%s[%d][%d]\n&quot;, #field, i, key, #field, i, key);\</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l130" href="#l130">130</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">					printf(&quot;%s\n&quot;, fmt::format(&quot;[{}][{}]: {} != {}&quot;, i, j, v, save.game-&gt;field.get(i).get(j)).c_str());\</span></td>
+      <td class="src "><span class="cp">				printf(&quot;%s\n&quot;, fmt::format(&quot;{} != {}&quot;, int(val), &quot;null&quot;).c_str());\</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l131" href="#l131">131</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">			}\</span></td>
+      <td class="src "><span class="cp">				tr.failed++;\</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l132" href="#l132">132</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">		}\</span></td>
+      <td class="src "><span class="cp">			}\</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l133" href="#l133">133</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">		tr.failed++;\</span></td>
+      <td class="src "><span class="cp">			else\</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l134" href="#l134">134</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">	}</span></td>
+      <td class="src "><span class="cp">			{\</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l135" href="#l135">135</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="cp">				if (auto newval = savemap[key]; val != newval)\</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l136" href="#l136">136</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="cp">#define SAVE_TEST_BITSTRING(field) \</span></td>
+      <td class="src "><span class="cp">				{\</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l137" href="#l137">137</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">		SAVE_TEST_VECTOR(field.inner())</span></td>
+      <td class="src "><span class="cp">					printf(&quot;game-&gt;%s[%d][%d] != save.game-&gt;%s[%d][%d]\n&quot;, #field, i, key, #field, i, key);\</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l138" href="#l138">138</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="cp">					printf(&quot;%s\n&quot;, fmt::format(&quot;{} != {}&quot;, int(val), int(newval)).c_str());\</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l139" href="#l139">139</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="cp">#define SAVE_TEST_ARRAY(field) tr.total++; for (int i = 0; i &lt; countof(game-&gt;field); i++) {\</span></td>
+      <td class="src "><span class="cp">					tr.failed++;\</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l140" href="#l140">140</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">		if (!gd_compare(game-&gt;field[i], save.game-&gt;field[i])) {\</span></td>
+      <td class="src "><span class="cp">				}\</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l141" href="#l141">141</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">			printf(&quot;game-&gt;%s[%d] != save.game-&gt;%s[%d]\n&quot;, #field, i, #field, i);\</span></td>
+      <td class="src "><span class="cp">			}\</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l142" href="#l142">142</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">			printf(&quot;%s\n&quot;, fmt::format(&quot;{} != {}&quot;, game-&gt;field[i], save.game-&gt;field[i]).c_str());\</span></td>
+      <td class="src "><span class="cp">		}\</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l143" href="#l143">143</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">			tr.failed++;\</span></td>
+      <td class="src "><span class="cp">		for (auto&amp; [key, val] : savemap)\</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l144" href="#l144">144</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">		}\</span></td>
+      <td class="src "><span class="cp">		{\</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l145" href="#l145">145</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">	}</span></td>
+      <td class="src "><span class="cp">			if (!basemap.contains(key))\</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l146" href="#l146">146</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="cp">			{\</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l147" href="#l147">147</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="cp">#define SAVE_TEST_ARRAY_NOFMT(field) tr.total++; for (int i = 0; i &lt; countof(game-&gt;field); i++) {\</span></td>
+      <td class="src "><span class="cp">				printf(&quot;game-&gt;%s[%d][%d] != save.game-&gt;%s[%d][%d]\n&quot;, #field, i, key, #field, i, key);\</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l148" href="#l148">148</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">		if (!gd_compare(game-&gt;field[i], save.game-&gt;field[i])) {\</span></td>
+      <td class="src "><span class="cp">				printf(&quot;%s\n&quot;, fmt::format(&quot;{} != {}&quot;, &quot;null&quot;, int(val)).c_str());\</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l149" href="#l149">149</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">			printf(&quot;game-&gt;%s[%d] != save.game-&gt;%s[%d]\n&quot;, #field, i, #field, i);\</span></td>
+      <td class="src "><span class="cp">				tr.failed++;\</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l150" href="#l150">150</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">			tr.failed++;\</span></td>
+      <td class="src "><span class="cp">			}\</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l151" href="#l151">151</a></td>
@@ -1242,150 +1242,374 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="w">	</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l154" href="#l154">154</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="cp">#define SAVE_TEST_ARRAY_2D(field) tr.total++; for (int i = 0; i &lt; countof(game-&gt;field); i++) {\</span></td>
+      <td class="src "><span class="w">	</span><span class="c1">// For nested bounded_maps with large bounds: compares without materializing</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l155" href="#l155">155</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">		for (int j = 0; j &lt; countof(game-&gt;field[0]); j++) {\</span></td>
+      <td class="src "><span class="w">	</span><span class="c1">// default entries (operator== reads via const get()), and only walks the</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l156" href="#l156">156</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">			if (!gd_compare(game-&gt;field[i][j], save.game-&gt;field[i][j])) {\</span></td>
+      <td class="src "><span class="w">	</span><span class="c1">// populated entries when printing a mismatch.</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l157" href="#l157">157</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">				printf(&quot;game-&gt;%s[%d][%d] != save.game-&gt;%s[%d][%d]\n&quot;, #field, i, j, #field, i, j);\</span></td>
+      <td class="src "><span class="w">	</span><span class="cp">#define SAVE_TEST_SPARSE_MAP_2D(field) tr.total++; if (!(game-&gt;field == save.game-&gt;field)) {\</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l158" href="#l158">158</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">				printf(&quot;%s\n&quot;, fmt::format(&quot;{} != {}&quot;, game-&gt;field[i][j], save.game-&gt;field[i][j]).c_str());\</span></td>
+      <td class="src "><span class="cp">		printf(&quot;game-&gt;%s != save.game-&gt;%s\n&quot;, #field, #field);\</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l159" href="#l159">159</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">				tr.failed++;\</span></td>
+      <td class="src "><span class="cp">		for (auto const&amp; [i, inner] : game-&gt;field.inner()) {\</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l160" href="#l160">160</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">			}\</span></td>
+      <td class="src "><span class="cp">			for (auto const&amp; [j, v] : inner.inner()) {\</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l161" href="#l161">161</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">		}\</span></td>
+      <td class="src "><span class="cp">				if (!gd_compare(v, save.game-&gt;field.get(i).get(j)))\</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l162" href="#l162">162</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">	}</span></td>
+      <td class="src "><span class="cp">					printf(&quot;%s\n&quot;, fmt::format(&quot;[{}][{}]: {} != {}&quot;, i, j, v, save.game-&gt;field.get(i).get(j)).c_str());\</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l163" href="#l163">163</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="cp">			}\</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l164" href="#l164">164</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="cp">#define SAVE_TEST_ARRAY_2D_NOFMT(field) tr.total++; for (int i = 0; i &lt; countof(game-&gt;field); i++) {\</span></td>
+      <td class="src "><span class="cp">		}\</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l165" href="#l165">165</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">		for (int j = 0; j &lt; countof(game-&gt;field[0]); j++) {\</span></td>
+      <td class="src "><span class="cp">		tr.failed++;\</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l166" href="#l166">166</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">			if (!gd_compare(game-&gt;field[i][j], save.game-&gt;field[i][j])) {\</span></td>
+      <td class="src "><span class="cp">	}</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l167" href="#l167">167</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">				printf(&quot;game-&gt;%s[%d][%d] != save.game-&gt;%s[%d][%d]\n&quot;, #field, i, j, #field, i, j);\</span></td>
+      <td class="src "></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l168" href="#l168">168</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">				tr.failed++;\</span></td>
+      <td class="src "><span class="w">	</span><span class="cp">#define SAVE_TEST_BITSTRING(field) \</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l169" href="#l169">169</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">			}\</span></td>
+      <td class="src "><span class="cp">		SAVE_TEST_VECTOR(field.inner())</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l170" href="#l170">170</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">		}\</span></td>
+      <td class="src "></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l171" href="#l171">171</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">	}</span></td>
+      <td class="src "><span class="w">	</span><span class="cp">#define SAVE_TEST_ARRAY(field) tr.total++; for (int i = 0; i &lt; countof(game-&gt;field); i++) {\</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l172" href="#l172">172</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="cp">		if (!gd_compare(game-&gt;field[i], save.game-&gt;field[i])) {\</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l173" href="#l173">173</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="c1">// Test some (but not all ... I got lazy) of the fields, in the order found in the save format.</span></td>
+      <td class="src "><span class="cp">			printf(&quot;game-&gt;%s[%d] != save.game-&gt;%s[%d]\n&quot;, #field, i, #field, i);\</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l174" href="#l174">174</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="cp">			printf(&quot;%s\n&quot;, fmt::format(&quot;{} != {}&quot;, game-&gt;field[i], save.game-&gt;field[i]).c_str());\</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l175" href="#l175">175</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="cp">			tr.failed++;\</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l176" href="#l176">176</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="cp">		}\</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l177" href="#l177">177</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="cp">	}</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l178" href="#l178">178</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l179" href="#l179">179</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">	</span><span class="cp">#define SAVE_TEST_ARRAY_NOFMT(field) tr.total++; for (int i = 0; i &lt; countof(game-&gt;field); i++) {\</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l180" href="#l180">180</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="cp">		if (!gd_compare(game-&gt;field[i], save.game-&gt;field[i])) {\</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l181" href="#l181">181</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="cp">			printf(&quot;game-&gt;%s[%d] != save.game-&gt;%s[%d]\n&quot;, #field, i, #field, i);\</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l182" href="#l182">182</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="cp">			tr.failed++;\</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l183" href="#l183">183</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="cp">		}\</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l184" href="#l184">184</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="cp">	}</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l185" href="#l185">185</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l186" href="#l186">186</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">	</span><span class="cp">#define SAVE_TEST_ARRAY_2D(field) tr.total++; for (int i = 0; i &lt; countof(game-&gt;field); i++) {\</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l187" href="#l187">187</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="cp">		for (int j = 0; j &lt; countof(game-&gt;field[0]); j++) {\</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l188" href="#l188">188</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="cp">			if (!gd_compare(game-&gt;field[i][j], save.game-&gt;field[i][j])) {\</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l189" href="#l189">189</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="cp">				printf(&quot;game-&gt;%s[%d][%d] != save.game-&gt;%s[%d][%d]\n&quot;, #field, i, j, #field, i, j);\</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l190" href="#l190">190</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="cp">				printf(&quot;%s\n&quot;, fmt::format(&quot;{} != {}&quot;, game-&gt;field[i][j], save.game-&gt;field[i][j]).c_str());\</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l191" href="#l191">191</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="cp">				tr.failed++;\</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l192" href="#l192">192</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="cp">			}\</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l193" href="#l193">193</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="cp">		}\</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l194" href="#l194">194</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="cp">	}</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l195" href="#l195">195</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l196" href="#l196">196</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">	</span><span class="cp">#define SAVE_TEST_ARRAY_2D_NOFMT(field) tr.total++; for (int i = 0; i &lt; countof(game-&gt;field); i++) {\</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l197" href="#l197">197</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="cp">		for (int j = 0; j &lt; countof(game-&gt;field[0]); j++) {\</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l198" href="#l198">198</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="cp">			if (!gd_compare(game-&gt;field[i][j], save.game-&gt;field[i][j])) {\</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l199" href="#l199">199</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="cp">				printf(&quot;game-&gt;%s[%d][%d] != save.game-&gt;%s[%d][%d]\n&quot;, #field, i, j, #field, i, j);\</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l200" href="#l200">200</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="cp">				tr.failed++;\</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l201" href="#l201">201</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="cp">			}\</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l202" href="#l202">202</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="cp">		}\</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l203" href="#l203">203</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="cp">	}</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l204" href="#l204">204</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l205" href="#l205">205</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">	</span><span class="c1">// Test some (but not all ... I got lazy) of the fields, in the order found in the save format.</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l206" href="#l206">206</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">4/18</summary>
@@ -1415,7 +1639,7 @@
       <td class="src partialCoveredLine"><span class="w">	</span><span class="n">SAVE_TEST_FIELD</span><span class="p">(</span><span class="n">get_name</span><span class="p">());</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l175" href="#l175">175</a></td>
+      <td class="lineno"><a id="l207" href="#l207">207</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">4/18</summary>
@@ -1445,7 +1669,7 @@
       <td class="src partialCoveredLine"><span class="w">	</span><span class="n">SAVE_TEST_FIELD</span><span class="p">(</span><span class="n">get_quest</span><span class="p">());</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l176" href="#l176">176</a></td>
+      <td class="lineno"><a id="l208" href="#l208">208</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">4/18</summary>
@@ -1475,7 +1699,7 @@
       <td class="src partialCoveredLine"><span class="w">	</span><span class="n">SAVE_TEST_FIELD</span><span class="p">(</span><span class="n">get_deaths</span><span class="p">());</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l177" href="#l177">177</a></td>
+      <td class="lineno"><a id="l209" href="#l209">209</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">2/10</summary>
@@ -1497,7 +1721,7 @@
       <td class="src partialCoveredLine"><span class="w">	</span><span class="n">SAVE_TEST_FIELD</span><span class="p">(</span><span class="n">_cheat</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l178" href="#l178">178</a></td>
+      <td class="lineno"><a id="l210" href="#l210">210</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">10/32</summary>
@@ -1541,7 +1765,7 @@
       <td class="src partialCoveredLine"><span class="w">	</span><span class="n">SAVE_TEST_BITSTRING</span><span class="p">(</span><span class="n">items_owned</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l179" href="#l179">179</a></td>
+      <td class="lineno"><a id="l211" href="#l211">211</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">5/14</summary>
@@ -1567,7 +1791,7 @@
       <td class="src partialCoveredLine"><span class="w">	</span><span class="n">SAVE_TEST_ARRAY</span><span class="p">(</span><span class="n">version</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l180" href="#l180">180</a></td>
+      <td class="lineno"><a id="l212" href="#l212">212</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">4/18</summary>
@@ -1597,7 +1821,7 @@
       <td class="src partialCoveredLine"><span class="w">	</span><span class="n">SAVE_TEST_FIELD</span><span class="p">(</span><span class="n">get_hasplayed</span><span class="p">());</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l181" href="#l181">181</a></td>
+      <td class="lineno"><a id="l213" href="#l213">213</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">4/18</summary>
@@ -1627,7 +1851,7 @@
       <td class="src partialCoveredLine"><span class="w">	</span><span class="n">SAVE_TEST_FIELD</span><span class="p">(</span><span class="n">get_time</span><span class="p">());</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l182" href="#l182">182</a></td>
+      <td class="lineno"><a id="l214" href="#l214">214</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">4/18</summary>
@@ -1657,7 +1881,7 @@
       <td class="src partialCoveredLine"><span class="w">	</span><span class="n">SAVE_TEST_FIELD</span><span class="p">(</span><span class="n">get_timevalid</span><span class="p">());</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l183" href="#l183">183</a></td>
+      <td class="lineno"><a id="l215" href="#l215">215</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">7/22</summary>
@@ -1691,7 +1915,7 @@
       <td class="src partialCoveredLine"><span class="w">	</span><span class="n">SAVE_TEST_VECTOR</span><span class="p">(</span><span class="n">lvlitems</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l184" href="#l184">184</a></td>
+      <td class="lineno"><a id="l216" href="#l216">216</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">4/18</summary>
@@ -1721,7 +1945,7 @@
       <td class="src partialCoveredLine"><span class="w">	</span><span class="n">SAVE_TEST_FIELD</span><span class="p">(</span><span class="n">get_continue_scrn</span><span class="p">());</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l185" href="#l185">185</a></td>
+      <td class="lineno"><a id="l217" href="#l217">217</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">4/18</summary>
@@ -1751,7 +1975,7 @@
       <td class="src partialCoveredLine"><span class="w">	</span><span class="n">SAVE_TEST_FIELD</span><span class="p">(</span><span class="n">get_continue_dmap</span><span class="p">());</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l186" href="#l186">186</a></td>
+      <td class="lineno"><a id="l218" href="#l218">218</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">5/14</summary>
@@ -1777,7 +2001,7 @@
       <td class="src partialCoveredLine"><span class="w">	</span><span class="n">SAVE_TEST_ARRAY</span><span class="p">(</span><span class="n">visited</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l187" href="#l187">187</a></td>
+      <td class="lineno"><a id="l219" href="#l219">219</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">7/22</summary>
@@ -1811,7 +2035,7 @@
       <td class="src partialCoveredLine"><span class="w">	</span><span class="n">SAVE_TEST_VECTOR</span><span class="p">(</span><span class="n">bmaps</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l188" href="#l188">188</a></td>
+      <td class="lineno"><a id="l220" href="#l220">220</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">7/22</summary>
@@ -1845,7 +2069,7 @@
       <td class="src partialCoveredLine"><span class="w">	</span><span class="n">SAVE_TEST_VECTOR</span><span class="p">(</span><span class="n">maps</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l189" href="#l189">189</a></td>
+      <td class="lineno"><a id="l221" href="#l221">221</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">2/30</summary>
@@ -1887,7 +2111,7 @@
       <td class="src partialCoveredLine"><span class="w">	</span><span class="n">SAVE_TEST_SPARSE_MAP_2D</span><span class="p">(</span><span class="n">pos_states</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l190" href="#l190">190</a></td>
+      <td class="lineno"><a id="l222" href="#l222">222</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">2/30</summary>
@@ -1929,7 +2153,7 @@
       <td class="src partialCoveredLine"><span class="w">	</span><span class="n">SAVE_TEST_SPARSE_MAP_2D</span><span class="p">(</span><span class="n">ffcpos_states</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l191" href="#l191">191</a></td>
+      <td class="lineno"><a id="l223" href="#l223">223</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">7/22</summary>
@@ -1963,7 +2187,7 @@
       <td class="src partialCoveredLine"><span class="w">	</span><span class="n">SAVE_TEST_VECTOR</span><span class="p">(</span><span class="n">guys</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l192" href="#l192">192</a></td>
+      <td class="lineno"><a id="l224" href="#l224">224</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">7/22</summary>
@@ -1997,7 +2221,7 @@
       <td class="src partialCoveredLine"><span class="w">	</span><span class="n">SAVE_TEST_VECTOR</span><span class="p">(</span><span class="n">lvlkeys</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l193" href="#l193">193</a></td>
+      <td class="lineno"><a id="l225" href="#l225">225</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">13/36</summary>
@@ -2045,7 +2269,7 @@
       <td class="src partialCoveredLine"><span class="w">	</span><span class="n">SAVE_TEST_VECTOR_2D</span><span class="p">(</span><span class="n">screen_d</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l194" href="#l194">194</a></td>
+      <td class="lineno"><a id="l226" href="#l226">226</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">5/14</summary>
@@ -2071,7 +2295,7 @@
       <td class="src partialCoveredLine"><span class="w">	</span><span class="n">SAVE_TEST_ARRAY</span><span class="p">(</span><span class="n">global_d</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l195" href="#l195">195</a></td>
+      <td class="lineno"><a id="l227" href="#l227">227</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">5/14</summary>
@@ -2097,7 +2321,7 @@
       <td class="src partialCoveredLine"><span class="w">	</span><span class="n">SAVE_TEST_ARRAY</span><span class="p">(</span><span class="n">_counter</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l196" href="#l196">196</a></td>
+      <td class="lineno"><a id="l228" href="#l228">228</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">5/14</summary>
@@ -2123,7 +2347,7 @@
       <td class="src partialCoveredLine"><span class="w">	</span><span class="n">SAVE_TEST_ARRAY</span><span class="p">(</span><span class="n">_maxcounter</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l197" href="#l197">197</a></td>
+      <td class="lineno"><a id="l229" href="#l229">229</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">5/14</summary>
@@ -2149,7 +2373,7 @@
       <td class="src partialCoveredLine"><span class="w">	</span><span class="n">SAVE_TEST_ARRAY</span><span class="p">(</span><span class="n">_dcounter</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l198" href="#l198">198</a></td>
+      <td class="lineno"><a id="l230" href="#l230">230</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">2/10</summary>
@@ -2171,7 +2395,7 @@
       <td class="src partialCoveredLine"><span class="w">	</span><span class="n">SAVE_TEST_FIELD</span><span class="p">(</span><span class="n">awpn</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l199" href="#l199">199</a></td>
+      <td class="lineno"><a id="l231" href="#l231">231</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">2/10</summary>
@@ -2193,7 +2417,7 @@
       <td class="src partialCoveredLine"><span class="w">	</span><span class="n">SAVE_TEST_FIELD</span><span class="p">(</span><span class="n">bwpn</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l200" href="#l200">200</a></td>
+      <td class="lineno"><a id="l232" href="#l232">232</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">4/10</summary>
@@ -2215,7 +2439,7 @@
       <td class="src partialCoveredLine"><span class="w">	</span><span class="n">SAVE_TEST_FIELD_NOFMT</span><span class="p">(</span><span class="n">globalRAM</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l201" href="#l201">201</a></td>
+      <td class="lineno"><a id="l233" href="#l233">233</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">2/10</summary>
@@ -2237,7 +2461,7 @@
       <td class="src partialCoveredLine"><span class="w">	</span><span class="n">SAVE_TEST_FIELD</span><span class="p">(</span><span class="n">forced_awpn</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l202" href="#l202">202</a></td>
+      <td class="lineno"><a id="l234" href="#l234">234</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">2/10</summary>
@@ -2259,7 +2483,7 @@
       <td class="src partialCoveredLine"><span class="w">	</span><span class="n">SAVE_TEST_FIELD</span><span class="p">(</span><span class="n">forced_bwpn</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l203" href="#l203">203</a></td>
+      <td class="lineno"><a id="l235" href="#l235">235</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">2/10</summary>
@@ -2281,7 +2505,7 @@
       <td class="src partialCoveredLine"><span class="w">	</span><span class="n">SAVE_TEST_FIELD</span><span class="p">(</span><span class="n">forced_xwpn</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l204" href="#l204">204</a></td>
+      <td class="lineno"><a id="l236" href="#l236">236</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">2/10</summary>
@@ -2303,7 +2527,7 @@
       <td class="src partialCoveredLine"><span class="w">	</span><span class="n">SAVE_TEST_FIELD</span><span class="p">(</span><span class="n">forced_ywpn</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l205" href="#l205">205</a></td>
+      <td class="lineno"><a id="l237" href="#l237">237</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">2/10</summary>
@@ -2325,7 +2549,7 @@
       <td class="src partialCoveredLine"><span class="w">	</span><span class="n">SAVE_TEST_FIELD</span><span class="p">(</span><span class="n">xwpn</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l206" href="#l206">206</a></td>
+      <td class="lineno"><a id="l238" href="#l238">238</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">2/10</summary>
@@ -2347,7 +2571,7 @@
       <td class="src partialCoveredLine"><span class="w">	</span><span class="n">SAVE_TEST_FIELD</span><span class="p">(</span><span class="n">ywpn</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l207" href="#l207">207</a></td>
+      <td class="lineno"><a id="l239" href="#l239">239</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">7/22</summary>
@@ -2381,7 +2605,7 @@
       <td class="src partialCoveredLine"><span class="w">	</span><span class="n">SAVE_TEST_VECTOR</span><span class="p">(</span><span class="n">lvlswitches</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l208" href="#l208">208</a></td>
+      <td class="lineno"><a id="l240" href="#l240">240</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">10/32</summary>
@@ -2425,7 +2649,7 @@
       <td class="src partialCoveredLine"><span class="w">	</span><span class="n">SAVE_TEST_BITSTRING</span><span class="p">(</span><span class="n">item_messages_played</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l209" href="#l209">209</a></td>
+      <td class="lineno"><a id="l241" href="#l241">241</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">5/14</summary>
@@ -2451,14 +2675,14 @@
       <td class="src partialCoveredLine"><span class="w">	</span><span class="n">SAVE_TEST_ARRAY</span><span class="p">(</span><span class="n">bottleSlots</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l210" href="#l210">210</a></td>
+      <td class="lineno"><a id="l242" href="#l242">242</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l211" href="#l211">211</a></td>
+      <td class="lineno"><a id="l243" href="#l243">243</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">1/2</summary>
@@ -2472,7 +2696,7 @@
       <td class="src partialCoveredLine"><span class="w">	</span><span class="n">game</span><span class="o">-&gt;</span><span class="n">saved_mirror_portal</span><span class="p">.</span><span class="n">clearUID</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l212" href="#l212">212</a></td>
+      <td class="lineno"><a id="l244" href="#l244">244</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">1/2</summary>
@@ -2486,14 +2710,14 @@
       <td class="src partialCoveredLine"><span class="w">	</span><span class="n">save</span><span class="p">.</span><span class="n">game</span><span class="o">-&gt;</span><span class="n">saved_mirror_portal</span><span class="p">.</span><span class="n">clearUID</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l213" href="#l213">213</a></td>
+      <td class="lineno"><a id="l245" href="#l245">245</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">1</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">tr</span><span class="p">.</span><span class="n">total</span><span class="o">++</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l214" href="#l214">214</a></td>
+      <td class="lineno"><a id="l246" href="#l246">246</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">1/2</summary>
@@ -2507,49 +2731,49 @@
       <td class="src partialCoveredLine"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">game</span><span class="o">-&gt;</span><span class="n">saved_mirror_portal</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">save</span><span class="p">.</span><span class="n">game</span><span class="o">-&gt;</span><span class="n">saved_mirror_portal</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l215" href="#l215">215</a></td>
+      <td class="lineno"><a id="l247" href="#l247">247</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">	</span><span class="p">{</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l216" href="#l216">216</a></td>
+      <td class="lineno"><a id="l248" href="#l248">248</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">		</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;game-&gt;saved_mirror_portal != save.game-&gt;saved_mirror_portal</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l217" href="#l217">217</a></td>
+      <td class="lineno"><a id="l249" href="#l249">249</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">		</span><span class="n">tr</span><span class="p">.</span><span class="n">failed</span><span class="o">++</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l218" href="#l218">218</a></td>
+      <td class="lineno"><a id="l250" href="#l250">250</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">		</span><span class="k">return</span><span class="w"> </span><span class="n">tr</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l219" href="#l219">219</a></td>
+      <td class="lineno"><a id="l251" href="#l251">251</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">	</span><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l220" href="#l220">220</a></td>
+      <td class="lineno"><a id="l252" href="#l252">252</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l221" href="#l221">221</a></td>
+      <td class="lineno"><a id="l253" href="#l253">253</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">10/32</summary>
@@ -2593,7 +2817,7 @@
       <td class="src partialCoveredLine"><span class="w">	</span><span class="n">SAVE_TEST_BITSTRING</span><span class="p">(</span><span class="n">gen_doscript</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l222" href="#l222">222</a></td>
+      <td class="lineno"><a id="l254" href="#l254">254</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">7/22</summary>
@@ -2627,7 +2851,7 @@
       <td class="src partialCoveredLine"><span class="w">	</span><span class="n">SAVE_TEST_VECTOR</span><span class="p">(</span><span class="n">gen_exitState</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l223" href="#l223">223</a></td>
+      <td class="lineno"><a id="l255" href="#l255">255</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">7/22</summary>
@@ -2661,10 +2885,58 @@
       <td class="src partialCoveredLine"><span class="w">	</span><span class="n">SAVE_TEST_VECTOR</span><span class="p">(</span><span class="n">gen_reloadState</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l224" href="#l224">224</a></td>
+      <td class="lineno"><a id="l256" href="#l256">256</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
-        <summary class="linebranchSummary">6/36</summary>
+        <summary class="linebranchSummary">13/36</summary>
+        <div class="linebranchContents">
+          <div class="takenBranch">&check; Branch 0 taken 513 times.</div>
+          <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
+          <div class="takenBranch">&check; Branch 2 taken 512 times.</div>
+          <div class="takenBranch">&check; Branch 3 taken 1 times.</div>
+          <div class="takenBranch">&check; Branch 4 taken 4608 times.</div>
+          <div class="notTakenBranch">&cross; Branch 5 not taken.</div>
+          <div class="takenBranch">&check; Branch 6 taken 4608 times.</div>
+          <div class="notTakenBranch">&cross; Branch 7 not taken.</div>
+          <div class="takenBranch">&check; Branch 8 taken 4096 times.</div>
+          <div class="takenBranch">&check; Branch 9 taken 512 times.</div>
+          <div class="takenBranch">&check; Branch 10 taken 4096 times.</div>
+          <div class="notTakenBranch">&cross; Branch 11 not taken.</div>
+          <div class="takenBranch">&check; Branch 12 taken 4096 times.</div>
+          <div class="notTakenBranch">&cross; Branch 13 not taken.</div>
+          <div class="takenBranch">&check; Branch 14 taken 4096 times.</div>
+          <div class="notTakenBranch">&cross; Branch 15 not taken.</div>
+          <div class="takenBranch">&check; Branch 16 taken 4096 times.</div>
+          <div class="notTakenBranch">&cross; Branch 17 not taken.</div>
+          <div class="takenBranch">&check; Branch 18 taken 4096 times.</div>
+          <div class="notTakenBranch">&cross; Branch 19 not taken.</div>
+          <div class="notTakenBranch">&cross; Branch 20 not taken.</div>
+          <div class="takenBranch">&check; Branch 21 taken 4096 times.</div>
+          <div class="notTakenBranch">&cross; Branch 22 not taken.</div>
+          <div class="notTakenBranch">&cross; Branch 23 not taken.</div>
+          <div class="notTakenBranch">&cross; Branch 24 not taken.</div>
+          <div class="notTakenBranch">&cross; Branch 25 not taken.</div>
+          <div class="notTakenBranch">&cross; Branch 26 not taken.</div>
+          <div class="notTakenBranch">&cross; Branch 27 not taken.</div>
+          <div class="notTakenBranch">&cross; Branch 28 not taken.</div>
+          <div class="notTakenBranch">&cross; Branch 29 not taken.</div>
+          <div class="notTakenBranch">&cross; Branch 30 not taken.</div>
+          <div class="notTakenBranch">&cross; Branch 31 not taken.</div>
+          <div class="notTakenBranch">&cross; Branch 32 not taken.</div>
+          <div class="notTakenBranch">&cross; Branch 33 not taken.</div>
+          <div class="notTakenBranch">&cross; Branch 34 not taken.</div>
+          <div class="notTakenBranch">&cross; Branch 35 not taken.</div>
+        </div>
+        </details>
+      </td>
+      <td class="linecount partialCoveredLine">4609</td>
+      <td class="src partialCoveredLine"><span class="w">	</span><span class="n">SAVE_TEST_VECTOR_2D</span><span class="p">(</span><span class="n">gen_initd</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l257" href="#l257">257</a></td>
+      <td class="linebranch">
+        <details class="linebranchDetails">
+        <summary class="linebranchSummary">7/42</summary>
         <div class="linebranchContents">
           <div class="takenBranch">&check; Branch 0 taken 513 times.</div>
           <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
@@ -2697,19 +2969,25 @@
           <div class="notTakenBranch">&cross; Branch 28 not taken.</div>
           <div class="notTakenBranch">&cross; Branch 29 not taken.</div>
           <div class="notTakenBranch">&cross; Branch 30 not taken.</div>
-          <div class="notTakenBranch">&cross; Branch 31 not taken.</div>
+          <div class="takenBranch">&check; Branch 31 taken 512 times.</div>
           <div class="notTakenBranch">&cross; Branch 32 not taken.</div>
           <div class="notTakenBranch">&cross; Branch 33 not taken.</div>
           <div class="notTakenBranch">&cross; Branch 34 not taken.</div>
           <div class="notTakenBranch">&cross; Branch 35 not taken.</div>
+          <div class="notTakenBranch">&cross; Branch 36 not taken.</div>
+          <div class="notTakenBranch">&cross; Branch 37 not taken.</div>
+          <div class="notTakenBranch">&cross; Branch 38 not taken.</div>
+          <div class="notTakenBranch">&cross; Branch 39 not taken.</div>
+          <div class="notTakenBranch">&cross; Branch 40 not taken.</div>
+          <div class="notTakenBranch">&cross; Branch 41 not taken.</div>
         </div>
         </details>
       </td>
       <td class="linecount partialCoveredLine">513</td>
-      <td class="src partialCoveredLine"><span class="w">	</span><span class="n">SAVE_TEST_VECTOR_2D</span><span class="p">(</span><span class="n">gen_initd</span><span class="p">);</span></td>
+      <td class="src partialCoveredLine"><span class="w">	</span><span class="n">SAVE_TEST_VECTOR_MAP</span><span class="p">(</span><span class="n">gen_inst_init</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l225" href="#l225">225</a></td>
+      <td class="lineno"><a id="l258" href="#l258">258</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">6/36</summary>
@@ -2757,15 +3035,15 @@
       <td class="src partialCoveredLine"><span class="w">	</span><span class="n">SAVE_TEST_VECTOR_2D</span><span class="p">(</span><span class="n">gen_data</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l226" href="#l226">226</a></td>
+      <td class="lineno"><a id="l259" href="#l259">259</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">6/36</summary>
         <div class="linebranchContents">
           <div class="takenBranch">&check; Branch 0 taken 34681 times.</div>
           <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
-          <div class="takenBranch">&check; Branch 2 taken 34680 times.</div>
-          <div class="takenBranch">&check; Branch 3 taken 1 times.</div>
+          <div class="takenBranch">&check; Branch 2 taken 1 times.</div>
+          <div class="takenBranch">&check; Branch 3 taken 34680 times.</div>
           <div class="takenBranch">&check; Branch 4 taken 34680 times.</div>
           <div class="notTakenBranch">&cross; Branch 5 not taken.</div>
           <div class="takenBranch">&check; Branch 6 taken 34680 times.</div>
@@ -2805,7 +3083,7 @@
       <td class="src partialCoveredLine"><span class="w">	</span><span class="n">SAVE_TEST_VECTOR_2D</span><span class="p">(</span><span class="n">screen_data</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l227" href="#l227">227</a></td>
+      <td class="lineno"><a id="l260" href="#l260">260</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">7/22</summary>
@@ -2839,7 +3117,7 @@
       <td class="src partialCoveredLine"><span class="w">	</span><span class="n">SAVE_TEST_VECTOR</span><span class="p">(</span><span class="n">xstates</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l228" href="#l228">228</a></td>
+      <td class="lineno"><a id="l261" href="#l261">261</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">10/26</summary>
@@ -2877,7 +3155,7 @@
       <td class="src partialCoveredLine"><span class="w">	</span><span class="n">SAVE_TEST_VECTOR_2D</span><span class="p">(</span><span class="n">xdoors</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l229" href="#l229">229</a></td>
+      <td class="lineno"><a id="l262" href="#l262">262</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">7/22</summary>
@@ -2911,7 +3189,7 @@
       <td class="src partialCoveredLine"><span class="w">	</span><span class="n">SAVE_TEST_VECTOR</span><span class="p">(</span><span class="n">gen_eventstate</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l230" href="#l230">230</a></td>
+      <td class="lineno"><a id="l263" href="#l263">263</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">7/22</summary>
@@ -2945,7 +3223,7 @@
       <td class="src partialCoveredLine"><span class="w">	</span><span class="n">SAVE_TEST_VECTOR</span><span class="p">(</span><span class="n">gswitch_timers</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l231" href="#l231">231</a></td>
+      <td class="lineno"><a id="l264" href="#l264">264</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">1/12</summary>
@@ -2969,7 +3247,7 @@
       <td class="src partialCoveredLine"><span class="w">	</span><span class="n">SAVE_TEST_VECTOR_NOFMT</span><span class="p">(</span><span class="n">compat_saved_user_objects</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l232" href="#l232">232</a></td>
+      <td class="lineno"><a id="l265" href="#l265">265</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">1/8</summary>
@@ -2989,7 +3267,7 @@
       <td class="src partialCoveredLine"><span class="w">	</span><span class="n">SAVE_TEST_VECTOR_NOFMT</span><span class="p">(</span><span class="n">user_portals</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l233" href="#l233">233</a></td>
+      <td class="lineno"><a id="l266" href="#l266">266</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">7/22</summary>
@@ -3023,28 +3301,28 @@
       <td class="src partialCoveredLine"><span class="w">	</span><span class="n">SAVE_TEST_VECTOR</span><span class="p">(</span><span class="n">OverrideItems</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l234" href="#l234">234</a></td>
+      <td class="lineno"><a id="l267" href="#l267">267</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l235" href="#l235">235</a></td>
+      <td class="lineno"><a id="l268" href="#l268">268</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">	</span><span class="c1">// Now do the header.</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l236" href="#l236">236</a></td>
+      <td class="lineno"><a id="l269" href="#l269">269</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">1</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">tr</span><span class="p">.</span><span class="n">total</span><span class="o">++</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l237" href="#l237">237</a></td>
+      <td class="lineno"><a id="l270" href="#l270">270</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">1/2</summary>
@@ -3058,70 +3336,70 @@
       <td class="src partialCoveredLine"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">game</span><span class="o">-&gt;</span><span class="n">header</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">save</span><span class="p">.</span><span class="n">game</span><span class="o">-&gt;</span><span class="n">header</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l238" href="#l238">238</a></td>
+      <td class="lineno"><a id="l271" href="#l271">271</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">	</span><span class="p">{</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l239" href="#l239">239</a></td>
+      <td class="lineno"><a id="l272" href="#l272">272</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">		</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;game-&gt;header != save.game-&gt;header</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l240" href="#l240">240</a></td>
+      <td class="lineno"><a id="l273" href="#l273">273</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">		</span><span class="n">tr</span><span class="p">.</span><span class="n">failed</span><span class="o">++</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l241" href="#l241">241</a></td>
+      <td class="lineno"><a id="l274" href="#l274">274</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">		</span><span class="k">return</span><span class="w"> </span><span class="n">tr</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l242" href="#l242">242</a></td>
+      <td class="lineno"><a id="l275" href="#l275">275</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">	</span><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l243" href="#l243">243</a></td>
+      <td class="lineno"><a id="l276" href="#l276">276</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l244" href="#l244">244</a></td>
+      <td class="lineno"><a id="l277" href="#l277">277</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="cp">#ifndef _WIN32</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l245" href="#l245">245</a></td>
+      <td class="lineno"><a id="l278" href="#l278">278</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">	</span><span class="c1">// Now do the entire thing.</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l246" href="#l246">246</a></td>
+      <td class="lineno"><a id="l279" href="#l279">279</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">1</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">tr</span><span class="p">.</span><span class="n">total</span><span class="o">++</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l247" href="#l247">247</a></td>
+      <td class="lineno"><a id="l280" href="#l280">280</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">2/4</summary>
@@ -3137,70 +3415,295 @@
       <td class="src partialCoveredLine"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">game</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="o">*</span><span class="n">save</span><span class="p">.</span><span class="n">game</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l248" href="#l248">248</a></td>
+      <td class="lineno"><a id="l281" href="#l281">281</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">	</span><span class="p">{</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l249" href="#l249">249</a></td>
+      <td class="lineno"><a id="l282" href="#l282">282</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">		</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;game != save.game</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l250" href="#l250">250</a></td>
+      <td class="lineno"><a id="l283" href="#l283">283</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">		</span><span class="n">tr</span><span class="p">.</span><span class="n">failed</span><span class="o">++</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l251" href="#l251">251</a></td>
+      <td class="lineno"><a id="l284" href="#l284">284</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">		</span><span class="k">return</span><span class="w"> </span><span class="n">tr</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l252" href="#l252">252</a></td>
+      <td class="lineno"><a id="l285" href="#l285">285</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">	</span><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l253" href="#l253">253</a></td>
+      <td class="lineno"><a id="l286" href="#l286">286</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="cp">#endif</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l254" href="#l254">254</a></td>
+      <td class="lineno"><a id="l287" href="#l287">287</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l255" href="#l255">255</a></td>
+      <td class="lineno"><a id="l288" href="#l288">288</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">	</span><span class="c1">// Old builds wrote saves whose gen_initd vecs were bounded below 8</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l289" href="#l289">289</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">	</span><span class="c1">// (the save-file split migration stamped default-constructed state).</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l290" href="#l290">290</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">	</span><span class="c1">// Loading such a save must not throw, and normalize() must heal the</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l291" href="#l291">291</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">	</span><span class="c1">// bounds without losing the stored args.</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l292" href="#l292">292</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount coveredLine">1</td>
+      <td class="src coveredLine"><span class="w">	</span><span class="n">tr</span><span class="p">.</span><span class="n">total</span><span class="o">++</span><span class="p">;</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l293" href="#l293">293</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">	</span><span class="p">{</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l294" href="#l294">294</a></td>
+      <td class="linebranch">
+        <details class="linebranchDetails">
+        <summary class="linebranchSummary">2/4</summary>
+        <div class="linebranchContents">
+          <div class="takenBranch">&check; Branch 0 taken 1 times.</div>
+          <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
+          <div class="takenBranch">&check; Branch 2 taken 1 times.</div>
+          <div class="notTakenBranch">&cross; Branch 3 not taken.</div>
+        </div>
+        </details>
+      </td>
+      <td class="linecount partialCoveredLine">1</td>
+      <td class="src partialCoveredLine"><span class="w">		</span><span class="n">gamedata</span><span class="o">*</span><span class="w"> </span><span class="n">bad</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">gamedata</span><span class="p">();</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l295" href="#l295">295</a></td>
+      <td class="linebranch">
+        <details class="linebranchDetails">
+        <summary class="linebranchSummary">3/6</summary>
+        <div class="linebranchContents">
+          <div class="takenBranch">&check; Branch 0 taken 1 times.</div>
+          <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
+          <div class="takenBranch">&check; Branch 2 taken 1 times.</div>
+          <div class="notTakenBranch">&cross; Branch 3 not taken.</div>
+          <div class="takenBranch">&check; Branch 4 taken 1 times.</div>
+          <div class="notTakenBranch">&cross; Branch 5 not taken.</div>
+        </div>
+        </details>
+      </td>
+      <td class="linecount partialCoveredLine">1</td>
+      <td class="src partialCoveredLine"><span class="w">		</span><span class="n">bad</span><span class="o">-&gt;</span><span class="n">gen_initd</span><span class="p">[</span><span class="mi">7</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bounded_vec</span><span class="o">&lt;</span><span class="n">byte</span><span class="p">,</span><span class="kt">int32_t</span><span class="o">&gt;</span><span class="p">{</span><span class="mi">3</span><span class="p">};</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l296" href="#l296">296</a></td>
+      <td class="linebranch">
+        <details class="linebranchDetails">
+        <summary class="linebranchSummary">2/4</summary>
+        <div class="linebranchContents">
+          <div class="takenBranch">&check; Branch 0 taken 1 times.</div>
+          <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
+          <div class="takenBranch">&check; Branch 2 taken 1 times.</div>
+          <div class="notTakenBranch">&cross; Branch 3 not taken.</div>
+        </div>
+        </details>
+      </td>
+      <td class="linecount partialCoveredLine">1</td>
+      <td class="src partialCoveredLine"><span class="w">		</span><span class="n">bad</span><span class="o">-&gt;</span><span class="n">gen_initd</span><span class="p">[</span><span class="mi">7</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1234</span><span class="p">;</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l297" href="#l297">297</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount coveredLine">1</td>
+      <td class="src coveredLine"><span class="w">		</span><span class="kt">bool</span><span class="w"> </span><span class="n">threw</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l298" href="#l298">298</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">		</span><span class="k">extern</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">load_genscript</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">gamedata</span><span class="o">&amp;</span><span class="w"> </span><span class="n">gd</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l299" href="#l299">299</a></td>
+      <td class="linebranch">
+        <details class="linebranchDetails">
+        <summary class="linebranchSummary">1/4</summary>
+        <div class="linebranchContents">
+          <div class="takenBranch">&check; Branch 0 taken 1 times.</div>
+          <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
+          <div class="notTakenBranch">&cross; Branch 2 not taken.</div>
+          <div class="notTakenBranch">&cross; Branch 3 not taken.</div>
+        </div>
+        </details>
+      </td>
+      <td class="linecount partialCoveredLine">1</td>
+      <td class="src partialCoveredLine"><span class="w">		</span><span class="k">try</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">load_genscript</span><span class="p">(</span><span class="o">*</span><span class="n">bad</span><span class="p">);</span><span class="w"> </span><span class="p">}</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l300" href="#l300">300</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">		</span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">exception</span><span class="w"> </span><span class="k">const</span><span class="o">&amp;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">threw</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span><span class="w"> </span><span class="p">}</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l301" href="#l301">301</a></td>
+      <td class="linebranch">
+        <details class="linebranchDetails">
+        <summary class="linebranchSummary">1/2</summary>
+        <div class="linebranchContents">
+          <div class="takenBranch">&check; Branch 0 taken 1 times.</div>
+          <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
+        </div>
+        </details>
+      </td>
+      <td class="linecount partialCoveredLine">1</td>
+      <td class="src partialCoveredLine"><span class="w">		</span><span class="n">bad</span><span class="o">-&gt;</span><span class="n">normalize</span><span class="p">();</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l302" href="#l302">302</a></td>
+      <td class="linebranch">
+        <details class="linebranchDetails">
+        <summary class="linebranchSummary">7/14</summary>
+        <div class="linebranchContents">
+          <div class="takenBranch">&check; Branch 0 taken 1 times.</div>
+          <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
+          <div class="takenBranch">&check; Branch 2 taken 1 times.</div>
+          <div class="notTakenBranch">&cross; Branch 3 not taken.</div>
+          <div class="takenBranch">&check; Branch 4 taken 1 times.</div>
+          <div class="notTakenBranch">&cross; Branch 5 not taken.</div>
+          <div class="takenBranch">&check; Branch 6 taken 1 times.</div>
+          <div class="notTakenBranch">&cross; Branch 7 not taken.</div>
+          <div class="takenBranch">&check; Branch 8 taken 1 times.</div>
+          <div class="notTakenBranch">&cross; Branch 9 not taken.</div>
+          <div class="takenBranch">&check; Branch 10 taken 1 times.</div>
+          <div class="notTakenBranch">&cross; Branch 11 not taken.</div>
+          <div class="notTakenBranch">&cross; Branch 12 not taken.</div>
+          <div class="takenBranch">&check; Branch 13 taken 1 times.</div>
+        </div>
+        </details>
+      </td>
+      <td class="linecount partialCoveredLine">1</td>
+      <td class="src partialCoveredLine"><span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">threw</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">bad</span><span class="o">-&gt;</span><span class="n">gen_initd</span><span class="p">[</span><span class="mi">7</span><span class="p">].</span><span class="n">size</span><span class="p">()</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="mi">8</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">bad</span><span class="o">-&gt;</span><span class="n">gen_initd</span><span class="p">[</span><span class="mi">7</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="mi">1234</span><span class="p">)</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l303" href="#l303">303</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">		</span><span class="p">{</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l304" href="#l304">304</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">			</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;failed short-bounded gen_initd test</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l305" href="#l305">305</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">			</span><span class="n">tr</span><span class="p">.</span><span class="n">failed</span><span class="o">++</span><span class="p">;</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l306" href="#l306">306</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">		</span><span class="p">}</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l307" href="#l307">307</a></td>
+      <td class="linebranch">
+        <details class="linebranchDetails">
+        <summary class="linebranchSummary">1/2</summary>
+        <div class="linebranchContents">
+          <div class="takenBranch">&check; Branch 0 taken 1 times.</div>
+          <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
+        </div>
+        </details>
+      </td>
+      <td class="linecount partialCoveredLine">1</td>
+      <td class="src partialCoveredLine"><span class="w">		</span><span class="k">delete</span><span class="w"> </span><span class="n">bad</span><span class="p">;</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l308" href="#l308">308</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">	</span><span class="p">}</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l309" href="#l309">309</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l310" href="#l310">310</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">1</td>
       <td class="src coveredLine"><span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="n">tr</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l256" href="#l256">256</a></td>
+      <td class="lineno"><a id="l311" href="#l311">311</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">1</td>
       <td class="src coveredLine"><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l257" href="#l257">257</a></td>
+      <td class="lineno"><a id="l312" href="#l312">312</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>

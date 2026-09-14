@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2026-06-28 20:51:46</td>
+      <td>2026-09-14 02:26:05</td>
     </tr>
   </table>
 </div>
@@ -54,7 +54,7 @@
     <tr>
       <th scope="row">Branches:</th>
       <td>0</td>
-      <td>394</td>
+      <td>388</td>
       <td class="coverage-none">0.0%</td>
     </tr>
   </table>
@@ -478,7 +478,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">		</span><span class="n">zc_set_config</span><span class="p">(</span><span class="s">&quot;ZQ_GUI&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">get_font_cfgname</span><span class="p">(</span><span class="nb">true</span><span class="p">,</span><span class="w"> </span><span class="n">ind</span><span class="o">-</span><span class="n">OPT_FIRSTFONT</span><span class="p">).</span><span class="n">c_str</span><span class="p">(),</span><span class="w"> </span><span class="n">v</span><span class="p">);</span></td>
+      <td class="src uncoveredLine"><span class="w">		</span><span class="n">zc_set_config</span><span class="p">(</span><span class="s">&quot;ZQ_GUI&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">get_font_cfgname</span><span class="p">(</span><span class="nb">true</span><span class="p">,</span><span class="w"> </span><span class="n">ind</span><span class="o">-</span><span class="n">OPT_FIRST_FONTSCALE</span><span class="p">).</span><span class="n">c_str</span><span class="p">(),</span><span class="w"> </span><span class="n">v</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l54" href="#l54">54</a></td>
@@ -940,7 +940,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">	hAlign = 1.0, low = minval, high = maxval, val = opts[optind], \</span></td>
+      <td class="src "><span class="cp">	hAlign = 1.0, bounds = {minval, maxval}, val = opts[optind], \</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l120" href="#l120">120</a></td>
@@ -1031,7 +1031,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">	hAlign = 1.0, low = minval, high = maxval, val = opts[optind], \</span></td>
+      <td class="src "><span class="cp">	hAlign = 1.0, bounds = {minval, maxval}, val = opts[optind], \</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l133" href="#l133">133</a></td>
@@ -1157,7 +1157,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">	hAlign = 1.0, low = minval*10000, high = maxval*10000, val = opts[optind], \</span></td>
+      <td class="src "><span class="cp">	hAlign = 1.0, bounds = {minval*10000, maxval*10000}, val = opts[optind], \</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l151" href="#l151">151</a></td>
@@ -1248,7 +1248,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">	hAlign = 1.0, low = minval*10000, high = maxval*10000, val = opts[optind], \</span></td>
+      <td class="src "><span class="cp">	hAlign = 1.0, bounds = {minval*10000, maxval*10000}, val = opts[optind], \</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l164" href="#l164">164</a></td>
@@ -1745,7 +1745,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">	hAlign = 1.0, low = 1, high = maxscale, val = opts[scaleind], \</span></td>
+      <td class="src "><span class="cp">	hAlign = 1.0, bounds = {1, maxscale}, val = opts[scaleind], \</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l235" href="#l235">235</a></td>

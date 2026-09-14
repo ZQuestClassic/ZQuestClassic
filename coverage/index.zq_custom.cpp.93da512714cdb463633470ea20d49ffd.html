@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2026-06-28 20:51:46</td>
+      <td>2026-09-14 02:26:05</td>
     </tr>
   </table>
 </div>
@@ -86,7 +86,7 @@
     <tr><td><a href="#l245">onMiscSprites() (line 245)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l247">onMiscSprites()::$_0::operator()(int*) const (line 247)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l141">readoneitem(PACKFILE*, unsigned short) (line 141)</a></td><td>not called</td><td>0.0%</td></tr>
-    <tr><td><a href="#l292">readonenpc(PACKFILE*, int) (line 292)</a></td><td>called 2 times, returned 2 times</td><td>61.0%</td></tr>
+    <tr><td><a href="#l292">readonenpc(PACKFILE*, int) (line 292)</a></td><td>called 2 times, returned 2 times</td><td>57.0%</td></tr>
     <tr><td><a href="#l267">showEnemyScriptMetaHelp(guydata const&amp;, int) (line 267)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l201">writeoneitem(PACKFILE*, unsigned short) (line 201)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l340">writeonenpc(PACKFILE*, int) (line 340)</a></td><td>called 2 times, returned 2 times</td><td>58.0%</td></tr>
@@ -2169,7 +2169,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">test</span><span class="p">.</span><span class="n">script</span><span class="p">)</span></td>
+      <td class="src uncoveredLine"><span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">test</span><span class="p">.</span><span class="n">scrconfig</span><span class="p">.</span><span class="n">script</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l272" href="#l272">272</a></td>
@@ -2183,7 +2183,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">			</span><span class="n">zasm_meta</span><span class="w"> </span><span class="k">const</span><span class="o">&amp;</span><span class="w"> </span><span class="n">meta</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">guyscripts</span><span class="p">[</span><span class="n">test</span><span class="p">.</span><span class="n">script</span><span class="p">]</span><span class="o">-&gt;</span><span class="n">meta</span><span class="p">;</span></td>
+      <td class="src uncoveredLine"><span class="w">			</span><span class="n">zasm_meta</span><span class="w"> </span><span class="k">const</span><span class="o">&amp;</span><span class="w"> </span><span class="n">meta</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">guyscripts</span><span class="p">[</span><span class="n">test</span><span class="p">.</span><span class="n">scrconfig</span><span class="p">.</span><span class="n">script</span><span class="p">]</span><span class="o">-&gt;</span><span class="n">meta</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l274" href="#l274">274</a></td>
@@ -2239,7 +2239,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">test</span><span class="p">.</span><span class="n">weap_data</span><span class="p">.</span><span class="n">script</span><span class="p">)</span></td>
+      <td class="src uncoveredLine"><span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">test</span><span class="p">.</span><span class="n">weap_data</span><span class="p">.</span><span class="n">scrconfig</span><span class="p">.</span><span class="n">script</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l282" href="#l282">282</a></td>
@@ -2253,7 +2253,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">			</span><span class="n">zasm_meta</span><span class="w"> </span><span class="k">const</span><span class="o">&amp;</span><span class="w"> </span><span class="n">meta</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ewpnscripts</span><span class="p">[</span><span class="n">test</span><span class="p">.</span><span class="n">weap_data</span><span class="p">.</span><span class="n">script</span><span class="p">]</span><span class="o">-&gt;</span><span class="n">meta</span><span class="p">;</span></td>
+      <td class="src uncoveredLine"><span class="w">			</span><span class="n">zasm_meta</span><span class="w"> </span><span class="k">const</span><span class="o">&amp;</span><span class="w"> </span><span class="n">meta</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ewpnscripts</span><span class="p">[</span><span class="n">test</span><span class="p">.</span><span class="n">weap_data</span><span class="p">.</span><span class="n">scrconfig</span><span class="p">.</span><span class="n">script</span><span class="p">]</span><span class="o">-&gt;</span><span class="n">meta</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l284" href="#l284">284</a></td>
@@ -2639,8 +2639,8 @@
         <details class="linebranchDetails">
         <summary class="linebranchSummary">1/2</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 1 times.</div>
-          <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
+          <div class="notTakenBranch">&cross; Branch 0 not taken.</div>
+          <div class="takenBranch">&check; Branch 1 taken 1 times.</div>
         </div>
         </details>
       </td>

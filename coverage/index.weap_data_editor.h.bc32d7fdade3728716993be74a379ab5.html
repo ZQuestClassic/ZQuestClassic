@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2026-06-28 20:51:46</td>
+      <td>2026-09-14 02:26:05</td>
     </tr>
   </table>
 </div>
@@ -42,14 +42,14 @@
     <tr>
       <th scope="row">Lines:</th>
       <td>0</td>
-      <td>1</td>
-      <td class="coverage-none">0.0%</td>
+      <td>0</td>
+      <td class="coverage-unknown">-%</td>
     </tr>
     <tr>
       <th scope="row">Functions:</th>
       <td>0</td>
-      <td>1</td>
-      <td class="coverage-none">0.0%</td>
+      <td>0</td>
+      <td class="coverage-unknown">-%</td>
     </tr>
     <tr>
       <th scope="row">Branches:</th>
@@ -65,17 +65,6 @@
     </header>
 
     <nav>
-<details>
-  <summary>List of functions</summary>
-  <table class="listOfFunctions">
-    <tr>
-      <th>Function (Line)</th>
-      <th>Call count</th>
-      <th>Block coverage</th>
-    </tr>
-    <tr><td><a href="#l22">WeaponDataDialog::~WeaponDataDialog() (line 22)</a></td><td>not called</td><td>0.0%</td></tr>
-  </table>
-</details>
 
     </nav>
 
@@ -239,8 +228,8 @@
       <td class="lineno"><a id="l22" href="#l22">22</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="n">class</span><span class="w"> </span><span class="n">WeaponDataDialog</span><span class="o">:</span><span class="w"> </span><span class="n">public</span><span class="w"> </span><span class="n">GUI</span><span class="o">::</span><span class="n">Dialog</span><span class="o">&lt;</span><span class="n">WeaponDataDialog</span><span class="o">&gt;</span></td>
+      <td class="linecount "></td>
+      <td class="src "><span class="n">class</span><span class="w"> </span><span class="n">WeaponDataDialog</span><span class="o">:</span><span class="w"> </span><span class="n">public</span><span class="w"> </span><span class="n">GUI</span><span class="o">::</span><span class="n">Dialog</span><span class="o">&lt;</span><span class="n">WeaponDataDialog</span><span class="o">&gt;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l23" href="#l23">23</a></td>
@@ -373,115 +362,73 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">GUI</span><span class="o">::</span><span class="n">TextField</span><span class="o">&gt;</span><span class="w"> </span><span class="n">tf_initd</span><span class="p">[</span><span class="mi">8</span><span class="p">];</span></td>
+      <td class="src "><span class="w">	</span><span class="n">GUI</span><span class="o">::</span><span class="n">ListData</span><span class="w"> </span><span class="n">list_sprites</span><span class="p">,</span><span class="w"> </span><span class="n">list_weaptype</span><span class="p">,</span><span class="w"> </span><span class="n">list_sfx</span><span class="p">,</span><span class="w"> </span><span class="n">list_light_shapes</span><span class="p">,</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l42" href="#l42">42</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">GUI</span><span class="o">::</span><span class="n">Label</span><span class="o">&gt;</span><span class="w"> </span><span class="n">l_initds</span><span class="p">[</span><span class="mi">8</span><span class="p">];</span></td>
+      <td class="src "><span class="w">		</span><span class="n">list_deftypes</span><span class="p">,</span><span class="w"> </span><span class="n">list_lwpnscripts</span><span class="p">,</span><span class="w"> </span><span class="n">list_ewpnscripts</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l43" href="#l43">43</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">GUI</span><span class="o">::</span><span class="n">Button</span><span class="o">&gt;</span><span class="w"> </span><span class="n">ib_initds</span><span class="p">[</span><span class="mi">8</span><span class="p">];</span></td>
+      <td class="src "><span class="w">	</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l44" href="#l44">44</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">string</span><span class="w"> </span><span class="n">l_initd</span><span class="p">[</span><span class="mi">8</span><span class="p">],</span><span class="w"> </span><span class="n">h_initd</span><span class="p">[</span><span class="mi">8</span><span class="p">];</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">refresh_burnglow</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l45" href="#l45">45</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">GUI</span><span class="o">::</span><span class="n">ListData</span><span class="w"> </span><span class="n">list_sprites</span><span class="p">,</span><span class="w"> </span><span class="n">list_weaptype</span><span class="p">,</span><span class="w"> </span><span class="n">list_sfx</span><span class="p">,</span><span class="w"> </span><span class="n">list_light_shapes</span><span class="p">,</span></td>
+      <td class="src "><span class="w">	</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l46" href="#l46">46</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="n">list_deftypes</span><span class="p">,</span><span class="w"> </span><span class="n">list_lwpnscripts</span><span class="p">,</span><span class="w"> </span><span class="n">list_ewpnscripts</span><span class="p">;</span></td>
+      <td class="src "><span class="w">	</span><span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">GUI</span><span class="o">::</span><span class="n">Widget</span><span class="o">&gt;</span><span class="w"> </span><span class="n">MoveFlag</span><span class="p">(</span><span class="n">move_flags</span><span class="w"> </span><span class="n">index</span><span class="p">,</span><span class="w"> </span><span class="n">string</span><span class="w"> </span><span class="k">const</span><span class="o">&amp;</span><span class="w"> </span><span class="n">str</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l47" href="#l47">47</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span></td>
+      <td class="src "><span class="w">	</span><span class="n">friend</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">call_weap_data_editor</span><span class="p">(</span><span class="n">weapon_data</span><span class="o">&amp;</span><span class="w"> </span><span class="n">weap</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">lweapon</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">togglable</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l48" href="#l48">48</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">refresh_burnglow</span><span class="p">();</span></td>
+      <td class="src "><span class="p">};</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l49" href="#l49">49</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">refresh_script</span><span class="p">();</span></td>
+      <td class="src "></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l50" href="#l50">50</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l51" href="#l51">51</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">GUI</span><span class="o">::</span><span class="n">Widget</span><span class="o">&gt;</span><span class="w"> </span><span class="n">MoveFlag</span><span class="p">(</span><span class="n">move_flags</span><span class="w"> </span><span class="n">index</span><span class="p">,</span><span class="w"> </span><span class="n">string</span><span class="w"> </span><span class="k">const</span><span class="o">&amp;</span><span class="w"> </span><span class="n">str</span><span class="p">);</span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l52" href="#l52">52</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">GUI</span><span class="o">::</span><span class="n">Widget</span><span class="o">&gt;</span><span class="w"> </span><span class="n">ScriptField</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">index</span><span class="p">);</span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l53" href="#l53">53</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">friend</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">call_weap_data_editor</span><span class="p">(</span><span class="n">weapon_data</span><span class="o">&amp;</span><span class="w"> </span><span class="n">weap</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">lweapon</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">togglable</span><span class="p">);</span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l54" href="#l54">54</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="p">};</span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l55" href="#l55">55</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount "></td>
-      <td class="src "></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l56" href="#l56">56</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount "></td>
       <td class="src "><span class="cp">#endif</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l57" href="#l57">57</a></td>
+      <td class="lineno"><a id="l51" href="#l51">51</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
