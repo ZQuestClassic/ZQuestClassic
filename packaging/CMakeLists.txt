@@ -144,6 +144,19 @@ if(NOT EMSCRIPTEN)
 		# This copies additional dlls that for some reason the above install command ignores:
 		# zlib1.dll vorbisfile.dll vorbis.dll ogg.dll libcurl.dll
 		zc_install_targets_windows("${ZC_INSTALL_TARGETS}")
+
+		# Ship the MSVC runtime (msvcp140.dll, vcruntime140.dll, ...) next to the executables.
+		# The install command above deliberately skips anything found in system32, which is
+		# where the build machine's copy lives. But binaries built with VS 2022 17.10+ need
+		# msvcp140.dll 14.40 or newer (the std::mutex layout changed), and users with an older
+		# copy installed by some other program crash on the first std::mutex lock. Windows
+		# loads DLLs from the application directory first, so an app-local copy taken from the
+		# toolset that built the binaries always matches.
+		set(CMAKE_INSTALL_SYSTEM_RUNTIME_DESTINATION "${INSTALL_BIN_DIR}")
+		include(InstallRequiredSystemLibraries)
+		if(NOT CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS AND (DEFINED ENV{CI} OR ZC_OFFICIAL))
+			message(FATAL_ERROR "Could not find the MSVC runtime DLLs to package")
+		endif()
 	endif()
 endif()
 
