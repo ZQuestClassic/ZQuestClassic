@@ -16,6 +16,7 @@ bool replay_compat_frozen_combos_tick_bug();
 bool replay_compat_hammer_trigger_lag_bug();
 bool replay_compat_ladder_water_sensitivity_bug();
 bool replay_compat_hammer_pound_reach_bug();
+bool replay_compat_script_move_pit_state_bug();
 
 // Selects the zc::math mode for the current session, based on what math the
 // active replay (if any) was created with. Called from replay_start,

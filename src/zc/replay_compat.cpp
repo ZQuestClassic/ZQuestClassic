@@ -105,6 +105,14 @@ bool replay_compat_hammer_pound_reach_bug()
 	return check_2_55(17);
 }
 
+// Script player move functions (Hero->Move() etc.) advanced pit/drown state
+// on every call, so calling them repeatedly made the player fall into pits
+// rapidly. Fixed in replay version 68 on main.
+bool replay_compat_script_move_pit_state_bug()
+{
+	return check_2_55(17);
+}
+
 // Trig, inverse trig, and log/pow switched from libm (and the replay-only Q15
 // trig) to the deterministic tables in zc_math.cpp in replay version 59 /
 // ZC 2.55.15. This owns the entire mode policy so zc_math.cpp needs no

@@ -18463,13 +18463,14 @@ bool HeroClass::movexy(zfix dx, zfix dy, bool kb, bool ign_sv, bool shove, bool 
 	if(dx && dy)
 		shove = false;
 	bool checkladder = dy < 0;
-	auto check_drown_fall = [&]()
+	bool no_pit_sidefx = earlyret || !replay_compat_script_move_pit_state_bug();
+	auto check_drown_fall = [&, no_pit_sidefx]()
 		{
 			if (replay_compat_pitslide_bug())
 				return false;
 			if (!ladderx && !laddery)
 			{
-				if (earlyret) // no side effects
+				if (no_pit_sidefx) // no side effects
 				{
 					if (check_pitslide() == -2 || onWater(true))
 						return true;
