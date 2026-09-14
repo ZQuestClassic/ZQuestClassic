@@ -2009,7 +2009,7 @@ void SemanticAnalyzer::caseArrayLiteral(ASTArrayLiteral& host, void*)
 		const DataType* type = nullptr;
 		for (auto&& node : host.elements)
 		{
-			auto node_type = type = node->getReadType(scope, this);
+			auto node_type = node->getReadType(scope, this);
 			if (node_type->isUntyped())
 			{
 				type = nullptr;
