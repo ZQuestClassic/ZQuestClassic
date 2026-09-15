@@ -720,7 +720,9 @@ add_library(zalleg STATIC
 	src/zalleg/packfile.cpp
 	src/zalleg/pal_tables.cpp
 	src/zalleg/render.cpp
+	src/zalleg/render_tree.cpp
 	src/zalleg/zalleg.cpp
+	src/zalleg/zqdialog.cpp
 	src/zalleg/zsys.cpp
 )
 if(APPLE)
