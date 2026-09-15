@@ -92,6 +92,12 @@ pair<ZCMUSIC*,ZCM_Error> zcmusic_load_for_quest(const char* filename, const char
 		}
 		return make_pair(nullptr, ZCM_E_NO_AUDIO);
 	}
+
+	// An empty filename resolves to the search directories themselves, which of
+	// course exist - don't go looking for (and fail to load) a directory.
+	if (!filename || !filename[0])
+		return make_pair(nullptr, ZCM_E_NOT_FOUND);
+
     char exe_path[PATH_MAX];
     get_executable_name(exe_path, PATH_MAX);
     auto exe_dir = std::filesystem::path(exe_path).parent_path();
