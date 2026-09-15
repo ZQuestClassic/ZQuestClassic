@@ -178,6 +178,9 @@ public:
 	// Every frame, each visible render item will call prepare on itself and all its direct children.
 	// This function should be used to update any properties of this render item (including visibility).
 	virtual void prepare();
+	// Whether this item renders in the legacy-conversion pass that precedes the on-screen
+	// pass (see render_tree_draw_item), rather than in the on-screen pass itself.
+	virtual bool wants_a4_pass() const { return false; }
 	// Every frame, each visible, sized (see `width`) render item w/ `freeze` false and `dirty` on will
 	// call this function. The `bitmap` will be created (or recreated) to match the `width` and `height`.
 	// It will be set as the target bitmap and cleared before `render` is called, so all draw calls made
@@ -219,9 +222,11 @@ public:
 	BITMAP* a4_bitmap = nullptr;
 	bool a4_bitmap_rendered_once = false;
 
+	bool wants_a4_pass() const override { return true; }
+
 protected:
-	void prepare();
-	void render(bool);
+	void prepare() override;
+	void render(bool) override;
 
 private:
 	// Signature of the inputs (pixels, palette, transparency) of the last a4->a5

@@ -591,13 +591,10 @@ static void render_tree_draw_item(RenderTreeItem* rti, bool do_a4_only)
 	if (!rti->visible)
 		return;
 
-	// When rendering just a4 bitmaps in bulk, we only draw to the a5 bitmap. The next pass
-	// will actually draw to the screen.
-	bool skip = false;
-	if (do_a4_only && dynamic_cast<LegacyBitmapRTI*>(rti) == nullptr)
-		skip = true;
-	if (!do_a4_only && dynamic_cast<LegacyBitmapRTI*>(rti) != nullptr)
-		skip = true;
+	// Two passes over the tree: the legacy items convert their a4 bitmaps in the first
+	// (drawing only into their own a5 bitmap), everything renders and draws to the screen
+	// in the second. An item does its work in exactly one of them.
+	bool skip = rti->wants_a4_pass() != do_a4_only;
 
 	// Only a sized item's bitmap is the framework's to manage; a display-only item (no size
 	// set, bitmap supplied from outside) is left exactly as given.
@@ -760,8 +757,10 @@ void render_tree_draw(RenderTreeItem* rti)
 {
 	render_refresh_tick();
 	render_tree_draw_item_prepare(rti);
-	// Draw all a4 bitmaps to an a5 bitmap first.
-	// This might help a little in reducing GL context switches.
+	// Convert the legacy bitmaps first, then draw. The split exists for
+	// render_tree_draw_and_flip, which must run the conversions before it can tell whether
+	// the frame changed at all; it also keeps the texture uploads from interleaving with the
+	// draw calls.
 	a4_pixel_hash_begin_pass();
 	render_tree_draw_item(rti, true);
 	render_tree_draw_item(rti, false);
