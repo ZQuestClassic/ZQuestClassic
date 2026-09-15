@@ -274,8 +274,8 @@ static RenderTreeItem* get_logo()
 
 	if (logo_bitmap)
 	{
+		// Display-only: no size is set, so the framework never touches the bitmap.
 		rti_logo.bitmap = logo_bitmap;
-		rti_logo.freeze = true;
 		// Under a CRT filter, composite at the bitmap's own resolution rather than being
 		// baked into the (chunky) game-resolution layer.
 		rti_logo.fullres_overlay = true;
@@ -1703,7 +1703,6 @@ static void actual_titlescreen()
 		logo->bitmap = logo_nosword;
 
 		rti_sword.bitmap = logo_sword;
-		rti_sword.freeze = true;
 		rti_sword.visible = false;
 		rti_sword.fullres_overlay = true;
 		// Thrusts in from off screen left - keep it masked until it crosses into the viewport.

@@ -178,10 +178,10 @@ public:
 	// Every frame, each visible render item will call prepare on itself and all its direct children.
 	// This function should be used to update any properties of this render item (including visibility).
 	virtual void prepare();
-	// Every frame, each visible render item w/ `freeze` false and `dirty` on will call this function.
-	// The `bitmap` will be created (or recreated) to match the `width` and `height`. It will be set as
-	// the target bitmap and cleared before `render` is called, so all draw calls made within `render` will
-	// draw to `bitmap`.
+	// Every frame, each visible, sized (see `width`) render item w/ `freeze` false and `dirty` on will
+	// call this function. The `bitmap` will be created (or recreated) to match the `width` and `height`.
+	// It will be set as the target bitmap and cleared before `render` is called, so all draw calls made
+	// within `render` will draw to `bitmap`.
 	virtual void render(bool bitmap_resized);
 	// Alternative to subclassing: the default render() invokes this, so owners of a plain item
 	// (e.g. from add_dlg_layer) can draw its content by setting a callback and marking `dirty`
@@ -190,6 +190,10 @@ public:
 	// the framework itself schedules and observes the redraw.
 	std::function<void(RenderTreeItem* rti, bool bitmap_resized)> render_cb;
 
+	// The size of the bitmap the framework creates and renders into (see render). Left at 0
+	// for a display-only item - one handed a `bitmap` from outside that is merely drawn, like
+	// the title logo: the framework never resizes, recreates, or renders into such a bitmap,
+	// whether or not the item is frozen.
 	int width = 0;
 	int height = 0;
 

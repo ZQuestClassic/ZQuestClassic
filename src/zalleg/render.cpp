@@ -599,7 +599,10 @@ static void render_tree_draw_item(RenderTreeItem* rti, bool do_a4_only)
 	if (!do_a4_only && dynamic_cast<LegacyBitmapRTI*>(rti) != nullptr)
 		skip = true;
 
-	if (!skip && !rti->freeze)
+	// Only a sized item's bitmap is the framework's to manage; a display-only item (no size
+	// set, bitmap supplied from outside) is left exactly as given.
+	bool managed = rti->width > 0 && rti->height > 0;
+	if (!skip && !rti->freeze && managed)
 	{
 		bool size_changed = false;
 		int flags = rti->bitmap_flags;
@@ -783,7 +786,7 @@ static uint64_t render_tree_signature_item(RenderTreeItem* rti, uint64_t h, bool
 	if (!rti->visible)
 		return h;
 
-	if (rti->dirty && !rti->freeze && (rti->bitmap || (rti->width > 0 && rti->height > 0)))
+	if (rti->dirty && !rti->freeze && rti->width > 0 && rti->height > 0)
 		pending_render = true;
 
 	h = hash_value((uintptr_t)rti->bitmap, h);
