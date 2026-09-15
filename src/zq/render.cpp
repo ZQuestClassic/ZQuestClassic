@@ -22,16 +22,6 @@ RenderTreeItem& gui_mouse_target()
 	return rti_screen;
 }
 
-static int zc_gui_mouse_x()
-{
-	return gui_mouse_target().rel_mouse().first;
-}
-
-static int zc_gui_mouse_y()
-{
-	return gui_mouse_target().rel_mouse().second;
-}
-
 int window_mouse_x()
 {
 	return rti_screen.rel_mouse().first;
@@ -63,9 +53,6 @@ static void init_render_tree()
 	rti_root.add_child(&rti_screen);
 	rti_root.add_child(&rti_dialogs);
 
-	gui_mouse_x = zc_gui_mouse_x;
-	gui_mouse_y = zc_gui_mouse_y;
-
 	al_set_new_bitmap_flags(0);
 
 	_init_render(al_get_bitmap_format(rti_screen.bitmap));
@@ -81,21 +68,10 @@ static void configure_render_tree()
 	{
 		int w = rti_screen.width;
 		int h = rti_screen.height;
-		float xscale = (float)resx/w;
-		float yscale = (float)resy/h;
-		if (scaling_force_integer)
-		{
-			xscale = std::max((int) xscale, 1);
-			yscale = std::max((int) yscale, 1);
-		}
-		if(DragAspect)
-			xscale = yscale = std::min(xscale,yscale);
-		rti_root.set_transform({
-			.x = center_root_rti ? (float)((int)(resx - w*xscale) / 2) : 0,
-			.y = center_root_rti ? (float)((int)(resy - h*yscale) / 2) : 0,
-			.xscale = xscale,
-			.yscale = yscale,
-		});
+		auto [xscale, yscale] = fit_scale(resx, resy, w, h, DragAspect, scaling_force_integer);
+		rti_root.set_transform(center_root_rti ?
+			letterbox_transform(resx, resy, w, h, xscale, yscale) :
+			Transform{.xscale = xscale, .yscale = yscale});
 
 		// TODO: don't recreate screen bitmap when alternating fullscreen mode.
 		rti_screen.a4_bitmap = zqdialog_bg_bmp ? zqdialog_bg_bmp : screen;
@@ -167,38 +143,11 @@ void zq_freeze_all_rti(RenderTreeItem* rti)
 
 void render_zq()
 {
-	if (is_headless())
-		return;
-
-	ALLEGRO_STATE oldstate;
-	al_store_state(&oldstate, ALLEGRO_STATE_TARGET_BITMAP);
-	
-	BITMAP* tmp = screen;
-	if(zqdialog_bg_bmp)
-		screen = zqdialog_bg_bmp;
-	
-	init_render_tree();
-	configure_render_tree();
-
 	ALLEGRO_COLOR clear_color = al_map_rgb(RAMpal[0].r, RAMpal[0].g, RAMpal[0].b);
-	if (render_get_debug())
-	{
-		// The debug overlay reflects live state, so always draw when it is up.
-		al_set_target_backbuffer(all_get_display());
-		al_clear_to_color(clear_color);
-		render_tree_draw(&rti_root);
-		render_tree_draw_debug(&rti_root);
-		al_flip_display();
-	}
-	else
-	{
-		// Skips the draw and flip when nothing on screen has changed - otherwise an idle
-		// editor re-composites and re-presents the same pixels 60 times a second.
-		render_tree_draw_and_flip(&rti_root, clear_color);
-	}
-
-	screen = tmp;
-	al_restore_state(&oldstate);
+	render_tree_present(&rti_root, clear_color, [] {
+		init_render_tree();
+		configure_render_tree();
+	});
 }
 
 void clear_tooltip()

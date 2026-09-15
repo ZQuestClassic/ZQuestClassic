@@ -48,16 +48,6 @@ RenderTreeItem& gui_mouse_target()
 	return rti_game;
 }
 
-static int zc_gui_mouse_x()
-{
-	return gui_mouse_target().rel_mouse().first;
-}
-
-static int zc_gui_mouse_y()
-{
-	return gui_mouse_target().rel_mouse().second;
-}
-
 int window_mouse_x()
 {
 	return rti_game.rel_mouse().first;
@@ -117,43 +107,25 @@ static void init_render_tree()
 		render_text_lines(rti->bitmap, overlay_font, overlay_lines_right, TextJustify::right, TextAlignment::bottom, overlay_font_scale);
 	};
 
-	gui_mouse_x = zc_gui_mouse_x;
-	gui_mouse_y = zc_gui_mouse_y;
-
 	al_set_new_bitmap_flags(0);
 	
 	_init_render(al_get_bitmap_format(rti_game.bitmap));
 }
 
-float intscale(float scale)
-{
-	return std::max(1,int(scale));
-}
 static void configure_render_tree()
 {
 	int resx = al_get_display_width(all_get_display());
 	int resy = al_get_display_height(all_get_display());
 	rti_root.set_size(resx, resy);
 	
-	int w = rti_game.width;
-	int h = rti_game.height;
-	float xscale = (float)resx/w;
-	float yscale = (float)resy/(h+6);
-	bool keep_aspect_ratio = !stretchGame;
-	if (keep_aspect_ratio)
-		xscale = yscale = std::min(xscale, yscale);
-	if (scaleForceInteger)
 	{
-		xscale = intscale(xscale);
-		yscale = intscale(yscale);
+		int w = rti_game.width;
+		int h = rti_game.height;
+		// Fits against a few extra rows of height, so the game never quite touches the
+		// top and bottom of the window.
+		auto [xscale, yscale] = fit_scale(resx, resy, w, h + 6, !stretchGame, scaleForceInteger);
+		rti_game.set_transform(letterbox_transform(resx, resy, w, h, xscale, yscale));
 	}
-
-	rti_game.set_transform({
-		.x = (float)((int)(resx - w*xscale) / 2),
-		.y = (float)((int)(resy - h*yscale) / 2),
-		.xscale = xscale,
-		.yscale = yscale,
-	});
 	rti_game.visible = true;
 
 	// The CRT filter applies only to the game layer, so menus and dialogs stay crisp.
@@ -194,34 +166,12 @@ static void configure_render_tree()
 	rti_dialogs.visible = rti_dialogs.has_children();
 	rti_gui.visible = (dialog_count >= 1 && !active_dialog) || dialog_count >= 2 || screen == gui_bmp;
 
-	float gui_xscale, gui_yscale;
-	{
-		int w = rti_gui.width;
-		int h = rti_gui.height;
-		float xscale = (float)resx/w;
-		float yscale = (float)resy/h;
-		gui_xscale = gui_yscale = std::min(xscale, yscale);
-	}
+	auto [gui_xscale, gui_yscale] = fit_scale(resx, resy, rti_gui.width, rti_gui.height, true, false);
 	
 	if (rti_dialogs.visible || rti_gui.visible)
 	{
-		int w = rti_gui.width;
-		int h = rti_gui.height;
-		float xscale = gui_xscale;
-		float yscale = gui_yscale;
-		rti_gui.set_transform({
-			.x = (float)((int)(resx - w*xscale) / 2),
-			.y = (float)((int)(resy - h*yscale) / 2),
-			.xscale = xscale,
-			.yscale = yscale,
-		});
-		
-		rti_dialogs.set_transform({
-			.x = 0,
-			.y = 0,
-			.xscale = xscale,
-			.yscale = yscale,
-		});
+		rti_gui.set_transform(letterbox_transform(resx, resy, rti_gui.width, rti_gui.height, gui_xscale, gui_yscale));
+		rti_dialogs.set_transform({.xscale = gui_xscale, .yscale = gui_yscale});
 	}
 	
 	bool has_zqdialog = false;
@@ -245,16 +195,7 @@ static void configure_render_tree()
 	rti_menu.visible = MenuOpen && !has_zqdialog;
 	
 	if (rti_menu.visible)
-	{
-		float xscale = gui_xscale;
-		float yscale = gui_yscale;
-		rti_menu.set_transform({
-			.x = 0,
-			.y = 0,
-			.xscale = xscale,
-			.yscale = yscale,
-		});
-	}
+		rti_menu.set_transform({.xscale = gui_xscale, .yscale = gui_yscale});
 	
 	rti_game.freeze = rti_menu.visible || rti_gui.visible || rti_dialogs.visible || is_sys_pal;
 	if (rti_game.freeze)
@@ -406,21 +347,9 @@ void end_info_bmp()
 #endif
 }
 
-void render_zc()
+// The overlay text (clock, FPS, replay state) - see rti_overlay.
+static void configure_overlay()
 {
-	if (is_headless())
-		return;
-
-	ALLEGRO_STATE oldstate;
-	al_store_state(&oldstate, ALLEGRO_STATE_TARGET_BITMAP);
-	
-	BITMAP* tmp = screen;
-	if(zqdialog_bg_bmp)
-		screen = zqdialog_bg_bmp;
-	
-	init_render_tree();
-	configure_render_tree();
-	
 	ALLEGRO_FONT* a5font = get_zc_font_a5(font_gboraclepfont);
 	// Match the overlay text to the game's scale rather than using a fixed scale. The text is
 	// stamped into the backbuffer, so a fixed scale means its apparent size tracks the
@@ -472,30 +401,17 @@ void render_zc()
 		overlay_font_scale = font_scale;
 		rti_overlay.dirty = true;
 	}
-	ALLEGRO_DISPLAY* display = all_get_display();
-	rti_overlay.set_size(al_get_display_width(display), al_get_display_height(display));
+	rti_overlay.set_size(rti_root.width, rti_root.height);
 	rti_overlay.visible = !overlay_lines_left.empty() || !overlay_lines_right.empty();
+}
 
-	ALLEGRO_COLOR clear_color = al_map_rgb_f(0, 0, 0);
-
-	if (render_get_debug())
-	{
-		// The debug overlay reflects live state, so always draw when it is up.
-		al_set_target_backbuffer(display);
-		al_clear_to_color(clear_color);
-		render_tree_draw(&rti_root);
-		render_tree_draw_debug(&rti_root);
-		al_flip_display();
-	}
-	else
-	{
-		// Skips the draw and flip when nothing on screen has changed - a paused game, the
-		// save screen, or a static title screen then costs (nearly) nothing.
-		render_tree_draw_and_flip(&rti_root, clear_color);
-	}
-
-	screen = tmp;
-	al_restore_state(&oldstate);
+void render_zc()
+{
+	render_tree_present(&rti_root, al_map_rgb_f(0, 0, 0), [] {
+		init_render_tree();
+		configure_render_tree();
+		configure_overlay();
+	});
 }
 
 void zq_push_unfrozen_dialogs(size_t){}

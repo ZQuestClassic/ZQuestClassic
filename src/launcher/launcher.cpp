@@ -238,16 +238,6 @@ RenderTreeItem& gui_mouse_target()
 	return rti_screen;
 }
 
-static int zc_gui_mouse_x()
-{
-	return gui_mouse_target().rel_mouse().first;
-}
-
-static int zc_gui_mouse_y()
-{
-	return gui_mouse_target().rel_mouse().second;
-}
-
 int window_mouse_x()
 {
 	return rti_screen.rel_mouse().first;
@@ -275,9 +265,6 @@ static void init_render_tree()
 	rti_root.add_child(&rti_screen);
 	rti_root.add_child(&rti_dialogs);
 
-	gui_mouse_x = zc_gui_mouse_x;
-	gui_mouse_y = zc_gui_mouse_y;
-
 	al_set_new_bitmap_flags(0);
 	
 	_init_render(al_get_bitmap_format(rti_screen.bitmap));
@@ -293,29 +280,14 @@ static void configure_render_tree()
 	{
 		static bool scaling_force_integer = zc_get_config("ZLAUNCH", "scaling_force_integer", 0) == 1;
 
-		int w = al_get_bitmap_width(rti_screen.bitmap);
-		int h = al_get_bitmap_height(rti_screen.bitmap);
-		float xscale = (float)resx/w;
-		float yscale = (float)resy/h;
-		if (scaling_force_integer)
-		{
-			xscale = std::max((int) xscale, 1);
-			yscale = std::max((int) yscale, 1);
-		}
-		rti_screen.set_transform({
-			.x = (float)((int)(resx - w*xscale) / 2),
-			.y = (float)((int)(resy - h*yscale) / 2),
-			.xscale = xscale,
-			.yscale = yscale,
-		});
+		int w = rti_screen.width;
+		int h = rti_screen.height;
+		auto [xscale, yscale] = fit_scale(resx, resy, w, h, false, scaling_force_integer);
+		auto transform = letterbox_transform(resx, resy, w, h, xscale, yscale);
+		rti_screen.set_transform(transform);
 		rti_screen.visible = true;
 		// TODO: it seems `rti_screen` is unnecessary, given this `rti_dialogs` also draws the main Window component.
-		rti_dialogs.set_transform({
-			.x = (float)((int)(resx - w*xscale) / 2),
-			.y = (float)((int)(resy - h*yscale) / 2),
-			.xscale = xscale,
-			.yscale = yscale,
-		});
+		rti_dialogs.set_transform(transform);
 		rti_dialogs.visible = true;
 	}
 	reload_dialog_tint();
@@ -323,18 +295,10 @@ static void configure_render_tree()
 
 static void render_launcher()
 {
-	ALLEGRO_STATE oldstate;
-	al_store_state(&oldstate, ALLEGRO_STATE_TARGET_BITMAP);
-
-	init_render_tree();
-	configure_render_tree();
-
-	// Skips the draw and flip when nothing on screen has changed, which is most frames -
-	// otherwise an idle launcher burns a surprising amount of CPU/GPU converting and
-	// re-presenting the same pixels 60 times a second.
-	render_tree_draw_and_flip(&rti_root);
-
-	al_restore_state(&oldstate);
+	render_tree_present(&rti_root, al_map_rgb_f(0, 0, 0), [] {
+		init_render_tree();
+		configure_render_tree();
+	});
 }
 
 void zq_push_unfrozen_dialogs(size_t){}

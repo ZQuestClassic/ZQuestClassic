@@ -279,6 +279,22 @@ void render_tree_draw_debug(RenderTreeItem* rti);
 void render_set_debug(bool debug);
 bool render_get_debug();
 
+// The scale that fits a w x h item into a resx x resy output. With keep_aspect the
+// smaller of the two axis scales is used on both, leaving letterbox borders along the
+// other axis; with force_integer each scale is floored to a whole number (never below
+// 1), so every source pixel covers the same whole number of output pixels.
+std::pair<float, float> fit_scale(int resx, int resy, int w, int h, bool keep_aspect, bool force_integer);
+// The transform that centers a w x h item drawn at the given scale in a resx x resy
+// output.
+Transform letterbox_transform(int resx, int resy, int w, int h, float xscale, float yscale);
+
+// One frame of an app's render tree - the common work shared by all apps. Swaps
+// the real `screen` back in while a dialog has it repointed, runs `configure` (the app's
+// per-frame tree setup), then composites and presents the tree: through the debug
+// overlay when that is enabled, otherwise via render_tree_draw_and_flip so unchanged
+// frames are skipped.
+void render_tree_present(RenderTreeItem* root, ALLEGRO_COLOR clear_color, const std::function<void()>& configure);
+
 void _init_render(int fmt);
 uint32_t get_backend_a5_col(RGB const& c);
 uint32_t repl_a5_backend_alpha(uint32_t back_col, unsigned char a);

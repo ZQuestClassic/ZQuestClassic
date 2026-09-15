@@ -969,6 +969,86 @@ bool render_get_debug()
 	return render_debug;
 }
 
+std::pair<float, float> fit_scale(int resx, int resy, int w, int h, bool keep_aspect, bool force_integer)
+{
+	float xscale = (float)resx / w;
+	float yscale = (float)resy / h;
+	if (keep_aspect)
+		xscale = yscale = std::min(xscale, yscale);
+	if (force_integer)
+	{
+		xscale = std::max(1, (int)xscale);
+		yscale = std::max(1, (int)yscale);
+	}
+	return {xscale, yscale};
+}
+
+Transform letterbox_transform(int resx, int resy, int w, int h, float xscale, float yscale)
+{
+	return {
+		.x = (float)((int)(resx - w*xscale) / 2),
+		.y = (float)((int)(resy - h*yscale) / 2),
+		.xscale = xscale,
+		.yscale = yscale,
+	};
+}
+
+static int rti_gui_mouse_x()
+{
+	return gui_mouse_target().rel_mouse().first;
+}
+
+static int rti_gui_mouse_y()
+{
+	return gui_mouse_target().rel_mouse().second;
+}
+
+void render_tree_present(RenderTreeItem* root, ALLEGRO_COLOR clear_color, const std::function<void()>& configure)
+{
+	if (is_headless())
+		return;
+
+	static bool mouse_hooks_installed;
+	if (!mouse_hooks_installed)
+	{
+		mouse_hooks_installed = true;
+		gui_mouse_x = rti_gui_mouse_x;
+		gui_mouse_y = rti_gui_mouse_y;
+	}
+
+	ALLEGRO_STATE oldstate;
+	al_store_state(&oldstate, ALLEGRO_STATE_TARGET_BITMAP);
+
+	// An open dialog repoints `screen` at its own layer's bitmap; the app's base layer
+	// wants the real one.
+	BITMAP* tmp = screen;
+	if (zqdialog_bg_bmp)
+		screen = zqdialog_bg_bmp;
+
+	configure();
+
+	if (render_get_debug())
+	{
+		// The debug overlay reflects live state, so always draw when it is up.
+		al_set_target_backbuffer(all_get_display());
+		al_clear_to_color(clear_color);
+		render_tree_draw(root);
+		render_tree_draw_debug(root);
+		al_flip_display();
+	}
+	else
+	{
+		// Skips the draw and flip when nothing on screen has changed, so an idle app - a
+		// paused game, an untouched editor, the launcher sitting there - costs (nearly)
+		// nothing instead of re-compositing and re-presenting the same pixels 60 times a
+		// second.
+		render_tree_draw_and_flip(root, clear_color);
+	}
+
+	screen = tmp;
+	al_restore_state(&oldstate);
+}
+
 void RenderTreeItem::prepare() {}
 void RenderTreeItem::render(bool bitmap_resized)
 {
