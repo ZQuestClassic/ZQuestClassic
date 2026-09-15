@@ -8,7 +8,6 @@ extern LegacyBitmapRTI rti_game;
 extern RenderTreeItem rti_infolayer;
 extern LegacyBitmapRTI rti_menu;
 extern LegacyBitmapRTI rti_gui;
-extern LegacyBitmapRTI rti_screen;
 
 // False on the web build, where the info layer is disabled for performance.
 // Anything drawing overlays between start_info_bmp/end_info_bmp must skip the

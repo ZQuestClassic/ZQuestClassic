@@ -22,7 +22,6 @@ LegacyBitmapRTI rti_game("game");
 RenderTreeItem rti_infolayer("info");
 LegacyBitmapRTI rti_menu("menu");
 LegacyBitmapRTI rti_gui("gui");
-LegacyBitmapRTI rti_screen("screen");
 // The overlay text (clock, FPS, replay state) draws on its own display-resolution layer
 // rather than being stamped into the backbuffer, so the render tree owns it like
 // everything else: the framework clears and redraws it when marked dirty, and a frame
@@ -107,17 +106,10 @@ static void init_render_tree()
 	rti_gui.a4_bitmap = gui_bmp;
 	rti_gui.transparency_index = 0;
 
-	al_set_new_bitmap_flags(base_flags);
-	rti_screen.bitmap = create_a5_bitmap(screen->w, screen->h);
-	rti_screen.set_size(screen->w, screen->h);
-	rti_screen.a4_bitmap = zqdialog_bg_bmp ? zqdialog_bg_bmp : screen;
-	rti_screen.transparency_index = 0;
-	
 	rti_root.add_child(&rti_game);
 	rti_game.add_child(&rti_infolayer);
 	rti_root.add_child(&rti_menu);
 	rti_root.add_child(&rti_gui);
-	rti_root.add_child(&rti_screen);
 	rti_root.add_child(&rti_dialogs);
 	rti_root.add_child(&rti_overlay);
 	rti_overlay.render_cb = [](RenderTreeItem* rti, bool) {
@@ -130,7 +122,7 @@ static void init_render_tree()
 
 	al_set_new_bitmap_flags(0);
 	
-	_init_render(al_get_bitmap_format(rti_screen.bitmap));
+	_init_render(al_get_bitmap_format(rti_game.bitmap));
 }
 
 float intscale(float scale)
@@ -264,30 +256,6 @@ static void configure_render_tree()
 		});
 	}
 	
-	rti_screen.visible = false;
-
-	if (rti_screen.visible)
-	{
-		int w = rti_screen.width;
-		int h = rti_screen.height;
-		float xscale = (float)resx/w;
-		float yscale = (float)resy/h;
-		if (scaleForceInteger)
-		{
-			xscale = intscale(xscale);
-			yscale = intscale(yscale);
-		}
-
-		rti_screen.set_transform({
-			.x = (float)((int)(resx - w*xscale) / 2),
-			.y = (float)((int)(resy - h*yscale) / 2),
-			.xscale = xscale,
-			.yscale = yscale,
-		});
-		// TODO: don't recreate screen bitmap when alternating fullscreen mode.
-		rti_screen.a4_bitmap = zqdialog_bg_bmp ? zqdialog_bg_bmp : screen;
-	}
-
 	rti_game.freeze = rti_menu.visible || rti_gui.visible || rti_dialogs.visible || is_sys_pal;
 	if (rti_game.freeze)
 	{
