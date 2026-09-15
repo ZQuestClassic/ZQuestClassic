@@ -100,18 +100,20 @@ struct Matrix
 	}
 };
 
-enum
+// What a layer on the dialog stack (rti_dialogs) is. The player's renderer uses it to
+// center dialogs and to hide popup menus under an open dialog.
+enum class RenderTreeItemType
 {
-	RTI_TY_NONE,
-	RTI_TY_DIALOG_A4,
-	RTI_TY_DIALOG_A5,
-	RTI_TY_POPUP_MENU,
+	none,
+	dialog_a4,
+	dialog_a5,
+	popup_menu,
 };
 class RenderTreeItem
 {
 public:
 	string name;
-	uint type = RTI_TY_NONE;
+	RenderTreeItemType type = RenderTreeItemType::none;
 	bool visible = true;
 	// -1 for no transparency.
 	int transparency_index = -1;
@@ -319,7 +321,7 @@ void zqdialog_name(string const& name);
 void zqdialog_freeze(bool frozen);
 void get_zqdialog_xy(int& x, int& y);
 void on_zqdialog_close(std::function<void()>&& proc);
-void popup_zqdialog_start(string name, uint tagid, int x = 0, int y = 0, int w = -1, int h = -1, int transp = 0xFF);
+void popup_zqdialog_start(string name, RenderTreeItemType type, int x = 0, int y = 0, int w = -1, int h = -1, int transp = 0xFF);
 void popup_zqdialog_start(int x = 0, int y = 0, int w = -1, int h = -1, int transp = 0xFF);
 void popup_zqdialog_end();
 void popup_zqdialog_start_a5();

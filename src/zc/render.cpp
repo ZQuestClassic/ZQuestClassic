@@ -179,7 +179,7 @@ static void configure_render_tree()
 	for(auto it = dlgs.rbegin(); it != dlgs.rend(); ++it)
 	{
 		auto rti = *it;
-		if (rti->type == RTI_TY_DIALOG_A4 || rti->type == RTI_TY_DIALOG_A5)
+		if (rti->type == RenderTreeItemType::dialog_a4 || rti->type == RenderTreeItemType::dialog_a5)
 		{
 			int dialogs_w = rti_gui.width;
 			int dialogs_h = rti_gui.height;
@@ -189,7 +189,7 @@ static void configure_render_tree()
 			rti->set_transform(t);
 			has_zqdialog = true;
 		}
-		else if(rti->type == RTI_TY_POPUP_MENU)
+		else if (rti->type == RenderTreeItemType::popup_menu)
 			rti->visible = !has_zqdialog;
 	}
 	rti_menu.visible = MenuOpen && !has_zqdialog;

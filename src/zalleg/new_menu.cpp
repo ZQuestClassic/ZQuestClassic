@@ -367,7 +367,7 @@ MenuRet GuiMenu::pop(uint x, uint y, GuiMenu* parent)
 	
 	ttip_uninstall_all();
 	
-	popup_zqdialog_start("popup_menu", RTI_TY_POPUP_MENU, x, y, width(), height());
+	popup_zqdialog_start("popup_menu", RenderTreeItemType::popup_menu, x, y, width(), height());
 	zqdialog_set_skiptint(true);
 	
 	position(0, 0);

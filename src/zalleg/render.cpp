@@ -1357,7 +1357,7 @@ static RenderTreeItem* get_active_dialog(bool forTint = false)
 	}
 	return nullptr;
 }
-void popup_zqdialog_start(string name, uint tagid, int x, int y, int w, int h, int transp)
+void popup_zqdialog_start(string name, RenderTreeItemType type, int x, int y, int w, int h, int transp)
 {
 	if (is_headless())
 		return;
@@ -1376,7 +1376,7 @@ void popup_zqdialog_start(string name, uint tagid, int x, int y, int w, int h, i
 		screen = tmp_bmp;
 		
 		LegacyBitmapRTI* rti = new LegacyBitmapRTI(name);
-		rti->type = tagid;
+		rti->type = type;
 		rti->set_size(w, h);
 		set_bitmap_create_flags(true);
 		rti->bitmap = create_a5_bitmap(w, h);
@@ -1398,7 +1398,7 @@ void popup_zqdialog_start(string name, uint tagid, int x, int y, int w, int h, i
 }
 void popup_zqdialog_start(int x, int y, int w, int h, int transp)
 {
-	popup_zqdialog_start("zqdialog", RTI_TY_DIALOG_A4, x, y, w, h, transp);
+	popup_zqdialog_start("zqdialog", RenderTreeItemType::dialog_a4, x, y, w, h, transp);
 }
 void popup_zqdialog_end()
 {
@@ -1437,7 +1437,7 @@ void popup_zqdialog_start_a5()
 		zqdialog_bg_bmp = screen;
 	
 	auto rti = new RenderTreeItem("zqdialog_a5");
-	rti->type = RTI_TY_DIALOG_A5;
+	rti->type = RenderTreeItemType::dialog_a5;
 	rti->set_size(zq_screen_w, zq_screen_h);
 	set_bitmap_create_flags(true);
 	rti->bitmap = create_a5_bitmap(zq_screen_w, zq_screen_h);
