@@ -184,6 +184,12 @@ void dosubscr()
 		{
 			blit(subscr_scrolling_bitmap,framebuf,0,0,0,offy,256,h);
 		}
+		else if(is_extended_height_mode())
+		{
+			// The playing field fills the whole screen, so slide all of it
+			// down from the top rather than from under the passive subscreen.
+			blit(subscr_scrolling_bitmap,framebuf,0,0,0,y+distance,256,h);
+		}
 		else
 		{
 			blit(subscr_scrolling_bitmap,framebuf,0,0,0,y+distance+passive_subscreen_height,256,-y+(opening_subscr_show_bottom_8px?8:0));
@@ -498,6 +504,12 @@ void dosubscr()
 
 		if(COOLSCROLL) //copy the playing field back onto the screen
 			blit(subscr_scrolling_bitmap,framebuf,0,0,0,offy,256,h);
+		else if(is_extended_height_mode())
+		{
+			// Keep the playing field where the opening slide left it, so the
+			// rows under a transparent passive subscreen don't pop in and out.
+			blit(subscr_scrolling_bitmap,framebuf,0,0,0,distance,256,h);
+		}
 		//else nothing to do; the playing field has scrolled off the screen
 		
 		//draw the passive and active subscreen
@@ -544,6 +556,12 @@ void dosubscr()
 		if(COOLSCROLL)
 		{
 			blit(subscr_scrolling_bitmap,framebuf,0,0,0,offy,256,h);
+		}
+		else if(is_extended_height_mode())
+		{
+			// The playing field fills the whole screen, so slide all of it
+			// down from the top rather than from under the passive subscreen.
+			blit(subscr_scrolling_bitmap,framebuf,0,0,0,y+distance,256,h);
 		}
 		else
 		{

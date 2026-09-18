@@ -15,6 +15,7 @@
 #include "auto/bug_dtor_reentrancy.zs"
 #include "auto/bug_dummy_item_blocks_pickup.zs"
 #include "auto/bug_empty_constructor.zs"
+#include "auto/bug_extended_viewport_subscr_no_coolscroll.zs"
 #include "auto/bug_generic_script_scrolling_action.zs"
 #include "auto/bug_jit_class_arrays.zs"
 #include "auto/bug_jit_div_zero_sign.zs"
