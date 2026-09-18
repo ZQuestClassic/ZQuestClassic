@@ -435,7 +435,9 @@ public:
 	int32_t count;
 protected:
     vec_type commands;
-	std::set<std::pair<int, int>> dirty_layers;
+	// Few entries per frame, so a flat vector (which keeps its capacity across
+	// Clear) beats a node-allocating set.
+	std::vector<std::pair<int, int>> dirty_layers;
     
     DrawingContainer draw_container;
     ScriptDrawingBitmapPool bitmap_pool;

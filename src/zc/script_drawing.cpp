@@ -12020,6 +12020,10 @@ void do_primitives(BITMAP *targetBitmap, int32_t type, int32_t xoff, int32_t yof
 	bool oldScriptFuncrun = script_funcrun;
 	refInfo* oldRi = ri;
 
+	// Constructing a refInfo heap-allocates, so keep one around for every
+	// drawing command instead of building a new one per command.
+	static refInfo loggingRi;
+
 	bool use_target_sprite = layer_uses_sprite(type);
 	for (int i = 0; i < numDrawCommandsToProcess; i++)
 	{
@@ -12077,7 +12081,6 @@ void do_primitives(BITMAP *targetBitmap, int32_t type, int32_t xoff, int32_t yof
 		}
 
 		// Restore script context.
-		refInfo loggingRi;
 		loggingRi.pc = command.pc;
 		loggingRi.thiskey = command.thiskey;
 		loggingRi.retsp = 0;
@@ -12437,14 +12440,16 @@ bool CScriptDrawingCommands::is_dirty(int lyr, int sprite_id)
 {
 	if (!layer_uses_sprite(lyr))
 		sprite_id = 0;
-	return dirty_layers.contains({lyr, sprite_id});
+	return std::find(dirty_layers.begin(), dirty_layers.end(), std::pair{lyr, sprite_id}) != dirty_layers.end();
 }
 
 void CScriptDrawingCommands::mark_dirty(int lyr, int sprite_id)
 {
 	if (!layer_uses_sprite(lyr))
 		sprite_id = 0;
-	dirty_layers.insert({lyr, sprite_id});
+	std::pair entry{lyr, sprite_id};
+	if (std::find(dirty_layers.begin(), dirty_layers.end(), entry) == dirty_layers.end())
+		dirty_layers.push_back(entry);
 }
 
 CScriptDrawingCommands* CScriptDrawingCommands::pop_commands()
@@ -12471,7 +12476,8 @@ void CScriptDrawingCommands::push_commands(CScriptDrawingCommands* other, bool d
 		std::copy(other->commands.begin(), other->commands.begin() + other->count, commands.begin() + count);
 		count += other->count;
 	}
-	dirty_layers.insert(other->dirty_layers.begin(), other->dirty_layers.end());
+	for (auto [lyr, sprite_id] : other->dirty_layers)
+		mark_dirty(lyr, sprite_id);
 	other->draw_container.give_to(draw_container);
 	if(del) delete other;
 }

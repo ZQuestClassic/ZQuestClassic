@@ -2871,7 +2871,7 @@ bool remove_xstatecombos_mi(const screen_handles_t& screen_handles, int32_t mi, 
 		int screen_index_offset = get_region_screen_offset(screen);
 		for (uint8_t i = 0; i < c; i++)
 		{
-			auto ffc_handle = *s->getFFCHandle(i, screen_index_offset);
+			auto ffc_handle = s->getFFCHandle(i, screen_index_offset);
 			auto& cmb = ffc_handle.combo();
 			if(triggers && force_ex_trigger_any(ffc_handle, xflag))
 				didit = true;
@@ -2955,7 +2955,7 @@ bool remove_xdoors_mi(const screen_handles_t& screen_handles, int32_t mi, uint d
 		int screen_index_offset = get_region_screen_offset(screen);
 		for (uint8_t i = 0; i < c; i++)
 		{
-			auto ffc_handle = *scr->getFFCHandle(i, screen_index_offset);
+			auto ffc_handle = scr->getFFCHandle(i, screen_index_offset);
 			if (triggers && force_ex_door_trigger_any(ffc_handle, dir, ind))
 				didit = true;
 			else; //future door combo types?
@@ -7861,7 +7861,7 @@ void toggle_switches(dword flags, bool entry, const screen_handles_t& screen_han
 		word c = m->numFFC();
 		for (int q = 0; q < c; ++q)
 		{
-			auto ffc_handle = *m->getFFCHandle(q, screen_index_offset);
+			auto ffc_handle = m->getFFCHandle(q, screen_index_offset);
 			trig_each_combo_trigger(ffc_handle, [&](combo_trigger const& trig){
 				return trig.trigger_flags.get(TRIGFLAG_TRIGLEVELSTATE) && trig.trig_lstate < 32 && (flags&(1<<trig.trig_lstate));
 			}, ctrigSWITCHSTATE);
@@ -8038,7 +8038,7 @@ void toggle_gswitches(bool* states, bool entry, const screen_handles_t& screen_h
 		word c = base_scr->numFFC();
 		for (int q = 0; q < c; ++q)
 		{
-			auto ffc_handle = *base_scr->getFFCHandle(q, screen_index_offset);
+			auto ffc_handle = base_scr->getFFCHandle(q, screen_index_offset);
 			trig_each_combo_trigger(ffc_handle, [&](combo_trigger const& trig){
 				return trig.trigger_flags.get(TRIGFLAG_TRIGGLOBALSTATE) && states[trig.trig_gstate];
 			}, ctrigSWITCHSTATE);

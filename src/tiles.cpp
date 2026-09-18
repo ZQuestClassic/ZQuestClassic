@@ -453,6 +453,14 @@ void reset_tile(tiledata *buf, int32_t t, int32_t format=1)
         return;
     }
 
+    // Same format: the existing buffer is already the right size, so zero it
+    // in place rather than freeing and reallocating it.
+    if(buf[t].format==format && buf[t].data!=NULL)
+    {
+        memset(buf[t].data, 0, tilesize(format));
+        return;
+    }
+
     buf[t].format=format;
     
     if(buf[t].data!=NULL)
@@ -535,15 +543,13 @@ bool copy_tile(tiledata *buf, int32_t src, int32_t dest, bool swap)
     }
     
     int32_t tempformat=buf[dest].format;
-    byte *temptiledata=(byte *)malloc(tilesize(tempformat));
     int32_t tsize = tilesize(tempformat);
+    // Largest tile format is tf32Bit (1024 bytes); only needed when swapping.
+    byte temptiledata[1024];
     
     if(swap)
     {
-        for(int32_t j=0; j<tsize; j++)
-        {
-            temptiledata[j]=buf[dest].data[j];
-        }
+        memcpy(temptiledata, buf[dest].data, tsize);
     }
     
     reset_tile(buf, dest, buf[src].format);
@@ -556,17 +562,11 @@ bool copy_tile(tiledata *buf, int32_t src, int32_t dest, bool swap)
     if(swap)
     {
         reset_tile(buf, src, tempformat);
-        
-        for(int32_t j=0; j<tsize; j++)
-        {
-            buf[src].data[j]=temptiledata[j];
-        }
+        memcpy(buf[src].data, temptiledata, tsize);
     }
 	int32_t t = blank_tile_table[dest];
 	blank_tile_table[dest] = blank_tile_table[src];
 	if(swap) blank_tile_table[src] = t;
-    
-    free(temptiledata);
     
     return true;
 }

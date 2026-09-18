@@ -3706,7 +3706,10 @@ bool weapon::animate([[maybe_unused]] int32_t index)
 		// https://discord.com/channels/876899628556091432/976887183518625883/976887186454618152
 		byte temp_screengrid[22];
 		byte temp_screengrid_layer[2][22];
-		std::map<ffcdata*, bool> temp_recently_hit;
+		// Saved in for_every_ffc order. Reused across calls so this per-frame
+		// bookkeeping does not heap-allocate.
+		static std::vector<std::pair<ffcdata*, bool>> temp_recently_hit;
+		temp_recently_hit.clear();
 		memcpy(temp_screengrid, screengrid, sizeof(screengrid));
 		memcpy(temp_screengrid_layer[0], screengrid_layer[0], sizeof(screengrid_layer[0]));
 		memcpy(temp_screengrid_layer[1], screengrid_layer[1], sizeof(screengrid_layer[1]));
@@ -3719,7 +3722,7 @@ bool weapon::animate([[maybe_unused]] int32_t index)
 		}
 
 		for_every_ffc([&](const ffc_handle_t& ffc_handle) {
-			temp_recently_hit[ffc_handle.ffc] = ffc_handle.ffc->recently_hit;
+			temp_recently_hit.emplace_back(ffc_handle.ffc, ffc_handle.ffc->recently_hit);
 		});
 		
 		bool pound = useweapon == wHammer && id != wHammer;
@@ -3767,8 +3770,17 @@ bool weapon::animate([[maybe_unused]] int32_t index)
 		memcpy(screengrid, temp_screengrid, sizeof(screengrid));
 		memcpy(screengrid_layer[0], temp_screengrid_layer[0], sizeof(screengrid_layer[0]));
 		memcpy(screengrid_layer[1], temp_screengrid_layer[1], sizeof(screengrid_layer[1]));
+		// The ffcs are normally visited in the same order as when they were saved,
+		// so try the next saved entry first and fall back to a search.
+		size_t next = 0;
 		for_every_ffc([&](const ffc_handle_t& ffc_handle) {
-			auto it = temp_recently_hit.find(ffc_handle.ffc);
+			if (next < temp_recently_hit.size() && temp_recently_hit[next].first == ffc_handle.ffc)
+			{
+				ffc_handle.ffc->recently_hit = temp_recently_hit[next++].second;
+				return;
+			}
+			auto it = std::find_if(temp_recently_hit.begin(), temp_recently_hit.end(),
+				[&](auto const& p){ return p.first == ffc_handle.ffc; });
 			if (it != temp_recently_hit.end())
 				ffc_handle.ffc->recently_hit = it->second;
 		});

@@ -162,8 +162,7 @@ struct mapscr
 	void resizeFFC(size_t size);
 	void ensureFFC(size_t ind);
 	ffcdata& getFFC(size_t ind);
-	// Returns a pointer only to break a cyclical include.
-	std::unique_ptr<ffc_handle_t> getFFCHandle(int index, int screen_index_offset);
+	ffc_handle_t getFFCHandle(int index, int screen_index_offset);
 	word numFFC();
 	void ffcCountMarkDirty();
 	

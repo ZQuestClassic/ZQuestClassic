@@ -41,7 +41,7 @@ ffc_handle_t ResolveMapdataFFC(int32_t mapdataref, int index)
 	if (result.current() && result.layer == 0)
 		screen_index_offset = get_region_screen_offset(result.screen);
 
-	return *result.scr->getFFCHandle(index, screen_index_offset);
+	return result.scr->getFFCHandle(index, screen_index_offset);
 }
 
 }
@@ -119,7 +119,7 @@ ffc_handle_t mapdata::resolve_ffc_handle(int index) const
 	if (current() && layer == 0)
 		screen_index_offset = get_region_screen_offset(screen);
 
-	return *scr->getFFCHandle(index, screen_index_offset);
+	return scr->getFFCHandle(index, screen_index_offset);
 }
 
 ffcdata* mapdata::resolve_ffc(int index) const
