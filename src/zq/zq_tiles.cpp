@@ -5683,15 +5683,31 @@ void reset_tile(tiledata *buf, int32_t t, int32_t format=1)
 }
 */
 
+// "Hide Used" and "Hide Unused" are mutually exclusive: hiding both would
+// hide every non-blank tile on the page.
 int32_t hide_used()
 {
 	show_only_unused_tiles ^= 1;
+	if(HIDE_USED)
+		show_only_unused_tiles &= ~2;
 	return D_O_K;
 }
 int32_t hide_unused()
 {
 	show_only_unused_tiles ^= 2;
+	if(HIDE_UNUSED)
+		show_only_unused_tiles &= ~1;
 	return D_O_K;
+}
+// Ctrl+U: hide nothing -> hide used -> hide unused -> hide nothing
+static void cycle_hide_used_unused()
+{
+	if(HIDE_USED)
+		hide_unused();
+	else if(HIDE_UNUSED)
+		hide_unused();
+	else
+		hide_used();
 }
 int32_t hide_blank()
 {
@@ -8483,6 +8499,68 @@ static DIALOG create_relational_tiles_dlg[] =
 	{ NULL,                  0,    0,     0,      0,   0,                  0,                0,       0,          0,             0,       NULL, NULL,  NULL }
 };
 
+// The "Hide Used" / "Hide Unused" view options replace real tiles with an
+// X'd-out box, which is easy to mistake for lost tiles when one of them was
+// toggled by accident (Ctrl+U cycles them). Call it out in the title bar.
+static const char* tile_list_window_title()
+{
+	if(HIDE_USED)
+		return "Select Tile (Hiding Used Tiles)";
+	if(HIDE_UNUSED)
+		return "Select Tile (Hiding Unused Tiles)";
+	return "Select Tile";
+}
+static int32_t tile_list_window_title_mode()
+{
+	return show_only_unused_tiles & 3;
+}
+
+static void show_tile_page_help()
+{
+	InfoDialog("Tile Pages",
+		"Select, arrange, and edit the quest's tiles.\n"
+		"Hotkeys:\n"
+		"F1: Show this help text\n"
+		"F12: Export the current page as an image\n"
+		"Arrows: Move cursor\n"
+		"Shift+Arrows: Select an area\n"
+		"Ctrl+Arrows: Move cursor to edge\n"
+		"PgUp/PgDn: Move cursor up/down 1 page\n"
+		"Ctrl+(PgUp/PgDn): Move cursor to start/end\n"
+		"Home/End: Move cursor to start/end of current page\n"
+		"Ctrl+(Home/End): Move cursor to start/end\n"
+		"P: GoTo Page\n"
+		"Space: Toggle rectangular selection\n"
+		"-/+: Change CSet\n"
+		"Ctrl -/+: Shift colors (Shift: skip color 0)\n"
+		"Alt -/+: Shift colors by a whole CSet\n"
+		"C: Copy\n"
+		"V: Paste (if something copied)\n"
+		"U: Undo\n"
+		"M: Move (if something copied)\n"
+		"M: Create combos from selection (if nothing copied)\n"
+		"F: Flood-fill paste (if something copied)\n"
+		"O: Overlay copied tiles (Ctrl: underneath)\n"
+		"Shift+O: Overlay copied tile onto each selected tile\n"
+		"H/V: Flip horizontally/vertically (if nothing copied)\n"
+		"R: Rotate (Shift: counter-clockwise)\n"
+		"Ctrl+R: Mass recolor (Shift: reuse last settings)\n"
+		"Alt+Arrows: Shift pixels (Shift: by 8, Ctrl: clear instead of wrap)\n"
+		"Delete: Clear selected tiles\n"
+		"Shift+Delete: Remove selected tiles, shifting later tiles back\n"
+		"I: Insert blank tiles\n"
+		"Shift+I: Remove selected tiles\n"
+		"E: Edit tile\n"
+		"G: Grab tiles from an image\n"
+		"D: Create relational / dungeon carving tiles\n"
+		"B: Convert to 8-bit\n"
+		"Ctrl+B: Convert to 4-bit (Shift: keep color 0, Alt: reduce colors)\n"
+		"S: Save tile to a .ztile file\n"
+		"L: Load a .ztile file\n"
+		"Ctrl+U: Cycle Hide Used / Hide Unused / neither\n"
+		"8: Toggle the 8-bit tile marker\n").show();
+}
+
 void draw_tile_list_window()
 {
 	int32_t w = 640;
@@ -8495,7 +8573,7 @@ void draw_tile_list_window()
 	
 	FONT *oldfont = font;
 	font = get_zc_font(font_lfont);
-	jwin_draw_titlebar(screen, window_xofs+3, window_yofs+3, w+6, 18, "Select Tile", true);
+	jwin_draw_titlebar(screen, window_xofs+3, window_yofs+3, w+6, 18, tile_list_window_title(), true, true);
 	font=oldfont;
 	return;
 }
@@ -8728,6 +8806,7 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 	FONT *tfont = get_zc_font(font_lfont_l);
 	
 	draw_tile_list_window();
+	int32_t drawn_title_mode = tile_list_window_title_mode();
 	draw_tiles(first,cs);
 	
 	if(type==0)
@@ -8810,7 +8889,9 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 					break;
 				
 				case KEY_F1:
-					onHelp();
+					show_tile_page_help();
+					draw_tile_list_window();
+					redraw=true;
 					break;
 				
 				case KEY_EQUALS:
@@ -9444,10 +9525,7 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 				case KEY_U:
 				{
 					if(CHECK_CTRL_CMD)
-					{
-						//Only toggle the first 2 bits!
-						show_only_unused_tiles = (show_only_unused_tiles&~3) | (((show_only_unused_tiles&3)+1)%4);
-					}
+						cycle_hide_used_unused();
 					else
 					{
 						comeback_tiles();
@@ -9643,6 +9721,15 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 				if(do_x_button(screen, w+12+window_xofs - 21, 5+window_yofs))
 				{
 					done=1;
+				}
+			}
+			else if(isinRect(gui_mouse_x(),gui_mouse_y(),window_xofs + w + 12 - 39, window_yofs + 5, window_xofs + w +12 - 39 + 15, window_yofs + 5 + 13))
+			{
+				if(do_question_button(screen, w+12+window_xofs - 39, 5+window_yofs))
+				{
+					show_tile_page_help();
+					draw_tile_list_window();
+					redraw=true;
 				}
 			}
 			
@@ -9843,6 +9930,14 @@ REDRAW:
 
 		if(!(framecnt%8) || force_draw_select || InvalidBG == 1)
 			redraw=true;
+		if(drawn_title_mode != tile_list_window_title_mode())
+		{
+			// The view mode is shown in the title bar, which lives outside
+			// the area tile_info_0/1 blit over every redraw.
+			drawn_title_mode = tile_list_window_title_mode();
+			draw_tile_list_window();
+			redraw = true;
+		}
 		if(otl != tile || otl2 != tile2)
 		{
 			otl = tile;
