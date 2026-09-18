@@ -42,11 +42,9 @@ static int run_zq_dialog(DIALOG *dlg, int focus_obj, bool checkexit)
 		if(checkexit)
 		{
 			HANDLE_CLOSE_ZQDLG();
+			// The caller ends the dialog it started.
 			if(exiting_program)
-			{
-				popup_zqdialog_end();
 				return -1;
-			}
 		}
 		update_hw_screen();
 	}
