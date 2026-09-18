@@ -62,13 +62,16 @@ public:
 	using ptr = websocketpp::lib::shared_ptr<connection_metadata>;
 	using message_queue = WebSocketMessageQueue;
 
-	connection_metadata(int id, websocketpp::connection_hdl hdl, std::string uri)
+	connection_metadata(int id, std::string uri)
 		: m_status("Connecting")
 		, m_id(id)
-		, m_hdl(hdl)
 		, m_uri(uri)
 		, m_server("N/A")
 	{}
+
+	void set_hdl(websocketpp::connection_hdl hdl) {
+		m_hdl = hdl;
+	}
 
 	void on_open(T1 * c, websocketpp::connection_hdl hdl) {
 		m_status = "Open";
@@ -83,6 +86,10 @@ public:
 		auto con = c->get_con_from_hdl(hdl);
 		m_server = con->get_response_header("Server");
 		m_error_reason = con->get_ec().message();
+		// websocketpp collapses every TLS handshake failure into a generic
+		// "TLS handshake failed", so append the specific reason if we have one.
+		if (!m_tls_error.empty())
+			m_error_reason += ": " + m_tls_error;
 	}
 	
 	void on_close(T1 * c, websocketpp::connection_hdl hdl) {
@@ -117,6 +124,8 @@ public:
 
 	message_queue m_messages;
 	std::string m_status;
+	// Set from the TLS verify callback when certificate verification fails.
+	std::string m_tls_error;
 private:
 	int m_id;
 	websocketpp::connection_hdl m_hdl;
@@ -126,43 +135,43 @@ private:
 };
 
 #ifdef HAS_SSL
-static context_ptr on_tls_init(const char * hostname, websocketpp::connection_hdl)
+using connection_metadata_tls_ptr = connection_metadata<client_tls>::ptr;
+
+static context_ptr on_tls_init(std::string hostname, connection_metadata_tls_ptr metadata, websocketpp::connection_hdl)
 {
-	context_ptr ctx = websocketpp::lib::make_shared<asio::ssl::context>(asio::ssl::context::sslv23);
+	namespace ssl = asio::ssl;
 
 	try {
-		ctx->set_options(asio::ssl::context::default_workarounds |
-						asio::ssl::context::no_sslv2 |
-						asio::ssl::context::no_sslv3 |
-						asio::ssl::context::single_dh_use);
+		auto ctx = websocketpp::lib::make_shared<ssl::context>(ssl::context::tls_client);
+		ctx->set_options(ssl::context::default_workarounds |
+						ssl::context::no_sslv2 |
+						ssl::context::no_sslv3 |
+						ssl::context::single_dh_use);
 
-		// https://think-async.com/Asio/asio-1.13.0/doc/asio/overview/ssl.html
-		using asio::ip::tcp;
-		namespace ssl = asio::ssl;
-		using ssl_socket = ssl::stream<tcp::socket>;
+		// Verify the server's certificate chain against the system CA store, and
+		// check that the certificate is actually for the host we asked for.
+		ctx->set_default_verify_paths();
+		ctx->set_verify_mode(ssl::verify_peer);
+		ctx->set_verify_callback([hostname, metadata](bool preverified, ssl::verify_context& vctx) {
+			bool ok = ssl::host_name_verification(hostname)(preverified, vctx);
+			if (!ok && metadata->m_tls_error.empty())
+			{
+				int err = X509_STORE_CTX_get_error(vctx.native_handle());
+				std::string reason = err != X509_V_OK ?
+					X509_verify_cert_error_string(err) :
+					"certificate does not match host name";
+				metadata->m_tls_error = fmt::format("certificate verification failed for {} ({})", hostname, reason);
+			}
+			return ok;
+		});
 
-		// Create a context that uses the default paths for
-		// finding CA certificates.
-		ssl::context ctx(ssl::context::sslv23);
-		ctx.set_default_verify_paths();
-
-		// Open a socket and connect it to the remote host.
-		asio::io_context io_context;
-		ssl_socket sock(io_context, ctx);
-		tcp::resolver resolver(io_context);
-		tcp::resolver::query query(hostname, "https");
-		asio::connect(sock.lowest_layer(), resolver.resolve(query));
-		sock.lowest_layer().set_option(tcp::no_delay(true));
-
-		// Perform SSL handshake and verify the remote host's
-		// certificate.
-		sock.set_verify_mode(ssl::verify_peer);
-		sock.set_verify_callback(ssl::rfc2818_verification(hostname));
-		sock.handshake(ssl_socket::client);
+		return ctx;
 	} catch (std::exception& e) {
-		std::cout << e.what() << std::endl;
+		// Returning no context makes websocketpp fail the connection, which is the
+		// only safe outcome - we must never fall back to an unverified connection.
+		metadata->m_tls_error = fmt::format("could not set up TLS ({})", e.what());
+		return nullptr;
 	}
-	return ctx;
 }
 #endif
 
@@ -200,7 +209,7 @@ public:
 		m_thread->join();
 	}
 
-	virtual void secure_handler(std::string host);
+	void secure_handler(connection_metadata<T1>::ptr metadata, std::string host);
 
 	int connect(std::string const & uri, int new_id, std::string& err) {
 		websocketpp::lib::error_code ec;
@@ -212,7 +221,10 @@ public:
 			return -1;
 		}
 
-		secure_handler(location->get_host());
+		// The TLS init handler runs inside get_connection, so it must be registered
+		// (with the metadata it reports verification failures to) before then.
+		auto metadata_ptr = websocketpp::lib::make_shared<connection_metadata<T1>>(new_id, uri);
+		secure_handler(metadata_ptr, location->get_host());
 
 		auto con = m_endpoint.get_connection(location, ec);
 		if (ec) {
@@ -220,7 +232,7 @@ public:
 			return -1;
 		}
 
-		auto metadata_ptr = websocketpp::lib::make_shared<connection_metadata<T1>>(new_id, con->get_handle(), uri);
+		metadata_ptr->set_hdl(con->get_handle());
 		m_connection_list[new_id] = metadata_ptr;
 
 		con->set_open_handler(websocketpp::lib::bind(
@@ -288,14 +300,14 @@ private:
 
 #ifdef HAS_SSL
 template<>
-void websocket_endpoint<client_tls>::secure_handler(std::string host)
+void websocket_endpoint<client_tls>::secure_handler(connection_metadata_tls_ptr metadata, std::string host)
 {
-	m_endpoint.set_tls_init_handler(bind(&on_tls_init, host.c_str(), ::_1));
+	m_endpoint.set_tls_init_handler(bind(&on_tls_init, host, metadata, ::_1));
 }
 #endif
 
 template<>
-void websocket_endpoint<client_no_tls>::secure_handler([[maybe_unused]] std::string host)
+void websocket_endpoint<client_no_tls>::secure_handler(connection_metadata<client_no_tls>::ptr, std::string)
 {
 }
 
