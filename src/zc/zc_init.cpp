@@ -67,8 +67,7 @@ zinitdata *copyIntoZinit(gamedata *gdata)
 	zinit2->air_drag=zinit.air_drag;
 	zinit2->subscrSpeed=zinit.subscrSpeed;
 	zinit2->bomb_ratio = zinit.bomb_ratio;
-	zinit2->viewport_deadzone_w = zinit.viewport_deadzone_w;
-	zinit2->viewport_deadzone_h = zinit.viewport_deadzone_h;
+	zinit2->viewport_follow = zinit.viewport_follow;
 	zinit2->hcp = gdata->get_HCpieces();
 	
 	zinit2->hp_per_heart = gdata->get_hp_per_heart();

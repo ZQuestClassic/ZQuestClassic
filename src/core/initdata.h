@@ -3,6 +3,7 @@
 
 #include "base/headers.h"
 #include "base/containers.h"
+#include "core/viewport_follow.h"
 #include <vector>
 
 enum
@@ -83,10 +84,8 @@ struct zinitdata
 	zfix air_drag = 0.0100_zf;
 	
 	byte region_mapping = REGION_MAPPING_FULL;
-	// Size of the viewport deadzone box, in pixels. While the viewport target stays within this
-	// box (centered on the viewport focus), the viewport doesn't move. 0 disables (viewport locked
-	// to the target). Only observable in scrolling regions.
-	byte viewport_deadzone_w = 0, viewport_deadzone_h = 0;
+	// Quest-wide viewport follow settings; a dmap with dmfCUSTOM_VIEWPORT_FOLLOW overrides them.
+	ViewportFollowSettings viewport_follow;
 	
 	word item_spawn_flicker = 32, item_timeout_dur = 512, item_timeout_flicker = 0;
 	byte item_flicker_speed = 2;

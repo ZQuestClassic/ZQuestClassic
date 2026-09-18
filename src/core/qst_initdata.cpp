@@ -1714,9 +1714,22 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header)
 		}
 		if (s_version >= 51)
 		{
-			if (!p_getc(&temp_zinit.viewport_deadzone_w, f))
+			if (!p_getc(&temp_zinit.viewport_follow.deadzone_w, f))
 				return qe_invalid;
-			if (!p_getc(&temp_zinit.viewport_deadzone_h, f))
+			if (!p_getc(&temp_zinit.viewport_follow.deadzone_h, f))
+				return qe_invalid;
+		}
+		if (s_version >= 52)
+		{
+			if (!p_getc(&temp_zinit.viewport_follow.lookahead_x, f))
+				return qe_invalid;
+			if (!p_getc(&temp_zinit.viewport_follow.lookahead_y, f))
+				return qe_invalid;
+			if (!p_igetzf(&temp_zinit.viewport_follow.lookahead_speed, f))
+				return qe_invalid;
+			if (!p_igetzf(&temp_zinit.viewport_follow.recenter_speed, f))
+				return qe_invalid;
+			if (!p_igetw(&temp_zinit.viewport_follow.recenter_delay, f))
 				return qe_invalid;
 		}
 	}

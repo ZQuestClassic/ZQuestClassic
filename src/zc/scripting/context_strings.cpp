@@ -375,7 +375,12 @@ const char* scripting_get_zasm_register_context_string(int reg)
 		case VIEWPORT_DEADZONE_HEIGHT: return "Viewport->DeadzoneHeight";
 		case VIEWPORT_DEADZONE_WIDTH: return "Viewport->DeadzoneWidth";
 		case VIEWPORT_HEIGHT: return "Viewport->Height";
+		case VIEWPORT_LOOKAHEAD_SPEED: return "Viewport->LookaheadSpeed";
+		case VIEWPORT_LOOKAHEAD_X: return "Viewport->LookaheadX";
+		case VIEWPORT_LOOKAHEAD_Y: return "Viewport->LookaheadY";
 		case VIEWPORT_MODE: return "Viewport->Mode";
+		case VIEWPORT_RECENTER_DELAY: return "Viewport->RecenterDelay";
+		case VIEWPORT_RECENTER_SPEED: return "Viewport->RecenterSpeed";
 		case VIEWPORT_TARGET: return "Viewport->Target";
 		case VIEWPORT_WIDTH: return "Viewport->Width";
 		case VIEWPORT_X: return "Viewport->X";
@@ -622,6 +627,13 @@ const char* scripting_get_zasm_register_context_string(int reg)
 		case DMAPDATASUBINITD: return "dmapdata::SubInitD[]";
 		case DMAPDATA_TERMINAL_VELOCITY: return "dmapdata::TerminalVelocity";
 		case DMAPDATATYPE: return "dmapdata::Type";
+		case DMAPDATA_VIEWPORT_DEADZONE_HEIGHT: return "dmapdata::ViewportDeadzoneHeight";
+		case DMAPDATA_VIEWPORT_DEADZONE_WIDTH: return "dmapdata::ViewportDeadzoneWidth";
+		case DMAPDATA_VIEWPORT_LOOKAHEAD_SPEED: return "dmapdata::ViewportLookaheadSpeed";
+		case DMAPDATA_VIEWPORT_LOOKAHEAD_X: return "dmapdata::ViewportLookaheadX";
+		case DMAPDATA_VIEWPORT_LOOKAHEAD_Y: return "dmapdata::ViewportLookaheadY";
+		case DMAPDATA_VIEWPORT_RECENTER_DELAY: return "dmapdata::ViewportRecenterDelay";
+		case DMAPDATA_VIEWPORT_RECENTER_SPEED: return "dmapdata::ViewportRecenterSpeed";
 		case DROPSETCHANCES: return "dropsetdata::Chances[]";
 		case DROPSETITEMS: return "dropsetdata::Items[]";
 		case DROPSETNULLCHANCE: return "dropsetdata::NothingChance";
@@ -1949,6 +1961,7 @@ const char* scripting_get_zasm_command_context_string(ASM_DEFINE command)
 		case TRACE6: return "TraceS()";
 		case TRACE5: return "TraceToBase()";
 		case TRUNCATE: return "Truncate()";
+		case VIEWPORT_RESET_FOLLOW_SETTINGS: return "Viewport->ResetFollowSettings()";
 		case WAITEVENT: return "WaitEvent()";
 		case WAITTO: return "WaitTo()";
 		case WAITDRAW: return "Waitdraw()";

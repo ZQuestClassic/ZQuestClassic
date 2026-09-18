@@ -213,8 +213,13 @@ constexpr std::size_t countof(T(&)[N]) { return N; }
 	PROP(spriteflickertransp) \
 	PROP(terminalv) \
 	PROP(transdark_percent) \
-	PROP(viewport_deadzone_w) \
-	PROP(viewport_deadzone_h)
+	PROP(viewport_follow.deadzone_w) \
+	PROP(viewport_follow.deadzone_h) \
+	PROP(viewport_follow.lookahead_x) \
+	PROP(viewport_follow.lookahead_y) \
+	ZFIXPROP(viewport_follow.lookahead_speed) \
+	ZFIXPROP(viewport_follow.recenter_speed) \
+	PROP(viewport_follow.recenter_delay)
 
 #define LIST_ARRAY_PROPS \
 	ARRAY_PROP(bottle_slot) \

@@ -529,6 +529,23 @@ int32_t read_one_dmap(PACKFILE* f, zquestheader *Header, int s_version, int inde
 			if (!p_igetzf(&tempDMap.dmap_terminal_v, f))
 				return qe_invalid;
 		}
+		if (s_version >= 28 && (tempDMap.flags & dmfCUSTOM_VIEWPORT_FOLLOW))
+		{
+			if (!p_getc(&tempDMap.viewport_follow.deadzone_w, f))
+				return qe_invalid;
+			if (!p_getc(&tempDMap.viewport_follow.deadzone_h, f))
+				return qe_invalid;
+			if (!p_getc(&tempDMap.viewport_follow.lookahead_x, f))
+				return qe_invalid;
+			if (!p_getc(&tempDMap.viewport_follow.lookahead_y, f))
+				return qe_invalid;
+			if (!p_igetzf(&tempDMap.viewport_follow.lookahead_speed, f))
+				return qe_invalid;
+			if (!p_igetzf(&tempDMap.viewport_follow.recenter_speed, f))
+				return qe_invalid;
+			if (!p_igetw(&tempDMap.viewport_follow.recenter_delay, f))
+				return qe_invalid;
+		}
 		if(s_version > 23)
 		{
 			if(!p_igetw(&tempDMap.map_subscreen, f))

@@ -37,6 +37,23 @@ When in a scrolling region, enemies and their weapons are paused if they are out
 
 Player weapons are considered "out of bounds" when they leave the viewport. Most player weapons are deleted when they go out of bounds (unless :ref:`CollDetection<classes_lweapon_var_colldetection>` is false), such as arrows. But some weapon types have special behavior: for example, boomerangs just begin returning to the hero.
 
+Follow settings
+^^^^^^^^^^^^^^^
+
+By default the viewport is locked to the player: in a scrolling region, every step moves the viewport with them. The *follow settings* in ``Quest > Init Data > Regions`` loosen that. They only have an effect in scrolling regions, since in a non-scrolling region the viewport is always the whole screen. A DMap can supply its own follow settings instead of the quest-wide ones: check ``Customize Viewport Follow Settings`` in the DMap editor's Mechanics tab.
+
+**Viewport Deadzone** (a width and a height, in pixels) is a box centered on the viewport. While the player stays inside it, the viewport does not move at all; once they push past an edge, the viewport moves just enough to keep them on that edge. This stops the view from shifting with every small step. ``0`` (the default) keeps the classic locked viewport. The box is at most 240 by 160 pixels, which guarantees the viewport is still flush against the region's edge whenever the player stands on one, so scroll transitions look the same as before.
+
+**Viewport Lookahead X and Y** (in pixels, ``-128`` to ``127``) make the viewport aim ahead of the direction the player is moving, showing more of what is in front of them. Negative values do the opposite and trail behind. Each axis has its own distance, so moving diagonally leads on both, and the vertical one can be smaller to suit the shorter viewport. Movement against the direction the player faces is ignored, so being knocked back or pushed backward doesn't swing the viewport; sideways movement still counts. In sideview, jumping and falling count as vertical movement, so a jump shifts the viewport too; to keep jumps from moving it, give sideview DMaps their own follow settings with Lookahead Y set to ``0``. ``0`` (the default) disables it.
+
+**Viewport Lookahead Speed** (in pixels per frame, fractional values allowed) controls how quickly the lookahead offset shifts when the player starts moving or turns around. While the player moves, this is added on top of their own speed, so values between ``0`` and ``1`` are recommended: anything larger makes the viewport visibly outrun the player. ``0`` freezes the offset in place. The default is ``1``.
+
+**Viewport Recenter Speed and Delay** add idle recentering to the deadzone: once the player has stood still for the delay (in frames), the viewport eases back toward them at the speed (in pixels per frame) until they are centered again. With lookahead, the shifted aim point must stay inside the deadzone box, so the viewport only moves toward the player as far as the box allows, and never further ahead. A speed of ``0`` (the default) disables it, and any movement cancels it.
+
+The lookahead offset holds while the player stands still, so the viewport never drifts or reacts to turning in place. It is capped so the viewport can always reach the region's edges. With a deadzone, the box applies to the shifted aim point rather than the player's own position, so the two compose. Warps, camera cutscene effects and scripts handing the viewport back from :ref:`VIEW_MODE_SCRIPT<globals_viewport_var_mode>` drop the offset, which then rebuilds as the player moves; scroll transitions carry it across.
+
+All of these can be read and changed at runtime via :ref:`Viewport->DeadzoneWidth<globals_viewport_var_deadzonewidth>`, :ref:`Viewport->DeadzoneHeight<globals_viewport_var_deadzoneheight>`, :ref:`Viewport->LookaheadX<globals_viewport_var_lookaheadx>`, :ref:`Viewport->LookaheadY<globals_viewport_var_lookaheady>`, :ref:`Viewport->LookaheadSpeed<globals_viewport_var_lookaheadspeed>`, :ref:`Viewport->RecenterSpeed<globals_viewport_var_recenterspeed>` and :ref:`Viewport->RecenterDelay<globals_viewport_var_recenterdelay>`. Writing to them overrides the configured value until the game is restarted or continued, or until :ref:`Viewport->ResetFollowSettings()<globals_viewport_fun_resetfollowsettings>` restores all of them at once. Unlike :ref:`Viewport->Mode<globals_viewport_var_mode>` and :ref:`Viewport->Target<globals_viewport_var_target>`, these overrides are not reset by scrolling.
+
 Mazes
 -----
 

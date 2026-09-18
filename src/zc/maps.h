@@ -6,6 +6,7 @@
 #include "base/compiler.h"
 #include "base/general.h"
 #include "core/handles.h"
+#include "core/viewport_follow.h"
 #include "../ffc.h"
 #include "sprite.h"
 #include "zc/zelda.h"
@@ -278,21 +279,30 @@ std::optional<CameraEffect> get_active_camera_effect();
 bool has_active_camera_effect();
 void clear_camera_effect();
 void tick_camera_effect();
-// The farthest the follow logic's focus may sit from the target's center on each axis: half
-// the viewport minus half a hero, since the target's center can get no closer than 8px to a
-// region edge. As long as the follow logic's displacement (half the deadzone) stays within
-// this, the viewport is flush against a region edge whenever the target stands on one, which
-// is the only place a scroll can start - so scrolling geometry never depends on the follow
-// settings. Uses the base viewport height even in extended-height mode, which is merely
-// conservative there.
-constexpr int VIEWPORT_FOLLOW_MAX_OFFSET_X = 256/2 - 8;
-constexpr int VIEWPORT_FOLLOW_MAX_OFFSET_Y = 176/2 - 8;
 void tick_viewport_follow();
-void reset_viewport_follow();
+void reset_viewport_follow(bool keep_lookahead = false);
+std::pair<zfix, zfix> get_viewport_lookahead_offset();
+void drop_viewport_lookahead();
+// The follow settings in effect: the current dmap's own if it has dmfCUSTOM_VIEWPORT_FOLLOW, else
+// Init Data's.
+const ViewportFollowSettings& get_viewport_follow_settings();
+// Script overrides for the follow settings (unset = use the configured value), written via
+// Viewport->. Cleared (= {}) by Viewport->ResetFollowSettings(), at game start and on continue,
+// but not by scrolling (unlike Viewport->Mode/Target). The script setters validate the range.
+struct ViewportFollowOverrides
+{
+	std::optional<int> deadzone_w, deadzone_h, lookahead_x, lookahead_y, recenter_delay;
+	std::optional<zfix> lookahead_speed, recenter_speed;
+};
+extern ViewportFollowOverrides viewport_follow_overrides;
+// The effective follow settings: the script override if set, else the configured value.
 int get_viewport_deadzone_width();
 int get_viewport_deadzone_height();
-void set_viewport_deadzone_width(std::optional<int> width);
-void set_viewport_deadzone_height(std::optional<int> height);
+int get_viewport_lookahead_x();
+int get_viewport_lookahead_y();
+zfix get_viewport_lookahead_speed();
+zfix get_viewport_recenter_speed();
+int get_viewport_recenter_delay();
 void update_viewport();
 mapscr* determine_hero_screen_from_coords();
 bool edge_of_region(direction dir);

@@ -6,6 +6,7 @@
 #include "zc_list_data.h"
 #include "zc/ffscript.h"
 #include "numpick.h"
+#include "viewport_follow_help.h"
 #include "ditherpick.h"
 #include "items.h"
 #include "zinfo.h"
@@ -756,18 +757,20 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 								INFOBTN("In what way screens should be marked as visited."
 									"\nFull: Every screen in a region is mapped upon entry"
 									"\nPhysical: Only screens the Hero steps into are mapped"),
-								VAL_FIELD(byte,"Viewport Deadzone Width:",0,240,viewport_deadzone_w,viewport_follow_disabled),
-								INFOBTN("While the player (or other viewport target) stays within a box of this width"
-									" centered on the viewport, the viewport does not move horizontally. Once they push"
-									" past the box's edge, the viewport moves just enough to keep them on it."
-									"\n\nOnly observable in scrolling regions. Scripts can change this at runtime"
-									" via Viewport->DeadzoneWidth."),
-								VAL_FIELD(byte,"Viewport Deadzone Height:",0,160,viewport_deadzone_h,viewport_follow_disabled),
-								INFOBTN("While the player (or other viewport target) stays within a box of this height"
-									" centered on the viewport, the viewport does not move vertically. Once they push"
-									" past the box's edge, the viewport moves just enough to keep them on it."
-									"\n\nOnly observable in scrolling regions. Scripts can change this at runtime"
-									" via Viewport->DeadzoneHeight.")
+								VAL_FIELD(byte,"Viewport Deadzone Width:",0,VIEWPORT_FOLLOW_MAX_DEADZONE_W,viewport_follow.deadzone_w,viewport_follow_disabled),
+								INFOBTN(viewport_follow_help(ViewportFollowSetting::DeadzoneWidth, false)),
+								VAL_FIELD(byte,"Viewport Deadzone Height:",0,VIEWPORT_FOLLOW_MAX_DEADZONE_H,viewport_follow.deadzone_h,viewport_follow_disabled),
+								INFOBTN(viewport_follow_help(ViewportFollowSetting::DeadzoneHeight, false)),
+								VAL_FIELD(int8_t,"Viewport Lookahead X:",VIEWPORT_FOLLOW_MIN_LOOKAHEAD,VIEWPORT_FOLLOW_MAX_LOOKAHEAD,viewport_follow.lookahead_x,viewport_follow_disabled),
+								INFOBTN(viewport_follow_help(ViewportFollowSetting::LookaheadX, false)),
+								VAL_FIELD(int8_t,"Viewport Lookahead Y:",VIEWPORT_FOLLOW_MIN_LOOKAHEAD,VIEWPORT_FOLLOW_MAX_LOOKAHEAD,viewport_follow.lookahead_y,viewport_follow_disabled),
+								INFOBTN(viewport_follow_help(ViewportFollowSetting::LookaheadY, false)),
+								ZFIX_VAL_FIELD("Viewport Lookahead Speed:",0,VIEWPORT_FOLLOW_MAX_SPEED*10000,viewport_follow.lookahead_speed,viewport_follow_disabled),
+								INFOBTN(viewport_follow_help(ViewportFollowSetting::LookaheadSpeed, false)),
+								ZFIX_VAL_FIELD("Viewport Recenter Speed:",0,VIEWPORT_FOLLOW_MAX_SPEED*10000,viewport_follow.recenter_speed,viewport_follow_disabled),
+								INFOBTN(viewport_follow_help(ViewportFollowSetting::RecenterSpeed, false)),
+								VAL_FIELD(word,"Viewport Recenter Delay:",0,VIEWPORT_FOLLOW_MAX_RECENTER_DELAY,viewport_follow.recenter_delay,viewport_follow_disabled),
+								INFOBTN(viewport_follow_help(ViewportFollowSetting::RecenterDelay, false))
 							)
 						)
 					))

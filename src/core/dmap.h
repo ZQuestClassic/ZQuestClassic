@@ -4,6 +4,7 @@
 #include "base/general.h"
 #include "base/ints.h"
 #include "base/containers.h"
+#include "core/viewport_follow.h"
 #include <string>
 
 struct dmap
@@ -44,6 +45,8 @@ struct dmap
 	word music = 0;
 	
 	zfix dmap_gravity, dmap_terminal_v;
+	// Used instead of Init Data's when dmfCUSTOM_VIEWPORT_FOLLOW is set.
+	ViewportFollowSettings viewport_follow;
 
 	void clear()
 	{
@@ -79,6 +82,7 @@ extern dmap *DMaps;
 #define dmfMIRRORCONTINUE   0x200000
 #define dmfEXTENDEDVIEWPORT 0x400000
 #define dmfCUSTOM_GRAVITY   0x800000
+#define dmfCUSTOM_VIEWPORT_FOLLOW 0x1000000
 
 // dmap types
 enum { dmDNGN, dmOVERW, dmCAVE, dmBSOVERW, dmMAX };

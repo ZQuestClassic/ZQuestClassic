@@ -28104,8 +28104,23 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 			new_hero_y_for_viewport += new_scr_dy*176;
 		}
 
+		// The follow logic carries its lookahead offset through the scroll (see
+		// reset_viewport_follow), so aim the destination viewport where it will resume from
+		// rather than at the hero's center. Offsets are bounded such that the viewport still
+		// ends up flush against the region edge on the scroll axis.
+		zfix new_viewport_aim_x = new_hero_x_for_viewport + Hero.txsz*16/2;
+		zfix new_viewport_aim_y = new_hero_y_for_viewport + Hero.tysz*16/2;
+		if (!HeroInOutgoingWhistleWarp())
+		{
+			// From the exact position, as the follow logic computes it once the scroll ends:
+			// rounding the position before adding a fractional offset could land a pixel off.
+			auto [lookahead_x, lookahead_y] = get_viewport_lookahead_offset();
+			new_viewport_aim_x = new_hero_x + Hero.txsz*16/2 + lookahead_x;
+			new_viewport_aim_y = new_hero_y + Hero.tysz*16/2 + lookahead_y;
+		}
+
 		new_viewport = {};
-		calculate_viewport(new_viewport, new_dmap, dest_screen, new_region.width, new_region.height, new_hero_x_for_viewport + Hero.txsz*16/2, new_hero_y_for_viewport + Hero.tysz*16/2);
+		calculate_viewport(new_viewport, new_dmap, dest_screen, new_region.width, new_region.height, new_viewport_aim_x, new_viewport_aim_y);
 
 		scrolling_new_region = new_region;
 	};
@@ -29130,7 +29145,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 	playing_field_offset = new_playing_field_offset;
 	x = new_hero_x;
 	y = new_hero_y;
-	reset_viewport_follow();
+	reset_viewport_follow(!HeroInOutgoingWhistleWarp());
 	yofs = playing_field_offset;
 	if(ladderx > 0 || laddery > 0)
 	{

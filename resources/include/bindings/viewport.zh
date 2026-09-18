@@ -15,6 +15,14 @@ enum ViewportMode
 //
 // Access with `Viewport->`.
 //
+// The *follow settings* ([DeadzoneWidth], [DeadzoneHeight], [LookaheadX], [LookaheadY],
+// [LookaheadSpeed], [RecenterSpeed] and [RecenterDelay]) control how the viewport follows its
+// [Target] in scrolling regions. Each defaults to the value configured for the current dmap (if
+// it has [DMFS_CUSTOM_VIEWPORT_FOLLOW]) or in the editor's Init Data, on the Vars > Regions tab;
+// writing to one overrides that until [ResetFollowSettings] is called or the game is restarted
+// or continued. Unlike [Mode] and [Target], they are NOT reset by scrolling or by camera
+// cutscene effects.
+//
 // @versionadded 2.55.9 Basic, read-only access
 // @versionchanged 3.0 Full access via [Viewport->Mode]
 class Viewport {
@@ -36,16 +44,15 @@ class Viewport {
 	// @zasm_var VIEWPORT_TARGET
 	internal sprite Target;
 
-	// Width of the viewport deadzone box, in pixels (0 to 240). While the [Target]'s center stays
-	// within this box (centered on the viewport's focus point), the viewport does not move
-	// horizontally; once the target pushes past an edge of the box, the viewport moves just enough
-	// to keep it on the edge.
+	// Width of the viewport deadzone box, in pixels (0 to 240). While the [Target]'s center
+	// (shifted by any [LookaheadX]/[LookaheadY] offset) stays within this box, which is centered
+	// on the viewport's focus point (its center, except where a region edge stops the viewport),
+	// the viewport does not move horizontally; once it pushes past an edge of the box, the
+	// viewport moves just enough to keep it on the edge.
 	//
-	// Defaults to the value set in the editor's Init Data 'Regions' tab (0 unless changed:
-	// the viewport stays locked to the target). Only observable in scrolling regions. Writing
-	// to this overrides the Init Data value until the game is restarted or continued; write -1
-	// to clear the override early (reading always returns the effective value, never -1).
-	// Unlike [Mode] and [Target], it is NOT reset by scrolling or by camera cutscene effects.
+	// 0 (the default) keeps the viewport locked to the target. Only observable in scrolling
+	// regions. One of the follow settings; see the class notes for how it is configured and
+	// reset.
 	//
 	// @versionadded 3.0
 	// @zasm_var VIEWPORT_DEADZONE_WIDTH
@@ -56,6 +63,76 @@ class Viewport {
 	// @versionadded 3.0
 	// @zasm_var VIEWPORT_DEADZONE_HEIGHT
 	internal int DeadzoneHeight;
+
+	// How far the viewport aims ahead of the direction the [Target] is moving horizontally, in
+	// pixels (-128 to 127). Positive values lead in front of the target (more frontal view);
+	// negative values trail behind it. Each axis has its own distance (see [LookaheadY]), so
+	// diagonal movement leads by both.
+	//
+	// While the target moves, the offset shifts toward the lead at [LookaheadSpeed] pixels
+	// per frame (easing out on an axis it isn't moving along). Movement against the direction
+	// the target faces is ignored, so being knocked back, or pushed backward by a conveyor or a
+	// script, doesn't swing the viewport; sideways movement still counts. While it stands still,
+	// the offset holds, so the viewport never drifts or reacts to turning in place. Warps
+	// (whistle warps included), camera cutscene effects and setting [Mode] back from
+	// [VIEW_MODE_SCRIPT] drop the offset (it rebuilds as the target moves); scroll transitions
+	// carry it. Only observable in scrolling regions.
+	//
+	// The offset the viewport actually holds is capped on each axis so the viewport can
+	// still reach the region edges: 120 - [DeadzoneWidth]/2 horizontally, and
+	// 80 - [DeadzoneHeight]/2 vertically.
+	//
+	// One of the follow settings; see the class notes for how it is configured and reset.
+	//
+	// @versionadded 3.0
+	// @zasm_var VIEWPORT_LOOKAHEAD_X
+	internal int LookaheadX;
+
+	// How far the viewport aims ahead of the direction the [Target] is moving vertically, in
+	// pixels (-128 to 127). See [LookaheadX]. Since the viewport is shorter than it is wide, a
+	// smaller distance usually feels right here.
+	//
+	// In sideview, jumping and falling count as vertical movement, so a jump shifts the
+	// viewport too. To keep jumps from moving it, set this to 0 on sideview dmaps (see
+	// [DMFS_CUSTOM_VIEWPORT_FOLLOW]).
+	//
+	// @versionadded 3.0
+	// @zasm_var VIEWPORT_LOOKAHEAD_Y
+	internal int LookaheadY;
+
+	// How fast the [LookaheadX]/[LookaheadY] offset shifts, in pixels per frame (0 to 240; 0
+	// freezes the current offset in place). Fractional values are allowed, and values between 0
+	// and 1 are recommended: while the target moves this speed is added to their own, so
+	// anything higher makes the viewport visibly outrun them.
+	//
+	// 1 unless changed. One of the follow settings; see the class notes for how it is
+	// configured and reset.
+	//
+	// @versionadded 3.0
+	// @zasm_var VIEWPORT_LOOKAHEAD_SPEED
+	internal int LookaheadSpeed;
+
+	// Idle recentering: once the [Target] has stood still for [RecenterDelay] frames, the
+	// viewport eases back toward it at this many pixels per frame (0 to 240, fractional) until
+	// it is centered again. A held [LookaheadX]/[LookaheadY] offset still applies: the viewport
+	// moves toward the target only as far as the deadzone box allows, and never further ahead.
+	// 0 (the default) disables it; any movement cancels it. Only observable in scrolling
+	// regions with a deadzone.
+	//
+	// One of the follow settings; see the class notes for how it is configured and reset.
+	//
+	// @versionadded 3.0
+	// @zasm_var VIEWPORT_RECENTER_SPEED
+	internal int RecenterSpeed;
+
+	// How many frames the [Target] must stand still before idle recentering (see
+	// [RecenterSpeed]) begins (0 to 65535; 30 unless changed).
+	//
+	// One of the follow settings; see the class notes for how it is configured and reset.
+	//
+	// @versionadded 3.0
+	// @zasm_var VIEWPORT_RECENTER_DELAY
+	internal int RecenterDelay;
 
 	// Unless [Mode] is [VIEW_MODE_SCRIPT], this is updated every frame by the engine.
 	//
@@ -72,6 +149,15 @@ class Viewport {
 
 	// @zasm_var VIEWPORT_HEIGHT
 	internal const int Height;
+
+	// Restores the follow settings ([DeadzoneWidth], [DeadzoneHeight], [LookaheadX],
+	// [LookaheadY], [LookaheadSpeed], [RecenterSpeed] and [RecenterDelay]) to their configured
+	// values, discarding any values written by scripts.
+	//
+	// @versionadded 3.0
+	// @zasm
+	//   VIEWPORT_RESET_FOLLOW_SETTINGS
+	internal void ResetFollowSettings();
 
 	// Returns true if the given sprite is visible within the viewport.
 	//

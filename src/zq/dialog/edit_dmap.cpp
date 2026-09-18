@@ -7,6 +7,7 @@
 #include "zc_list_data.h"
 #include "play_midi.h"
 #include "dialog/info.h"
+#include "dialog/viewport_follow_help.h"
 #include "subscr.h"
 #include <fmt/format.h>
 #include "core/qrs.h"
@@ -75,6 +76,28 @@ Checkbox(checked = local_dmap.member&flag, \
 	{ \
 		SETFLAG(local_dmap.member, flag, state); \
 	})
+
+// One of the dmap's viewport follow settings, enabled only while dmfCUSTOM_VIEWPORT_FOLLOW is set.
+#define DMAP_VIEWPORT_FIELD(idx, name, minval, maxval, member, inf) \
+Label(text = name, hAlign = 1.0), \
+viewport_tf[idx] = TextField(maxLength = 11, type = GUI::TextField::type::INT_DECIMAL, \
+	bounds = {minval, maxval}, val = local_dmap.viewport_follow.member, \
+	disabled = !(local_dmap.flags & dmfCUSTOM_VIEWPORT_FOLLOW), \
+	onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val) \
+	{ \
+		local_dmap.viewport_follow.member = val; \
+	}), \
+INFOBTN(inf)
+#define DMAP_VIEWPORT_ZFIX_FIELD(idx, name, minval, maxval, member, inf) \
+Label(text = name, hAlign = 1.0), \
+viewport_tf[idx] = TextField(maxLength = 11, type = GUI::TextField::type::FIXED_DECIMAL, \
+	bounds = {minval, maxval}, val = local_dmap.viewport_follow.member.getZLong(), places = 4, \
+	disabled = !(local_dmap.flags & dmfCUSTOM_VIEWPORT_FOLLOW), \
+	onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val) \
+	{ \
+		local_dmap.viewport_follow.member = zslongToFix(val); \
+	}), \
+INFOBTN(inf)
 
 #define DMAP_CB_SV(member, cspan, txt, inf) \
 INFOBTN(inf), \
@@ -316,6 +339,39 @@ std::shared_ptr<GUI::Widget> EditDMapDialog::view()
 										{
 											local_dmap.dmap_terminal_v = zslongToFix(val);
 										})
+								)
+							)
+						),
+						Frame(title = "Viewport",
+							Column(
+								Rows<2>(padding = 0_px,
+									INFOBTN("How the viewport follows the player in scrolling regions. When checked, the"
+										" settings below apply on this DMap instead of the ones in Init Data's Vars > Regions"
+										" tab."),
+									Checkbox(checked = local_dmap.flags & dmfCUSTOM_VIEWPORT_FOLLOW,
+										text = "Customize Viewport Follow Settings", fitParent = true,
+										onToggleFunc = [&](bool state)
+										{
+											SETFLAG(local_dmap.flags, dmfCUSTOM_VIEWPORT_FOLLOW, state);
+											for (auto& tf : viewport_tf)
+												tf->setDisabled(!state);
+										})
+								),
+								Rows<3>(padding = 0_px,
+									DMAP_VIEWPORT_FIELD(0, "Deadzone Width:", 0, VIEWPORT_FOLLOW_MAX_DEADZONE_W, deadzone_w,
+										viewport_follow_help(ViewportFollowSetting::DeadzoneWidth, true)),
+									DMAP_VIEWPORT_FIELD(1, "Deadzone Height:", 0, VIEWPORT_FOLLOW_MAX_DEADZONE_H, deadzone_h,
+										viewport_follow_help(ViewportFollowSetting::DeadzoneHeight, true)),
+									DMAP_VIEWPORT_FIELD(2, "Lookahead X:", VIEWPORT_FOLLOW_MIN_LOOKAHEAD, VIEWPORT_FOLLOW_MAX_LOOKAHEAD, lookahead_x,
+										viewport_follow_help(ViewportFollowSetting::LookaheadX, true)),
+									DMAP_VIEWPORT_FIELD(3, "Lookahead Y:", VIEWPORT_FOLLOW_MIN_LOOKAHEAD, VIEWPORT_FOLLOW_MAX_LOOKAHEAD, lookahead_y,
+										viewport_follow_help(ViewportFollowSetting::LookaheadY, true)),
+									DMAP_VIEWPORT_ZFIX_FIELD(4, "Lookahead Speed:", 0, VIEWPORT_FOLLOW_MAX_SPEED*10000, lookahead_speed,
+										viewport_follow_help(ViewportFollowSetting::LookaheadSpeed, true)),
+									DMAP_VIEWPORT_ZFIX_FIELD(5, "Recenter Speed:", 0, VIEWPORT_FOLLOW_MAX_SPEED*10000, recenter_speed,
+										viewport_follow_help(ViewportFollowSetting::RecenterSpeed, true)),
+									DMAP_VIEWPORT_FIELD(6, "Recenter Delay:", 0, VIEWPORT_FOLLOW_MAX_RECENTER_DELAY, recenter_delay,
+										viewport_follow_help(ViewportFollowSetting::RecenterDelay, true))
 								)
 							)
 						)

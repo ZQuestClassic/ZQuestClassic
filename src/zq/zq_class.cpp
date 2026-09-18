@@ -7220,6 +7220,19 @@ int32_t writedoorcombosets(PACKFILE *f, zquestheader *Header)
     new_return(0);
 }
 
+// The viewport follow settings, as both Init Data and DMaps (with dmfCUSTOM_VIEWPORT_FOLLOW)
+// store them.
+static bool write_viewport_follow(PACKFILE* f, const ViewportFollowSettings& settings)
+{
+	return p_putc(settings.deadzone_w, f)
+		&& p_putc(settings.deadzone_h, f)
+		&& p_putc(settings.lookahead_x, f)
+		&& p_putc(settings.lookahead_y, f)
+		&& p_iputzf(settings.lookahead_speed, f)
+		&& p_iputzf(settings.recenter_speed, f)
+		&& p_iputw(settings.recenter_delay, f);
+}
+
 int32_t write_one_dmap(PACKFILE* f, int index)
 {
 	DMaps[index].validate_subscreens();
@@ -7359,6 +7372,11 @@ int32_t write_one_dmap(PACKFILE* f, int index)
 			new_return(48);
 		if (!p_iputzf(DMaps[index].dmap_terminal_v, f))
 			new_return(49);
+	}
+	if (DMaps[index].flags & dmfCUSTOM_VIEWPORT_FOLLOW)
+	{
+		if (!write_viewport_follow(f, DMaps[index].viewport_follow))
+			new_return(53);
 	}
 	if(!p_iputw(DMaps[index].map_subscreen, f))
 		new_return(50);
@@ -13286,10 +13304,8 @@ int32_t writeinitdata(PACKFILE *f, zquestheader *)
 			new_return(88);
 		if (!p_putarr(zinit.hero_scrconfig, f))
 			new_return(89);
-		if (!p_putc(zinit.viewport_deadzone_w, f))
+		if (!write_viewport_follow(f, zinit.viewport_follow))
 			new_return(90);
-		if (!p_putc(zinit.viewport_deadzone_h, f))
-			new_return(91);
 
 		if(writecycle==0)
 		{

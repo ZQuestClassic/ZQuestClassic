@@ -41,6 +41,11 @@ enum DMapFlag
 	//
 	// @versionadded 3.0
 	DMFS_CUSTOM_GRAVITY,
+	// Use the dmap's own viewport follow settings ([dmapdata::ViewportDeadzoneWidth] and the
+	// other `Viewport*` properties) instead of the ones in Init Data. See [Viewport->DeadzoneWidth].
+	//
+	// @versionadded 3.0
+	DMFS_CUSTOM_VIEWPORT_FOLLOW,
 	DMFS_MAX
 };
 
@@ -240,6 +245,55 @@ class dmapdata {
 	// @versionadded 3.0
 	// @zasm_var DMAPDATA_TERMINAL_VELOCITY
 	internal int TerminalVelocity;
+
+	// If [DMFS_CUSTOM_VIEWPORT_FOLLOW] is set, the width of the viewport deadzone box on this dmap
+	// (0 to 240). See [Viewport->DeadzoneWidth].
+	//
+	// @versionadded 3.0
+	// @zasm_var DMAPDATA_VIEWPORT_DEADZONE_WIDTH
+	internal int ViewportDeadzoneWidth;
+
+	// If [DMFS_CUSTOM_VIEWPORT_FOLLOW] is set, the height of the viewport deadzone box on this dmap
+	// (0 to 160). See [Viewport->DeadzoneHeight].
+	//
+	// @versionadded 3.0
+	// @zasm_var DMAPDATA_VIEWPORT_DEADZONE_HEIGHT
+	internal int ViewportDeadzoneHeight;
+
+	// If [DMFS_CUSTOM_VIEWPORT_FOLLOW] is set, the horizontal viewport lookahead distance on this
+	// dmap (-128 to 127). See [Viewport->LookaheadX].
+	//
+	// @versionadded 3.0
+	// @zasm_var DMAPDATA_VIEWPORT_LOOKAHEAD_X
+	internal int ViewportLookaheadX;
+
+	// If [DMFS_CUSTOM_VIEWPORT_FOLLOW] is set, the vertical viewport lookahead distance on this
+	// dmap (-128 to 127). See [Viewport->LookaheadY].
+	//
+	// @versionadded 3.0
+	// @zasm_var DMAPDATA_VIEWPORT_LOOKAHEAD_Y
+	internal int ViewportLookaheadY;
+
+	// If [DMFS_CUSTOM_VIEWPORT_FOLLOW] is set, the viewport lookahead speed on this dmap (0 to
+	// 240). See [Viewport->LookaheadSpeed].
+	//
+	// @versionadded 3.0
+	// @zasm_var DMAPDATA_VIEWPORT_LOOKAHEAD_SPEED
+	internal int ViewportLookaheadSpeed;
+
+	// If [DMFS_CUSTOM_VIEWPORT_FOLLOW] is set, the viewport idle recentering speed on this dmap
+	// (0 to 240). See [Viewport->RecenterSpeed].
+	//
+	// @versionadded 3.0
+	// @zasm_var DMAPDATA_VIEWPORT_RECENTER_SPEED
+	internal int ViewportRecenterSpeed;
+
+	// If [DMFS_CUSTOM_VIEWPORT_FOLLOW] is set, the viewport idle recentering delay on this dmap, in
+	// frames (0 to 65535). See [Viewport->RecenterDelay].
+	//
+	// @versionadded 3.0
+	// @zasm_var DMAPDATA_VIEWPORT_RECENTER_DELAY
+	internal int ViewportRecenterDelay;
 
 	// If true, the dmap is treated as sideview by default; screens with the
 	// sideview flag enabled will toggle sideview back *off*.

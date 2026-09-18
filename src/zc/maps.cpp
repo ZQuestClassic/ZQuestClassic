@@ -61,23 +61,28 @@ viewport_t viewport;
 static int viewport_sprite_uid;
 ViewportMode viewport_mode;
 // The follow logic: what drives the viewport when neither a script (ViewportMode::Script) nor a
-// camera effect controls it. Each frame the pipeline is target center -> focus (pushed only as
-// far as the deadzone box around the target requires) -> viewport (calculate_viewport clamps the
-// focus to the region). With a zero-size deadzone the focus equals the target center: the
-// classic locked viewport.
+// camera effect controls it. Each frame the pipeline is target center -> aim point (shifted by
+// the eased lookahead offset) -> focus (pushed only as far as the deadzone box around the aim
+// requires) -> viewport (calculate_viewport clamps the focus to the region). With no lookahead
+// and a zero-size deadzone the focus equals the target center: the classic locked viewport.
 struct ViewportFollowState
 {
 	// The persistent focus point, in world coordinates. Persistent because the deadzone only
 	// moves it when the target pushes against the box's edge.
 	zfix x, y;
+	// Current lookahead offset, eased by tick_viewport_follow toward the configured
+	// lookahead distance along the direction the target is moving.
+	zfix lookahead_x, lookahead_y;
+	// The target's center as of the last tick, to tell which way it's moving.
+	zfix target_x, target_y;
+	// How many consecutive ticks the target has stood still, for idle recentering.
+	int idle_frames;
 };
 static ViewportFollowState follow_state;
-// Script overrides for the viewport deadzone box size (unset = use zinit's value). zinit is read
-// live rather than snapshotted because game-start init runs before the quest is loaded. Set
-// via Viewport->DeadzoneWidth/DeadzoneHeight; overrides reset at game start and on continue,
-// but not by scrolling (unlike Viewport->Mode/Target). The getters clamp, so these may hold
-// anything.
-static std::optional<int> viewport_deadzone_w_override, viewport_deadzone_h_override;
+static std::pair<zfix, zfix> track_viewport_target();
+// The configured settings are read live rather than snapshotted because game-start init runs
+// before the quest is loaded; these script overrides sit on top.
+ViewportFollowOverrides viewport_follow_overrides;
 int world_w, world_h;
 int region_scr_dx, region_scr_dy;
 int region_scr_count;
@@ -94,8 +99,7 @@ void maps_init_game_vars()
 	viewport_mode = ViewportMode::CenterAndBound;
 	viewport_sprite_uid = 1;
 	follow_state = {};
-	viewport_deadzone_w_override.reset();
-	viewport_deadzone_h_override.reset();
+	viewport_follow_overrides = {};
 	currscr_for_passive_subscr = -1;
 	scrolling_maze_last_solved_screen = 0;
 	maze_state = {};
@@ -434,52 +438,121 @@ void set_viewport_sprite(sprite* spr)
 	viewport_sprite_uid = spr->uid;
 }
 
-// Snap the viewport focus to the target sprite's center. Call whenever the target is repositioned
-// discontinuously (warps, screen entry, script teleports, target changes) — the follow logic
-// should never ease across such a jump.
-void reset_viewport_follow()
+const ViewportFollowSettings& get_viewport_follow_settings()
 {
-	sprite* spr = get_viewport_sprite();
-	follow_state.x = spr->x + spr->txsz*16/2;
-	follow_state.y = spr->y + spr->tysz*16/2;
+	if (unsigned(cur_dmap) < MAXDMAPS && (DMaps[cur_dmap].flags & dmfCUSTOM_VIEWPORT_FOLLOW))
+		return DMaps[cur_dmap].viewport_follow;
+	return zinit.viewport_follow;
 }
 
 int get_viewport_deadzone_width()
 {
-	int width = viewport_deadzone_w_override.value_or(zinit.viewport_deadzone_w);
-	return vbound(width, 0, 2*VIEWPORT_FOLLOW_MAX_OFFSET_X);
+	int width = viewport_follow_overrides.deadzone_w.value_or(get_viewport_follow_settings().deadzone_w);
+	return vbound(width, 0, VIEWPORT_FOLLOW_MAX_DEADZONE_W);
 }
 
 int get_viewport_deadzone_height()
 {
-	int height = viewport_deadzone_h_override.value_or(zinit.viewport_deadzone_h);
-	return vbound(height, 0, 2*VIEWPORT_FOLLOW_MAX_OFFSET_Y);
+	int height = viewport_follow_overrides.deadzone_h.value_or(get_viewport_follow_settings().deadzone_h);
+	return vbound(height, 0, VIEWPORT_FOLLOW_MAX_DEADZONE_H);
 }
 
-// For both of these, std::nullopt clears the override, returning to zinit's value.
-void set_viewport_deadzone_width(std::optional<int> width)
+// The configured distances, not the offset the viewport holds: bound_viewport_lookahead_x/y cap
+// that per axis.
+int get_viewport_lookahead_x()
 {
-	viewport_deadzone_w_override = width;
+	return viewport_follow_overrides.lookahead_x.value_or(get_viewport_follow_settings().lookahead_x);
 }
 
-void set_viewport_deadzone_height(std::optional<int> height)
+int get_viewport_lookahead_y()
 {
-	viewport_deadzone_h_override = height;
+	return viewport_follow_overrides.lookahead_y.value_or(get_viewport_follow_settings().lookahead_y);
+}
+
+zfix get_viewport_lookahead_speed()
+{
+	zfix speed = viewport_follow_overrides.lookahead_speed.value_or(get_viewport_follow_settings().lookahead_speed);
+	return vbound(speed, 0, VIEWPORT_FOLLOW_MAX_SPEED);
+}
+
+zfix get_viewport_recenter_speed()
+{
+	zfix speed = viewport_follow_overrides.recenter_speed.value_or(get_viewport_follow_settings().recenter_speed);
+	return vbound(speed, 0, VIEWPORT_FOLLOW_MAX_SPEED);
+}
+
+int get_viewport_recenter_delay()
+{
+	return viewport_follow_overrides.recenter_delay.value_or(get_viewport_follow_settings().recenter_delay);
+}
+
+// The lookahead offset the viewport may actually hold on each axis: whatever room the deadzone
+// leaves within VIEWPORT_FOLLOW_MAX_OFFSET, so the viewport can still reach the region edges.
+static zfix bound_viewport_lookahead_x(zfix lookahead_x)
+{
+	int cap = std::max(0, VIEWPORT_FOLLOW_MAX_OFFSET_X - get_viewport_deadzone_width()/2);
+	return vbound(lookahead_x, zfix(-cap), zfix(cap));
+}
+
+static zfix bound_viewport_lookahead_y(zfix lookahead_y)
+{
+	int cap = std::max(0, VIEWPORT_FOLLOW_MAX_OFFSET_Y - get_viewport_deadzone_height()/2);
+	return vbound(lookahead_y, zfix(-cap), zfix(cap));
 }
 
 // Push the viewport focus the minimal amount needed to keep the target's center inside the
-// deadzone box. Position-based and idempotent (unlike time-based easing, which belongs in
-// tick_viewport_follow), so ad-hoc update_viewport calls apply it safely. A zero-size box
-// degenerates to focus == target: the classic locked viewport.
+// deadzone box, which is centered on the aim point: the target's center shifted by the
+// current lookahead offset. Position-based and idempotent (unlike time-based easing, which
+// belongs in tick_viewport_follow), so ad-hoc update_viewport calls apply it safely. With no
+// lookahead and a zero-size box this degenerates to focus == target: the classic locked
+// viewport.
 static void apply_viewport_follow()
 {
 	sprite* spr = get_viewport_sprite();
-	zfix tx = spr->x + spr->txsz*16/2;
-	zfix ty = spr->y + spr->tysz*16/2;
+	zfix aim_x = spr->x + spr->txsz*16/2 + bound_viewport_lookahead_x(follow_state.lookahead_x);
+	zfix aim_y = spr->y + spr->tysz*16/2 + bound_viewport_lookahead_y(follow_state.lookahead_y);
 	int deadzone_w = get_viewport_deadzone_width();
 	int deadzone_h = get_viewport_deadzone_height();
-	follow_state.x = vbound(follow_state.x, tx - deadzone_w/2, tx + deadzone_w/2);
-	follow_state.y = vbound(follow_state.y, ty - deadzone_h/2, ty + deadzone_h/2);
+	follow_state.x = vbound(follow_state.x, aim_x - deadzone_w/2, aim_x + deadzone_w/2);
+	follow_state.y = vbound(follow_state.y, aim_y - deadzone_h/2, aim_y + deadzone_h/2);
+}
+
+// Snap the viewport focus onto the target after it's been repositioned discontinuously (warps,
+// screen entry, script teleports, target changes, scroll transitions): the follow logic should
+// never ease across such a jump, nor read it as movement. The lookahead offset is dropped too,
+// rebuilding gradually as the target moves - unless `keep_lookahead`, which a scroll transition
+// uses since its animation already aimed at the offset focus (see scrollscr), so carrying the
+// offset avoids re-easing after every screen.
+void reset_viewport_follow(bool keep_lookahead)
+{
+	sprite* spr = get_viewport_sprite();
+	follow_state.target_x = spr->x + spr->txsz*16/2;
+	follow_state.target_y = spr->y + spr->tysz*16/2;
+	follow_state.idle_frames = 0;
+	if (!keep_lookahead)
+	{
+		follow_state.lookahead_x = 0;
+		follow_state.lookahead_y = 0;
+	}
+	follow_state.x = follow_state.target_x + bound_viewport_lookahead_x(follow_state.lookahead_x);
+	follow_state.y = follow_state.target_y + bound_viewport_lookahead_y(follow_state.lookahead_y);
+}
+
+// The lookahead offset the follow logic currently holds (already bounded), for callers that
+// must predict where it will aim: scrollscr computes a scroll's destination viewport from the
+// hero's new position plus this, so the viewport can carry the offset through the scroll.
+std::pair<zfix, zfix> get_viewport_lookahead_offset()
+{
+	return {bound_viewport_lookahead_x(follow_state.lookahead_x), bound_viewport_lookahead_y(follow_state.lookahead_y)};
+}
+
+// Drop the lookahead offset, which then rebuilds gradually as the target moves. For when
+// something else has owned the viewport and the easing hasn't been running. The focus needs no
+// reset: apply_viewport_follow keeps it inside the deadzone around the target meanwhile.
+void drop_viewport_lookahead()
+{
+	follow_state.lookahead_x = 0;
+	follow_state.lookahead_y = 0;
 }
 
 static std::optional<CameraEffect> active_camera_effect;
@@ -487,6 +560,12 @@ static std::optional<CameraEffect> active_camera_effect;
 void set_camera_effect(CameraEffect camera_effect)
 {
 	active_camera_effect = camera_effect;
+	// The follow logic doesn't tick while an effect owns the viewport, so drop the lookahead
+	// offset now rather than let a stale one snap the viewport when the effect hands back; it
+	// rebuilds gradually afterwards. The effect itself starts from the viewport's current
+	// position, so this doesn't affect its motion.
+	follow_state.lookahead_x = 0;
+	follow_state.lookahead_y = 0;
 }
 
 std::optional<CameraEffect> get_active_camera_effect()
@@ -690,6 +769,10 @@ void tick_camera_effect()
 	if (!active_camera_effect)
 		return;
 
+	// The follow logic isn't ticking, but keep its view of the target current so it doesn't
+	// read the effect's whole duration of movement as one step when it resumes.
+	track_viewport_target();
+
 	// A script taking control of the viewport cancels the effect.
 	if (viewport_mode == ViewportMode::Script)
 	{
@@ -732,13 +815,91 @@ void tick_camera_effect()
 	}
 }
 
+// Note where the target's center is this frame and return how far it moved since the last.
+// Called every frame regardless of who owns the viewport (the follow logic, a script, or a
+// camera effect), so that whenever the follow logic resumes it doesn't read the drift that
+// accumulated meanwhile as one big step.
+static std::pair<zfix, zfix> track_viewport_target()
+{
+	sprite* spr = get_viewport_sprite();
+	zfix target_x = spr->x + spr->txsz*16/2;
+	zfix target_y = spr->y + spr->tysz*16/2;
+	zfix dx = target_x - follow_state.target_x;
+	zfix dy = target_y - follow_state.target_y;
+	follow_state.target_x = target_x;
+	follow_state.target_y = target_y;
+	return {dx, dy};
+}
+
 // Advance the follow logic by one frame and recompute the viewport from it. Call exactly once
 // per frame from the game loop, when no camera effect is active (tick_camera_effect owns the
 // viewport in that case).
 void tick_viewport_follow()
 {
-	// Time-based follow behaviors (lookahead, smoothing) will advance `follow_state` here.
-	// The deadzone is position-based, so it lives in apply_viewport_follow/update_viewport.
+	auto [dx, dy] = track_viewport_target();
+	bool idle = dx == 0 && dy == 0;
+	follow_state.idle_frames = idle ? std::min(follow_state.idle_frames + 1, 1 << 20) : 0;
+
+	// On the axis the target faces along, only displacement in the facing direction counts as
+	// movement. Being shoved the other way (knockback, conveyors, ice, a script writing the
+	// position) doesn't turn the target, so it neither flips nor builds the lead. The axis it
+	// isn't facing along stays free, so diagonal movement still leads on both.
+	sprite* spr = get_viewport_sprite();
+	if (spr->dir >= 0 && spr->dir < (int)std::size(xDir))
+	{
+		if (xDir[spr->dir] == left && dx > 0) dx = 0;
+		if (xDir[spr->dir] == right && dx < 0) dx = 0;
+		if (yDir[spr->dir] == up && dy > 0) dy = 0;
+		if (yDir[spr->dir] == down && dy < 0) dy = 0;
+	}
+
+	// Ease each axis's lookahead offset toward its configured distance along the direction
+	// the target is moving, at the configured (fractional) speed in pixels per frame, easing
+	// out on an axis the target isn't moving along. While the target stands still the offset
+	// holds, so the viewport neither drifts back nor reacts to turning in place; only disabling
+	// an axis's lookahead eases it away while idle. Deliberately not normalized for diagonal
+	// movement: each moving axis gets its full lead. Splitting it would shorten the horizontal
+	// lead the moment a vertical axis joins in, pulling the viewport back against the direction
+	// of travel (and surging it forward again when the vertical input stops). This is the only
+	// time-based part of the follow logic; the deadzone push is position-based and lives in
+	// apply_viewport_follow/update_viewport.
+	if (viewport_mode != ViewportMode::Script)
+	{
+		// Never hold more than the cap allows. The cap shrinks when the deadzone grows (a
+		// script, or entering a dmap with its own settings); left unclamped, the excess would
+		// have to ease away before turning around could move the aim point at all.
+		follow_state.lookahead_x = bound_viewport_lookahead_x(follow_state.lookahead_x);
+		follow_state.lookahead_y = bound_viewport_lookahead_y(follow_state.lookahead_y);
+		bool moving = dx != 0 || dy != 0;
+		zfix speed = get_viewport_lookahead_speed();
+		auto ease = [&](zfix& offset, int lookahead, zfix delta, zfix (*bound)(zfix)) {
+			zfix want;
+			if (!lookahead)
+				want = 0;
+			else if (!moving)
+				return;
+			else
+				want = bound(delta < 0 ? -lookahead : delta > 0 ? lookahead : 0);
+			offset += vbound(want - offset, -speed, speed);
+		};
+		ease(follow_state.lookahead_x, get_viewport_lookahead_x(), dx, bound_viewport_lookahead_x);
+		ease(follow_state.lookahead_y, get_viewport_lookahead_y(), dy, bound_viewport_lookahead_y);
+	}
+
+	// Idle recentering: once the target has stood still (any displacement counts, shoves
+	// included) for the configured delay, ease the focus toward the target's center at the
+	// configured speed. Toward the target, not the aim point: with a held lookahead offset,
+	// recentering on the aim point would push the viewport further ahead after the target
+	// stops. The deadzone clamp in apply_viewport_follow still keeps the aim point inside the
+	// box, so a lookahead larger than half the deadzone holds the focus at the box's edge;
+	// without lookahead, the target ends up centered. Time-based, so it lives here.
+	zfix recenter_speed = get_viewport_recenter_speed();
+	if (viewport_mode != ViewportMode::Script && recenter_speed > 0 && follow_state.idle_frames > get_viewport_recenter_delay())
+	{
+		follow_state.x += vbound(follow_state.target_x - follow_state.x, -recenter_speed, recenter_speed);
+		follow_state.y += vbound(follow_state.target_y - follow_state.y, -recenter_speed, recenter_speed);
+	}
+
 	update_viewport();
 }
 
