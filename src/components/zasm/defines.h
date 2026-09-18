@@ -3529,6 +3529,8 @@ enum ASM_DEFINE
 
 #define NPCFIRESFXSECONDARY                   0x171F
 #define NPCDATAFIRESFXSECONDARY               0x1720
+#define VIEWPORT_DEADZONE_WIDTH               0x1721
+#define VIEWPORT_DEADZONE_HEIGHT              0x1722
 
 // fill in gap here
 

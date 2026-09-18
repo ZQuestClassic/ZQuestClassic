@@ -18,11 +18,11 @@ void mark_save_dirty();
 extern script_data *genericscripts[NUMSCRIPTSGENERIC];
 
 static bool life_in_hearts;
-void call_init_dlg(zinitdata& sourcezinit, bool zc)
+void call_init_dlg(zinitdata& sourcezinit, bool zc, bool testQuest)
 {
 	life_in_hearts = zc_get_config("misc","init_data_life_in_hearts",1);
 	bool tmpb = life_in_hearts;
-	InitDataDialog(sourcezinit, zc,
+	InitDataDialog(sourcezinit, zc, testQuest,
 		[&sourcezinit](zinitdata const& other)
 		{
 			mark_save_dirty();
@@ -32,13 +32,13 @@ void call_init_dlg(zinitdata& sourcezinit, bool zc)
 		zc_set_config("misc","init_data_life_in_hearts",life_in_hearts?1:0);
 }
 
-InitDataDialog::InitDataDialog(zinitdata const& start, bool zc, std::function<void(zinitdata const&)> setVals):
+InitDataDialog::InitDataDialog(zinitdata const& start, bool zc, bool testQuest, std::function<void(zinitdata const&)> setVals):
 	local_zinit(start), levelsOffset(0),
 	list_dmaps(GUI::ZCListData::dmaps(true)),
 	list_items(GUI::ZCListData::itemclass(false)),
 	list_genscr(GUI::ZCListData::generic_script()),
 	list_bottle_content(GUI::ZCListData::bottletype(true)),
-	isZC(zc), setVals(setVals)
+	isZC(zc), isTestQuest(testQuest), setVals(setVals)
 {}
 
 void InitDataDialog::setOfs(size_t ofs)
@@ -261,6 +261,8 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 	using namespace GUI::Props;
 	
 	map<int32_t, map<int32_t, vector<int32_t> > > families;
+	// The player's init data cheat only applies gamedata, which doesn't hold these.
+	bool viewport_follow_disabled = isZC && !isTestQuest;
 	icswitcher = Switcher(fitParent = true, hAlign = 0.0, vAlign = 0.0);
 	
 	for(int32_t q = 0; q < itemsbuf.capacity(); ++q)
@@ -753,7 +755,19 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 								),
 								INFOBTN("In what way screens should be marked as visited."
 									"\nFull: Every screen in a region is mapped upon entry"
-									"\nPhysical: Only screens the Hero steps into are mapped")
+									"\nPhysical: Only screens the Hero steps into are mapped"),
+								VAL_FIELD(byte,"Viewport Deadzone Width:",0,240,viewport_deadzone_w,viewport_follow_disabled),
+								INFOBTN("While the player (or other viewport target) stays within a box of this width"
+									" centered on the viewport, the viewport does not move horizontally. Once they push"
+									" past the box's edge, the viewport moves just enough to keep them on it."
+									"\n\nOnly observable in scrolling regions. Scripts can change this at runtime"
+									" via Viewport->DeadzoneWidth."),
+								VAL_FIELD(byte,"Viewport Deadzone Height:",0,160,viewport_deadzone_h,viewport_follow_disabled),
+								INFOBTN("While the player (or other viewport target) stays within a box of this height"
+									" centered on the viewport, the viewport does not move vertically. Once they push"
+									" past the box's edge, the viewport moves just enough to keep them on it."
+									"\n\nOnly observable in scrolling regions. Scripts can change this at runtime"
+									" via Viewport->DeadzoneHeight.")
 							)
 						)
 					))

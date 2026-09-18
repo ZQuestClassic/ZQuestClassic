@@ -13198,6 +13198,8 @@ debug data:
       - const ViewportMode VIEW_MODE_CENTER @ Constant[1]
       - const ViewportMode VIEW_MODE_SCRIPT @ Constant[2]
     [CLASS] Viewport <IDX:943>
+      - int DeadzoneHeight @ Reg[VIEWPORT_DEADZONE_HEIGHT]
+      - int DeadzoneWidth @ Reg[VIEWPORT_DEADZONE_WIDTH]
       - const int Height @ Reg[VIEWPORT_HEIGHT]
       - ViewportMode Mode @ Reg[VIEWPORT_MODE]
       - sprite Target @ Reg[VIEWPORT_TARGET]

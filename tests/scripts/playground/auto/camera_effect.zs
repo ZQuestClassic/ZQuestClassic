@@ -449,6 +449,36 @@ generic script camera_effect
 		Test::Assert(viewportAt(0, 0), "a new screen's viewport is not driven by the old effect");
 	}
 
+	// With a deadzone, the viewport's focus can sit away from the hero's center. A return trip
+	// must end where the viewport will follow from afterwards, not snap there once it hands back.
+	void testReturnWithDeadzone()
+	{
+		placeHero(200, 96);
+		Test::Label("return with a deadzone: ends on the deadzone's focus");
+		Viewport->DeadzoneWidth = 32;
+		// Walk right until the hero is pinned to the box's right edge.
+		for (int i = 0; i < 40; i++)
+		{
+			WaitTo(SCR_TIMING_POST_PLAYER_ACTIVE);
+			Input->Button[CB_RIGHT] = true;
+			frame();
+		}
+		int pinned_x = Viewport->X;
+		Test::AssertEqual(Hero->X + 8 - (pinned_x + Viewport->Width / 2), 16, "hero is pinned to the deadzone edge");
+
+		combodata cd = setupCamera(SUB_RELATIVE_TO_VIEWPORT, 0, 64, 8);
+		cd->Flags[1] = true; // return to hero
+		trigger(cameraPos);
+		for (int i = 0; i < 600 && !causesFired(cameraPos, CMB_CAMERA); i++)
+			frame();
+		Test::Assert(causesFired(cameraPos, CMB_CAMERA), "causes fire after returning");
+		Test::AssertEqual(Viewport->X, pinned_x, "the return ends on the focus");
+		frame();
+		Test::AssertEqual(Viewport->X, pinned_x, "the viewport doesn't jump once the effect hands back");
+
+		Viewport->DeadzoneWidth = 0;
+	}
+
 	void run()
 	{
 		Test::Init();
@@ -469,6 +499,7 @@ generic script camera_effect
 		testScriptCancels();
 		testInvalidConfig();
 		testPlayerWalk();
+		testReturnWithDeadzone();
 		testScreenLoadClearsEffect();
 
 		Test::End();

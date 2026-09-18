@@ -38,6 +38,16 @@ int32_t viewport_get_register(int32_t reg)
 			ret = viewport.w * 10000;
 		}
 		break;
+		case VIEWPORT_DEADZONE_WIDTH:
+		{
+			ret = get_viewport_deadzone_width() * 10000;
+		}
+		break;
+		case VIEWPORT_DEADZONE_HEIGHT:
+		{
+			ret = get_viewport_deadzone_height() * 10000;
+		}
+		break;
 		case VIEWPORT_X:
 		{
 			ret = viewport.x * 10000;
@@ -54,6 +64,12 @@ int32_t viewport_get_register(int32_t reg)
 	}
 
 	return ret;
+}
+
+// The follow settings take -1 from scripts to clear their override.
+static std::optional<int> override_or_clear(int val)
+{
+	return val < 0 ? std::nullopt : std::optional(val);
 }
 
 void viewport_set_register(int32_t reg, int32_t value)
@@ -97,6 +113,26 @@ void viewport_set_register(int32_t reg, int32_t value)
 				break;
 
 			viewport.w = val;
+		}
+		break;
+		case VIEWPORT_DEADZONE_WIDTH:
+		{
+			int val = value / 10000;
+			if (BC::checkBounds(val, -1, 2*VIEWPORT_FOLLOW_MAX_OFFSET_X) != SH::_NoError)
+				break;
+
+			set_viewport_deadzone_width(override_or_clear(val));
+			update_viewport();
+		}
+		break;
+		case VIEWPORT_DEADZONE_HEIGHT:
+		{
+			int val = value / 10000;
+			if (BC::checkBounds(val, -1, 2*VIEWPORT_FOLLOW_MAX_OFFSET_Y) != SH::_NoError)
+				break;
+
+			set_viewport_deadzone_height(override_or_clear(val));
+			update_viewport();
 		}
 		break;
 		case VIEWPORT_X:

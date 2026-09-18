@@ -372,6 +372,8 @@ const char* scripting_get_zasm_register_context_string(int reg)
 		case SCREENDATAWARPRETX: return "Screen->WarpReturnX[]";
 		case SCREENDATAWARPRETY: return "Screen->WarpReturnY[]";
 		case WAVY: return "Screen->Wavy";
+		case VIEWPORT_DEADZONE_HEIGHT: return "Viewport->DeadzoneHeight";
+		case VIEWPORT_DEADZONE_WIDTH: return "Viewport->DeadzoneWidth";
 		case VIEWPORT_HEIGHT: return "Viewport->Height";
 		case VIEWPORT_MODE: return "Viewport->Mode";
 		case VIEWPORT_TARGET: return "Viewport->Target";

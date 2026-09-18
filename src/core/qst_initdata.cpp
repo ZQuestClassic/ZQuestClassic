@@ -1712,6 +1712,13 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header)
 			if (!p_getarr(&temp_zinit.hero_scrconfig, f))
 				return qe_invalid;
 		}
+		if (s_version >= 51)
+		{
+			if (!p_getc(&temp_zinit.viewport_deadzone_w, f))
+				return qe_invalid;
+			if (!p_getc(&temp_zinit.viewport_deadzone_h, f))
+				return qe_invalid;
+		}
 	}
 	
 	if(s_version < 46)

@@ -195,8 +195,9 @@ bool TestQstDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 		{
 			zinitdata zinit_test = zinit;
 			bool old_saved = saved;
-			// Only allow configuration for the same stuff visible in the cheat menu in the player.
-			doInit(&zinit_test, true);
+			// Only allow configuration for the same stuff visible in the cheat menu in the player,
+			// plus the viewport follow settings, which (unlike the cheat) Test Quest can apply.
+			doInit(&zinit_test, true, true);
 			saved = old_saved;
 
 			std::string delta = serialize_init_data_delta(&zinit, &zinit_test);
@@ -227,7 +228,7 @@ bool TestQstDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			}
 
 			bool old_saved = saved;
-			doInit(zinit_test, true);
+			doInit(zinit_test, true, true);
 			saved = old_saved;
 
 			std::string delta = serialize_init_data_delta(&zinit, zinit_test);

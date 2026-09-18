@@ -14,14 +14,14 @@
 #include "gui/switcher.h"
 #include "core/initdata.h"
 
-void call_init_dlg(zinitdata& sourcezinit, bool zc);
+void call_init_dlg(zinitdata& sourcezinit, bool zc, bool testQuest = false);
 
 class InitDataDialog: public GUI::Dialog<InitDataDialog>
 {
 public:
 	enum class message { REFR_INFO, OK, CANCEL, LEVEL };
 
-	InitDataDialog(zinitdata const& start, bool zc, std::function<void(zinitdata const&)> setVals);
+	InitDataDialog(zinitdata const& start, bool zc, bool testQuest, std::function<void(zinitdata const&)> setVals);
 
 	std::shared_ptr<GUI::Widget> view() override;
 	bool handleMessage(const GUI::DialogMessage<message>& msg);
@@ -41,6 +41,9 @@ private:
 	size_t levelsOffset;
 	GUI::ListData list_dmaps, list_items, list_genscr, list_bottle_content;
 	bool isZC;
+	// Test Quest's init data (isZC is also set) reaches the player as a delta, so it can carry
+	// settings the player's own init data cheat can't apply, like the viewport follow settings.
+	bool isTestQuest;
 	
 	std::function<void(zinitdata const&)> setVals;
 

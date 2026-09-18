@@ -17,9 +17,9 @@ stdout:
   "success": true,
   "diagnostics": [],
   "metadata": {
-    "currentFileSymbols": 80,
-    "symbols": 175,
-    "identifiers": 720,
+    "currentFileSymbols": 85,
+    "symbols": 186,
+    "identifiers": 775,
     "elided": true
   }
 }
@@ -82,20 +82,20 @@ SETR D2 GENDATARUNNING
 COMPAREV D2 0
 GOTOCMP 61 ==; Test 'while'
 PUSHR D4; while() Body Start
-CALLFUNC 0.2370; UsrFunc[void DrawLabel()] Call
+CALLFUNC 0.2519; UsrFunc[void DrawLabel()] Call
 POP D4
 WAITFRAME; InlineFunc[void Waitframe()] Body AND while() Body End
 GOTO 50; while() End
-CALLFUNC 0.2114; UsrFunc[void End()] Call AND [Opt:NeverRet]
+CALLFUNC 0.2263; UsrFunc[void End()] Call AND [Opt:NeverRet]
 REF_REMOVE 0.0002; [Opt:NeverRet] AND void run() Body End
 SETR D4 SP2; void run() Body Start
 PUSHR D4
 PUSHV 0; UsrFunc[void Init(int)] Params
-CALLFUNC 0.2092; UsrFunc[void Init(int)] Call
+CALLFUNC 0.2241; UsrFunc[void Init(int)] Call
 PEEK D4
 PUSHV 0; UsrFunc[void loadRegion(int, int)] Params Start
 PUSHV 2; UsrFunc[void loadRegion(int, int)] Params End
-CALLFUNC 0.2188; UsrFunc[void loadRegion(int, int)] Call
+CALLFUNC 0.2337; UsrFunc[void loadRegion(int, int)] Call
 POP D4
 PUSHV 448; InlineFunc[int ComboAt(int, int)] Params Start
 SETV D3 288; InlineFunc[int ComboAt(int, int)] Params End
@@ -116,29 +116,31 @@ PUSHVARGR VIEWPORT_HEIGHT; InlineFunc[void printf(char32[], ...untyped[])] Param
 PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
 POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
 PUSHR D4
-CALLFUNC 0.0561; UsrFunc[void testRelativeToComboParksThenReturns()] Call
+CALLFUNC 0.0563; UsrFunc[void testRelativeToComboParksThenReturns()] Call
 PEEK D4
-CALLFUNC 0.0732; UsrFunc[void testRelativeToHero()] Call
+CALLFUNC 0.0734; UsrFunc[void testRelativeToHero()] Call
 PEEK D4
-CALLFUNC 0.0776; UsrFunc[void testAbsoluteIsClamped()] Call
+CALLFUNC 0.0778; UsrFunc[void testAbsoluteIsClamped()] Call
 PEEK D4
-CALLFUNC 0.0816; UsrFunc[void testInterpolationModes()] Call
+CALLFUNC 0.0818; UsrFunc[void testInterpolationModes()] Call
 PEEK D4
-CALLFUNC 0.1238; UsrFunc[void testCausesModes()] Call
+CALLFUNC 0.1240; UsrFunc[void testCausesModes()] Call
 PEEK D4
-CALLFUNC 0.1281; UsrFunc[void testFreeze()] Call
+CALLFUNC 0.1283; UsrFunc[void testFreeze()] Call
 PEEK D4
-CALLFUNC 0.1447; UsrFunc[void testChained()] Call
+CALLFUNC 0.1449; UsrFunc[void testChained()] Call
 PEEK D4
-CALLFUNC 0.1628; UsrFunc[void testScriptCancels()] Call
+CALLFUNC 0.1630; UsrFunc[void testScriptCancels()] Call
 PEEK D4
-CALLFUNC 0.1707; UsrFunc[void testInvalidConfig()] Call
+CALLFUNC 0.1709; UsrFunc[void testInvalidConfig()] Call
 PEEK D4
-CALLFUNC 0.2000; UsrFunc[void testPlayerWalk()] Call
+CALLFUNC 0.2002; UsrFunc[void testPlayerWalk()] Call
 PEEK D4
-CALLFUNC 0.2044; UsrFunc[void testScreenLoadClearsEffect()] Call
+CALLFUNC 0.2094; UsrFunc[void testReturnWithDeadzone()] Call
+PEEK D4
+CALLFUNC 0.2046; UsrFunc[void testScreenLoadClearsEffect()] Call
 POP D4
-CALLFUNC 0.2114; UsrFunc[void End()] Call AND [Opt:NeverRet] AND [Opt:NeverRet] AND void run() Body End
+CALLFUNC 0.2263; UsrFunc[void End()] Call AND [Opt:NeverRet] AND [Opt:NeverRet] AND void run() Body End
 PUSHARGSV 0 0.0002; Func[void drawMarker(int, int, int, char32[])] Body Start
 SETR D4 SP2
 MARK_TYPE_STACK 0.0009 0.0002
@@ -158,21 +160,21 @@ PUSHR D2
 LOAD D2 0.0003
 POP D3
 COMPARER D3 D2
-GOTOCMP 143 ==
+GOTOCMP 145 ==
 LOAD D2 0.0001
 PUSHR D2
 LOAD D2 0.0003
 ADDV D2 1
 POP D3
 COMPARER D3 D2
-GOTOCMP 143 ==
+GOTOCMP 145 ==
 SETV D2 1
-GOTO 144
+GOTO 146
 SETV D2 0
 COMPAREV D2 0
-GOTOCMP 148 ==; Test 'if'
+GOTOCMP 150 ==; Test 'if'
 REF_REMOVE 0; if() Body Start
-GOTO 209; return (Void) AND if() Body End
+GOTO 211; return (Void) AND if() Body End
 NOP
 ALLOCATEMEMV D2 32 0
 STORE_OBJECT D2 0
@@ -186,10 +188,10 @@ POP D3
 COMPARER D3 D2
 SETCMP D2 I==
 COMPAREV D2 0
-GOTOCMP 165 ==
+GOTOCMP 167 ==
 ALLOCATEMEMV D2 8 0
 WRITEPODSTRING D2 "%s done"
-GOTO 167
+GOTO 169
 ALLOCATEMEMV D2 3 0
 WRITEPODSTRING D2 "%s"
 PUSHR D2
@@ -246,7 +248,7 @@ PUSHV 3000
 ALLOCATEMEMV D2 7 0
 WRITEPODSTRING D2 "camera"
 PUSHR D2; UsrFunc[void drawMarker(int, int, int, char32[])] Params End
-CALLFUNC 0.0114; UsrFunc[void drawMarker(int, int, int, char32[])] Call
+CALLFUNC 0.0116; UsrFunc[void drawMarker(int, int, int, char32[])] Call
 PEEK D4
 PUSHV 384; UsrFunc[void drawMarker(int, int, int, char32[])] Params Start
 PUSHV 288
@@ -254,7 +256,7 @@ PUSHV 3010
 ALLOCATEMEMV D2 8 0
 WRITEPODSTRING D2 "chained"
 PUSHR D2; UsrFunc[void drawMarker(int, int, int, char32[])] Params End
-CALLFUNC 0.0114; UsrFunc[void drawMarker(int, int, int, char32[])] Call
+CALLFUNC 0.0116; UsrFunc[void drawMarker(int, int, int, char32[])] Call
 PEEK D4
 PUSHV 128; UsrFunc[void drawMarker(int, int, int, char32[])] Params Start
 PUSHV 32
@@ -262,7 +264,7 @@ PUSHV 3020
 ALLOCATEMEMV D2 5 0
 WRITEPODSTRING D2 "walk"
 PUSHR D2; UsrFunc[void drawMarker(int, int, int, char32[])] Params End
-CALLFUNC 0.0114; UsrFunc[void drawMarker(int, int, int, char32[])] Call
+CALLFUNC 0.0116; UsrFunc[void drawMarker(int, int, int, char32[])] Call
 POP D4
 ALLOCATEMEMV D2 64 0
 STORE_OBJECT D2 0
@@ -305,14 +307,14 @@ POP D3
 COMPARER D3 D2
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 288 ==; for() TestFail?
+GOTOCMP 290 ==; for() TestFail?
 PUSHR D4; for() Body Start
-CALLFUNC 0.0212; UsrFunc[void frame()] Call
+CALLFUNC 0.0214; UsrFunc[void frame()] Call
 POP D4; for() Body End
 LOAD D2 0; for() LoopIncrement
 ADDV D2 1
 STORE D2 0
-GOTO 273; for() End
+GOTO 275; for() End
 NOP
 POPARGS D5 0.0002
 RETURNFUNC; Func[void frames(int)] Body End
@@ -322,7 +324,7 @@ PUSHR D4
 LOAD D2 0.0004; UsrFunc[combodata setupCombo(int, int)] Params Start
 PUSHR D2
 PUSHV 183; UsrFunc[combodata setupCombo(int, int)] Params End
-CALLFUNC 0.2266; UsrFunc[combodata setupCombo(int, int)] Call
+CALLFUNC 0.2415; UsrFunc[combodata setupCombo(int, int)] Call
 POP D4
 STORE D2 0.0002
 LOAD D2 0.0003
@@ -400,7 +402,7 @@ LOAD D2 0.0004; UsrFunc[combodata setupCombo(int, int)] Params Start
 ADDV D2 1
 PUSHR D2
 PUSHV 0; UsrFunc[combodata setupCombo(int, int)] Params End
-CALLFUNC 0.2266; UsrFunc[combodata setupCombo(int, int)] Call
+CALLFUNC 0.2415; UsrFunc[combodata setupCombo(int, int)] Call
 POP D4
 LOAD D2 0.0002; return Start
 POPARGS D5 0.0005; return End
@@ -410,7 +412,7 @@ SETR D4 SP2
 PUSHR D4
 PUSHV 3000; UsrFunc[combodata setupEffect(int, int)] Params Start
 PUSHV 1; UsrFunc[combodata setupEffect(int, int)] Params End
-CALLFUNC 0.0291; UsrFunc[combodata setupEffect(int, int)] Call
+CALLFUNC 0.0293; UsrFunc[combodata setupEffect(int, int)] Call
 POP D4
 STORE D2 0
 LOAD D2 0.0001
@@ -484,7 +486,7 @@ PUSHR D2
 ALLOCATEMEMV D2 22 0
 WRITEPODSTRING D2 "TriggerCombo succeeds"
 PUSHR D2; UsrFunc[void Assert(bool, char32[])] Params End
-CALLFUNC 0.2149; UsrFunc[void Assert(bool, char32[])] Call
+CALLFUNC 0.2298; UsrFunc[void Assert(bool, char32[])] Call
 POP D4
 POP D5
 RETURNFUNC; Func[void trigger(int)] Body End
@@ -507,15 +509,15 @@ PUSHR D2
 LOAD D2 0.0001
 POP D3
 COMPARER D3 D2
-GOTOCMP 491 !=
+GOTOCMP 493 !=
 SETR D2 VIEWPORT_Y
 PUSHR D2
 LOAD D2 0
 POP D3
 COMPARER D3 D2
-GOTOCMP 491 !=
+GOTOCMP 493 !=
 SETV D2 1
-GOTO 492
+GOTO 494
 SETV D2 0
 POPARGS D5 0.0002; return End
 RETURNFUNC; Func[bool viewportAt(int, int)] Body End
@@ -528,26 +530,26 @@ LOAD D2 0; for() LoopTest
 COMPAREV D2 600
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 523 ==; for() TestFail?
+GOTOCMP 525 ==; for() TestFail?
 PUSHR D4; if() Test AND for() Body Start
 LOAD D2 0.0003; UsrFunc[bool viewportAt(int, int)] Params Start
 PUSHR D2
 LOAD D2 0.0002
 PUSHR D2; UsrFunc[bool viewportAt(int, int)] Params End
-CALLFUNC 0.0476; UsrFunc[bool viewportAt(int, int)] Call
+CALLFUNC 0.0478; UsrFunc[bool viewportAt(int, int)] Call
 POP D4
 COMPAREV D2 0
-GOTOCMP 515 ==; Test 'if'
+GOTOCMP 517 ==; Test 'if'
 LOAD D2 0; return Start AND if() Body Start
-GOTO 534; return End AND if() Body End
+GOTO 536; return End AND if() Body End
 NOP
 PUSHR D4
-CALLFUNC 0.0212; UsrFunc[void frame()] Call
+CALLFUNC 0.0214; UsrFunc[void frame()] Call
 POP D4; for() Body End
 LOAD D2 0; for() LoopIncrement
 ADDV D2 1
 STORE D2 0
-GOTO 499; for() End
+GOTO 501; for() End
 NOP
 ALLOCATEMEMV D2 26 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
 WRITEPODSTRING D2 "viewport stuck at %d, %d\n"
@@ -558,7 +560,7 @@ PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
 POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
 LOAD D2 0.0001; UsrFunc[void Fail(char32[])] Params Start
 PUSHR D2; UsrFunc[void Fail(char32[])] Params End
-CALLFUNC 0.2162; UsrFunc[void Fail(char32[])] Call AND [Opt:NeverRet]
+CALLFUNC 0.2311; UsrFunc[void Fail(char32[])] Call AND [Opt:NeverRet]
 REF_REMOVE 0.0001
 POPARGS D5 0.0004
 RETURNFUNC; Func[int waitForViewport(int, int, char32[])] Body End
@@ -582,7 +584,7 @@ POP D2
 POP REFSPRITE
 SETR SPRITE_Y D2
 PUSHR D4
-CALLFUNC 0.0212; UsrFunc[void frame()] Call
+CALLFUNC 0.0214; UsrFunc[void frame()] Call
 POP D4
 POPARGS D5 0.0002
 RETURNFUNC; Func[void placeHero(int, int)] Body End
@@ -590,54 +592,54 @@ PUSHV 0; Func[void testRelativeToComboParksThenReturns()] Body Start
 SETR D4 SP2
 PUSHR D4
 PUSHARGSV 32 0.0002; UsrFunc[void placeHero(int, int)] Params Start AND UsrFunc[void placeHero(int, int)] Params End
-CALLFUNC 0.0537; UsrFunc[void placeHero(int, int)] Call
+CALLFUNC 0.0539; UsrFunc[void placeHero(int, int)] Call
 PEEK D4
 PUSHR D4; UsrFunc[void Assert(bool, char32[])] Params Start
 PUSHARGSV 0 0.0002; UsrFunc[bool viewportAt(int, int)] Params Start AND UsrFunc[bool viewportAt(int, int)] Params End
-CALLFUNC 0.0476; UsrFunc[bool viewportAt(int, int)] Call
+CALLFUNC 0.0478; UsrFunc[bool viewportAt(int, int)] Call
 POP D4
 PUSHR D2
 ALLOCATEMEMV D2 32 0
 WRITEPODSTRING D2 "viewport starts at the top-left"
 PUSHR D2; UsrFunc[void Assert(bool, char32[])] Params End
-CALLFUNC 0.2149; UsrFunc[void Assert(bool, char32[])] Call
+CALLFUNC 0.2298; UsrFunc[void Assert(bool, char32[])] Call
 PEEK D4
 ALLOCATEMEMV D2 43 0; UsrFunc[void Label(char32[])] Params Start
 WRITEPODSTRING D2 "relative to combo: pan to the camera combo"
 PUSHR D2; UsrFunc[void Label(char32[])] Params End
-CALLFUNC 0.2362; UsrFunc[void Label(char32[])] Call
+CALLFUNC 0.2511; UsrFunc[void Label(char32[])] Call
 PEEK D4
 PUSHARGSV 0 0.0003; UsrFunc[combodata setupCamera(int, int, int, int)] Params Start
 PUSHV 4; UsrFunc[combodata setupCamera(int, int, int, int)] Params End
-CALLFUNC 0.0380; UsrFunc[combodata setupCamera(int, int, int, int)] Call
+CALLFUNC 0.0382; UsrFunc[combodata setupCamera(int, int, int, int)] Call
 PEEK D4
 PUSHR GD2; UsrFunc[void trigger(int)] Params
-CALLFUNC 0.0446; UsrFunc[void trigger(int)] Call
+CALLFUNC 0.0448; UsrFunc[void trigger(int)] Call
 PEEK D4
-CALLFUNC 0.0212; UsrFunc[void frame()] Call
+CALLFUNC 0.0214; UsrFunc[void frame()] Call
 PEEK D4
 SETR D2 VIEWPORT_X; UsrFunc[void Assert(bool, char32[])] Params Start
 COMPAREV D2 0
-GOTOCMP 602 <=
+GOTOCMP 604 <=
 SETR D2 VIEWPORT_X
 PUSHR D2
 SETR D2 GD3
 POP D3
 COMPARER D3 D2
-GOTOCMP 602 >=
+GOTOCMP 604 >=
 SETV D2 1
-GOTO 603
+GOTO 605
 SETV D2 0
 PUSHR D2
 ALLOCATEMEMV D2 20 0
 WRITEPODSTRING D2 "viewport is panning"
 PUSHR D2; UsrFunc[void Assert(bool, char32[])] Params End
-CALLFUNC 0.2149; UsrFunc[void Assert(bool, char32[])] Call
+CALLFUNC 0.2298; UsrFunc[void Assert(bool, char32[])] Call
 PEEK D4
 PUSHR D4; UsrFunc[void Assert(bool, char32[])] Params Start
 PUSHR GD2; UsrFunc[bool causesFired(int, int)] Params Start
 PUSHV 3000; UsrFunc[bool causesFired(int, int)] Params End
-CALLFUNC 0.0463; UsrFunc[bool causesFired(int, int)] Call
+CALLFUNC 0.0465; UsrFunc[bool causesFired(int, int)] Call
 POP D4
 COMPAREV D2 0
 SETCMP D2 I==
@@ -645,14 +647,14 @@ PUSHR D2
 ALLOCATEMEMV D2 26 0
 WRITEPODSTRING D2 "causes don't fire mid-pan"
 PUSHR D2; UsrFunc[void Assert(bool, char32[])] Params End
-CALLFUNC 0.2149; UsrFunc[void Assert(bool, char32[])] Call
+CALLFUNC 0.2298; UsrFunc[void Assert(bool, char32[])] Call
 PEEK D4
 PUSHR GD3; UsrFunc[int waitForViewport(int, int, char32[])] Params Start
 PUSHR GD4
 ALLOCATEMEMV D2 18 0
 WRITEPODSTRING D2 "pans to the combo"
 PUSHR D2; UsrFunc[int waitForViewport(int, int, char32[])] Params End
-CALLFUNC 0.0494; UsrFunc[int waitForViewport(int, int, char32[])] Call
+CALLFUNC 0.0496; UsrFunc[int waitForViewport(int, int, char32[])] Call
 POP D4
 STORE D2 0
 ALLOCATEMEMV D2 44 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
@@ -663,56 +665,56 @@ PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
 PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
 POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
 PUSHR D4
-CALLFUNC 0.0212; UsrFunc[void frame()] Call
+CALLFUNC 0.0214; UsrFunc[void frame()] Call
 PEEK D4
 PUSHR D4; UsrFunc[void Assert(bool, char32[])] Params Start
 PUSHR GD2; UsrFunc[bool causesFired(int, int)] Params Start
 PUSHV 3000; UsrFunc[bool causesFired(int, int)] Params End
-CALLFUNC 0.0463; UsrFunc[bool causesFired(int, int)] Call
+CALLFUNC 0.0465; UsrFunc[bool causesFired(int, int)] Call
 POP D4
 PUSHR D2
 ALLOCATEMEMV D2 34 0
 WRITEPODSTRING D2 "causes fire when the pan finishes"
 PUSHR D2; UsrFunc[void Assert(bool, char32[])] Params End
-CALLFUNC 0.2149; UsrFunc[void Assert(bool, char32[])] Call
+CALLFUNC 0.2298; UsrFunc[void Assert(bool, char32[])] Call
 PEEK D4
 ALLOCATEMEMV D2 37 0; UsrFunc[void Label(char32[])] Params Start
 WRITEPODSTRING D2 "relative to combo: parked, no return"
 PUSHR D2; UsrFunc[void Label(char32[])] Params End
-CALLFUNC 0.2362; UsrFunc[void Label(char32[])] Call
+CALLFUNC 0.2511; UsrFunc[void Label(char32[])] Call
 PEEK D4
 PUSHV 30; UsrFunc[void frames(int)] Params
-CALLFUNC 0.0270; UsrFunc[void frames(int)] Call
+CALLFUNC 0.0272; UsrFunc[void frames(int)] Call
 PEEK D4
 PUSHR D4; UsrFunc[void Assert(bool, char32[])] Params Start
 PUSHR GD3; UsrFunc[bool viewportAt(int, int)] Params Start
 PUSHR GD4; UsrFunc[bool viewportAt(int, int)] Params End
-CALLFUNC 0.0476; UsrFunc[bool viewportAt(int, int)] Call
+CALLFUNC 0.0478; UsrFunc[bool viewportAt(int, int)] Call
 POP D4
 PUSHR D2
 ALLOCATEMEMV D2 34 0
 WRITEPODSTRING D2 "camera stays parked at the target"
 PUSHR D2; UsrFunc[void Assert(bool, char32[])] Params End
-CALLFUNC 0.2149; UsrFunc[void Assert(bool, char32[])] Call
+CALLFUNC 0.2298; UsrFunc[void Assert(bool, char32[])] Call
 PEEK D4
 ALLOCATEMEMV D2 21 0; UsrFunc[void Label(char32[])] Params Start
 WRITEPODSTRING D2 "return to hero combo"
 PUSHR D2; UsrFunc[void Label(char32[])] Params End
-CALLFUNC 0.2362; UsrFunc[void Label(char32[])] Call
+CALLFUNC 0.2511; UsrFunc[void Label(char32[])] Call
 PEEK D4
 PUSHV 4; UsrFunc[combodata setupCamera(int, int, int, int)] Params Start
 PUSHARGSV 0 0.0002
 PUSHV 8; UsrFunc[combodata setupCamera(int, int, int, int)] Params End
-CALLFUNC 0.0380; UsrFunc[combodata setupCamera(int, int, int, int)] Call
+CALLFUNC 0.0382; UsrFunc[combodata setupCamera(int, int, int, int)] Call
 PEEK D4
 PUSHR GD2; UsrFunc[void trigger(int)] Params
-CALLFUNC 0.0446; UsrFunc[void trigger(int)] Call
+CALLFUNC 0.0448; UsrFunc[void trigger(int)] Call
 PEEK D4
 PUSHARGSV 0 0.0002; UsrFunc[int waitForViewport(int, int, char32[])] Params Start
 ALLOCATEMEMV D2 20 0
 WRITEPODSTRING D2 "returns to the hero"
 PUSHR D2; UsrFunc[int waitForViewport(int, int, char32[])] Params End
-CALLFUNC 0.0494; UsrFunc[int waitForViewport(int, int, char32[])] Call
+CALLFUNC 0.0496; UsrFunc[int waitForViewport(int, int, char32[])] Call
 POP D4
 STORE D2 0
 ALLOCATEMEMV D2 41 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
@@ -723,27 +725,27 @@ PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
 PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
 POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
 PUSHR D4
-CALLFUNC 0.0212; UsrFunc[void frame()] Call
+CALLFUNC 0.0214; UsrFunc[void frame()] Call
 PEEK D4
 PUSHR D4; UsrFunc[void Assert(bool, char32[])] Params Start
 PUSHR GD2; UsrFunc[bool causesFired(int, int)] Params Start
 PUSHV 3000; UsrFunc[bool causesFired(int, int)] Params End
-CALLFUNC 0.0463; UsrFunc[bool causesFired(int, int)] Call
+CALLFUNC 0.0465; UsrFunc[bool causesFired(int, int)] Call
 POP D4
 PUSHR D2
 ALLOCATEMEMV D2 28 0
 WRITEPODSTRING D2 "causes fire after returning"
 PUSHR D2; UsrFunc[void Assert(bool, char32[])] Params End
-CALLFUNC 0.2149; UsrFunc[void Assert(bool, char32[])] Call
+CALLFUNC 0.2298; UsrFunc[void Assert(bool, char32[])] Call
 PEEK D4
 ALLOCATEMEMV D2 36 0; UsrFunc[void Label(char32[])] Params Start
 WRITEPODSTRING D2 "the viewport follows the hero again"
 PUSHR D2; UsrFunc[void Label(char32[])] Params End
-CALLFUNC 0.2362; UsrFunc[void Label(char32[])] Call
+CALLFUNC 0.2511; UsrFunc[void Label(char32[])] Call
 PEEK D4
 PUSHV 256; UsrFunc[void placeHero(int, int)] Params Start
 PUSHV 160; UsrFunc[void placeHero(int, int)] Params End
-CALLFUNC 0.0537; UsrFunc[void placeHero(int, int)] Call
+CALLFUNC 0.0539; UsrFunc[void placeHero(int, int)] Call
 PEEK D4
 PUSHR VIEWPORT_X; UsrFunc[void AssertEqual(int, int, char32[])] Params Start
 SETR D2 VIEWPORT_WIDTH
@@ -753,28 +755,28 @@ PUSHR D2
 ALLOCATEMEMV D2 30 0
 WRITEPODSTRING D2 "viewport follows the hero's x"
 PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
-CALLFUNC 0.2121; UsrFunc[void AssertEqual(int, int, char32[])] Call
+CALLFUNC 0.2270; UsrFunc[void AssertEqual(int, int, char32[])] Call
 POP D4
 POP D5
 RETURNFUNC; Func[void testRelativeToComboParksThenReturns()] Body End
 SETR D4 SP2; Func[void testRelativeToHero()] Body Start
 PUSHR D4
 PUSHARGSV 32 0.0002; UsrFunc[void placeHero(int, int)] Params Start AND UsrFunc[void placeHero(int, int)] Params End
-CALLFUNC 0.0537; UsrFunc[void placeHero(int, int)] Call
+CALLFUNC 0.0539; UsrFunc[void placeHero(int, int)] Call
 PEEK D4
 ALLOCATEMEMV D2 41 0; UsrFunc[void Label(char32[])] Params Start
 WRITEPODSTRING D2 "relative to hero: 200px right, then back"
 PUSHR D2; UsrFunc[void Label(char32[])] Params End
-CALLFUNC 0.2362; UsrFunc[void Label(char32[])] Call
+CALLFUNC 0.2511; UsrFunc[void Label(char32[])] Call
 PEEK D4
 PUSHV 1; UsrFunc[combodata setupCamera(int, int, int, int)] Params Start
 PUSHV 200
 PUSHV 0
 PUSHV 8; UsrFunc[combodata setupCamera(int, int, int, int)] Params End
-CALLFUNC 0.0380; UsrFunc[combodata setupCamera(int, int, int, int)] Call
+CALLFUNC 0.0382; UsrFunc[combodata setupCamera(int, int, int, int)] Call
 PEEK D4
 PUSHR GD2; UsrFunc[void trigger(int)] Params
-CALLFUNC 0.0446; UsrFunc[void trigger(int)] Call
+CALLFUNC 0.0448; UsrFunc[void trigger(int)] Call
 PEEK D4
 SETR D2 VIEWPORT_WIDTH; UsrFunc[int waitForViewport(int, int, char32[])] Params Start
 DIVV D2 2
@@ -784,75 +786,75 @@ PUSHV 0
 ALLOCATEMEMV D2 26 0
 WRITEPODSTRING D2 "pans relative to the hero"
 PUSHR D2; UsrFunc[int waitForViewport(int, int, char32[])] Params End
-CALLFUNC 0.0494; UsrFunc[int waitForViewport(int, int, char32[])] Call
+CALLFUNC 0.0496; UsrFunc[int waitForViewport(int, int, char32[])] Call
 PEEK D4
 PUSHV 4; UsrFunc[combodata setupCamera(int, int, int, int)] Params Start
 PUSHARGSV 0 0.0002
 PUSHV 8; UsrFunc[combodata setupCamera(int, int, int, int)] Params End
-CALLFUNC 0.0380; UsrFunc[combodata setupCamera(int, int, int, int)] Call
+CALLFUNC 0.0382; UsrFunc[combodata setupCamera(int, int, int, int)] Call
 PEEK D4
 PUSHR GD2; UsrFunc[void trigger(int)] Params
-CALLFUNC 0.0446; UsrFunc[void trigger(int)] Call
+CALLFUNC 0.0448; UsrFunc[void trigger(int)] Call
 PEEK D4
 PUSHARGSV 0 0.0002; UsrFunc[int waitForViewport(int, int, char32[])] Params Start
 ALLOCATEMEMV D2 20 0
 WRITEPODSTRING D2 "returns to the hero"
 PUSHR D2; UsrFunc[int waitForViewport(int, int, char32[])] Params End
-CALLFUNC 0.0494; UsrFunc[int waitForViewport(int, int, char32[])] Call
+CALLFUNC 0.0496; UsrFunc[int waitForViewport(int, int, char32[])] Call
 POP D4
 RETURNFUNC; Func[void testRelativeToHero()] Body End
 SETR D4 SP2; Func[void testAbsoluteIsClamped()] Body Start
 PUSHR D4
 PUSHARGSV 32 0.0002; UsrFunc[void placeHero(int, int)] Params Start AND UsrFunc[void placeHero(int, int)] Params End
-CALLFUNC 0.0537; UsrFunc[void placeHero(int, int)] Call
+CALLFUNC 0.0539; UsrFunc[void placeHero(int, int)] Call
 PEEK D4
 ALLOCATEMEMV D2 42 0; UsrFunc[void Label(char32[])] Params Start
 WRITEPODSTRING D2 "absolute 5000,5000: clamped to the region"
 PUSHR D2; UsrFunc[void Label(char32[])] Params End
-CALLFUNC 0.2362; UsrFunc[void Label(char32[])] Call
+CALLFUNC 0.2511; UsrFunc[void Label(char32[])] Call
 PEEK D4
 PUSHV 3; UsrFunc[combodata setupCamera(int, int, int, int)] Params Start
 PUSHARGSV 5000 0.0002
 PUSHV 16; UsrFunc[combodata setupCamera(int, int, int, int)] Params End
-CALLFUNC 0.0380; UsrFunc[combodata setupCamera(int, int, int, int)] Call
+CALLFUNC 0.0382; UsrFunc[combodata setupCamera(int, int, int, int)] Call
 PEEK D4
 PUSHR GD2; UsrFunc[void trigger(int)] Params
-CALLFUNC 0.0446; UsrFunc[void trigger(int)] Call
+CALLFUNC 0.0448; UsrFunc[void trigger(int)] Call
 PEEK D4
 PUSHR GD3; UsrFunc[int waitForViewport(int, int, char32[])] Params Start
 PUSHR GD4
 ALLOCATEMEMV D2 41 0
 WRITEPODSTRING D2 "absolute target is clamped to the region"
 PUSHR D2; UsrFunc[int waitForViewport(int, int, char32[])] Params End
-CALLFUNC 0.0494; UsrFunc[int waitForViewport(int, int, char32[])] Call
+CALLFUNC 0.0496; UsrFunc[int waitForViewport(int, int, char32[])] Call
 PEEK D4
 PUSHV 4; UsrFunc[combodata setupCamera(int, int, int, int)] Params Start
 PUSHARGSV 0 0.0002
 PUSHV 16; UsrFunc[combodata setupCamera(int, int, int, int)] Params End
-CALLFUNC 0.0380; UsrFunc[combodata setupCamera(int, int, int, int)] Call
+CALLFUNC 0.0382; UsrFunc[combodata setupCamera(int, int, int, int)] Call
 PEEK D4
 PUSHR GD2; UsrFunc[void trigger(int)] Params
-CALLFUNC 0.0446; UsrFunc[void trigger(int)] Call
+CALLFUNC 0.0448; UsrFunc[void trigger(int)] Call
 PEEK D4
 PUSHARGSV 0 0.0002; UsrFunc[int waitForViewport(int, int, char32[])] Params Start
 ALLOCATEMEMV D2 20 0
 WRITEPODSTRING D2 "returns to the hero"
 PUSHR D2; UsrFunc[int waitForViewport(int, int, char32[])] Params End
-CALLFUNC 0.0494; UsrFunc[int waitForViewport(int, int, char32[])] Call
+CALLFUNC 0.0496; UsrFunc[int waitForViewport(int, int, char32[])] Call
 POP D4
 RETURNFUNC; Func[void testAbsoluteIsClamped()] Body End
 PUSHARGSV 0 0.0005; Func[void testInterpolationModes()] Body Start
 SETR D4 SP2
 PUSHR D4
 PUSHARGSV 32 0.0002; UsrFunc[void placeHero(int, int)] Params Start AND UsrFunc[void placeHero(int, int)] Params End
-CALLFUNC 0.0537; UsrFunc[void placeHero(int, int)] Call
+CALLFUNC 0.0539; UsrFunc[void placeHero(int, int)] Call
 POP D4
 STOREV 0 0.0004; for() setup
 LOAD D2 0.0004; for() LoopTest
 COMPAREV D2 8
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 989 ==; for() TestFail?
+GOTOCMP 991 ==; for() TestFail?
 ALLOCATEMEMV D2 64 0; for() Body Start
 STORE_OBJECT D2 0.0003
 LOAD D2 0.0003; InlineFunc[int sprintf(char32[], char32[], ...untyped[])] Params Start
@@ -867,13 +869,13 @@ POPARGS D5 0.0002; InlineFunc[int sprintf(char32[], char32[], ...untyped[])] Bod
 PUSHR D4
 LOAD D2 0.0003; UsrFunc[void Label(char32[])] Params Start
 PUSHR D2; UsrFunc[void Label(char32[])] Params End
-CALLFUNC 0.2362; UsrFunc[void Label(char32[])] Call
+CALLFUNC 0.2511; UsrFunc[void Label(char32[])] Call
 PEEK D4
 PUSHV 2; UsrFunc[combodata setupCamera(int, int, int, int)] Params Start
 PUSHV 200
 PUSHV 0
 PUSHV 10; UsrFunc[combodata setupCamera(int, int, int, int)] Params End
-CALLFUNC 0.0380; UsrFunc[combodata setupCamera(int, int, int, int)] Call
+CALLFUNC 0.0382; UsrFunc[combodata setupCamera(int, int, int, int)] Call
 POP D4
 STORE D2 0.0002
 LOAD D2 0.0004
@@ -902,7 +904,7 @@ POP REFCOMBODATA
 SETR COMBODUSRFLAGARR D2
 PUSHR D4
 PUSHR GD2; UsrFunc[void trigger(int)] Params
-CALLFUNC 0.0446; UsrFunc[void trigger(int)] Call
+CALLFUNC 0.0448; UsrFunc[void trigger(int)] Call
 POP D4
 ALLOCATEMEMV D2 8 0
 STORE_OBJECT D2 0.0001
@@ -911,10 +913,10 @@ LOAD D2 0; for() LoopTest
 COMPAREV D2 8
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 904 ==; for() TestFail?
+GOTOCMP 906 ==; for() TestFail?
 PUSHR D4; for() Body Start
 PUSHV 5; UsrFunc[void frames(int)] Params
-CALLFUNC 0.0270; UsrFunc[void frames(int)] Call
+CALLFUNC 0.0272; UsrFunc[void frames(int)] Call
 POP D4
 SETR D2 VIEWPORT_X
 PUSHR D2
@@ -928,7 +930,7 @@ WRITEPODARRAYRR D3 D2 0; for() Body End
 LOAD D2 0; for() LoopIncrement
 ADDV D2 1
 STORE D2 0
-GOTO 882; for() End
+GOTO 884; for() End
 NOP
 ALLOCATEMEMV D2 45 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
 WRITEPODSTRING D2 "interpolation %d: %d %d %d %d | %d %d %d %d\n"
@@ -987,33 +989,33 @@ PUSHV 200
 ALLOCATEMEMV D2 19 0
 WRITEPODSTRING D2 "reaches the target"
 PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
-CALLFUNC 0.2121; UsrFunc[void AssertEqual(int, int, char32[])] Call
+CALLFUNC 0.2270; UsrFunc[void AssertEqual(int, int, char32[])] Call
 PEEK D4
 PUSHARGSV 0 0.0002; UsrFunc[int waitForViewport(int, int, char32[])] Params Start
 ALLOCATEMEMV D2 20 0
 WRITEPODSTRING D2 "returns to the hero"
 PUSHR D2; UsrFunc[int waitForViewport(int, int, char32[])] Params End
-CALLFUNC 0.0494; UsrFunc[int waitForViewport(int, int, char32[])] Call
+CALLFUNC 0.0496; UsrFunc[int waitForViewport(int, int, char32[])] Call
 PEEK D4
-CALLFUNC 0.0212; UsrFunc[void frame()] Call
+CALLFUNC 0.0214; UsrFunc[void frame()] Call
 PEEK D4
 PUSHR D4; UsrFunc[void Assert(bool, char32[])] Params Start
 PUSHR GD2; UsrFunc[bool causesFired(int, int)] Params Start
 PUSHV 3000; UsrFunc[bool causesFired(int, int)] Params End
-CALLFUNC 0.0463; UsrFunc[bool causesFired(int, int)] Call
+CALLFUNC 0.0465; UsrFunc[bool causesFired(int, int)] Call
 POP D4
 PUSHR D2
 ALLOCATEMEMV D2 22 0
 WRITEPODSTRING D2 "causes fire on finish"
 PUSHR D2; UsrFunc[void Assert(bool, char32[])] Params End
-CALLFUNC 0.2149; UsrFunc[void Assert(bool, char32[])] Call
+CALLFUNC 0.2298; UsrFunc[void Assert(bool, char32[])] Call
 POP D4
 REF_REMOVE 0.0001
 REF_REMOVE 0.0003; for() Body End
 LOAD D2 0.0004; for() LoopIncrement
 ADDV D2 1
 STORE D2 0.0004
-GOTO 823; for() End
+GOTO 825; for() End
 NOP
 POPARGS D5 0.0005
 RETURNFUNC; Func[void testInterpolationModes()] Body End
@@ -1023,7 +1025,7 @@ MARK_TYPE_STACK 0.0009 0.0006
 REF_INC 0.0006
 PUSHR D4
 PUSHARGSV 32 0.0002; UsrFunc[void placeHero(int, int)] Params Start AND UsrFunc[void placeHero(int, int)] Params End
-CALLFUNC 0.0537; UsrFunc[void placeHero(int, int)] Call
+CALLFUNC 0.0539; UsrFunc[void placeHero(int, int)] Call
 POP D4
 ALLOCATEMEMV D2 64 0
 STORE_OBJECT D2 0.0005
@@ -1046,13 +1048,13 @@ POPARGS D5 0.0002; InlineFunc[int sprintf(char32[], char32[], ...untyped[])] Bod
 PUSHR D4
 LOAD D2 0.0005; UsrFunc[void Label(char32[])] Params Start
 PUSHR D2; UsrFunc[void Label(char32[])] Params End
-CALLFUNC 0.2362; UsrFunc[void Label(char32[])] Call
+CALLFUNC 0.2511; UsrFunc[void Label(char32[])] Call
 PEEK D4
 PUSHV 3; UsrFunc[combodata setupCamera(int, int, int, int)] Params Start
 PUSHV 384
 PUSHV 264
 PUSHV 16; UsrFunc[combodata setupCamera(int, int, int, int)] Params End
-CALLFUNC 0.0380; UsrFunc[combodata setupCamera(int, int, int, int)] Call
+CALLFUNC 0.0382; UsrFunc[combodata setupCamera(int, int, int, int)] Call
 POP D4
 STORE D2 0.0004
 LOAD D2 0.0008
@@ -1093,7 +1095,7 @@ POP REFCOMBODATA
 SETR COMBODUSRFLAGARR D2
 PUSHR D4
 PUSHR GD2; UsrFunc[void trigger(int)] Params
-CALLFUNC 0.0446; UsrFunc[void trigger(int)] Call
+CALLFUNC 0.0448; UsrFunc[void trigger(int)] Call
 POP D4
 STOREV -1 0.0003
 STOREV -1 0.0002
@@ -1103,89 +1105,89 @@ LOAD D2 0; for() LoopTest
 COMPAREV D2 200
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 1161 ==; for() TestFail?
+GOTOCMP 1163 ==; for() TestFail?
 LOAD D2 0.0001; if() Test AND for() Body Start
 COMPAREV D2 -1
-GOTOCMP 1091 !=
+GOTOCMP 1093 !=
 PUSHR D4
 PUSHR GD2; UsrFunc[bool causesFired(int, int)] Params Start
 PUSHV 3000; UsrFunc[bool causesFired(int, int)] Params End
-CALLFUNC 0.0463; UsrFunc[bool causesFired(int, int)] Call
+CALLFUNC 0.0465; UsrFunc[bool causesFired(int, int)] Call
 POP D4
 COMPAREV D2 0
-GOTOCMP 1091 ==
+GOTOCMP 1093 ==
 SETV D2 1
-GOTO 1092
+GOTO 1094
 SETV D2 0
 COMPAREV D2 0
-GOTOCMP 1096 ==; Test 'if'
+GOTOCMP 1098 ==; Test 'if'
 LOAD D2 0; if() Body Start
 STORE D2 0.0001; if() Body End
 NOP
 LOAD D2 0.0003; if() Test
 COMPAREV D2 -1
-GOTOCMP 1109 !=
+GOTOCMP 1111 !=
 PUSHR D4
 PUSHR GD3; UsrFunc[bool viewportAt(int, int)] Params Start
 PUSHR GD4; UsrFunc[bool viewportAt(int, int)] Params End
-CALLFUNC 0.0476; UsrFunc[bool viewportAt(int, int)] Call
+CALLFUNC 0.0478; UsrFunc[bool viewportAt(int, int)] Call
 POP D4
 COMPAREV D2 0
-GOTOCMP 1109 ==
+GOTOCMP 1111 ==
 SETV D2 1
-GOTO 1110
+GOTO 1112
 SETV D2 0
 COMPAREV D2 0
-GOTOCMP 1114 ==; Test 'if'
+GOTOCMP 1116 ==; Test 'if'
 LOAD D2 0; if() Body Start
 STORE D2 0.0003; if() Body End
 NOP
 LOAD D2 0.0003; if() Test
 COMPAREV D2 -1
-GOTOCMP 1130 ==
+GOTOCMP 1132 ==
 LOAD D2 0.0002
 COMPAREV D2 -1
-GOTOCMP 1130 !=
+GOTOCMP 1132 !=
 PUSHR D4
 PUSHR GD3; UsrFunc[bool viewportAt(int, int)] Params Start
 PUSHR GD4; UsrFunc[bool viewportAt(int, int)] Params End
-CALLFUNC 0.0476; UsrFunc[bool viewportAt(int, int)] Call
+CALLFUNC 0.0478; UsrFunc[bool viewportAt(int, int)] Call
 POP D4
 COMPAREV D2 0
-GOTOCMP 1130 !=
+GOTOCMP 1132 !=
 SETV D2 1
-GOTO 1131
+GOTO 1133
 SETV D2 0
 COMPAREV D2 0
-GOTOCMP 1135 ==; Test 'if'
+GOTOCMP 1137 ==; Test 'if'
 LOAD D2 0; if() Body Start
 STORE D2 0.0002; if() Body End
 NOP
 LOAD D2 0.0001; if() Test
 COMPAREV D2 -1
-GOTOCMP 1150 ==
+GOTOCMP 1152 ==
 LOAD D2 0.0007
 COMPAREV D2 0
-GOTOCMP 1148 ==
+GOTOCMP 1150 ==
 PUSHR D4
 PUSHARGSV 0 0.0002; UsrFunc[bool viewportAt(int, int)] Params Start AND UsrFunc[bool viewportAt(int, int)] Params End
-CALLFUNC 0.0476; UsrFunc[bool viewportAt(int, int)] Call
+CALLFUNC 0.0478; UsrFunc[bool viewportAt(int, int)] Call
 POP D4
 COMPAREV D2 0
-GOTOCMP 1150 ==
+GOTOCMP 1152 ==
 SETV D2 1
-GOTO 1151
+GOTO 1153
 SETV D2 0
 COMPAREV D2 0
-GOTOCMP 1161 !=; Test 'if' AND break 1; AND if() Body
+GOTOCMP 1163 !=; Test 'if' AND break 1; AND if() Body
 NOP
 PUSHR D4
-CALLFUNC 0.0212; UsrFunc[void frame()] Call
+CALLFUNC 0.0214; UsrFunc[void frame()] Call
 POP D4; for() Body End
 LOAD D2 0; for() LoopIncrement
 ADDV D2 1
 STORE D2 0
-GOTO 1074; for() End
+GOTO 1076; for() End
 NOP
 ALLOCATEMEMV D2 71 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
 WRITEPODSTRING D2 "causes mode %d idle %d return %d: arrived %d, left %d, causes %d (%s)\n"
@@ -1215,7 +1217,7 @@ PUSHR D2
 ALLOCATEMEMV D2 13 0
 WRITEPODSTRING D2 "causes fired"
 PUSHR D2; UsrFunc[void Assert(bool, char32[])] Params End
-CALLFUNC 0.2149; UsrFunc[void Assert(bool, char32[])] Call
+CALLFUNC 0.2298; UsrFunc[void Assert(bool, char32[])] Call
 PEEK D4
 LOAD D2 0.0003; UsrFunc[void Assert(bool, char32[])] Params Start
 COMPAREV D2 -1
@@ -1224,11 +1226,11 @@ PUSHR D2
 ALLOCATEMEMV D2 15 0
 WRITEPODSTRING D2 "camera arrived"
 PUSHR D2; UsrFunc[void Assert(bool, char32[])] Params End
-CALLFUNC 0.2149; UsrFunc[void Assert(bool, char32[])] Call
+CALLFUNC 0.2298; UsrFunc[void Assert(bool, char32[])] Call
 POP D4
 LOAD D2 0.0007; unless() Test
 COMPAREV D2 0
-GOTOCMP 1226 !=; Test 'unless'
+GOTOCMP 1228 !=; Test 'unless'
 PUSHR D4; unless() Body Start
 LOAD D2 0.0002; UsrFunc[void AssertEqual(int, int, char32[])] Params Start
 PUSHR D2
@@ -1236,20 +1238,20 @@ PUSHV -1
 ALLOCATEMEMV D2 30 0
 WRITEPODSTRING D2 "camera stays without a return"
 PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
-CALLFUNC 0.2121; UsrFunc[void AssertEqual(int, int, char32[])] Call
+CALLFUNC 0.2270; UsrFunc[void AssertEqual(int, int, char32[])] Call
 PEEK D4
 ALLOCATEMEMV D2 21 0; UsrFunc[void Label(char32[])] Params Start
 WRITEPODSTRING D2 "return to hero combo"
 PUSHR D2; UsrFunc[void Label(char32[])] Params End
-CALLFUNC 0.2362; UsrFunc[void Label(char32[])] Call
+CALLFUNC 0.2511; UsrFunc[void Label(char32[])] Call
 PEEK D4
 PUSHV 4; UsrFunc[combodata setupCamera(int, int, int, int)] Params Start
 PUSHARGSV 0 0.0002
 PUSHV 16; UsrFunc[combodata setupCamera(int, int, int, int)] Params End
-CALLFUNC 0.0380; UsrFunc[combodata setupCamera(int, int, int, int)] Call
+CALLFUNC 0.0382; UsrFunc[combodata setupCamera(int, int, int, int)] Call
 PEEK D4
 PUSHR GD2; UsrFunc[void trigger(int)] Params
-CALLFUNC 0.0446; UsrFunc[void trigger(int)] Call
+CALLFUNC 0.0448; UsrFunc[void trigger(int)] Call
 POP D4; unless() Body End
 NOP
 PUSHR D4
@@ -1257,7 +1259,7 @@ PUSHARGSV 0 0.0002; UsrFunc[int waitForViewport(int, int, char32[])] Params Star
 ALLOCATEMEMV D2 20 0
 WRITEPODSTRING D2 "returns to the hero"
 PUSHR D2; UsrFunc[int waitForViewport(int, int, char32[])] Params End
-CALLFUNC 0.0494; UsrFunc[int waitForViewport(int, int, char32[])] Call
+CALLFUNC 0.0496; UsrFunc[int waitForViewport(int, int, char32[])] Call
 POP D4
 REF_REMOVE 0.0005
 REF_REMOVE 0.0006
@@ -1271,7 +1273,7 @@ PUSHV 1
 ALLOCATEMEMV D2 11 0
 WRITEPODSTRING D2 "on arrival"
 PUSHR D2; UsrFunc[void runCausesMode(int, int, bool, char32[])] Params End
-CALLFUNC 0.0992; UsrFunc[void runCausesMode(int, int, bool, char32[])] Call
+CALLFUNC 0.0994; UsrFunc[void runCausesMode(int, int, bool, char32[])] Call
 PEEK D4
 PUSHV 1; UsrFunc[void runCausesMode(int, int, bool, char32[])] Params Start
 PUSHV 20
@@ -1279,7 +1281,7 @@ PUSHV 1
 ALLOCATEMEMV D2 13 0
 WRITEPODSTRING D2 "when leaving"
 PUSHR D2; UsrFunc[void runCausesMode(int, int, bool, char32[])] Params End
-CALLFUNC 0.0992; UsrFunc[void runCausesMode(int, int, bool, char32[])] Call
+CALLFUNC 0.0994; UsrFunc[void runCausesMode(int, int, bool, char32[])] Call
 PEEK D4
 PUSHV 0; UsrFunc[void runCausesMode(int, int, bool, char32[])] Params Start
 PUSHV 20
@@ -1287,7 +1289,7 @@ PUSHV 1
 ALLOCATEMEMV D2 17 0
 WRITEPODSTRING D2 "back at the hero"
 PUSHR D2; UsrFunc[void runCausesMode(int, int, bool, char32[])] Params End
-CALLFUNC 0.0992; UsrFunc[void runCausesMode(int, int, bool, char32[])] Call
+CALLFUNC 0.0994; UsrFunc[void runCausesMode(int, int, bool, char32[])] Call
 PEEK D4
 PUSHV 2; UsrFunc[void runCausesMode(int, int, bool, char32[])] Params Start
 PUSHV 0
@@ -1295,7 +1297,7 @@ PUSHV 1
 ALLOCATEMEMV D2 13 0
 WRITEPODSTRING D2 "when leaving"
 PUSHR D2; UsrFunc[void runCausesMode(int, int, bool, char32[])] Params End
-CALLFUNC 0.0992; UsrFunc[void runCausesMode(int, int, bool, char32[])] Call
+CALLFUNC 0.0994; UsrFunc[void runCausesMode(int, int, bool, char32[])] Call
 PEEK D4
 PUSHV 1; UsrFunc[void runCausesMode(int, int, bool, char32[])] Params Start
 PUSHV 20
@@ -1303,19 +1305,19 @@ PUSHV 0
 ALLOCATEMEMV D2 13 0
 WRITEPODSTRING D2 "after idling"
 PUSHR D2; UsrFunc[void runCausesMode(int, int, bool, char32[])] Params End
-CALLFUNC 0.0992; UsrFunc[void runCausesMode(int, int, bool, char32[])] Call
+CALLFUNC 0.0994; UsrFunc[void runCausesMode(int, int, bool, char32[])] Call
 POP D4
 RETURNFUNC; Func[void testCausesModes()] Body End
 PUSHARGSV 0 0.0004; Func[void testFreeze()] Body Start
 SETR D4 SP2
 PUSHR D4
 PUSHARGSV 32 0.0002; UsrFunc[void placeHero(int, int)] Params Start AND UsrFunc[void placeHero(int, int)] Params End
-CALLFUNC 0.0537; UsrFunc[void placeHero(int, int)] Call
+CALLFUNC 0.0539; UsrFunc[void placeHero(int, int)] Call
 PEEK D4
 ALLOCATEMEMV D2 57 0; UsrFunc[void Label(char32[])] Params Start
 WRITEPODSTRING D2 "freeze: the arrow must not move until the camera is back"
 PUSHR D2; UsrFunc[void Label(char32[])] Params End
-CALLFUNC 0.2362; UsrFunc[void Label(char32[])] Call
+CALLFUNC 0.2511; UsrFunc[void Label(char32[])] Call
 POP D4
 SETV D2 130; InlineFunc[eweapon screendata::CreateEWeapon(int)] Params
 CREATEEWEAPONR D2; InlineFunc[eweapon screendata::CreateEWeapon(int)] Body Start
@@ -1367,13 +1369,13 @@ POP D2
 POP REFEWPN
 SETR EWPNPOWER D2
 PUSHR D4
-CALLFUNC 0.0212; UsrFunc[void frame()] Call
+CALLFUNC 0.0214; UsrFunc[void frame()] Call
 PEEK D4
 PUSHV 2; UsrFunc[combodata setupCamera(int, int, int, int)] Params Start
 PUSHV 160
 PUSHV 0
 PUSHV 8; UsrFunc[combodata setupCamera(int, int, int, int)] Params End
-CALLFUNC 0.0380; UsrFunc[combodata setupCamera(int, int, int, int)] Call
+CALLFUNC 0.0382; UsrFunc[combodata setupCamera(int, int, int, int)] Call
 POP D4
 STORE D2 0.0002
 SETV D2 1
@@ -1402,9 +1404,9 @@ POP REFCOMBODATA
 SETR COMBODUSRFLAGARR D2
 PUSHR D4
 PUSHR GD2; UsrFunc[void trigger(int)] Params
-CALLFUNC 0.0446; UsrFunc[void trigger(int)] Call
+CALLFUNC 0.0448; UsrFunc[void trigger(int)] Call
 PEEK D4
-CALLFUNC 0.0212; UsrFunc[void frame()] Call
+CALLFUNC 0.0214; UsrFunc[void frame()] Call
 POP D4
 LOAD D2 0.0003
 PUSHR D2
@@ -1414,18 +1416,18 @@ STORE D2 0.0001
 STOREV 0 0
 PUSHR D4; while() Test
 PUSHARGSV 0 0.0002; UsrFunc[bool viewportAt(int, int)] Params Start AND UsrFunc[bool viewportAt(int, int)] Params End
-CALLFUNC 0.0476; UsrFunc[bool viewportAt(int, int)] Call
+CALLFUNC 0.0478; UsrFunc[bool viewportAt(int, int)] Call
 POP D4
 COMPAREV D2 0
-GOTOCMP 1398 ==
+GOTOCMP 1400 ==
 LOAD D2 0
 COMPAREV D2 2
-GOTOCMP 1398 <
+GOTOCMP 1400 <
 SETV D2 0
-GOTO 1399
+GOTO 1401
 SETV D2 1
 COMPAREV D2 0
-GOTOCMP 1419 ==; Test 'while'
+GOTOCMP 1421 ==; Test 'while'
 PUSHR D4; while() Body Start
 LOAD D2 0.0003; UsrFunc[void AssertEqual(int, int, char32[])] Params Start
 PUSHR D2
@@ -1436,14 +1438,14 @@ PUSHR D2
 ALLOCATEMEMV D2 53 0
 WRITEPODSTRING D2 "weapons don't move while the camera freezes the game"
 PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
-CALLFUNC 0.2121; UsrFunc[void AssertEqual(int, int, char32[])] Call
+CALLFUNC 0.2270; UsrFunc[void AssertEqual(int, int, char32[])] Call
 PEEK D4
-CALLFUNC 0.0212; UsrFunc[void frame()] Call
+CALLFUNC 0.0214; UsrFunc[void frame()] Call
 POP D4
 LOAD D2 0
 ADDV D2 1
 STORE D2 0; while() Body End
-GOTO 1387; while() End
+GOTO 1389; while() End
 ALLOCATEMEMV D2 26 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
 WRITEPODSTRING D2 "freeze: lasted %d frames\n"
 PUSHR D2
@@ -1453,7 +1455,7 @@ PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
 POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
 PUSHR D4
 PUSHV 2; UsrFunc[void frames(int)] Params
-CALLFUNC 0.0270; UsrFunc[void frames(int)] Call
+CALLFUNC 0.0272; UsrFunc[void frames(int)] Call
 PEEK D4
 LOAD D2 0.0003; UsrFunc[void Assert(bool, char32[])] Params Start
 PUSHR D2
@@ -1468,7 +1470,7 @@ PUSHR D2
 ALLOCATEMEMV D2 43 0
 WRITEPODSTRING D2 "weapons move again once the camera is done"
 PUSHR D2; UsrFunc[void Assert(bool, char32[])] Params End
-CALLFUNC 0.2149; UsrFunc[void Assert(bool, char32[])] Call
+CALLFUNC 0.2298; UsrFunc[void Assert(bool, char32[])] Call
 POP D4
 POPARGS D5 0.0004
 RETURNFUNC; Func[void testFreeze()] Body End
@@ -1476,18 +1478,18 @@ PUSHARGSV 0 0.0003; Func[void testChained()] Body Start
 SETR D4 SP2
 PUSHR D4
 PUSHARGSV 32 0.0002; UsrFunc[void placeHero(int, int)] Params Start AND UsrFunc[void placeHero(int, int)] Params End
-CALLFUNC 0.0537; UsrFunc[void placeHero(int, int)] Call
+CALLFUNC 0.0539; UsrFunc[void placeHero(int, int)] Call
 PEEK D4
 ALLOCATEMEMV D2 59 0; UsrFunc[void Label(char32[])] Params Start
 WRITEPODSTRING D2 "chained: right to the first, down to the second, then back"
 PUSHR D2; UsrFunc[void Label(char32[])] Params End
-CALLFUNC 0.2362; UsrFunc[void Label(char32[])] Call
+CALLFUNC 0.2511; UsrFunc[void Label(char32[])] Call
 PEEK D4
 PUSHV 3; UsrFunc[combodata setupCamera(int, int, int, int)] Params Start
 PUSHV 384
 PUSHV 88
 PUSHV 16; UsrFunc[combodata setupCamera(int, int, int, int)] Params End
-CALLFUNC 0.0380; UsrFunc[combodata setupCamera(int, int, int, int)] Call
+CALLFUNC 0.0382; UsrFunc[combodata setupCamera(int, int, int, int)] Call
 POP D4
 STORE D2 0.0002
 SETV D2 7
@@ -1523,7 +1525,7 @@ SETR CMBTRIGCHANGECMB D2
 PUSHR D4
 PUSHV 3010; UsrFunc[combodata setupEffect(int, int)] Params Start
 PUSHV 1; UsrFunc[combodata setupEffect(int, int)] Params End
-CALLFUNC 0.0291; UsrFunc[combodata setupEffect(int, int)] Call
+CALLFUNC 0.0293; UsrFunc[combodata setupEffect(int, int)] Call
 POP D4
 STORE D2 0.0001
 SETV D2 16
@@ -1615,63 +1617,63 @@ POP D2
 SETR COMBODD D2
 PUSHR D4
 PUSHR GD2; UsrFunc[void trigger(int)] Params
-CALLFUNC 0.0446; UsrFunc[void trigger(int)] Call
+CALLFUNC 0.0448; UsrFunc[void trigger(int)] Call
 PEEK D4
 PUSHR GD3; UsrFunc[int waitForViewport(int, int, char32[])] Params Start
 PUSHV 0
 ALLOCATEMEMV D2 24 0
 WRITEPODSTRING D2 "first camera pans right"
 PUSHR D2; UsrFunc[int waitForViewport(int, int, char32[])] Params End
-CALLFUNC 0.0494; UsrFunc[int waitForViewport(int, int, char32[])] Call
+CALLFUNC 0.0496; UsrFunc[int waitForViewport(int, int, char32[])] Call
 PEEK D4
 PUSHR GD3; UsrFunc[int waitForViewport(int, int, char32[])] Params Start
 PUSHR GD4
 ALLOCATEMEMV D2 24 0
 WRITEPODSTRING D2 "second camera pans down"
 PUSHR D2; UsrFunc[int waitForViewport(int, int, char32[])] Params End
-CALLFUNC 0.0494; UsrFunc[int waitForViewport(int, int, char32[])] Call
+CALLFUNC 0.0496; UsrFunc[int waitForViewport(int, int, char32[])] Call
 PEEK D4
 PUSHARGSV 0 0.0002; UsrFunc[int waitForViewport(int, int, char32[])] Params Start
 ALLOCATEMEMV D2 34 0
 WRITEPODSTRING D2 "second camera returns to the hero"
 PUSHR D2; UsrFunc[int waitForViewport(int, int, char32[])] Params End
-CALLFUNC 0.0494; UsrFunc[int waitForViewport(int, int, char32[])] Call
+CALLFUNC 0.0496; UsrFunc[int waitForViewport(int, int, char32[])] Call
 PEEK D4
-CALLFUNC 0.0212; UsrFunc[void frame()] Call
+CALLFUNC 0.0214; UsrFunc[void frame()] Call
 PEEK D4
 PUSHR D4; UsrFunc[void Assert(bool, char32[])] Params Start
 LOAD D2 0; UsrFunc[bool causesFired(int, int)] Params Start
 PUSHR D2
 PUSHV 3010; UsrFunc[bool causesFired(int, int)] Params End
-CALLFUNC 0.0463; UsrFunc[bool causesFired(int, int)] Call
+CALLFUNC 0.0465; UsrFunc[bool causesFired(int, int)] Call
 POP D4
 PUSHR D2
 ALLOCATEMEMV D2 28 0
 WRITEPODSTRING D2 "second camera's causes fire"
 PUSHR D2; UsrFunc[void Assert(bool, char32[])] Params End
-CALLFUNC 0.2149; UsrFunc[void Assert(bool, char32[])] Call
+CALLFUNC 0.2298; UsrFunc[void Assert(bool, char32[])] Call
 POP D4
 POPARGS D5 0.0003
 RETURNFUNC; Func[void testChained()] Body End
 SETR D4 SP2; Func[void testScriptCancels()] Body Start
 PUSHR D4
 PUSHARGSV 32 0.0002; UsrFunc[void placeHero(int, int)] Params Start AND UsrFunc[void placeHero(int, int)] Params End
-CALLFUNC 0.0537; UsrFunc[void placeHero(int, int)] Call
+CALLFUNC 0.0539; UsrFunc[void placeHero(int, int)] Call
 PEEK D4
 ALLOCATEMEMV D2 54 0; UsrFunc[void Label(char32[])] Params Start
 WRITEPODSTRING D2 "a script takes the viewport mid-pan: effect cancelled"
 PUSHR D2; UsrFunc[void Label(char32[])] Params End
-CALLFUNC 0.2362; UsrFunc[void Label(char32[])] Call
+CALLFUNC 0.2511; UsrFunc[void Label(char32[])] Call
 PEEK D4
 PUSHARGSV 0 0.0003; UsrFunc[combodata setupCamera(int, int, int, int)] Params Start
 PUSHV 2; UsrFunc[combodata setupCamera(int, int, int, int)] Params End
-CALLFUNC 0.0380; UsrFunc[combodata setupCamera(int, int, int, int)] Call
+CALLFUNC 0.0382; UsrFunc[combodata setupCamera(int, int, int, int)] Call
 PEEK D4
 PUSHR GD2; UsrFunc[void trigger(int)] Params
-CALLFUNC 0.0446; UsrFunc[void trigger(int)] Call
+CALLFUNC 0.0448; UsrFunc[void trigger(int)] Call
 PEEK D4
 PUSHV 10; UsrFunc[void frames(int)] Params
-CALLFUNC 0.0270; UsrFunc[void frames(int)] Call
+CALLFUNC 0.0272; UsrFunc[void frames(int)] Call
 PEEK D4
 SETR D2 VIEWPORT_X; UsrFunc[void Assert(bool, char32[])] Params Start
 COMPAREV D2 0
@@ -1680,44 +1682,44 @@ PUSHR D2
 ALLOCATEMEMV D2 20 0
 WRITEPODSTRING D2 "viewport is panning"
 PUSHR D2; UsrFunc[void Assert(bool, char32[])] Params End
-CALLFUNC 0.2149; UsrFunc[void Assert(bool, char32[])] Call
+CALLFUNC 0.2298; UsrFunc[void Assert(bool, char32[])] Call
 POP D4
 SETV D2 0.0002
 PUSHR D2
 POP D2
 SETR VIEWPORT_MODE D2
 PUSHR D4
-CALLFUNC 0.0212; UsrFunc[void frame()] Call
+CALLFUNC 0.0214; UsrFunc[void frame()] Call
 POP D4
 SETV D2 0
 PUSHR D2
 POP D2
 SETR VIEWPORT_MODE D2
 PUSHR D4
-CALLFUNC 0.0212; UsrFunc[void frame()] Call
+CALLFUNC 0.0214; UsrFunc[void frame()] Call
 PEEK D4
 PUSHR D4; UsrFunc[void Assert(bool, char32[])] Params Start
 PUSHARGSV 0 0.0002; UsrFunc[bool viewportAt(int, int)] Params Start AND UsrFunc[bool viewportAt(int, int)] Params End
-CALLFUNC 0.0476; UsrFunc[bool viewportAt(int, int)] Call
+CALLFUNC 0.0478; UsrFunc[bool viewportAt(int, int)] Call
 POP D4
 PUSHR D2
 ALLOCATEMEMV D2 29 0
 WRITEPODSTRING D2 "viewport is back on the hero"
 PUSHR D2; UsrFunc[void Assert(bool, char32[])] Params End
-CALLFUNC 0.2149; UsrFunc[void Assert(bool, char32[])] Call
+CALLFUNC 0.2298; UsrFunc[void Assert(bool, char32[])] Call
 PEEK D4
 PUSHV 10; UsrFunc[void frames(int)] Params
-CALLFUNC 0.0270; UsrFunc[void frames(int)] Call
+CALLFUNC 0.0272; UsrFunc[void frames(int)] Call
 PEEK D4
 PUSHR D4; UsrFunc[void Assert(bool, char32[])] Params Start
 PUSHARGSV 0 0.0002; UsrFunc[bool viewportAt(int, int)] Params Start AND UsrFunc[bool viewportAt(int, int)] Params End
-CALLFUNC 0.0476; UsrFunc[bool viewportAt(int, int)] Call
+CALLFUNC 0.0478; UsrFunc[bool viewportAt(int, int)] Call
 POP D4
 PUSHR D2
 ALLOCATEMEMV D2 23 0
 WRITEPODSTRING D2 "effect does not resume"
 PUSHR D2; UsrFunc[void Assert(bool, char32[])] Params End
-CALLFUNC 0.2149; UsrFunc[void Assert(bool, char32[])] Call
+CALLFUNC 0.2298; UsrFunc[void Assert(bool, char32[])] Call
 PEEK D4
 SETR D2 GD2; UsrFunc[void Assert(bool, char32[])] Params Start
 PUSHR D2
@@ -1729,47 +1731,47 @@ PUSHR D2
 ALLOCATEMEMV D2 39 0
 WRITEPODSTRING D2 "a cancelled effect's causes don't fire"
 PUSHR D2; UsrFunc[void Assert(bool, char32[])] Params End
-CALLFUNC 0.2149; UsrFunc[void Assert(bool, char32[])] Call
+CALLFUNC 0.2298; UsrFunc[void Assert(bool, char32[])] Call
 POP D4
 RETURNFUNC; Func[void testScriptCancels()] Body End
 PUSHV 0; Func[void testInvalidConfig()] Body Start
 SETR D4 SP2
 PUSHR D4
 PUSHARGSV 32 0.0002; UsrFunc[void placeHero(int, int)] Params Start AND UsrFunc[void placeHero(int, int)] Params End
-CALLFUNC 0.0537; UsrFunc[void placeHero(int, int)] Call
+CALLFUNC 0.0539; UsrFunc[void placeHero(int, int)] Call
 PEEK D4
 ALLOCATEMEMV D2 43 0; UsrFunc[void Label(char32[])] Params Start
 WRITEPODSTRING D2 "invalid: zero speed, nothing should happen"
 PUSHR D2; UsrFunc[void Label(char32[])] Params End
-CALLFUNC 0.2362; UsrFunc[void Label(char32[])] Call
+CALLFUNC 0.2511; UsrFunc[void Label(char32[])] Call
 PEEK D4
 PUSHARGSV 0 0.0004; UsrFunc[combodata setupCamera(int, int, int, int)] Params Start AND UsrFunc[combodata setupCamera(int, int, int, int)] Params End
-CALLFUNC 0.0380; UsrFunc[combodata setupCamera(int, int, int, int)] Call
+CALLFUNC 0.0382; UsrFunc[combodata setupCamera(int, int, int, int)] Call
 PEEK D4
 PUSHR GD2; UsrFunc[void trigger(int)] Params
-CALLFUNC 0.0446; UsrFunc[void trigger(int)] Call
+CALLFUNC 0.0448; UsrFunc[void trigger(int)] Call
 PEEK D4
 PUSHV 10; UsrFunc[void frames(int)] Params
-CALLFUNC 0.0270; UsrFunc[void frames(int)] Call
+CALLFUNC 0.0272; UsrFunc[void frames(int)] Call
 PEEK D4
 PUSHR D4; UsrFunc[void Assert(bool, char32[])] Params Start
 PUSHARGSV 0 0.0002; UsrFunc[bool viewportAt(int, int)] Params Start AND UsrFunc[bool viewportAt(int, int)] Params End
-CALLFUNC 0.0476; UsrFunc[bool viewportAt(int, int)] Call
+CALLFUNC 0.0478; UsrFunc[bool viewportAt(int, int)] Call
 POP D4
 PUSHR D2
 ALLOCATEMEMV D2 22 0
 WRITEPODSTRING D2 "zero speed is ignored"
 PUSHR D2; UsrFunc[void Assert(bool, char32[])] Params End
-CALLFUNC 0.2149; UsrFunc[void Assert(bool, char32[])] Call
+CALLFUNC 0.2298; UsrFunc[void Assert(bool, char32[])] Call
 PEEK D4
 ALLOCATEMEMV D2 55 0; UsrFunc[void Label(char32[])] Params Start
 WRITEPODSTRING D2 "invalid: bad interpolation mode, nothing should happen"
 PUSHR D2; UsrFunc[void Label(char32[])] Params End
-CALLFUNC 0.2362; UsrFunc[void Label(char32[])] Call
+CALLFUNC 0.2511; UsrFunc[void Label(char32[])] Call
 PEEK D4
 PUSHARGSV 0 0.0003; UsrFunc[combodata setupCamera(int, int, int, int)] Params Start
 PUSHV 4; UsrFunc[combodata setupCamera(int, int, int, int)] Params End
-CALLFUNC 0.0380; UsrFunc[combodata setupCamera(int, int, int, int)] Call
+CALLFUNC 0.0382; UsrFunc[combodata setupCamera(int, int, int, int)] Call
 POP D4
 STORE D2 0
 SETV D2 8
@@ -1786,48 +1788,48 @@ POP REFCOMBODATA
 SETR COMBODATTRIBUTES D2
 PUSHR D4
 PUSHR GD2; UsrFunc[void trigger(int)] Params
-CALLFUNC 0.0446; UsrFunc[void trigger(int)] Call
+CALLFUNC 0.0448; UsrFunc[void trigger(int)] Call
 PEEK D4
 PUSHV 10; UsrFunc[void frames(int)] Params
-CALLFUNC 0.0270; UsrFunc[void frames(int)] Call
+CALLFUNC 0.0272; UsrFunc[void frames(int)] Call
 PEEK D4
 PUSHR D4; UsrFunc[void Assert(bool, char32[])] Params Start
 PUSHARGSV 0 0.0002; UsrFunc[bool viewportAt(int, int)] Params Start AND UsrFunc[bool viewportAt(int, int)] Params End
-CALLFUNC 0.0476; UsrFunc[bool viewportAt(int, int)] Call
+CALLFUNC 0.0478; UsrFunc[bool viewportAt(int, int)] Call
 POP D4
 PUSHR D2
 ALLOCATEMEMV D2 41 0
 WRITEPODSTRING D2 "an invalid interpolation mode is ignored"
 PUSHR D2; UsrFunc[void Assert(bool, char32[])] Params End
-CALLFUNC 0.2149; UsrFunc[void Assert(bool, char32[])] Call
+CALLFUNC 0.2298; UsrFunc[void Assert(bool, char32[])] Call
 PEEK D4
 ALLOCATEMEMV D2 44 0; UsrFunc[void Label(char32[])] Params Start
 WRITEPODSTRING D2 "invalid: bad subtype, nothing should happen"
 PUSHR D2; UsrFunc[void Label(char32[])] Params End
-CALLFUNC 0.2362; UsrFunc[void Label(char32[])] Call
+CALLFUNC 0.2511; UsrFunc[void Label(char32[])] Call
 PEEK D4
 PUSHV 99; UsrFunc[combodata setupCamera(int, int, int, int)] Params Start
 PUSHARGSV 0 0.0002
 PUSHV 4; UsrFunc[combodata setupCamera(int, int, int, int)] Params End
-CALLFUNC 0.0380; UsrFunc[combodata setupCamera(int, int, int, int)] Call
+CALLFUNC 0.0382; UsrFunc[combodata setupCamera(int, int, int, int)] Call
 POP D4
 STORE D2 0
 PUSHR D4
 PUSHR GD2; UsrFunc[void trigger(int)] Params
-CALLFUNC 0.0446; UsrFunc[void trigger(int)] Call
+CALLFUNC 0.0448; UsrFunc[void trigger(int)] Call
 PEEK D4
 PUSHV 10; UsrFunc[void frames(int)] Params
-CALLFUNC 0.0270; UsrFunc[void frames(int)] Call
+CALLFUNC 0.0272; UsrFunc[void frames(int)] Call
 PEEK D4
 PUSHR D4; UsrFunc[void Assert(bool, char32[])] Params Start
 PUSHARGSV 0 0.0002; UsrFunc[bool viewportAt(int, int)] Params Start AND UsrFunc[bool viewportAt(int, int)] Params End
-CALLFUNC 0.0476; UsrFunc[bool viewportAt(int, int)] Call
+CALLFUNC 0.0478; UsrFunc[bool viewportAt(int, int)] Call
 POP D4
 PUSHR D2
 ALLOCATEMEMV D2 30 0
 WRITEPODSTRING D2 "an invalid subtype is ignored"
 PUSHR D2; UsrFunc[void Assert(bool, char32[])] Params End
-CALLFUNC 0.2149; UsrFunc[void Assert(bool, char32[])] Call
+CALLFUNC 0.2298; UsrFunc[void Assert(bool, char32[])] Call
 POP D4
 POP D5
 RETURNFUNC; Func[void testInvalidConfig()] Body End
@@ -1837,7 +1839,7 @@ MARK_TYPE_STACK 0.0009 0.0004
 REF_INC 0.0004
 PUSHR D4
 PUSHARGSV 32 0.0002; UsrFunc[void placeHero(int, int)] Params Start AND UsrFunc[void placeHero(int, int)] Params End
-CALLFUNC 0.0537; UsrFunc[void placeHero(int, int)] Call
+CALLFUNC 0.0539; UsrFunc[void placeHero(int, int)] Call
 POP D4
 ALLOCATEMEMV D2 64 0
 STORE_OBJECT D2 0.0003
@@ -1858,7 +1860,7 @@ POPARGS D5 0.0002; InlineFunc[int sprintf(char32[], char32[], ...untyped[])] Bod
 PUSHR D4
 LOAD D2 0.0003; UsrFunc[void Label(char32[])] Params Start
 PUSHR D2; UsrFunc[void Label(char32[])] Params End
-CALLFUNC 0.2362; UsrFunc[void Label(char32[])] Call
+CALLFUNC 0.2511; UsrFunc[void Label(char32[])] Call
 POP D4
 PUSHV 128; InlineFunc[int ComboAt(int, int)] Params Start
 SETV D3 32; InlineFunc[int ComboAt(int, int)] Params End
@@ -1868,7 +1870,7 @@ STORE D2 0.0002
 PUSHR D4
 PUSHV 3020; UsrFunc[combodata setupEffect(int, int)] Params Start
 PUSHV 0; UsrFunc[combodata setupEffect(int, int)] Params End
-CALLFUNC 0.0291; UsrFunc[combodata setupEffect(int, int)] Call
+CALLFUNC 0.0293; UsrFunc[combodata setupEffect(int, int)] Call
 POP D4
 STORE D2 0.0001
 LOAD D2 0.0011
@@ -1941,32 +1943,32 @@ SETR COMBODD D2
 PUSHR D4
 LOAD D2 0.0002; UsrFunc[void trigger(int)] Params Start
 PUSHR D2; UsrFunc[void trigger(int)] Params End
-CALLFUNC 0.0446; UsrFunc[void trigger(int)] Call
+CALLFUNC 0.0448; UsrFunc[void trigger(int)] Call
 POP D4
 STOREV 0 0
 PUSHR D4; while() Test
 LOAD D2 0.0002; UsrFunc[bool causesFired(int, int)] Params Start
 PUSHR D2
 PUSHV 3020; UsrFunc[bool causesFired(int, int)] Params End
-CALLFUNC 0.0463; UsrFunc[bool causesFired(int, int)] Call
+CALLFUNC 0.0465; UsrFunc[bool causesFired(int, int)] Call
 POP D4
 COMPAREV D2 0
-GOTOCMP 1932 !=
+GOTOCMP 1934 !=
 LOAD D2 0
 COMPAREV D2 600
-GOTOCMP 1932 >=
+GOTOCMP 1934 >=
 SETV D2 1
-GOTO 1933
+GOTO 1935
 SETV D2 0
 COMPAREV D2 0
-GOTOCMP 1942 ==; Test 'while'
+GOTOCMP 1944 ==; Test 'while'
 PUSHR D4; while() Body Start
-CALLFUNC 0.0212; UsrFunc[void frame()] Call
+CALLFUNC 0.0214; UsrFunc[void frame()] Call
 POP D4
 LOAD D2 0
 ADDV D2 1
 STORE D2 0; while() Body End
-GOTO 1919; while() End
+GOTO 1921; while() End
 ALLOCATEMEMV D2 49 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
 WRITEPODSTRING D2 "walk (%s): %d frames, ended at %d, %d facing %d\n"
 PUSHR D2
@@ -1993,13 +1995,13 @@ PUSHARGSR D4 0.0002; UsrFunc[void Assert(bool, char32[])] Params Start
 LOAD D2 0.0002; UsrFunc[bool causesFired(int, int)] Params Start
 PUSHR D2
 PUSHV 3020; UsrFunc[bool causesFired(int, int)] Params End
-CALLFUNC 0.0463; UsrFunc[bool causesFired(int, int)] Call
+CALLFUNC 0.0465; UsrFunc[bool causesFired(int, int)] Call
 POP D4
 PUSHR D2
 ALLOCATEMEMV D2 31 0
 WRITEPODSTRING D2 "causes fire when the walk ends"
 PUSHR D2; UsrFunc[void Assert(bool, char32[])] Params End
-CALLFUNC 0.2149; UsrFunc[void Assert(bool, char32[])] Call
+CALLFUNC 0.2298; UsrFunc[void Assert(bool, char32[])] Call
 PEEK D4
 SETV D2 0.0001; UsrFunc[void AssertEqual(int, int, char32[])] Params Start
 PUSHR D2
@@ -2009,7 +2011,7 @@ LOAD D2 0.0006
 PUSHR D2
 LOAD D2 0.0004
 PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
-CALLFUNC 0.2121; UsrFunc[void AssertEqual(int, int, char32[])] Call
+CALLFUNC 0.2270; UsrFunc[void AssertEqual(int, int, char32[])] Call
 PEEK D4
 SETV D2 0.0001; UsrFunc[void AssertEqual(int, int, char32[])] Params Start
 PUSHR D2
@@ -2019,7 +2021,7 @@ LOAD D2 0.0005
 PUSHR D2
 LOAD D2 0.0004
 PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
-CALLFUNC 0.2121; UsrFunc[void AssertEqual(int, int, char32[])] Call
+CALLFUNC 0.2270; UsrFunc[void AssertEqual(int, int, char32[])] Call
 POP D4
 REF_REMOVE 0.0003
 REF_REMOVE 0.0004
@@ -2043,7 +2045,7 @@ PUSHV 80
 ALLOCATEMEMV D2 9 0
 WRITEPODSTRING D2 "absolute"
 PUSHR D2; UsrFunc[void testWalk(int, int, int, bool, bool, int, int, char32[])] Params End
-CALLFUNC 0.1806; UsrFunc[void testWalk(int, int, int, bool, bool, int, int, char32[])] Call
+CALLFUNC 0.1808; UsrFunc[void testWalk(int, int, int, bool, bool, int, int, char32[])] Call
 PEEK D4
 PUSHV 16; UsrFunc[void testWalk(int, int, int, bool, bool, int, int, char32[])] Params Start
 PUSHV 32
@@ -2055,7 +2057,7 @@ PUSHV 64
 ALLOCATEMEMV D2 18 0
 WRITEPODSTRING D2 "relative to combo"
 PUSHR D2; UsrFunc[void testWalk(int, int, int, bool, bool, int, int, char32[])] Params End
-CALLFUNC 0.1806; UsrFunc[void testWalk(int, int, int, bool, bool, int, int, char32[])] Call
+CALLFUNC 0.1808; UsrFunc[void testWalk(int, int, int, bool, bool, int, int, char32[])] Call
 PEEK D4
 PUSHV -16; UsrFunc[void testWalk(int, int, int, bool, bool, int, int, char32[])] Params Start
 PUSHV 48
@@ -2066,28 +2068,28 @@ PUSHV 80
 ALLOCATEMEMV D2 17 0
 WRITEPODSTRING D2 "relative to hero"
 PUSHR D2; UsrFunc[void testWalk(int, int, int, bool, bool, int, int, char32[])] Params End
-CALLFUNC 0.1806; UsrFunc[void testWalk(int, int, int, bool, bool, int, int, char32[])] Call
+CALLFUNC 0.1808; UsrFunc[void testWalk(int, int, int, bool, bool, int, int, char32[])] Call
 POP D4
 RETURNFUNC; Func[void testPlayerWalk()] Body End
 SETR D4 SP2; Func[void testScreenLoadClearsEffect()] Body Start
 PUSHR D4
 PUSHARGSV 32 0.0002; UsrFunc[void placeHero(int, int)] Params Start AND UsrFunc[void placeHero(int, int)] Params End
-CALLFUNC 0.0537; UsrFunc[void placeHero(int, int)] Call
+CALLFUNC 0.0539; UsrFunc[void placeHero(int, int)] Call
 PEEK D4
 ALLOCATEMEMV D2 53 0; UsrFunc[void Label(char32[])] Params Start
 WRITEPODSTRING D2 "warp away mid-pan: the new screen ignores the effect"
 PUSHR D2; UsrFunc[void Label(char32[])] Params End
-CALLFUNC 0.2362; UsrFunc[void Label(char32[])] Call
+CALLFUNC 0.2511; UsrFunc[void Label(char32[])] Call
 PEEK D4
 PUSHARGSV 0 0.0003; UsrFunc[combodata setupCamera(int, int, int, int)] Params Start
 PUSHV 1; UsrFunc[combodata setupCamera(int, int, int, int)] Params End
-CALLFUNC 0.0380; UsrFunc[combodata setupCamera(int, int, int, int)] Call
+CALLFUNC 0.0382; UsrFunc[combodata setupCamera(int, int, int, int)] Call
 PEEK D4
 PUSHR GD2; UsrFunc[void trigger(int)] Params
-CALLFUNC 0.0446; UsrFunc[void trigger(int)] Call
+CALLFUNC 0.0448; UsrFunc[void trigger(int)] Call
 PEEK D4
 PUSHV 10; UsrFunc[void frames(int)] Params
-CALLFUNC 0.0270; UsrFunc[void frames(int)] Call
+CALLFUNC 0.0272; UsrFunc[void frames(int)] Call
 PEEK D4
 SETR D2 VIEWPORT_X; UsrFunc[void Assert(bool, char32[])] Params Start
 COMPAREV D2 0
@@ -2096,7 +2098,7 @@ PUSHR D2
 ALLOCATEMEMV D2 20 0
 WRITEPODSTRING D2 "viewport is panning"
 PUSHR D2; UsrFunc[void Assert(bool, char32[])] Params End
-CALLFUNC 0.2149; UsrFunc[void Assert(bool, char32[])] Call
+CALLFUNC 0.2298; UsrFunc[void Assert(bool, char32[])] Call
 POP D4
 PUSHV 5; InlineFunc[void hero::Warp(int, int)] Params Start
 SETV D2 34; InlineFunc[void hero::Warp(int, int)] Params End
@@ -2104,19 +2106,166 @@ POP D3; InlineFunc[void hero::Warp(int, int)] Body Start
 WARPR D3 D2; InlineFunc[void hero::Warp(int, int)] Body End
 PUSHR D4
 PUSHV 5; UsrFunc[void frames(int)] Params
-CALLFUNC 0.0270; UsrFunc[void frames(int)] Call
+CALLFUNC 0.0272; UsrFunc[void frames(int)] Call
 PEEK D4
 PUSHR D4; UsrFunc[void Assert(bool, char32[])] Params Start
 PUSHARGSV 0 0.0002; UsrFunc[bool viewportAt(int, int)] Params Start AND UsrFunc[bool viewportAt(int, int)] Params End
-CALLFUNC 0.0476; UsrFunc[bool viewportAt(int, int)] Call
+CALLFUNC 0.0478; UsrFunc[bool viewportAt(int, int)] Call
 POP D4
 PUSHR D2
 ALLOCATEMEMV D2 56 0
 WRITEPODSTRING D2 "a new screen's viewport is not driven by the old effect"
 PUSHR D2; UsrFunc[void Assert(bool, char32[])] Params End
-CALLFUNC 0.2149; UsrFunc[void Assert(bool, char32[])] Call
+CALLFUNC 0.2298; UsrFunc[void Assert(bool, char32[])] Call
 POP D4
 RETURNFUNC; Func[void testScreenLoadClearsEffect()] Body End
+PUSHARGSV 0 0.0003; Func[void testReturnWithDeadzone()] Body Start
+SETR D4 SP2
+PUSHR D4
+PUSHV 200; UsrFunc[void placeHero(int, int)] Params Start
+PUSHV 96; UsrFunc[void placeHero(int, int)] Params End
+CALLFUNC 0.0539; UsrFunc[void placeHero(int, int)] Call
+PEEK D4
+ALLOCATEMEMV D2 53 0; UsrFunc[void Label(char32[])] Params Start
+WRITEPODSTRING D2 "return with a deadzone: ends on the deadzone's focus"
+PUSHR D2; UsrFunc[void Label(char32[])] Params End
+CALLFUNC 0.2511; UsrFunc[void Label(char32[])] Call
+POP D4
+SETV D2 32
+PUSHR D2
+POP D2
+SETR VIEWPORT_DEADZONE_WIDTH D2
+STOREV 0 0.0002; for() setup
+LOAD D2 0.0002; for() LoopTest
+COMPAREV D2 40
+SETCMP D2 I<
+COMPAREV D2 0
+GOTOCMP 2134 ==; for() TestFail?
+PUSHV 5; InlineFunc[void WaitTo(ScriptTiming, bool)] Params Start AND for() Body Start
+SETV D3 0; InlineFunc[void WaitTo(ScriptTiming, bool)] Params End
+POP D2; InlineFunc[void WaitTo(ScriptTiming, bool)] Body Start
+WAITTO D2 D3; InlineFunc[void WaitTo(ScriptTiming, bool)] Body End
+SETV D2 1
+PUSHR D2
+SETV D2 3
+PUSHR D2
+POP D0
+POP D2
+SETR BUTTONINPUT D2
+PUSHR D4
+CALLFUNC 0.0214; UsrFunc[void frame()] Call
+POP D4; for() Body End
+LOAD D2 0.0002; for() LoopIncrement
+ADDV D2 1
+STORE D2 0.0002
+GOTO 2111; for() End
+NOP
+SETR D2 VIEWPORT_X
+STORE D2 0.0002
+PUSHR D4
+SETV D2 0.0001; UsrFunc[void AssertEqual(int, int, char32[])] Params Start
+PUSHR D2
+POP REFSPRITE
+SETR D2 SPRITE_X
+ADDV D2 8
+PUSHR D2
+LOAD D2 0.0002
+PUSHR D2
+SETR D2 VIEWPORT_WIDTH
+DIVV D2 2
+POP D3
+ADDR D2 D3
+POP D3
+SUBR D3 D2
+PUSHR D3
+PUSHV 16
+ALLOCATEMEMV D2 36 0
+WRITEPODSTRING D2 "hero is pinned to the deadzone edge"
+PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
+CALLFUNC 0.2270; UsrFunc[void AssertEqual(int, int, char32[])] Call
+PEEK D4
+PUSHV 2; UsrFunc[combodata setupCamera(int, int, int, int)] Params Start
+PUSHV 0
+PUSHV 64
+PUSHV 8; UsrFunc[combodata setupCamera(int, int, int, int)] Params End
+CALLFUNC 0.0382; UsrFunc[combodata setupCamera(int, int, int, int)] Call
+POP D4
+STORE D2 0.0001
+SETV D2 1
+PUSHR D2
+LOAD D2 0.0001
+POP D3
+PUSHR D2
+PUSHR D3
+SETV D2 1
+PUSHR D2
+POP D0
+POP D2
+POP REFCOMBODATA
+SETR COMBODUSRFLAGARR D2
+PUSHR D4
+PUSHR GD2; UsrFunc[void trigger(int)] Params
+CALLFUNC 0.0448; UsrFunc[void trigger(int)] Call
+POP D4
+STOREV 0 0; for() setup
+LOAD D2 0; for() LoopTest
+COMPAREV D2 600
+GOTOCMP 2195 >=
+PUSHR D4
+PUSHR GD2; UsrFunc[bool causesFired(int, int)] Params Start
+PUSHV 3000; UsrFunc[bool causesFired(int, int)] Params End
+CALLFUNC 0.0465; UsrFunc[bool causesFired(int, int)] Call
+POP D4
+COMPAREV D2 0
+GOTOCMP 2195 !=
+SETV D2 1
+GOTO 2196
+SETV D2 0
+COMPAREV D2 0
+GOTOCMP 2205 ==; for() TestFail?
+PUSHR D4; for() Body Start
+CALLFUNC 0.0214; UsrFunc[void frame()] Call
+POP D4; for() Body End
+LOAD D2 0; for() LoopIncrement
+ADDV D2 1
+STORE D2 0
+GOTO 2183; for() End
+NOP
+PUSHARGSR D4 0.0002; UsrFunc[void Assert(bool, char32[])] Params Start
+PUSHR GD2; UsrFunc[bool causesFired(int, int)] Params Start
+PUSHV 3000; UsrFunc[bool causesFired(int, int)] Params End
+CALLFUNC 0.0465; UsrFunc[bool causesFired(int, int)] Call
+POP D4
+PUSHR D2
+ALLOCATEMEMV D2 28 0
+WRITEPODSTRING D2 "causes fire after returning"
+PUSHR D2; UsrFunc[void Assert(bool, char32[])] Params End
+CALLFUNC 0.2298; UsrFunc[void Assert(bool, char32[])] Call
+PEEK D4
+PUSHR VIEWPORT_X; UsrFunc[void AssertEqual(int, int, char32[])] Params Start
+LOAD D2 0.0002
+PUSHR D2
+ALLOCATEMEMV D2 29 0
+WRITEPODSTRING D2 "the return ends on the focus"
+PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
+CALLFUNC 0.2270; UsrFunc[void AssertEqual(int, int, char32[])] Call
+PEEK D4
+CALLFUNC 0.0214; UsrFunc[void frame()] Call
+PEEK D4
+PUSHR VIEWPORT_X; UsrFunc[void AssertEqual(int, int, char32[])] Params Start
+LOAD D2 0.0002
+PUSHR D2
+ALLOCATEMEMV D2 53 0
+WRITEPODSTRING D2 "the viewport doesn't jump once the effect hands back"
+PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
+CALLFUNC 0.2270; UsrFunc[void AssertEqual(int, int, char32[])] Call
+POP D4
+SETV D2 0
+PUSHR D2
+POP D2
+SETR VIEWPORT_DEADZONE_WIDTH D2
+POPARGS D5 0.0003
+RETURNFUNC; Func[void testReturnWithDeadzone()] Body End
 SETR D4 SP2; Func[void Init(int)] Body Start
 ALLOCATEMEMV D2 35 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
 WRITEPODSTRING D2 "[Test] started: dmap %d screen %d\n"
@@ -2130,7 +2279,7 @@ LOAD D2 0; if() Test
 COMPAREV D2 0
 SETCMP D2 I!=
 COMPAREV D2 0
-GOTOCMP 2111 ==; Test 'if'
+GOTOCMP 2260 ==; Test 'if'
 PUSHV 5; InlineFunc[void hero::Warp(int, int)] Params Start AND if() Body Start
 LOAD D2 0; InlineFunc[void hero::Warp(int, int)] Params End
 POP D3; InlineFunc[void hero::Warp(int, int)] Body Start
@@ -2156,7 +2305,7 @@ POP D3
 COMPARER D3 D2
 SETCMP D2 I!=
 COMPAREV D2 0
-GOTOCMP 2145 ==; Test 'if'
+GOTOCMP 2294 ==; Test 'if'
 ALLOCATEMEMV D2 53 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start AND if() Body Start
 WRITEPODSTRING D2 "[Test] failed assertion: expected %d but got %d. %s\n"
 PUSHR D2
@@ -2179,10 +2328,10 @@ MARK_TYPE_STACK 0.0009 0
 REF_INC 0
 LOAD D2 0.0001; unless() Test
 COMPAREV D2 0
-GOTOCMP 2158 !=; Test 'unless'
+GOTOCMP 2307 !=; Test 'unless'
 LOAD D2 0; UsrFunc[void Fail(char32[])] Params Start AND unless() Body Start
 PUSHR D2; UsrFunc[void Fail(char32[])] Params End
-CALLFUNC 0.2162; UsrFunc[void Fail(char32[])] Call AND [Opt:NeverRet] AND unless() Body End
+CALLFUNC 0.2311; UsrFunc[void Fail(char32[])] Call AND [Opt:NeverRet] AND unless() Body End
 NOP
 REF_REMOVE 0
 POPARGS D5 0.0002
@@ -2196,7 +2345,7 @@ STRINGLENGTH D2 D3; InlineFunc[int strlen(char32[])] Body
 COMPAREV D2 0
 SETCMP D2 I>
 COMPAREV D2 0
-GOTOCMP 2181 ==; Test 'if'
+GOTOCMP 2330 ==; Test 'if'
 ALLOCATEMEMV D2 24 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start AND if() Body Start
 WRITEPODSTRING D2 "[Test] failed test: %s\n"
 PUSHR D2
@@ -2205,7 +2354,7 @@ PUSHVARGR D2
 MARK_TYPE_VARG 0.0009; InlineFunc[void printf(char32[], ...untyped[])] Params End
 PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
 POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
-GOTO 2186; if() Body End
+GOTO 2335; if() Body End
 ALLOCATEMEMV D2 20 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start AND if() Else Start
 WRITEPODSTRING D2 "[Test] failed test\n"
 PUSHR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
@@ -2230,7 +2379,7 @@ POP D3
 COMPARER D3 D2
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 2258 ==; for() TestFail?
+GOTOCMP 2407 ==; for() TestFail?
 STOREV 0 0.0001; for() setup AND for() Body Start
 LOAD D2 0.0001; for() LoopTest
 PUSHR D2
@@ -2239,7 +2388,7 @@ POP D3
 COMPARER D3 D2
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 2253 ==; for() TestFail?
+GOTOCMP 2402 ==; for() TestFail?
 LOAD D2 0.0003; InlineFunc[mapdata Game::LoadMapData(int, int)] Params Start AND for() Body Start
 PUSHR D2
 LOAD D2 0.0005
@@ -2277,12 +2426,12 @@ SETR MAPDATAREGIONID D2; for() Body End
 LOAD D2 0.0001; for() LoopIncrement
 ADDV D2 1
 STORE D2 0.0001
-GOTO 2207; for() End
+GOTO 2356; for() End
 NOP; for() Body End
 LOAD D2 0.0002; for() LoopIncrement
 ADDV D2 1
 STORE D2 0.0002
-GOTO 2198; for() End
+GOTO 2347; for() End
 NOP
 PUSHV 5; InlineFunc[void hero::Warp(int, int)] Params Start
 LOAD D2 0.0005; InlineFunc[void hero::Warp(int, int)] Params End
@@ -2334,7 +2483,7 @@ LOAD D2 0; for() LoopTest
 COMPAREV D2 16
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 2326 ==; for() TestFail?
+GOTOCMP 2475 ==; for() TestFail?
 SETV D2 0; for() Body Start
 PUSHR D2
 LOAD D2 0.0001
@@ -2350,14 +2499,14 @@ SETR COMBODUSRFLAGARR D2; for() Body End
 LOAD D2 0; for() LoopIncrement
 ADDV D2 1
 STORE D2 0
-GOTO 2305; for() End
+GOTO 2454; for() End
 NOP
 STOREV 0 0; for() setup
 LOAD D2 0; for() LoopTest
 COMPAREV D2 24
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 2349 ==; for() TestFail?
+GOTOCMP 2498 ==; for() TestFail?
 SETV D2 0; for() Body Start
 PUSHR D2
 LOAD D2 0.0001
@@ -2373,7 +2522,7 @@ SETR COMBODATTRIBUTES D2; for() Body End
 LOAD D2 0; for() LoopIncrement
 ADDV D2 1
 STORE D2 0
-GOTO 2328; for() End
+GOTO 2477; for() End
 NOP
 SETV D2 0
 PUSHR D2
@@ -2398,7 +2547,7 @@ RETURNFUNC; Func[void Label(char32[])] Body End
 SETR D4 SP2; Func[void DrawLabel()] Body Start
 SETR D2 GD1; unless() Test
 COMPAREV D2 0
-GOTOCMP 2388 ==; Test 'unless' AND return (Void) AND unless() Body
+GOTOCMP 2537 ==; Test 'unless' AND return (Void) AND unless() Body
 NOP
 SETV D2 0.0001
 PUSHR D2

@@ -13286,6 +13286,10 @@ int32_t writeinitdata(PACKFILE *f, zquestheader *)
 			new_return(88);
 		if (!p_putarr(zinit.hero_scrconfig, f))
 			new_return(89);
+		if (!p_putc(zinit.viewport_deadzone_w, f))
+			new_return(90);
+		if (!p_putc(zinit.viewport_deadzone_h, f))
+			new_return(91);
 
 		if(writecycle==0)
 		{

@@ -24,9 +24,9 @@ void getitem(int32_t id, bool nosound, bool doRunPassive);
 
 //InitData
 
-int32_t doInit(zinitdata *local_zinit, bool isZC)
+int32_t doInit(zinitdata *local_zinit, bool isZC, bool isTestQuest)
 {
-	call_init_dlg(*local_zinit, isZC);
+	call_init_dlg(*local_zinit, isZC, isTestQuest);
     return D_O_K;
 }
 
@@ -212,7 +212,9 @@ constexpr std::size_t countof(T(&)[N]) { return N; }
 	PROP(spriteflickercolor) \
 	PROP(spriteflickertransp) \
 	PROP(terminalv) \
-	PROP(transdark_percent)
+	PROP(transdark_percent) \
+	PROP(viewport_deadzone_w) \
+	PROP(viewport_deadzone_h)
 
 #define LIST_ARRAY_PROPS \
 	ARRAY_PROP(bottle_slot) \

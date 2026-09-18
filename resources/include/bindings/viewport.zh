@@ -36,6 +36,27 @@ class Viewport {
 	// @zasm_var VIEWPORT_TARGET
 	internal sprite Target;
 
+	// Width of the viewport deadzone box, in pixels (0 to 240). While the [Target]'s center stays
+	// within this box (centered on the viewport's focus point), the viewport does not move
+	// horizontally; once the target pushes past an edge of the box, the viewport moves just enough
+	// to keep it on the edge.
+	//
+	// Defaults to the value set in the editor's Init Data 'Regions' tab (0 unless changed:
+	// the viewport stays locked to the target). Only observable in scrolling regions. Writing
+	// to this overrides the Init Data value until the game is restarted or continued; write -1
+	// to clear the override early (reading always returns the effective value, never -1).
+	// Unlike [Mode] and [Target], it is NOT reset by scrolling or by camera cutscene effects.
+	//
+	// @versionadded 3.0
+	// @zasm_var VIEWPORT_DEADZONE_WIDTH
+	internal int DeadzoneWidth;
+
+	// Height of the viewport deadzone box, in pixels (0 to 160). See [DeadzoneWidth].
+	//
+	// @versionadded 3.0
+	// @zasm_var VIEWPORT_DEADZONE_HEIGHT
+	internal int DeadzoneHeight;
+
 	// Unless [Mode] is [VIEW_MODE_SCRIPT], this is updated every frame by the engine.
 	//
 	// @zasm_var VIEWPORT_X
