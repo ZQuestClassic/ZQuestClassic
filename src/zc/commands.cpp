@@ -91,6 +91,9 @@ void zplayer_handle_commands()
 		if (!run_tests(test_debugger, "test_debugger", verbose)) success = false;
 #endif
 
+		extern TestResults test_title_reload(bool);
+		if (!run_tests(test_title_reload, "test_title_reload", verbose)) success = false;
+
 		if (success)
 			printf("all tests passed\n");
 		else
