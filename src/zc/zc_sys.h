@@ -183,6 +183,7 @@ int32_t onShowLayerE();
 int32_t onShowFFScripts();
 int32_t onShowHitboxes();
 int32_t onShowTriggerProx();
+int32_t onShowViewportFollow();
 int32_t onShowInfoOpacity();
 
 

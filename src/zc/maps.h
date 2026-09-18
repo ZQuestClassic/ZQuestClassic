@@ -283,9 +283,6 @@ void tick_viewport_follow();
 void reset_viewport_follow(bool keep_lookahead = false);
 std::pair<zfix, zfix> get_viewport_lookahead_offset();
 void drop_viewport_lookahead();
-// The follow settings in effect: the current dmap's own if it has dmfCUSTOM_VIEWPORT_FOLLOW, else
-// Init Data's.
-const ViewportFollowSettings& get_viewport_follow_settings();
 // Script overrides for the follow settings (unset = use the configured value), written via
 // Viewport->. Cleared (= {}) by Viewport->ResetFollowSettings(), at game start and on continue,
 // but not by scrolling (unlike Viewport->Mode/Target). The script setters validate the range.
@@ -295,14 +292,10 @@ struct ViewportFollowOverrides
 	std::optional<zfix> lookahead_speed, recenter_speed;
 };
 extern ViewportFollowOverrides viewport_follow_overrides;
-// The effective follow settings: the script override if set, else the configured value.
-int get_viewport_deadzone_width();
-int get_viewport_deadzone_height();
-int get_viewport_lookahead_x();
-int get_viewport_lookahead_y();
-zfix get_viewport_lookahead_speed();
-zfix get_viewport_recenter_speed();
-int get_viewport_recenter_delay();
+// The follow settings in effect: each script override if set, else the configured value (the
+// current dmap's own if it has dmfCUSTOM_VIEWPORT_FOLLOW, else Init Data's), clamped to its
+// valid range.
+ViewportFollowSettings get_viewport_follow_settings();
 void update_viewport();
 mapscr* determine_hero_screen_from_coords();
 bool edge_of_region(direction dir);

@@ -53,37 +53,37 @@ int32_t viewport_get_register(int32_t reg)
 		break;
 		case VIEWPORT_DEADZONE_WIDTH:
 		{
-			ret = get_viewport_deadzone_width() * 10000;
+			ret = get_viewport_follow_settings().deadzone_w * 10000;
 		}
 		break;
 		case VIEWPORT_DEADZONE_HEIGHT:
 		{
-			ret = get_viewport_deadzone_height() * 10000;
+			ret = get_viewport_follow_settings().deadzone_h * 10000;
 		}
 		break;
 		case VIEWPORT_LOOKAHEAD_X:
 		{
-			ret = get_viewport_lookahead_x() * 10000;
+			ret = get_viewport_follow_settings().lookahead_x * 10000;
 		}
 		break;
 		case VIEWPORT_LOOKAHEAD_Y:
 		{
-			ret = get_viewport_lookahead_y() * 10000;
+			ret = get_viewport_follow_settings().lookahead_y * 10000;
 		}
 		break;
 		case VIEWPORT_LOOKAHEAD_SPEED:
 		{
-			ret = get_viewport_lookahead_speed().getZLong();
+			ret = get_viewport_follow_settings().lookahead_speed.getZLong();
 		}
 		break;
 		case VIEWPORT_RECENTER_SPEED:
 		{
-			ret = get_viewport_recenter_speed().getZLong();
+			ret = get_viewport_follow_settings().recenter_speed.getZLong();
 		}
 		break;
 		case VIEWPORT_RECENTER_DELAY:
 		{
-			ret = get_viewport_recenter_delay() * 10000;
+			ret = get_viewport_follow_settings().recenter_delay * 10000;
 		}
 		break;
 		case VIEWPORT_X:

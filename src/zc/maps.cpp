@@ -73,6 +73,9 @@ struct ViewportFollowState
 	// Current lookahead offset, eased by tick_viewport_follow toward the configured
 	// lookahead distance along the direction the target is moving.
 	zfix lookahead_x, lookahead_y;
+	// Where that easing is heading (equal to the offset while it holds). Only the camera
+	// debug overlay reads this.
+	zfix lookahead_want_x, lookahead_want_y;
 	// The target's center as of the last tick, to tell which way it's moving.
 	zfix target_x, target_y;
 	// How many consecutive ticks the target has stood still, for idle recentering.
@@ -438,65 +441,44 @@ void set_viewport_sprite(sprite* spr)
 	viewport_sprite_uid = spr->uid;
 }
 
-const ViewportFollowSettings& get_viewport_follow_settings()
+// The center of the viewport target: the point the follow logic tracks.
+static std::pair<zfix, zfix> get_viewport_target_center()
 {
+	sprite* spr = get_viewport_sprite();
+	return {spr->x + spr->txsz*16/2, spr->y + spr->tysz*16/2};
+}
+
+ViewportFollowSettings get_viewport_follow_settings()
+{
+	ViewportFollowSettings settings = zinit.viewport_follow;
 	if (unsigned(cur_dmap) < MAXDMAPS && (DMaps[cur_dmap].flags & dmfCUSTOM_VIEWPORT_FOLLOW))
-		return DMaps[cur_dmap].viewport_follow;
-	return zinit.viewport_follow;
-}
+		settings = DMaps[cur_dmap].viewport_follow;
 
-int get_viewport_deadzone_width()
-{
-	int width = viewport_follow_overrides.deadzone_w.value_or(get_viewport_follow_settings().deadzone_w);
-	return vbound(width, 0, VIEWPORT_FOLLOW_MAX_DEADZONE_W);
-}
-
-int get_viewport_deadzone_height()
-{
-	int height = viewport_follow_overrides.deadzone_h.value_or(get_viewport_follow_settings().deadzone_h);
-	return vbound(height, 0, VIEWPORT_FOLLOW_MAX_DEADZONE_H);
-}
-
-// The configured distances, not the offset the viewport holds: bound_viewport_lookahead_x/y cap
-// that per axis.
-int get_viewport_lookahead_x()
-{
-	return viewport_follow_overrides.lookahead_x.value_or(get_viewport_follow_settings().lookahead_x);
-}
-
-int get_viewport_lookahead_y()
-{
-	return viewport_follow_overrides.lookahead_y.value_or(get_viewport_follow_settings().lookahead_y);
-}
-
-zfix get_viewport_lookahead_speed()
-{
-	zfix speed = viewport_follow_overrides.lookahead_speed.value_or(get_viewport_follow_settings().lookahead_speed);
-	return vbound(speed, 0, VIEWPORT_FOLLOW_MAX_SPEED);
-}
-
-zfix get_viewport_recenter_speed()
-{
-	zfix speed = viewport_follow_overrides.recenter_speed.value_or(get_viewport_follow_settings().recenter_speed);
-	return vbound(speed, 0, VIEWPORT_FOLLOW_MAX_SPEED);
-}
-
-int get_viewport_recenter_delay()
-{
-	return viewport_follow_overrides.recenter_delay.value_or(get_viewport_follow_settings().recenter_delay);
+	// The script setters range-check every override, so each fits its (narrower) field.
+	const auto& overrides = viewport_follow_overrides;
+	settings.deadzone_w = vbound(overrides.deadzone_w.value_or(settings.deadzone_w), 0, VIEWPORT_FOLLOW_MAX_DEADZONE_W);
+	settings.deadzone_h = vbound(overrides.deadzone_h.value_or(settings.deadzone_h), 0, VIEWPORT_FOLLOW_MAX_DEADZONE_H);
+	// The configured distances, not the offset the viewport holds: bound_viewport_lookahead_x/y
+	// cap that per axis.
+	settings.lookahead_x = overrides.lookahead_x.value_or(settings.lookahead_x);
+	settings.lookahead_y = overrides.lookahead_y.value_or(settings.lookahead_y);
+	settings.lookahead_speed = vbound(overrides.lookahead_speed.value_or(settings.lookahead_speed), 0, VIEWPORT_FOLLOW_MAX_SPEED);
+	settings.recenter_speed = vbound(overrides.recenter_speed.value_or(settings.recenter_speed), 0, VIEWPORT_FOLLOW_MAX_SPEED);
+	settings.recenter_delay = overrides.recenter_delay.value_or(settings.recenter_delay);
+	return settings;
 }
 
 // The lookahead offset the viewport may actually hold on each axis: whatever room the deadzone
 // leaves within VIEWPORT_FOLLOW_MAX_OFFSET, so the viewport can still reach the region edges.
-static zfix bound_viewport_lookahead_x(zfix lookahead_x)
+static zfix bound_viewport_lookahead_x(zfix lookahead_x, const ViewportFollowSettings& settings)
 {
-	int cap = std::max(0, VIEWPORT_FOLLOW_MAX_OFFSET_X - get_viewport_deadzone_width()/2);
+	int cap = std::max(0, VIEWPORT_FOLLOW_MAX_OFFSET_X - settings.deadzone_w/2);
 	return vbound(lookahead_x, zfix(-cap), zfix(cap));
 }
 
-static zfix bound_viewport_lookahead_y(zfix lookahead_y)
+static zfix bound_viewport_lookahead_y(zfix lookahead_y, const ViewportFollowSettings& settings)
 {
-	int cap = std::max(0, VIEWPORT_FOLLOW_MAX_OFFSET_Y - get_viewport_deadzone_height()/2);
+	int cap = std::max(0, VIEWPORT_FOLLOW_MAX_OFFSET_Y - settings.deadzone_h/2);
 	return vbound(lookahead_y, zfix(-cap), zfix(cap));
 }
 
@@ -508,11 +490,12 @@ static zfix bound_viewport_lookahead_y(zfix lookahead_y)
 // viewport.
 static void apply_viewport_follow()
 {
-	sprite* spr = get_viewport_sprite();
-	zfix aim_x = spr->x + spr->txsz*16/2 + bound_viewport_lookahead_x(follow_state.lookahead_x);
-	zfix aim_y = spr->y + spr->tysz*16/2 + bound_viewport_lookahead_y(follow_state.lookahead_y);
-	int deadzone_w = get_viewport_deadzone_width();
-	int deadzone_h = get_viewport_deadzone_height();
+	auto settings = get_viewport_follow_settings();
+	auto [target_x, target_y] = get_viewport_target_center();
+	zfix aim_x = target_x + bound_viewport_lookahead_x(follow_state.lookahead_x, settings);
+	zfix aim_y = target_y + bound_viewport_lookahead_y(follow_state.lookahead_y, settings);
+	int deadzone_w = settings.deadzone_w;
+	int deadzone_h = settings.deadzone_h;
 	follow_state.x = vbound(follow_state.x, aim_x - deadzone_w/2, aim_x + deadzone_w/2);
 	follow_state.y = vbound(follow_state.y, aim_y - deadzone_h/2, aim_y + deadzone_h/2);
 }
@@ -525,17 +508,18 @@ static void apply_viewport_follow()
 // offset avoids re-easing after every screen.
 void reset_viewport_follow(bool keep_lookahead)
 {
-	sprite* spr = get_viewport_sprite();
-	follow_state.target_x = spr->x + spr->txsz*16/2;
-	follow_state.target_y = spr->y + spr->tysz*16/2;
+	std::tie(follow_state.target_x, follow_state.target_y) = get_viewport_target_center();
 	follow_state.idle_frames = 0;
 	if (!keep_lookahead)
 	{
 		follow_state.lookahead_x = 0;
 		follow_state.lookahead_y = 0;
 	}
-	follow_state.x = follow_state.target_x + bound_viewport_lookahead_x(follow_state.lookahead_x);
-	follow_state.y = follow_state.target_y + bound_viewport_lookahead_y(follow_state.lookahead_y);
+	follow_state.lookahead_want_x = follow_state.lookahead_x;
+	follow_state.lookahead_want_y = follow_state.lookahead_y;
+	auto settings = get_viewport_follow_settings();
+	follow_state.x = follow_state.target_x + bound_viewport_lookahead_x(follow_state.lookahead_x, settings);
+	follow_state.y = follow_state.target_y + bound_viewport_lookahead_y(follow_state.lookahead_y, settings);
 }
 
 // The lookahead offset the follow logic currently holds (already bounded), for callers that
@@ -543,7 +527,8 @@ void reset_viewport_follow(bool keep_lookahead)
 // hero's new position plus this, so the viewport can carry the offset through the scroll.
 std::pair<zfix, zfix> get_viewport_lookahead_offset()
 {
-	return {bound_viewport_lookahead_x(follow_state.lookahead_x), bound_viewport_lookahead_y(follow_state.lookahead_y)};
+	auto settings = get_viewport_follow_settings();
+	return {bound_viewport_lookahead_x(follow_state.lookahead_x, settings), bound_viewport_lookahead_y(follow_state.lookahead_y, settings)};
 }
 
 // Drop the lookahead offset, which then rebuilds gradually as the target moves. For when
@@ -553,6 +538,8 @@ void drop_viewport_lookahead()
 {
 	follow_state.lookahead_x = 0;
 	follow_state.lookahead_y = 0;
+	follow_state.lookahead_want_x = 0;
+	follow_state.lookahead_want_y = 0;
 }
 
 static std::optional<CameraEffect> active_camera_effect;
@@ -564,8 +551,7 @@ void set_camera_effect(CameraEffect camera_effect)
 	// offset now rather than let a stale one snap the viewport when the effect hands back; it
 	// rebuilds gradually afterwards. The effect itself starts from the viewport's current
 	// position, so this doesn't affect its motion.
-	follow_state.lookahead_x = 0;
-	follow_state.lookahead_y = 0;
+	drop_viewport_lookahead();
 }
 
 std::optional<CameraEffect> get_active_camera_effect()
@@ -821,9 +807,7 @@ void tick_camera_effect()
 // accumulated meanwhile as one big step.
 static std::pair<zfix, zfix> track_viewport_target()
 {
-	sprite* spr = get_viewport_sprite();
-	zfix target_x = spr->x + spr->txsz*16/2;
-	zfix target_y = spr->y + spr->tysz*16/2;
+	auto [target_x, target_y] = get_viewport_target_center();
 	zfix dx = target_x - follow_state.target_x;
 	zfix dy = target_y - follow_state.target_y;
 	follow_state.target_x = target_x;
@@ -836,6 +820,7 @@ static std::pair<zfix, zfix> track_viewport_target()
 // viewport in that case).
 void tick_viewport_follow()
 {
+	auto settings = get_viewport_follow_settings();
 	auto [dx, dy] = track_viewport_target();
 	bool idle = dx == 0 && dy == 0;
 	follow_state.idle_frames = idle ? std::min(follow_state.idle_frames + 1, 1 << 20) : 0;
@@ -868,22 +853,20 @@ void tick_viewport_follow()
 		// Never hold more than the cap allows. The cap shrinks when the deadzone grows (a
 		// script, or entering a dmap with its own settings); left unclamped, the excess would
 		// have to ease away before turning around could move the aim point at all.
-		follow_state.lookahead_x = bound_viewport_lookahead_x(follow_state.lookahead_x);
-		follow_state.lookahead_y = bound_viewport_lookahead_y(follow_state.lookahead_y);
+		follow_state.lookahead_x = bound_viewport_lookahead_x(follow_state.lookahead_x, settings);
+		follow_state.lookahead_y = bound_viewport_lookahead_y(follow_state.lookahead_y, settings);
 		bool moving = dx != 0 || dy != 0;
-		zfix speed = get_viewport_lookahead_speed();
-		auto ease = [&](zfix& offset, int lookahead, zfix delta, zfix (*bound)(zfix)) {
-			zfix want;
-			if (!lookahead)
-				want = 0;
-			else if (!moving)
-				return;
-			else
-				want = bound(delta < 0 ? -lookahead : delta > 0 ? lookahead : 0);
+		zfix speed = settings.lookahead_speed;
+		auto ease = [&](zfix& offset, zfix& want_out, int lookahead, zfix delta, zfix (*bound)(zfix, const ViewportFollowSettings&)) {
+			// Standing still aims at the current offset, which holds it.
+			zfix want = !lookahead ? zfix(0)
+				: !moving ? offset
+				: bound(delta < 0 ? -lookahead : delta > 0 ? lookahead : 0, settings);
 			offset += vbound(want - offset, -speed, speed);
+			want_out = want;
 		};
-		ease(follow_state.lookahead_x, get_viewport_lookahead_x(), dx, bound_viewport_lookahead_x);
-		ease(follow_state.lookahead_y, get_viewport_lookahead_y(), dy, bound_viewport_lookahead_y);
+		ease(follow_state.lookahead_x, follow_state.lookahead_want_x, settings.lookahead_x, dx, bound_viewport_lookahead_x);
+		ease(follow_state.lookahead_y, follow_state.lookahead_want_y, settings.lookahead_y, dy, bound_viewport_lookahead_y);
 	}
 
 	// Idle recentering: once the target has stood still (any displacement counts, shoves
@@ -893,8 +876,8 @@ void tick_viewport_follow()
 	// stops. The deadzone clamp in apply_viewport_follow still keeps the aim point inside the
 	// box, so a lookahead larger than half the deadzone holds the focus at the box's edge;
 	// without lookahead, the target ends up centered. Time-based, so it lives here.
-	zfix recenter_speed = get_viewport_recenter_speed();
-	if (viewport_mode != ViewportMode::Script && recenter_speed > 0 && follow_state.idle_frames > get_viewport_recenter_delay())
+	zfix recenter_speed = settings.recenter_speed;
+	if (viewport_mode != ViewportMode::Script && recenter_speed > 0 && follow_state.idle_frames > settings.recenter_delay)
 	{
 		follow_state.x += vbound(follow_state.target_x - follow_state.x, -recenter_speed, recenter_speed);
 		follow_state.y += vbound(follow_state.target_y - follow_state.y, -recenter_speed, recenter_speed);
@@ -4842,6 +4825,62 @@ static void do_trigger_prox_ranges()
 	end_info_bmp();
 }
 
+// Show viewport follow cheat: draw the follow state, so quest makers can see the deadzone box
+// and watch the lookahead offset build, hold and ease.
+//   - cyan box: the deadzone, centered on the viewport's focus (white cross). The aim point
+//     must stay inside it; the viewport only moves once it pushes past an edge.
+//   - yellow line from the target's center to a filled dot: the current lookahead offset,
+//     ending at the aim point. A hollow dot marks where the easing is heading (it sits short
+//     of the configured distance when the per-axis cap is limiting it).
+static void do_viewport_follow_overlay()
+{
+	if (!show_viewport_follow || !info_bmp_enabled())
+		return;
+	// The follow logic isn't driving the viewport, so its state means nothing right now.
+	if (viewport_mode == ViewportMode::Script || has_active_camera_effect())
+		return;
+
+	start_info_bmp();
+
+	// Snap to whole pixels the same way sprites and the viewport do (getInt rounds), then
+	// draw on pixel centers. Sub-pixel coordinates would wobble against the pixel-snapped
+	// sprites and viewport as fractional positions advance.
+	auto to_screen = [](zfix wx, zfix wy) -> std::pair<float, float> {
+		return {wx.getInt() - viewport.x + 0.5f, wy.getInt() + playing_field_offset - viewport.y + 0.5f};
+	};
+	ALLEGRO_COLOR col_deadzone = al_map_rgba(85, 255, 255, info_opacity);
+	ALLEGRO_COLOR col_focus = al_map_rgba(255, 255, 255, info_opacity);
+	ALLEGRO_COLOR col_lookahead = al_map_rgba(255, 255, 85, info_opacity);
+
+	auto [target_x, target_y] = get_viewport_target_center();
+	auto [tx, ty] = to_screen(target_x, target_y);
+	auto [lookahead_x, lookahead_y] = get_viewport_lookahead_offset();
+	auto settings = get_viewport_follow_settings();
+	bool lookahead_on = settings.lookahead_x || settings.lookahead_y;
+	if (lookahead_on)
+	{
+		auto [wx, wy] = to_screen(target_x + follow_state.lookahead_want_x, target_y + follow_state.lookahead_want_y);
+		al_draw_circle(wx, wy, 3, col_lookahead, 1);
+	}
+	if (lookahead_on || lookahead_x != 0 || lookahead_y != 0)
+	{
+		auto [ax, ay] = to_screen(target_x + lookahead_x, target_y + lookahead_y);
+		al_draw_line(tx, ty, ax, ay, col_lookahead, 1);
+		al_draw_filled_circle(ax, ay, 2, col_lookahead);
+	}
+
+	auto [fx, fy] = to_screen(follow_state.x, follow_state.y);
+	int deadzone_w = settings.deadzone_w;
+	int deadzone_h = settings.deadzone_h;
+	if (deadzone_w || deadzone_h)
+		al_draw_rectangle(fx - deadzone_w/2, fy - deadzone_h/2, fx + deadzone_w/2, fy + deadzone_h/2, col_deadzone, 1);
+	// Arms span whole pixels (4 each side of the center pixel) so the cross is symmetric.
+	al_draw_line(fx - 4.5f, fy, fx + 4.5f, fy, col_focus, 1);
+	al_draw_line(fx, fy - 4.5f, fx, fy + 4.5f, col_focus, 1);
+
+	end_info_bmp();
+}
+
 // Effectflags L4 cheat
 void do_effectflags(mapscr* scr, int32_t x, int32_t y)
 {
@@ -5454,6 +5493,9 @@ void draw_screen(bool showhero, bool runGeneric, bool drawPassiveSubscreenSepara
 
 	// Show trigger proximity cheat
 	do_trigger_prox_ranges();
+
+	// Show viewport follow cheat
+	do_viewport_follow_overlay();
 
 	putscrdoors(nearby_screens, scrollbuf, 0, playing_field_offset);
 	

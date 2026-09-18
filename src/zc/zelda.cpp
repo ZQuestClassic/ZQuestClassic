@@ -297,7 +297,7 @@ bool palette_user_tinted = false;
 
 bool show_layers[7] = {true,true,true,true,true,true,true};
      //oveheard combos     //pushblocks
-bool show_layer_over=true, show_layer_push=true, show_sprites=true, show_ffcs=true, show_hitboxes=false, show_walkflags=false, show_ff_scripts=false, show_effectflags = false, show_trigger_prox = false;
+bool show_layer_over=true, show_layer_push=true, show_sprites=true, show_ffcs=true, show_hitboxes=false, show_walkflags=false, show_ff_scripts=false, show_effectflags = false, show_trigger_prox = false, show_viewport_follow = false;
 
 
 bool Throttlefps = true, MenuOpen = false, ClickToFreeze=false, Paused=false, Saving=false,
@@ -1481,7 +1481,7 @@ void init_game_vars(bool is_cont_game = false)
 		cheat=0;
 		show_layers[0]=show_layers[1]=show_layers[2]=show_layers[3]=show_layers[4]=show_layers[5]=show_layers[6]=true;
 		show_layer_over=show_layer_push=show_sprites=show_ffcs=true;
-		cheat_superman=cheats_execute_light=cheats_execute_goto=show_walkflags=show_effectflags=show_ff_scripts=show_hitboxes=show_trigger_prox=gofast=false;
+		cheat_superman=cheats_execute_light=cheats_execute_goto=show_walkflags=show_effectflags=show_ff_scripts=show_hitboxes=show_trigger_prox=show_viewport_follow=gofast=false;
 
 		sprite::reset_uid_counter();
 		ResetSaveScreenSettings();

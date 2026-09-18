@@ -3732,6 +3732,11 @@ int32_t onShowTriggerProx()
 	show_trigger_prox=!show_trigger_prox;
 	return D_O_K;
 }
+int32_t onShowViewportFollow()
+{
+	show_viewport_follow=!show_viewport_follow;
+	return D_O_K;
+}
 int32_t onShowInfoOpacity()
 {
 	if (auto num = call_get_num("Debug Info Opacity", info_opacity, 255, 0))
@@ -5426,6 +5431,7 @@ enum
 	MENUID_SHOW_HITBOX,
 	MENUID_SHOW_EFFECT,
 	MENUID_SHOW_TRIGGER_PROX,
+	MENUID_SHOW_VIEWPORT_FOLLOW,
 };
 static NewMenu show_menu
 {
@@ -5447,6 +5453,7 @@ static NewMenu show_menu
 	{ "Hitboxes", onShowHitboxes, MENUID_SHOW_HITBOX },
 	{ "Effects", onShowLayerE, MENUID_SHOW_EFFECT },
 	{ "Trigger Proximity", onShowTriggerProx, MENUID_SHOW_TRIGGER_PROX },
+	{ "Viewport Follow", onShowViewportFollow, MENUID_SHOW_VIEWPORT_FOLLOW },
 	{ "Info Opacity", onShowInfoOpacity },
 };
 
@@ -5929,6 +5936,7 @@ void System()
 			show_menu.select_uid(MENUID_SHOW_HITBOX, show_hitboxes);
 			show_menu.select_uid(MENUID_SHOW_EFFECT, show_effectflags);
 			show_menu.select_uid(MENUID_SHOW_TRIGGER_PROX, show_trigger_prox);
+			show_menu.select_uid(MENUID_SHOW_VIEWPORT_FOLLOW, show_viewport_follow);
 			
 			settings_menu.select_uid(MENUID_SETTINGS_HEARTBEEP, heart_beep);
 			settings_menu.select_uid(MENUID_SETTINGS_SAVEINDICATOR, use_save_indicator);
