@@ -1810,7 +1810,7 @@ Hot keys:
  - shift+arrows: increase or decrease the selection area.
  - control+arrows: move the cursor to the corners of the page.
  - d: create Relational or Dungeon Carving variants of the selected tile. Useful only if you use the Relational or Dungeon Carving combo drawing modes.
- - control+u: toggles the hiding of unused and used tiles.
+ - control+u: cycles between hiding used tiles, hiding unused tiles, and hiding neither. Also in the right-click View menu.
  - b: changes bit depth of tile(s) to 8-bit.
  - control+b: changes bit depth of tile(s) to 4-bit.
  - m (no tile copied): opens the Combo Editor to let you create a new combo using this tile.
