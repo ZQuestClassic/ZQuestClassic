@@ -63,9 +63,44 @@ InfoDialog::InfoDialog(string const& title, vector<string> const& lines, optiona
 	postinit();
 }
 
+// Help text is written for the Ctrl key, but on macOS those shortcuts use
+// Cmd (see CHECK_CTRL_CMD). Rewrite the whole word "Ctrl" so the text
+// matches what the user has to press.
+static void localize_ctrl_key(string& text)
+{
+#ifdef ALLEGRO_MACOSX
+	static const std::pair<std::string_view, std::string_view> pairs[] = {
+		{"Ctrl", "Cmd"}, {"ctrl", "cmd"}, {"CTRL", "CMD"},
+	};
+	for (auto [from, to] : pairs)
+	{
+		size_t pos = 0;
+		while ((pos = text.find(from, pos)) != string::npos)
+		{
+			bool word_start = pos == 0 || !isalnum((unsigned char)text[pos-1]);
+			size_t end = pos + from.size();
+			bool word_end = end >= text.size() || !isalnum((unsigned char)text[end]);
+			if (word_start && word_end)
+			{
+				text.replace(pos, from.size(), to);
+				pos += to.size();
+			}
+			else
+				pos = end;
+		}
+	}
+#else
+	(void)text;
+#endif
+}
+
 static byte* next_dest_qr = nullptr;
 void InfoDialog::postinit()
 {
+	localize_ctrl_key(d_text);
+	if (d_subtext)
+		localize_ctrl_key(*d_subtext);
+	
 	if(!next_dest_qr)
 		next_dest_qr = quest_rules;
 	while(true)
