@@ -58,6 +58,18 @@ else:
         add_log(f'invalid scope: {scope}\nMust be one of: {", ".join(valid_scopes)}')
         is_valid = False
 
+# The cherry-pick annotation must be separated from the rest of the message by a
+# blank line, otherwise it gets lumped in with the preceding trailer (git's -x
+# flag does not add this blank line itself).
+lines = commit_msg.splitlines()
+for i, line in enumerate(lines):
+    if i > 0 and line.startswith('(cherry picked from commit') and lines[i - 1].strip():
+        add_log('a blank line is required before the cherry-pick annotation.')
+        add_log(f'\nbad:\n\t{lines[i - 1]}\n\t{line}')
+        add_log(f'\ngood:\n\t{lines[i - 1]}\n\n\t{line}\n')
+        is_valid = False
+        break
+
 if not is_valid:
     print(commit_msg)
     print('============== FAILED TO COMMIT ==================')
