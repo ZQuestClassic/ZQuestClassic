@@ -2954,7 +2954,11 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 	{
 		set_qr(qr_COPIED_SWIM_SPRITES, 1);
 	}
-	if ( (tempheader.zelda_version == 0x250 && tempheader.build < 33) || tempheader.zelda_version == 0x254 || tempheader.zelda_version < 0x250 || (tempheader.zelda_version == 0x255 && tempheader.build < 50) )
+	// Slash->Next combos triggered secrets in every version before 2.55 build 50. The
+	// 2.53.1 emulation patch this was ported from excluded 0x250 build 33, but that build
+	// number is shared by 2.53.0 (which never had the fix) and 2.53.1, and quests saved in
+	// either still rely on the old behavior.
+	if ( tempheader.zelda_version <= 0x254 || (tempheader.zelda_version == 0x255 && tempheader.build < 50) )
 	{
 		set_qr(qr_OLD_SLASHNEXT_SECRETS, 1);
 	}
