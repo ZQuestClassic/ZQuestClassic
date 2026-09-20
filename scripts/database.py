@@ -1,6 +1,7 @@
 # Run as a script to download the database.
 
 import argparse
+import hashlib
 import json
 import os
 
@@ -150,9 +151,7 @@ class Database:
 
         if path.exists():
             object_summary = next(x for x in self._object_summaries if x.key == key)
-            local_mtime = os.path.getmtime(path)
-            local_datetime = datetime.fromtimestamp(local_mtime, tz=timezone.utc)
-            if object_summary.last_modified > local_datetime:
+            if not self._is_local_up_to_date(path, object_summary):
                 print(f'[database] updating {key}')
                 self.bucket.download_file(key, path)
         else:
@@ -161,6 +160,26 @@ class Database:
             self.bucket.download_file(key, path)
 
         return path
+
+    def _is_local_up_to_date(self, path: Path, object_summary) -> bool:
+        local_mtime = os.path.getmtime(path)
+        local_datetime = datetime.fromtimestamp(local_mtime, tz=timezone.utc)
+        if object_summary.last_modified <= local_datetime:
+            return True
+
+        # The bucket object is newer, but it may still be identical - for example when the local
+        # file was created by the collect script and then uploaded. Compare before downloading.
+        if object_summary.size != path.stat().st_size:
+            return False
+
+        # Multipart uploads don't have an md5 etag, so settle for the size matching.
+        etag = object_summary.e_tag.strip('"')
+        if '-' not in etag and etag != hashlib.md5(path.read_bytes()).hexdigest():
+            return False
+
+        # Mark the local file as current so the cheap timestamp check passes next time.
+        os.utime(path, None)
+        return True
 
     def download_all(self, prefix=''):
         for object_summary in self._object_summaries:
