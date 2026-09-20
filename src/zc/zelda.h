@@ -60,6 +60,7 @@ enum
 };
 
 void init_and_run_main_zplayer_loop();
+void init_zplayer_for_test();
 
 void port250QuestRules();
 
