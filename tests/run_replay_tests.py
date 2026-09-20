@@ -747,7 +747,7 @@ def prompt_to_create_compare_report(failing_test_results_list: list[ReplayTestRe
                     encoding='utf-8',
                 ).strip()
                 most_recent_stable = archives_255_output.splitlines()[-1].split(' ')[1]
-            except e as Exception:
+            except Exception as e:
                 print('error finding latest stable version, using 2.55.11 instead')
                 print(e)
                 most_recent_stable = '2.55.11'
