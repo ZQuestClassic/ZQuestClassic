@@ -7,9 +7,9 @@ import argparse
 import functools
 import io
 import os
-import re
 import shutil
 import subprocess
+import sys
 import tarfile
 import textwrap
 import zipfile
@@ -99,7 +99,7 @@ def get_release_commit_count_of_tag(branch: str, tag: str):
 
 def get_release_commit_count_of_tag_or_raise(branch: str, tag: str):
     commit_count = get_release_commit_count_of_tag(branch, tag)
-    if commit_count == None:
+    if commit_count is None:
         raise Exception(f'can not find {branch} commit for tag: {tag}')
     return commit_count
 
@@ -122,7 +122,7 @@ def has_release_package(tag: str, release_platform: str):
     except Exception as e:
         print(
             f'warning: could not check release package for {tag}: {e}',
-            file=os.sys.stderr,
+            file=sys.stderr,
         )
         return False
 
@@ -236,22 +236,24 @@ def get_revisions(
     for tag in tags:
         commit_count = get_release_commit_count_of_tag(branch, tag)
 
-        if commit_count != None and not revision_count_supports_platform(
+        if commit_count is not None and not revision_count_supports_platform(
             commit_count, release_platform, branch
         ):
             ignore_commit_counts.append(commit_count)
             continue
 
         # Every release after this one will have binaries, but before only some do.
-        if commit_count != None and commit_count < get_release_commit_count_of_tag_or_raise(
-            branch, '2.55-alpha-107'
+        if (
+            commit_count is not None
+            and commit_count
+            < get_release_commit_count_of_tag_or_raise(branch, '2.55-alpha-107')
         ):
             if not has_release_package(tag, release_platform):
                 ignore_commit_counts.append(commit_count)
                 continue
 
-        if commit_count == None:
-            commit_count = -1
+        if commit_count is None:
+            continue
 
         revisions.append(Revision(tag, commit_count, type='release'))
 
@@ -262,12 +264,11 @@ def get_revisions(
                 continue
 
             commit_count = get_release_commit_count_of_tag(branch, commitish)
-            if commit_count == None or commit_count in ignore_commit_counts:
+            if commit_count is None or commit_count in ignore_commit_counts:
                 continue
 
             revisions.append(Revision(commitish, commit_count, type='test'))
 
-    revisions = [r for r in revisions if r.commit_count != -1]
     revisions.sort(key=lambda x: x.commit_count)
     return revisions
 
@@ -359,12 +360,12 @@ def get_gh_release_package_url(tag: str, release_platform: str):
     return asset.browser_download_url
 
 
-def download(tag_or_sha: Revision, release_platform: str):
+def download(tag_or_sha: str, release_platform: str):
     if len(tag_or_sha) == 40:
-        type = 'test'
+        revision_type = 'test'
     else:
-        type = 'release'
-    revision = Revision(tag_or_sha, -1, type)
+        revision_type = 'release'
+    revision = Revision(tag_or_sha, -1, revision_type)
     return download_revision(revision, release_platform)
 
 
@@ -388,16 +389,18 @@ def download_revision(revision: Revision, release_platform: str):
     elif release_platform == 'linux':
         urls = [
             f'{prefix}linux.tar.gz',
+            f'{prefix}ubuntu.tar.gz',
+            f'{prefix}ubuntu.tgz',
         ]
     else:
         raise Exception(f'unexpected release_platform: {release_platform}')
 
     found_url = None
     for url in urls:
-        print(f'downloading {url}', file=os.sys.stderr)
+        print(f'downloading {url}', file=sys.stderr)
         r = requests.get(url)
         if not r.ok:
-            print(f'not found: {url}', file=os.sys.stderr)
+            print(f'not found: {url}', file=sys.stderr)
             continue
 
         found_url = url
@@ -406,7 +409,7 @@ def download_revision(revision: Revision, release_platform: str):
     if not found_url:
         print(
             f'Not found on {bucket_url}, falling back to using the GitHub API',
-            file=os.sys.stderr,
+            file=sys.stderr,
         )
         url = get_gh_release_package_url(revision.tag, release_platform)
         if not url:
@@ -443,16 +446,16 @@ def download_revision(revision: Revision, release_platform: str):
             tf.extractall(dest, filter='data')
             tf.close()
         else:
-            zip = zipfile.ZipFile(io.BytesIO(r.content))
-            zip.extractall(dest)
-            zip.close()
+            zf = zipfile.ZipFile(io.BytesIO(r.content))
+            zf.extractall(dest)
+            zf.close()
     except BaseException:
         # Don't leave a partial extraction behind - the next run would
         # mistake it for a completed download and skip it.
         shutil.rmtree(dest, ignore_errors=True)
         raise
 
-    print(f'finished downloading {tag}', file=os.sys.stderr)
+    print(f'finished downloading {tag}', file=sys.stderr)
     return dest
 
 
@@ -461,8 +464,7 @@ class CLI:
         parser = argparse.ArgumentParser(
             formatter_class=argparse.RawDescriptionHelpFormatter,
             description='Download and run any release build. Also supports various builds inbetween releases',
-            epilog=textwrap.dedent(
-                '''
+            epilog=textwrap.dedent('''
 			Command template:
 				- %zc is replaced with the path to the player
 				- %zq is the editor
@@ -470,16 +472,15 @@ class CLI:
 				- %zs is the zscript parser
 			
 			Example command to open the player in test mode: %zc -test someqst.qst 0 118
-			'''
-            ),
+			'''),
         )
         subparsers = parser.add_subparsers(dest='command')
 
         base = argparse.ArgumentParser(add_help=False)
         base.add_argument('--platform', default=common.get_release_platform())
-        base.add_argument('--channel', default='main')
 
         list_cmd = subparsers.add_parser('list', parents=[base])
+        list_cmd.add_argument('--channel', default='main')
         list_cmd.add_argument(
             '--test_builds',
             action=argparse.BooleanOptionalAction,
@@ -497,10 +498,10 @@ class CLI:
         run_cmd = subparsers.add_parser(
             'run',
             parents=[base],
-            help='Runs a command for the given version (can be release tag or commit sha), downloading or building as necessary',
+            help='Runs a command for the given version (can be release tag or commit sha), downloading as necessary',
         )
         run_cmd.add_argument('tag_or_sha')
-        run_cmd.add_argument('command_args', nargs=argparse.REMAINDER, default='%zl')
+        run_cmd.add_argument('command_args', nargs=argparse.REMAINDER)
 
         args = parser.parse_args()
         if not args.command:
@@ -516,10 +517,7 @@ class CLI:
             args.platform, args.channel, include_test_builds=args.test_builds
         )
         for revision in revisions:
-            if revision.commit_count == -1:
-                print(f'@? {revision.tag}')
-            else:
-                print(f'@{revision.commit_count} {revision.tag}')
+            print(f'@{revision.commit_count} {revision.tag}')
 
     def run(self, args):
         binary_dir = download(args.tag_or_sha, args.platform)
