@@ -43,7 +43,7 @@ class Revision:
         return archives_dir / self.type / self.tag
 
     def binaries(self, release_platform: str):
-        dir = _download(self, release_platform)
+        dir = download_revision(self, release_platform)
 
         return create_binary_paths(dir, release_platform)
 
