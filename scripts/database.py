@@ -70,7 +70,7 @@ class Database:
             self._object_summaries = [
                 x for x in self.bucket.objects.all() if not _should_ignore_key(x.key)
             ]
-        except e as Exception:
+        except Exception as e:
             self._object_summaries = None
             print(e)
             print('Could not access bucket, operating in offline mode')
