@@ -7,70 +7,13 @@
 #   python scripts/bisect_builds.py ... -- %zc -test "/absolute/path/to/quest.qst" 0 119
 
 import argparse
-import os
 import subprocess
 import sys
-
-from pathlib import Path
 
 import archives
 import common
 
 from archives import Revision
-from joblib import Memory
-
-parser = argparse.ArgumentParser(description='Runs a bisect using prebuilt releases.')
-parser.add_argument('--good', required=True)
-parser.add_argument('--bad', required=True)
-parser.add_argument(
-    '--validate_range',
-    action=argparse.BooleanOptionalAction,
-    default=True,
-    help='Before starting bisect, validate that the good/bad versions are accurate. Defaults to true.',
-)
-parser.add_argument(
-    '--test_builds',
-    action=argparse.BooleanOptionalAction,
-    default=True,
-    help='Includes pre-built builds not associated with official releases',
-)
-parser.add_argument('--platform', default=common.get_release_platform())
-parser.add_argument('--channel', default='main')
-parser.add_argument(
-    '--',
-    dest='command',
-    nargs='+',
-    help='command to run on each step. \'%%zc\' is replaced with the path to the player, \'%%zq\' is the editor, and \'%%zl\' is the launcher',
-)
-parser.add_argument(
-    '--check_return_code', action=argparse.BooleanOptionalAction, default=False
-)
-parser.add_argument(
-    '--timeout',
-    type=int,
-    help='Seconds to wait for the command in --check_return_code mode before killing it and considering the revision bad. Default is to wait forever.',
-)
-
-# Grab all the arguments after '--'.
-argv = sys.argv[1:]
-idx = argv.index('--') if '--' in argv else -1
-unparsed = argv[idx + 1 :] if idx >= 0 else None
-
-# Give argparse the rest.
-argv = argv[:idx] if idx >= 0 else argv
-args = parser.parse_args(argv)
-
-# Replace the contents of the dummy argument with the unparsed args.
-args.command = unparsed
-
-if args.good == args.bad:
-    parser.error('--good and --bad must be different revisions')
-
-script_dir = Path(os.path.dirname(os.path.realpath(__file__)))
-root_dir = script_dir.parent
-archives_dir = root_dir / '.tmp/archives'
-memory = Memory(root_dir / '.tmp/bisect_builds', verbose=0)
-
 
 def AskIsGoodBuild():
     while True:
@@ -185,7 +128,7 @@ def run_bisect(revisions: list[Revision]):
                 min_str,
                 revs[upper].tag,
                 max_str,
-                int(upper - lower).bit_length(),
+                (upper - lower - 1).bit_length(),
             )
         )
 
@@ -198,7 +141,6 @@ def run_bisect(revisions: list[Revision]):
         down_pivot = int((pivot - lower) / 2) + lower
         up_pivot = int((upper - pivot) / 2) + pivot
 
-        print(f'checking {rev}')
         answer = check_revision(rev)
 
         if answer == 'q':
@@ -256,9 +198,61 @@ def run_bisect(revisions: list[Revision]):
     )
 
 
-revisions = archives.get_revisions(
-    args.platform,
-    args.channel,
-    include_test_builds=args.test_builds,
-)
-run_bisect(revisions)
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description='Runs a bisect using prebuilt releases.')
+    parser.add_argument('--good', required=True)
+    parser.add_argument('--bad', required=True)
+    parser.add_argument(
+        '--validate_range',
+        action=argparse.BooleanOptionalAction,
+        default=True,
+        help='Before starting bisect, validate that the good/bad versions are accurate. Defaults to true.',
+    )
+    parser.add_argument(
+        '--test_builds',
+        action=argparse.BooleanOptionalAction,
+        default=True,
+        help='Includes pre-built builds not associated with official releases',
+    )
+    parser.add_argument(
+        '--platform',
+        default=common.get_release_platform(),
+        choices=['windows', 'mac', 'linux'],
+    )
+    parser.add_argument('--channel', default='main')
+    parser.add_argument(
+        '--',
+        dest='command',
+        nargs='+',
+        help='command to run on each step. \'%%zc\' is replaced with the path to the player, \'%%zq\' is the editor, and \'%%zl\' is the launcher',
+    )
+    parser.add_argument(
+        '--check_return_code', action=argparse.BooleanOptionalAction, default=False
+    )
+    parser.add_argument(
+        '--timeout',
+        type=int,
+        help='Seconds to wait for the command in --check_return_code mode before killing it and considering the revision bad. Default is to wait forever.',
+    )
+
+    # Grab all the arguments after '--'.
+    argv = sys.argv[1:]
+    idx = argv.index('--') if '--' in argv else -1
+    unparsed = argv[idx + 1 :] if idx >= 0 else None
+
+    # Give argparse the rest.
+    argv = argv[:idx] if idx >= 0 else argv
+    args = parser.parse_args(argv)
+
+    # Replace the contents of the dummy argument with the unparsed args.
+    args.command = unparsed
+
+    if args.good == args.bad:
+        parser.error('--good and --bad must be different revisions')
+
+    revisions = archives.get_revisions(
+        args.platform,
+        args.channel,
+        include_test_builds=args.test_builds,
+    )
+    run_bisect(revisions)
