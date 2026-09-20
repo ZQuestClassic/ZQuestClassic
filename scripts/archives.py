@@ -45,7 +45,9 @@ class Revision:
     def binaries(self, release_platform: str):
         dir = download_revision(self, release_platform)
 
-        return create_binary_paths(dir, release_platform)
+        # Tolerate builds missing some binaries (ex: no zscript in old
+        # releases); run_zc_command raises if a missing one is actually used.
+        return create_binary_paths(dir, release_platform, missing_ok=True)
 
 
 # For a given branch, assign a number (commit count) to every commit. Commits are

@@ -24,10 +24,13 @@ def run_zc_command(binaries, args):
 
     args2 = []
     for arg in args:
-        arg = arg.replace('%zc', str(binaries["zc"]))
-        arg = arg.replace('%zq', str(binaries["zq"]))
-        arg = arg.replace('%zl', str(binaries["zl"]))
-        arg = arg.replace('%zs', str(binaries["zs"]))
+        for token, key in [('%zc', 'zc'), ('%zq', 'zq'), ('%zl', 'zl'), ('%zs', 'zs')]:
+            if token not in arg:
+                continue
+            binary = binaries.get(key)
+            if not binary or not Path(binary).exists():
+                raise Exception(f'this build has no binary for {token}')
+            arg = arg.replace(token, str(binary))
         args2.append(arg)
 
     print(f'running command: {shlex.join(args2)}')
