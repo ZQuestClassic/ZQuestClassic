@@ -24,7 +24,7 @@ def dir_path(path):
     if not os.path.isfile(path) and (os.path.isdir(path) or not os.path.exists(path)):
         return Path(path)
     else:
-        raise ArgumentTypeError(f'{path} is not a valid directory')
+        raise argparse.ArgumentTypeError(f'{path} is not a valid directory')
 
 
 def calculate_md5(path: Path) -> str:
