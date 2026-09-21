@@ -284,8 +284,8 @@ void ending()
 	
 	if(QMisc.endstring==0)
 	{
-		putendmsg("THANKS HERO,YOU'RE",32,96,6,noproc);
-		putendmsg("THE HERO OF HYRULE.",32,112,6,noproc);
+		putendmsg("THANKS HERO, YOU",32,96,6,noproc);
+		putendmsg("SAVED THE LAND!",32,112,6,noproc);
 	}
 	else
 	{
@@ -380,7 +380,7 @@ void ending()
 	if(QMisc.endstring==0)
 	{
 		putendmsg("FINALLY,",96,160,8,put_triforce);
-		putendmsg("PEACE RETURNS TO HYRULE.",32,176,8,put_triforce);
+		putendmsg("PEACE RETURNS TO THE LAND.",32,176,8,put_triforce);
 		putendmsg("THIS ENDS THE STORY.",48,200,8,put_triforce);
 	}
 	else
