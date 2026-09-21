@@ -5803,7 +5803,7 @@ int32_t onQuit()
 			{
 				ret=queding("End current game?",
 							"The continue screen is disabled; the game",
-							"will be reloaded from the last save.");
+							"will not be saved and the program will close.");
 			}
 			else
 			{

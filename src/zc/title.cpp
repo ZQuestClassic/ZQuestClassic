@@ -1562,6 +1562,12 @@ void titlescreen(int32_t lsave)
 		return;
 	}
 
+	// Standalone mode has a single save slot and no file select screen, so every
+	// visit here (first launch, quitting without saving, no-continue-screen deaths)
+	// loads that slot.
+	if (standalone_mode)
+		lsave = 1;
+
 	if (saves_current_selection() != -1)
 	{
 		last_slot_pos = saves_current_selection() % 3;

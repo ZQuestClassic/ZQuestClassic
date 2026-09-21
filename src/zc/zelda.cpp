@@ -4564,13 +4564,6 @@ int main(int argc, char **argv)
 		slot_arg2 = vbound(atoi(argv[slot_arg+1]), 1, 100000);
 	}
 	
-	if(standalone_mode)
-	{
-		load_save=1;
-		slot_arg=1;
-		slot_arg2=1;
-	}
-	
 	Z_message("Loading data files:\n");
 	set_color_conversion(COLORCONV_NONE);
 	
@@ -5333,6 +5326,12 @@ reload_for_replay_file:
 			break;
 		}
 		FFCore.deallocateAllScriptOwned(ScriptType::Global, GLOBAL_SCRIPT_END);
+
+		// Standalone mode has no file select screen to return to, so quitting the game
+		// closes the program instead of reloading the quest. Dying without a continue
+		// screen (qGAMEOVER) still reloads the last save.
+		if (standalone_mode && (Quit == qQUIT || Quit == qSAVE))
+			Quit = qEXIT;
 		//Restore original palette before exiting for any reason!
 		doClearTint();
 		Hero.setDontDraw(0);
