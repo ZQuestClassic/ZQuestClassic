@@ -1186,6 +1186,8 @@ int8_t smart_vercmp(char const* a, char const* b)
 
 int32_t load_quest(gamedata *g, bool report, byte printmetadata)
 {
+	zscript_debugger_clear();
+
 	chop_path(qstpath);
 	int32_t ret = 0;
 	int32_t qst_num = g->get_quest();
@@ -1656,8 +1658,6 @@ int32_t init_game()
 	replay_register_rng(&drunk_rng);
 	zc_game_srand(initial_seed);
 	zc_game_srand(initial_seed, &drunk_rng);
-
-	zscript_debugger_clear();
 
 	int32_t ret = load_quest(game);
 	if(ret != qe_OK)
