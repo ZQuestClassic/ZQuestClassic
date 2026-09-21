@@ -254,12 +254,6 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 	
 	if(tempheader.zelda_version < 0x250 || (tempheader.zelda_version == 0x250 && tempheader.build<29))
 	{
-		// 2.50.2 stopped the player from turning while charging the quake hammer.
-		set_qr(qr_TURN_WHILE_CHARGING_HAMMER, 1);
-	}
-	
-	if(tempheader.zelda_version < 0x250 || (tempheader.zelda_version == 0x250 && tempheader.build<29))
-	{
 		// qr_OFFSETEWPNCOLLISIONFIX
 		// All 'official' quests need this disabled.
 		// All 2.10 and lower quests need this enabled to preseve compatability.
@@ -705,6 +699,12 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 	}
 	if(tempheader.zelda_version < 0x211)
 		set_qr(qr_OLD_210_HAMMER_POUND_REACH, 1);
+	// 2.50.2 stopped the player from turning while charging the quake hammer.
+	// Must come after the compatrule_version < 27 wipe above: this rule's index
+	// is inside the wiped range, and every quest this applies to predates that
+	// version.
+	if(tempheader.zelda_version < 0x250 || (tempheader.zelda_version == 0x250 && tempheader.build<29))
+		set_qr(qr_TURN_WHILE_CHARGING_HAMMER, 1);
 	if(compatrule_version < 28)
 		set_qr(qr_SUBSCR_BACKWARDS_ID_ORDER,1);
 	if(compatrule_version < 29)
