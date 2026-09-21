@@ -94,6 +94,9 @@ void zplayer_handle_commands()
 		extern TestResults test_title_reload(bool);
 		if (!run_tests(test_title_reload, "test_title_reload", verbose)) success = false;
 
+		extern TestResults test_title_standalone(bool);
+		if (!run_tests(test_title_standalone, "test_title_standalone", verbose)) success = false;
+
 		if (success)
 			printf("all tests passed\n");
 		else

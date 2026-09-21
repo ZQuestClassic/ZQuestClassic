@@ -1897,6 +1897,12 @@ void titlescreen(int32_t lsave)
 		return;
 	}
 
+	// Standalone mode has a single save slot and no file select screen, so every
+	// visit here (first launch, quitting without saving, no-continue-screen deaths)
+	// loads that slot.
+	if (standalone_mode)
+		lsave = 1;
+
 	bool should_show_titlescreen = !SkipTitle && load_qstpath.empty() && lsave == 0 && !Quit;
 
 	if (saves_current_selection() != -1)
