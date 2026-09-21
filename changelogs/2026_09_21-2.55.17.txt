@@ -1,0 +1,825 @@
+# Features
+
+
+zc: make save files more portable
+  - Save files now remember where their quest was actually found: when the
+    recorded quest path is stale and the fallback search locates the
+    quest elsewhere, the corrected location is stored the next time the
+    game saves, so the search isn't needed again.
+  - The qst search can now find a quest by file name anywhere under the
+    quests directory, not just by dropping leading folders from the
+    recorded path.
+  - Save files now always record quest paths relative to the quests
+    directory when the .qst file is in that folder, using forward slashes.
+    This should help keep .sav files working even when moved between
+    different installations and platforms.
+
+zc: use SDL for gamepads for better controller support
+  Joystick input now goes through an SDL2-based joystick driver on
+  Windows, macOS, and Linux (the web version already used SDL). Compared
+  to the OS-native drivers, this fixes several long-standing problems:
+  
+  - Xbox, PlayStation, Switch, 8BitDo, Stadia, and similar controllers
+    are recognized with correct layouts, over USB or Bluetooth, and
+    lesser-known controllers that went undetected or had buttons missing
+    should now work.
+  - On Windows, Xbox triggers didn't register when a pad was serviced by
+    DirectInput, which merges both triggers onto one shared axis. SDL
+    reads triggers independently on every backend.
+  - On Linux, controllers silently stopped working whenever Steam was
+    open: Steam Input takes an exclusive grab on the controller's evdev
+    device. SDL reads controllers the same way Steam itself does and
+    keeps working alongside it.
+  
+  The previous OS-native drivers remain available via the launcher (Player
+  -> Joystick Driver) or by setting `driver = native` (or
+  `directinput`/`xinput` on Windows) under `[joystick]` in zc.cfg.
+
+  Discord: https://discord.com/channels/876899628556091432/1536486417071476777
+
+zc: recognize hundreds more controllers out of the box
+  Ships gamecontrollerdb.txt and loads it at startup. Together with the
+  database built into SDL, recognized controllers - Xbox, PlayStation,
+  Switch, 8BitDo, Stadia, and hundreds more - just work when plugged in:
+  every button, stick, dpad, and trigger is identified correctly, and
+  works the same on every platform, over USB or Bluetooth. The controls
+  dialog shows readable names ("Left Shoulder", "Dpad Up") instead of raw
+  button numbers.
+  
+  You can update the gamecontrollerdb.txt file next to the program to
+  teach ZC about brand-new controllers without waiting for a release. You
+  can get the latest version of this file here: https://github.com/mdqinc/SDL_GameControllerDB
+
+  Discord: https://discord.com/channels/876899628556091432/1447766826540077116
+
+zc: per-controller control schemes with sensible gamepad defaults
+  A recognized gamepad now gets its own control scheme, selected
+  automatically and remembered per controller, so different controllers
+  keep their own bindings. Priority is quest-specific, then
+  per-controller, then global.
+  
+  A controller seen for the first time gets a scheme named after it with
+  gamepad defaults: dpad and left stick both move, A/B/X/Y go on the
+  buttons with those labels (PlayStation pads use the SNES physical layout
+  instead), L/R on the shoulders, triggers on Ex3/Ex4, Start opens the
+  menu and Back the map.
+  
+  The dpad is now bindable as four buttons, and directional buttons work
+  even when analog movement is enabled.
+
+zc: simpler controller binding UI
+  The Control Schemes dialog gains a "Connected Gamepads" section showing
+  each controller and which scheme it is assigned to, with a dropdown to
+  reassign or set back to '(Auto)'.
+  
+  In the binding dialog, the movement sticks are now picked from a
+  dropdown listing the connected controller's actual sticks (Dpad, Left
+  Stick, Right Stick, ...) instead of a press-to-bind flow.
+
+zc: add 'Trigger Proximity' option to the Show menu
+  Draws the proximity requirement of every combo trigger on the current
+  screen as a circle around the combo, centered where the trigger check
+  measures from. Normal proximity requirements draw in cyan, inverted
+  ones in orange.
+
+zc: one-click face button layouts in the controls dialog
+  The Gamepad tab of the control scheme dialog gains a "Face Buttons
+  Standard Layout" row with Nintendo and Xbox buttons. Each option puts
+  those four actions on the face buttons in that arrangement: A right and
+  B bottom as on a SNES controller, or A bottom and B right as on an Xbox
+  controller.
+  
+  Moving a PlayStation controller's A to Cross, or an Xbox controller's A
+  back to the SNES position, no longer takes four separate rebinds.
+
+  Discord: https://discord.com/channels/876899628556091432/1552139234817605722
+
+zq: quest browser startup dialog
+  The editor now opens with a quest browser instead of immediately
+  creating a new quest: a listing of known quests with each quest's icon,
+  title, author, ZC version, and last-edited date. The listing includes
+  recent quests, everything in the quests folder, and any files or folders
+  added with the new Browse for File / Scan Folder buttons. Quests can be
+  filtered and sorted (recently opened, last edited, ZC version), and new
+  quests are created via the existing tileset wizard.
+  
+  The footer shows the current version and when an update is available.
+  
+  Automatically opening the most recent quest at startup is now off by
+  default. To enable that behavior, check the box in the new dialog.
+
+  Discord: https://discord.com/channels/876899628556091432/1538719609723551805
+
+zq: set tile dialog title when "hide" option is active
+  The tile page's "Hide Used" and "Hide Unused" view options draw hidden
+  tiles as X'd-out boxes. Nothing in the dialog indicated that tiles were
+  being hidden, which could seem like a bug if someone accidentally
+  toggled them (Ctrl/Cmd+U cycles them).
+  
+  The title bar now names the active mode.
+  
+  Also:
+  
+  - the two options are now mutually exclusive.
+  - the tile dialog now has a "?" help button that lists the hotkeys.
+
+  Discord: https://discord.com/channels/876899628556091432/1537296861461872800
+
+zscript: automatically resize arrays for internal functions
+  Internal functions that fill a script array now grow the array to fit
+  instead of truncating the result and logging an "array not large enough"
+  error.
+  
+  Internal functions that now resize the given array include:
+  
+  - `itemdata->GetName`, `itemdata->GetShownName`
+  - `dmapdata->GetName`, `dmapdata->GetTitle`, `dmapdata->GetIntro`
+  - `Game->GetMessage`
+  - `Graphics->ConvertFromRGB`
+  - `file->ReadString`
+  - `file->ReadBytes`, `file->ReadChars`, `file->ReadInts` (with an
+    explicit count)
+  - `strcat`
+  - `strcpy`
+  - `itoa`
+  - `xtoa`
+  - `itoacat`
+  
+  Arrays are never shrunk, and plain out-of-bounds writes still do not
+  resize.
+  
+  Internal arrays (like `Game->MiscSprites[]`) are backed by engine data
+  and can't grow; those still get a truncated result and log an error.
+
+  Discord: https://discord.com/channels/876899628556091432/1484109453132562592
+
+
+# Bug Fixes
+
+
+palette cycles longer than 8 frames not continuing into the next level palette
+  A palette cycle can be up to 15 frames long, but a level palette only
+  has 8 CSets dedicated to cycling. In 1.90 through 2.53, frames past the
+  eighth read from the start of the next level palette, and some quests
+  rely on that. The extra CSets added to level palettes in 2.55 landed in
+  that spot, so those frames took their colors from the current level's
+  replacement CSets for 1, 5, 7 and 8 instead.
+  
+  Both the player and the editor's preview now skip past those CSets,
+  matching the old behavior.
+  
+  Regressed in 2.55-alpha-101 (8b0613ff59).
+
+  Discord: https://discord.com/channels/876899628556091432/1400979610572820520
+
+some NSF files using FDS expansion audio playing as silence
+  NSFs using the Famicom Disk System expansion chip would play only some
+  tracks, or nothing at all, because the FDS bankswitching scheme and its
+  RAM area were not emulated.
+  
+  This bug has existed since NSF playback was added.
+
+  Discord: https://discord.com/channels/876899628556091432/1359832548666245130
+
+folder pickers had to be cancelled or confirmed twice
+  With native file dialogs turned off, picking a folder (ex: the player's
+  Quest File Directory setting, the launcher's save folder) showed the
+  folder picker twice: Cancel reopened it, and a chosen folder had to be
+  picked again. The prompt called the picker a second time instead of
+  checking the first call's result.
+  
+  Regressed in 2.55.4 (5953252f5b).
+
+[mac] prevent crash on exit from the sound driver
+  Bug introduced when Allegro 5 audio was adopted in 2.55-alpha-108
+  (a7fccd1f21).
+
+  Discord: https://discord.com/channels/876899628556091432/1394182196105056359
+
+[mac] show "Cmd" instead of "Ctrl" in help dialog hotkeys
+  Help text across the editor and player describes shortcuts with the Ctrl
+  key, but on macOS those shortcuts are bound to Cmd. Now they show Cmd on
+  Mac.
+
+missing secrets in quests made in 2.53
+  The compat QR that preserves the old behavior of slash combos that have
+  a secret flag on top of them was applied to every quest made in 2.54 or
+  earlier - except for those made in 2.53.0 or 2.53.1. Quests saved in
+  those versions lost secrets their authors had set up, which could make
+  them unbeatable.
+  
+  Bug introduced when the rule was added in 2.55-alpha-75 (350ecca1ca).
+
+  Discord: https://discord.com/channels/876899628556091432/1500952954528727281
+
+minor dialog window / grid size miscalculations
+  This should fix certain things in some GUIs appearing slightly squished.
+
+zc: replay uploading ran for users who never opted in
+  The weekly automatic replay upload had its consent check inverted: it
+  ran for everyone who had NOT enabled the "Upload replays" option, and
+  never for those who had. Any .zplay files in the replays folder were
+  uploaded without consent (replay recording is also off by default, so
+  most installs had nothing to upload), and enabling the option silently
+  disabled uploading.
+  
+  All replays uploaded to date have been deleted, since consent could not
+  be established for them.
+  
+  Bug introduced when opt-in replay uploading was added in
+  2.55.5 (2cee0ae2a7).
+
+  Discord: https://discord.com/channels/876899628556091432/1540186118774071407
+
+zc: prevent rare case where sprite deletion is delayed a frame
+  Also fixes a rare crash when a deleted sprite is drawn again.
+
+  Discord: https://discord.com/channels/876899628556091432/1541534214434984058
+
+zc: find the quest for a save file made on a different computer
+  Save files record the path of their quest file as it was when the save
+  was created. If that was an absolute path from another computer - such
+  as a Windows path in a save file opened on a Mac - the player failed to
+  load the quest even when it was sitting in the quest directory: the
+  foreign path was mistaken for a relative one, and the fallback search
+  never looked in the quest directory at all. Absolute paths from either
+  platform are now recognized everywhere, and the search tries each path
+  suffix in the quest directory too.
+  
+  Bug present since at least 2.53 (429df347a1, the initial commit).
+
+zc: keep music in sync with the game across pauses
+  Pausing music (via the system menu, or when losing window focus with the
+  related setting on) threw away the chunk of audio that was already
+  decoded and queued for playback, so each pause made the music audibly
+  skip ahead about a fifth of a second, drifting it a little further out
+  of sync with the game every time. Now unpausing rewinds the music to
+  where the frame count says it should be, which also corrects any drift
+  the music picked up from lag.
+  
+  Bug introduced as music formats moved to Allegro 5 audio streams,
+  starting with mp3 in 2.55-alpha-112 (7c6712d810).
+
+  Discord: https://discord.com/channels/876899628556091432/1541486961179631687
+
+zc: make music seeks take effect immediately
+  Seeking music (Audio->SetMusicPos, or a music start position) left
+  about a fifth of a second of already-decoded audio queued up, so the
+  old music kept playing that long before the jump was heard - and music
+  a script repositioned ran audibly behind where the engine believed it
+  was until the next pause realigned it. Seeking now discards that
+  queued audio, so the jump is heard right away.
+  
+  Bug introduced as music formats moved to Allegro 5 audio streams,
+  starting with mp3 in 2.55-alpha-112 (7c6712d810).
+
+  Discord: https://discord.com/channels/876899628556091432/1541486961179631687
+
+zc: screen sliding away during fades and wipes on no-subscreen screens
+  Screens that hide the subscreen ("No Subscreen" + no offset flag) are
+  displayed recentered, by shifting the image up half the subscreen
+  height. The shifted image was written back into the game's internal
+  frame buffer. Blocking animations that present frames without redrawing
+  the screen - palette fades, screen wipes - then re-applied the shift
+  every frame, sliding the picture off the top of the screen in a fraction
+  of a second.
+  
+  Most notably this broke the palette fade of scrolling warps between
+  DMaps with different palettes, which Lost Isle's intro cutscene uses to
+  fade its text in and out: instead of fading in place, the screen slid
+  away at high speed and the fade was never seen.
+  
+  The recentering (and the wavy effect) is now applied to a separate
+  bitmap used only for presenting to the display, leaving the frame buffer
+  untouched.
+  
+  Regressed in 2.55-alpha-112 (6cf0f2eef8).
+
+  Discord: https://discord.com/channels/876899628556091432/1541362480557723678
+
+zc: screen snapping into place after palette-faded scrolling warps
+  Scrolling warps between DMaps of different palettes darken the level
+  colors, scroll in the dark, and fade back in. The fade-in reveals the
+  scroll's final frame - but the scroll loop composes that frame one step
+  short of the settled position (for classic vertical scrolling: an 8px
+  step plus its 3px NES offset). Normally that snap into place hides
+  inside the visible motion of scrolling; here the screen is otherwise
+  still, so the picture visibly popped into place when the engine resumed.
+  
+  Now the final frame is composed at the settled position, so the fade-in
+  reveals the screen exactly where it will rest.
+  
+  Bug introduced when the scrolling loop was reworked in 2.50.0.
+
+  Discord: https://discord.com/channels/876899628556091432/1541362480557723678
+
+zc: lens of truth blacking out the screen when magic runs out mid-use
+  Once the lens's magic cost could no longer be paid, the lens overlay
+  looked up the lens item with a magic check, found none, and drew its
+  cut-out circle with a radius of 0 - blacking out the whole screen for
+  the remaining frames of the effect. It now uses the lens that is
+  actually active.
+  
+  Bug has existed since the lens of truth's magic cost was added
+  (2.50-era).
+
+  Discord: https://discord.com/channels/876899628556091432/1395078616412459202
+
+zc: wrapping FFCs hitting changers across the whole screen
+  On the frame after an FFC wrapped around the screen, its changer check
+  ran along the line from where it left the screen to where it re-entered,
+  so it hit - and jumped to - the lowest-numbered changer anywhere along
+  that line, usually the one it had just left. FFCs on such screens looped
+  between the wrong changers in-game while the editor preview looked
+  right. The check now starts from where the FFC re-entered the screen, in
+  both the player and the editor preview.
+  
+  Old quests keep the old behavior via the new compat rule "Wrapping FFCs
+  check for changers across the whole screen".
+  
+  Bug has existed since FFC wrap-around was added (2.50-era).
+
+  Discord: https://discord.com/channels/876899628556091432/1392570971805716592
+
+zc: dummy items blocking pickup of a real item at the same spot
+  Only one item is checked for pickup each frame. A dummy item (such as
+  a leftover item in a shop after buying one or the dust pile Ganon leaves
+  behind) counted as that one item whenever it came earlier in the item
+  list. But since a dummy item can never be picked up, a real item at the
+  same spot could not be collected while the player was touching the
+  dummy.
+  
+  Dummy items are now skipped when choosing the item to check.
+
+  Discord: https://discord.com/channels/876899628556091432/1474494288070185022
+
+zc: weapons that bypass 'block' defenses also bypassing enemy shields
+  A weapon whose Unblockable flags bypass the 'block' defense types was
+  also let straight through an enemy's shield flags, as if it had the
+  'shields' unblockable flag as well. The shield check now only looks at
+  the shield flag.
+  
+  Bug introduced when weapon->Unblockable was added in 2.55-alpha-97
+  (fb5a184626).
+
+  Discord: https://discord.com/channels/876899628556091432/1468202385762685028
+
+zc: slopes not working when a switch block combo changes into one
+  Switch and Switch Block combos changed their combo directly when their
+  switch state toggled (or when a switch block was stood on or triggered),
+  skipping the post-processing every other combo change gets. A slope that
+  appeared this way did nothing until the screen was reloaded, and
+  spinning tiles or statue shooters appearing this way would not wake up
+  either.
+  
+  Bug introduced when slopes were overhauled in 2.55-alpha-112
+  (b5de618aa2).
+
+  Discord: https://discord.com/channels/876899628556091432/1524503663186542864
+
+zc: can't turn while charging the quake hammer in 2.50.0/2.50.1 quests
+  2.50.2 stopped the player from changing direction while charging the
+  quake hammer, but quests made before then expected to be able to
+  (Panoply of Calatia's item text even says so).
+  
+  Those quests get the old behavior back through the new compat rule 'Can
+  Turn While Charging Quake Hammer'.
+  
+  Regressed in 2.50.2.
+
+  Discord: https://discord.com/channels/876899628556091432/1462638974609915995
+
+zc: ladder letting the player cross two liquid tiles in a row
+  With 'Newer Player Movement', walking on a ladder towards a second water
+  tile sometimes did not drown the player, who then walked across the
+  whole thing. The player's water check only counted them as fully in
+  water when their bottom edge was inside the tile, and with subpixel
+  steps the frame where that is true after the ladder ends could be
+  skipped entirely, depending on the player's subpixel position.
+  
+  The bottom edge of the water check is now inset by one pixel, like its
+  top edge already was (and like pitfalls have been since 2.55.11), so the
+  check can no longer step over that spot. This applies to all quests, and
+  shifts when swimming and drowning start by up to a pixel when entering
+  or leaving water vertically.
+  
+  Bug introduced when 'Newer Player Movement' was added in 2.55-alpha-51
+  (91b931b86f).
+
+  Discord: https://discord.com/channels/876899628556091432/1479565358686797916
+
+zc: hammers in 1.92/2.10 quests reach one tile further when facing up
+  In 1.92 and 2.10, the combos affected by a hammer pound were found at
+  fixed offsets from the player. Later versions derive them from the
+  hammer sprite, which sits lower when facing up, and 2 pixels lower still
+  in dungeons. When the player is standing halfway between two tiles
+  vertically, such as after walking up against a solid combo, the old
+  versions pound the tile beyond the adjacent one while newer versions do
+  not reach as far.
+  
+  End of Time DX (Level 6) and Link's Birthday Deluxe (Super Bomb Dungeon)
+  both have pound puzzles that require this extra reach.
+  
+  A new compat rule controls this behavior: when enabled, the 2.10 pound
+  positions are used when facing up. It is enabled for quests made before
+  2.11.
+  
+  Regressed in 2.50.0.
+
+  Discord: https://discord.com/channels/876899628556091432/1436871556763619501
+
+zc: cellar enemies beyond the fourth spawning at garbage positions
+  When a DMap uses 'Use Enemy List for Cellar Enemies', item cellar and
+  passageway screens can spawn up to 10 enemies, but only 4 spawn
+  positions exist - enemies 5 through 10 read positions from
+  out-of-bounds memory. They now cycle through the same 4 columns.
+  
+  Bug introduced when custom cellar enemies were added in 2.55-alpha-83
+  (a7a416007e).
+
+zc: standalone mode crashed on the second quit, and now closes instead of reloading
+  `-standalone` runs a quest with a single save slot and no file select
+  screen. Quitting the game (save and quit, or quit without saving)
+  reloaded the quest instead of closing the program, and the second quit
+  died with "Failed to load save: init_game".
+  
+  Quitting in standalone mode now closes the program. Dying in a quest
+  with the continue screen disabled still reloads the last save, and that
+  path no longer crashes either.
+  
+  Regressed in 2.55.0 (603e96444f), which left the third load with no
+  save slot selected and started a blank game; since 2.55.7 (471691cd8f)
+  that is a fatal error.
+
+zc: rebinding a gamepad button in the controls dialog took two presses
+zc: whirlwind over damaging shallow liquid made the player invisible
+  Shallow liquid set to modify HP hurt the player while a whistle
+  whirlwind carried them over it. If "Damage causes hit anim" was enabled,
+  the player was knocked out of the whirlwind but stayed invisible, even
+  after drowning and respawning, until they died and continued.
+  
+  The whirlwind now carries the player above shallow liquid.
+  
+  Bug introduced when passive HP modification for shallow liquid was added
+  in 2.55-alpha-97 (985b345d73).
+
+  Discord: https://discord.com/channels/876899628556091432/1551691909120917616
+
+zq: resolve qst-relative script include paths before ever reloading the qst
+  The compiler resolves the implicit `<qst dir>/scripts` include path from
+  the quest's recorded file location, which was only updated when loading
+  a quest but not when saving one. So for a newly created quest (or after
+  Save As to a new folder), compiling could not find scripts in the
+  "scripts" folder next to the qst until the file was reloaded.
+  
+  Bug introduced when implicit qst-relative include paths were added in
+  2.55.13 (1c837533ea).
+
+zq: don't try next recent quest when cancelling a password prompt
+  At startup with "Open Last Quest" enabled, cancelling the password
+  prompt for a passworded recent quest made the editor move on to the
+  next quest in the recent list, prompting for each passworded quest in
+  turn.
+  
+  Now only a missing quest file advances the search: any other failure
+  falls through to the new-quest dialog.
+  
+  Regressed in 2.55.16 (44b20659a4).
+
+  Discord: https://discord.com/channels/876899628556091432/1538347161731993622
+
+zq: hotkey cheatsheet overflowing off screen instead of fitting the window
+  The Shift+/ hotkey cheatsheet drew a fixed three-column layout over
+  the whole window, so with a small window or many bound hotkeys the
+  columns ran past the edge and were cut off. The panel now sizes itself
+  to its content, centers over a dimmed backdrop, and uniformly scales
+  itself down when the content is too wide to fit.
+  
+  Bug introduced when the hotkey cheatsheet was added in
+  2.55.0 (2f0f07d438).
+
+zq: hotkeys grouped under the wrong heading in the cheatsheet
+  Several hotkeys sat under a heading that did not describe them - the
+  screen info / combo info / CSet / type toggles and "Stop Tunes" under
+  Dialogs, "Video Mode" under Actions - and "Go Back"/"Go Forward",
+  "Screen Notes", "Browse Notes" and "Show Hotkeys" fell through to
+  "Misc.". The two large catch-all groups are also split up: the drawing
+  modes and the layer / palette / cset / flag selection get their own
+  headings, and the 74 dialogs are split by what they edit.
+  
+  Layers and screen palettes are drawn as one row per run of keys
+  ("Edit Layer 0-6") rather than only showing layer 0 and palette 0 -
+  palettes A-F, on Ctrl+Shift, were not documented anywhere at all. A
+  group that spills into the next column now repeats its heading there.
+  
+  Bug introduced when the hotkey cheatsheet was added in
+  2.55.0 (2f0f07d438).
+
+zq: wrong help text shown for eight hotkeys when rebinding
+  In the Rebind Hotkeys dialog, many hotkeys (MIDIs, Misc Colors, New,
+  Options, Default Palettes, Maze Path, Play Music and Apply Template to
+  All) showed the help text belonging to the previous hotkey in the list.
+  
+  Bug introduced when the hotkey and favorite command systems were merged
+  in 2.55.0 (cbb1ee9914).
+
+zq: all enemies vulnerable to whistle when resaving pre-2.50 quests
+  Quests from 1.90, 1.92 and 2.10 have no per-enemy data saved, so their
+  enemies come entirely from the built-in defaults. That path skipped the
+  rule that marks every enemy other than Digdoggers as ignoring the
+  whistle in quests that predate the whistle defense. So every enemy in
+  such a quest showed a 'Normal' whistle defense in the enemy editor and,
+  once the quest was saved in a newer editor, would take whistle damage
+  in-game if the whistle item was given damage.
+  
+  Quests already saved in 2.50 were unaffected, since their enemies are
+  read from the file and go through the version upgrade code.
+  
+  Bug introduced when whistle defense was added in 2.55-alpha-1
+  (5d32e96f6c).
+
+  Discord: https://discord.com/channels/876899628556091432/1217745472530284605
+
+zq: palette editor showing the wrong colors while palette cycling is on
+  With palette cycling enabled on the current screen, the editor kept
+  cycling that screen's palette while a palette was being edited,
+  writing the screen's colors over the ones on display whenever a cycle
+  stepped - most visibly while holding the mouse on a color, or right
+  after copying one. Palette cycling is now paused while the palette
+  editor is open.
+  
+  Bug has existed since palette cycling was added to the editor
+  (2.50-era).
+
+  Discord: https://discord.com/channels/876899628556091432/1495954886427148529
+
+zq: partial quest file reads corrupting the open quest's version info
+  Grabbing tiles from another quest file (and similar partial reads, like
+  loading a tileset in the new quest dialog) only restored part of the
+  current quest's internal version info afterward, leaving values read
+  from the other file in place for the rest of the session.
+  
+  Most partially loaded sections happened to be in the restored part, but
+  the rest could subtly misbehave - e.g. the compile dialog reporting the
+  other file's ZScript version, and later partial reads taking wrong
+  compatibility branches.
+  
+  Regressed in 2.55.10 (b8bc72ae9b).
+
+zq: `Quest > Defaults` could not find any section
+  Resetting tiles, combos, palettes, items, or weapons to the template's
+  defaults failed with "Can't find section!". The rules section's header
+  gained a field in front of its size, and the section finder still read
+  the old layout, so it lost its place at the rules section and never
+  reached anything after it.
+  
+  Regressed in 2.55-alpha-114 (9caad33632).
+
+zq: resetting to defaults leaked the template's quest rules
+  `Quest > Defaults` and importing a graphics pack read the template
+  quest's header and left its quest rules, format version, and midi flags
+  in place of the open quest's.
+  
+  Bug present since at least 2.53 (429df347a1, the initial commit).
+
+zq: typo in combo move warning
+  When warning about a Door Combo Set, the warning said "the following
+  screens" when it should say "the following door combo sets".
+
+zq: Digdogger Kids vulnerable to whistle in pre-2.55 quests
+  The rule that marks every enemy in a quest older than the whistle
+  defense as ignoring the whistle exempted every `eeDIG` enemy. Only the
+  big Digdogger needs that; the Digdogger Kids use the generic hit path,
+  so once such a quest was saved in a newer editor they took whistle
+  damage whenever the whistle item had 'Has Damage' set, while every other
+  enemy ignored it.
+  
+  Now only big Digdoggers (`attributes[9]==0`) keep a 'Normal' whistle
+  defense, in both the per-enemy file read and the built-in default path
+  used by 1.9x/2.10 quests. Follow-up to 148d8e108d.
+
+  Discord: https://discord.com/channels/876899628556091432/1217745472530284605
+
+zscript: stop scripts on stack overflow and raise the stack limit
+  Scripts needing more than the stack limit of 1024 would wrap the stack
+  pointer around and keep running on a corrupted stack, usually crashing
+  the game on a garbage return address. Sometimes this logged "Stack over
+  or underflow", but nothing stopped the script.
+  
+  Now the stack is 5120 (same as 3.0), and overflowing it logs "Stack
+  overflow!" and stops the script, matching 3.0.
+  
+  Also fixes the JIT corrupting memory on scripts with more than 100
+  nested function calls (its native call stack was too small and
+  unchecked).
+
+  Discord: https://discord.com/channels/876899628556091432/1516608620110938142
+
+zscript: correct Game->LoadTempScreenForComboPos
+  `Game->LoadTempScreenForComboPos` was just totally broken in 2.55.
+  
+  Bug introduced when the function was added in 2.55.10 (e5ac9267f6).
+
+  Discord: https://discord.com/channels/876899628556091432/1502842909974728845
+
+zscript: reuse stack slots for string/array literals
+  Every string/array literal permanently took up a slot in the enclosing
+  function's stack frame, even though a literal is only alive until the
+  end of the statement using it. Functions with hundreds of literals could
+  easily exceed the script stack.
+  
+  Literal slots are now recycled between statements, so such functions use
+  far fewer stack slots.
+
+  Discord: https://discord.com/channels/876899628556091432/1516608620110938142
+
+zscript: bitmap->Blit crashing when the source rect goes out of bounds
+  A source rect that started above or to the left of the source bitmap
+  read out of bounds and crashed the player (a rect past the right or
+  bottom edge was already handled). A negative source width or height
+  crashed as well. `bitmap->Blit` and `bitmap->BlitTo` now only read the
+  in-bounds part of the source rect, keeping its position within the rect
+  so the result is not shifted or stretched, and draw nothing for an empty
+  rect.
+  
+  Bug introduced when bitmap commands were added in 2.55-alpha-1
+  (d4ac10bda2).
+
+  Discord: https://discord.com/channels/876899628556091432/1462065371342180518
+
+zscript: npc->Shield[] writes being ignored
+  Setting an entry of npc->Shield[] never changed the enemy's shield
+  flags, so scripts could only read them.
+  
+  Bug introduced when npc->Shield[] was added in 2.55-alpha-21
+  (f55ab47e7b).
+
+zscript: generic scripts not seeing LA_SCROLLING at most timings while scrolling
+  While the screen scrolls, generic scripts only saw `Hero->Action` set to
+  `LA_SCROLLING` when run from the scrolling script timings
+  (`SCR_TIMING_WAITDRAW` and `SCR_TIMING_POST_POLL_INPUT`). At every other
+  timing during the scroll the action was whatever the player was doing
+  before the scroll began, so such scripts could not tell they were
+  scrolling.
+  
+  Every generic script timing run during a scroll now reports
+  LA_SCROLLING.
+  
+  Bug introduced when generic scripts got passive timings in
+  2.55-alpha-107 (e83fde07aa).
+
+  Discord: https://discord.com/channels/876899628556091432/1349896812055498804
+
+zscript: printf printed garbage decimal digits for -214748.3648
+  Formatting the most negative number with %d or %f produced non-digit
+  characters after the decimal point on some platforms, since the
+  fractional digits were taken from the absolute value of a number that
+  has no positive counterpart.
+  
+  Regressed in 2.55-alpha-112 (626db20707).
+
+zscript: xtoa wrote a stray null character, and nothing for 0
+  `xtoa(buf, 0)` wrote two null characters before the '0', so the buffer
+  read back as an empty string. Every other value got an extra null
+  character after the digits, which caused a spurious "Invalid index"
+  error when the buffer was exactly the right size. The return value now
+  also counts the '-' sign of a negative number.
+  
+  Bug introduced when xtoa was reworked in 2.55-alpha-92 (db3c6a9cc5).
+
+zscript: sprintf returned character count as a long (decimal)
+  `sprintf(buf, "%d", 42)` returned 0.0002 instead of 2, since the result
+  was never scaled to a script value. Same for sprintfa.
+  
+  Bug introduced when sprintf was added in 2.55-alpha-75 (fb25d06770).
+
+zscript: file->ReadChars put back the wrong character when full
+  When ReadChars ran out of room it pushed the last character back into
+  the file as its script value (the character times 10000), so the next
+  read from the file started with a garbage character instead of the one
+  that didn't fit.
+  
+  Bug introduced when `file->ReadChars` was added in 2.55-alpha-75
+  (ef54b03d25).
+
+zscript: array literals mixing element types failed to compile
+  An array literal without an explicit type infers its element type from
+  its elements, falling back to untyped when they disagree. The inference
+  loop mistakenly kept only the last element's type and never compared
+  it against the others, so a literal like `{'A', SOME_ENUM_VALUE}` was
+  typed as an enum array and then failed with "Cannot cast from char32
+  to const SomeEnum" - even when assigned to an untyped array.
+  
+  Regressed in 2.55.2 (8a48221a99).
+
+  Discord: https://discord.com/channels/876899628556091432/1466460159458152569
+
+zscript: lweapon scripts lifting themselves not stopping the engine loop
+  When an lweapon script called Hero->LiftWeapon() on itself, the script
+  engine was meant to report a "self remove" so the engine stops
+  processing the now-lifted weapon that frame. Instead it returned a
+  meaningless value (the early-return code was reset before being
+  returned), so the weapon kept animating after being removed from the
+  weapon list. With the JIT the signal was dropped entirely and the
+  script also kept running past the call, diverging from the interpreter.
+  Now both stop the script at the call and the engine skips the rest of
+  that weapon's frame, as intended.
+  
+  Bug introduced when script access to lifting was added in 2.55-alpha-114
+  (530f7c6898).
+
+zscript: player move functions no longer advance pit state
+  Calling functions like `Hero->Move()` many times advanced the pit state
+  on every call, so the player rapidly fell into pits and could take
+  rapid damage in some instances.
+
+zupdater: a failed update could leave the install unrecoverable
+  If anything went wrong partway through installing an update (such as a
+  file locked by another program, a full disk, or a corrupt download), the
+  updater left the install in a bad state. The files it had set aside were
+  deleted the next time any ZQuest Classic app started, so the only way
+  back was to download a release by hand. An update now puts everything
+  back the way it was when it cannot finish, and alerts if any file could
+  not be restored.
+  
+  A download that broke off partway, returned an error page, or contained
+  a damaged file was also kept and reused by every later attempt, so once
+  an update failed this way it kept failing. A download is now only kept
+  once it has completed and extracted cleanly. Old downloads are cleaned
+  up after a successful update instead of piling up.
+  
+  The updater could also crash instead of reporting an error when the
+  release listing came back empty or in an unexpected form.
+
+
+# Refactors
+
+
+skip converting unchanged 8-bit screen bitmaps to textures every frame
+  Every frame, each legacy 8-bit screen bitmap was converted to a 32-bit
+  texture and uploaded to the GPU, even when its pixels had not changed.
+  
+  Now the conversion inputs (pixels, palette, transparency) are hashed and
+  the conversion is skipped when the result would be identical to what the
+  texture already holds. This removes most of the render work for anything
+  that isn't animating.
+
+  Discord: https://discord.com/channels/876899628556091432/1318435737498161222
+
+skip compositing and presenting unchanged frames
+  On top of the conversion skip, the launcher, editor and player now also
+  skip compositing and presenting entirely while nothing on screen is
+  changing, dropping an idle launcher from ~20% to ~4% of a core (and its
+  GPU usage to nearly nothing), with similar savings for an idle editor
+  and for the player's static screens (such as the save screen, a paused
+  game, or the title screen).
+  
+  Gameplay is mostly unaffected, since the screen usually changes every
+  frame there.
+
+  Discord: https://discord.com/channels/876899628556091432/1318435737498161222
+
+load legacy-encoded quests faster
+  Loading legacy quests is now 1.7x faster for small ones and up to 3.4x
+  for 30 MB+ ones. Quests saved in recent versions are unaffected.
+  
+  Quests saved before 2.55-alpha-114 carry an extra encryption layer, and
+  the only way through it was to decrypt the entire file into a temp file
+  and read that back, before a single section could be read. These older
+  files could use many slightly different encoding methods, and the quest
+  loader tried each until one worked. If the first guess was wrong, the
+  whole file was read and decrypted again with the next one.
+  
+  Full loads now decode that layer into memory in one pass, verify the
+  checksum before any section is parsed, and read the sections from
+  memory; no temp file, and a wrong method is caught the same way but
+  without a second read of the file.
+
+zscript: dispatch interpreter commands through a single switch
+  Speeds up all scripts on platforms where the JIT is unavailable, or when
+  it is disabled.
+  
+  Script-heavy benchmarks ran 13-17% faster interpreted; JIT performance
+  is unchanged.
+
+zscript: resolve D registers inline at register access sites
+  Speeds up something every script does constantly: reading and writing
+  local variables.
+  
+  Script-heavy benchmarks ran 4-8% faster interpreted; JIT performance is
+  unchanged.
+
+zscript: screen rare interpreter loop-exit checks behind one branch
+  Speeds up every script when running interpreted.
+  
+  Script-heavy benchmarks ran 4-5% faster.
+
+
+# Misc.
+
+
+improve checklist dialog per-column calculation
+  The dialog now attempts to create columns as evenly sized as possible,
+  up to a max of 10 entries per column.
+
+
