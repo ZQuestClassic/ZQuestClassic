@@ -1671,11 +1671,12 @@ int32_t readguy_single(PACKFILE *f, word guyversion, word guy_cversion, zquesthe
 	
 	if(guyversion < 33) //Whistle defence did not exist before this version of 2.54. -Z
 	{
-	if(tempguy.type!=eeDIG)
-	{
-		tempguy.defense[edefWhistle] = edIGNORE; //Might need to be ignore, universally. 
-	}
-		
+		// Only the big Digdogger reacts to the whistle (it splits, handled in
+		// eBigDig::takehit without consulting this defence). Digdogger Kids
+		// (attributes[9]==1) must ignore it like every other enemy, or they take
+		// whistle damage in resaved quests when the whistle has 'Has Damage'.
+		if(tempguy.type!=eeDIG || tempguy.attributes[9]==1)
+			tempguy.defense[edefWhistle] = edIGNORE;
 	}
 	// does not seem to solve the issue!
 	if ( Header->zelda_version <= 0x210 ) 
@@ -2090,13 +2091,14 @@ int32_t readguys(PACKFILE *f, zquestheader *Header)
     // Whistle defence did not exist before guyversion 33. Quests too old to
     // have per-enemy data in the file (guyversion<=3) take the defaults above
     // verbatim, so apply the same 'ignore' rule that readguy_single applies
-    // when reading enemies from the file. Otherwise every enemy in an
-    // imported 1.9x/2.10 quest ends up vulnerable to the whistle.
+    // when reading enemies from the file (only the big Digdogger is exempt).
+    // Otherwise every enemy in an imported 1.9x/2.10 quest ends up vulnerable
+    // to the whistle.
     if(guyversion < 33)
     {
         for(int32_t i=0; i<MAXGUYS; i++)
         {
-            if(guysbuf[i].type != eeDIG)
+            if(guysbuf[i].type != eeDIG || guysbuf[i].attributes[9] == 1)
                 guysbuf[i].defense[edefWhistle] = edIGNORE;
         }
     }
