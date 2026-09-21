@@ -1018,24 +1018,6 @@ if(WANT_SENTRY)
 	list(APPEND ZC_INSTALL_TARGETS crashpad_handler)
 endif()
 
-# See docs/versioning.md
-set(gen_version_header_deps scripts/generate_version_header.py)
-find_program(GIT_EXECUTABLE NAMES git)
-if(GIT_EXECUTABLE)
-	execute_process(
-        COMMAND "${GIT_EXECUTABLE}" rev-parse --git-dir
-        WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
-        OUTPUT_VARIABLE GIT_DIR
-        OUTPUT_STRIP_TRAILING_WHITESPACE
-        ERROR_QUIET
-    )
-	list(APPEND gen_version_header_deps
-		"${CMAKE_CURRENT_SOURCE_DIR}/${GIT_DIR}/HEAD"
-		"${CMAKE_CURRENT_SOURCE_DIR}/${GIT_DIR}/refs/tags"
-        "${CMAKE_CURRENT_SOURCE_DIR}/${GIT_DIR}/index"
-	)
-endif()
-
 if(RELEASE_TAG)
 	foreach(target IN LISTS zc_targets)
 		target_compile_definitions(${target} PRIVATE RELEASE_TAG="${RELEASE_TAG}")

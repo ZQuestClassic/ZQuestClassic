@@ -138,6 +138,7 @@ __pycache__
 resources/modules/classic/fontsdat
 output/
 *.log
+src/base/version_header.h
 
 api_server
 venv

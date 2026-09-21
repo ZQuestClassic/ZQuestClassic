@@ -8,7 +8,5 @@ struct ZCVersion {
 
 const char* getVersionString();
 ZCVersion getVersion();
-int getAlphaState();
-bool isStableRelease();
 
 #endif
