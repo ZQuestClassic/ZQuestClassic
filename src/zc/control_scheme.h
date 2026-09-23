@@ -24,6 +24,10 @@ void update_quest_control_path(string const& path);
 void poll_gamepad_scheme();
 optional<std::string> get_gamepad_assigned_scheme(int joy_index);
 void set_gamepad_assigned_scheme(int joy_index, string const& name);
+// The controller's own name for gamepad button `btn` (1-based, as in
+// control_scheme::btns) where it differs from the driver's Xbox-style name,
+// e.g. "Circle" for B on a PlayStation pad; nullptr otherwise.
+const char* gamepad_button_label(ALLEGRO_JOYSTICK* joy, int btn);
 void refresh_control_scheme();
 void save_schemes();
 void load_control_schemes();
