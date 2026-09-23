@@ -4258,6 +4258,8 @@ int main(int argc, char **argv)
 		success &= run_tests(test_zc_math, "test_zc_math", verbose);
 		extern TestResults test_util(bool);
 		success &= run_tests(test_util, "test_util", verbose);
+		extern TestResults test_control_scheme(bool);
+		success &= run_tests(test_control_scheme, "test_control_scheme", verbose);
 		if (success)
 			printf("all tests passed\n");
 		exit(success ? 0 : 1);
