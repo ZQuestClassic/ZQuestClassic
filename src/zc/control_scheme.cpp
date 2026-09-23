@@ -196,6 +196,14 @@ static string joystick_identity_str(ALLEGRO_JOYSTICK* joy)
 // an SDL game controller (e.g. a native joystick driver is selected).
 extern "C" int _al_sdl_joystick_controller_type(ALLEGRO_JOYSTICK* joy);
 
+// Values from SDL_GameControllerType.
+static bool is_playstation_type(int type)
+{
+	return type == 3 // SDL_CONTROLLER_TYPE_PS3
+		|| type == 4 // SDL_CONTROLLER_TYPE_PS4
+		|| type == 7; // SDL_CONTROLLER_TYPE_PS5
+}
+
 // Whether SDL's A/B/X/Y button names correspond to the labels printed on
 // the pad, so that binding each action to the same-named button puts it
 // where a quest's on-screen "A" says. Two things break that. PlayStation
@@ -215,14 +223,8 @@ extern "C" int _al_sdl_joystick_controller_type(ALLEGRO_JOYSTICK* joy);
 static bool gamepad_names_match_labels(ALLEGRO_JOYSTICK* joy)
 {
 	int type = _al_sdl_joystick_controller_type(joy);
-	switch (type)
-	{
-		// Values from SDL_GameControllerType.
-		case 3: // SDL_CONTROLLER_TYPE_PS3
-		case 4: // SDL_CONTROLLER_TYPE_PS4
-		case 7: // SDL_CONTROLLER_TYPE_PS5
-			return false;
-	}
+	if (is_playstation_type(type))
+		return false;
 
 	// SDL's GUID layout: bytes 4-5 hold the vendor id (little-endian) and
 	// byte 14 the backend signature ('h' HIDAPI, 'm' GameController; 0 for
@@ -239,6 +241,34 @@ static bool gamepad_names_match_labels(ALLEGRO_JOYSTICK* joy)
 	// Anything else is assumed to copy the Xbox labels, which SDL's
 	// positional names already match.
 	return !nintendo_labels;
+}
+
+const char* gamepad_button_label(ALLEGRO_JOYSTICK* joy, int btn)
+{
+	// The driver names every gamepad's buttons after the Xbox controller's.
+	// PlayStation pads mark the face buttons with symbols instead of letters,
+	// and call their other buttons something else too.
+	int type = joy ? _al_sdl_joystick_controller_type(joy) : -1;
+	if (!is_playstation_type(type))
+		return nullptr;
+
+	switch (btn)
+	{
+		case 1: return "Cross"; // A
+		case 2: return "Circle"; // B
+		case 3: return "Square"; // X
+		case 4: return "Triangle"; // Y
+		case 5: return "L1"; // left shoulder
+		case 6: return "R1"; // right shoulder
+		case 7: return type == 3 ? "Select" : type == 4 ? "Share" : "Create"; // back
+		case 8: return type == 3 ? "Start" : "Options"; // start
+		case 9: return "PS Button"; // guide
+		case 10: return "L3"; // left thumb
+		case 11: return "R3"; // right thumb
+		case 12: return "L2"; // left trigger
+		case 13: return "R2"; // right trigger
+	}
+	return nullptr;
 }
 
 static control_scheme make_gamepad_default_scheme(ALLEGRO_JOYSTICK* joy)

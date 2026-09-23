@@ -99,6 +99,8 @@ static string joybtn_name(int stick_idx, int b)
 	if (b <= 0 || b > joy[stick_idx].num_buttons)
 		return "";
 
+	if (const char* label = gamepad_button_label(al_get_joystick(stick_idx), b))
+		return label;
 	return joy[stick_idx].button[b-1].name;
 }
 static string joystick_name(int stick_idx, int s)
