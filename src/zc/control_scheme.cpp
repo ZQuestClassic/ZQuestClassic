@@ -202,43 +202,70 @@ static bool is_playstation_type(int type)
 		|| type == 7; // SDL_CONTROLLER_TYPE_PS5
 }
 
-// Whether SDL's A/B/X/Y button names correspond to the labels printed on
-// the pad, so that binding each action to the same-named button puts it
-// where a quest's on-screen "A" says. Two things break that. PlayStation
-// pads have shapes, not letters. Nintendo-labeled pads (A east, B south)
-// are reported by label only when SDL's HIDAPI driver or Apple's
-// GameController framework handles them; through a generic backend
-// (evdev, DirectInput, IOKit) their community-database mapping is
-// positional, so SDL "A" is the south button, which is printed "B".
-// Verified with an 8BitDo Micro: the same presses give a,b,x,y through
-// GameController and b,a,y,x through IOKit.
+// Nintendo's letters go A east, B south, X north, Y west (the SNES
+// arrangement), mirroring Xbox's A south, B east, X west, Y north.
+static bool has_nintendo_labels(ALLEGRO_JOYSTICK* joy)
+{
+	int type = _al_sdl_joystick_controller_type(joy);
+	if (is_playstation_type(type))
+		return false;
+
+	// SDL's GUID layout: bytes 4-5 hold the vendor id (little-endian).
+	ALLEGRO_JOYSTICK_GUID guid = al_get_joystick_guid(joy);
+	uint16_t vendor = guid.val[4] | (guid.val[5] << 8);
+	return type == 5 || (type >= 11 && type <= 13) // Switch Pro, Joy-Cons
+		|| vendor == 0x2dc8; // 8BitDo: nearly all their pads use Nintendo labels
+}
+
+// SDL numbers the face buttons by position (south, east, west, north are
+// SDL's A, B, X, Y, which is also how Xbox labels them), with one
+// exception: Nintendo-labeled pads are reported by label when SDL's HIDAPI
+// driver or Apple's GameController framework handles them, so SDL "A" is
+// the east button, printed "A". Through a generic backend (evdev,
+// DirectInput, IOKit) their community-database mapping is positional like
+// any other pad's. Verified with an 8BitDo Micro: the same presses give
+// a,b,x,y through GameController and b,a,y,x through IOKit.
 //
 // To test the generic-backend case on macOS, launch with the environment
 // variable SDL_JOYSTICK_MFI=0 so SDL bypasses the GameController framework
 // and takes the pad through IOKit. The auto-created scheme is remembered,
 // so delete the pad's scheme in controls.cfg (or clear its assignment in the
 // Control Schemes dialog) first to get a freshly generated default.
-static bool gamepad_names_match_labels(ALLEGRO_JOYSTICK* joy)
+static gamepad_face_buttons get_gamepad_face_buttons(ALLEGRO_JOYSTICK* joy)
 {
-	int type = _al_sdl_joystick_controller_type(joy);
-	if (is_playstation_type(type))
-		return false;
+	if (joy && has_nintendo_labels(joy))
+	{
+		// SDL's GUID layout: byte 14 holds the backend signature ('h'
+		// HIDAPI, 'm' GameController; 0 for the generic backends).
+		uint8_t backend = al_get_joystick_guid(joy).val[14];
+		if (backend == 'h' || backend == 'm')
+			return {2, 1, 4, 3};
+	}
+	return {1, 2, 3, 4};
+}
 
-	// SDL's GUID layout: bytes 4-5 hold the vendor id (little-endian) and
-	// byte 14 the backend signature ('h' HIDAPI, 'm' GameController; 0 for
-	// the generic backends).
-	ALLEGRO_JOYSTICK_GUID guid = al_get_joystick_guid(joy);
-	uint8_t backend = guid.val[14];
-	if (backend == 'h' || backend == 'm')
-		return true;
+void set_gamepad_face_layout(control_scheme& scheme, ALLEGRO_JOYSTICK* joy, gamepad_face_layout layout)
+{
+	set_gamepad_face_layout(scheme, get_gamepad_face_buttons(joy), layout);
+}
 
-	uint16_t vendor = guid.val[4] | (guid.val[5] << 8);
-	bool nintendo_labels =
-		type == 5 || (type >= 11 && type <= 13) // Switch Pro, Joy-Cons
-		|| vendor == 0x2dc8; // 8BitDo: nearly all their pads use Nintendo labels
-	// Anything else is assumed to copy the Xbox labels, which SDL's
-	// positional names already match.
-	return !nintendo_labels;
+void set_gamepad_face_layout(control_scheme& scheme, gamepad_face_buttons const& face, gamepad_face_layout layout)
+{
+	int* b = scheme.btns;
+	if (layout == gamepad_face_layout::nintendo)
+	{
+		b[btnA] = face.east;
+		b[btnB] = face.south;
+		b[btnEx1] = face.north; // X
+		b[btnEx2] = face.west;  // Y
+	}
+	else
+	{
+		b[btnA] = face.south;
+		b[btnB] = face.east;
+		b[btnEx1] = face.west;  // X
+		b[btnEx2] = face.north; // Y
+	}
 }
 
 const char* gamepad_button_label(ALLEGRO_JOYSTICK* joy, int btn)
@@ -282,25 +309,12 @@ static control_scheme make_gamepad_default_scheme(ALLEGRO_JOYSTICK* joy)
 	int* b = scheme.btns;
 	b[btnUp] = 14; b[btnDown] = 15; b[btnLeft] = 16; b[btnRight] = 17;
 	// Face buttons: quests hardcode the engine's A/B/X/Y button names into
-	// their subscreens, so bind each action to the button SDL calls by that
-	// name whenever those names follow the pad's printed labels (see
-	// gamepad_names_match_labels). Otherwise bind by position in the
-	// SNES/Nintendo arrangement (A east, B south, X north, Y west), which
-	// is also where a positionally reported Nintendo-labeled pad has them.
-	if (gamepad_names_match_labels(joy))
-	{
-		b[btnA] = 1;    // A
-		b[btnB] = 2;    // B
-		b[btnEx1] = 3;  // X
-		b[btnEx2] = 4;  // Y
-	}
-	else
-	{
-		b[btnA] = 2;    // east
-		b[btnB] = 1;    // south
-		b[btnEx1] = 4;  // north
-		b[btnEx2] = 3;  // west
-	}
+	// their subscreens, so put each action on the button printed with its
+	// letter. PlayStation pads have no letters, so they get the SNES
+	// arrangement. Pads that are neither PlayStation nor Nintendo-labeled
+	// are assumed to copy the Xbox labels.
+	bool nintendo = is_playstation_type(_al_sdl_joystick_controller_type(joy)) || has_nintendo_labels(joy);
+	set_gamepad_face_layout(scheme, joy, nintendo ? gamepad_face_layout::nintendo : gamepad_face_layout::xbox);
 	b[btnS] = 8;    // start
 	b[btnL] = 5;    // left shoulder
 	b[btnR] = 6;    // right shoulder

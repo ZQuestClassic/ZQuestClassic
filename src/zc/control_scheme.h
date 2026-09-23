@@ -28,6 +28,21 @@ void set_gamepad_assigned_scheme(int joy_index, string const& name);
 // control_scheme::btns) where it differs from the driver's Xbox-style name,
 // e.g. "Circle" for B on a PlayStation pad; nullptr otherwise.
 const char* gamepad_button_label(ALLEGRO_JOYSTICK* joy, int btn);
+// Arrangements of A, B, X (Ex1) and Y (Ex2) on a gamepad's face buttons.
+enum class gamepad_face_layout
+{
+	nintendo, // A right, B bottom, X top, Y left, as on a SNES controller
+	xbox, // A bottom, B right, X left, Y top
+};
+// The 1-based button number (as in control_scheme::btns) at each of a
+// gamepad's face button positions.
+struct gamepad_face_buttons
+{
+	int south, east, west, north;
+};
+// Binds A, B, X (Ex1) and Y (Ex2) to `joy`'s face buttons in `layout`.
+void set_gamepad_face_layout(control_scheme& scheme, ALLEGRO_JOYSTICK* joy, gamepad_face_layout layout);
+void set_gamepad_face_layout(control_scheme& scheme, gamepad_face_buttons const& face, gamepad_face_layout layout);
 void refresh_control_scheme();
 void save_schemes();
 void load_control_schemes();

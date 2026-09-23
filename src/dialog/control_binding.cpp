@@ -331,12 +331,20 @@ std::shared_ptr<GUI::Widget> ControlBindingDialog::view()
 		vector<unique_btn> left_cols[2] = {{u_btn_a, u_btn_ex1, u_btn_ex3, u_btn_l, u_btn_s, u_btn_menu }, {u_btn_du, u_btn_dd}};
 		vector<unique_btn> right_cols[2] = {{u_btn_b, u_btn_ex2, u_btn_ex4, u_btn_r, u_btn_p }, {u_btn_dl, u_btn_dr}};
 		string headers[2] = {"Main Controls", "Directions"};
+		// Face button positions only mean something on a gamepad. The
+		// joystick can be null for a valid index (see check_joystick).
+		ALLEGRO_JOYSTICK* face_joy = gamepad_read_only ? nullptr : al_get_joystick(local_scheme.joystick_index);
+		bool face_row = face_joy && al_get_joystick_type(face_joy) == ALLEGRO_JOYSTICK_TYPE_GAMEPAD;
+		// The layout buttons sit right under the A/B and X/Y rows they act on.
+		const size_t face_rows = 2;
 		for (int q = 0; q < 2; ++q)
 		{
 			auto const& lv = left_cols[q];
 			auto const& rv = right_cols[q];
 			size_t count = zc_max(lv.size(), rv.size());
-			btnlist->add(Label(text = headers[q], colSpan = columns, bottomPadding = 3_px, topPadding = q == 0 ? 0_px : 3_px));
+			bool split = q == 0 && face_row;
+			if (q > 0)
+				btnlist->add(Label(text = headers[q], colSpan = columns, bottomPadding = 3_px, topPadding = 3_px));
 			for (int c = 0; c < count; ++c)
 			{
 				if (c < lv.size())
@@ -351,8 +359,12 @@ std::shared_ptr<GUI::Widget> ControlBindingDialog::view()
 							kb_ptr = u_btns[lv[c]], onClick = message::RELOAD_GAMEPAD));
 				}
 				else btnlist->add(DummyWidget(colSpan = gamepad_read_only ? 2 : 3));
+				// The separator spans every row of the section, or, with the
+				// face button row splitting the section, each half.
 				if (c == 0)
-					btnlist->add(VSeparator(rowSpan = count, leftPadding = vsep_padding, rightPadding = vsep_padding + 2_px));
+					btnlist->add(VSeparator(rowSpan = split ? face_rows : count, leftPadding = vsep_padding, rightPadding = vsep_padding + 2_px));
+				else if (split && c == face_rows)
+					btnlist->add(VSeparator(rowSpan = count - face_rows, leftPadding = vsep_padding, rightPadding = vsep_padding + 2_px));
 				if (c < rv.size())
 				{
 					string name = get_u_btn_name(rv[c]);
@@ -365,6 +377,33 @@ std::shared_ptr<GUI::Widget> ControlBindingDialog::view()
 							kb_ptr = u_btns[rv[c]], onClick = message::RELOAD_GAMEPAD));
 				}
 				else btnlist->add(DummyWidget(colSpan = gamepad_read_only ? 2 : 3));
+				if (split && c == face_rows - 1)
+				{
+					btnlist->add(
+						Row(colSpan = columns,
+							Label(text = "Face Buttons Standard Layout:"),
+							Button(text = "Nintendo", height = button_height_min,
+								onClick = message::RELOAD_GAMEPAD,
+								onPressFunc = [&]()
+								{
+									set_gamepad_face_layout(local_scheme, al_get_joystick(local_scheme.joystick_index),
+										gamepad_face_layout::nintendo);
+								}),
+							Button(text = "Xbox", height = button_height_min,
+								onClick = message::RELOAD_GAMEPAD,
+								onPressFunc = [&]()
+								{
+									set_gamepad_face_layout(local_scheme, al_get_joystick(local_scheme.joystick_index),
+										gamepad_face_layout::xbox);
+								}),
+							INFOBTN_T("Face Buttons Standard Layout", "Puts A, B, X (Ex1) and Y (Ex2) on the controller's four face buttons."
+								"\n\nNintendo: A right, B bottom, X top, Y left, as on a SNES controller."
+								"\n\nXbox: A bottom, B right, X left, Y top, matching the letters on an Xbox controller."
+								"\n\nA new controller starts with the layout that matches its letters."
+								" PlayStation controllers have no letters, so they start with the Nintendo layout.")
+							)
+					);
+				}
 			}
 		}
 		{ // sticks
