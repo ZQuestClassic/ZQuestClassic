@@ -15,6 +15,7 @@
 #include "auto/bug_subscr_gauge_percent_div0.zs"
 #include "auto/bug_unused_var_bad_opt.zs"
 #include "auto/bug_water_edge_scroll.zs"
+#include "auto/bug_whirlwind_shallow_liquid.zs"
 #include "auto/classes.zs"
 #include "auto/combo_script_owned_clear.zs"
 #include "auto/compat_hammer_charge_turn.zs"
