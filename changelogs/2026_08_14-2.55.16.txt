@@ -16,7 +16,7 @@ find enhanced music inside a subfolder next to the quest
   
   Also, when a music file cannot be found, the log now lists every folder
   that was searched.
-  
+
   Discord: https://discord.com/channels/876899628556091432/1534711166469931180
 
 zq: try each recent quest at startup until one loads
@@ -26,7 +26,7 @@ zq: try each recent quest at startup until one loads
   to creating a new quest, without showing any error. Previously it gave
   up after the first entry, which was annoying when using ZC from an
   external drive that gets assigned a different path on each computer.
-  
+
   Discord: https://discord.com/channels/876899628556091432/1533872851738820688
 
 zscript: support passing string / boolean to `Trace`
@@ -39,6 +39,8 @@ zscript: support passing string / boolean to `Trace`
   
   This matches behavior in 3.0.
 
+  Discord: https://discord.com/channels/876899628556091432/1355030472094257232
+
 
 # Bug Fixes
 
@@ -49,6 +51,8 @@ dropdown selection off-by-one with non-default dialog font sizes
   silently change the selection. This mostly happened when the dialog font
   was changed to a non-default value.
 
+  Discord: https://discord.com/channels/876899628556091432/1526358644361396466
+
 dropdown list popups not closing when clicking an item
   Since 2.55 Alpha 115, clicking an item in a dropdown list popup
   selected it but left the popup open - only a fast double click, or
@@ -58,11 +62,15 @@ dropdown list popups not closing when clicking an item
   not stick, e.g. picking a scheme in the Control Schemes dialog and
   clicking OK could leave the old scheme active.
 
+  Discord: https://discord.com/channels/876899628556091432/1526358644361396466
+
 closed dropdowns drawing extra list rows with small dialog fonts
   When the dialog font was small enough for two rows of text to fit in
   the widget, a closed dropdown drew the next list item below the
   selected one, as if the list were open. A closed dropdown now always
   draws only the selected item.
+
+  Discord: https://discord.com/channels/876899628556091432/1526358644361396466
 
 game music (SPC, NSF, VGM, GBS, GYM) playing at half volume
   Music played through the game-music emulator library is mixed at half
@@ -73,6 +81,8 @@ game music (SPC, NSF, VGM, GBS, GYM) playing at half volume
   to restore full volume.
   
   Regressed in 2.55-alpha-112 (7c6712d810).
+
+  Discord: https://discord.com/channels/876899628556091432/1522943086970540163
 
 MIDI songs sounding detuned or wrong after other songs played
   MIDIs can reconfigure durable synth state - most notably pitch bend
@@ -90,7 +100,10 @@ MIDI songs sounding detuned or wrong after other songs played
   controller messages in the skipped region, so affected songs sounded
   wrong even when played first. These are now restored after every seek.
 
+  Discord: https://discord.com/channels/876899628556091432/1202753685889753190
+
 [win] ignore initial click when window is inactive
+
   Discord: https://discord.com/channels/876899628556091432/1499572218256953424
 
 [linux] prevent crash when opening the native file dialog
@@ -108,6 +121,8 @@ MIDI songs sounding detuned or wrong after other songs played
   
   Regressed in 2.55.4 (5953252f5b).
 
+  Discord: https://discord.com/channels/876899628556091432/1534711166469931180
+
 mac releases support macOS 12 and up again
   Since the CI runners moved past macOS 12, the mac app has inherited the
   build machine's OS version as its minimum: recent releases refuse to
@@ -119,7 +134,7 @@ mac releases support macOS 12 and up again
 [mac] prevent crash when window is resized
   Resizing the window while the game was drawing could crash inside the
   system's OpenGL driver.
-  
+
   Discord: https://discord.com/channels/876899628556091432/1098964099989250098
 
 keep the window painted while it is being resized
@@ -136,12 +151,16 @@ file dialogs opening on a folder that does not exist
   versions before 2.55.10 (9df104fd95), which was never cleaned up. That
   value is now repaired on the next launch.
 
+  Discord: https://discord.com/channels/876899628556091432/1528339009057591336
+
 string shadows cut off at the text box margins
   Shadowed text draws its shadow 1px outside each glyph, but the string
   margin clipping copied exactly the text area, cutting shadows off of
   glyphs at the edges. The margin rect now has 1px of leeway.
   
   Regressed in 2.55-alpha-52 (73acd7828f).
+
+  Discord: https://discord.com/channels/876899628556091432/1389071935547117588
 
 zc: stop music restarting on warp to same-music screen
   Warps that cut music to silence before replaying it (Entrance/Exit
@@ -156,12 +175,14 @@ zc: font scale option in ZPlayer Options dialog never saving
   reverted to 1 on hitting OK. The font choice itself saved fine; only
   the scale was lost. Broken since the dialog was added in 2.55.0 (df3b5ab5b5).
 
+  Discord: https://discord.com/channels/876899628556091432/1526358644361396466
+
 zc: Ganon room music not playing for quests made in 1.90
   The Ganon room plays the last MIDI in the quest's MIDI bank, but the
   number of MIDI slots grew from 32 to 252 in 1.92 build 178. The player
   always looked at the modern last slot, which doesn't exist in quests
   made before then, so their Ganon music never played.
-  
+
   Discord: https://discord.com/channels/876899628556091432/1529206920379105291
 
 zc: passive subscreen missing when playing some old quests
@@ -177,6 +198,8 @@ zc: passive subscreen missing when playing some old quests
   
   Regressed in 2.55-alpha-117 (7441956cdd).
 
+  Discord: https://discord.com/channels/876899628556091432/1523465817143119872
+
 zc: default triforce and ending fanfare NSF tunes never played
   Since 2021, zelda.nsf has shipped in modules/classic/, but the music
   loader only searches the executable and quest directories (and their
@@ -187,6 +210,8 @@ zc: default triforce and ending fanfare NSF tunes never played
   
   Regressed in 2.55-alpha-97 (d69aafa6ee).
 
+  Discord: https://discord.com/channels/876899628556091432/1522385153325011176
+
 zc: scrolling warp to another dmap charted a screen on the wrong map
   When taking a scrolling warp to a different dmap, the destination
   screen was charted on the previous dmap's map instead of its own. This
@@ -195,6 +220,8 @@ zc: scrolling warp to another dmap charted a screen on the wrong map
   reverse warp charting a phantom screen on the destination dmap.
   
   Regressed in 2.55.9 (7ee836aedc).
+
+  Discord: https://discord.com/channels/876899628556091432/1506883704130244638
 
 zc: effect flags in bottom/right 8px ignored with newer player movement
   With "Newer Player Movement" enabled (and LTTP walk disabled), the
@@ -206,6 +233,8 @@ zc: effect flags in bottom/right 8px ignored with newer player movement
   mode.
   
   Regressed in 2.55-alpha-114 (9933309604).
+
+  Discord: https://discord.com/channels/876899628556091432/1523722638927728660
 
 zc: prevent crash drawing a Button Item subscreen widget
   A Button Item widget whose button index is out of range - as can
@@ -244,7 +273,7 @@ zc: stuck at screen edge over walkable water that can't drown you
   the actual drowning logic.
   
   Regressed in 2.55.10 (b27da2ea23).
-  
+
   Discord: https://discord.com/channels/876899628556091432/1293495220284952628
 
 zc: coyote time jumps eating an 'extra jump'
@@ -267,6 +296,8 @@ zc: dialog dimming not covering the whole screen in fullscreen
   
   Regressed in 2.55.0 (fad67d9622).
 
+  Discord: https://discord.com/channels/876899628556091432/1210012340083490816
+
 zc: scripted Wind LWeapons infinitely looping wind sfx
   Wind LWeapons with a valid Parent Item ID belonging to a non-whistle
   item class stopped that item's sound effect instead of the hardcoded
@@ -279,7 +310,7 @@ zc: shooter combos not running scripts on custom lweapons
   or created by a script. Custom eweapons were unaffected.
   
   Regressed in 2.55-alpha-110 (a90cd1b2e8).
-  
+
   Discord: https://discord.com/channels/876899628556091432/1532973551282290849
 
 zc: big 4-directional enemy fire/attack frames overlapping walk tiles
@@ -290,6 +321,8 @@ zc: big 4-directional enemy fire/attack frames overlapping walk tiles
   walking tiles.
   
   Broken when added in 2.55-alpha-100 (9753e33c).
+
+  Discord: https://discord.com/channels/876899628556091432/1519766866027872347
 
 zq: prevent crash at startup when a recent quest path is inaccessible
   Making a path relative for display (recent quest menu entries, per-quest
@@ -311,6 +344,8 @@ zq: wrong npc IDs listed by tile move overwrite protection
   
   Regressed in 2.55.2 (6aae56ece8).
 
+  Discord: https://discord.com/channels/876899628556091432/1528685961238679602
+
 zq: prevent crash and blank pages in the Screen Data / Init Data value editor
   The "Edit Starting Data" editor (Screen Data dialog, also used for
   generic script data in Init Data) crashed when adding a value with an
@@ -322,7 +357,7 @@ zq: prevent crash and blank pages in the Screen Data / Init Data value editor
   range label) after removing enough values while on a later page.
   
   Regressed in 2.55-alpha-120 (b84aded881).
-  
+
   Discord: https://discord.com/channels/876899628556091432/1502718806517223546
 
 zq: string .tsv import scrambling margins and list order
@@ -343,7 +378,7 @@ zq: string .tsv import scrambling margins and list order
   breaking the list.
   
   Broken when added in 2.55.0 (1e1af9db17).
-  
+
   Discord: https://discord.com/channels/876899628556091432/1531111795035607192
 
 zq: pressing Shift mid-drag not changing the snap mode of screen objects
@@ -355,7 +390,7 @@ zq: pressing Shift mid-drag not changing the snap mode of screen objects
   
   Broken since the Shift snap modes were added in 2.55-alpha-119
   (c4f28895ed).
-  
+
   Discord: https://discord.com/channels/876899628556091432/1437241713830658238
 
 zscript: filled Screen->Arc / bitmap->Arc pies escaping the wedge
@@ -376,6 +411,8 @@ zscript: filled Screen->Arc / bitmap->Arc pies escaping the wedge
   The arc's angle convention is unchanged (and now covered by a test):
   degrees anticlockwise, 0 = east, as documented.
 
+  Discord: https://discord.com/channels/876899628556091432/1523348144497365134
+
 zscript: stale jit code could run after reloading a changed quest
   The jit cache that lets an F9 reset reuse compiled scripts decided
   "quest unchanged" from the qst file's modification time. That check can
@@ -393,6 +430,8 @@ zscript: stale jit code could run after reloading a changed quest
   
   Regressed in 2.55-alpha-120 (2bd7e877de).
 
+  Discord: https://discord.com/channels/876899628556091432/1530139339378659348
+
 zscript: script draws were discarded during the screen init of instant warps
   Scripts can run during the screen init frame of an 'Insta-Warp' or
   'Insta-Warp with Blackout', but any draws they queued were silently
@@ -408,6 +447,8 @@ zscript: script draws were discarded during the screen init of instant warps
   
   This is longstanding behavior, not a recent regression.
 
+  Discord: https://discord.com/channels/876899628556091432/1464625182135161067
+
 zscript: script draws vanished for one frame when closing the active subscreen
   The active subscreen blocks in the middle of a game frame, and its
   internal loops repeatedly clear the queue of pending script draws. When
@@ -418,6 +459,8 @@ zscript: script draws vanished for one frame when closing the active subscreen
   subscreen is open and restored when it closes.
   
   Regressed in 2.55-alpha-119 (cb2d6b5217).
+
+  Discord: https://discord.com/channels/876899628556091432/1512541188090101790
 
 zscript: backslashes lost from script metadata help text
   Help text on a script's attributes, flags or InitD - anything written in
@@ -435,6 +478,9 @@ zscript: strings longer than 65535 chars compared and written incorrectly
   This bug has existed since ZScript arrays were added (2.50-era).
 
 zscript: nested calls to vargs-using functions clobbering each other's varg params
+
+  Discord: https://discord.com/channels/876899628556091432/1484436570764349542
+
 
 # Build
 

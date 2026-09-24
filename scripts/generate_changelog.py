@@ -166,6 +166,48 @@ def extract_discord_link(tags: dict[str, str], body: str) -> tuple[str | None, s
     return None, body
 
 
+def parse_commit_body(body: str) -> tuple[str, str | None]:
+    """
+    Turn a raw commit body into its changelog body and Discord link.
+
+    Tags usually come last, after "end changelog" and the technical details,
+    but some commits put them just before "end changelog" instead. Both
+    places are checked.
+    """
+    # Drop the cherry-pick trailer first: it isn't a "Key: Value" tag, so it
+    # would otherwise block parse_for_tags from reaching the tags above it.
+    body = re.sub(
+        r'^\(cherry picked from commit .+\)$', '', body, flags=re.MULTILINE
+    ).strip()
+    # Pull out trailing tags (Discord, Co-authored-by, Signed-off-by, Agent,
+    # etc.) so they don't render in the changelog body.
+    tags, body = parse_for_tags(body)
+    discord, body = extract_discord_link(tags, body)
+
+    m = re.search(r'end changelog', body, re.IGNORECASE)
+    if m:
+        body = body[0 : m.start()].strip()
+        # Only tags before "end changelog" can be shown; the rest are technical
+        # details.
+        tags, body = parse_for_tags(body)
+        inner_discord, body = extract_discord_link(tags, body)
+        discord = discord or inner_discord
+
+    # A trailing "See:"/"Context:" that doesn't point at Discord (ex: a
+    # GitHub link) is still a useful reference, so keep it visible in the
+    # body rather than dropping it as a metadata tag.
+    kept_tags = [
+        f'{key}: {value}'
+        for key, value in tags.items()
+        if key in ('See', 'Context') and not re.match(f'{discord_url_pattern}$', value)
+    ]
+    if kept_tags:
+        body = f'{body}\n\n' + '\n'.join(kept_tags)
+        body = body.strip()
+
+    return body, discord
+
+
 _sha_is_commit_cache: dict[str, bool] = {}
 
 
@@ -516,30 +558,7 @@ def generate_changelog(from_sha: str, to_sha: str, to_ref: str = None) -> str:
         body = subprocess.check_output(
             f'git log -1 {hash} --format="%b"', shell=True, encoding='utf-8'
         ).strip()
-        m = re.search(r'end changelog', body, re.IGNORECASE)
-        if m:
-            body = body[0 : m.start()].strip()
-        # Drop the cherry-pick trailer first: it isn't a "Key: Value" tag, so it
-        # would otherwise block parse_for_tags from reaching the tags above it.
-        body = re.sub(
-            r'^\(cherry picked from commit .+\)$', '', body, flags=re.MULTILINE
-        ).strip()
-        # Pull out trailing tags (Discord, Co-authored-by, Signed-off-by, Agent,
-        # etc.) so they don't render in the changelog body.
-        tags, body = parse_for_tags(body)
-        discord, body = extract_discord_link(tags, body)
-        # A trailing "See:"/"Context:" that doesn't point at Discord (ex: a
-        # GitHub link) is still a useful reference, so keep it visible in the
-        # body rather than dropping it as a metadata tag.
-        kept_tags = [
-            f'{key}: {value}'
-            for key, value in tags.items()
-            if key in ('See', 'Context')
-            and not re.match(f'{discord_url_pattern}$', value)
-        ]
-        if kept_tags:
-            body = f'{body}\n\n' + '\n'.join(kept_tags)
-            body = body.strip()
+        body, discord = parse_commit_body(body)
 
         type, scope, oneline, drop = parse_scope_and_type(subject)
         if drop:

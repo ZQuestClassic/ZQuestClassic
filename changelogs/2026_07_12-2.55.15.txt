@@ -57,6 +57,7 @@ add runtime SSE2/SSSE3 detection and fallbacks
   supports these instructions, and if not uses the slower drawing code.
 
 preserve scroll position in new listers
+
   Discord: https://discord.com/channels/876899628556091432/1497521931979853854
 
 Switchhook Block combo attributes overlapping
@@ -223,6 +224,8 @@ zc: deterministic high-precision math for gameplay and replays
   - Replays recorded before this version still play back with the old
     math, bit for bit.
 
+  Discord: https://discord.com/channels/876899628556091432/1509803675605008384
+
 zc: walking/standing combo effects not blocked by bridges
   this includes the general tab sfx/sprites
 
@@ -237,12 +240,17 @@ zc: stop triforce pickup softlocking with low MP/HP counter settings
   to 1-3 (or HP per Heart to 1). The refill animation never finished, so
   the pickup cutscene looped forever and quitting crashed.
 
+  Discord: https://discord.com/channels/876899628556091432/1427885026686668840
+
 zc: 1-wide gaps being hard to fall through in sideview
 zc: handle replay load failures gracefully with a GUI error
   Loading an invalid replay could crash the program. Now, an error dialog
   is displayed when a replay fails to load.
 
 zc: prevent previous qst misc data leaking to next
+
+  Discord: https://discord.com/channels/876899628556091432/1516543771448316106
+
 zc: hammer triggering combos outside its hitbox
   The hammer could trigger combos and secret flags above and behind the
   player, outside the area its hitbox was drawn. It was most obvious with
@@ -250,14 +258,15 @@ zc: hammer triggering combos outside its hitbox
   the first frame the hammer became active on the ground, it triggered
   combos where it had been a frame earlier, while still raised.
 
+  Discord: https://discord.com/channels/876899628556091432/1459317304511955059
+
 zc: armos combos with custom enemies not clearing the combo
 zc: large armos bad tile offset
 zc: Auto Sidewarp combos not using the assigned Warp SFX
 zq: remove unused wand attributes/flags from item editor
 zq: tile editor rotations sometimes undone
   Caused by a bug in tile caching code.
-  
-  
+
   Discord: https://discord.com/channels/876899628556091432/1497685063649726545
 
 zq: preview mode combo cycling using bad colors for Ignore CSet
@@ -287,7 +296,7 @@ zscript: prevent dmap and hero scripts running twice on init
   - "Passive Subscreen Script runs during wipes/refills"
   
   This bug only occurred if one of these QRs was enabled.
-  
+
   Discord: https://discord.com/channels/876899628556091432/1494501078564339911
 
 zscript: prevent crash from out-of-bounds sprite script IDs
@@ -331,8 +340,7 @@ zconsole: [win] prevent debug console from freezing
   helper console in an endless retry loop. Connect now waits with a
   bounded timeout so a slow-to-start console attaches normally, and any
   setup failure quietly disables the console instead of blocking the app.
-  
-  
+
   Discord: https://discord.com/channels/876899628556091432/1466588316492234815
 
 
@@ -344,8 +352,7 @@ zc: greatly speed up refresh_rgb_tables using last key cache
   This greatly speeds up the program within fade effects. For
   terror_of_necromancy_demo6_32_of_54.zplay it reduced the total CPU time
   being spent in `refresh_rgb_tables` from 60% to 0.3%.
-  
-  
+
   Discord: https://discord.com/channels/876899628556091432/1507587209308409996
 
 zc: optimize code for common dithering args
@@ -360,6 +367,7 @@ zc: [win] remove obsolete vsync workaround (use_dwm_flush)
   always on in modern Windows.
 
 zc: greatly speed up dithercircfill
+
   Discord: https://discord.com/channels/876899628556091432/1498203179395842058
 
 zq: improve FFC hover tooltips
