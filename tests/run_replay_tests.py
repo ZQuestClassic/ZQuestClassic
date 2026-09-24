@@ -59,7 +59,6 @@ import time
 
 from argparse import ArgumentTypeError
 from pathlib import Path
-from time import sleep
 
 import cutie
 
@@ -930,48 +929,48 @@ class ProgressDisplay:
 
         import curses
 
+        # Drawn once per update: sleeping here to animate would stall the scheduler,
+        # which calls this on every tick.
         scr = self.scr
         rows, cols = curses.LINES, curses.COLS
-        for _ in range(4):
-            lines = []
-            for result in progress.active:
-                line = self.get_status_msg(result, False)
+        lines = []
+        for result in progress.active:
+            line = self.get_status_msg(result, False)
+            lines.append(line)
+            if len(lines) > rows - 1:
+                break
+        for result in progress.results:
+            if not result.success:
+                line = self.get_status_msg(result, True)
                 lines.append(line)
-                if len(lines) > rows - 1:
-                    break
-            for result in progress.results:
-                if not result.success:
-                    line = self.get_status_msg(result, True)
-                    lines.append(line)
-                if len(lines) > rows - 1:
-                    break
-            for result in progress.results:
-                if result.success:
-                    line = self.get_status_msg(result, True)
-                    lines.append(line)
-                if len(lines) > rows - 1:
-                    break
-            for replay in progress.pending:
-                lines.append(('…', 3, self.replay_log_names[replay.name]))
-                if len(lines) > rows - 1:
-                    break
+            if len(lines) > rows - 1:
+                break
+        for result in progress.results:
+            if result.success:
+                line = self.get_status_msg(result, True)
+                lines.append(line)
+            if len(lines) > rows - 1:
+                break
+        for replay in progress.pending:
+            lines.append(('…', 3, self.replay_log_names[replay.name]))
+            if len(lines) > rows - 1:
+                break
 
-            rows, cols = scr.getmaxyx()
-            lines = lines[: rows - 1]
+        rows, cols = scr.getmaxyx()
+        lines = lines[: rows - 1]
 
-            scr.erase()
-            if rows >= 1 and rows < 3 and cols < 40 and cols >= 15:
-                scr.addstr(0, 0, 'term too small')
-            elif rows >= 3 and cols >= 40:
-                for i, msg in enumerate(lines):
-                    symbol, color, text = msg
-                    scr.addstr(i, 0, symbol, curses.color_pair(color))
-                    scr.addstr(i, len(symbol), ' ' + text)
-                scr.addstr(len(lines), 0, progress.summary[: cols - 1])
-            scr.refresh()
+        scr.erase()
+        if rows >= 1 and rows < 3 and cols < 40 and cols >= 15:
+            scr.addstr(0, 0, 'term too small')
+        elif rows >= 3 and cols >= 40:
+            for i, msg in enumerate(lines):
+                symbol, color, text = msg
+                scr.addstr(i, 0, symbol, curses.color_pair(color))
+                scr.addstr(i, len(symbol), ' ' + text)
+            scr.addstr(len(lines), 0, progress.summary[: cols - 1])
+        scr.refresh()
 
-            self.anim_clock += 1
-            sleep(0.25)
+        self.anim_clock += 1
 
 
 def should_consider_failure(run: RunResult):
