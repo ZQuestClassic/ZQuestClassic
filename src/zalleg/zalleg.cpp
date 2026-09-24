@@ -33,6 +33,7 @@
 
 #ifdef ALLEGRO_MACOSX
 void zalleg_osx_bring_window_to_foreground(ALLEGRO_DISPLAY* display);
+void zalleg_osx_disable_app_nap(void);
 void zalleg_osx_get_main_screen_usable_size(int* w, int* h);
 float zalleg_osx_get_main_screen_scale_factor(void);
 #endif
@@ -204,6 +205,9 @@ void zalleg_setup_allegro(App id, int argc, char **argv)
 	if (used_switch(argc, argv, "-headless") || std::getenv("ZC_HEADLESS") != nullptr)
 	{
 		set_headless_mode();
+#ifdef ALLEGRO_MACOSX
+		zalleg_osx_disable_app_nap();
+#endif
 	}
 
 	// A -dump-* command's stdout is its output - JSON, a list to diff - so the startup
