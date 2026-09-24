@@ -312,9 +312,38 @@ void set_gamepad_face_layout(control_scheme& scheme, gamepad_face_buttons const&
 const char* gamepad_button_label(ALLEGRO_JOYSTICK* joy, int btn)
 {
 	// The driver names every gamepad's buttons after the Xbox controller's.
+	if (!joy)
+		return nullptr;
+	int type = _al_sdl_joystick_controller_type(joy);
+
+	if (has_nintendo_labels(joy))
+	{
+		// A positionally numbered pad's driver name is the letter at that
+		// position on an Xbox pad, which is the other letter here.
+		if (!gamepad_reported_by_labels(joy))
+			switch (btn)
+			{
+				case 1: return "B"; // south
+				case 2: return "A"; // east
+				case 3: return "Y"; // west
+				case 4: return "X"; // north
+			}
+		if (type == 5 || type == 13) // Switch Pro, Joy-Con pair
+			switch (btn)
+			{
+				case 5: return "L"; // left shoulder
+				case 6: return "R"; // right shoulder
+				case 7: return "Minus"; // back
+				case 8: return "Plus"; // start
+				case 9: return "Home"; // guide
+				case 12: return "ZL"; // left trigger
+				case 13: return "ZR"; // right trigger
+			}
+		return nullptr;
+	}
+
 	// PlayStation pads mark the face buttons with symbols instead of letters,
 	// and call their other buttons something else too.
-	int type = joy ? _al_sdl_joystick_controller_type(joy) : -1;
 	if (!is_playstation_type(type))
 		return nullptr;
 
