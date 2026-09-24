@@ -195,6 +195,9 @@ static string joystick_identity_str(ALLEGRO_JOYSTICK* joy)
 // joystick's SDL_GameControllerType as an int, or -1 if the joystick is not
 // an SDL game controller (e.g. a native joystick driver is selected).
 extern "C" int _al_sdl_joystick_controller_type(ALLEGRO_JOYSTICK* joy);
+// Also from the fork's driver: 1 if SDL chose a label-based mapping for the
+// pad (see gamepad_reported_by_labels), 0 if positional, -1 as above.
+extern "C" int _al_sdl_joystick_mapping_uses_labels(ALLEGRO_JOYSTICK* joy);
 
 // Values from SDL_GameControllerType.
 static bool is_playstation_type(int type)
@@ -211,38 +214,56 @@ static bool has_nintendo_labels(ALLEGRO_JOYSTICK* joy)
 	int type = _al_sdl_joystick_controller_type(joy);
 	if (is_playstation_type(type))
 		return false;
+	if (type == 5 || (type >= 11 && type <= 13)) // Switch Pro, Joy-Cons
+		return true;
+	// A pad SDL maps by label has labels that differ from position, which
+	// only Nintendo's do.
+	if (_al_sdl_joystick_mapping_uses_labels(joy) == 1)
+		return true;
 
 	// SDL's GUID layout: bytes 4-5 hold the vendor id (little-endian).
 	ALLEGRO_JOYSTICK_GUID guid = al_get_joystick_guid(joy);
 	uint16_t vendor = guid.val[4] | (guid.val[5] << 8);
-	return type == 5 || (type >= 11 && type <= 13) // Switch Pro, Joy-Cons
-		|| vendor == 0x2dc8; // 8BitDo: nearly all their pads use Nintendo labels
+	return vendor == 0x2dc8; // 8BitDo: nearly all their pads use Nintendo labels
+}
+
+// Whether SDL numbers `joy`'s face buttons by printed label rather than by
+// position, so that SDL "A" is the east button of a Nintendo-labeled pad.
+// SDL does that for such pads through its HIDAPI drivers and Apple's
+// GameController framework, which apply
+// SDL_HINT_GAMECONTROLLER_USE_BUTTON_LABELS themselves, and through a
+// generic backend (evdev, DirectInput, IOKit) whenever its controller
+// database has a label-based mapping for the pad, which it does for the
+// Switch Pro, the Joy-Cons and most 8BitDo models. A Nintendo-labeled pad
+// the database does not know (e.g. the 8BitDo Micro) falls back to a
+// positional mapping there: the same presses give a,b,x,y through
+// GameController and b,a,y,x through IOKit.
+//
+// To test the positional case on macOS with such a pad, launch with the
+// environment variable SDL_JOYSTICK_MFI=0 so SDL bypasses the GameController
+// framework and takes the pad through IOKit. The auto-created scheme is
+// remembered, so delete the pad's scheme in controls.cfg (or clear its
+// assignment in the Control Schemes dialog) first to get a freshly generated
+// default.
+static bool gamepad_reported_by_labels(ALLEGRO_JOYSTICK* joy)
+{
+	if (!has_nintendo_labels(joy))
+		return false;
+	// SDL's GUID layout: byte 14 holds the backend signature ('h' HIDAPI,
+	// 'm' GameController; 0 for the generic backends).
+	uint8_t backend = al_get_joystick_guid(joy).val[14];
+	if (backend == 'h' || backend == 'm')
+		return true;
+	return _al_sdl_joystick_mapping_uses_labels(joy) == 1;
 }
 
 // SDL numbers the face buttons by position (south, east, west, north are
-// SDL's A, B, X, Y, which is also how Xbox labels them), with one
-// exception: Nintendo-labeled pads are reported by label when SDL's HIDAPI
-// driver or Apple's GameController framework handles them, so SDL "A" is
-// the east button, printed "A". Through a generic backend (evdev,
-// DirectInput, IOKit) their community-database mapping is positional like
-// any other pad's. Verified with an 8BitDo Micro: the same presses give
-// a,b,x,y through GameController and b,a,y,x through IOKit.
-//
-// To test the generic-backend case on macOS, launch with the environment
-// variable SDL_JOYSTICK_MFI=0 so SDL bypasses the GameController framework
-// and takes the pad through IOKit. The auto-created scheme is remembered,
-// so delete the pad's scheme in controls.cfg (or clear its assignment in the
-// Control Schemes dialog) first to get a freshly generated default.
+// SDL's A, B, X, Y, which is also how Xbox labels them), except for the
+// Nintendo-labeled pads it reports by label (see gamepad_reported_by_labels).
 static gamepad_face_buttons get_gamepad_face_buttons(ALLEGRO_JOYSTICK* joy)
 {
-	if (joy && has_nintendo_labels(joy))
-	{
-		// SDL's GUID layout: byte 14 holds the backend signature ('h'
-		// HIDAPI, 'm' GameController; 0 for the generic backends).
-		uint8_t backend = al_get_joystick_guid(joy).val[14];
-		if (backend == 'h' || backend == 'm')
-			return {2, 1, 4, 3};
-	}
+	if (joy && gamepad_reported_by_labels(joy))
+		return {2, 1, 4, 3};
 	return {1, 2, 3, 4};
 }
 
