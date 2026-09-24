@@ -219,10 +219,30 @@ static bool has_nintendo_labels(ALLEGRO_JOYSTICK* joy)
 	if (_al_sdl_joystick_mapping_uses_labels(joy) == 1)
 		return true;
 
-	// SDL's GUID layout: bytes 4-5 hold the vendor id (little-endian).
+	// SDL's GUID layout: bytes 4-5 hold the vendor id and bytes 8-9 the
+	// product id (both little-endian). Through Apple's GameController
+	// framework SDL only knows the ids of the pads it recognizes (Xbox,
+	// PlayStation, Switch) and reports Apple's own vendor id for the rest,
+	// so the name is checked as well.
 	ALLEGRO_JOYSTICK_GUID guid = al_get_joystick_guid(joy);
 	uint16_t vendor = guid.val[4] | (guid.val[5] << 8);
-	return vendor == 0x2dc8; // 8BitDo: nearly all their pads use Nintendo labels
+	uint16_t product = guid.val[8] | (guid.val[9] << 8);
+	const char* name = al_get_joystick_name(joy);
+	string lname = name ? name : "";
+	for (char& c : lname)
+		c = tolower((unsigned char)c);
+	// 8BitDo: nearly all their pads use Nintendo labels. The Ultimate line
+	// copies Xbox's (Ultimate Wired, Ultimate Wireless, Ultimate 2C,
+	// Ultimate 2 Wireless), except its Switch-oriented Bluetooth models.
+	if (vendor == 0x2dc8 || lname.find("8bitdo") != string::npos)
+	{
+		if (product == 0x3011 || product == 0x3013 || product == 0x301b)
+			return false;
+		if (lname.find("ultimate") != string::npos && lname.find("bluetooth") == string::npos)
+			return false;
+		return true;
+	}
+	return false;
 }
 
 // Whether SDL numbers `joy`'s face buttons by printed label rather than by
