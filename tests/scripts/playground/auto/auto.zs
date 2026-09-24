@@ -38,6 +38,7 @@
 #include "auto/bug_string_16bit_index.zs"
 #include "auto/bug_transitive_yield.zs"
 #include "auto/bug_unused_var_bad_opt.zs"
+#include "auto/bug_whirlwind_shallow_liquid.zs"
 #include "auto/call_limit.zs"
 #include "auto/classes.zs"
 #include "auto/compat_hammer_charge_turn.zs"

@@ -8250,9 +8250,11 @@ heroanimate_skip_liftwpn:;
 	}
 	if(z==0 && fakez==0) //Shallow Water / Custom Walk SFX
 	{
+		// A whirlwind carries the Hero above any shallow liquid.
+		bool in_wind = action == inwind;
 		if (get_qr(qr_SHALLOW_SENSITIVE))
 		{
-			if (action != swimming && action != isdiving && action != drowning && action!=lavadrowning && action!=sidedrowning && action!=rafting && action != falling && !IsSideSwim() && !(ladderx+laddery) && !pull_hero && !walk_through_walls)
+			if (action != swimming && action != isdiving && action != drowning && action!=lavadrowning && action!=sidedrowning && action!=rafting && action != falling && !in_wind && !IsSideSwim() && !(ladderx+laddery) && !pull_hero && !walk_through_walls)
 			{
 				bool b1 = iswaterex_z3(FFORCOMBO(x+11,y+15), -1, x+11, y+15, false, false, true, true);
 				bool b2 = iswaterex_z3(FFORCOMBO(x+4,y+15), -1, x+4, y+15, false, false, true, true);
@@ -8290,7 +8292,7 @@ heroanimate_skip_liftwpn:;
 		}
 		else
 		{
-			if((COMBOTYPE(x,y+15)==cSHALLOWWATER)&&(COMBOTYPE(x+15,y+15)==cSHALLOWWATER))
+			if(!in_wind && (COMBOTYPE(x,y+15)==cSHALLOWWATER)&&(COMBOTYPE(x+15,y+15)==cSHALLOWWATER))
 			{
 				combined_handle_t handle;
 				int tx = x+7.5, ty = y.getInt()+15;
