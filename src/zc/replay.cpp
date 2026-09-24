@@ -628,6 +628,12 @@ static void uninstall_keyboard_handlers()
 // (blit_from_256) is a pure per-pixel lookup into _palette_expansion_table, so the entire
 // conversion of a frame is described by just 256 entries. So build that lookup *through the same
 // blit* and apply it here, then stream scanlines through the hash.
+//
+// Most frames only change below some row (the subscreen and the top of the playfield often sit
+// still), and XXH32's state before a scanline depends only on the scanlines above it. So the state
+// before each scanline is kept, along with the frame and conversion table it was computed from,
+// and hashing resumes at the first scanline that differs from the previous frame. That skips
+// about half the work in a typical replay.
 static uint32_t hash_bitmap(BITMAP* bitmap)
 {
 	DCHECK(bitmap_color_depth(bitmap) == 8);
@@ -653,14 +659,49 @@ static uint32_t hash_bitmap(BITMAP* bitmap)
 	memcpy(lut, lut_dst->line[0], 256 * 3);
 
 	int w = bitmap->w;
+	int h = bitmap->h;
 	// One byte of slack for the last pixel's overlapping 4-byte store.
 	static std::vector<uint8_t> line_buf;
 	line_buf.resize((size_t)w * 3 + 1);
 
-	XXH32_state_t state;
-	XXH32_reset(&state, 0);
-	for (int y = 0; y < bitmap->h; y++)
+	// The previous call's input, and the hash state before each of its scanlines.
+	static std::vector<uint8_t> prev_pixels;
+	static uint8_t prev_lut[256 * 3];
+	static std::vector<XXH32_state_t> row_states;
+	static uint32_t prev_hash;
+	static int prev_w, prev_h;
+
+	int first_row = 0;
+	if (w == prev_w && h == prev_h && !memcmp(lut, prev_lut, sizeof(prev_lut)))
 	{
+		first_row = h;
+		for (int y = 0; y < h; y++)
+		{
+			if (memcmp(bitmap->line[y], &prev_pixels[(size_t)y * w], w))
+			{
+				first_row = y;
+				break;
+			}
+		}
+		if (first_row == h)
+			return prev_hash;
+	}
+	else
+	{
+		prev_w = w;
+		prev_h = h;
+		memcpy(prev_lut, lut, sizeof(prev_lut));
+		prev_pixels.resize((size_t)w * h);
+		row_states.resize(h);
+		XXH32_reset(&row_states[0], 0);
+	}
+
+	XXH32_state_t state = row_states[first_row];
+	for (int y = first_row; y < h; y++)
+	{
+		row_states[y] = state;
+		memcpy(&prev_pixels[(size_t)y * w], bitmap->line[y], w);
+
 		const uint8_t* src = bitmap->line[y];
 		uint8_t* dst = line_buf.data();
 		for (int x = 0; x < w; x++)
@@ -675,7 +716,8 @@ static uint32_t hash_bitmap(BITMAP* bitmap)
 		XXH32_update(&state, line_buf.data(), (size_t)w * 3);
 	}
 
-	return XXH32_digest(&state);
+	prev_hash = XXH32_digest(&state);
+	return prev_hash;
 }
 
 static void do_recording_poll()
