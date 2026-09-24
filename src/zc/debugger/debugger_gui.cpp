@@ -1709,7 +1709,8 @@ void Debugger::InitGui()
 	queue = al_create_event_queue();
 	al_register_event_source(queue, al_get_display_event_source(display));
 	al_register_event_source(queue, al_get_keyboard_event_source());
-	al_register_event_source(queue, al_get_mouse_event_source());
+	if (al_is_mouse_installed())
+		al_register_event_source(queue, al_get_mouse_event_source());
 
 	text_editor.SetReadOnly(true);
 	text_editor.SetShowWhitespaces(false);

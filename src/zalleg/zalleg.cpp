@@ -277,7 +277,10 @@ void zalleg_setup_allegro(App id, int argc, char **argv)
 	}
 	poll_keyboard();
 	
-	if(install_mouse() < 0)
+	// A headless app has no window for mouse events to come from (replays play
+	// back recorded mouse state instead), and installing the mouse costs ~130ms of
+	// system time on macOS - more than the rest of startup.
+	if (!is_headless() && install_mouse() < 0)
 	{
 		Z_error_fatal("Failed to init allegro: %s\n%s\n", "install_mouse", allegro_error);
 	}
