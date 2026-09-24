@@ -20,6 +20,7 @@
 #include <mach-o/dyld.h>
 #include <sys/syslimits.h>
 
+void zapp_osx_disable_app_nap(void);
 void zapp_osx_get_main_screen_usable_size(int* w, int* h);
 float zapp_osx_get_main_screen_scale_factor(void);
 #endif
@@ -255,6 +256,9 @@ static bool headless;
 void set_headless_mode()
 {
 	headless = true;
+#ifdef ALLEGRO_MACOSX
+	zapp_osx_disable_app_nap();
+#endif
 }
 
 // Note: we don't truly have a headless mode (yet), but this function is useful for skipping GUI prompts for CI and scripted

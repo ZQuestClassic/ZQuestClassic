@@ -1,5 +1,18 @@
 #import <Cocoa/Cocoa.h>
 
+// A headless process has no visible window, so after about half a minute macOS
+// App Naps it: its threads move to the efficiency cores for good, and it runs
+// ~40% slower. Headless runs are replays, tests and command line tools, where
+// that's never wanted.
+void zapp_osx_disable_app_nap(void)
+{
+	// Held for the life of the process.
+	static id activity = [[[NSProcessInfo processInfo]
+		beginActivityWithOptions:NSActivityUserInitiatedAllowingIdleSystemSleep
+		reason:@"Running headless"] retain];
+	(void)activity;
+}
+
 // The HiDPI scale factor (1.0 or 2.0) of the main screen. Used to size a window
 // before any display exists.
 float zapp_osx_get_main_screen_scale_factor(void)
