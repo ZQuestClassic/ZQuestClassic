@@ -162,8 +162,39 @@ void FUNC_LINEAR_MASKED_BLIT(BITMAP *src, BITMAP *dst, int sx, int sy,
    for (y = 0; y < h; y++) {
       PIXEL_PTR s = OFFSET_PIXEL_PTR(bmp_read_line(src, sy + y), sx);
       PIXEL_PTR d = OFFSET_PIXEL_PTR(bmp_write_line(dst, dy + y), dx);
+      x = w - 1;
 
-      for (x = w - 1; x >= 0; INC_PIXEL_PTR(s), INC_PIXEL_PTR(d), x--) {
+   // local edit
+#if PP_DEPTH == 8 && !defined(ALLEGRO_DOS)
+      /* ZC: masked blits are often of mostly-empty full-screen layers, so look at
+       * 8 pixels at a time: skip them when all are transparent, copy them whole
+       * when none are. Only when the rows don't overlap, so every write lands
+       * exactly as the pixel loop below would make it.
+       */
+      if (s + w <= d || d + w <= s) {
+	 const uint64_t ones = 0x0101010101010101ULL;
+	 const uint64_t mask8 = ones * (mask_color & 0xFF);
+	 for (; x >= 7; s += 8, d += 8, x -= 8) {
+	    uint64_t v, t;
+	    int i;
+	    memcpy(&v, s, 8);
+	    /* A byte of t is zero where the pixel is transparent. */
+	    t = v ^ mask8;
+	    if (t == 0)
+	       continue;
+	    if (!((t - ones) & ~t & 0x8080808080808080ULL)) {
+	       memcpy(d, &v, 8);
+	       continue;
+	    }
+	    for (i = 0; i < 8; i++) {
+	       if (s[i] != mask_color)
+		  d[i] = s[i];
+	    }
+	 }
+      }
+#endif
+
+      for (; x >= 0; INC_PIXEL_PTR(s), INC_PIXEL_PTR(d), x--) {
 	 unsigned long c;
 
 	 bmp_select(src);
