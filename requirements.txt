@@ -78,7 +78,6 @@ sphinxcontrib-serializinghtml==2.0.0
 typing_extensions==4.12.2
 tzdata==2026.2
 urllib3==2.2.1
-watchdog==4.0.0
 Werkzeug==3.0.3
 windows-curses==2.3.2; platform_system == "Windows"
 wrapt==1.16.0

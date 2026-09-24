@@ -8,6 +8,7 @@ import random
 import shutil
 import subprocess
 import sys
+import threading
 import traceback
 
 from dataclasses import dataclass, field
@@ -19,8 +20,6 @@ from typing import Any, Callable, Generator, Literal, Optional
 
 from common import get_release_platform
 from lib.replay_helpers import parse_result_txt_file, read_replay_meta
-from watchdog.events import FileSystemEventHandler
-from watchdog.observers import Observer
 
 script_dir = Path(os.path.dirname(os.path.realpath(__file__)))
 root_dir = script_dir.parent
@@ -169,54 +168,43 @@ class ReplayTestResults:
         return '\n'.join(failing_strs)
 
 
-class ReplayResultUpdatedHandler(FileSystemEventHandler):
+class ReplayResultReader:
+    """Reads a replay's .zplay.result.txt, which zplayer rewrites about once a second.
 
-    def __init__(self, path, callback=None):
+    Polled rather than watched: a file-system watcher delivers events late (FSEvents
+    batches them), so a replay that has already exited could still look like it never
+    started. Re-parsing is skipped while the file's mtime and size are unchanged."""
+
+    def __init__(self, path: Path):
         self.path = path
-        self.callback = callback
         self.result = None
-        self.is_result_stale = False
-        self.observer = Observer()
-        self.observer.schedule(self, path.parent, recursive=False)
-        self.observer.start()
+        self._parsed_key = None
 
     def update_result(self):
-        if self.is_result_stale:
-            self.parse_result()
-
-    def parse_result(self):
         if self.result and self.result['stopped']:
             return
 
-        if not self.path.exists():
+        try:
+            st = self.path.stat()
+        except OSError:
+            return
+
+        key = (st.st_mtime_ns, st.st_size)
+        if key == self._parsed_key:
             return
 
         try:
             new_result = parse_result_txt_file(self.path)
-            if not new_result:
-                return
-            self.result = new_result
         except:
             logging.warning('could not read result txt file')
             return
 
-        self.is_result_stale = False
-        if self.result['stopped']:
-            self.observer.stop()
+        # A partially written file has no result yet; read it again next time.
+        if not new_result:
+            return
 
-    def on_modified(self, event):
-        if not event.is_directory and event.src_path.endswith(self.path.name):
-            self.modified_time = timer()
-            self.is_result_stale = True
-            if self.callback:
-                self.callback(self)
-
-    def on_created(self, event):
-        if not event.is_directory and event.src_path.endswith(self.path.name):
-            self.modified_time = timer()
-            self.is_result_stale = True
-            if self.callback:
-                self.callback(self)
+        self.result = new_result
+        self._parsed_key = key
 
 
 class ReplayTimeoutException(Exception):
@@ -410,6 +398,9 @@ class RunReplayTestsContext:
     jit: bool
     extra_args: list[str]
     optimize_zasm: bool = True
+    # Set whenever a replay process exits, so the scheduler can start the next replay
+    # right away instead of at its next tick.
+    wake: threading.Event = field(default_factory=threading.Event)
 
 
 @dataclass
@@ -625,6 +616,17 @@ class WebPlayerInterface:
 RunReplayTestGenerator = Generator[tuple[int, str, RunResult], None, None]
 
 
+def _wake_on_exit(p: Optional[subprocess.Popen], wake: threading.Event):
+    if not p:
+        return
+
+    def wait():
+        p.wait()
+        wake.set()
+
+    threading.Thread(target=wait, daemon=True).start()
+
+
 def _run_replay_test(
     ctx: RunReplayTestsContext, key: int, replay: Replay, output_dir: Path
 ) -> RunReplayTestGenerator:
@@ -658,7 +660,7 @@ def _run_replay_test(
             if allegro_log_path.exists():
                 allegro_log_path.unlink()
 
-            def on_result_updated(w: ReplayResultUpdatedHandler):
+            def on_result_updated(w: ReplayResultReader):
                 if not w:
                     return
 
@@ -674,7 +676,7 @@ def _run_replay_test(
                 result.success = w.result['stopped'] and w.result['success']
                 result.rng_desync = w.result.get('rng_desync', False)
 
-            watcher = ReplayResultUpdatedHandler(result_path, on_result_updated)
+            watcher = ReplayResultReader(result_path)
 
             start = timer()
             player_interface.start_replay(
@@ -684,6 +686,7 @@ def _run_replay_test(
                     output_dir=output_dir,
                 )
             )
+            _wake_on_exit(player_interface.p, ctx.wake)
 
             # Wait for .zplay.result.txt creation.
             while True:
@@ -692,7 +695,7 @@ def _run_replay_test(
                         'timed out waiting for replay to start'
                     )
 
-                watcher.update_result()
+                on_result_updated(watcher)
                 if watcher.result:
                     break
 
@@ -718,8 +721,8 @@ def _run_replay_test(
             # has failed to advance for `timeout` seconds.
             last_progress_frame = -1
             last_progress_time = timer()
-            while watcher.observer.is_alive():
-                watcher.update_result()
+            while not watcher.result['stopped']:
+                on_result_updated(watcher)
 
                 if player_interface.poll() != None:
                     break
@@ -791,8 +794,6 @@ def _run_replay_test(
             yield (key, 'finish', result)
             return
         finally:
-            if watcher:
-                watcher.observer.stop()
             if player_interface:
                 player_interface.stop()
 
@@ -915,9 +916,13 @@ def _run_replays(
             run_dir.mkdir(parents=True, exist_ok=True)
             active_tests.append(_run_replay_test(ctx, test_index, replay, run_dir))
 
+        # Cleared before checking on the replays, so an exit from here on still ends the
+        # wait below.
+        ctx.wake.clear()
         next_active_tests = []
         active_results = []
         has_updated = False
+        any_finished = False
         status = {}
         for active_test in active_tests:
             test_index, type, result = next(active_test, None)
@@ -933,6 +938,7 @@ def _run_replays(
                     result.success = True
                 results.append(result)
                 status[result.name] = 'finish'
+                any_finished = True
         active_tests = next_active_tests
 
         if has_updated:
@@ -949,7 +955,11 @@ def _run_replays(
                     summary,
                 )
             )
-        sleep(1)
+
+        # Refill a freed slot immediately. Otherwise, check back once a second for
+        # progress, or as soon as a replay exits.
+        if not any_finished:
+            ctx.wake.wait(1)
 
     return [r for r in results if r]
 
