@@ -31,6 +31,7 @@
 #include "auto/bug_object_deleted_during_constructor.zs"
 #include "auto/bug_opt_bool_compare_folding.zs"
 #include "auto/bug_opt_var_across_waitframe.zs"
+#include "auto/bug_region_enemies_first_load.zs"
 #include "auto/bug_region_ffc_solid_first_frame.zs"
 #include "auto/bug_script_draw_error_logging.zs"
 #include "auto/bug_spawn_screen_oob.zs"

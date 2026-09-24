@@ -108,6 +108,15 @@ bool replay_compat_hammer_pound_reach_bug()
 	return !replay_version_check(67);
 }
 
+// When returning to a recently visited region, a screen whose enemies had not been loaded during
+// the previous visit (it never came into view) spawned no enemies, as if they had all been
+// killed. The recently visited check was done for the region as a whole, not for each screen.
+// https://discord.com/channels/876899628556091432/1552135801352093726
+bool replay_compat_region_enemies_first_load_bug()
+{
+	return !replay_version_check(69);
+}
+
 // Trig, inverse trig, and log/pow switched from libm (and the replay-only Q15
 // trig) to the deterministic tables in zc_math.cpp in replay version 59 /
 // ZC 2.55.15. This owns the entire mode policy so zc_math.cpp needs no

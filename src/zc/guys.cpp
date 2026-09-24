@@ -1,6 +1,7 @@
 #include "core/handles.h"
 #include "components/scc/scc.h"
 #include "core/zdefs.h"
+#include <bitset>
 #include <cstring>
 #include <optional>
 #include <stdio.h>
@@ -9,6 +10,7 @@
 #include "zalleg/zalleg.h"
 #include "zc/guys.h"
 #include "zc/replay.h"
+#include "zc/replay_compat.h"
 #include "zc/zc_ffc.h"
 #include "zc/zc_subscr.h"
 #include "zc/zc_sys.h"
@@ -18812,29 +18814,57 @@ bool can_side_load(int32_t id)
 	return true;
 }
 
+// For each entry in `visited`, the screens whose enemies were loaded while there. A region is one
+// entry (keyed by its origin screen), but its screens only load enemies once they come into view,
+// so each screen must be tracked separately.
+static std::bitset<MAPSCRS> visited_loaded_screens[6];
+
 bool enemy_spawning_has_checked_been_here;
 static bool enemy_spawning_has_been_here;
 
-static bool check_if_recently_visited()
+// Returns true if `screen` loaded its enemies during one of the last 6 unique screens (or regions)
+// visited. Otherwise records that it has now.
+static bool check_if_recently_visited(int screen)
 {
-	if (enemy_spawning_has_checked_been_here)
-		return enemy_spawning_has_been_here;
-
 	int mi = mapind(cur_map, cur_screen);
 
-	enemy_spawning_has_been_here = false;
-	for (int i = 0; i < 6; i++)
-		if (visited[i] == mi)
-			enemy_spawning_has_been_here = true;
-
-	if (!enemy_spawning_has_been_here)
+	if (replay_compat_region_enemies_first_load_bug())
 	{
-		visited[vhead] = mi; //If not, it adds it to the array,
-		vhead = (vhead+1)%6; //which overrides one of the others, and then moves onto the next.
+		if (enemy_spawning_has_checked_been_here)
+			return enemy_spawning_has_been_here;
+
+		enemy_spawning_has_been_here = false;
+		for (int i = 0; i < 6; i++)
+			if (visited[i] == mi)
+				enemy_spawning_has_been_here = true;
+
+		if (!enemy_spawning_has_been_here)
+		{
+			visited[vhead] = mi;
+			vhead = (vhead+1)%6;
+		}
+
+		enemy_spawning_has_checked_been_here = true;
+		return enemy_spawning_has_been_here;
 	}
 
-	enemy_spawning_has_checked_been_here = true;
-	return enemy_spawning_has_been_here;
+	for (int i = 0; i < 6; i++)
+	{
+		if (visited[i] == mi)
+		{
+			if (visited_loaded_screens[i].test(screen))
+				return true;
+
+			visited_loaded_screens[i].set(screen);
+			return false;
+		}
+	}
+
+	visited[vhead] = mi; //If not, it adds it to the array,
+	visited_loaded_screens[vhead].reset();
+	visited_loaded_screens[vhead].set(screen);
+	vhead = (vhead+1)%6; //which overrides one of the others, and then moves onto the next.
+	return false;
 }
 
 static void script_side_load_enemies(mapscr* scr)
@@ -18867,7 +18897,7 @@ static void side_load_enemies(mapscr* scr)
 		
 		load_default_enemies(scr);
 
-		bool beenhere = check_if_recently_visited();
+		bool beenhere = check_if_recently_visited(screen);
 		if (beenhere && game->guys.get(mi) == 0)
 		{
 			sls.cnt=0;
@@ -19396,7 +19426,7 @@ void loadenemies()
 
 		int32_t loadcnt = 10;
 		int16_t mi = mapind(cur_map, screen);
-		bool beenhere = check_if_recently_visited();
+		bool beenhere = check_if_recently_visited(screen);
 
 		//Okay so this basically checks the last 6 unique screen's you've been in and checks if the current screen is one of them.
 		bool reload = true;

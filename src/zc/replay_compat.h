@@ -13,6 +13,7 @@ bool replay_compat_whistle_stuck_bug();
 bool replay_compat_hammer_trigger_lag_bug();
 bool replay_compat_ladder_water_sensitivity_bug();
 bool replay_compat_hammer_pound_reach_bug();
+bool replay_compat_region_enemies_first_load_bug();
 
 // Selects the zc::math mode for the current session, based on what math the
 // active replay (if any) was created with. Called from replay_start,
