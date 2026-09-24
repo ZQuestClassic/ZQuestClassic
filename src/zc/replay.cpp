@@ -634,6 +634,55 @@ static void uninstall_keyboard_handlers()
 // before each scanline is kept, along with the frame and conversion table it was computed from,
 // and hashing resumes at the first scanline that differs from the previous frame. That skips
 // about half the work in a typical replay.
+//
+// XXH32 itself is bound by the latency of its four lanes' multiply chains, so the conversion is
+// done inside the hash loop (see hash_scanline_24bpp), where it costs little, rather than as a
+// separate pass over a scanline buffer.
+
+static uint32_t xxh32_round(uint32_t acc, uint32_t input)
+{
+	acc += input * XXH_PRIME32_2;
+	acc = (acc << 13) | (acc >> 19);
+	return acc * XXH_PRIME32_1;
+}
+
+// Equivalent to XXH32_update() with the scanline converted to 24bpp via lut32 (palette index ->
+// its 3 bytes, as a little-endian word), for a state with no buffered bytes and a width that is a
+// multiple of 16: 16 pixels are 48 bytes, exactly three of XXH32's 16-byte stripes, so the
+// state still has no buffered bytes afterwards.
+static void hash_scanline_24bpp(XXH32_state_t& state, const uint8_t* src, int w, const uint32_t* lut32)
+{
+	DCHECK(state.memsize == 0 && w % 16 == 0);
+
+	uint32_t v0 = state.v[0], v1 = state.v[1], v2 = state.v[2], v3 = state.v[3];
+	for (int x = 0; x < w; x += 16, src += 16)
+	{
+		// Every 4 pixels are 12 bytes, which make 3 input words.
+		uint32_t in[12];
+		for (int g = 0; g < 4; g++)
+		{
+			uint32_t c0 = lut32[src[g*4]], c1 = lut32[src[g*4 + 1]];
+			uint32_t c2 = lut32[src[g*4 + 2]], c3 = lut32[src[g*4 + 3]];
+			in[g*3] = c0 | c1 << 24;
+			in[g*3 + 1] = c1 >> 8 | c2 << 16;
+			in[g*3 + 2] = c2 >> 16 | c3 << 8;
+		}
+		for (int i = 0; i < 12; i += 4)
+		{
+			v0 = xxh32_round(v0, in[i]);
+			v1 = xxh32_round(v1, in[i + 1]);
+			v2 = xxh32_round(v2, in[i + 2]);
+			v3 = xxh32_round(v3, in[i + 3]);
+		}
+	}
+	state.v[0] = v0;
+	state.v[1] = v1;
+	state.v[2] = v2;
+	state.v[3] = v3;
+	state.total_len_32 += (uint32_t)w * 3;
+	state.large_len = 1;
+}
+
 static uint32_t hash_bitmap(BITMAP* bitmap)
 {
 	DCHECK(bitmap_color_depth(bitmap) == 8);
@@ -653,16 +702,12 @@ static uint32_t hash_bitmap(BITMAP* bitmap)
 	}
 	blit(lut_src, lut_dst, 0, 0, 0, 0, 256, 1);
 
-	// lut[i*3 .. i*3+2] is what palette index i expands to in 24bpp. Copied out of the bitmap
-	// for a tighter inner loop, and padded so the 4-byte read of entry 255 stays in bounds.
-	uint8_t lut[256 * 3 + 1];
+	// lut[i*3 .. i*3+2] is what palette index i expands to in 24bpp.
+	uint8_t lut[256 * 3];
 	memcpy(lut, lut_dst->line[0], 256 * 3);
 
 	int w = bitmap->w;
 	int h = bitmap->h;
-	// One byte of slack for the last pixel's overlapping 4-byte store.
-	static std::vector<uint8_t> line_buf;
-	line_buf.resize((size_t)w * 3 + 1);
 
 	// The previous call's input, and the hash state before each of its scanlines.
 	static std::vector<uint8_t> prev_pixels;
@@ -696,6 +741,15 @@ static uint32_t hash_bitmap(BITMAP* bitmap)
 		XXH32_reset(&row_states[0], 0);
 	}
 
+	uint32_t lut32[256];
+	for (int i = 0; i < 256; i++)
+		lut32[i] = lut[i*3] | lut[i*3 + 1] << 8 | lut[i*3 + 2] << 16;
+
+	// Only needed for a width the fused scanline hash can't take.
+	std::vector<uint8_t> line_buf;
+	if (w % 16)
+		line_buf.resize((size_t)w * 3);
+
 	XXH32_state_t state = row_states[first_row];
 	for (int y = first_row; y < h; y++)
 	{
@@ -703,17 +757,15 @@ static uint32_t hash_bitmap(BITMAP* bitmap)
 		memcpy(&prev_pixels[(size_t)y * w], bitmap->line[y], w);
 
 		const uint8_t* src = bitmap->line[y];
-		uint8_t* dst = line_buf.data();
-		for (int x = 0; x < w; x++)
+		if (line_buf.empty())
 		{
-			// One 4-byte load/store beats three byte-sized ones. The 4th byte is junk, but
-			// dst only advances by 3, so the next pixel overwrites it.
-			uint32_t v;
-			memcpy(&v, lut + src[x] * 3, 4);
-			memcpy(dst, &v, 4);
-			dst += 3;
+			hash_scanline_24bpp(state, src, w, lut32);
+			continue;
 		}
-		XXH32_update(&state, line_buf.data(), (size_t)w * 3);
+
+		for (int x = 0; x < w; x++)
+			memcpy(&line_buf[x * 3], &lut[src[x] * 3], 3);
+		XXH32_update(&state, line_buf.data(), line_buf.size());
 	}
 
 	prev_hash = XXH32_digest(&state);
