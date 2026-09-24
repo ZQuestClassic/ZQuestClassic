@@ -206,8 +206,20 @@ void joy_getbtn(string const& title, int& btn_ref, int stick_idx, bool stick)
 	strs.emplace_back("ESC to cancel");
 	strs.emplace_back("SPACE to clear");
 	waiting_no_buttons = true;
+	bool bound = false;
 	spinner_loop(strs, [&]()
 		{
+			if (bound)
+			{
+				// Stay open until the input is released. The dialog underneath
+				// turns a held button 0/1 on joystick 0 into a Space key and a
+				// held dpad into arrow keys (update_dialog in allegro_legacy's
+				// gui.c), which would reopen this popup from the still-focused
+				// Bind button, or move focus, the moment it closed.
+				poll_joystick();
+				auto held = get_btnpress(stick_idx, stick);
+				return !held || *held < 0;
+			}
 			while (auto key = get_next_keypress(false))
 			{
 				if (*key == KEY_ESC) // exit
@@ -220,9 +232,10 @@ void joy_getbtn(string const& title, int& btn_ref, int stick_idx, bool stick)
 			}
 			if (auto btn = get_next_btnpress(stick_idx, stick))
 			{
-				if (*btn >= 0) // negative indicates gamepad disconnection
-					btn_ref = *btn;
-				return true;
+				if (*btn < 0) // gamepad disconnected
+					return true;
+				btn_ref = *btn;
+				bound = true;
 			}
 			return false;
 		});
@@ -235,8 +248,16 @@ void kb_getkey(string const& title, int& key_ref)
 		strs.emplace_back(title);
 	strs.emplace_back("ESC to cancel");
 	reset_held_mod_keys();
+	bool bound = false;
 	spinner_loop(strs, [&]()
 		{
+			if (bound)
+			{
+				// As in joy_getbtn: a key still held when the popup closes
+				// would autorepeat into the dialog underneath.
+				poll_keyboard();
+				return !key[key_ref];
+			}
 			while (auto key = get_next_keypress(true))
 			{
 				if (*key == KEY_ESC)
@@ -246,7 +267,8 @@ void kb_getkey(string const& title, int& key_ref)
 				if (*key < 0 || *key > 123)
 					continue; // out of range, disallow
 				key_ref = *key;
-				return true;
+				bound = true;
+				return false;
 			}
 			return false;
 		});
