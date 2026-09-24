@@ -230,6 +230,8 @@ zc: Deterministic high-precision math for gameplay and replays
   - Replays recorded before this version still play back with the old
     math, bit for bit.
 
+  Discord: https://discord.com/channels/876899628556091432/1509803675605008384
+
 zc: Walking/standing combo effects not blocked by bridges
   this includes the general tab sfx/sprites
 
@@ -244,18 +246,25 @@ zc: Stop triforce pickup softlocking with low MP/HP counter settings
   to 1-3 (or HP per Heart to 1). The refill animation never finished, so
   the pickup cutscene looped forever and quitting crashed.
 
+  Discord: https://discord.com/channels/876899628556091432/1427885026686668840
+
 zc: 1-wide gaps being hard to fall through in sideview
 zc: Handle replay load failures gracefully with a GUI error
   Loading an invalid replay could crash the program. Now, an error dialog
   is displayed when a replay fails to load.
 
 zc: Prevent previous qst misc data leaking to next
+
+  Discord: https://discord.com/channels/876899628556091432/1516543771448316106
+
 zc: Hammer triggering combos outside its hitbox
   The hammer could trigger combos and secret flags above and behind the
   player, outside the area its hitbox was drawn. It was most obvious with
   the "don't trigger while the hammer is in the air" item flag enabled: on
   the first frame the hammer became active on the ground, it triggered
   combos where it had been a frame earlier, while still raised.
+
+  Discord: https://discord.com/channels/876899628556091432/1459317304511955059
 
 zc: Armos combos with custom enemies not clearing the combo
 zc: Large armos bad tile offset
