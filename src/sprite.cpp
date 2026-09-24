@@ -1062,8 +1062,11 @@ void sprite::draw(BITMAP* dest)
 	#define TILEBOUND(t) vbound(t,0,NEWMAXTILES)
 	if(clk>=0)
 	{
+		// Scratch space for rotating/scaling. Only cleared when used: every sprite is drawn
+		// every frame, and clearing 64KB each time adds up.
 		static BITMAP* sprBMP2 = create_bitmap_ex(8, 256, 256);
-		clear_bitmap(sprBMP2);
+		if (rotation || scale)
+			clear_bitmap(sprBMP2);
 
 		switch(e)
 		{
