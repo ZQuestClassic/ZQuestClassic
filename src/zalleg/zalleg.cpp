@@ -177,6 +177,7 @@ void zapp_setup_icon()
 void AllegroCheckFailedHandler(const char* file, int line, const char* func, const char* condition)
 {
 	std::string message = fmt::format("CHECK failed at {}:{} {}: {}", file, line, func, condition);
+	fprintf(stderr, "%s\n", message.c_str());
 	al_trace("%s\n", message.c_str());
 	zapp_reporting_add_breadcrumb("error", message.c_str());
 }
