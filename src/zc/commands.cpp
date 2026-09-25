@@ -94,6 +94,9 @@ void zplayer_handle_commands()
 		extern TestResults test_control_scheme(bool);
 		if (!run_tests(test_control_scheme, "test_control_scheme", verbose)) success = false;
 
+		extern TestResults test_qst_cfg_header(bool);
+		if (!run_tests(test_qst_cfg_header, "test_qst_cfg_header", verbose)) success = false;
+
 		extern TestResults test_title_reload(bool);
 		if (!run_tests(test_title_reload, "test_title_reload", verbose)) success = false;
 

@@ -108,6 +108,7 @@ src/test_runner/test_runner.cpp
 src/zc/debugger/debugger_test.cpp
 src/zc/saves_test.cpp
 src/zc/title_test.cpp
+src/zc/zconfig_test.cpp
 src/zc/scripting/arrays_test.cpp
 src/zc/zasm_optimize_test.cpp
 

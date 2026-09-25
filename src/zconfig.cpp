@@ -61,10 +61,16 @@ std::string qst_cfg_header_from_path([[maybe_unused]] std::string path)
 {
 #if defined(IS_PLAYER) or defined(IS_EDITOR)
 	path = relativize_path(path);
+	util::replchar(path, '\\', '/');
+	// None of these can be in a config section or key name: brackets delimit
+	// sections, and the parser ends a name at a space, '#' (a comment) or '='.
+	// A quest in a folder like "#Quests" would otherwise get its settings saved
+	// under a name that reads back truncated.
 	util::replchar(path, '[', '_');
 	util::replchar(path, ']', '_');
 	util::replchar(path, ' ', '_');
-	util::replchar(path, '\\', '/');
+	util::replchar(path, '#', '_');
+	util::replchar(path, '=', '_');
 	return path;
 #else
 	return "";
