@@ -74,10 +74,12 @@ TestResults test_title_reload([[maybe_unused]] bool verbose)
 }
 
 // Standalone mode (`-standalone quest.qst`) has one save slot and no file select screen, so
-// every return to titlescreen() - quitting without saving, dying without a continue screen -
-// must load that slot again. This used to survive exactly one such return (the startup code
-// set `-slot 1` as a side effect, which titlescreen() consumes on first use) and then die
-// with "Failed to load save: init_game" on the next one.
+// quitting shows a screen that either closes the program or loads that slot again. Loading it
+// again used to survive exactly one return to titlescreen() (the startup code set `-slot 1` as
+// a side effect, which titlescreen() consumes on first use) and then die with "Failed to load
+// save: init_game" on the next one.
+//
+// See https://github.com/ZQuestClassic/ZQuestClassic/issues/1217
 TestResults test_title_standalone([[maybe_unused]] bool verbose)
 {
 	TestResults tr{};
@@ -108,6 +110,8 @@ TestResults test_title_standalone([[maybe_unused]] bool verbose)
 		standalone_mode = false;
 		standalone_quest.clear();
 		standalone_save_path.clear();
+		standalone_quit_choice_for_test.reset();
+		Quit = 0;
 	};
 
 	// Drop whatever slot the previous test left selected; saves_load() replaces the slots.
@@ -133,17 +137,49 @@ TestResults test_title_standalone([[maybe_unused]] bool verbose)
 		}
 	};
 
-	// First launch.
+	// First launch. The quit screen only follows a loaded game, so even Quit == qQUIT here must
+	// load the save without asking.
+	standalone_quit_choice_for_test = StandaloneQuitChoice::QuitToDesktop;
+	Quit = qQUIT;
 	titlescreen(0);
 	check_loaded("first launch");
 
-	// Quit without saving, twice - the sequence from the bug report.
+	// Quit, then load the last save - twice, the sequence from the crash report.
+	standalone_quit_choice_for_test = StandaloneQuitChoice::LoadLastSave;
 	for (int i = 0; i < 2; i++)
 	{
 		Quit = qQUIT;
 		titlescreen(0);
 		check_loaded(i == 0 ? "first quit" : "second quit");
 	}
+
+	// Dying without a continue screen loads the last save without asking.
+	standalone_quit_choice_for_test = StandaloneQuitChoice::QuitToDesktop;
+	Quit = qGAMEOVER;
+	titlescreen(0);
+	check_loaded("no-continue-screen death");
+
+	auto check_closed = [&] (const char* what) {
+		tr.total++;
+		if (Quit != qEXIT || GameLoaded || saves_current_selection() != -1)
+		{
+			fmt::println("failed: {} did not close the program (Quit={}, GameLoaded={}, selection={})",
+				what, Quit, GameLoaded, saves_current_selection());
+			tr.failed++;
+		}
+	};
+
+	// Quit to desktop closes the program without loading anything.
+	Quit = qQUIT;
+	titlescreen(0);
+	check_closed("quit to desktop");
+
+	// Game->SaveAndQuit() gets the same screen.
+	Quit = qGAMEOVER; // Back into the game - this path doesn't ask.
+	titlescreen(0);
+	Quit = qSAVE;
+	titlescreen(0);
+	check_closed("quit to desktop after Game->SaveAndQuit()");
 
 	cleanup();
 	return tr;

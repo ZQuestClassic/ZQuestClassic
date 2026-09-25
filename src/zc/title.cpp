@@ -1873,6 +1873,84 @@ static void prompt_for_uploading_replays()
 #endif
 }
 
+std::optional<StandaloneQuitChoice> standalone_quit_choice_for_test;
+
+// Standalone mode has no file select screen to return to after the game is quit, so this asks
+// whether to close the program or load the save again. It runs from titlescreen() after any
+// replay has stopped, so like the title and file select screens, it is never in a replay.
+static StandaloneQuitChoice standalone_quit_screen()
+{
+	if (standalone_quit_choice_for_test)
+		return *standalone_quit_choice_for_test;
+
+	const char* rows[] = { "QUIT TO DESKTOP", "LOAD LAST SAVE" };
+	const int32_t num_rows = 2;
+	// Styled like the continue screen.
+	int32_t text_color = SaveScreenSettings[SAVESC_TEXT_CONTINUE_COLOUR] > 0 ? SaveScreenSettings[SAVESC_TEXT_CONTINUE_COLOUR] : QMisc.colors.msgtext;
+	int32_t flash_color = SaveScreenSettings[SAVESC_TEXT_CONTINUE_FLASH] > 0 ? SaveScreenSettings[SAVESC_TEXT_CONTINUE_FLASH] : QMisc.colors.caption;
+
+	kill_sfx();
+	music_stop();
+	clear_bitmap(screen);
+	clear_info_bmp();
+	loadfullpal();
+
+	clear_to_color(framebuf, SaveScreenSettings[SAVESC_BACKGROUND]);
+	for (int32_t i = 0; i < num_rows; i++)
+		textout_ex(framebuf, get_zc_font(font_zfont), rows[i], 88, 72 + i*24, text_color, -1);
+
+	// Don't take the press that picked an option on the previous screen.
+	load_control_state();
+	getInput(btnS, INPUT_PRESS | INPUT_IGNORE_DISABLE);
+	getInput(btnA, INPUT_PRESS | INPUT_IGNORE_DISABLE);
+
+	int32_t pos = 0;
+	int32_t f = -1;
+	bool done = false;
+	do
+	{
+		load_control_state();
+
+		if (f == -1)
+		{
+			if (getInput(btnUp, INPUT_PRESS | INPUT_IGNORE_DISABLE))
+			{
+				sfx(SaveScreenSettings[SAVESC_CUR_SOUND]);
+				pos = (pos + num_rows - 1) % num_rows;
+			}
+
+			if (getInput(btnDown, INPUT_PRESS | INPUT_IGNORE_DISABLE))
+			{
+				sfx(SaveScreenSettings[SAVESC_CUR_SOUND]);
+				pos = (pos + 1) % num_rows;
+			}
+
+			if (getInput(btnS, INPUT_PRESS | INPUT_IGNORE_DISABLE) || getInput(btnA, INPUT_PRESS | INPUT_IGNORE_DISABLE))
+				++f;
+		}
+
+		// Flash the picked row, as the continue screen does.
+		if (f >= 0)
+		{
+			if (++f == 65)
+				done = true;
+
+			if (!(f&3))
+				textout_ex(framebuf, get_zc_font(font_zfont), rows[pos], 88, 72 + pos*24, (f&4) ? flash_color : text_color, -1);
+		}
+
+		rectfill(framebuf, 72, 72, 79, 79 + (num_rows-1)*24, SaveScreenSettings[SAVESC_BACKGROUND]);
+		overtile8(framebuf, SaveScreenSettings[SAVESC_USETILE], 72, 72 + pos*24, SaveScreenSettings[SAVESC_CURSOR_CSET], SaveScreenSettings[SAVESC_CUR_FLIP]);
+		advanceframe(true);
+	}
+	while (!Quit && !done);
+
+	clear_bitmap(framebuf);
+	advanceframe(true);
+
+	return done && pos == 1 ? StandaloneQuitChoice::LoadLastSave : StandaloneQuitChoice::QuitToDesktop;
+}
+
 void titlescreen(int32_t lsave)
 {
 	int32_t q=Quit;
@@ -1898,12 +1976,15 @@ void titlescreen(int32_t lsave)
 	}
 
 	// Standalone mode has a single save slot and no file select screen, so every
-	// visit here (first launch, quitting without saving, no-continue-screen deaths)
-	// loads that slot.
+	// visit here (first launch, loading the last save after quitting, no-continue-screen
+	// deaths) loads that slot.
 	if (standalone_mode)
 		lsave = 1;
 
 	bool should_show_titlescreen = !SkipTitle && load_qstpath.empty() && lsave == 0 && !Quit;
+
+	// Quit from the continue screen, a save menu or a script - only once a game has been loaded.
+	bool quit_game = (q == qQUIT || q == qSAVE) && saves_current_selection() != -1;
 
 	if (saves_current_selection() != -1)
 	{
@@ -1916,6 +1997,22 @@ void titlescreen(int32_t lsave)
 		replay_quit();
 
 	updateShowBottomPixels();
+
+	// Dying without a continue screen (qGAMEOVER) skips this and loads the last save, as it
+	// always has.
+	if (standalone_mode && quit_game)
+	{
+		StandaloneQuitChoice choice = standalone_quit_screen();
+		// The program was closed or reset while the screen was up.
+		if (Quit)
+			return;
+
+		if (choice == StandaloneQuitChoice::QuitToDesktop)
+		{
+			Quit = qEXIT;
+			return;
+		}
+	}
 
 	if (should_show_titlescreen)
 	{

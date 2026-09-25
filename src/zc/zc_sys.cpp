@@ -4990,7 +4990,7 @@ int32_t onQuit()
 			if(standalone_mode)
 			{
 				s += "\nThe continue screen is disabled; the game"
-					"\nwill not be saved and the program will close.";
+					"\nwill not be saved.";
 			}
 			else
 			{
