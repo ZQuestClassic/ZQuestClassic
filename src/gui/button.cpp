@@ -30,7 +30,6 @@ static const string hotkey_index_names[] =
 {
 	"Main", "Alternate"
 };
-static bool waiting_no_buttons = false;
 static void reset_held_mod_keys()
 {
 	poll_keyboard();
@@ -72,35 +71,34 @@ bool joystick(int stick_idx, int s)
 	}
 	return false;
 }
-static optional<int> get_btnpress(int stick_idx, bool stick)
+// The gamepad inputs currently held: buttons (1-based), or sticks when binding
+// a stick.
+static std::vector<int> get_held_inputs(int stick_idx, bool stick)
 {
-	if (!binding_joystick || !al_get_joystick_active(binding_joystick))
-		return -1;
+	std::vector<int> held;
 	if (stick)
 	{
 		for(int q = 0; q < joy[stick_idx].num_sticks; ++q)
 			if(joystick (stick_idx, q))
-				return q;
+				held.push_back(q);
 	}
 	else
 	{
 		for(int q = 1; q <= joy[stick_idx].num_buttons; ++q)
 			if(joybtn (stick_idx, q))
-				return q;
+				held.push_back(q);
 	}
-	return std::nullopt;
+	return held;
 }
-optional<int> get_next_btnpress(int stick_idx, bool stick)
+// Names an input with its kind and number, since a gamepad's names can be shared
+// between a button and a stick (e.g. "Left Thumb" is both the left stick and its
+// click).
+static string get_input_name(int stick_idx, bool stick, int q)
 {
-	poll_joystick();
-	auto ret = get_btnpress(stick_idx, stick);
-	if (ret && *ret < 0) return ret;
-	if (waiting_no_buttons)
-	{
-		if (!ret)
-			waiting_no_buttons = false;
-		return std::nullopt;
-	}
+	const char* name = stick ? joy[stick_idx].stick[q].name : joy[stick_idx].button[q-1].name;
+	string ret = fmt::format("{} {}", stick ? "stick" : "button", q);
+	if (name && name[0])
+		ret += fmt::format(" ({})", name);
 	return ret;
 }
 optional<int> get_next_keypress(bool check_mod_keys)
@@ -208,20 +206,37 @@ void joy_getbtn(string const& title, int& btn_ref, int stick_idx, bool stick)
 		strs.emplace_back(title);
 	strs.emplace_back("ESC to cancel");
 	strs.emplace_back("SPACE to clear");
-	waiting_no_buttons = true;
+
+	// Inputs already held when the popup opens can't be bound until they are
+	// released, since one of them may be what opened it. They are tracked one
+	// by one, rather than waiting for every input to be released, so an input
+	// that never reads as released (a stuck or noisy button or trigger) can't
+	// block binding the others. Any still held after a moment are logged, to
+	// help diagnose such a controller.
+	poll_joystick();
+	std::set<int> ignored;
+	for (int q : get_held_inputs(stick_idx, stick))
+		ignored.insert(q);
 	bool bound = false;
+	int frames = 0;
+	string logged_str;
+
 	spinner_loop(strs, [&]()
 		{
+			poll_joystick();
+			if (!binding_joystick || !al_get_joystick_active(binding_joystick))
+				return true; // gamepad disconnected
+			auto held = get_held_inputs(stick_idx, stick);
+			auto is_held = [&](int q) { return std::find(held.begin(), held.end(), q) != held.end(); };
 			if (bound)
 			{
-				// Stay open until the input is released. The dialog underneath
-				// turns a held button 0/1 on joystick 0 into a Space key and a
-				// held dpad into arrow keys (update_dialog in allegro_legacy's
-				// gui.c), which would reopen this popup from the still-focused
-				// Bind button, or move focus, the moment it closed.
-				poll_joystick();
-				auto held = get_btnpress(stick_idx, stick);
-				return !held || *held < 0;
+				// Stay open until the inputs pressed while it was open are released
+				// (ignored ones held since it opened, like a stuck button, don't
+				// count). The dialog underneath turns a held button 0/1 on joystick
+				// 0 into a Space key and a held dpad into arrow keys (update_dialog
+				// in allegro_legacy's gui.c), which would reopen this popup from the
+				// still-focused Bind button, or move focus, the moment it closed.
+				return std::all_of(held.begin(), held.end(), [&](int q) { return ignored.contains(q); });
 			}
 			while (auto key = get_next_keypress(false))
 			{
@@ -233,12 +248,32 @@ void joy_getbtn(string const& title, int& btn_ref, int stick_idx, bool stick)
 					return true;
 				}
 			}
-			if (auto btn = get_next_btnpress(stick_idx, stick))
+
+			std::erase_if(ignored, [&](int q) { return !is_held(q); });
+			for (int q : held)
 			{
-				if (*btn < 0) // gamepad disconnected
-					return true;
-				btn_ref = *btn;
-				bound = true;
+				if (!ignored.contains(q))
+				{
+					btn_ref = q;
+					bound = true;
+					return false;
+				}
+			}
+
+			if (++frames >= 30)
+			{
+				string ignored_str;
+				for (int q : ignored)
+				{
+					if (!ignored_str.empty())
+						ignored_str += ", ";
+					ignored_str += get_input_name(stick_idx, stick, q);
+				}
+				if (!ignored_str.empty() && ignored_str != logged_str)
+				{
+					al_trace("Gamepad binding: ignoring input held since the popup opened: %s\n", ignored_str.c_str());
+					logged_str = ignored_str;
+				}
 			}
 			return false;
 		});
