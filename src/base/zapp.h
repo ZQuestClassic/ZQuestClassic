@@ -29,6 +29,9 @@ std::pair<int, int> zc_get_default_display_size(int base_width, int base_height,
 // zc_process_display_events can put a frame up as soon as the window is resized.
 extern void (*zalleg_redraw_display)();
 void zc_process_display_events();
+// Logs the joystick driver and joysticks on the first call, then again whenever
+// any arrive or leave.
+void zalleg_log_joysticks_if_changed();
 void zapp_set_crash_cb(std::function<void()> cb);
 void zapp_reporting_add_breadcrumb(const char* category, const char* message);
 void zapp_reporting_set_tag(const char* key, const char* value);

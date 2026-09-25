@@ -37,6 +37,9 @@ static int a5_get_joystick(ALLEGRO_JOYSTICK * joystick)
 }
 
 static int stick_to_btn[10];
+// local edit - bumped whenever the joystick set is reconfigured (see
+// all_joystick_generation).
+static volatile int joystick_generation;
 static int dpad_to_btn[10]; /* per joystick: first of 4 synthesized dpad buttons, 0 = none */
 
 static void a5_reconfigure_joysticks()
@@ -107,6 +110,14 @@ static void a5_reconfigure_joysticks()
             }
         }
     }
+}
+
+// local edit - lets the app notice joysticks arriving or leaving, which can
+// happen shortly after install (SDL's macOS GameController backend adds pads
+// asynchronously).
+int all_joystick_generation(void)
+{
+    return joystick_generation;
 }
 
 static void * a5_joystick_thread_proc(ALLEGRO_THREAD * thread, void * data)
@@ -213,6 +224,7 @@ static void * a5_joystick_thread_proc(ALLEGRO_THREAD * thread, void * data)
                 {
                     al_reconfigure_joysticks();
                     a5_reconfigure_joysticks();
+                    joystick_generation++;
                     break;
                 }
             }

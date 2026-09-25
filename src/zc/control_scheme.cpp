@@ -25,6 +25,7 @@
 #include <fmt/format.h>
 #include "base/util.h"
 #include "zc/replay.h"
+#include "base/zapp.h"
 
 // the key used to store quest-specific schemes in the config
 // if empty, no quest is active
@@ -408,6 +409,8 @@ static control_scheme make_gamepad_default_scheme(ALLEGRO_JOYSTICK* joy)
 
 void poll_gamepad_scheme()
 {
+	zalleg_log_joysticks_if_changed();
+
 	if (replay_is_replaying())
 		return;
 
