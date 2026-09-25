@@ -1578,7 +1578,8 @@ static bool optimize_spurious_branches(OptContext& ctx)
 		int command = C(final_pc).command;
 		if (!command_is_goto(command))
 		{
-			ASSERT(false);
+			// A switch dispatch with two distinct targets also has two edges.
+			ASSERT(one_of(command, GOTOTABLE, GOTORANGES));
 			return;
 		}
 

@@ -1,0 +1,12 @@
+Function run_none-0
+    0: LOAD            D2               0           [Block 0 -> 2, 1]
+    1: SETR            SWITCHKEY        D2
+    2: GOTOTABLE       SWITCHKEY        { 10000, 5, 3, 3, 3, 3 }
+    3: TRACEV          1                            [Block 1 -> ]
+    4: QUIT
+    5: TRACEV          2                            [Block 2 -> 4, 3]
+    6: GOTORANGES      SWITCHKEY        { 9, 10000, 20000, 7, 40000, 50000, 7, 70000, 80000, 7, 100000, 110000, 7 }
+    7: TRACEV          3                            [Block 3 -> ]
+    8: QUIT
+    9: TRACEV          4                            [Block 4 -> ]
+   10: QUIT
