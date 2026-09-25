@@ -394,14 +394,7 @@ static control_scheme make_gamepad_default_scheme(ALLEGRO_JOYSTICK* joy)
 	b[btnEx4] = 13; // right trigger
 	scheme.btn_menu = 9; // guide
 	// Move with the left thumb stick; the dpad works via its buttons above.
-	memset(scheme.stick_data, 0, sizeof(scheme.stick_data));
-	for (int stick = 0; stick < control_scheme::num_sticks; stick++)
-		scheme.stick_data[stick][control_scheme::axis_y][control_scheme::data_axis] = 1;
-	for (int axis = 0; axis < control_scheme::num_axes; axis++)
-	{
-		scheme.stick_data[control_scheme::stick_1][axis][control_scheme::data_stick] = ALLEGRO_GAMEPAD_STICK_LEFT_THUMB;
-		scheme.stick_data[control_scheme::stick_2][axis][control_scheme::data_stick] = ALLEGRO_GAMEPAD_STICK_RIGHT_THUMB;
-	}
+	memcpy(scheme.stick_data, default_control_scheme.stick_data, sizeof(scheme.stick_data));
 	return scheme;
 }
 
@@ -621,14 +614,17 @@ control_scheme::control_scheme()
 	cheatkeys[Cheat::ShowHitbox][0] = KEY_C;
 	cheatkeys[Cheat::ShowFFCScripts][0] = KEY_F;
 	
+	// Like btns, sticks follow the gamepad model, where stick 0 is the dpad:
+	// move with the left thumb stick, and read each stick's Y from its second
+	// axis.
 	memset(stick_data, 0, sizeof(stick_data));
-	
-	// set y axis to second axis
-	stick_data[control_scheme::stick_1][control_scheme::axis_y][control_scheme::data_axis] = 1;
-	stick_data[control_scheme::stick_1][control_scheme::axis_y][control_scheme::data_axis] = 1;
-	// set second stick to second stick
-	stick_data[control_scheme::stick_2][control_scheme::axis_x][control_scheme::data_stick] = 1;
-	stick_data[control_scheme::stick_2][control_scheme::axis_y][control_scheme::data_stick] = 1;
+	for (int stick = 0; stick < control_scheme::num_sticks; stick++)
+		stick_data[stick][control_scheme::axis_y][control_scheme::data_axis] = 1;
+	for (int axis = 0; axis < control_scheme::num_axes; axis++)
+	{
+		stick_data[control_scheme::stick_1][axis][control_scheme::data_stick] = ALLEGRO_GAMEPAD_STICK_LEFT_THUMB;
+		stick_data[control_scheme::stick_2][axis][control_scheme::data_stick] = ALLEGRO_GAMEPAD_STICK_RIGHT_THUMB;
+	}
 }
 static const string stick_id1_strs[] = {"1", "2"};
 static const string stick_id2_strs[] = {"x", "y"};
@@ -667,6 +663,19 @@ bool control_scheme::save() const
 	}
 	return false;
 }
+// Schemes saved before the stick defaults were fixed read stick 2's Y from its
+// first axis, the same one as its X. No binding UI sets axes, and reading both
+// from one axis is never intended, so point Y back at the second axis.
+static void repair_stick_axes(control_scheme& scheme)
+{
+	for (int stick = 0; stick < control_scheme::num_sticks; stick++)
+	{
+		auto& data = scheme.stick_data[stick];
+		if (data[control_scheme::axis_x][control_scheme::data_axis] == data[control_scheme::axis_y][control_scheme::data_axis])
+			data[control_scheme::axis_y][control_scheme::data_axis] = data[control_scheme::axis_x][control_scheme::data_axis] ? 0 : 1;
+	}
+}
+
 void control_scheme::load_from_section(string const& scheme_name)
 {
 	load_from_section(scheme_name.c_str());
@@ -705,6 +714,7 @@ void control_scheme::load_from_section(const char* scheme_name)
 		cheatkeys[q][1] = control_config.get_config_int(scheme_name,fmt::format("key_cheat_{}_alt", cheatname).c_str()).value_or(default_control_scheme.cheatkeys[q][1]);
 	}
 	
+	repair_stick_axes(*this);
 	if((uint32_t)joystick_index >= MAX_JOYSTICKS)
 		joystick_index = 0;
 }
@@ -742,6 +752,7 @@ void control_scheme::load_from_old_section(const char* section_name)
 		cheatkeys[q][1] = zc_get_config(section_name,fmt::format("key_cheat_{}_alt", cheatname).c_str(),default_control_scheme.cheatkeys[q][1]);
 	}
 	
+	repair_stick_axes(*this);
 	if((uint32_t)joystick_index >= MAX_JOYSTICKS)
 		joystick_index = 0;
 }

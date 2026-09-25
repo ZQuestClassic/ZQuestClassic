@@ -56,5 +56,25 @@ TestResults test_control_scheme([[maybe_unused]] bool verbose)
 		}
 	}
 
+	// Default sticks follow the gamepad model: move with the left thumb stick
+	// (stick 0 is the dpad), and each stick reads Y from its second axis.
+	const int default_sticks[control_scheme::num_sticks] = {ALLEGRO_GAMEPAD_STICK_LEFT_THUMB, ALLEGRO_GAMEPAD_STICK_RIGHT_THUMB};
+	for (int stick = 0; stick < control_scheme::num_sticks; stick++)
+	{
+		auto const& data = untouched.stick_data[stick];
+		tr.total++;
+		if (data[control_scheme::axis_x][control_scheme::data_stick] != default_sticks[stick]
+			|| data[control_scheme::axis_y][control_scheme::data_stick] != default_sticks[stick]
+			|| data[control_scheme::axis_x][control_scheme::data_axis] != 0
+			|| data[control_scheme::axis_y][control_scheme::data_axis] != 1)
+		{
+			fmt::println("failed: default stick {}: expected stick {} axes 0/1, got sticks {}/{} axes {}/{}", stick + 1,
+				default_sticks[stick],
+				data[control_scheme::axis_x][control_scheme::data_stick], data[control_scheme::axis_y][control_scheme::data_stick],
+				data[control_scheme::axis_x][control_scheme::data_axis], data[control_scheme::axis_y][control_scheme::data_axis]);
+			tr.failed++;
+		}
+	}
+
 	return tr;
 }
