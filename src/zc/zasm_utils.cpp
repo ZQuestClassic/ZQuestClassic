@@ -678,10 +678,11 @@ static std::string zasm_to_string(const zasm_script* script, const StructuredZas
 			pc_t command = op.command;
 			std::string str = zasm_op_to_string(op);
 
+			// A long op (like a jump table) still gets a space before its annotations.
 			std::stringstream line_ss;
 			line_ss <<
 				std::setw(5) << std::right << i << ": " <<
-				std::left << std::setw(45) << str;
+				std::left << std::setw(44) << str << ' ';
 
 			if (cfg.contains_block_start(i))
 			{

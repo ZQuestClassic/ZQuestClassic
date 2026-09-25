@@ -1,17 +1,19 @@
 Function run_none-0
     0: LOAD            D2               0           [Block 0 -> 1, 3]
     1: SETR            SWITCHKEY        D2
-    2: LOAD            D2               1
-    3: STRCMPR         SWITCHKEY        D2
-    4: GOTOCMP         9                ==
-    5: LOAD            D2               2           [Block 1 -> 2, 4]
-    6: STRICMPR        SWITCHKEY        D2
-    7: GOTOCMP         11               ==
-    8: GOTO            13                           [Block 2 -> 5]
-    9: SETV            D2               10000       [Block 3 -> 6]
-   10: GOTO            14
-   11: SETV            D2               20000       [Block 4 -> 6]
-   12: GOTO            14
-   13: SETV            D2               0           [Block 5 -> 6]
-   14: TRACER          D2                           [Block 6 -> ]
-   15: QUIT
+    2: ALLOCATEMEMV    D2               60000   0
+    3: WRITEPODSTRING  D2               "apple"
+    4: STRCMPR         SWITCHKEY        D2
+    5: GOTOCMP         11               ==
+    6: ALLOCATEMEMV    D2               70000   0       [Block 1 -> 2, 4]
+    7: WRITEPODSTRING  D2               "banana"
+    8: STRICMPR        SWITCHKEY        D2
+    9: GOTOCMP         13               ==
+   10: GOTO            15                           [Block 2 -> 5]
+   11: SETV            D2               10000       [Block 3 -> 6]
+   12: GOTO            16
+   13: SETV            D2               20000       [Block 4 -> 6]
+   14: GOTO            16
+   15: SETV            D2               0           [Block 5 -> 6]
+   16: TRACER          D2                           [Block 6 -> ]
+   17: QUIT

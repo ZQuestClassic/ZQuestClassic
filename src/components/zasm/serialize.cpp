@@ -58,17 +58,19 @@ std::string zasm_op_to_string(word scommand, int32_t arg1, int32_t arg2, int32_t
 	}
 	if (c->arr_type)
 	{
+		// NOTE: currently possible to encounter a null pointer here, since the qst loading code
+		// will create no string/vector for these commands if the size was 0. Nothing is printed
+		// for one, so parse_zasm_op can tell it apart from an empty one.
 		ss << " " << SS_WIDTH(7);
 		if(c->arr_type == 1)
 		{
-			// NOTE: currently possible to encounter a null pointer here, since the qst loading code
-			// will create no string for these commands if the size was 0.
 			if (argstr)
-				ss << '"' << *argstr << '"';
+				ss << util::escape_string(*argstr);
 		}
 		else //if(c->arr_type == 2)
 		{
-			ss << fmt::format("{{ {} }}", fmt::join(*argvec, ", "));
+			if (argvec)
+				ss << fmt::format("{{ {} }}", fmt::join(*argvec, ", "));
 		}
 	}
 
@@ -207,18 +209,25 @@ ffscript parse_zasm_op(std::string op_str)
 
 	if (sc->arr_type == 1)
 	{
-		result.strptr = new std::string(tokens[token_index++]);
+		// The string is read from the raw text, since split_args doesn't know its
+		// escapes. It starts right after the words consumed so far.
+		std::istringstream iss(op_str);
+		std::string word, rest;
+		for (int i = 0; i < token_index; i++)
+			iss >> word;
+		std::getline(iss >> std::ws, rest);
+		if (rest.starts_with('"'))
+			result.strptr = new std::string(util::unescape_string(rest));
 	}
-	else if (sc->arr_type == 2)
+	else if (sc->arr_type == 2 && token_index < tokens.size() && tokens[token_index] == "{")
 	{
 		result.vecptr = new std::vector<int32_t>();
-		CHECK(tokens[token_index++] == "{");
-		while (token_index < tokens.size() - 1)
-		{
-			int val = std::stoi(tokens[token_index++]);
-			result.vecptr->push_back(val);
-		}
-		CHECK(tokens[token_index++] == "}");
+		token_index++;
+		// Annotations may follow the closing brace (older text even ran them
+		// into it, as in "}[Block 1 -> 2]").
+		while (token_index < tokens.size() && !tokens[token_index].starts_with('}'))
+			result.vecptr->push_back(std::stoi(tokens[token_index++]));
+		CHECK(token_index < tokens.size());
 	}
 
 	return result;

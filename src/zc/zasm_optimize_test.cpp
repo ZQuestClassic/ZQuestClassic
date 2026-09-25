@@ -513,5 +513,38 @@ TestResults test_zasm_optimize([[maybe_unused]] bool verbose)
 		}
 	});
 
+	TEST("zasm_text_round_trip", tr, [&]{
+		// The snippet tests re-save their input by printing what they parsed, so
+		// parsing printed ZASM must give back the same script.
+		auto with_string = [](std::string str){
+			ffscript op{WRITEPODSTRING, D(2)};
+			op.strptr = new std::string(std::move(str));
+			return op;
+		};
+		auto with_vector = [](int command, int arg1, std::vector<int32_t> vec){
+			ffscript op(command, arg1);
+			op.vecptr = new std::vector<int32_t>(std::move(vec));
+			return op;
+		};
+
+		std::vector<ffscript> zasm;
+		// Block starts, long enough to reach the column of their annotations.
+		zasm.push_back(with_vector(GOTOTABLE, SWITCHKEY, {10000, 7, 1, 1, 1, 1}));
+		zasm.push_back(with_vector(GOTORANGES, SWITCHKEY, {7, 10000, 20000, 2, 40000, 50000, 3}));
+		// A block start with no string, so its annotation directly follows the register.
+		zasm.push_back({WRITEPODSTRING, D(2)});
+		zasm.push_back(with_string("  two  spaces, \"quoted\", C:\\new\n\t\xe9"));
+		zasm.push_back(with_string(""));
+		zasm.push_back({WRITEPODARRAY, D(2)});
+		zasm.push_back(with_vector(WRITEPODARRAY, D(2), {}));
+		zasm.push_back({QUIT});
+		zasm.emplace_back(0xFFFF);
+
+		std::vector<ffscript> expected = zasm;
+		zasm_script script{std::move(zasm)};
+		auto parsed = zasm_from_string(zasm_to_string_clean(&script));
+		EXPECT(name, &parsed, std::move(expected));
+	});
+
 	return tr;
 }
