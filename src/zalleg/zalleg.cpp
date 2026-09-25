@@ -182,7 +182,70 @@ void AllegroCheckFailedHandler(const char* file, int line, const char* func, con
 	zapp_reporting_add_breadcrumb("error", message.c_str());
 }
 
+int logged_joystick_generation = -1;
+
+// Names the SDL backend that claimed a joystick, from the driver signature SDL
+// stores in byte 14 of its GUID. Allegro's native drivers and SDL's generic
+// backends (DirectInput, IOKit, Linux evdev) leave it 0, so this returns nullptr
+// for those. Without vendor and product ids, bytes 4-15 hold the device name,
+// and byte 14 is a signature only if the backend set one; that can't be told
+// apart from a name character, so such GUIDs are skipped (e.g. a virtual
+// joystick created without a vendor id reads as generic).
+const char* get_joystick_backend(const ALLEGRO_JOYSTICK_GUID& guid)
+{
+	// With the ids, bytes 4-5 hold the vendor and bytes 6-7 and 10-11 are zero (the
+	// same test SDL_GetJoystickGUIDInfo makes). In the name form, those bytes are
+	// name characters.
+	bool has_ids = (guid.val[4] || guid.val[5]) && !guid.val[6] && !guid.val[7] && !guid.val[10] && !guid.val[11];
+	if (!has_ids)
+		return nullptr;
+
+	switch (guid.val[14])
+	{
+		case 'h': return "HIDAPI";
+		case 'm': return "MFi";
+		case 'r': return "RawInput";
+		case 'v': return "virtual";
+		case 'w': return "WGI";
+		case 'x': return "XInput";
+	}
+	return nullptr;
+}
+
+// Controller bug reports are hard to diagnose without knowing which driver is
+// in use and what it detected, so log that. The GUID encodes the bus, vendor,
+// product and (for SDL) the backend that claimed the device.
+void log_joysticks()
+{
+	logged_joystick_generation = all_joystick_generation();
+	const char* driver = al_get_config_value(al_get_system_config(), "joystick", "driver");
+	int num = al_get_num_joysticks();
+	Z_message("\nJoystick driver: %s, %d joystick(s)\n", driver && driver[0] ? driver : "default", num);
+	for (int i = 0; i < num; i++)
+	{
+		ALLEGRO_JOYSTICK* joy = al_get_joystick(i);
+		if (!joy)
+			continue;
+
+		ALLEGRO_JOYSTICK_GUID guid = al_get_joystick_guid(joy);
+		std::string guid_str;
+		for (size_t j = 0; j < sizeof(guid.val); j++)
+			guid_str += fmt::format("{:02x}", guid.val[j]);
+		const char* name = al_get_joystick_name(joy);
+		const char* backend = get_joystick_backend(guid);
+		bool gamepad = al_get_joystick_type(joy) == ALLEGRO_JOYSTICK_TYPE_GAMEPAD;
+		Z_message("  %d: \"%s\" guid=%s backend=%s gamepad=%d sticks=%d buttons=%d\n", i, name ? name : "",
+			guid_str.c_str(), backend ? backend : "generic", gamepad, al_get_joystick_num_sticks(joy), al_get_joystick_num_buttons(joy));
+	}
+}
+
 } // end namespace
+
+void zalleg_log_joysticks_if_changed()
+{
+	if (all_joystick_generation() != logged_joystick_generation)
+		log_joysticks();
+}
 
 void zalleg_setup_allegro(App id, int argc, char **argv)
 {

@@ -62,6 +62,9 @@ void zalleg_set_web_display_size(int w, int h);
 std::pair<int, int> zalleg_get_virtual_display_size();
 void zalleg_bring_window_to_foreground(ALLEGRO_DISPLAY* display);
 void zalleg_wait_for_all_keys_up();
+// Logs the joystick driver and joysticks on the first call, then again whenever
+// any arrive or leave.
+void zalleg_log_joysticks_if_changed();
 std::pair<int, int> zalleg_get_default_display_size(int base_width, int base_height, int saved_width, int saved_height, int max_scale = 3);
 // Repaints the display. Set by each app to its own render function, so that
 // zalleg_process_display_events can put a frame up as soon as the window is resized.
