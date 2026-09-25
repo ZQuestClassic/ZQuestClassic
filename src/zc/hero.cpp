@@ -27405,6 +27405,12 @@ bool HeroClass::nextcombo_solid(int32_t d2)
 	
 	if(d2==left||d2==right) cy+=bigHitbox?0:8;
 	
+	// The Hero may straddle a seam between screens of the current region, which leaves part of
+	// them above or left of the next region. Only check the part that is inside (the loops below
+	// already stop at its right and bottom edges).
+	cx = std::max(cx, 0);
+	cy = std::max(cy, 0);
+
 	int32_t initcx = cx;
 	int32_t initcy = cy;
 	bool smarter_scroll = get_qr(qr_SMARTER_SMART_SCROLL);
