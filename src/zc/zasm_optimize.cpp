@@ -1594,9 +1594,11 @@ static bool optimize_spurious_branches(OptContext& ctx)
 			return;
 
 		// COMPARER is left out because it doesn't seem to introduce any optimizations.
+		// STRCMPR/STRICMPR (the case compares of a string switch) compare string
+		// contents, which can't be simulated.
 		if (!final_pc || !one_of(C(final_pc - 1).command, COMPAREV, COMPAREV2))
 		{
-			ASSERT(C(final_pc - 1).command == COMPARER);
+			ASSERT(final_pc && one_of(C(final_pc - 1).command, COMPARER, STRCMPR, STRICMPR));
 			return;
 		}
 
