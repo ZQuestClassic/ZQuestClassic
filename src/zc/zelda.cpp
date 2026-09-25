@@ -5038,7 +5038,7 @@ reload_for_replay_file:
 	reset_items(true, &QHeader);
 	
 	clear_to_color(screen,BLACK);
-	Quit = qQUIT;
+	Quit = 0;
 	
 	rgb_map = &rgb_table;
 	
@@ -5333,12 +5333,6 @@ reload_for_replay_file:
 			break;
 		}
 		FFCore.deallocateAllScriptOwned(ScriptType::Global, GLOBAL_SCRIPT_END);
-
-		// Standalone mode has no file select screen to return to, so quitting the game
-		// closes the program instead of reloading the quest. Dying without a continue
-		// screen (qGAMEOVER) still reloads the last save.
-		if (standalone_mode && (Quit == qQUIT || Quit == qSAVE))
-			Quit = qEXIT;
 		//Restore original palette before exiting for any reason!
 		doClearTint();
 		Hero.setDontDraw(0);
