@@ -768,10 +768,14 @@ void zc_trace_clear()
 		fclose(trace_file);
 	}
 	
-	if (getenv("ALLEGRO_LEGACY_TRACE"))
-		trace_file = fopen(getenv("ALLEGRO_LEGACY_TRACE"), "w");
-	else
-		trace_file = fopen("allegro.log", "w");
+	// Truncate, then append like zc_trace_handler does. Other apps may be writing to the
+	// log too, and a "w" handle would write over whatever they append after this.
+	const char* path = getenv("ALLEGRO_LEGACY_TRACE");
+	if (!path)
+		path = "allegro.log";
+	if (FILE* f = fopen(path, "w"))
+		fclose(f);
+	trace_file = fopen(path, "a+");
 	ASSERT(trace_file);
 }
 
