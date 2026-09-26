@@ -4279,12 +4279,17 @@ int main(int argc, char **argv)
 	int load_and_quit_arg = used_switch(argc, argv, "-load-and-quit");
 	if (load_and_quit_arg > 0)
 	{
+		if (load_and_quit_arg == argc-1)
+			Z_error_fatal("-load-and-quit requires a quest file\n");
 		do_load_and_quit_command(argv[load_and_quit_arg+1]);
 	}
 
 	int create_save_arg = used_switch(argc,argv,"-create-save");
 	if (create_save_arg)
 	{
+		if (create_save_arg == argc-1)
+			Z_error_fatal("-create-save requires a quest file\n");
+
 		set_headless_mode();
 
 		// We need to init some stuff before loading a quest file will work.
