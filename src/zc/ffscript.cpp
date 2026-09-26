@@ -8,6 +8,7 @@
 #include <string>
 #include <sstream>
 #include <tuple>
+#include <unordered_map>
 #include <math.h>
 #include <cstdio>
 #include <algorithm>
@@ -14648,11 +14649,16 @@ int32_t FFScript::getHeroAction()
 	else return FF_hero_action; //everything else
 }
 
+// How many frames an identical script error stays hidden after being shown (see handle_trace).
+// Set by the zc.cfg option [ZSCRIPT] repeated_error_interval; 0 shows every error.
+static uint32_t repeated_error_window = 300;
+
 void FFScript::init(bool for_continue)
 {
 	apply_qr_rules();
 	eventData.clear();
 	clear_classic_only_draw_layer_warnings();
+	flush_repeated_script_errors(true);
 	countGenScripts();
 	// Some scripts can run even before ~Init (but only if qr_OLD_INIT_SCRIPT_TIMING is on), so figure out
 	// the global register types ahead of time.
@@ -14718,11 +14724,13 @@ void FFScript::init(bool for_continue)
 	script_debug_handles.clear();
 	runtime_script_debug_handle = nullptr;
 	log_stack_trace_zasm_frames = zc_get_config("ZSCRIPT", "log_stack_trace_zasm_frames", false);
+	repeated_error_window = std::max(0, zc_get_config("ZSCRIPT", "repeated_error_interval", 300));
 	log_stack_trace_on_trace = is_feature_enabled("-log-stack-trace-on-trace", "ZSCRIPT", "log_stack_trace_on_trace", false);
 }
 
 void FFScript::shutdown()
 {
+	flush_repeated_script_errors(true);
 	scriptEngineDatas.clear();
 	objectRAM.clear();
 	script_objects.clear();
@@ -16394,6 +16402,118 @@ std::optional<StackFrame> FFScript::get_script_stack_frame(int pc)
 // the trace prefix must only be printed when starting a new line.
 static bool trace_mid_line = false;
 
+// A script that errors every frame (bad pointer, out of bounds index, ...) would write the
+// same error and stack trace to allegro.log and the console 60 times a second, forever. So
+// an error identical to one already shown - same script, message and stack trace - is only
+// shown again once repeated_error_window frames have passed, along with how many times it
+// was hidden. Replay comments and the debugger console still get every error. Frames are
+// counted rather than time, so that the output is the same no matter how fast the game runs
+// (uncapped, fast-forward, headless replays).
+
+struct RepeatedScriptError
+{
+	std::string context;
+	std::string message;
+	std::string stack_trace;
+	uint32_t last_shown;
+	uint32_t last_seen;
+	int hidden;
+};
+// Advanced by flush_repeated_script_errors every frame. Not global_frame, which can be reset
+// mid-game.
+static uint32_t repeated_script_error_frame;
+static std::unordered_map<std::string, RepeatedScriptError> repeated_script_errors;
+static int repeated_script_errors_pending;
+static bool repeated_script_errors_explained;
+
+static void print_trace_note(const std::string& s)
+{
+	if (trace_mid_line)
+	{
+		safe_al_trace("\n");
+		if (console_enabled)
+			zscript_coloured_console.safeprint(
+				CConsoleLoggerEx::COLOR_WHITE | CConsoleLoggerEx::COLOR_BACKGROUND_BLACK, "\n");
+		trace_mid_line = false;
+	}
+	safe_al_trace(s);
+	if (console_enabled)
+		zscript_coloured_console.safeprint(
+			CConsoleLoggerEx::COLOR_WHITE | CConsoleLoggerEx::COLOR_BACKGROUND_BLACK, s.c_str());
+}
+
+void FFScript::flush_repeated_script_errors(bool force)
+{
+	// Errors that differ every time (say, by an id in the message) are never hidden, but
+	// are still tracked - so once prune_size errors are tracked, drop the stale ones.
+	constexpr size_t prune_size = 256;
+	if (!force)
+		repeated_script_error_frame++;
+	if (!force && !repeated_script_errors_pending && repeated_script_errors.size() < prune_size)
+		return;
+
+	uint32_t now = repeated_script_error_frame;
+	for (auto it = repeated_script_errors.begin(); it != repeated_script_errors.end();)
+	{
+		auto& error = it->second;
+		bool stale = force || now - error.last_seen >= repeated_error_window;
+		if (stale && error.hidden)
+		{
+			print_trace_note(fmt::format("{}: previous error repeated {} more times: {}{}",
+				error.context, error.hidden, error.message, error.stack_trace));
+			error.hidden = 0;
+			repeated_script_errors_pending--;
+		}
+
+		if (force || (stale && repeated_script_errors.size() >= prune_size))
+			it = repeated_script_errors.erase(it);
+		else
+			++it;
+	}
+}
+
+// Returns true if this error was already shown recently, and so should be hidden.
+static bool track_repeated_script_error(const std::string& context, const std::string& message,
+	const std::string& stack_trace, std::string& hidden_note)
+{
+	uint32_t now = repeated_script_error_frame;
+	std::string key = fmt::format("{}\n{}{}", context, message, stack_trace);
+	auto [it, inserted] = repeated_script_errors.try_emplace(key);
+	auto& error = it->second;
+	error.last_seen = now;
+	if (inserted)
+	{
+		error.context = context;
+		error.message = message;
+		error.stack_trace = stack_trace;
+		error.last_shown = now;
+		error.hidden = 0;
+		return false;
+	}
+
+	if (now - error.last_shown < repeated_error_window)
+	{
+		if (!error.hidden++)
+			repeated_script_errors_pending++;
+		if (!repeated_script_errors_explained)
+		{
+			repeated_script_errors_explained = true;
+			hidden_note = fmt::format("Note: an identical script error is shown at most once every {} frames - repeats in between are only counted.\n",
+				repeated_error_window);
+		}
+		return true;
+	}
+
+	if (error.hidden)
+	{
+		hidden_note = fmt::format("  (repeated {} more times in the {} frames since last shown)\n", error.hidden, now - error.last_shown);
+		error.hidden = 0;
+		repeated_script_errors_pending--;
+	}
+	error.last_shown = now;
+	return false;
+}
+
 void FFScript::handle_trace(const std::string& s, bool is_error, bool no_prefix)
 {
 	// -experimental-disable-script-error-logs: skip script error logging (and the
@@ -16423,6 +16543,24 @@ void FFScript::handle_trace(const std::string& s, bool is_error, bool no_prefix)
 	if (stack_trace && log_stack_trace)
 		stack_trace_string = stack_trace->to_string() + "\n";
 
+	// Only whole lines are collapsed - a partial line may be finished by something else.
+	std::string repeated_note;
+	if (user_visible_trace && is_error && !s.empty() && s.back() == '\n' && repeated_error_window > 0)
+	{
+		std::string context = script_funcrun ?
+			fmt::format("Destructor({},{})", ri->thiskey, destructstr ? destructstr->c_str() : "UNKNOWN") :
+			GetScriptDataName(curScriptType, curScriptNum);
+		if (track_repeated_script_error(context, s, stack_trace_string, repeated_note))
+		{
+			user_visible_trace = false;
+			if (!repeated_note.empty())
+			{
+				print_trace_note(repeated_note);
+				repeated_note.clear();
+			}
+		}
+	}
+
 	if (user_visible_trace)
 	{
 		if (!no_prefix)
@@ -16446,6 +16584,8 @@ void FFScript::handle_trace(const std::string& s, bool is_error, bool no_prefix)
 		safe_al_trace(s);
 		if (!stack_trace_string.empty())
 			safe_al_trace(stack_trace_string);
+		if (!repeated_note.empty())
+			safe_al_trace(repeated_note);
 		if (!s.empty())
 			trace_mid_line = s.back() != '\n';
 	}
@@ -16476,6 +16616,11 @@ void FFScript::handle_trace(const std::string& s, bool is_error, bool no_prefix)
 		{
 			colors = CConsoleLoggerEx::COLOR_WHITE | CConsoleLoggerEx::COLOR_BACKGROUND_BLACK;
 			zscript_coloured_console.safeprint(colors, stack_trace_string.c_str());
+		}
+		if (!repeated_note.empty())
+		{
+			colors = CConsoleLoggerEx::COLOR_WHITE | CConsoleLoggerEx::COLOR_BACKGROUND_BLACK;
+			zscript_coloured_console.safeprint(colors, repeated_note.c_str());
 		}
 	}
 

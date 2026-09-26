@@ -4064,6 +4064,7 @@ void advanceframe(bool allowwavy, bool sfxcleanup, bool allowF6Script)
 	update_keys();
 	
 	++global_frame;
+	FFCore.flush_repeated_script_errors();
 	
 	if (replay_is_replaying())
 		replay_do_cheats();
