@@ -7,6 +7,7 @@
 #include "zalleg/files.h"
 #include "core/fonts.h"
 #include "zalleg/render.h"
+#include "base/version.h"
 #include "base/zapp.h"
 #include "core/zdefs.h"
 #include "zalleg/zsys.h"
@@ -14,6 +15,7 @@
 #include "zsyssimple.h"
 #include <al5_img.h>
 #include <cstdint>
+#include <ctime>
 #include <fmt/format.h>
 #include <loadpng.h>
 #include <utility>
@@ -284,6 +286,22 @@ void zalleg_setup_allegro(App id, int argc, char **argv)
 			zconsole_set_muted(true);
 			break;
 		}
+	}
+
+	// The log is shared by every app and every run, so mark where each one starts.
+	{
+		const char* app_name = "";
+		switch (id)
+		{
+			case App::zelda: app_name = "zplayer"; break;
+			case App::zquest: app_name = "zeditor"; break;
+			case App::launcher: app_name = "zlauncher"; break;
+			default: break;
+		}
+		char time_str[32];
+		std::time_t now = std::time(nullptr);
+		std::strftime(time_str, sizeof(time_str), "%Y-%m-%d %H:%M:%S", std::localtime(&now));
+		Z_message("[%s] %s %s launched\n", time_str, app_name, getVersionString());
 	}
 
 	Z_message("Initializing Allegro... ");
