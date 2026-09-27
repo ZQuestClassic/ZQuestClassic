@@ -1496,7 +1496,10 @@ void destroy_bitmap(BITMAP *bitmap)
       }
 
       /* normal memory or sub-bitmap destruction */
-      if (system_driver->destroy_bitmap) {
+      // local edit
+      // system_driver is NULL once allegro_exit has run, and bitmaps owned by
+      // static objects are still destroyed after that.
+      if (system_driver && system_driver->destroy_bitmap) {
 	 if (system_driver->destroy_bitmap(bitmap))
 	    return;
       }
