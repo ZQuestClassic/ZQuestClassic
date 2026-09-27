@@ -4162,8 +4162,7 @@ void init_and_run_main_zplayer_loop()
 	{
 		Z_error_fatal("Couldn't Allocate Timers");
 	}
-	
-	Z_message("OK\n");
+
 	init_bitmaps();
 	Z_message("Initializing music... ");
 	zcmusic_init();

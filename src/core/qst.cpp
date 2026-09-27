@@ -1002,8 +1002,6 @@ int32_t get_qst_buffers()
     TheMaps.resize(MAPSCRS);
 	old_combo_pages.resize(MAPSCRS);
 	map_infos.resize(1);
-
-    Z_message("OK\n");
     
     // The vast majority of finished quests (and I presume this will be consistent for all time) use < 1000 strings in total.
     // (Shoelace's "Hero of Dreams" uses 1415.)
