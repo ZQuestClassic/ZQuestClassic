@@ -21,141 +21,113 @@
 
 #define _A5_MAX_TIMERS 32
 
+// local edit
+// One thread serves every legacy timer. Each install_int gets its own allegro 5
+// timer, all registered on one event queue, and the thread dispatches each tick
+// to the callback whose timer fired. (Upstream ran a thread per timer.)
+// A thread per timer also meant a callback removing itself - the MIDI player
+// does that when a song loops - had nothing to join; here remove_int only stops
+// that timer, and the thread is only joined by a5_timer_exit.
 typedef struct
 {
-
-    ALLEGRO_THREAD * thread;
     ALLEGRO_TIMER * timer;
-    // local edit
-    ALLEGRO_EVENT_SOURCE stop_source;
     void (*timer_proc)(void);
     void (*param_timer_proc)(void * data);
     void * data;
 
 } _A5_TIMER_DATA;
 
-static _A5_TIMER_DATA * a5_timer_data[_A5_MAX_TIMERS];
+static _A5_TIMER_DATA a5_timer_data[_A5_MAX_TIMERS];
 
+static ALLEGRO_THREAD * a5_timer_thread = NULL;
+static ALLEGRO_EVENT_QUEUE * a5_timer_queue = NULL;
+static ALLEGRO_EVENT_SOURCE a5_timer_stop_source;
+
+// Serializes the callbacks against install/remove. Recursive, because a
+// callback may install or remove timers (including itself).
 static ALLEGRO_MUTEX * timers_mutex;
-
-static _A5_TIMER_DATA * a5_create_timer_data(void)
-{
-    _A5_TIMER_DATA * timer_data;
-
-    timer_data = malloc(sizeof(_A5_TIMER_DATA));
-    if(timer_data)
-    {
-        memset(timer_data, 0, sizeof(_A5_TIMER_DATA));
-        al_init_user_event_source(&timer_data->stop_source);
-    }
-    return timer_data;
-}
-
-static _A5_TIMER_DATA * a5_get_free_timer_data(void)
-{
-    int i;
-
-    for(i = 0; i < _A5_MAX_TIMERS; i++)
-    {
-        if (a5_timer_data[i] == NULL)
-        {
-            a5_timer_data[i] = a5_create_timer_data();
-            return a5_timer_data[i];
-        }
-
-        if (a5_timer_data[i]->timer_proc == NULL && a5_timer_data[i]->param_timer_proc == NULL)
-        {
-            return a5_timer_data[i];
-        }
-    }
-
-    return NULL;
-}
-
-static void a5_destroy_timer_data(_A5_TIMER_DATA * timer_data)
-{
-    if(timer_data->thread)
-    {
-        al_destroy_thread(timer_data->thread);
-    }
-    if(timer_data->timer)
-    {
-        al_destroy_timer(timer_data->timer);
-    }
-    al_destroy_user_event_source(&timer_data->stop_source);
-    free(timer_data);
-}
 
 int timer_is_installed();
 static void * a5_timer_proc(ALLEGRO_THREAD * thread, void * data)
 {
-    ALLEGRO_EVENT_QUEUE * queue;
     ALLEGRO_EVENT event;
-    double cur_time, prev_time = 0.0, diff_time;
-    _A5_TIMER_DATA * timer_data = (_A5_TIMER_DATA *)data;
+    double cur_time, prev_time, diff_time;
+    int i;
 
-    queue = al_create_event_queue();
-    if(!queue)
-    {
-        return NULL;
-    }
-    al_register_event_source(queue, al_get_timer_event_source(timer_data->timer));
-    al_register_event_source(queue, &timer_data->stop_source);
-    al_start_timer(timer_data->timer);
+    prev_time = al_get_time();
     while(!al_get_thread_should_stop(thread))
     {
-        al_wait_for_event(queue, &event);
-        if (event.type != ALLEGRO_EVENT_TIMER)
+        al_wait_for_event(a5_timer_queue, &event);
+        if(event.type != ALLEGRO_EVENT_TIMER)
             continue; // Woken by _a5_stop_thread.
 
+        cur_time = al_get_time();
+        diff_time = cur_time - prev_time;
+        prev_time = cur_time;
+
+        al_lock_mutex(timers_mutex);
+        for(i = 0; i < _A5_MAX_TIMERS; i++)
         {
-            cur_time = al_get_time();
-            diff_time = cur_time - prev_time;
-            prev_time = cur_time;
-            al_lock_mutex(timers_mutex);
-            if(timer_data->param_timer_proc)
+            if(a5_timer_data[i].timer != event.timer.source)
+                continue;
+            if(a5_timer_data[i].param_timer_proc)
             {
-                timer_data->param_timer_proc(timer_data->data);
+                a5_timer_data[i].param_timer_proc(a5_timer_data[i].data);
             }
-            else if(timer_data->timer_proc)
+            else if(a5_timer_data[i].timer_proc)
             {
-                timer_data->timer_proc();
+                a5_timer_data[i].timer_proc();
             }
-            al_unlock_mutex(timers_mutex);
-            if (timer_is_installed())
-                _handle_timer_tick(MSEC_TO_TIMER(diff_time * 1000.0));
+            break;
         }
+        al_unlock_mutex(timers_mutex);
+
+        if (timer_is_installed())
+            _handle_timer_tick(MSEC_TO_TIMER(diff_time * 1000.0));
     }
-    al_stop_timer(timer_data->timer);
-    al_destroy_event_queue(queue);
     return NULL;
 }
 
 static int a5_timer_init(void)
 {
+    memset(a5_timer_data, 0, sizeof(a5_timer_data));
     timers_mutex = al_create_mutex_recursive();
+    a5_timer_queue = al_create_event_queue();
+    a5_timer_thread = al_create_thread(a5_timer_proc, NULL);
+    if(!timers_mutex || !a5_timer_queue || !a5_timer_thread)
+    {
+        return -1;
+    }
+    al_init_user_event_source(&a5_timer_stop_source);
+    al_register_event_source(a5_timer_queue, &a5_timer_stop_source);
+    al_start_thread(a5_timer_thread);
     return 0;
 }
 
-// local edit
-// The timer threads must be joined before allegro 5 shuts down (see
-// _a5_stop_thread), and before remove_timer destroys the mutex that
-// _handle_timer_tick locks. A thread whose timer was stopped by remove_int never
-// gets another tick, so it has to be woken by its stop source.
+// The thread must be joined before allegro 5 shuts down (see _a5_stop_thread),
+// and before remove_timer destroys the mutex that _handle_timer_tick locks.
 static void a5_timer_exit(void)
 {
     int i;
 
-    for(i = 0; i < _A5_MAX_TIMERS && a5_timer_data[i]; i++)
-    {
-        _a5_stop_thread(a5_timer_data[i]->thread, &a5_timer_data[i]->stop_source);
-    }
+    _a5_stop_thread(a5_timer_thread, &a5_timer_stop_source);
+    al_destroy_thread(a5_timer_thread);
+    a5_timer_thread = NULL;
 
-    for(i = 0; i < _A5_MAX_TIMERS && a5_timer_data[i]; i++)
+    for(i = 0; i < _A5_MAX_TIMERS; i++)
     {
-        a5_destroy_timer_data(a5_timer_data[i]);
-        a5_timer_data[i] = NULL;
+        if(a5_timer_data[i].timer)
+        {
+            al_destroy_timer(a5_timer_data[i].timer);
+        }
     }
+    memset(a5_timer_data, 0, sizeof(a5_timer_data));
+
+    al_destroy_event_queue(a5_timer_queue);
+    a5_timer_queue = NULL;
+    al_destroy_user_event_source(&a5_timer_stop_source);
+    al_destroy_mutex(timers_mutex);
+    timers_mutex = NULL;
 }
 
 static double a5_get_timer_speed(long speed)
@@ -163,52 +135,76 @@ static double a5_get_timer_speed(long speed)
     return (double)speed / (float)TIMERS_PER_SECOND;
 }
 
-static int _a5_timer_install_int(void (*proc)(void), long speed)
+// Finds an unused slot and gives it a (stopped) timer at the given speed.
+static _A5_TIMER_DATA * a5_get_free_timer_data(long speed)
 {
     int i;
 
-    for(i = 0; i < _A5_MAX_TIMERS && a5_timer_data[i]; i++)
+    for(i = 0; i < _A5_MAX_TIMERS; i++)
     {
-        if(proc == a5_timer_data[i]->timer_proc)
+        _A5_TIMER_DATA * timer_data = &a5_timer_data[i];
+        if(timer_data->timer_proc || timer_data->param_timer_proc)
+            continue;
+
+        if(!timer_data->timer)
         {
-            al_set_timer_speed(a5_timer_data[i]->timer, a5_get_timer_speed(speed));
-            return 0;
+            timer_data->timer = al_create_timer(a5_get_timer_speed(speed));
+            if(!timer_data->timer)
+                return NULL;
+            al_register_event_source(a5_timer_queue, al_get_timer_event_source(timer_data->timer));
         }
+        else
+        {
+            al_set_timer_speed(timer_data->timer, a5_get_timer_speed(speed));
+        }
+        return timer_data;
     }
 
-    _A5_TIMER_DATA* timer_data = a5_get_free_timer_data();
-    if (!timer_data) return -1;
-    if (!timer_data->thread) timer_data->thread = al_create_thread(a5_timer_proc, timer_data);
-    if (!timer_data->timer) timer_data->timer = al_create_timer(a5_get_timer_speed(speed));
-    else al_set_timer_speed(timer_data->timer, a5_get_timer_speed(speed));
-    if (!timer_data->thread || !timer_data->timer) return -1;
-
-    timer_data->timer_proc = proc;
-    al_start_thread(timer_data->thread);
-    al_start_timer(timer_data->timer);
-    return 0;
+    return NULL;
 }
 
 static int a5_timer_install_int(void (*proc)(void), long speed)
 {
+    int i;
+    int result = -1;
+    _A5_TIMER_DATA * timer_data;
+
     al_lock_mutex(timers_mutex);
-    int result = _a5_timer_install_int(proc, speed);
+
+    for(i = 0; i < _A5_MAX_TIMERS; i++)
+    {
+        if(proc == a5_timer_data[i].timer_proc)
+        {
+            al_set_timer_speed(a5_timer_data[i].timer, a5_get_timer_speed(speed));
+            al_unlock_mutex(timers_mutex);
+            return 0;
+        }
+    }
+
+    timer_data = a5_get_free_timer_data(speed);
+    if(timer_data)
+    {
+        timer_data->timer_proc = proc;
+        al_start_timer(timer_data->timer);
+        result = 0;
+    }
+
     al_unlock_mutex(timers_mutex);
     return result;
 }
 
 static void a5_timer_remove_int(void (*proc)(void))
 {
-    int i, j;
+    int i;
 
     al_lock_mutex(timers_mutex);
 
-    for(i = 0; i < _A5_MAX_TIMERS && a5_timer_data[i]; i++)
+    for(i = 0; i < _A5_MAX_TIMERS; i++)
     {
-        if(proc == a5_timer_data[i]->timer_proc)
+        if(proc == a5_timer_data[i].timer_proc)
         {
-            al_stop_timer(a5_timer_data[i]->timer);
-            a5_timer_data[i]->timer_proc = NULL;
+            al_stop_timer(a5_timer_data[i].timer);
+            a5_timer_data[i].timer_proc = NULL;
             break;
         }
     }
@@ -216,56 +212,50 @@ static void a5_timer_remove_int(void (*proc)(void))
     al_unlock_mutex(timers_mutex);
 }
 
-static int _a5_timer_install_param_int(void (*proc)(void * data), void * param, long speed)
+static int a5_timer_install_param_int(void (*proc)(void * data), void * param, long speed)
 {
     int i;
+    int result = -1;
+    _A5_TIMER_DATA * timer_data;
 
-    for(i = 0; i < _A5_MAX_TIMERS && a5_timer_data[i]; i++)
+    al_lock_mutex(timers_mutex);
+
+    for(i = 0; i < _A5_MAX_TIMERS; i++)
     {
-        if(proc == a5_timer_data[i]->param_timer_proc && param == a5_timer_data[i]->data)
+        if(proc == a5_timer_data[i].param_timer_proc && param == a5_timer_data[i].data)
         {
-            a5_timer_data[i]->data = param;
-            al_set_timer_speed(a5_timer_data[i]->timer, a5_get_timer_speed(speed));
+            al_set_timer_speed(a5_timer_data[i].timer, a5_get_timer_speed(speed));
+            al_unlock_mutex(timers_mutex);
             return 0;
         }
     }
 
-    _A5_TIMER_DATA* timer_data = a5_get_free_timer_data();
-    if (!timer_data) return -1;
-    if (!timer_data->thread) timer_data->thread = al_create_thread(a5_timer_proc, timer_data);
-    if (!timer_data->timer) timer_data->timer = al_create_timer(a5_get_timer_speed(speed));
-    else al_set_timer_speed(timer_data->timer, speed);
-    if (!timer_data->thread || !timer_data->timer) return -1;
+    timer_data = a5_get_free_timer_data(speed);
+    if(timer_data)
+    {
+        timer_data->param_timer_proc = proc;
+        timer_data->data = param;
+        al_start_timer(timer_data->timer);
+        result = 0;
+    }
 
-    timer_data->param_timer_proc = proc;
-    timer_data->data = param;
-    al_start_thread(timer_data->thread);
-    al_start_timer(timer_data->timer);
-
-    return 0;
-}
-
-static int a5_timer_install_param_int(void (*proc)(void * data), void * param, long speed)
-{
-    al_lock_mutex(timers_mutex);
-    int result = _a5_timer_install_param_int(proc, param, speed);
     al_unlock_mutex(timers_mutex);
     return result;
 }
 
 static void a5_timer_remove_param_int(void (*proc)(void * data), void * param)
 {
-    int i, j;
+    int i;
 
     al_lock_mutex(timers_mutex);
 
-    for(i = 0; i < _A5_MAX_TIMERS && a5_timer_data[i]; i++)
+    for(i = 0; i < _A5_MAX_TIMERS; i++)
     {
-        if(proc == a5_timer_data[i]->param_timer_proc && param == a5_timer_data[i]->data)
+        if(proc == a5_timer_data[i].param_timer_proc && param == a5_timer_data[i].data)
         {
-            al_stop_timer(a5_timer_data[i]->timer);
-            a5_timer_data[i]->param_timer_proc = NULL;
-            a5_timer_data[i]->data = NULL;
+            al_stop_timer(a5_timer_data[i].timer);
+            a5_timer_data[i].param_timer_proc = NULL;
+            a5_timer_data[i].data = NULL;
             break;
         }
     }
