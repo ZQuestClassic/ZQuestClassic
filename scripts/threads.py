@@ -14,6 +14,13 @@ import discord
 
 from discord.ext import commands
 
+# The output uses box-drawing characters and emoji; the Windows console
+# defaults to cp1252, which can't encode them and crashes the event handler
+# (leaving the bot connected forever).
+for _stream in (sys.stdout, sys.stderr):
+    if hasattr(_stream, "reconfigure"):
+        _stream.reconfigure(encoding="utf-8", errors="replace")
+
 ZC_GUILD_ID = 876899628556091432
 FORUM_CHANNELS = {
     1021382849603051571: "bugs",
