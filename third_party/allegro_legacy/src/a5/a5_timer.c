@@ -26,6 +26,8 @@ typedef struct
 
     ALLEGRO_THREAD * thread;
     ALLEGRO_TIMER * timer;
+    // local edit
+    ALLEGRO_EVENT_SOURCE stop_source;
     void (*timer_proc)(void);
     void (*param_timer_proc)(void * data);
     void * data;
@@ -44,6 +46,7 @@ static _A5_TIMER_DATA * a5_create_timer_data(void)
     if(timer_data)
     {
         memset(timer_data, 0, sizeof(_A5_TIMER_DATA));
+        al_init_user_event_source(&timer_data->stop_source);
     }
     return timer_data;
 }
@@ -79,6 +82,7 @@ static void a5_destroy_timer_data(_A5_TIMER_DATA * timer_data)
     {
         al_destroy_timer(timer_data->timer);
     }
+    al_destroy_user_event_source(&timer_data->stop_source);
     free(timer_data);
 }
 
@@ -87,7 +91,6 @@ static void * a5_timer_proc(ALLEGRO_THREAD * thread, void * data)
 {
     ALLEGRO_EVENT_QUEUE * queue;
     ALLEGRO_EVENT event;
-    ALLEGRO_TIMEOUT timeout;
     double cur_time, prev_time = 0.0, diff_time;
     _A5_TIMER_DATA * timer_data = (_A5_TIMER_DATA *)data;
 
@@ -97,17 +100,14 @@ static void * a5_timer_proc(ALLEGRO_THREAD * thread, void * data)
         return NULL;
     }
     al_register_event_source(queue, al_get_timer_event_source(timer_data->timer));
+    al_register_event_source(queue, &timer_data->stop_source);
     al_start_timer(timer_data->timer);
     while(!al_get_thread_should_stop(thread))
     {
-#ifdef ALLEGRO_LEGACY_CLOSE_THREADS
-        al_init_timeout(&timeout, 0.1);
-        // TODO: why does this hog so much CPU?!
-        if (al_wait_for_event_until(queue, &event, &timeout))
-#else
         al_wait_for_event(queue, &event);
-#endif
-        // if(al_wait_for_event_until(queue, &event, &timeout))
+        if (event.type != ALLEGRO_EVENT_TIMER)
+            continue; // Woken by _a5_stop_thread.
+
         {
             cur_time = al_get_time();
             diff_time = cur_time - prev_time;
@@ -137,18 +137,25 @@ static int a5_timer_init(void)
     return 0;
 }
 
+// local edit
+// The timer threads must be joined before allegro 5 shuts down (see
+// _a5_stop_thread), and before remove_timer destroys the mutex that
+// _handle_timer_tick locks. A thread whose timer was stopped by remove_int never
+// gets another tick, so it has to be woken by its stop source.
 static void a5_timer_exit(void)
 {
-    // Trying to destroy threads on exit just hangs everything :/
-#ifdef ALLEGRO_LEGACY_CLOSE_THREADS
     int i;
 
     for(i = 0; i < _A5_MAX_TIMERS && a5_timer_data[i]; i++)
     {
-        a5_destroy_timer_data(a5_timer_data[i]);
+        _a5_stop_thread(a5_timer_data[i]->thread, &a5_timer_data[i]->stop_source);
     }
 
-#endif
+    for(i = 0; i < _A5_MAX_TIMERS && a5_timer_data[i]; i++)
+    {
+        a5_destroy_timer_data(a5_timer_data[i]);
+        a5_timer_data[i] = NULL;
+    }
 }
 
 static double a5_get_timer_speed(long speed)
