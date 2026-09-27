@@ -32,6 +32,15 @@
 AL_LEGACY_VAR(ALLEGRO_DISPLAY *, _a5_display);
 AL_LEGACY_VAR(bool, _a5_display_switched_out);
 
+// local edit
+// Every a5 driver runs a thread blocked in al_wait_for_event. The threads must be
+// joined before allegro 5 shuts down, because al_uninstall_system destroys every
+// event queue - including the one a thread is waiting on. A thread waiting on a
+// queue can't be joined until something wakes it, so each driver registers a user
+// event source on its queue and _a5_stop_thread emits a wake-up event on it.
+#define _A5_EVENT_STOP_THREAD ALLEGRO_GET_EVENT_TYPE('A','5','S','T')
+AL_LEGACY_FUNC(void, _a5_stop_thread, (ALLEGRO_THREAD * thread, ALLEGRO_EVENT_SOURCE * stop_source));
+
 /* System driver */
 #define SYSTEM_ALLEGRO_5        AL_ID('A','5',' ',' ')
 AL_LEGACY_VAR(SYSTEM_DRIVER, system_allegro_5);
