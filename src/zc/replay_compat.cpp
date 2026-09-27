@@ -108,6 +108,17 @@ bool replay_compat_hammer_pound_reach_bug()
 	return !replay_version_check(67);
 }
 
+// Script player move functions (Hero->Move() etc.) advanced pit/drown state
+// on every call, so calling them repeatedly made the player fall into pits
+// rapidly.
+bool replay_compat_script_move_pit_state_bug()
+{
+	if (check_2_55(17))
+		return true;
+
+	return !replay_version_check(68);
+}
+
 // When returning to a recently visited region, a screen whose enemies had not been loaded during
 // the previous visit (it never came into view) spawned no enemies, as if they had all been
 // killed. The recently visited check was done for the region as a whole, not for each screen.

@@ -18455,7 +18455,7 @@ bool HeroClass::movexy(zfix dx, zfix dy, bool kb, bool ign_sv, bool shove, bool 
 	if(dx && dy)
 		shove = false;
 	bool checkladder = dy < 0;
-	bool no_pit_sidefx = earlyret || replay_version_check(68);
+	bool no_pit_sidefx = earlyret || !replay_compat_script_move_pit_state_bug();
 	auto check_drown_fall = [&, no_pit_sidefx]()
 		{
 			if (replay_compat_pitslide_bug())
