@@ -28,6 +28,24 @@ ALLEGRO_DISPLAY * _a5_display = NULL;
 bool _a5_display_switched_out = false;
 void (*_a5_close_button_proc)(void) = NULL;
 
+// local edit
+void _a5_stop_thread(ALLEGRO_THREAD * thread, ALLEGRO_EVENT_SOURCE * stop_source)
+{
+    ALLEGRO_EVENT event;
+
+    if(!thread)
+    {
+        return;
+    }
+    // Set should_stop before emitting: a thread that hasn't registered the stop
+    // source yet misses the event, but sees should_stop before it first waits.
+    al_set_thread_should_stop(thread);
+    memset(&event, 0, sizeof(event));
+    event.user.type = _A5_EVENT_STOP_THREAD;
+    al_emit_user_event(stop_source, &event, NULL);
+    al_join_thread(thread, NULL);
+}
+
 static int a5_sys_init(void)
 {
     int ret = al_init();

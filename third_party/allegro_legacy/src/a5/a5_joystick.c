@@ -21,6 +21,8 @@
 #include "allegro/platform/ala5.h"
 
 static ALLEGRO_THREAD * a5_joystick_thread = NULL;
+// local edit
+static ALLEGRO_EVENT_SOURCE a5_joystick_stop_source;
 
 static int a5_get_joystick(ALLEGRO_JOYSTICK * joystick)
 {
@@ -124,7 +126,6 @@ static void * a5_joystick_thread_proc(ALLEGRO_THREAD * thread, void * data)
 {
     ALLEGRO_EVENT_QUEUE * queue;
     ALLEGRO_EVENT event;
-    ALLEGRO_TIMEOUT timeout;
     int i;
 
     queue = al_create_event_queue();
@@ -133,14 +134,14 @@ static void * a5_joystick_thread_proc(ALLEGRO_THREAD * thread, void * data)
         return NULL;
     }
     al_register_event_source(queue, al_get_joystick_event_source());
+    // local edit
+    al_register_event_source(queue, &a5_joystick_stop_source);
     while(!al_get_thread_should_stop(thread))
     {
-#ifdef ALLEGRO_LEGACY_CLOSE_THREADS
-        al_init_timeout(&timeout, 0.1);
-        if (al_wait_for_event_until(queue, &event, &timeout))
-#else
         al_wait_for_event(queue, &event);
-#endif
+        if (event.type == _A5_EVENT_STOP_THREAD)
+            continue;
+
         {
             switch(event.type)
             {
@@ -246,6 +247,8 @@ static int a5_joystick_init(void)
         al_uninstall_joystick();
         return -1;
     }
+    // local edit
+    al_init_user_event_source(&a5_joystick_stop_source);
     a5_reconfigure_joysticks();
     al_start_thread(a5_joystick_thread);
     return 0;
@@ -253,10 +256,11 @@ static int a5_joystick_init(void)
 
 static void a5_joystick_exit(void)
 {
-#ifdef ALLEGRO_LEGACY_CLOSE_THREADS
+    // local edit
+    _a5_stop_thread(a5_joystick_thread, &a5_joystick_stop_source);
     al_destroy_thread(a5_joystick_thread);
     a5_joystick_thread = NULL;
-#endif
+    al_destroy_user_event_source(&a5_joystick_stop_source);
     al_uninstall_joystick();
 }
 

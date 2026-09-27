@@ -25,6 +25,8 @@
 
 static ALLEGRO_THREAD * a5_keyboard_thread = NULL;
 static ALLEGRO_EVENT_QUEUE * queue = NULL;
+// local edit
+static ALLEGRO_EVENT_SOURCE a5_keyboard_stop_source;
 static int a5_keyboard_keycode_map[256];
 
 // local edit
@@ -91,17 +93,16 @@ static void update_key_shifts(ALLEGRO_EVENT* event) {
 static void * a5_keyboard_thread_proc(ALLEGRO_THREAD * thread, void * data)
 {
     ALLEGRO_EVENT event;
-    ALLEGRO_TIMEOUT timeout;
 
     al_register_event_source(queue, al_get_keyboard_event_source());
+    // local edit
+    al_register_event_source(queue, &a5_keyboard_stop_source);
     while(!al_get_thread_should_stop(thread))
     {
-#ifdef ALLEGRO_LEGACY_CLOSE_THREADS
-        al_init_timeout(&timeout, 0.1);
-        if (al_wait_for_event_until(queue, &event, &timeout))
-#else
         al_wait_for_event(queue, &event);
-#endif
+        if (event.type == _A5_EVENT_STOP_THREAD)
+            continue;
+
         {
             // This helps for understanding how to make key press events for allegro 4:
             // https://github.com/liballeg/allegro4/blob/master/src/win/wkeybd.c#L292
@@ -230,6 +231,8 @@ static int a5_keyboard_init(void)
     {
         return -1;
     }
+    // local edit
+    al_init_user_event_source(&a5_keyboard_stop_source);
 
     a5_keyboard_thread = al_create_thread(a5_keyboard_thread_proc, NULL);
     al_start_thread(a5_keyboard_thread);
@@ -239,10 +242,11 @@ static int a5_keyboard_init(void)
 
 static void a5_keyboard_exit(void)
 {
-#ifdef ALLEGRO_LEGACY_CLOSE_THREADS
+    // local edit
+    _a5_stop_thread(a5_keyboard_thread, &a5_keyboard_stop_source);
     al_destroy_thread(a5_keyboard_thread);
     a5_keyboard_thread = NULL;
-#endif
+    al_destroy_user_event_source(&a5_keyboard_stop_source);
 
     al_uninstall_keyboard();
 }

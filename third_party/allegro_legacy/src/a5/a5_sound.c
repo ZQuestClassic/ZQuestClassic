@@ -33,12 +33,13 @@
 static ALLEGRO_THREAD * a5_sound_thread = NULL;
 static ALLEGRO_AUDIO_STREAM * a5_sound_stream = NULL;
 static ALLEGRO_MUTEX * a5_sound_mutex = NULL;
+// local edit
+static ALLEGRO_EVENT_SOURCE a5_sound_stop_source;
 
 static void * a5_sound_thread_proc(ALLEGRO_THREAD * thread, void * data)
 {
     ALLEGRO_EVENT_QUEUE * queue;
     ALLEGRO_EVENT event;
-    ALLEGRO_TIMEOUT timeout;
     void * fragment;
     bool fragments_done = false;
 
@@ -68,13 +69,14 @@ static void * a5_sound_thread_proc(ALLEGRO_THREAD * thread, void * data)
     }
     al_set_audio_stream_playing(a5_sound_stream, true);
     al_register_event_source(queue, al_get_audio_stream_event_source(a5_sound_stream));
+    // local edit
+    al_register_event_source(queue, &a5_sound_stop_source);
     while(!al_get_thread_should_stop(thread))
     {
-#ifdef ALLEGRO_LEGACY_CLOSE_THREADS
-        if (al_wait_for_event_until(queue, &event, &timeout))
-#else
         al_wait_for_event(queue, &event);
-#endif
+        if (event.type == _A5_EVENT_STOP_THREAD)
+            continue;
+
         {
             switch(event.type)
             {
@@ -142,16 +144,20 @@ static int a5_sound_init(int input, int voices)
         al_uninstall_audio();
         return -1;
     }
+    // local edit
+    al_init_user_event_source(&a5_sound_stop_source);
     al_start_thread(a5_sound_thread);
     return 0;
 }
 
 static void a5_sound_exit(int input)
 {
-#ifdef ALLEGRO_LEGACY_CLOSE_THREADS
+    // local edit
+    // The thread destroys the stream after its loop, so join before al_uninstall_audio.
+    _a5_stop_thread(a5_sound_thread, &a5_sound_stop_source);
     al_destroy_thread(a5_sound_thread);
     a5_sound_thread = NULL;
-#endif
+    al_destroy_user_event_source(&a5_sound_stop_source);
     al_uninstall_audio();
 }
 

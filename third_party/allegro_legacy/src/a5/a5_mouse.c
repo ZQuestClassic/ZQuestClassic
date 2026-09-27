@@ -23,6 +23,8 @@
 #include "a5alleg.h"
 
 static ALLEGRO_THREAD * a5_mouse_thread = NULL;
+// local edit
+static ALLEGRO_EVENT_SOURCE a5_mouse_stop_source;
 static int a5_last_mouse_x = -1;
 static int a5_last_mouse_y = -1;
 static int prevx = -1;
@@ -35,7 +37,6 @@ static void * a5_mouse_thread_proc(ALLEGRO_THREAD * thread, void * data)
 {
     ALLEGRO_EVENT_QUEUE * queue;
     ALLEGRO_EVENT event;
-    ALLEGRO_TIMEOUT timeout;
 
     queue = al_create_event_queue();
     if(!queue)
@@ -45,14 +46,14 @@ static void * a5_mouse_thread_proc(ALLEGRO_THREAD * thread, void * data)
     al_register_event_source(queue, al_get_mouse_event_source());
     if (have_touch_input)
         al_register_event_source(queue, al_get_touch_input_event_source());
+    // local edit
+    al_register_event_source(queue, &a5_mouse_stop_source);
     while(!al_get_thread_should_stop(thread))
     {
-#ifdef ALLEGRO_LEGACY_CLOSE_THREADS
-        al_init_timeout(&timeout, 0.1);
-        if (al_wait_for_event_until(queue, &event, &timeout))
-#else
         al_wait_for_event(queue, &event);
-#endif
+        if (event.type == _A5_EVENT_STOP_THREAD)
+            continue;
+
         {
             switch(event.type)
             {
@@ -150,6 +151,8 @@ static int a5_mouse_init(void)
     // {
     //     al_hide_mouse_cursor(_a5_display);
     // }
+    // local edit
+    al_init_user_event_source(&a5_mouse_stop_source);
     a5_mouse_thread = al_create_thread(a5_mouse_thread_proc, NULL);
     al_start_thread(a5_mouse_thread);
     return 0;
@@ -157,10 +160,11 @@ static int a5_mouse_init(void)
 
 static void a5_mouse_exit(void)
 {
-#ifdef ALLEGRO_LEGACY_CLOSE_THREADS
+    // local edit
+    _a5_stop_thread(a5_mouse_thread, &a5_mouse_stop_source);
     al_destroy_thread(a5_mouse_thread);
     a5_mouse_thread = NULL;
-#endif
+    al_destroy_user_event_source(&a5_mouse_stop_source);
     al_uninstall_mouse();
 }
 

@@ -401,14 +401,6 @@ file(REMOVE
 	"${allegro5_SOURCE_DIR}/include/allegro5/internal/aintern_audio.h"
 )
 
-# Some performance problems with allegro legacy threaded event queues encouraged
-# NOT closing them on shutdown. This seemed to work ok on Windows and Mac, but on
-# Linux it totally prevents the program from closing.
-# TODO: investigate this further - can performance problems with threaded event queues
-# be fixed?
-if(LINUX AND NOT EMSCRIPTEN)
-	set(ALLEGRO_LEGACY_CLOSE_THREADS 1)
-endif()
 add_subdirectory(third_party/allegro_legacy EXCLUDE_FROM_ALL)
 
 add_library(allegro_headers INTERFACE)
