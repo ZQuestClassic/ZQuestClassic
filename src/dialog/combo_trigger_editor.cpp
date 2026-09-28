@@ -1428,7 +1428,7 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 										text = "P", hAlign = 1.0, onPressFunc = [&]()
 										{
 											int32_t flags = local_ref.spawnip;
-											static const vector<CheckListInfo> pickups =
+											static const CheckList pickups =
 											{
 												{ CheckListInfo::DISABLED, "Large Collision Rectangle (INTERNAL)" },
 												{ "Hold Up Item" },

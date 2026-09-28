@@ -23,9 +23,9 @@ std::pair<bool,bool> alert_confirm_dsa(string const& title, string const& text,
 	optional<string> yes_btn = std::nullopt, optional<string> no_btn = std::nullopt,
 	optional<string> subtext = std::nullopt);
 
-bool call_checklist_dialog(string const& title, vector<CheckListInfo> const& flagnames, bitstring& flags, std::optional<size_t> per_col = nullopt);
-bool call_checklist_dialog(string const& title, vector<CheckListInfo> const& flagnames, int32_t& flags, std::optional<size_t> per_col = nullopt);
-bool call_checklist_dialog(string const& title, vector<CheckListInfo> const& flagnames, dword& flags, std::optional<size_t> per_col = nullopt);
+bool call_checklist_dialog(string const& title, CheckList const& flagnames, bitstring& flags, std::optional<size_t> per_col = nullopt);
+bool call_checklist_dialog(string const& title, CheckList const& flagnames, int32_t& flags, std::optional<size_t> per_col = nullopt);
+bool call_checklist_dialog(string const& title, CheckList const& flagnames, dword& flags, std::optional<size_t> per_col = nullopt);
 
 void edit_screen_notes(mapscr* scr, int map, int screen);
 void browse_screen_notes();

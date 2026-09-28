@@ -19,14 +19,14 @@ class ChecklistDialog: public GUI::Dialog<ChecklistDialog>
 public:
 	enum class message { REFR_INFO, OK, CANCEL };
 
-	ChecklistDialog(string const& title, vector<CheckListInfo> const& flagnames,
+	ChecklistDialog(string const& title, CheckList const& flagnames,
 		bitstring& flags, bool& confirm, std::optional<size_t> per_col);
 	
 	std::shared_ptr<GUI::Widget> view() override;
 	virtual bool handleMessage(const GUI::DialogMessage<message>& msg);
 protected:
 	string d_title;
-	vector<CheckListInfo> const& flagnames;
+	CheckList const& flagnames;
 	bitstring& flags;
 	bool& confirm;
 	std::optional<size_t> per_col;
