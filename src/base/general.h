@@ -588,7 +588,7 @@ enum class special_engine_export : uint16_t
 	midi, music, save_menu, message_string,
 	weapon_type, lweapon_type, eweapon_type,
 	dropset, font_id, bottle_type, combo_type,
-	combo_flag,
+	combo_flag, level_item,
 	
 	max_value
 };

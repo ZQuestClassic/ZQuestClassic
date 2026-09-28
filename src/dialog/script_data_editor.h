@@ -54,6 +54,7 @@ private:
 		list_engine_message_string, list_engine_weapon_type, list_engine_lweapon_type,
 		list_engine_eweapon_type, list_engine_dropset, list_engine_font_id,
 		list_engine_bottle_type, list_engine_combo_type, list_engine_combo_flag;
+	CheckList checks_engine_level_item;
 	
 	std::shared_ptr<GUI::Window> window;
 };

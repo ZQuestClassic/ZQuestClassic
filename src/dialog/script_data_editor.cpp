@@ -30,7 +30,8 @@ ScriptDataDialog::ScriptDataDialog(string const& title, script_config& cfg,
 	list_engine_font_id(GUI::ZCListData::fonts(false, true)),
 	list_engine_bottle_type(GUI::ZCListData::bottletype(true)),
 	list_engine_combo_type(GUI::ZCListData::combotype(true)),
-	list_engine_combo_flag(GUI::ZCListData::mapflag(numericalFlags, true))
+	list_engine_combo_flag(GUI::ZCListData::mapflag(numericalFlags, true)),
+	checks_engine_level_item(GUI::ZCCheckListData::level_items())
 {
 	if (cfg.script)
 		init_args[cfg.script] = cfg.inst_init;
@@ -374,6 +375,44 @@ std::shared_ptr<GUI::Widget> ScriptDataDialog::view()
 							instvar_grid->add(csel);
 							break;
 						}
+						
+						 // Group bitflag types together for reduced duplication
+						case special_engine_export::level_item:
+						{
+							bool is_long = false;
+							CheckList* clist = nullptr;
+							switch (expdata.engine_type)
+							{
+								case special_engine_export::level_item:
+									clist = &checks_engine_level_item;
+									break;
+							}
+							if (!clist)
+							{
+								instvar_grid->add(Label(text = "!!ERROR!!"));
+								NOTREACHED();
+								break;
+							}
+							
+							auto btn = Button(text = "P",
+								hAlign = 0.0, padding = 0_px,
+								width = 24_px, height = 24_px,
+								onPressFunc = [&, idx, is_long, set_arg, clist]()
+								{
+									int flags = args[idx];
+									if (!is_long) flags /= 10000;
+									if (!call_checklist_dialog(fmt::format("Select '{}'", expdata.name),
+										*clist, flags))
+										return;
+									if (!is_long) flags *= 10000;
+									set_arg(flags);
+								}
+							);
+							widget_data.main_widget = btn;
+							instvar_grid->add(btn);
+							break;
+						}
+						
 						default: // Group dropdown types together for reduced duplication
 						{
 							GUI::ListData* ld = nullptr;
