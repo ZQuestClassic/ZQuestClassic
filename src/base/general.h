@@ -570,6 +570,7 @@ struct CheckListInfo
 		: name(std::move(name)), info(std::move(info)), flags(flags)
 	{}
 };
+typedef std::vector<CheckListInfo> CheckList;
 
 enum
 {

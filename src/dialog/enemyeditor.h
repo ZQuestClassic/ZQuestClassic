@@ -48,7 +48,7 @@ private:
 	std::shared_ptr<GUI::DropDownList> ddl_attributes[32];
 	std::shared_ptr<GUI::Button> ib_attributes[32];
 	std::shared_ptr<GUI::Button> pbtn_attributes[32];
-	vector<CheckListInfo> const* plist_attributes[32];
+	CheckList const* plist_attributes[32];
 	//Defenses
 	std::shared_ptr<GUI::DropDownList> ddl_defenses[41];
 	//Behavior Flags
