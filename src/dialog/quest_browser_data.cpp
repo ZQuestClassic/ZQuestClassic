@@ -789,11 +789,16 @@ bool poll_update_check()
 	if (!pending_update_check)
 		start_update_check();
 
-	std::lock_guard<std::mutex> lock(pending_update_check->mutex);
-	if (!pending_update_check->done)
-		return false;
-
-	found_update = pending_update_check->result;
+	// Hold our own reference across the lock: the worker's copy is gone
+	// once it finishes, so resetting the static while the guard is alive
+	// would destroy the mutex before it's unlocked.
+	auto check = pending_update_check;
+	{
+		std::lock_guard<std::mutex> lock(check->mutex);
+		if (!check->done)
+			return false;
+		found_update = check->result;
+	}
 	update_check_done = true;
 	pending_update_check.reset();
 	return true;
