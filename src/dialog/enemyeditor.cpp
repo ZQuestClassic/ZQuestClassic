@@ -794,7 +794,7 @@ void EnemyEditorDialog::loadAttributes()
 				case e7tUNJINX:
 				{
 					l_attribute[7] = "Jinx Type(s):";
-					static const vector<CheckListInfo> jinxtype_checklist =
+					static const CheckList jinxtype_checklist =
 					{
 						{ "Sword Jinx" }, { "Item Jinx" }, { "Shield Jinx" }
 					};

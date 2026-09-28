@@ -23,7 +23,7 @@ struct ExportWidgetData
 	std::function<void(int)> set_arg;
 	exported_variable const* expdata = nullptr;
 	GUI::ListData list {};
-	std::vector<CheckListInfo> clist_info {};
+	CheckList clist_info {};
 };
 
 class ScriptDataDialog: public GUI::Dialog<ScriptDataDialog>

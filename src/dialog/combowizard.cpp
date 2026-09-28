@@ -2680,7 +2680,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 						text = "P", hAlign = 1.0, onPressFunc = [&]()
 						{
 							auto flags = refl_flags;
-							static const vector<CheckListInfo> refltypes =
+							static const CheckList refltypes =
 							{
 								{ "Rock" },
 								{ "Arrow" },

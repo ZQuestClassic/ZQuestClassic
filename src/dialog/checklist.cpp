@@ -5,7 +5,7 @@
 #include <dialog/info.h>
 
 bool call_checklist_dialog(string const& title,
-	vector<CheckListInfo> const& flagnames,
+	CheckList const& flagnames,
 	bitstring& flags, std::optional<size_t> per_col)
 {
 	bool ret = false;
@@ -13,7 +13,7 @@ bool call_checklist_dialog(string const& title,
 	return ret;
 }
 bool call_checklist_dialog(string const& title,
-	vector<CheckListInfo> const& flagnames,
+	CheckList const& flagnames,
 	int32_t& flags, std::optional<size_t> per_col)
 {
 	bitstring bitstr;
@@ -30,14 +30,14 @@ bool call_checklist_dialog(string const& title,
 }
 
 bool call_checklist_dialog(string const& title,
-	vector<CheckListInfo> const& flagnames,
+	CheckList const& flagnames,
 	dword& flags, std::optional<size_t> per_col)
 {
 	return call_checklist_dialog(title, flagnames, (int32_t&)flags, per_col);
 }
 
 ChecklistDialog::ChecklistDialog(string const& title,
-	vector<CheckListInfo> const& flagnames, bitstring& flags,
+	CheckList const& flagnames, bitstring& flags,
 	bool& confirm, std::optional<size_t> per_col):
 	d_title(title), flagnames(flagnames), flags(flags),
 	confirm(confirm), per_col(per_col)

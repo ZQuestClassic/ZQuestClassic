@@ -480,7 +480,7 @@ bool ItemListerDialog::adv_paste()
 	if(copied_item_id == selected_val)
 		return false;
 	static bitstring pasteflags;
-	static const vector<CheckListInfo> advp_names =
+	static const CheckList advp_names =
 	{
 		{ "Name" },
 		{ "Display Name" },
