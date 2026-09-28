@@ -116,7 +116,7 @@ errors_exports.zs Line 70 @ Column 2 - Line 71 @ Column 65 - Error S114: Annotat
 71        "F10", "F11", "F12", "F13", "F14", "F15", "F16", "F17", "F18")
 
 
-errors_exports.zs Line 77 @ Columns 12-28 - Error S114: Annotation '@ExportEngineValue' got "Bogus", but expected one of [Tile, Tile CSet, Combo, Combo CSet, Color, Item, Enemy, Counter, Sprite Data, SFX, MIDI, Music, Save Menu, Message String, Weapon Type, LWeapon Type, EWeapon Type, Dropset, Font, Bottle Type, Combo Type, Combo Flag]
+errors_exports.zs Line 77 @ Columns 12-28 - Error S114: Annotation '@ExportEngineValue' got "Bogus", but expected one of [Tile, Tile CSet, Combo, Combo CSet, Color, Item, Enemy, Counter, Sprite Data, SFX, MIDI, Music, Save Menu, Message String, Weapon Type, LWeapon Type, EWeapon Type, Dropset, Font, Bottle Type, Combo Type, Combo Flag, Level Item]
 
 75    @Export("Bogus Engine"),
 76    @ExportEngineValue("Bogus")
@@ -437,7 +437,7 @@ stdout:
         }
       },
       "severity": 1,
-      "message": "S114: Annotation '@ExportEngineValue' got \"Bogus\", but expected one of [Tile, Tile CSet, Combo, Combo CSet, Color, Item, Enemy, Counter, Sprite Data, SFX, MIDI, Music, Save Menu, Message String, Weapon Type, LWeapon Type, EWeapon Type, Dropset, Font, Bottle Type, Combo Type, Combo Flag]"
+      "message": "S114: Annotation '@ExportEngineValue' got \"Bogus\", but expected one of [Tile, Tile CSet, Combo, Combo CSet, Color, Item, Enemy, Counter, Sprite Data, SFX, MIDI, Music, Save Menu, Message String, Weapon Type, LWeapon Type, EWeapon Type, Dropset, Font, Bottle Type, Combo Type, Combo Flag, Level Item]"
     },
     {
       "range": {
