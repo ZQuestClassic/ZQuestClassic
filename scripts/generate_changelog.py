@@ -911,8 +911,9 @@ def generate_changelog(from_sha: str, to_sha: str, to_ref: str = None) -> str:
 # Stale hashes in the override files (from amending/rebasing a commit after
 # writing its override) keep working locally, where the old object still
 # exists, but break in a fresh clone. Run the reachability test here for local
-# dev.
-if 'CI' not in os.environ:
+# dev. Skipped when regenerating cherrypicks-3.0.md, which is about to be
+# overwritten anyway.
+if 'CI' not in os.environ and not args.generate_cherrypicks:
     test_result = subprocess.run(
         [sys.executable, str(root_dir / 'tests' / 'test_changelog.py')],
         capture_output=True,
@@ -923,6 +924,8 @@ if 'CI' not in os.environ:
         sys.exit(1)
 
 for path in (script_dir / 'changelog_overrides').rglob('*.md'):
+    if args.generate_cherrypicks:
+        break
     if path.name == 'cherrypicks-3.0.md' and args.for_nightly:
         continue
     if path.name != 'README.md':
@@ -1033,6 +1036,18 @@ if args.generate_cherrypicks:
         if sha == '3dbae6acb1da74dbf649f2f15213855c104e04e6':
             sha = '4541c666fa80b63fafe9c16a1f363d9054019216'
         if sha in shas_seen:
+            continue
+
+        # The main commit was amended after being picked, so the recorded hash
+        # is not on main (a fresh clone won't have it at all). The landed
+        # commit is found by the "same subject" pass instead.
+        if (
+            subprocess.run(
+                ['git', 'merge-base', '--is-ancestor', sha, 'main'],
+                stderr=subprocess.DEVNULL,
+            ).returncode
+            != 0
+        ):
             continue
 
         shas_seen.append(sha)

@@ -139,6 +139,7 @@ drop c58661f071c6b6e0f09ceb4dc13cc667371401f4 misc(vscode): publish 1.0.9
 drop 790dc584ff36aac6390de58d79410ae2bc85c307 misc(vscode): publish 1.0.10
 drop 23981d26c925e8ca6affd213e60fec46754a39c6 misc(vscode): publish 1.0.11
 drop 87e68c33c1b34fe8970415c8be595edea9b78545 misc(vscode): publish 1.0.12
+drop 5057f060b7f1fd6b220678ce47a3e8e1851e805c fix(vscode): hover/definition/references returned nothing while a compile was in flight
 
 # ! reverted
 drop 636cd693ebcc1cbec50ced5af8ece8be31f04f64 fix(zc): only grab one held item at a time

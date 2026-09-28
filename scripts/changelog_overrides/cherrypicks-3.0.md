@@ -2,6 +2,177 @@
 # ! These are all the commits in the main branch that were cherry-picked to 2.55.x, and then a 2.55.x release was first to have them in an official release
 
 # ! cherry-pick -x
+drop 9e6c4cadeea46a2451633ad6c6c640afd8262373 fix(zscript): ClearTrace() could garble other apps' allegro.log output
+drop d60b7240f3cc806202823e05cf5a5fa4faeb0609 fix(zc): a gamepad input stuck on blocked binding any button
+drop e1b68e51156bc779152abbd739991fe831a94c8e fix(zc)!: default control schemes moved with the dpad instead of the left stick
+drop 2ab91ca9670b73da4a669e20fd90511b29d613be feat(zc): standalone mode asks to quit to desktop or load the last save
+drop a277f5389e15b7fdec991d6f68dc177e6840e34a misc(zc)!: log the joystick driver and detected controllers
+drop 558779cf953936f94db42ce7f1fe7351076ac76f fix(zc): whirlwind over damaging shallow liquid made the player invisible
+drop cebdeb4e6de3d94e5191206ed3d5be92f02065f0 misc!: keep Discord links placed after "end changelog"
+drop f27969d679935ec83215b3a10d784d420023e0ca misc!: link Discord and commit references in changelog output
+drop deed335ea84d080a19736fc2890a7cf2f1f261ab fix(zc): rebinding a gamepad button in the controls dialog took two presses
+drop f7e09c82917e69b6554d4b2c7eecd86d9113fa3a feat(zc)!: show a Nintendo-labeled gamepad's printed names in the controls dialog
+drop fb29777d1a9ee5879a00ee53ff4530509d379730 fix(zc)!: 8BitDo pads were misjudged for Nintendo lettering
+drop 7fa2eb5d21d29e639b66e2fbba586a806d6f0c0a fix(zc)!: Nintendo-labeled gamepads through a generic driver defaulted to A and B swapped
+drop dd1441235ae893ba8343ba1868f03a2a84bcef2a feat(zc): one-click face button layouts in the controls dialog
+drop ca7219491e41d35afd29a757b12ea6f0d222a0bc feat(zc)!: show PlayStation button names in the controls dialog
+drop d44a73baf737a6f400a626d3c9641ff002e5d107 fix(zc)!: 'Can Turn While Charging Quake Hammer' never applying to 2.50.0/2.50.1 quests
+drop be4a87dcd8afd739a5ca0c3283cf51313b98debf fix(zc)!: standalone mode crashed on the second quit, and now closes instead of reloading
+drop 5404977e8da336c5b3750741e48065b7855ecbfa fix(zq): Digdogger Kids vulnerable to whistle in pre-2.55 quests
+drop 12b991f8d735df6b17d61ee62f3c1903afbb0bf5 fix(zupdater): a failed update could leave the install unrecoverable
+drop fdc12b510d4e48bd7e9d5ce79febcd3c65b1669c fix(zscript): player move functions no longer advance pit state
+drop bc4c0bafad436d6507bf08f22f8d562411fdf44d misc: improve checklist dialog per-column calculation
+drop 7fefc2e753a39f2befca98f90a43fe13f81d4115 fix: minor dialog window / grid size miscalculations
+drop 450339cac20b8cc7c8c197b2289629a436aaba55 feat(zq): support URL buttons in info popups
+drop 6265ce41d417acf08e1ae3eb6bf2f2d103cc1b8f fix(zq): typo in combo move warning
+drop 1535bcf30ea4ccb4ff4a4d88148d83fccf9177bd fix(zscript)!: keep combo scripts on the interpreter's fast path
+drop 0b8c59253f3f5430b811afc76cdc5eb414b93865 fix(zscript): lweapon scripts lifting themselves not stopping the engine loop
+drop c6fa3ea74d1be41efdd70e99e51478dda13c7614 refactor(zscript): screen rare interpreter loop-exit checks behind one branch
+drop 6fc4cd93ad9da768eb2f87b98ef7cb0c2ccf99ca refactor(zscript): resolve D registers inline at register access sites
+drop 32735ccc41dd41905b46aed1be96e3d1e0f7ad19 refactor(zscript): dispatch interpreter commands through a single switch
+drop ee3422d94f54327de6e90993c894470be73803ff fix(zc): cellar enemies beyond the fourth spawning at garbage positions
+drop 81f57d543b08a33de11bef33460073c37694d473 feat(zc): add 'Trigger Proximity' option to the Show menu
+drop 55295d33b7e3aba7f0a03b89be99ff36a68e4de8 fix!: database script crashed instead of going offline
+drop 6e3208bcf36f9737a41ee9ecd42a6f083818aa74 fix!: database script re-downloaded files it had just uploaded
+drop dd57ab084d8a6ed82c96e9077af57782d7575ac8 fix!: database script mishandled quest files with an uppercase extension
+drop 50ee1f5cea0d4c8dbeb518a2e8608bb9e5f718f6 test!: don't block the replay compare report on fetching upstream tags
+drop c0bc18173bf57a4371f6ffb02d70217a68c4f2fd misc!: assorted small cleanups in bisect_builds.py
+drop 00eff92d9518cd86b07994d177eca53ca3a02558 misc!: remove leftover debug prints from bisect skip handling
+drop 3c9a1cf126e045f750c1cbce21b414a315630a65 misc!: handle quit and unknown answers sanely during bisect validation
+drop b9ba9be827379aa9dc3c1e8d3248e396d681f838 misc!: add a --timeout for automated bisect steps
+drop 99f25515534db07cf8fa0202e16697370513a2ad misc!: don't reject builds missing binaries the command doesn't use
+drop 46ca6bd08ef9fa5fabf3aa2a06aa6aa768051c55 misc!: validate bisect endpoints up front
+drop b5c74042f47f93a3b47dae6afb94c5f65f20cefd misc!: fix confusing crash for unknown channels in bisect_builds.py
+drop 596300cbf38c1fe7767bf9d2bf0847c817a01f67 misc!: don't cache mutable git facts across runs in git_helpers.py
+drop 2961411964cfea19ef619e0dbc4e57570c7f72ec misc!: check the s3 bucket before GitHub for old release packages
+drop c1aca39740eacd6bae8037b34eadd3af53688681 misc!: assorted small cleanups in archives.py
+drop b883625f8f0715416d313ea8c5c13d43758e592e misc!: list all 2.55 alphas in archives.py, not just 3-digit ones
+drop c6e8f5c59ff5b1feb7b31e8e0b13b2caacc53048 misc!: don't treat a failed archive extraction as a completed download
+drop 88c374ecbadba1007da7168618ccf702d9b13a7a misc!: download to the revision's own directory in Revision.binaries
+drop 247ee525a1a5945c7d3b0dc3f4010d9832384528 misc!: fix bucket key parsing to tolerate nested paths
+drop 8270b8a46cb133d9715cdad3b5234176a79ae8d2 misc!: fix potential crash comparing against an unresolved tag
+drop 61b37e4af5e03d4ff4876fd519c1985b8eb6eae1 misc!: stop archives.py from permanently caching failed lookups
+drop dc03b3c351076f5e879fdd198f8e9062f330743d misc!: don't pick non-windows packages when a release has one asset
+drop 0861b57e94a6ee708625d5c6703917752bbd238d misc!: extract .tgz downloads as tarballs in archives.py
+drop b2f890f25c565f6fc871e8d2884eafb1befbea04 misc!: raise a proper error when a release has no linux package
+drop 45e1eb94bb2b4eed50f5dcaa1bf1beb50d64adf4 misc!: keep archives.py download progress off stdout
+drop 677558909d87e9355d5664717743fd870d6d30fd misc!: fix linux test builds never being found by archives.py
+drop b3db171462e379edd113a7e4de9ab8cb8d356217 fix(zq)!: spurious 'failed to load' log for empty enhanced music
+drop 60e24cc784279382e04c2ea3406a1079f005d56f fix: missing secrets in quests made in 2.53
+drop 418aed982f0d70c95310ba3f3c2ceae66377ba42 fix: [mac] show "Cmd" instead of "Ctrl" in help dialog hotkeys
+drop de460e36213dc01818f67c71eeee4e4c4292743c feat(zq): set tile dialog title when "hide" option is active
+drop 93688f1320a5823f19852dc66f721c0c0b235c42 fix: [mac] prevent crash on exit from the sound driver
+drop 7487beae2283d5e0ef62d2e808d07c2392ef94af fix!: prevent crash when quitting from a nested dialog
+drop e2972a68bbb1b47fbe8848d33921ded98212759b fix!: [windows] prevent crash caused by outdated MSVC runtime
+drop 2590d02bbef0a767e98345cfde6dfb455002107d fix(zscript): file->ReadChars put back the wrong character when full
+drop c47c0410f7894f260f9c1cefe2cc602bd49a0da9 feat(zscript): resize arrays automatically when writing more than fits
+drop 535070ecf4a91fb038f78a42a479e1a1fd06c78c fix(zscript): sprintf returned character count as a long (decimal)
+drop f26f5e5799d894cf521c980faf0c6cb9063bfdc0 misc(zscript): cleanup/clarify string related functions
+drop 2311023ea7ef0ac24236960c4382894d89f97b2e fix(zc)!: [linux] prevent crash on startup with a gamepad connected
+drop c2ab39b31c72543b2e4513857a333f9c3e3f5857 feat(zc): simpler controller binding UI
+drop 6afd40e7d800a91c9833bfd30b9a2edfbba6c313 feat(zc): per-controller control schemes with sensible gamepad defaults
+drop 190c074376f61246284e3879685ea73acb1824a8 feat(zc): recognize hundreds more controllers out of the box
+drop 62568e4f792c2463a77bbc3c7995429b06238924 feat(zc): use SDL for gamepads for better controller support
+drop 1358e5cf7f91247bccc59c128beb3dc171191143 fix: folder pickers had to be cancelled or confirmed twice
+drop d33069f0a26c193d9491354b2b38fb9466301212 feat(zq)!: fuzzy matching in the quest browser's filter
+drop 754ebd414d5565ca5fecb3367682fe34adb2cdfc refactor: load legacy-encoded quests faster
+drop 0986cd15b122edf6d4f55e041ae2b5a5c04c2afe refactor(zq)!: refine the UX of new quest browser
+drop 6b117c6aea1334f496854bd5ab18d1494566e8c1 feat(zq)!: tooltips for widgets of the declarative GUI
+drop d399c4dddb5826b7e3f3d8294ad5453cde84b074 fix(zq): resetting to defaults leaked the template's quest rules
+drop a0525b9af5afdd9a45aab0d209ea19b22f78656b fix(zq): `Quest > Defaults` could not find any section
+drop b14a687097d1afcc6a4c1517b4155e802c633208 fix(zq)!: quest browser scans no longer corrupt the open quest's layers
+drop 53f05170e8fa8d53fd86351eb0788e082b5e345b fix(zq): partial quest file reads corrupting the open quest's version info
+drop 2efcdc78e389f0e86057e47784928ad854485219 fix(zscript): printf printed garbage decimal digits for -214748.3648
+drop b9354acc0f4bbcfda3b390f98ff5032fbf0f6eb0 fix(zc): hammers in 1.92/2.10 quests reach one tile further when facing up
+drop 4bc8870d300df47e0f189ff8385d91f829c11456 fix: some NSF files using FDS expansion audio playing as silence
+drop 4985ce2fbfb9145e18c9ff3c23ec5241e210dba9 fix(zc): ladder letting the player cross two liquid tiles in a row
+drop 73a90c07382401103823ee9a9b7b8f6c8980b508 fix(zc): can't turn while charging the quake hammer in 2.50.0/2.50.1 quests
+drop 44a368a361fda945c805d2522f98afaa0763860b fix: palette cycles longer than 8 frames not continuing into the next level palette
+drop 91ed07de98a762d8e53b6f6280fa66a64b8168d9 fix(zc): slopes not working when a switch block combo changes into one
+drop 92bb7dc37960d1e008e4e9b9cbf67f1fee51e2e6 fix(zscript): generic scripts not seeing LA_SCROLLING at most timings while scrolling
+drop f4abc9b281f48b702fcd5a968363ec3ee59b0bdd fix(zc): weapons that bypass 'block' defenses also bypassing enemy shields
+drop 915e870d28b6ba0668389f4f28a55472f28d55d2 fix(zc): dummy items blocking pickup of a real item at the same spot
+drop e0330cc19e641917185c587a3eaec343cb4eae29 fix(zq): palette editor showing the wrong colors while palette cycling is on
+drop 6ace403f8eed508ac01975fed3e44723bb898230 fix(zc): wrapping FFCs hitting changers across the whole screen
+drop 7a2d7c62736b831ef124ba55a9498baae0fb5dc9 fix(zscript): bitmap->Blit crashing when the source rect goes out of bounds
+drop 879c15b807f8064a34024b391b8c480fd6277b0d fix(zc): lens of truth blacking out the screen when magic runs out mid-use
+drop 148d8e108d6a3e3005bbbfa1d3675e0a1f805036 fix(zq): all enemies vulnerable to whistle when resaving pre-2.50 quests
+drop 97980e81d9290226ecc1f045e13fc0b3cb9efa27 refactor!: render true-color GUI layers through the render tree
+drop 3cb924e0ccc48597af8df54a9c9e902b60992851 fix: skip compositing and presenting unchanged frames
+drop e10cd410eefeb1176f011a3b13b8ed5272e91353 feat!: -render-timings and -no-render-hash flags for measuring render work
+drop 7b423c3734e177181ad00ee43ebaa405cd84f8e1 fix: skip converting unchanged 8-bit screen bitmaps to textures every frame
+drop 32b750fde5a9bfdcaefa608cf9ea556aeb038188 feat(zq): quest browser startup dialog
+drop 12754c08afc86265326046f74a4722053da0b707 fix(zq): wrong help text shown for eight hotkeys when rebinding
+drop 9fdb9907c6d05dc4ff8944818ee1f237fbe54e2f fix(zq): hotkeys grouped under the wrong heading in the cheatsheet
+drop 5ca34dd85142ad5481248ac970f3fe1c31db8e43 refactor(zq)!: hotkey cheatsheet group tables
+drop 6876c3f24bdf7f89bf72287e1b069c583dbcfba4 fix(zq): hotkey cheatsheet overflowing off screen instead of fitting the window
+drop fcbe1096156a2d489220b3fcdeb6bae47aa917b7 fix(zc): screen snapping into place after palette-faded scrolling warps
+drop 14fb8903a3eb632ea767601bf11a5465fc768c84 fix(zc): screen sliding away during fades and wipes on no-subscreen screens
+drop 29eced58f72dfc99ea9affb0a46bf730a1f2ea8d fix(zc): make music seeks take effect immediately
+drop 7134711cb57f2416ca183d4f82cb9aa7979b59b5 fix(zc): keep music in sync with the game across pauses
+drop 112289cc5847c2afe88c511c5db796992bdefb01 feat(zc): make save files more portable
+drop f5cebcd5e5ab04c813804560e221d8d66819dbc2 fix(zc): find the quest for a save file made on a different computer
+drop b727715fd4cfec3e5d1d0516f51391e7869d2c79 fix(zc): prevent rare case where sprite deletion is delayed a frame
+drop 89400608858aef7f8794820f7d989a33a8496a58 fix(zc): replay uploading ran for users who never opted in
+drop 877f744fd939a1d25c093d8a926e92d0d4d5235e fix(zq): don't try next recent quest when cancelling a password prompt
+drop 5b2c376746d1753f8e4e4fccb811649b8379255f fix(zq): resolve qst-relative script include paths before ever reloading the qst
+drop 50678480ce7b8f2050d1da8310fbe4499233b545 fix(zq): holding 'shift' after already starting to drag an ffc/warpsquare/etc not changing to more granular control
+drop 7c5855b92749a54ce85707aa286e2ebddea60b08 test!: capture useful snapshots when a replay fails on a static screen
+drop 4fde7a4ae13f9a1020322803adb8318f346f8644 test!: include roundtrip files in compare report
+drop 83e1d4b9b1cfcc9076542dca679073eec18b401f test!: show replay stderr in compare report
+drop 25625d80f866f404e12164d7e1585414377962a8 test!: surface non-graphical failures in compare report
+drop f281168efc28b196721d0f93b54b8acc142333d9 test!: flag allowlisted known failures in compare report
+drop e73a320510f00699286896a9f8ec8be988e1652f test!: de-duplicate identical replay tracks in compare report
+drop f85b4cdb3e2a5ae470acb3675fa8472e29b3b579 test!: add failed replay zc version as compare report option
+drop de08c1eb39f9951c4d8dd3df232f83d14ec72eb8 feat(zscript): support passing string / boolean to `Trace`
+drop f51aadef23198e5fa80c9588081fe4b6f4dc822d fix(zscript): nested calls to vargs-using functions clashing varg params
+drop 065e21f813d0a7ba4cbaade359f9e4c5fddfe0e5 feat(zq): try each recent quest at startup until one loads
+drop c22ea5d8e6cf7131d5d22cd1540b085ccf205cf5 test!: fix replay_uploads.py failing on Windows with too many replays
+drop 3210067f3e0ee2dc134276d152d643fcaa40b110 fix(zscript): strings longer than 65535 chars no longer broken
+drop ffeed52acef5b81e19be690942d305d4fca06ee6 refactor(zc): levels with palette cycling ran much slower than necessary
+drop eec081f811131a1bd5cbf1d72601c4ed55484397 fix(zscript): backslashes lost from script metadata help text
+drop a2fdd5677640e0d23625ff74c817407a1900ce94 fix!: checkPath misreporting special files
+drop 95dd9b2eaf24c49ff3232a0cefbb67f6262396bc fix(zc): big 4-directional enemy fire/attack frames overlapping walk tiles
+drop ea5ec359e1653ee75aa550a156e64963d03f1393 fix: file dialogs opening on a folder that does not exist
+drop 9f513a751b35d68b7a80e0da432cc72b947326eb fix(zc): shooter combos not running scripts on custom lweapons
+drop c4a64fb8a914fffa073a9b3ada1a1b66bf862a93 test(zq)!: add strings .tsv import command and round-trip test
+drop 3291fa2e7e05fc15de70815230815e30ab00821f fix(zc): scripted Wind LWeapons infinitely looping wind sfx
+drop 96f2a671698f1844172b0c9d04d210c5c3cde9ec fix(zc): dialog dimming not covering the whole screen in fullscreen
+drop 1309c31a071a85f0636f146555051bab2cf1c596 fix: keep the window painted while it is being resized
+drop 2c95b1bbfc2cd147eda4d783964c4831a74231a3 build!: require bison 3.0 or newer
+drop 81a36fa176eb38ef683932b9716b5ee0879c1c15 test!: properly escape command printed when making compare report
+drop 0b6f3e33111403d865b138675c047973da5c997b fix(zc): show the Save Indicator setting in the Settings menu again
+drop ce6bbcd096b643b73125f9edc4bdf3594d26ac2c fix: [mac] prevent crash when window is resized
+drop 10cfaa66f96fd3c5bf13f7910efaa89a1c8b1c5d fix(zscript): script draws vanished for one frame when closing the active subscreen
+drop 8f43027d421baab2a8e2a8586d6209ea61f3a184 fix(zscript): script draws were discarded during the screen init of instant warps
+drop 140385e6d7234bfad50da8bf467393c9578b3fef feat: find enhanced music inside a subfolder next to the quest
+drop 137d3d3c6675a0952075b6311e771e9c2c0cd4fe build!: Linux crash reports could not be matched to uploaded debug info
+drop c7c09812b3afd7bba8b6a1ace3db813d2ef8a261 chore!: log why enhanced music fails to load
+drop 362608918ff9807d87222e3564038089daf4d673 fix: prevent crash on Linux when opening the native file dialog
+drop ef29f9b794aec2110816e79b629b58baafb3c0bd fix: allow configuring with CMake 4 without extra flags
+drop f155a24ce1ab71fa2a52f5be0d134ae6d8553c26 fix(zc): coyote time jumps eating an 'extra jump'
+drop 9e5403c275aa2cf7b6dc1b56acaa1e07647b5c14 fix: [win] ignore initial click when window is inactive
+drop 3f3c2f629a62d2f9f0f50829c67b7fa2bae95116 fix: MIDI songs sounding detuned or wrong after other songs played
+drop 68da80987b8663f007d3b728eaa531725de4d5f1 fix(zq): string .tsv import scrambling margins and list order
+drop e778e4e4b760c38660cd05be3c0c77522ce69209 fix(zc): stuck at screen edge over walkable water that can't drown you
+drop 8b8bc2bb71fbf7432c66b620de86713eab29704d fix(zq): prevent crash and blank pages in the Screen Data / Init Data value editor
+drop c5abbb66a10deeea2bf8d4f73dbb8d16a54ec628 fix(zc): prevent divide by zero drawing Gauge Piece subscreen widgets
+drop e4bbacae078af02ac35259ad20c098c5c443bec2 fix(zc): prevent crash drawing a Button Counter subscreen widget
+drop 1167cd6316ae909444a3ced826732ab3a42de639 fix(zc): prevent crash drawing a Button Item subscreen widget
+drop 5b5a7306b61ebf98f0b30b0a49f0bd3681cf85bb fix(zscript): filled Screen->Arc / bitmap->Arc pies escaping the wedge
+drop 2780e86674cfdb3ae2ca579e48eec23ccc294282 fix(zc): effect flags in bottom/right 8px ignored with newer player movement
+drop caaf58e928bd3d67179c3f38fb3eed31a68ebd98 fix(zc): scrolling warp to another dmap charted a screen on the wrong map
+drop 00fd7ff0ec4f35cdb723743b4e8988ed6bad55e2 fix(zc): default triforce and ending fanfare NSF tunes never played
+drop 2032f995d3e4b59faad7447f16c07a3b5e5141f1 fix(zq): wrong npc IDs listed by tile move overwrite protection
+drop 27620efc4e572701c8254089d912aeccac8da82a fix(zc): passive subscreen missing when playing some old quests
+drop 80af706d228fdbd95e0dac14a9997f3545a02e45 fix(zq): prevent crash at startup when a recent quest path is inaccessible
+drop 43cedf5ee65eb3cd83552c7c3014fd4bc685ccd4 fix(zc): Ganon room music not playing for quests made in 1.90
+drop aa8a1d62de38aee2fd57219ff477fded444dc8a6 fix: closed dropdowns drawing extra list rows with small dialog fonts
+drop 0d12c590938008aa44fe9e6353e4b71dd11b15d9 fix(zc): font scale option in ZPlayer Options dialog never saving
+drop 6c6064d12689bd941d15831b1fb521fe3375f62f fix: dropdown list popups not closing when clicking an item
+drop 968c6607187b269d9f84e54bf9b71436f2bbf38f fix: dropdown selection off-by-one with non-default dialog font sizes
+drop 3809fd35044e608c8287f27458ff21f6b6e1e8bb feat: dropdown lists open when clicked anywhere, instead of just the arrow
+drop d070ac6fa21fa3615d2be886272e94c2746efa9d build!: check .git exists before installing hooks
 drop aa672717dc94577be87e060270e51a4e9b80ae7e fix(zc): Auto Sidewarp combos not using the assigned Warp SFX
 drop 4f7adab43ade17b03986ef2a70b5f93d76f35e30 fix(zq)!: clean up 'Button Counter' subscreen widget '?' buttons
 drop b0addbe5395c29c16fb3f47802b2f75e624e2994 fix(zscript)!: free objects owned by dmap and subscreen scripts
@@ -10,7 +181,6 @@ drop 2dfe60b70541860876ba7a3744db9326f3c4de9f fix(zscript): remove unimplemented
 drop f4e0b0bd49d278098f0b7656a8a1d858411725d4 fix(zscript): prevent crash when taking the modulo of the minimum integer by -1
 drop 3ef5f56103186c033a113d2142a3bd27b1643753 test!: add replay test for subscreen script object cleanup
 drop 7a11d0c790b77167087caa341863347a5743e934 fix(zscript): free script-owned objects when a script's state is cleared
-drop f26f5e5799d894cf521c980faf0c6cb9063bfdc0 misc(zscript): cleanup/clarify string related functions
 drop b718a4a3e575415a15665ec9d10b96e1336e5039 refactor(zc): [win] remove obsolete vsync workaround (use_dwm_flush)
 drop 57349fe4da88a185a6f9463e341c6960b3cdb6db fix: [mac] size default window using the screen's usable area
 drop 7a4e628a1bc064c6b7673408c6d774b920c3adbb fix(zc): large armos bad tile offset
@@ -903,6 +1073,21 @@ drop 6020153e20556e077a62dfc3c0234d6defa7da2a misc!: add 2.55.12 changelog
 drop c30b7362ce10ca576215659277edbef164b3a31d misc!: add 2.55.14 changelog
 
 # ! same subject
+drop d2beb099b0fdf93c1dbf8efffbf99245dca52167 chore!: update replay_uploads_known_good_replays.json
+drop 53a3572afcc7aefc1785c8d9ac58e164c18b9784 chore!: update replay_uploads_known_good_replays.json
+drop 2514f529038bf35fd18ee46b9c04c2c38688809f chore!: update replay_uploads_known_good_replays.json
+drop b3abd2194a78b14806c72f01b636a940b9f1711c chore!: update replay_uploads_known_good_replays.json
+drop e24060aabe46787d7eb68fef8500fa5b3d0dd197 chore!: update replay_uploads_known_good_replays.json
+drop 5677085d2f87ef48e053cdd716e091e7bdd2547d chore!: update replay_uploads_known_good_replays.json
+drop 845afc1a47ff463c186cbe83922051eb8b69d235 build: strip unreferenced code and data from the binaries
+drop c02bff4efb9a47e7e2eaaee37b51296a413b5baa fix: mac releases support macOS 12 and up again
+drop 29bc4d8e5878fd967496d6866cdf4c8991ba7efd fix: string shadows cut off at the text box margins
+drop f26e04c6c7f763433c00205faf0eb0d77c990039 chore!: update replay_uploads_known_good_replays.json
+drop ec8e567fcf776bba0f97ff5d25ae52e00368cad0 chore!: update replay_uploads_known_good_replays.json
+drop fc64e03d6a423a90a4002efa93068ce2f07e1331 fix: game music (SPC, NSF, VGM, GBS, GYM) playing at half volume
+drop 547aa233ac3f36e91f9569ba97d652525aeffe51 fix(zscript): stale jit code could run after reloading a changed quest
+drop da9730d5a5b1f96444ce253d5bf5b03c76444fe9 chore!: update replay_uploads_known_good_replays.json
+drop 7979afb6039b6e484a2422be16f63afd2bb80aba fix(zc): stop music restarting on warp to same-music screen
 drop ac1a221929c90f864cee6e0c048201da7caae211 chore!: update replay_uploads_known_good_replays.json
 drop c8cf9d40e8a65088833bd56705264a760b03b650 chore!: update replay_uploads_known_good_replays.json
 drop 2cc6dedce8955ec0896c626422f8a4081603d4bf chore!: update replay_uploads_known_good_replays.json
