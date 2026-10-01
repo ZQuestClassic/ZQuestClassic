@@ -637,14 +637,32 @@ def start_fetch_upstream_tags() -> threading.Thread:
     return thread
 
 
+def start_prefetch_build(tag: str, release_platform: str) -> threading.Thread:
+    # Downloads the build the user is most likely to pick while they read the
+    # menu. Quiet, so nothing is printed over the menu; the foreground
+    # download afterwards reports any error. Daemon is safe because an
+    # extraction is only moved into the archives folder once complete.
+    def prefetch():
+        try:
+            archives.download(tag, release_platform, quiet=True)
+        except Exception:
+            pass
+
+    thread = threading.Thread(target=prefetch, daemon=True)
+    thread.start()
+    return thread
+
+
 def prompt_to_create_compare_report(failing_test_results_list: list[ReplayTestResults]):
+    # Started before the first prompt, so it's usually done by the time the
+    # tags are needed.
+    fetch_thread = start_fetch_upstream_tags()
+
     if not cutie.prompt_yes_or_no(
         'Would you like to generate a compare report?', default_is_yes=True
     ):
         return
     print()
-
-    fetch_thread = start_fetch_upstream_tags()
 
     # TODO: support filtering the failing tests
     # runs = [r for r in test_results.runs[-1] if not r.success]
@@ -698,18 +716,15 @@ def prompt_to_create_compare_report(failing_test_results_list: list[ReplayTestRe
             most_recent_nightly = get_recent_release_tag(
                 ['--match', '*.*.*-nightly*', '--match', '*.*.*-prerelease*']
             )
+            prefetch_thread = start_prefetch_build(
+                most_recent_nightly, release_platform
+            )
             try:
-                archives_255_output = subprocess.check_output(
-                    [
-                        'python',
-                        script_dir / '../scripts/archives.py',
-                        'list',
-                        '--channel',
-                        '2.55',
-                    ],
-                    encoding='utf-8',
-                ).strip()
-                most_recent_stable = archives_255_output.splitlines()[-1].split(' ')[1]
+                # Only releases are wanted (listing the test builds too would
+                # need a network call).
+                most_recent_stable = archives.get_revisions(
+                    release_platform, '2.55', include_test_builds=False
+                )[-1].tag
             except Exception as e:
                 print('error finding latest stable version, using 2.55.14 instead')
                 print(e)
@@ -769,6 +784,9 @@ def prompt_to_create_compare_report(failing_test_results_list: list[ReplayTestRe
             selected_index = cutie.select([c[0] for c in choices])
             print()
             tag = choices[selected_index][1]
+            if tag == most_recent_nightly and prefetch_thread.is_alive():
+                print(f'waiting for download of {tag}...')
+                prefetch_thread.join()
 
         build_dir = archives.download(tag, release_platform)
         if release_platform == 'mac':

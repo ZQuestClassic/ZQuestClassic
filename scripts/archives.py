@@ -107,10 +107,49 @@ def _get_release_commit_count_of_tag(branch: str, tag: str):
     return get_release_commit_count(branch, sha)
 
 
+@functools.cache
+def get_reachable_shas(branch: str):
+    return set(
+        subprocess.check_output(
+            ['git', 'rev-list', branch], encoding='utf-8'
+        ).splitlines()
+    )
+
+
+# Every local tag's commit sha, in one git call.
+@functools.cache
+def get_tag_shas():
+    lines = subprocess.check_output(
+        [
+            'git',
+            'for-each-ref',
+            '--format=%(refname:short) %(objectname) %(*objectname)',
+            'refs/tags',
+        ],
+        encoding='utf-8',
+    ).splitlines()
+    tag_shas = {}
+    for line in lines:
+        tag, sha, peeled_sha = line.split(' ')
+        tag_shas[tag] = peeled_sha or sha
+    return tag_shas
+
+
+def _is_full_sha(commitish: str):
+    return len(commitish) == 40 and all(c in '0123456789abcdef' for c in commitish)
+
+
 def get_release_commit_count_of_tag(branch: str, tag: str):
     # Failures are not cached, since they may be transient (ex: the tag or
     # the branch simply isn't fetched locally yet).
     try:
+        # A commit the branch can't reach has no merge into it either, so
+        # skip the git lookups. Without this, listing a channel's builds
+        # (most of which belong to the other channel) costs two git
+        # subprocesses per unreachable commit, every run.
+        sha = tag if _is_full_sha(tag) else get_tag_shas().get(tag)
+        if sha is not None and sha not in get_reachable_shas(branch):
+            return None
         return _get_release_commit_count_of_tag(branch, tag)
     except Exception:
         return None
@@ -411,19 +450,23 @@ def get_gh_release_package_url(tag: str, release_platform: str):
     return asset.browser_download_url
 
 
-def download(tag_or_sha: str, release_platform: str):
+def download(tag_or_sha: str, release_platform: str, quiet=False):
     if len(tag_or_sha) == 40:
         revision_type = 'test'
     else:
         revision_type = 'release'
     revision = Revision(tag_or_sha, -1, revision_type)
-    return download_revision(revision, release_platform)
+    return download_revision(revision, release_platform, quiet)
 
 
-def download_revision(revision: Revision, release_platform: str):
-    dest = revision.dir()
-    if dest.exists() and list(dest.glob('*')):
-        return dest
+def download_revision(revision: Revision, release_platform: str, quiet=False):
+    final_dest = revision.dir()
+    if final_dest.exists() and list(final_dest.glob('*')):
+        return final_dest
+
+    def log(msg: str):
+        if not quiet:
+            print(msg, file=sys.stderr)
 
     tag = revision.tag
     prefix = f'{bucket_url}/{tag}/'
@@ -449,26 +492,28 @@ def download_revision(revision: Revision, release_platform: str):
 
     found_url = None
     for url in urls:
-        print(f'downloading {url}', file=sys.stderr)
+        log(f'downloading {url}')
         r = requests.get(url)
         if not r.ok:
-            print(f'not found: {url}', file=sys.stderr)
+            log(f'not found: {url}')
             continue
 
         found_url = url
         break
 
     if not found_url:
-        print(
-            f'Not found on {bucket_url}, falling back to using the GitHub API',
-            file=sys.stderr,
-        )
+        log(f'Not found on {bucket_url}, falling back to using the GitHub API')
         url = get_gh_release_package_url(revision.tag, release_platform)
         if not url:
             raise Exception(f'could not find package url for {revision.tag}')
         r = requests.get(url)
         r.raise_for_status()
 
+    # Extract into a scratch folder and only rename it into place once
+    # complete, so an interrupted extraction (even one killed outright, ex: a
+    # background prefetch at exit) is never mistaken for a finished download.
+    dest = final_dest.with_name(f'{final_dest.name}.partial')
+    shutil.rmtree(dest, ignore_errors=True)
     dest.mkdir(parents=True, exist_ok=True)
 
     try:
@@ -483,6 +528,7 @@ def download_revision(revision: Revision, release_platform: str):
                     str(dest / 'ZQuestClassic.dmg'),
                 ],
                 stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL if quiet else None,
             )
             try:
                 zc_app_path = next((dest / 'zc-mounted').glob('*.app'))
@@ -491,6 +537,7 @@ def download_revision(revision: Revision, release_platform: str):
                 subprocess.check_call(
                     ['hdiutil', 'unmount', str(dest / 'zc-mounted')],
                     stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL if quiet else None,
                 )
             (dest / 'ZQuestClassic.dmg').unlink()
         elif url.endswith(('.tar.gz', '.tgz')):
@@ -502,13 +549,13 @@ def download_revision(revision: Revision, release_platform: str):
             zf.extractall(dest)
             zf.close()
     except BaseException:
-        # Don't leave a partial extraction behind - the next run would
-        # mistake it for a completed download and skip it.
         shutil.rmtree(dest, ignore_errors=True)
         raise
 
-    print(f'finished downloading {tag}', file=sys.stderr)
-    return dest
+    shutil.rmtree(final_dest, ignore_errors=True)
+    dest.rename(final_dest)
+    log(f'finished downloading {tag}')
+    return final_dest
 
 
 class CLI:
