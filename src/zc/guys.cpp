@@ -15278,6 +15278,12 @@ int32_t eManhandla::takehit(weapon *w, weapon* realweap)
 
 void eManhandla::draw(BITMAP *dest)
 {
+	// sprite::real_x nudges sprites facing up-right or down-left one pixel to the right. The
+	// arms never face those directions, so draw the body as if facing up to keep it centered
+	// between them.
+	int32_t real_dir = dir;
+	dir = up;
+
 	tile=o_tile;
 	int32_t fdiv = frate/4;
 	int32_t efrate = fdiv == 0 ? 0 : clk/fdiv;
@@ -15289,7 +15295,7 @@ void eManhandla::draw(BITMAP *dest)
 	{
 		if(!dmisc2)
 		{
-			switch(dir-8)                                         //directions get screwed up after 8.  *shrug*
+			switch(real_dir-8)                                         //directions get screwed up after 8.  *shrug*
 			{
 			case up:                                            //u
 				flip=0;
@@ -15337,7 +15343,7 @@ void eManhandla::draw(BITMAP *dest)
 		else
 		{
 		
-			switch(dir-8)                                         //directions get screwed up after 8.  *shrug*
+			switch(real_dir-8)                                         //directions get screwed up after 8.  *shrug*
 			{
 			case up:                                            //u
 				flip=0;
@@ -15408,6 +15414,8 @@ void eManhandla::draw(BITMAP *dest)
 			yofs-=8;
 		}
 	}
+
+	dir = real_dir;
 }
 
 esManhandla::esManhandla(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
@@ -16934,7 +16942,13 @@ void ePatra::draw(BITMAP *dest)
 {
 	tile=o_tile;
 	update_enemy_frame();
+	// sprite::real_x nudges sprites facing up-right or down-left one pixel to the right. The
+	// orbiters never face those directions, so draw the body as if facing up to keep it centered
+	// in its ring.
+	int32_t real_dir = dir;
+	dir = up;
 	enemy::draw(dest);
+	dir = real_dir;
 }
 
 int32_t ePatra::defend(int32_t wpnId, int32_t *power, int32_t edef)
