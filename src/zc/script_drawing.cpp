@@ -5878,6 +5878,7 @@ void bmp_do_regenr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 	if ( scb.script_created_bitmaps[bitid].u_bmp )
 		destroy_bitmap(scb.script_created_bitmaps[bitid].u_bmp);
 	scb.script_created_bitmaps[bitid].u_bmp = create_bitmap_ex(8,w,h);
+	clear_bitmap(scb.script_created_bitmaps[bitid].u_bmp);
 	
 	scb.script_created_bitmaps[bitid].width = w;
 	scb.script_created_bitmaps[bitid].height = h;
