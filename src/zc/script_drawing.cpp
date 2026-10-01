@@ -5893,6 +5893,7 @@ void bmp_do_regenr(BITMAP*, int32_t *sdci, [[maybe_unused]] int32_t xoffset, [[m
 	if ( usr_bmp.u_bmp )
 		destroy_bitmap(usr_bmp.u_bmp);
 	usr_bmp.u_bmp = create_bitmap_ex(8,w,h);
+	clear_bitmap(usr_bmp.u_bmp);
 	
 	usr_bmp.width = w;
 	usr_bmp.height = h;
