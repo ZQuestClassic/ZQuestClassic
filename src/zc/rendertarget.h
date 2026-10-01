@@ -64,7 +64,10 @@ public:
             return 0;
             
         if(!_bitmap[target])
+        {
             _bitmap[target] = create_bitmap_ex(8, BitmapWidth, BitmapHeight);
+            clear_bitmap(_bitmap[target]);
+        }
             
         return _bitmap[target];
     }
