@@ -1444,6 +1444,8 @@ static void maybe_take_snapshot()
 	{
 		if (rs.mode == ReplayMode::Assert && !rs.prev_gfx_hash_was_same)
 		{
+			// The history bitmaps are allocated before the quest's screen height is known.
+			zalleg_update_bmp_size(&rs.framebuf_history[rs.framebuf_history_index].bitmap, presentbuf->w, presentbuf->h);
 			blit(presentbuf, rs.framebuf_history[rs.framebuf_history_index].bitmap, 0, 0, 0, 0, presentbuf->w, presentbuf->h);
 			rs.framebuf_history[rs.framebuf_history_index].frame = rs.frame_count;
 			memcpy(rs.framebuf_history[rs.framebuf_history_index].pal, RAMpal, PAL_SIZE*sizeof(RGB));
