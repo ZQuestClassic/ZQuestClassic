@@ -1328,7 +1328,14 @@ static void maybe_take_snapshot()
 	{
 		if (mode == ReplayMode::Assert && !prev_gfx_hash_was_same)
 		{
-			blit(presentbuf, framebuf_history[framebuf_history_index].bitmap, 0, 0, 0, 0, presentbuf->w, presentbuf->h);
+			// The history bitmaps are allocated before the quest's screen height is known.
+			auto& history_bitmap = framebuf_history[framebuf_history_index].bitmap;
+			if (history_bitmap->w != presentbuf->w || history_bitmap->h != presentbuf->h)
+			{
+				destroy_bitmap(history_bitmap);
+				history_bitmap = create_bitmap_ex(8, presentbuf->w, presentbuf->h);
+			}
+			blit(presentbuf, history_bitmap, 0, 0, 0, 0, presentbuf->w, presentbuf->h);
 			framebuf_history[framebuf_history_index].frame = frame_count;
 			memcpy(framebuf_history[framebuf_history_index].pal, RAMpal, PAL_SIZE*sizeof(RGB));
 			framebuf_history_index = (framebuf_history_index + 1) % framebuf_history.size();
