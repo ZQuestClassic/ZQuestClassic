@@ -268,15 +268,14 @@ def install_deps(ctx: CiContext, args):
                 with open(github_path, 'a') as f:
                     f.write(f"{bison_prefix}/bin\n")
         else:
-            logger.info("Building custom Bison 3.6...")
-            run_cmd("wget http://ftp.gnu.org/gnu/bison/bison-3.6.tar.gz")
-            run_cmd("tar -zxvf bison-3.6.tar.gz")
-
-            env = os.environ.copy()
-            env['CFLAGS'] = '-Wno-error=incompatible-pointer-types'
-            run_cmd("./configure", cwd="bison-3.6", env=env)
-            run_cmd("make", cwd="bison-3.6")
-            run_cmd("sudo make install", cwd="bison-3.6")
+            logger.info("Building Bison 3.8.2...")
+            run_cmd(
+                "wget --tries=3 --timeout=60 https://ftpmirror.gnu.org/gnu/bison/bison-3.8.2.tar.xz"
+            )
+            run_cmd("tar -xf bison-3.8.2.tar.xz")
+            run_cmd("./configure --disable-nls", cwd="bison-3.8.2")
+            run_cmd(f"make -j{os.cpu_count() or 2}", cwd="bison-3.8.2")
+            run_cmd("sudo make install", cwd="bison-3.8.2")
 
     elif ctx.is_linux:
         logger.info("Linux detected. Installing via apt-get.")
