@@ -6,6 +6,11 @@ import { execFileSync } from 'child_process';
 
 const ROOT = path.join(__dirname, '../../../..');
 
+// Pinned so the test never has to ask Microsoft's update server which
+// version is "stable" (that lookup has timed out in CI). The download is
+// cached in .vscode-test, and CI caches that folder keyed on this file.
+const VSCODE_VERSION = '1.140.0';
+
 function getZcPath(version: string): string {
 	const zcPath = execFileSync('python', ['scripts/archives.py', 'download', version], {
 		cwd: ROOT,
@@ -50,6 +55,8 @@ async function main() {
 
 		// Download VS Code, unzip it and run the integration test
 		await runTests({
+			version: VSCODE_VERSION,
+			cachePath: path.join(extensionDevelopmentPath, '.vscode-test'),
 			extensionDevelopmentPath,
 			extensionTestsPath,
 			extensionTestsEnv,

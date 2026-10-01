@@ -186,6 +186,15 @@ jobs:
           path: ${{ github.workspace }}/.tmp/archives
           key: archives-cache-${{ inputs.runs-on }}-${{ runner.arch }}
 
+      # The vscode extension test downloads a pinned VS Code into this folder;
+      # the key follows the file that holds the pinned version.
+      - name: VS Code test cache
+        if: ${{ matrix.shard_index == 1 && inputs.from-ci-workflow }}
+        uses: actions/cache@v5
+        with:
+          path: ${{ github.workspace }}/vscode-extension/.vscode-test/vscode-*
+          key: vscode-test-cache-${{ inputs.runs-on }}-${{ runner.arch }}-${{ hashFiles('vscode-extension/client/src/test/runTest.ts') }}
+
       - name: Checkout zscript database
         if: ${{ matrix.shard_index == 1 && inputs.from-ci-workflow }}
         uses: actions/checkout@v4
