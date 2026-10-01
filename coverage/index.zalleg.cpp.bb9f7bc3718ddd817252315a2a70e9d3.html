@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2026-09-27 03:54:08</td>
+      <td>2026-10-01 09:11:14</td>
     </tr>
   </table>
 </div>
@@ -79,8 +79,8 @@
     <tr><td><a href="#l220">(anonymous namespace)::log_joysticks() (line 220)</a></td><td>called 703 times, returned 703 times</td><td>15.0%</td></tr>
     <tr><td><a href="#l150">(anonymous namespace)::zapp_setup_icon() (line 150)</a></td><td>called 100 times, returned 100 times</td><td>60.0%</td></tr>
     <tr><td><a href="#l135">(anonymous namespace)::zc_do_minsize() (line 135)</a></td><td>called 38894 times, returned 38894 times</td><td>38.0%</td></tr>
-    <tr><td><a href="#l77">(anonymous namespace)::zc_trace_handler(char const*) (line 77)</a></td><td>called 2431637 times, returned 2431637 times</td><td>90.0%</td></tr>
-    <tr><td><a href="#l782">safe_al_trace(char const*) (line 782)</a></td><td>called 27973 times, returned 27973 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l77">(anonymous namespace)::zc_trace_handler(char const*) (line 77)</a></td><td>called 2431594 times, returned 2431594 times</td><td>90.0%</td></tr>
+    <tr><td><a href="#l782">safe_al_trace(char const*) (line 782)</a></td><td>called 27989 times, returned 27989 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l787">safe_al_trace(std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt; const&amp;) (line 787)</a></td><td>called 108774 times, returned 108774 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l679">zalleg_alleg4_save_bitmap(BITMAP*, int, char const*, RGB const*) (line 679)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l529">zalleg_bring_window_to_foreground(ALLEGRO_DISPLAY*) (line 529)</a></td><td>not called</td><td>0.0%</td></tr>
@@ -98,7 +98,7 @@
     <tr><td><a href="#l268">zalleg_setup_allegro(App, int, char**)::$_1::__invoke(char const*) (line 268)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l268">zalleg_setup_allegro(App, int, char**)::$_1::operator void (*)(char const*)() const (line 268)</a></td><td>called 857 times, returned 857 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l268">zalleg_setup_allegro(App, int, char**)::$_1::operator()(char const*) const (line 268)</a></td><td>not called</td><td>0.0%</td></tr>
-    <tr><td><a href="#l698">zalleg_update_bmp_size(BITMAP**, int, int) (line 698)</a></td><td>called 46376749 times, returned 46376749 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l698">zalleg_update_bmp_size(BITMAP**, int, int) (line 698)</a></td><td>called 46967750 times, returned 46967750 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l558">zalleg_wait_for_all_keys_up() (line 558)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l764">zc_trace_clear() (line 764)</a></td><td>called 2 times, returned 2 times</td><td>85.0%</td></tr>
     <tr><td><a href="#l61">zconsole_is_muted() (line 61)</a></td><td>called 27131 times, returned 27131 times</td><td>100.0%</td></tr>
@@ -653,7 +653,7 @@
       <td class="lineno"><a id="l77" href="#l77">77</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">2431637</td>
+      <td class="linecount coveredLine">2431594</td>
       <td class="src coveredLine"><span class="kt">int32_t</span><span class="w"> </span><span class="nf">zc_trace_handler</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">msg</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -676,19 +676,19 @@
         <details class="linebranchDetails">
         <summary class="linebranchSummary">2/2</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 188 times.</div>
-          <div class="takenBranch">&check; Branch 1 taken 2431449 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 438 times.</div>
+          <div class="takenBranch">&check; Branch 1 taken 2431156 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount coveredLine">2431637</td>
+      <td class="linecount coveredLine">2431594</td>
       <td class="src coveredLine"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">console_muted</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l81" href="#l81">81</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">2431449</td>
+      <td class="linecount coveredLine">2431156</td>
       <td class="src coveredLine"><span class="w">		</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;%s&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">msg</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
@@ -711,12 +711,12 @@
         <details class="linebranchDetails">
         <summary class="linebranchSummary">2/2</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 2430780 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 2430737 times.</div>
           <div class="takenBranch">&check; Branch 1 taken 857 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount coveredLine">2431637</td>
+      <td class="linecount coveredLine">2431594</td>
       <td class="src coveredLine"><span class="w">	</span><span class="k">if</span><span class="p">(</span><span class="n">trace_file</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -821,28 +821,28 @@
       <td class="lineno"><a id="l97" href="#l97">97</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">2431637</td>
+      <td class="linecount coveredLine">2431594</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">fprintf</span><span class="p">(</span><span class="n">trace_file</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;%s&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">msg</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l98" href="#l98">98</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">2431637</td>
+      <td class="linecount coveredLine">2431594</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">fflush</span><span class="p">(</span><span class="n">trace_file</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l99" href="#l99">99</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">2431637</td>
+      <td class="linecount coveredLine">2431594</td>
       <td class="src coveredLine"><span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l100" href="#l100">100</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">2431637</td>
+      <td class="linecount coveredLine">2431594</td>
       <td class="src coveredLine"><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
@@ -5454,7 +5454,7 @@
       <td class="lineno"><a id="l698" href="#l698">698</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">46376749</td>
+      <td class="linecount coveredLine">46967750</td>
       <td class="src coveredLine"><span class="kt">void</span><span class="w"> </span><span class="nf">zalleg_update_bmp_size</span><span class="p">(</span><span class="n">BITMAP</span><span class="o">**</span><span class="w"> </span><span class="n">bmp_ptr</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">w</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">h</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -5468,7 +5468,7 @@
       <td class="lineno"><a id="l700" href="#l700">700</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">46376749</td>
+      <td class="linecount coveredLine">46967750</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">BITMAP</span><span class="o">*</span><span class="w"> </span><span class="n">bmp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">*</span><span class="n">bmp_ptr</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
@@ -5478,11 +5478,11 @@
         <summary class="linebranchSummary">2/2</summary>
         <div class="linebranchContents">
           <div class="takenBranch">&check; Branch 0 taken 8 times.</div>
-          <div class="takenBranch">&check; Branch 1 taken 46376741 times.</div>
+          <div class="takenBranch">&check; Branch 1 taken 46967742 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount coveredLine">46376749</td>
+      <td class="linecount coveredLine">46967750</td>
       <td class="src coveredLine"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">bmp</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -5498,49 +5498,49 @@
         <details class="linebranchDetails">
         <summary class="linebranchSummary">3/4</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 46376741 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 46967742 times.</div>
           <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
-          <div class="takenBranch">&check; Branch 2 taken 46376719 times.</div>
-          <div class="takenBranch">&check; Branch 3 taken 22 times.</div>
+          <div class="takenBranch">&check; Branch 2 taken 46966449 times.</div>
+          <div class="takenBranch">&check; Branch 3 taken 1293 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">46376741</td>
+      <td class="linecount partialCoveredLine">46967742</td>
       <td class="src partialCoveredLine"><span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">bmp</span><span class="o">-&gt;</span><span class="n">w</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">w</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">bmp</span><span class="o">-&gt;</span><span class="n">h</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">h</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l704" href="#l704">704</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">46376719</td>
+      <td class="linecount coveredLine">46966449</td>
       <td class="src coveredLine"><span class="w">			</span><span class="k">return</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l705" href="#l705">705</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">22</td>
+      <td class="linecount coveredLine">1293</td>
       <td class="src coveredLine"><span class="w">		</span><span class="n">destroy_bitmap</span><span class="p">(</span><span class="n">bmp</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l706" href="#l706">706</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">22</td>
+      <td class="linecount coveredLine">1293</td>
       <td class="src coveredLine"><span class="w">	</span><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l707" href="#l707">707</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">30</td>
+      <td class="linecount coveredLine">1301</td>
       <td class="src coveredLine"><span class="w">	</span><span class="o">*</span><span class="n">bmp_ptr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">create_bitmap_ex</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span><span class="w"> </span><span class="n">w</span><span class="p">,</span><span class="w"> </span><span class="n">h</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l708" href="#l708">708</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">46376749</td>
+      <td class="linecount coveredLine">46967750</td>
       <td class="src coveredLine"><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
@@ -6079,7 +6079,7 @@
       <td class="lineno"><a id="l782" href="#l782">782</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">27973</td>
+      <td class="linecount coveredLine">27989</td>
       <td class="src coveredLine"><span class="kt">void</span><span class="w"> </span><span class="nf">safe_al_trace</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">str</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -6093,14 +6093,14 @@
       <td class="lineno"><a id="l784" href="#l784">784</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">27973</td>
+      <td class="linecount coveredLine">27989</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">zc_trace_handler</span><span class="p">(</span><span class="n">str</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l785" href="#l785">785</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">27973</td>
+      <td class="linecount coveredLine">27989</td>
       <td class="src coveredLine"><span class="p">}</span></td>
     </tr>
     <tr class="source-line">

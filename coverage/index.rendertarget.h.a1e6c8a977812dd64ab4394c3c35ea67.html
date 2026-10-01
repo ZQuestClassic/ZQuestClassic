@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2026-09-27 03:54:08</td>
+      <td>2026-10-01 09:11:14</td>
     </tr>
   </table>
 </div>
@@ -41,9 +41,9 @@
     </tr>
     <tr>
       <th scope="row">Lines:</th>
-      <td>27</td>
-      <td>28</td>
-      <td class="coverage-high">96.4%</td>
+      <td>29</td>
+      <td>30</td>
+      <td class="coverage-high">96.7%</td>
     </tr>
     <tr>
       <th scope="row">Functions:</th>
@@ -73,7 +73,7 @@
       <th>Call count</th>
       <th>Block coverage</th>
     </tr>
-    <tr><td><a href="#l61">ZScriptDrawingRenderTarget::GetBitmapPtr(int) (line 61)</a></td><td>called 942580 times, returned 942580 times</td><td>80.0%</td></tr>
+    <tr><td><a href="#l64">ZScriptDrawingRenderTarget::GetBitmapPtr(int) (line 64)</a></td><td>called 942580 times, returned 942580 times</td><td>80.0%</td></tr>
     <tr><td><a href="#l45">ZScriptDrawingRenderTarget::GetCurrentRenderTarget() (line 45)</a></td><td>called 324311226 times, returned 324311226 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l50">ZScriptDrawingRenderTarget::GetTargetBitmap(int) (line 50)</a></td><td>called 246862857 times, returned 246862857 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l40">ZScriptDrawingRenderTarget::SetCurrentRenderTarget(int) (line 40)</a></td><td>called 7104361 times, returned 7104361 times</td><td>100.0%</td></tr>
@@ -526,53 +526,74 @@
       <td class="lineno"><a id="l56" href="#l56">56</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">41</td>
-      <td class="src coveredLine"><span class="w">            </span><span class="n">_bitmap</span><span class="p">[</span><span class="n">target</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">create_bitmap_ex</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span><span class="w"> </span><span class="n">BitmapWidth</span><span class="p">,</span><span class="w"> </span><span class="n">BitmapHeight</span><span class="p">);</span></td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">        </span><span class="p">{</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l57" href="#l57">57</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="w">            </span></td>
+      <td class="linecount coveredLine">41</td>
+      <td class="src coveredLine"><span class="w">            </span><span class="n">_bitmap</span><span class="p">[</span><span class="n">target</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">create_bitmap_ex</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span><span class="w"> </span><span class="n">BitmapWidth</span><span class="p">,</span><span class="w"> </span><span class="n">BitmapHeight</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l58" href="#l58">58</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">6536842</td>
-      <td class="src coveredLine"><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">_bitmap</span><span class="p">[</span><span class="n">target</span><span class="p">];</span></td>
+      <td class="linecount coveredLine">41</td>
+      <td class="src coveredLine"><span class="w">            </span><span class="n">clear_bitmap</span><span class="p">(</span><span class="n">_bitmap</span><span class="p">[</span><span class="n">target</span><span class="p">]);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l59" href="#l59">59</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">246862857</td>
-      <td class="src coveredLine"><span class="w">    </span><span class="p">}</span></td>
+      <td class="linecount coveredLine">41</td>
+      <td class="src coveredLine"><span class="w">        </span><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l60" href="#l60">60</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">    </span></td>
+      <td class="src "><span class="w">            </span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l61" href="#l61">61</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount coveredLine">6536842</td>
+      <td class="src coveredLine"><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">_bitmap</span><span class="p">[</span><span class="n">target</span><span class="p">];</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l62" href="#l62">62</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount coveredLine">246862857</td>
+      <td class="src coveredLine"><span class="w">    </span><span class="p">}</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l63" href="#l63">63</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">    </span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l64" href="#l64">64</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">942580</td>
       <td class="src coveredLine"><span class="w">    </span><span class="n">BITMAP</span><span class="o">*</span><span class="w"> </span><span class="n">GetBitmapPtr</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">target</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l62" href="#l62">62</a></td>
+      <td class="lineno"><a id="l65" href="#l65">65</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">    </span><span class="p">{</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l63" href="#l63">63</a></td>
+      <td class="lineno"><a id="l66" href="#l66">66</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">2/4</summary>
@@ -588,88 +609,67 @@
       <td class="src partialCoveredLine"><span class="w">        </span><span class="k">if</span><span class="p">(</span><span class="n">target</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">target</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">MaxBuffers</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l64" href="#l64">64</a></td>
+      <td class="lineno"><a id="l67" href="#l67">67</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l65" href="#l65">65</a></td>
+      <td class="lineno"><a id="l68" href="#l68">68</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">            </span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l66" href="#l66">66</a></td>
+      <td class="lineno"><a id="l69" href="#l69">69</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">942580</td>
       <td class="src coveredLine"><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">_bitmap</span><span class="p">[</span><span class="n">target</span><span class="p">];</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l67" href="#l67">67</a></td>
+      <td class="lineno"><a id="l70" href="#l70">70</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">942580</td>
       <td class="src coveredLine"><span class="w">    </span><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l68" href="#l68">68</a></td>
+      <td class="lineno"><a id="l71" href="#l71">71</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">    </span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l69" href="#l69">69</a></td>
+      <td class="lineno"><a id="l72" href="#l72">72</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="n">private</span><span class="o">:</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l70" href="#l70">70</a></td>
+      <td class="lineno"><a id="l73" href="#l73">73</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">    </span><span class="n">ZScriptDrawingRenderTarget</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">ZScriptDrawingRenderTarget</span><span class="o">&amp;</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l71" href="#l71">71</a></td>
+      <td class="lineno"><a id="l74" href="#l74">74</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">    </span><span class="n">ZScriptDrawingRenderTarget</span><span class="w"> </span><span class="o">&amp;</span><span class="n">operator</span><span class="w"> </span><span class="o">=</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">ZScriptDrawingRenderTarget</span><span class="o">&amp;</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l72" href="#l72">72</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="p">};</span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l73" href="#l73">73</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount "></td>
-      <td class="src "></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l74" href="#l74">74</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="n">ZScriptDrawingRenderTarget</span><span class="o">*</span><span class="w"> </span><span class="n">zscriptDrawingRenderTarget</span><span class="p">;</span></td>
-    </tr>
-    <tr class="source-line">
       <td class="lineno"><a id="l75" href="#l75">75</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="p">};</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l76" href="#l76">76</a></td>
@@ -683,7 +683,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#endif</span></td>
+      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="n">ZScriptDrawingRenderTarget</span><span class="o">*</span><span class="w"> </span><span class="n">zscriptDrawingRenderTarget</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l78" href="#l78">78</a></td>
@@ -694,6 +694,27 @@
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l79" href="#l79">79</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l80" href="#l80">80</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="cp">#endif</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l81" href="#l81">81</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l82" href="#l82">82</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
