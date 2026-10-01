@@ -31,6 +31,7 @@ public:
 
 	EditDMapDialog(int32_t slot);
 
+	void load_enhanced_info();
 	bool disableEnhancedMusic(bool disableontracker = false);
 	bool disableMusicTracks();
 	void silenceMusicPreview();
@@ -86,6 +87,8 @@ private:
 	int32_t dmapslot;
 	dmap* thedmap;
 	dmap local_dmap;
+	// ZCMF_* type of the enhanced music file, or 0 if it could not be loaded.
+	int32_t enhanced_type = 0;
 
 	GUI::ListData list_maps, list_types;
 	GUI::ListData list_activesub, list_passivesub, list_overlaysub,
