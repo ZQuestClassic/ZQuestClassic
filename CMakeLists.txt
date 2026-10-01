@@ -315,7 +315,7 @@ endif()
 FetchContent_Declare(
   allegro5
   GIT_REPOSITORY https://github.com/connorjclark/allegro5.git
-  GIT_TAG        9780b84a313d459baaf79f7cc493f6f975ac50f9
+  GIT_TAG        7478b2d5a495868b087ae02d80411b99dfea6ce0
   EXCLUDE_FROM_ALL
 )
 if(EMSCRIPTEN)
