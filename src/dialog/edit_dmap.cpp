@@ -56,35 +56,42 @@ EditDMapDialog::EditDMapDialog(int32_t slot) :
 	list_items(GUI::ZCListData::items(false, false)),
 	list_dmapscript(GUI::ZCListData::dmap_script())
 {
+	load_enhanced_info();
+}
+
+// Loads the enhanced music file once to learn its type and track count, then
+// unloads it. The disable* checks below read the cached result rather than
+// loading the file themselves: the dialog evaluates them many times per
+// open, and an audio stream left loaded by each one leaked a file handle
+// (and a feeder thread) until the process could no longer open files.
+void EditDMapDialog::load_enhanced_info()
+{
+	enhanced_type = 0;
+	list_tracks = GUI::ListData::numbers(false, 1, 1);
+
+	if (local_dmap.tmusic[0] == 0)
+		return;
+
 	ZCMUSIC* tempdmapzcmusic = zcmusic_load_for_quest(local_dmap.tmusic, filepath).first;
+	if (!tempdmapzcmusic)
+		return;
 
-	int32_t numtracks = 1;
-	if (tempdmapzcmusic != NULL)
-	{
-		numtracks = zcmusic_get_tracks(tempdmapzcmusic);
-		numtracks = (numtracks < 2) ? 1 : numtracks;
-		list_tracks = GUI::ListData::numbers(false, 1, numtracks);
+	enhanced_type = tempdmapzcmusic->type;
+	int32_t numtracks = zcmusic_get_tracks(tempdmapzcmusic);
+	numtracks = (numtracks < 2) ? 1 : numtracks;
+	list_tracks = GUI::ListData::numbers(false, 1, numtracks);
 
-		zcmusic_unload_file(tempdmapzcmusic);
-	}
+	zcmusic_unload_file(tempdmapzcmusic);
 }
 
 bool EditDMapDialog::disableEnhancedMusic(bool disableontracker)
 {
 	if (local_dmap.tmusic[0] == 0)
 		return true;
-
-	ZCMUSIC* tempdmapzcmusic = zcmusic_load_for_quest(local_dmap.tmusic, filepath).first;
-	bool isTracker = true;
-
-	if (tempdmapzcmusic != NULL)
-	{
-		if (disableontracker && !(tempdmapzcmusic->type == ZCMF_MP3 || tempdmapzcmusic->type == ZCMF_OGG || tempdmapzcmusic->type == ZCMF_DUH))
-			return true;
-	}
-	else
+	if (!enhanced_type)
 		return true;
-
+	if (disableontracker && !(enhanced_type == ZCMF_MP3 || enhanced_type == ZCMF_OGG || enhanced_type == ZCMF_DUH))
+		return true;
 	return false;
 }
 
@@ -693,6 +700,7 @@ std::shared_ptr<GUI::Widget> EditDMapDialog::view()
 													strncpy(local_dmap.tmusic, str.c_str(), 56);
 													local_dmap.tmusic[55] = 0;
 													local_dmap.tmusictrack = 0;
+													enhanced_type = music->type;
 
 													zcmusic_unload_file(music);
 												}
@@ -743,6 +751,7 @@ std::shared_ptr<GUI::Widget> EditDMapDialog::view()
 										}
 
 										memset(local_dmap.tmusic, 0, 56);
+										enhanced_type = 0;
 										tmusic_field->setText("");
 										tmusic_track_list->setDisabled(true);
 										tmusic_start_field->setDisabled(true);
