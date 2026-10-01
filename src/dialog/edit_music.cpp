@@ -26,34 +26,42 @@ EditMusicDialog::EditMusicDialog(size_t idx) :
 	list_midis(GUI::ZCListData::midinames(true, true)),
 	list_tracks(GUI::ListData::numbers(false, 1, 1))
 {
+	load_enhanced_info();
+}
+
+// Loads the enhanced music file once to learn its type and track count, then
+// unloads it. The disable* checks below read the cached result rather than
+// loading the file themselves: the dialog evaluates them many times per
+// open, and an audio stream left loaded by each one leaked a file handle
+// (and a feeder thread) until the process could no longer open files.
+void EditMusicDialog::load_enhanced_info()
+{
+	enhanced_type = 0;
+	list_tracks = GUI::ListData::numbers(false, 1, 1);
+
+	if (local_music.enhanced.is_empty())
+		return;
+
 	ZCMUSIC* temp_music = zcmusic_load_for_quest(local_music.enhanced.path.c_str(), filepath).first;
+	if (!temp_music)
+		return;
 
-	int32_t numtracks = 1;
-	if (temp_music != NULL)
-	{
-		numtracks = zcmusic_get_tracks(temp_music);
-		numtracks = (numtracks < 2) ? 1 : numtracks;
-		list_tracks = GUI::ListData::numbers(false, 1, numtracks);
+	enhanced_type = temp_music->type;
+	int32_t numtracks = zcmusic_get_tracks(temp_music);
+	numtracks = (numtracks < 2) ? 1 : numtracks;
+	list_tracks = GUI::ListData::numbers(false, 1, numtracks);
 
-		zcmusic_unload_file(temp_music);
-	}
+	zcmusic_unload_file(temp_music);
 }
 
 bool EditMusicDialog::disableEnhancedMusic(bool disableontracker)
 {
 	if (local_music.enhanced.is_empty())
 		return true;
-
-	ZCMUSIC* temp_music = zcmusic_load_for_quest(local_music.enhanced.path.c_str(), filepath).first;
-
-	if (temp_music != NULL)
-	{
-		if (disableontracker && !(temp_music->type == ZCMF_MP3 || temp_music->type == ZCMF_OGG || temp_music->type == ZCMF_DUH))
-			return true;
-	}
-	else
+	if (!enhanced_type)
 		return true;
-
+	if (disableontracker && !(enhanced_type == ZCMF_MP3 || enhanced_type == ZCMF_OGG || enhanced_type == ZCMF_DUH))
+		return true;
 	return false;
 }
 
@@ -320,6 +328,7 @@ std::shared_ptr<GUI::Widget> EditMusicDialog::view()
 												
 												local_music.enhanced.path.assign(music->filename);
 												local_music.enhanced.track = 0;
+												enhanced_type = music->type;
 
 												zcmusic_unload_file(music);
 											}
@@ -362,6 +371,7 @@ std::shared_ptr<GUI::Widget> EditMusicDialog::view()
 									}
 
 									local_music.enhanced.clear();
+									enhanced_type = 0;
 									refresh_dlg();
 								})
 						)

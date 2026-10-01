@@ -27,6 +27,7 @@ public:
 	bool handleMessage(const GUI::DialogMessage<message>& msg);
 
 private:
+	void load_enhanced_info();
 	bool disableEnhancedMusic(bool disableontracker = false);
 	bool disableMusicTracks();
 	void silenceMusicPreview();
@@ -49,6 +50,8 @@ private:
 
 	size_t music_slot;
 	AdvancedMusic local_music;
+	// ZCMF_* type of the enhanced music file, or 0 if it could not be loaded.
+	int32_t enhanced_type = 0;
 
 	GUI::ListData list_midis, list_tracks;
 };
