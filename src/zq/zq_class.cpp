@@ -177,13 +177,33 @@ void zmap::force_refr_pointer()
 	else screens = &TheMaps[currmap*MAPSCRS];
 }
 
-// Remove invalid maps from command history.
+// Remove invalid maps from navigation / command history.
 void zmap::PurgeInvalidHistory()
 {
+	cursor_undo_stack.erase(
+		std::remove_if(cursor_undo_stack.begin(), cursor_undo_stack.end(), [](const MapCursor& c) { return c.map >= map_count; }),
+		cursor_undo_stack.end()
+	);
+
 	undo_stack.erase(
 		std::remove_if(undo_stack.begin(), undo_stack.end(), [](const auto& cmd) { return cmd->view_map >= map_count; }),
 		undo_stack.end()
 	);
+
+	std::stack<MapCursor> temp_cursor_redo;
+	while (!cursor_redo_stack.empty())
+	{
+		if (cursor_redo_stack.top().map < map_count)
+			temp_cursor_redo.push(cursor_redo_stack.top());
+
+		cursor_redo_stack.pop();
+	}
+
+	while (!temp_cursor_redo.empty())
+	{
+		cursor_redo_stack.push(temp_cursor_redo.top());
+		temp_cursor_redo.pop();
+	}
 
 	std::stack<std::shared_ptr<user_input_command>> temp_input_redo;
 	while (!redo_stack.empty())
@@ -526,6 +546,21 @@ bool zmap::isDark()
     return (screens[currscr].flags&fDARK)!=0;
 }
 
+MapCursor zmap::getCursor() const
+{
+	return MapCursor{currmap, currscr};
+}
+
+void zmap::pushCursorToHistory(MapCursor cursor)
+{
+	if (cursor_history_enabled)
+	{
+		cursor_undo_stack.push_back(std::move(cursor));
+		cursor_redo_stack = {};
+		CapCursorHistory();
+	}
+}
+
 void zmap::setCurrentView(int32_t map, int32_t scr)
 {
     bool change_view = map != Map.getCurrMap() || scr != Map.getCurrScr();
@@ -544,11 +579,16 @@ void zmap::setCurrMap(int32_t index)
 	optional<int> oldcolor;
 	if(screens)
 		oldcolor = getcolor();
+	// There is no cursor to record before the first map is set (on quest load).
+	bool had_cursor = screens != nullptr;
+	MapCursor old_cursor = getCursor();
 	scrpos[currmap]=currscr;
 	currmap=bound(index,0,map_count);
 	screens=&TheMaps[currmap*MAPSCRS];
 	
 	currscr=scrpos[currmap];
+	if(had_cursor && old_cursor != getCursor())
+		pushCursorToHistory(old_cursor);
 	int newcolor = getcolor();
 	loadlvlpal(newcolor);
 	if(!oldcolor || *oldcolor != newcolor)
@@ -568,6 +608,7 @@ void zmap::setCurrScr(int32_t scr)
     
     int32_t oldscr=currscr;
     int32_t oldcolor=getcolor();
+    MapCursor old_cursor = getCursor();
     
     if(!(screens[currscr].valid&mVALID))
     {
@@ -575,6 +616,8 @@ void zmap::setCurrScr(int32_t scr)
     }
     
     currscr=bound(scr,0,MAPSCRS-1);
+    if(old_cursor != getCursor())
+        pushCursorToHistory(old_cursor);
     int32_t newcolor=getcolor();
     loadlvlpal(newcolor);
     
@@ -5105,6 +5148,62 @@ void zmap::PasteEnemies(const mapscr& copymapscr)
     }
 }
 
+bool zmap::CanGoBack() const
+{
+    return !cursor_undo_stack.empty();
+}
+
+bool zmap::CanGoForward() const
+{
+    return !cursor_redo_stack.empty();
+}
+
+void zmap::GoBack()
+{
+	if (!CanGoBack())
+		return;
+
+	cursor_redo_stack.push(getCursor());
+
+	ConfigureCursorHistory(false);
+	MapCursor cursor = cursor_undo_stack.back();
+	if (cursor.map != currmap)
+		setCurrMap(cursor.map);
+	setCurrScr(cursor.screen);
+	ConfigureCursorHistory(true);
+
+	cursor_undo_stack.pop_back();
+}
+
+void zmap::GoForward()
+{
+	if (!CanGoForward())
+		return;
+
+	cursor_undo_stack.push_back(getCursor());
+
+	ConfigureCursorHistory(false);
+	MapCursor cursor = cursor_redo_stack.top();
+	if (cursor.map != currmap)
+		setCurrMap(cursor.map);
+	setCurrScr(cursor.screen);
+	ConfigureCursorHistory(true);
+
+	cursor_redo_stack.pop();
+}
+
+void zmap::CapCursorHistory()
+{
+	int max_history_size = 1000;
+	while (cursor_undo_stack.size() > max_history_size)
+		cursor_undo_stack.pop_front();
+}
+
+void zmap::ConfigureCursorHistory(bool enable)
+{
+	cursor_history_enabled = enable;
+}
+
 void zmap::setCopyFFC(int32_t n)
 {
 	copyffc = n;
@@ -6634,8 +6733,10 @@ int32_t load_quest(const char *filename, bool show_progress)
 		else
 		{
 			Map.clear();
+			Map.ConfigureCursorHistory(false);
 			Map.setCurrMap(vbound(zinit.last_map,0,map_count-1));
 			Map.setCurrScr(zinit.last_screen);
+			Map.ConfigureCursorHistory(true);
 			extern int32_t current_mappage;
 			current_mappage = 0;
 			bool found_default = false;
@@ -6717,8 +6818,10 @@ int32_t load_tileset(const char *filename, dword tsetflags)
 		else
 		{
 			Map.clear();
+			Map.ConfigureCursorHistory(false);
 			Map.setCurrMap(vbound(zinit.last_map,0,map_count-1));
 			Map.setCurrScr(zinit.last_screen);
+			Map.ConfigureCursorHistory(true);
 			extern int32_t current_mappage;
 			current_mappage = 0;
 			bool found_default = false;
