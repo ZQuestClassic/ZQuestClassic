@@ -484,6 +484,8 @@ void hotkeys_run()
 	is_active = false;
 	keyboard_lowlevel_callback = nullptr;
 
+	while (gui_mouse_b())
+		rest(1);
 	clear_keybuf();
 	rti_hotkeys.remove();
 	rti_hotkeys_backdrop.remove();
