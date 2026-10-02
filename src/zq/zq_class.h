@@ -169,6 +169,17 @@ void reset_dmap(int32_t index);
 void truncate_dmap_title(std::string& title);
 //void mapfix_0x166(mapscr *scr);
 bool setMapCount2(int32_t c);
+
+// The map and screen being edited. Recorded in a history as it changes, so the
+// user can navigate back / forward through recently viewed screens.
+struct MapCursor
+{
+	int map;
+	int screen;
+
+	bool operator==(const MapCursor&) const = default;
+};
+
 class zmap
 {
     mapscr *screens;
@@ -184,6 +195,10 @@ class zmap
     mapscr prvlayers[6];
     std::deque<std::shared_ptr<user_input_command>> undo_stack;
     std::stack<std::shared_ptr<user_input_command>> redo_stack;
+
+    bool cursor_history_enabled = true;
+    std::deque<MapCursor> cursor_undo_stack;
+    std::stack<MapCursor> cursor_redo_stack;
     //int32_t prv_mode; //NEW
     int32_t prv_cmbcycle, prv_map, prv_scr, prv_freeze, prv_advance, prv_time; //NEW
     bool can_paste;
@@ -243,6 +258,15 @@ public:
     void PasteGuy(const mapscr& copymapscr);
     void PastePalette(const mapscr& copymapscr);
     void PasteEnemies(const mapscr& copymapscr);
+
+	// Cursor history navigation.
+	bool CanGoBack() const;
+	bool CanGoForward() const;
+	void GoBack();
+	void GoForward();
+	void CapCursorHistory();
+	void ConfigureCursorHistory(bool enable);
+
     void update_combo_cycling();
     void update_freeform_combos();
     int32_t getMapCount();
@@ -290,6 +314,8 @@ public:
     int32_t  getCurrMap();
     bool isDark();
     void setCurrentView(int32_t map, int32_t scr);
+    MapCursor getCursor() const;
+	void pushCursorToHistory(MapCursor cursor);
     void setCurrMap(int32_t index);
     int32_t  getCurrScr();
     void setCurrScr(int32_t scr);
