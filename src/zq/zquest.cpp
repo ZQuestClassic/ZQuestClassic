@@ -11400,26 +11400,6 @@ domouse_donez:
 		position_mouse_z(0);
 	}
 
-	// Mouse buttons.
-	{
-		ALLEGRO_MOUSE_STATE state;
-		al_get_mouse_state(&state);
-
-		static bool btn_4_was_down;
-		static bool btn_5_was_down;
-
-		bool btn_4_down = al_mouse_button_down(&state, 4);
-		bool btn_5_down = al_mouse_button_down(&state, 5);
-
-		if (btn_4_was_down && !btn_4_down)
-			Map.GoBack();
-		else if (btn_5_was_down && !btn_5_down)
-			Map.GoForward();
-
-		btn_4_was_down = btn_4_down;
-		btn_5_was_down = btn_5_down;
-	}
-
 	font = tfont;
 }
 
@@ -27724,6 +27704,7 @@ void run_zq_frame()
 	}
 	
 	domouse();
+	run_mouse_hotkeys();
 	custom_vsync();
 	refresh(rCLEAR|rALL);
 }
