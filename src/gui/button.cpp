@@ -331,12 +331,27 @@ void kb_clearkey(string const& title, int& key_ref)
 void kb_get_hotkey(string const& title, int& hkey, int& modflag)
 {
 	vector<string> strs;
-	strs.emplace_back("Press any key (+mods)");
+	strs.emplace_back("Press any key or mouse button (+mods)");
 	if (!title.empty())
 		strs.emplace_back(title);
 	strs.emplace_back("ESC to cancel");
+	// Only a mouse button pressed after the popup opens binds - not one still held
+	// from clicking the Bind button.
+	int prev_mouse_b = gui_mouse_b();
 	spinner_loop(strs, [&]()
 		{
+			int mb = gui_mouse_b();
+			int pressed = mb & ~prev_mouse_b;
+			prev_mouse_b = mb;
+			for (int button = HOTKEY_MOUSE_FIRST_BUTTON; button <= HOTKEY_MOUSE_LAST_BUTTON; ++button)
+			{
+				if (pressed & (1 << (button - 1)))
+				{
+					hkey = HOTKEY_MOUSE_CODE(button);
+					modflag = get_mods();
+					return true;
+				}
+			}
 			while (auto key = get_next_keypress(false))
 			{
 				if (*key == KEY_ESC)

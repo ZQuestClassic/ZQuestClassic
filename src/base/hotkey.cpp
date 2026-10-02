@@ -107,8 +107,25 @@ const char *key_str[] =
 	"Alt GR",       "Left Win",      "Right Win",     "Menu",
 	"Scroll Lock",  "Number Lock",   "Caps Lock",     "MAX"
 };
+int hotkey_mouse_button(int k)
+{
+	int button = k - KEY_MAX;
+	if(button < HOTKEY_MOUSE_FIRST_BUTTON || button > HOTKEY_MOUSE_LAST_BUTTON)
+		return 0;
+	return button;
+}
 std::string get_keystr(int key)
 {
+	if(int button = hotkey_mouse_button(key))
+	{
+		switch(button)
+		{
+			case 3: return "Middle Click";
+			case 4: return "Mouse Back";
+			case 5: return "Mouse Forward";
+		}
+		return "Mouse " + std::to_string(button);
+	}
 	if(unsigned(key) > KEY_MAX) return "";
 	std::string str(key_str[key]);
 	util::trimstr(str);
