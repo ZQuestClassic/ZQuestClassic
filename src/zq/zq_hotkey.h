@@ -213,6 +213,8 @@ bool is_reserved_keycombo(int c, int modflag);
 void default_hotkeys();
 void load_hotkeys();
 int d_zq_hotkey_proc(int msg, DIALOG* d, int c);
+// Runs the hotkeys bound to mouse buttons pressed since the last call.
+void run_mouse_hotkeys();
 int do_zq_hotkey_dialog();
 int do_zq_list_hotkeys_dialog();
 optional<uint> select_fav_command();
