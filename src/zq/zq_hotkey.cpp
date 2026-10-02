@@ -967,6 +967,8 @@ void default_hotkeys()
 {
 	zq_hotkeys[ZQKEY_UNDO].setval(KEY_Z,KB_CTRL_CMD_FLAG, KEY_U,0);
 	zq_hotkeys[ZQKEY_REDO].setval(KEY_Z,KB_CTRL_CMD_FLAG|KB_SHIFT_FLAG, KEY_Y,KB_CTRL_CMD_FLAG);
+	zq_hotkeys[ZQKEY_BACK].setval(HOTKEY_MOUSE_BACK,0,0,0);
+	zq_hotkeys[ZQKEY_FORWARD].setval(HOTKEY_MOUSE_FORWARD,0,0,0);
 	zq_hotkeys[ZQKEY_MINUS_FLAG].setval(KEY_ASTERISK,0,KEY_OPENBRACE,0);
 	zq_hotkeys[ZQKEY_PLUS_FLAG].setval(KEY_SLASH_PAD,0,KEY_CLOSEBRACE,0);
 	zq_hotkeys[ZQKEY_SAVE].setval(KEY_F2,0,KEY_S,KB_CTRL_CMD_FLAG);
@@ -1811,6 +1813,18 @@ int run_fav_cmd(uint favcmd)
 	return run_hotkey(favorite_commands[favcmd]);
 }
 
+// An exact match for the modifiers wins over a binding that ignores extra ones.
+static optional<uint> find_hotkey(int k, int shifts)
+{
+	for(int pass = 0; pass <= 1; ++pass)
+		for(uint q = 0; q < ZQKEY_MAX; ++q)
+		{
+			if(zq_hotkeys[q].check(k,shifts,!pass))
+				return q;
+		}
+	return nullopt;
+}
+
 int d_zq_hotkey_proc(int msg, DIALOG* d, int c)
 {
 	int ret = D_O_K;
@@ -1829,15 +1843,31 @@ int d_zq_hotkey_proc(int msg, DIALOG* d, int c)
 				close_button_quit = true;
 				return D_USED_CHAR;
 			}
-			for(int pass = 0; pass <= 1; ++pass)
-				for(int q = 0; q < ZQKEY_MAX; ++q)
-				{
-					if(zq_hotkeys[q].check(c>>8,shifts,!pass))
-						return run_hotkey(q) | D_USED_CHAR;
-				}
+			if(auto hkey = find_hotkey(key,shifts))
+				return run_hotkey(*hkey) | D_USED_CHAR;
 			break;
 	}
 	return ret;
+}
+
+void run_mouse_hotkeys()
+{
+	static int prev_mouse_b;
+	int mb = gui_mouse_b();
+	int pressed = mb & ~prev_mouse_b;
+	prev_mouse_b = mb;
+	for(int button = HOTKEY_MOUSE_FIRST_BUTTON; button <= HOTKEY_MOUSE_LAST_BUTTON; ++button)
+	{
+		if(!(pressed & (1 << (button-1))))
+			continue;
+		if(auto hkey = find_hotkey(HOTKEY_MOUSE_CODE(button),get_mods()))
+		{
+			run_hotkey(*hkey);
+			// The hotkey may have opened a dialog, which used up any presses since.
+			prev_mouse_b = gui_mouse_b();
+			return;
+		}
+	}
 }
 
 int do_zq_hotkey_dialog()
