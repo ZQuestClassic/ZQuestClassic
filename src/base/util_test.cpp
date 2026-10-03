@@ -174,6 +174,23 @@ static void test_checkPath()
 	fs::remove_all(dir);
 }
 
+static void test_make_dirs_for_file()
+{
+	fs::path dir = fs::temp_directory_path() / "zc_util_test";
+	fs::remove_all(dir);
+	fs::create_directories(dir);
+
+	// A bare filename has no directories to create, and must not fail.
+	std::string bare = "file.txt";
+	assertTrue(util::make_dirs_for_file(bare));
+
+	std::string nested = (dir / "a" / "b" / "file.txt").string();
+	assertTrue(util::make_dirs_for_file(nested));
+	assertTrue(fs::is_directory(dir / "a" / "b"));
+
+	fs::remove_all(dir);
+}
+
 static void test_fuzzy_match_score()
 {
 	auto score = util::fuzzy_match_score;
@@ -230,6 +247,7 @@ TestResults test_util(bool verbose)
 		{ "md5_file", test_md5_file },
 		{ "checkPath", test_checkPath },
 		{ "nearest_existing_directory", test_nearest_existing_directory },
+		{ "make_dirs_for_file", test_make_dirs_for_file },
 		{ "fuzzy_match_score", test_fuzzy_match_score },
 	};
 

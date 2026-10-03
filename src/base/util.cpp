@@ -433,9 +433,15 @@ namespace util
 
 	bool make_dirs_for_file(std::string& path)
 	{
+		// A bare filename has no parent to create. Don't pass the empty
+		// path to create_directories, which reports an error for it.
+		auto parent = fs::path(path).parent_path();
+		if (parent.empty())
+			return true;
+
 		// TODO: give caller the error.
 		std::error_code ec;
-		fs::create_directories(fs::path(path).parent_path(), ec);
+		fs::create_directories(parent, ec);
 		if (ec)
 			return false;
 
