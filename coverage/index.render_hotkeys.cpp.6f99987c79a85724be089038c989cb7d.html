@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2026-10-01 09:11:14</td>
+      <td>2026-10-03 22:03:33</td>
     </tr>
   </table>
 </div>
@@ -42,8 +42,8 @@
     <tr>
       <th scope="row">Lines:</th>
       <td>21</td>
-      <td>232</td>
-      <td class="coverage-low">9.1%</td>
+      <td>234</td>
+      <td class="coverage-low">9.0%</td>
     </tr>
     <tr>
       <th scope="row">Functions:</th>
@@ -54,8 +54,8 @@
     <tr>
       <th scope="row">Branches:</th>
       <td>22</td>
-      <td>243</td>
-      <td class="coverage-low">9.1%</td>
+      <td>245</td>
+      <td class="coverage-low">9.0%</td>
     </tr>
   </table>
 </div>
@@ -91,7 +91,7 @@
     <tr><td><a href="#l148">(anonymous namespace)::get_hotkey_groups()::$_0::operator()() const (line 148)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l280">(anonymous namespace)::hex(unsigned int) (line 280)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l228">(anonymous namespace)::join_range(std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt; const&amp;, std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt; const&amp;) (line 228)</a></td><td>not called</td><td>0.0%</td></tr>
-    <tr><td><a href="#l492">hotkeys_invalidate() (line 492)</a></td><td>not called</td><td>0.0%</td></tr>
+    <tr><td><a href="#l494">hotkeys_invalidate() (line 494)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l450">hotkeys_run() (line 450)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l454">hotkeys_run()::$_0::operator()(RenderTreeItem*, bool) const (line 454)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l467">hotkeys_run()::$_1::__invoke(int) (line 467)</a></td><td>not called</td><td>0.0%</td></tr>
@@ -3652,66 +3652,80 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">	</span><span class="n">clear_keybuf</span><span class="p">();</span></td>
+      <td class="src uncoveredLine"><span class="w">	</span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">gui_mouse_b</span><span class="p">())</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l488" href="#l488">488</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">	</span><span class="n">rti_hotkeys</span><span class="p">.</span><span class="n">remove</span><span class="p">();</span></td>
+      <td class="src uncoveredLine"><span class="w">		</span><span class="n">rest</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l489" href="#l489">489</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">	</span><span class="n">rti_hotkeys_backdrop</span><span class="p">.</span><span class="n">remove</span><span class="p">();</span></td>
+      <td class="src uncoveredLine"><span class="w">	</span><span class="n">clear_keybuf</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l490" href="#l490">490</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="p">}</span></td>
+      <td class="src uncoveredLine"><span class="w">	</span><span class="n">rti_hotkeys</span><span class="p">.</span><span class="n">remove</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l491" href="#l491">491</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">	</span><span class="n">rti_hotkeys_backdrop</span><span class="p">.</span><span class="n">remove</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l492" href="#l492">492</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="kt">void</span><span class="w"> </span><span class="n">hotkeys_invalidate</span><span class="p">()</span></td>
+      <td class="src uncoveredLine"><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l493" href="#l493">493</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="p">{</span></td>
+      <td class="src "></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l494" href="#l494">494</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">	</span><span class="n">rti_hotkeys</span><span class="p">.</span><span class="n">dirty</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span></td>
+      <td class="src uncoveredLine"><span class="kt">void</span><span class="w"> </span><span class="n">hotkeys_invalidate</span><span class="p">()</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l495" href="#l495">495</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="p">{</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l496" href="#l496">496</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">	</span><span class="n">rti_hotkeys</span><span class="p">.</span><span class="n">dirty</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l497" href="#l497">497</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l496" href="#l496">496</a></td>
+      <td class="lineno"><a id="l498" href="#l498">498</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
