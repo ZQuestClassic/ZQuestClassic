@@ -86,16 +86,16 @@ namespace GUI::ZCListData
 
 namespace GUI::ZCCheckListData
 {
-	std::vector<CheckListInfo> numbers(int first, int last);
-	std::vector<CheckListInfo> const& level_states();
-	std::vector<CheckListInfo> const& global_states();
-	std::vector<CheckListInfo> level_items();
-	std::vector<CheckListInfo> const& dir_4();
-	std::vector<CheckListInfo> const& dir_8();
-	std::vector<CheckListInfo> const& buttons();
-	std::vector<CheckListInfo> const& screen_state();
-	std::vector<CheckListInfo> const& ex_state();
-	std::vector<CheckListInfo> const& ex_doors();
+	CheckList numbers(int first, int last);
+	CheckList const& level_states();
+	CheckList const& global_states();
+	CheckList level_items();
+	CheckList const& dir_4();
+	CheckList const& dir_8();
+	CheckList const& buttons();
+	CheckList const& screen_state();
+	CheckList const& ex_state();
+	CheckList const& ex_doors();
 }
 
 #endif

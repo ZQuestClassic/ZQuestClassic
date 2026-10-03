@@ -96,7 +96,7 @@ is `@Export()`, which is REQUIRED by the other annotations here.
 	|                       | "MIDI", "Music", "Save Menu", "Message String",                       | a number entry field. Most special values use         |
 	|                       | "Weapon Type", "LWeapon Type", "EWeapon Type",                        | Drop Down Lists, limiting the selection to            |
 	|                       | "Dropset", "Font", "Bottle Type", "Combo Type",                       | specific values based on the type.                    |
-	|                       | "Combo Flag"                                                          |                                                       |
+	|                       | "Combo Flag", "Level Item"                                            |                                                       |
 	|                       |                                                                       | Some of these special modes require multiple          |
 	|                       |                                                                       | variables in a row; for example, 'Tile CSet'          |
 	|                       |                                                                       | is only usable on a variable directly after           |

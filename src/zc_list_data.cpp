@@ -1508,34 +1508,34 @@ GUI::ListData const& GUI::ZCListData::rule_templates_list()
 
 // Checklist Data
 
-vector<CheckListInfo> GUI::ZCCheckListData::numbers(int first, int last)
+CheckList GUI::ZCCheckListData::numbers(int first, int last)
 {
-	vector<CheckListInfo> vec;
+	CheckList vec;
 	int inc = (first < last) ? 1 : -1;
 	for (int q = first; q != (last + inc); q += inc)
 		vec.emplace_back(std::to_string(q));
 	return vec;
 }
-vector<CheckListInfo> const& GUI::ZCCheckListData::level_states()
+CheckList const& GUI::ZCCheckListData::level_states()
 {
-	static vector<CheckListInfo> vec = numbers(0, 31);
+	static CheckList vec = numbers(0, 31);
 	return vec;
 }
-vector<CheckListInfo> const& GUI::ZCCheckListData::global_states()
+CheckList const& GUI::ZCCheckListData::global_states()
 {
-	static vector<CheckListInfo> vec = numbers(0, 255);
+	static CheckList vec = numbers(0, 255);
 	return vec;
 }
-vector<CheckListInfo> GUI::ZCCheckListData::level_items()
+CheckList GUI::ZCCheckListData::level_items()
 {
-	vector<CheckListInfo> vec;
+	CheckList vec;
 	for (int q = 0; q < li_max; ++q)
 		vec.emplace_back(ZI.getLevelItemName(q), ZI.getLevelItemHelp(q));
 	return vec;
 }
-vector<CheckListInfo> const& GUI::ZCCheckListData::dir_4()
+CheckList const& GUI::ZCCheckListData::dir_4()
 {
-	static const vector<CheckListInfo> vec =
+	static const CheckList vec =
 	{
 		{ "Up" },
 		{ "Down" },
@@ -1544,9 +1544,9 @@ vector<CheckListInfo> const& GUI::ZCCheckListData::dir_4()
 	};
 	return vec;
 }
-vector<CheckListInfo> const& GUI::ZCCheckListData::dir_8()
+CheckList const& GUI::ZCCheckListData::dir_8()
 {
-	static const vector<CheckListInfo> vec =
+	static const CheckList vec =
 	{
 		{ "Up" },
 		{ "Down" },
@@ -1559,9 +1559,9 @@ vector<CheckListInfo> const& GUI::ZCCheckListData::dir_8()
 	};
 	return vec;
 }
-vector<CheckListInfo> const& GUI::ZCCheckListData::buttons()
+CheckList const& GUI::ZCCheckListData::buttons()
 {
-	static const vector<CheckListInfo> vec =
+	static const CheckList vec =
 	{
 		{ "A" },
 		{ "B" },
@@ -1574,9 +1574,9 @@ vector<CheckListInfo> const& GUI::ZCCheckListData::buttons()
 	};
 	return vec;
 }
-vector<CheckListInfo> const& GUI::ZCCheckListData::screen_state()
+CheckList const& GUI::ZCCheckListData::screen_state()
 {
-	static const vector<CheckListInfo> vec =
+	static const CheckList vec =
 	{
 		{ "Door Up" },
 		{ "Door Down" },
@@ -1598,14 +1598,14 @@ vector<CheckListInfo> const& GUI::ZCCheckListData::screen_state()
 	};
 	return vec;
 }
-vector<CheckListInfo> const& GUI::ZCCheckListData::ex_state()
+CheckList const& GUI::ZCCheckListData::ex_state()
 {
-	static vector<CheckListInfo> vec = numbers(0, 31);
+	static CheckList vec = numbers(0, 31);
 	return vec;
 }
-vector<CheckListInfo> const& GUI::ZCCheckListData::ex_doors()
+CheckList const& GUI::ZCCheckListData::ex_doors()
 {
-	static vector<CheckListInfo> vec = numbers(0, 7);
+	static CheckList vec = numbers(0, 7);
 	return vec;
 }
 

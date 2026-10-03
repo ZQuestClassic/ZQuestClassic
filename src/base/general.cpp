@@ -282,7 +282,7 @@ const std::array<std::string, size_t(special_engine_export::max_value)> special_
 	"MIDI", "Music", "Save Menu", "Message String",
 	"Weapon Type", "LWeapon Type", "EWeapon Type",
 	"Dropset", "Font", "Bottle Type", "Combo Type",
-	"Combo Flag",
+	"Combo Flag", "Level Item"
 };
 std::string get_special_engine_export_name(special_engine_export idx)
 {
