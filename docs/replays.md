@@ -30,7 +30,7 @@ The `run_test_workflow.py` script can be used to run replays in CI. It can take 
 
 The `compare_replays.py` script creates an HTML report of a baseline replay tests run and failing replay tests runs.
 
-In CI, when replays fail, the replays are ran on a working baseline commit to collect snapshots of the frames in question. An HTML report is generated and uploaded to surge.sh, which is then pinged over to Discord.
+In CI, when replays fail, the replays are ran on a working baseline commit (the latest passing CI run of the branch the failure belongs to - `main`, a `releases/*` branch, or a PR's base branch) to collect snapshots of the frames in question. An HTML report is generated and uploaded to surge.sh, which is then pinged over to Discord.
 
 TODO: there's a lot more to say about how it actually works. replay versions, zplay format, assert mode, snapshots, etc...
 

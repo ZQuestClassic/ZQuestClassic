@@ -909,8 +909,10 @@ def compare_replays(ctx: CiContext, args):
     env = os.environ.copy()
     env['GITHUB_OUTPUT'] = str(gh_out_file.absolute())
 
+    # The baseline is the latest passing CI run of the branch the failing run
+    # belongs to (main, a release branch, or a PR's base branch).
     run_python_cmd(
-        f"tests/run_test_workflow.py --test_results {results_dir} --repo {ctx.repo} --token {token}",
+        f"tests/run_test_workflow.py --test_results {results_dir} --baseline_for_run {args.run_id} --repo {ctx.repo} --token {token}",
         env=env,
     )
 

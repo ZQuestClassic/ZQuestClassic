@@ -14,6 +14,11 @@ jobs:
     if: github.event.workflow_run.conclusion == 'failure'
     runs-on: ubuntu-latest
     steps:
+      # This checks out the default branch (main) regardless of which branch
+      # the failing CI run was for - that is where the compare tooling lives.
+      # The baseline run itself is dispatched on the failing run's branch (see
+      # run_test_workflow.py), so nothing here may depend on this checkout
+      # matching that branch's layout.
       - name: git clone
         uses: actions/checkout@v4
         with:

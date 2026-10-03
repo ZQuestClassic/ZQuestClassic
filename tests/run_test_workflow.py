@@ -5,6 +5,8 @@
 import argparse
 import json
 import os
+import re
+import subprocess
 
 from argparse import ArgumentTypeError
 from pathlib import Path
@@ -36,7 +38,70 @@ def set_action_output(output_name, value):
             print('{0}={1}'.format(output_name, value), file=f)
 
 
-def find_baseline(gh: Github, repo_str: str):
+# Branches that have their own CI history, and so can serve as a baseline for
+# their own failures. Everything else (feature branches, PRs) is measured
+# against the branch it targets.
+def is_baseline_branch(branch: str) -> bool:
+    return branch == 'main' or branch.startswith('releases/')
+
+
+# The branch whose passing CI runs should serve as the baseline for a failing
+# CI run: a PR uses its base branch, a push to main or a release branch is its
+# own baseline, and anything else falls back to main.
+def find_baseline_branch_for_run(gh: Github, repo_str: str, run_id: int) -> str:
+    repo = gh.get_repo(repo_str)
+    run = repo.get_workflow_run(run_id)
+
+    # Checked before the branch name: a PR from a fork's main or release branch
+    # has that as its head branch, regardless of what the PR targets.
+    if run.event in ('pull_request', 'pull_request_target'):
+        for pull in find_pulls_for_run(repo, run):
+            if is_baseline_branch(pull.base.ref):
+                return pull.base.ref
+    elif is_baseline_branch(run.head_branch):
+        return run.head_branch
+
+    print(f'no baseline branch found for run {run_id} ({run.head_branch}), using main')
+    return 'main'
+
+
+# The PRs a pull_request workflow run was for, best match first.
+def find_pulls_for_run(repo, run: WorkflowRun.WorkflowRun) -> list:
+    # Same-repo PRs are listed on the run.
+    pulls = list(run.pull_requests)
+    if pulls:
+        return pulls
+
+    # PRs from forks are not, and GitHub doesn't associate a fork's commits
+    # with the PRs they belong to either. So find them by the fork's owner and
+    # branch name.
+    if not run.head_repository:
+        return []
+    head = f'{run.head_repository.owner.login}:{run.head_branch}'
+    try:
+        pulls = list(repo.get_pulls(state='all', head=head))
+    except GithubException as e:
+        print(f'could not look up PRs for {head}: {e}')
+        return []
+
+    # A fork's branch name may have been reused for several PRs over time.
+    # Prefer the one whose head is this exact commit, then any open one.
+    pulls.sort(key=lambda p: (p.head.sha != run.head_sha, p.state != 'open'))
+    return pulls
+
+
+# For local use: the current branch, if it is one that can serve as a baseline.
+def default_baseline_branch() -> str:
+    try:
+        branch = subprocess.check_output(
+            ['git', 'rev-parse', '--abbrev-ref', 'HEAD'], cwd=root_dir, text=True
+        ).strip()
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        return 'main'
+    return branch if is_baseline_branch(branch) else 'main'
+
+
+def find_baseline(gh: Github, repo_str: str, branch: str = 'main'):
     def is_passing_workflow_run(r: WorkflowRun.WorkflowRun):
         if r.conclusion == 'success':
             return True
@@ -60,20 +125,24 @@ def find_baseline(gh: Github, repo_str: str):
 
     repo = gh.get_repo(repo_str)
     ci_workflow = repo.get_workflow('ci.yml')
-    main_runs = ci_workflow.get_runs(branch='main')
+    branch_runs = ci_workflow.get_runs(branch=branch)
     most_recent_ok = next(
-        (r for r in main_runs if is_passing_workflow_run(r)),
+        (r for r in branch_runs if is_passing_workflow_run(r)),
         None,
     )
     if not most_recent_ok:
         raise Exception(
-            'could not find recent successful workflow run to use as baseline'
+            f'could not find recent successful workflow run on {branch} to use as baseline'
         )
 
-    return create_compare_git_ref(gh, repo_str, most_recent_ok.head_sha)
+    return create_compare_git_ref(
+        gh, repo_str, most_recent_ok.head_sha, fallback_branch=branch
+    )
 
 
-def create_compare_git_ref(gh: Github, repo_str: str, sha: str):
+def create_compare_git_ref(
+    gh: Github, repo_str: str, sha: str, fallback_branch: str = 'main'
+):
     # GitHub currently does not support dispatching a workflow run for a specific commit (even if it is on the main branch...)
     # But! It can do refs. So let's make a dummy branch. ugh.
     # See:
@@ -89,8 +158,8 @@ def create_compare_git_ref(gh: Github, repo_str: str, sha: str):
         # This error happens when running from fork, since lack write permissions.
         if e.data['message'] == 'Resource not accessible by integration':
             print(e)
-            print('assuming baseline is head of main branch ...')
-            return 'main'
+            print(f'assuming baseline is head of {fallback_branch} branch ...')
+            return fallback_branch
         if e.data['message'] != 'Reference already exists':
             raise e
 
@@ -199,8 +268,12 @@ def get_args_for_collect_baseline_from_test_results(
     args = []
     last_args = []
     for replay_name, failing_segments in failing_segments_by_replay.items():
+        # Replays from the test suite are referred to by name, so they resolve
+        # on whatever checkout runs them (the baseline branch may organize
+        # tests/replays differently than the checkout this runs on). Replays
+        # from elsewhere (e.g. uploaded replays) are passed as paths.
         replay_path = Path(name_to_path[replay_name])
-        if (script_dir / 'replays' / replay_name).exists():
+        if is_test_suite_replay(replay_path, replay_name):
             args.append(f'--filter={replay_name}')
         else:
             last_args.append(name_to_path[replay_name])
@@ -215,12 +288,25 @@ def get_args_for_collect_baseline_from_test_results(
         max_frame = max([segment[1] for segment in ranges])
         args.append(f'--frame={replay_name}={max_frame}')
 
+    # run_replay_tests.py runs only the positional replays when any are given,
+    # so the two kinds can't be combined in one invocation.
+    if args and last_args and any(a.startswith('--filter=') for a in args):
+        raise Exception(
+            'cannot collect a baseline for test suite replays and other replays at the same time'
+        )
     args.extend(last_args)
 
     if not args:
         raise Exception('all failing replays were invalid')
 
     return args
+
+
+# A replay run's name is its path relative to the replays folder it was found
+# in. For the test suite, that folder is tests/replays.
+def is_test_suite_replay(replay_path: Path, replay_name: str) -> bool:
+    pattern = rf'(^|/)tests/replays/{re.escape(Path(replay_name).as_posix())}$'
+    return re.search(pattern, replay_path.as_posix()) is not None
 
 
 # Collect all the test failures described by the provided test_results.json
@@ -232,7 +318,7 @@ def collect_baseline_from_test_results(
 ) -> int:
     extra_args = get_args_for_collect_baseline_from_test_results(test_results_paths)
     if not baseline_branch:
-        baseline_branch = find_baseline(gh, repo)
+        baseline_branch = find_baseline(gh, repo, default_baseline_branch())
 
     # For baseline purposes, only need to run on a single platform.
     run_id = start_test_workflow_run(
@@ -269,6 +355,13 @@ if __name__ == '__main__':
     parser.add_argument('--test_results', type=arg_path)
     parser.add_argument('--failing_workflow_run', type=int)
 
+    # Which branch's passing CI runs to pick the baseline commit from. Defaults
+    # to the branch of --baseline_for_run (a CI run id), then
+    # --failing_workflow_run, then the current branch if it is main or a
+    # release branch, then main.
+    parser.add_argument('--baseline_branch')
+    parser.add_argument('--baseline_for_run', type=int)
+
     args = parser.parse_args()
     gh = Github(args.token)
 
@@ -284,7 +377,16 @@ if __name__ == '__main__':
         else:
             branch = args.commit
     else:
-        branch = find_baseline(gh, args.repo)
+        if args.baseline_branch:
+            baseline_branch = args.baseline_branch
+        elif args.baseline_for_run or args.failing_workflow_run:
+            baseline_branch = find_baseline_branch_for_run(
+                gh, args.repo, args.baseline_for_run or args.failing_workflow_run
+            )
+        else:
+            baseline_branch = default_baseline_branch()
+        print(f'baseline branch: {baseline_branch}')
+        branch = find_baseline(gh, args.repo, baseline_branch)
 
     if args.test_results:
         test_results_paths = []
