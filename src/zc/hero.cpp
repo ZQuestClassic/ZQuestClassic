@@ -4414,10 +4414,15 @@ void HeroClass::check_wpn_triggers(int32_t bx, int32_t by, weapon *w)
 			break;
 		case wBomb:
 			findentrance(bx+w->txsz,by+tysz+(isSideViewGravity()?2:-3),mfBOMB,true);
+			// The engine's own blasts open bomb doors on their detonation timer.
+			if(w->id != wBomb && w->id != wSBomb)
+				bombdoor(bx,by);
 			break;
 		
 		case wSBomb:
 			findentrance(bx+w->txsz,by+tysz+(isSideViewGravity()?2:-3),mfSBOMB,true);
+			if(w->id != wBomb && w->id != wSBomb)
+				bombdoor(bx,by);
 			break;
 			
 		case wFire:
