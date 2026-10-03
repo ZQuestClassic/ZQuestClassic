@@ -11,6 +11,7 @@
 #include "auto/bug_nested_class_constructors.zs"
 #include "auto/bug_npc_shield_write.zs"
 #include "auto/bug_script_draw_error_logging.zs"
+#include "auto/bug_script_weapon_bomb_door.zs"
 #include "auto/bug_string_16bit_index.zs"
 #include "auto/bug_subscr_gauge_percent_div0.zs"
 #include "auto/bug_unused_var_bad_opt.zs"
