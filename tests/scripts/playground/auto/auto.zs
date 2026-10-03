@@ -20,6 +20,7 @@
 #include "auto/bug_scc_screen_state_bad_args.zs"
 #include "auto/bug_screen_array_index.zs"
 #include "auto/bug_script_draw_error_logging.zs"
+#include "auto/bug_script_weapon_bomb_door.zs"
 #include "auto/bug_shopdata_invalid_pointer.zs"
 #include "auto/bug_string_16bit_index.zs"
 #include "auto/bug_subscr_gauge_percent_div0.zs"
