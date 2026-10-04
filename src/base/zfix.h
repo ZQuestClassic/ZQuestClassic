@@ -119,7 +119,7 @@ public:
 		return *this;
 	}
 	
-	virtual int32_t getRound() const
+	int32_t getRound() const
 	{
 		int32_t dpart = val%10000;
 		int32_t v = val/10000;
@@ -133,7 +133,7 @@ public:
 		}
 		return v;
 	}
-	virtual zfix& doRound()
+	zfix& doRound()
 	{
 		val = getRound() * 10000;
 		return *this;
@@ -376,6 +376,10 @@ public:
 	inline friend int32_t operator >= (const double v, const zfix fx);
 };
 
+static_assert(sizeof(zfix) == sizeof(ZLong));
+
+// These hide (not override) zfix's rounding functions, so `rt` is only honored when called
+// through a zfix_round. zfix has no virtuals so that it stays 4 bytes.
 class zfix_round : public zfix
 {
 public:
@@ -383,8 +387,8 @@ public:
 	zfix_round() : zfix(0), rt(ROUND_TRUNC) {}
 	zfix_round(int32_t v, roundType rt = ROUND_TRUNC) : zfix(v), rt(rt) {}
 	zfix_round(zfix v, roundType rt = ROUND_TRUNC) : zfix(v), rt(rt) {}
-	virtual int32_t getRound() const;
-	virtual zfix& doRound();
+	int32_t getRound() const;
+	zfix& doRound();
 };
 
 //Implement fmt::format parsing for zfix type
