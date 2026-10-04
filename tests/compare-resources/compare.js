@@ -250,6 +250,8 @@ function renderTracks(options) {
             if (run.name === options.replay) {
                 tracks.push({
                     source: testResults.label,
+                    // The first test run is the baseline.
+                    isBaseline: testResults === testRuns[0],
                     ...run,
                 });
             }
@@ -377,8 +379,11 @@ function renderTracks(options) {
         trackFrames = trackFrames.filter(trackFrame => {
             if (tracks.length === 1) return trackFrame.snapshots[0].unexpected;
 
-            const baselineMissing = !trackFrame.tracks.includes(0);
-            return baselineMissing || trackFrame.snapshots.some((snapshot, i) => i > 0 && snapshot.unexpected);
+            // Only frames that a run actually failed on. A run also saves frames that matched, for
+            // context (e.g. the last ones that changed before a failure) - those aren't failures
+            // even when the baseline has no image to show for them.
+            return trackFrame.snapshots.some((snapshot, i) =>
+                snapshot.unexpected && !tracks[trackFrame.tracks[i]].isBaseline);
         });
     }
 
@@ -412,9 +417,8 @@ function renderTracks(options) {
                 el.innerHTML = `<img loading=lazy class='track-frame__image' src='${snapshot.path}'>`;
             }
 
-            const unexpected = j > 0 ?
-                (snapshot?.unexpected || (!!snapshot !== trackFrame.tracks.includes(0))) :
-                snapshot?.unexpected;
+            // A missing image already shows as an empty frame; only an actual failure is marked.
+            const unexpected = !!snapshot?.unexpected;
             {
                 const statusEl = document.createElement('div');
                 statusEl.className = 'track-frame ' + (unexpected ? 'track-frame__unexpected' : 'track-frame__ok');
