@@ -1049,6 +1049,12 @@ static void save_replay(std::string filename, const std::vector<ReplayStepVarian
 
     std::time_t ct = std::time(0);
     replay_set_meta("time_updated", strtok(ctime(&ct), "\n"));
+    // Replays made before zc_version_created existed use zc_version_updated as their creation
+    // version (see replay_get_zc_version_created), which decides what compat behavior they get.
+    // Pin it before overwriting zc_version_updated, so that updating a replay doesn't change how
+    // it plays back.
+    if (replay_get_meta_str("zc_version_created").empty() && !replay_get_meta_str("zc_version_updated").empty())
+        replay_set_meta("zc_version_created", replay_get_meta_str("zc_version_updated"));
     replay_set_meta("zc_version_updated", getReleaseTag());
     if (version_use_latest)
         replay_set_meta("version", "latest");
