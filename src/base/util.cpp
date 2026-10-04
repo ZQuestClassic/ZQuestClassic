@@ -5,6 +5,7 @@
 #include <fstream>
 #include <sstream>
 #include <iomanip>
+#include <mutex>
 #include <filesystem>
 #include <fmt/format.h>
 #include <sys/stat.h>
@@ -1270,6 +1271,9 @@ void clear_clip_rect(BITMAP* bitmap)
 //lots of nulls.
 //No more!
 
+// Guards trace_file. Tracing happens from other threads too (e.g. JIT compile workers), and
+// ClearTrace() reopens the file.
+static std::mutex trace_file_mutex;
 FILE * trace_file;
 
 int32_t zc_trace_handler(const char * msg)
@@ -1278,6 +1282,7 @@ int32_t zc_trace_handler(const char * msg)
 	printf("%s", msg);
 #endif
 
+	std::lock_guard lock(trace_file_mutex);
     if(trace_file == 0)
     {
         if (getenv("ALLEGRO_LEGACY_TRACE"))
@@ -1298,6 +1303,7 @@ int32_t zc_trace_handler(const char * msg)
 
 void zc_trace_clear()
 {
+	std::unique_lock lock(trace_file_mutex);
     if(trace_file)
     {
         fclose(trace_file);
@@ -1311,7 +1317,10 @@ void zc_trace_clear()
     if (FILE* f = fopen(path, "w"))
         fclose(f);
     trace_file = fopen(path, "a+");
-    ASSERT(trace_file);
+    bool opened = trace_file;
+	// A failed assert traces, which needs the lock.
+	lock.unlock();
+	ASSERT(opened);
 }
 
 static std::string HINT_TY(std::vector<int> vals, dword ty)
