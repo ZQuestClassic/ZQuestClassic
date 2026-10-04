@@ -18,6 +18,7 @@
 #include <ctime>
 #include <fmt/format.h>
 #include <loadpng.h>
+#include <mutex>
 #include <utility>
 
 #ifdef __EMSCRIPTEN__
@@ -72,6 +73,9 @@ namespace
 //lots of nulls.
 //No more!
 
+// Guards trace_file. Tracing happens from other threads too (e.g. JIT compile workers), and
+// ClearTrace() reopens the file.
+std::mutex trace_file_mutex;
 FILE * trace_file;
 
 int32_t zc_trace_handler(const char * msg)
@@ -81,6 +85,7 @@ int32_t zc_trace_handler(const char * msg)
 		printf("%s", msg);
 #endif
 
+	std::lock_guard lock(trace_file_mutex);
 	if(trace_file == 0)
 	{
 		if (getenv("ALLEGRO_LEGACY_TRACE"))
@@ -763,6 +768,7 @@ err:
 
 void zc_trace_clear()
 {
+	std::unique_lock lock(trace_file_mutex);
 	if(trace_file)
 	{
 		fclose(trace_file);
@@ -776,7 +782,10 @@ void zc_trace_clear()
 	if (FILE* f = fopen(path, "w"))
 		fclose(f);
 	trace_file = fopen(path, "a+");
-	ASSERT(trace_file);
+	bool opened = trace_file;
+	// A failed assert traces, which needs the lock.
+	lock.unlock();
+	ASSERT(opened);
 }
 
 void safe_al_trace(const char* str)
