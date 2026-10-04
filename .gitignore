@@ -132,6 +132,7 @@ dist
 *.zplay.*.png
 test_results.json
 compare-report/
+/test-results/
 .coverage
 .gha-cache-dir/
 __pycache__

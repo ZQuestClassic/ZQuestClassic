@@ -32,6 +32,8 @@ The `compare_replays.py` script creates an HTML report of a baseline replay test
 
 In CI, when replays fail, the replays are ran on a working baseline commit (the latest passing CI run of the branch the failure belongs to - `main`, a `releases/*` branch, or a PR's base branch) to collect snapshots of the frames in question. An HTML report is generated and uploaded to surge.sh, which is then pinged over to Discord.
 
+To check that this pipeline works end to end, `tests/run_compare_selftest.py` runs one replay in CI with the `-replay-debug-corrupt-frame` zplayer flag (which makes it fail on a chosen frame) and builds a compare report for it.
+
 TODO: there's a lot more to say about how it actually works. replay versions, zplay format, assert mode, snapshots, etc...
 
 ## Test coverage
