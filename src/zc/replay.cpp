@@ -631,6 +631,16 @@ static void do_recording_poll()
 			}
 		}
 
+		// Test hook: inverts the top-left corner of one frame, so the replay fails with a visible
+		// graphical difference. tests/run_compare_selftest.py uses it to exercise compare reports.
+		static const int debug_corrupt_frame = std::stoi(get_flag_string("-replay-debug-corrupt-frame").value_or("-1"));
+		if (frame_count == debug_corrupt_frame)
+		{
+			for (int y = 0; y < std::min(64, presentbuf->h); y++)
+				for (int x = 0; x < std::min(64, presentbuf->w); x++)
+					putpixel(presentbuf, x, y, getpixel(presentbuf, x, y) ^ 0xFF);
+		}
+
 		int depth = bitmap_color_depth(presentbuf);
 		size_t len = presentbuf->w * presentbuf->h * BYTES_PER_PIXEL(depth);
 		uint32_t hash = XXH32(presentbuf->dat, len, 0);
