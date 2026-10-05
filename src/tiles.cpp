@@ -17,6 +17,21 @@ extern itemdata   *itemsbuf;
 extern wpndata    *wpnsbuf;
 //extern byte *tilebuf;
 //BITMAP* tilebuf[NEWMAXTILES];
+
+#if defined(IS_PLAYER) && !defined(__EMSCRIPTEN__)
+#ifdef _WIN32
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
+#include <windows.h>
+#else
+#include <sys/mman.h>
+#endif
+#endif
+
 tiledata *newtilebuf, *grabtilebuf;
 int32_t animated_combo_table[MAXCOMBOS][2];                    //[0]=position in act2, [1]=original tile
 int32_t animated_combo_table4[MAXCOMBOS][2];                   //[0]=combo, [1]=clock
@@ -423,8 +438,81 @@ bool isonline(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t x3, int32_
     return nondegenq >= 0 && nondegenq <= nondegend;
 }
 
+// In the player, every blank tile points at one shared buffer of zeros instead of owning its
+// own allocation. NEWMAXTILES is large and most of it is blank, so this saves ~60 MB.
+//
+// Anything that writes to a tile's data must first call tile_make_writable. Where possible
+// the shared buffer is mapped read-only, so a missed call crashes instead of modifying every
+// blank tile. Hopefully that only happens in development, not for real users.
+//
+// TODO: extend this to the editor. It would save about three times as much, since the editor
+// holds three full tile arrays (newtilebuf, grabtilebuf, and newundotilebuf, which go_tiles
+// fills on the first edit). Every editor write that bypasses the helpers is in zq_tiles.cpp:
+// merge_tiles, wrap_tile, edit_tile, draw_grab_scr, leech_tiles, grab_tile,
+// do_movetile_united, copy_tiles_united_floodfill, readtilefile(_to_location), the shift
+// blocks in select_tile, and the undo copies in go_tiles/go_slide_tiles/comeback_tiles (plus
+// the undo buffer free at exit in zquest.cpp). Each needs tile_make_writable before the write
+// or free_tile_data instead of free. The undo copy could then share pointers for blank tiles
+// instead of copying all of NEWMAXTILES on every edit.
+#ifdef IS_PLAYER
+static byte* get_shared_blank_tile()
+{
+	static byte* data = []() -> byte* {
+		// A read-only page of zeros. Both calls round the size up to a whole page and zero it.
+#if defined(_WIN32)
+		if (void* ptr = VirtualAlloc(nullptr, 1024, MEM_RESERVE | MEM_COMMIT, PAGE_READONLY))
+			return (byte*)ptr;
+#elif !defined(__EMSCRIPTEN__) // Emscripten has no page protection.
+		void* ptr = mmap(nullptr, 1024, PROT_READ, MAP_PRIVATE | MAP_ANON, -1, 0);
+		if (ptr != MAP_FAILED)
+			return (byte*)ptr;
+#endif
+
+		// Fallback if the allocation fails (or for emscripten).
+		static byte zeros[1024] = {};
+		return zeros;
+	}();
+
+	return data;
+}
+#endif
+
+bool tile_data_is_shared([[maybe_unused]] byte const* data)
+{
+#ifdef IS_PLAYER
+	return data && data == get_shared_blank_tile();
+#else
+	return false;
+#endif
+}
+
+void free_tile_data(tiledata& tile)
+{
+	if (tile.data && !tile_data_is_shared(tile.data))
+		free(tile.data);
+	tile.data = nullptr;
+}
+
+byte* tile_make_writable(tiledata *buf, int32_t t)
+{
+	if (tile_data_is_shared(buf[t].data))
+	{
+		// The new buffer may reuse the address of one just freed, which the unpack cache keys on.
+		unpack_oldtile = -5;
+		buf[t].data = (byte*)calloc(tilesize(buf[t].format), 1);
+		if (!buf[t].data)
+			Z_error_fatal("Unable to initialize tile #%d.\n", t);
+	}
+	return buf[t].data;
+}
+
 void reset_tile(tiledata *buf, int32_t t, int32_t format=1)
 {
+#ifdef IS_PLAYER
+	free_tile_data(buf[t]);
+	buf[t].format = format;
+	buf[t].data = get_shared_blank_tile();
+#else
     // Already a blank tile of this format: nothing to do. Clearing a whole
     // tile buffer is mostly this case, and a compare is far cheaper than
     // a free plus calloc per tile.
@@ -449,6 +537,7 @@ void reset_tile(tiledata *buf, int32_t t, int32_t format=1)
         quit_game();
         Z_error_fatal("Unable to initialize tile #%d.\n", t);
     }
+#endif
 }
 
 //clears the tile buffer
@@ -528,21 +617,17 @@ bool copy_tile(tiledata *buf, int32_t src, int32_t dest, bool swap)
         }
     }
     
+    bool dest_shared = tile_data_is_shared(buf[dest].data);
     reset_tile(buf, dest, buf[src].format);
     
-    for(int32_t j=0; j<tilesize(buf[src].format); j++)
-    {
-        buf[dest].data[j]=buf[src].data[j];
-    }
+    if(!tile_data_is_shared(buf[src].data))
+        memcpy(tile_make_writable(buf, dest), buf[src].data, tilesize(buf[src].format));
     
     if(swap)
     {
         reset_tile(buf, src, tempformat);
-        
-        for(int32_t j=0; j<tsize; j++)
-        {
-            buf[src].data[j]=temptiledata[j];
-        }
+        if(!dest_shared)
+            memcpy(tile_make_writable(buf, src), temptiledata, tsize);
     }
 	int32_t t = blank_tile_table[dest];
 	blank_tile_table[dest] = blank_tile_table[src];
@@ -765,7 +850,7 @@ void unpack_tile(tiledata *buf, int32_t tile, int32_t flip, bool force)
 // packs from src[256] to tilebuf
 void pack_tile(tiledata *buf, byte *src,int32_t tile)
 {
-    pack_tiledata(buf[tile].data, src, buf[tile].format);
+    pack_tiledata(tile_make_writable(buf, tile), src, buf[tile].format);
 }
 
 void pack_tiledata(byte *dest, byte *src, byte format)
