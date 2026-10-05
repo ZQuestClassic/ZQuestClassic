@@ -1080,8 +1080,7 @@ void free_newtilebuf()
     if(newtilebuf)
     {
         for(int32_t i=0; i<NEWMAXTILES; i++)
-            if(newtilebuf[i].data)
-                free(newtilebuf[i].data);
+            free_tile_data(newtilebuf[i]);
                 
         free(newtilebuf);
 	newtilebuf = 0;
@@ -1095,7 +1094,7 @@ void free_grabtilebuf()
         if(grabtilebuf)
         {
             for(int32_t i=0; i<NEWMAXTILES; i++)
-                if(grabtilebuf[i].data) free(grabtilebuf[i].data);
+                free_tile_data(grabtilebuf[i]);
                 
             free(grabtilebuf);
 	    grabtilebuf = 0;
