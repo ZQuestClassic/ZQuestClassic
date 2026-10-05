@@ -290,6 +290,25 @@ ffc_handle_t mapscr::getFFCHandle(int index, int screen_index_offset)
 	return {this, (uint8_t)screen, ffc_id, (uint8_t)index, &getFFC(index)};
 }
 
+ffc_handle_t mapscr::getFFCHandleForRead(int index, int screen_index_offset)
+{
+	if (index < ffcs.size())
+		return getFFCHandle(index, screen_index_offset);
+
+	// Scripts may read every FFC of every screen (e.g. via mapdata), which would otherwise
+	// grow every screen to MAXFFCS FFCs. Instead point at a scratch FFC in the state `getFFC`
+	// would create the slot in. Only getters use this, so nothing else in it ever changes.
+	static ffcdata scratch;
+	scratch.screen_spawned = screen;
+	scratch.current_screen = screen;
+	scratch.update_current_screen();
+	scratch.index = index;
+	scratch.setLoaded(true);
+
+	ffc_id_t ffc_id = screen_index_offset * MAXFFCS + index;
+	return {this, (uint8_t)screen, ffc_id, (uint8_t)index, &scratch};
+}
+
 word mapscr::numFFC()
 {
 	if (!ffc_count_dirty)

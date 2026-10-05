@@ -47,6 +47,8 @@ struct mapdata
 	int max_pos() const;
 	rpos_handle_t resolve_pos(int pos) const;
 	ffc_handle_t resolve_ffc_handle(int index) const;
+	// For reading only; does not create the FFC if it doesn't exist yet.
+	ffc_handle_t resolve_ffc_handle_for_read(int index) const;
 	ffcdata* resolve_ffc(int index) const;
 };
 

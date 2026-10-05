@@ -163,6 +163,9 @@ struct mapscr
 	void ensureFFC(size_t ind);
 	ffcdata& getFFC(size_t ind);
 	ffc_handle_t getFFCHandle(int index, int screen_index_offset);
+	// Like getFFCHandle, but only for reading: an FFC past the end of `ffcs` is not created.
+	// Instead the handle points at a shared scratch FFC, in the state `getFFC` would create it.
+	ffc_handle_t getFFCHandleForRead(int index, int screen_index_offset);
 	word numFFC();
 	void ffcCountMarkDirty();
 	
