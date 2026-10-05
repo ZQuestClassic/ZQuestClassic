@@ -27,6 +27,7 @@
 #include "base/zdefs.h"
 #include "base/colors.h"
 #include "tiles.h"
+#include <algorithm>
 #include "base/zsys.h"
 #include "qst.h"
 #include "defdata.h"
@@ -1279,8 +1280,7 @@ void free_newtilebuf()
     if(newtilebuf)
     {
         for(int32_t i=0; i<NEWMAXTILES; i++)
-            if(newtilebuf[i].data)
-                free(newtilebuf[i].data);
+            free_tile_data(newtilebuf[i]);
                 
         free(newtilebuf);
 	newtilebuf = 0;
@@ -1336,7 +1336,7 @@ void free_grabtilebuf()
         if(grabtilebuf)
         {
             for(int32_t i=0; i<NEWMAXTILES; i++)
-                if(grabtilebuf[i].data) free(grabtilebuf[i].data);
+                free_tile_data(grabtilebuf[i]);
                 
             free(grabtilebuf);
 	    grabtilebuf = 0;
@@ -18903,6 +18903,36 @@ int32_t readcolordata(PACKFILE *f, miscQdata *Misc, word version, word build, wo
 	return 0;
 }
 
+// Stores tile data as read from a quest file (4-bit tiles are packed two pixels per byte).
+static void store_tile(tiledata *buf, int32_t i, byte format, byte const* temp_tile)
+{
+	int size = format == tf4Bit ? 128 : tilesize(format);
+	if(std::all_of(temp_tile, temp_tile + size, [](byte b){ return b == 0; }))
+	{
+		reset_tile(buf, i, format);
+		return;
+	}
+	free_tile_data(buf[i]);
+	buf[i].format = format;
+	buf[i].data = (byte *)malloc(tilesize(buf[i].format));
+	if(format == tf4Bit)
+	{
+		byte temp[256];
+		byte const* si = temp_tile + 128;
+		byte *di = temp + 256;
+		for(int j=127; j>=0; --j)
+		{
+			(*(--di)) = (*(--si)) >> 4;
+			(*(--di)) = (*si) & 15;
+		}
+		memcpy(buf[i].data, temp, 256);
+	}
+	else
+	{
+		memcpy(buf[i].data, temp_tile, tilesize(buf[i].format));
+	}
+}
+
 int32_t readtiles(PACKFILE *f, tiledata *buf, zquestheader *Header, word version, word build, word start_tile, int32_t max_tiles, bool from_init)
 {
     bool should_skip = legacy_skip_flags && get_bit(legacy_skip_flags, skip_tiles);
@@ -19045,34 +19075,7 @@ int32_t readtiles(PACKFILE *f, tiledata *buf, zquestheader *Header, word version
 			if (should_skip)
 				continue;
 
-			buf[start_tile+i].format=format;
-			
-			if(buf[start_tile+i].data)
-			{
-				free(buf[start_tile+i].data);
-				buf[start_tile+i].data=NULL;
-			}
-
-			buf[start_tile+i].data=(byte *)malloc(tilesize(buf[start_tile+i].format));
-
-			if (format == tf4Bit)
-			{
-				byte temp[256];
-				byte *si = temp_tile + 128;
-				byte *di = temp + 256;
-				
-				for(int i=127; i>=0; --i)
-				{
-					(*(--di)) = (*(--si)) >> 4;
-					(*(--di)) = (*si) & 15;
-				}
-
-				memcpy(buf[start_tile+i].data,temp,256);
-			}
-			else
-			{
-				memcpy(buf[start_tile+i].data,temp_tile,tilesize(buf[start_tile+i].format));
-			}
+			store_tile(buf, start_tile+i, format, temp_tile);
         }
     }
 
@@ -19124,26 +19127,20 @@ int32_t readtiles(PACKFILE *f, tiledata *buf, zquestheader *Header, word version
 	
 	if((version < 0x192)|| ((version == 0x192)&&(build<186)))
 	{
+		// These swaps move data pointers rather than bytes (blank tiles share one buffer).
+		// The formats stay in place; 4-bit and 8-bit tiles are both 256 bytes.
 		if(get_qr(qr_BSZELDA))   //
 		{
-			byte tempbyte;
 			int32_t floattile=wpnsbuf[iwSwim].tile;
 			
-			for(int32_t i=0; i<tilesize(tf4Bit); i++)  //BSZelda tiles are out of order //does this include swim tiles?
-			{
-				tempbyte=buf[23].data[i];
-				buf[23].data[i]=buf[24].data[i];
-				buf[24].data[i]=buf[25].data[i];
-				buf[25].data[i]=buf[26].data[i];
-				buf[26].data[i]=tempbyte;
-			}
+			//BSZelda tiles are out of order //does this include swim tiles?
+			byte* tempdata=buf[23].data;
+			buf[23].data=buf[24].data;
+			buf[24].data=buf[25].data;
+			buf[25].data=buf[26].data;
+			buf[26].data=tempdata;
 			//swim tiles are out of order, too, but nobody cared? -Z 
-			for(int32_t i=0; i<tilesize(tf4Bit); i++)
-			{
-				tempbyte=buf[floattile+11].data[i];
-				buf[floattile+11].data[i]=buf[floattile+12].data[i];
-				buf[floattile+12].data[i]=tempbyte;
-			}
+			std::swap(buf[floattile+11].data, buf[floattile+12].data);
 		}
 	}
 	
@@ -19151,18 +19148,8 @@ int32_t readtiles(PACKFILE *f, tiledata *buf, zquestheader *Header, word version
 	{
 		if(!get_qr(qr_NEWENEMYTILES))
 		{
-			byte tempbyte;
-			
-			for(int32_t i=0; i<tilesize(tf4Bit); i++)
-			{
-				tempbyte=buf[130].data[i];
-				buf[130].data[i]=buf[132].data[i];
-				buf[132].data[i]=tempbyte;
-				
-				tempbyte=buf[131].data[i];
-				buf[131].data[i]=buf[133].data[i];
-				buf[133].data[i]=tempbyte;
-			}
+			std::swap(buf[130].data, buf[132].data);
+			std::swap(buf[131].data, buf[133].data);
 		}
 	}
 	
