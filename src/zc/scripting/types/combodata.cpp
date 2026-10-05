@@ -201,7 +201,7 @@ int32_t combodata_get_register(int32_t reg)
 			ret = -10000;
 			if (!checkComboRef()) break;
 
-			ret = (combobuf[GET_REF(combodataref)].lift_weap_data.light_rads[WPNSPR_BASE]) * 10000;
+			ret = (combobuf[GET_REF(combodataref)].lift_weap_data.get().light_rads[WPNSPR_BASE]) * 10000;
 			break;
 		}
 		case COMBODLIFTLIGHTSHAPE:
@@ -209,7 +209,7 @@ int32_t combodata_get_register(int32_t reg)
 			ret = -10000;
 			if (!checkComboRef()) break;
 
-			ret = (combobuf[GET_REF(combodataref)].lift_weap_data.glow_shape) * 10000;
+			ret = (combobuf[GET_REF(combodataref)].lift_weap_data.get().glow_shape) * 10000;
 			break;
 		}
 		case COMBODLIFTSFX:
@@ -885,14 +885,14 @@ void combodata_set_register(int32_t reg, int32_t value)
 		{
 			if (!checkComboRef()) break;
 
-			combobuf[GET_REF(combodataref)].lift_weap_data.light_rads[WPNSPR_BASE] = vbound(value/10000, 0, 255);
+			combobuf[GET_REF(combodataref)].lift_weap_data.mut().light_rads[WPNSPR_BASE] = vbound(value/10000, 0, 255);
 			break;
 		}
 		case COMBODLIFTLIGHTSHAPE:
 		{
 			if (!checkComboRef()) break;
 
-			combobuf[GET_REF(combodataref)].lift_weap_data.glow_shape = vbound(value/10000, 0, 2);
+			combobuf[GET_REF(combodataref)].lift_weap_data.mut().glow_shape = vbound(value/10000, 0, 2);
 			break;
 		}
 		case COMBODLIFTSFX:
@@ -1400,13 +1400,13 @@ static ArrayRegistrar COMBODLIFTFLAGS_registrar(COMBODLIFTFLAGS, []{
 		[](newcombo* cmb, int index) -> int {
 			auto bit = 1 << index;
 			if(bit == LF_BREAKONSOLID)
-				return cmb->lift_weap_data.wflags & WFLAG_BREAK_ON_SOLID;
+				return cmb->lift_weap_data.get().wflags & WFLAG_BREAK_ON_SOLID;
 			return cmb->liftflags & (1 << index);
 		},
 		[](newcombo* cmb, int index, int value){
 			auto bit = lift_flags(1 << index);
 			if(bit == LF_BREAKONSOLID)
-				SETFLAG(cmb->lift_weap_data.wflags, WFLAG_BREAK_ON_SOLID, value);
+				SETFLAG(cmb->lift_weap_data.mut().wflags, WFLAG_BREAK_ON_SOLID, value);
 			else
 				SETFLAG(cmb->liftflags, bit, value);
 		}

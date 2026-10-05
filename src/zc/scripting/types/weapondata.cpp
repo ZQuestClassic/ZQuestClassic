@@ -12,7 +12,7 @@ extern int32_t sarg3;
 int32_t weapondata_get_register(int32_t reg)
 {
 	int32_t ret = 0;
-	weapon_data* data = checkWeaponData(GET_REF(weapdataref), reg == WEAPDATA_VALID);
+	const weapon_data* data = checkWeaponDataForRead(GET_REF(weapdataref), reg == WEAPDATA_VALID);
 
 	switch (reg)
 	{
@@ -267,14 +267,14 @@ std::optional<int32_t> weapondata_run_command(word command)
 		}
 		case WEAPDATA_COPY:
 		{
-			if (weapon_data* src = checkWeaponData(GET_REF(weapdataref)))
+			if (const weapon_data* src = checkWeaponDataForRead(GET_REF(weapdataref)))
 				if (weapon_data* dest = checkWeaponData(get_register(sarg1)))
 					*dest = *src;
 			break;
 		}
 		case WEAPDATA_APPLY:
 		{
-			if (weapon_data* data = checkWeaponData(GET_REF(weapdataref)))
+			if (const weapon_data* data = checkWeaponDataForRead(GET_REF(weapdataref)))
 				if (weapon* w = checkWpn(get_register(sarg1)))
 					w->load_weap_data(*data);
 			break;

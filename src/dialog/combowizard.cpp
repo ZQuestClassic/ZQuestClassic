@@ -2357,7 +2357,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 									colSpan = 2,
 									onPressFunc = [&]()
 									{
-										call_weap_data_editor(local_ref.misc_weap_data, is_misc_lweapon(local_ref), true);
+										call_weap_data_editor(local_ref.misc_weap_data.mut(), is_misc_lweapon(local_ref), true);
 									})
 							)
 						)
@@ -2521,7 +2521,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 							colSpan = 2,
 							onPressFunc = [&]()
 							{
-								call_weap_data_editor(local_ref.misc_weap_data, is_misc_lweapon(local_ref), true);
+								call_weap_data_editor(local_ref.misc_weap_data.mut(), is_misc_lweapon(local_ref), true);
 							})
 					)
 				)

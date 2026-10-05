@@ -2422,17 +2422,17 @@ void ItemEditorDialog::loadItemClass()
 	{
 		if(auto scr = local_itemref.sprite_scrconfig.script; scr && (item_use_script_data & ISCRDATA_SPRITE))
 		{
-			zasm_meta const& meta = itemspritescripts[scr]->meta;
+			zasm_meta const& meta = itemspritescripts[scr]->meta.get();
 			load_meta(inf, meta);
 		}
 		if(auto scr = local_itemref.collect_scrconfig.script; scr && (item_use_script_data & ISCRDATA_PICKUP))
 		{
-			zasm_meta const& meta = itemscripts[scr]->meta;
+			zasm_meta const& meta = itemscripts[scr]->meta.get();
 			load_meta(inf, meta);
 		}
 		if(auto scr = local_itemref.scrconfig.script; scr && (item_use_script_data & ISCRDATA_ACTION))
 		{
-			zasm_meta const& meta = itemscripts[scr]->meta;
+			zasm_meta const& meta = itemscripts[scr]->meta.get();
 			load_meta(inf, meta);
 		}
 	}

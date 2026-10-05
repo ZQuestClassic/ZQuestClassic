@@ -275,7 +275,7 @@ int32_t read_old_ffscript(PACKFILE *f, word s_version, script_data *script, word
 		if (auto ret = read_one_zmeta(f, temp_meta, zmeta_version))
 			return ret;
 		script->meta = temp_meta;
-	} else script->meta = {};
+	} else script->meta.reset();
 	
 	for(int32_t j=0; j<num_commands; j++)
 	{
@@ -1136,7 +1136,7 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header)
 		{
 			// Scripts with "0" were saved in a version prior to this field being set.
 			// See https://discord.com/channels/876899628556091432/1368485306394738718
-			word ffscript_v = script->meta.ffscript_v == 0 ? 16 : script->meta.ffscript_v;
+			word ffscript_v = script->meta.get().ffscript_v == 0 ? 16 : script->meta.get().ffscript_v;
 			if (!zscript_version.has_value())
 				zscript_version = ffscript_v;
 			else if (ffscript_v > zscript_version.value())

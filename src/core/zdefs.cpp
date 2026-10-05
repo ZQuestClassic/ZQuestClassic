@@ -13,6 +13,8 @@
 #include "core/qst.h"
 #include "gamedata.h"
 
+const zasm_meta empty_zasm_meta;
+
 using std::string;
 using std::ostringstream;
 using namespace util;

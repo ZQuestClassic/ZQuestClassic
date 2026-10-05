@@ -2124,7 +2124,7 @@ void ComboEditorDialog::loadComboType()
 	}
 	if(local_comboref.scrconfig.script && combo_use_script_data)
 	{
-		zasm_meta const& meta = comboscripts[local_comboref.scrconfig.script]->meta;
+		zasm_meta const& meta = comboscripts[local_comboref.scrconfig.script]->meta.get();
 		for(size_t q = 0; q < NUM_COMBO_ATTRIBUTES; ++q)
 		{
 			if(meta.attributes[q].size())
@@ -2704,7 +2704,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 							Button(text = "Misc Weapon Data",
 								onPressFunc = [&]()
 								{
-									call_weap_data_editor(local_comboref.misc_weap_data, is_misc_lweapon(local_comboref), true);
+									call_weap_data_editor(local_comboref.misc_weap_data.mut(), is_misc_lweapon(local_comboref), true);
 								}),
 							INFOBTN("Usable by some combo types for weapon-related effects.")
 						)
@@ -3120,7 +3120,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 								Button(text = "Lift Weapon Data",
 									onPressFunc = [&]()
 									{
-										call_weap_data_editor(local_comboref.lift_weap_data, true);
+										call_weap_data_editor(local_comboref.lift_weap_data.mut(), true);
 									}),
 								IBTN("Attributes applied to the lifted weapon.")
 							)

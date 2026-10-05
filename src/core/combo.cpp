@@ -1359,8 +1359,8 @@ bool newcombo::is_blank(bool ignoreEff) const
 	if(dive_under_level) return false;
 	
 	if(!triggers.empty()) return false;
-	if(!misc_weap_data.is_blank()) return false;
-	if(!lift_weap_data.is_blank()) return false;
+	if(!misc_weap_data.get().is_blank()) return false;
+	if(!lift_weap_data.get().is_blank()) return false;
 	return true;
 }
 

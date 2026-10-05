@@ -12185,7 +12185,7 @@ int32_t write_one_ffscript(PACKFILE *f, [[maybe_unused]] zquestheader *Header, [
 	if (!p_putc(1, f))
 		new_return(-1);
 
-	if (auto ret = write_one_ffscript_meta(f, script->meta))
+	if (auto ret = write_one_ffscript_meta(f, script->meta.get()))
 		return ret;
 
 	if(!p_iputl(script->pc, f))
@@ -12928,7 +12928,7 @@ int32_t write_one_ffscript_old(PACKFILE *f, script_data *script)
     }
 	
 	//Metadata
-	if (auto ret = write_one_ffscript_meta(f, script->meta))
+	if (auto ret = write_one_ffscript_meta(f, script->meta.get()))
 		return ret;
 	
     for(int32_t j=0; j<num_commands; j++)

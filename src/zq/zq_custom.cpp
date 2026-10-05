@@ -270,7 +270,7 @@ void showEnemyScriptMetaHelp(const guydata& test, int32_t i)
 	{
 		if (test.scrconfig.script)
 		{
-			zasm_meta const& meta = guyscripts[test.scrconfig.script]->meta;
+			zasm_meta const& meta = guyscripts[test.scrconfig.script]->meta.get();
 			if(!meta.initd_help[i].empty())
 				InfoDialog("Info", meta.initd_help[i].c_str()).show();
 		}
@@ -280,7 +280,7 @@ void showEnemyScriptMetaHelp(const guydata& test, int32_t i)
 		i -= 8;
 		if (test.weap_data.scrconfig.script)
 		{
-			zasm_meta const& meta = ewpnscripts[test.weap_data.scrconfig.script]->meta;
+			zasm_meta const& meta = ewpnscripts[test.weap_data.scrconfig.script]->meta.get();
 			if (!meta.initd_help[i].empty())
 				InfoDialog("Info", meta.initd_help[i].c_str()).show();
 		}

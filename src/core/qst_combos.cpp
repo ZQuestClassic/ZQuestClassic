@@ -1174,7 +1174,7 @@ int32_t readcombo_loop(PACKFILE* f, word s_version, newcombo& temp_combo, zquest
 					return qe_invalid;
 				temp_combo.lift_parent_item = tempbyte;
 			}
-			auto& weap_data = temp_combo.lift_weap_data;
+			auto& weap_data = temp_combo.lift_weap_data.mut();
 			if(s_version >= 51 && s_version < 55)
 			{
 				if(!p_getc(&weap_data.light_rads[WPNSPR_BASE],f))
@@ -1368,10 +1368,12 @@ int32_t readcombo_loop(PACKFILE* f, word s_version, newcombo& temp_combo, zquest
 		}
 		if(combo_has_flags&CHAS_MISC_WEAP_DATA)
 		{
-			if(auto ret = read_weap_data(temp_combo.misc_weap_data, f))
+			if(auto ret = read_weap_data(temp_combo.misc_weap_data.mut(), f))
 				return ret;
 		}
 	}
+	temp_combo.lift_weap_data.release_if_default();
+	temp_combo.misc_weap_data.release_if_default();
 	update_combo(temp_combo, s_version);
 	if(s_version < 67 && !(Header && Header->version_major == 2 && Header->version_minor == 55 && Header->version_patch >= 14))
 	{
@@ -1753,7 +1755,7 @@ int32_t writecombo_loop(PACKFILE *f, newcombo const& tmp_cmb)
 		|| tmp_cmb.liftundercmb || tmp_cmb.liftundercs
 		|| tmp_cmb.liftbreaksprite!=-1 || tmp_cmb.liftbreaksfx
 		|| tmp_cmb.lifthei!=8 || tmp_cmb.lifttime!=16
-		|| tmp_cmb.lift_parent_item || !tmp_cmb.lift_weap_data.is_blank())
+		|| tmp_cmb.lift_parent_item || !tmp_cmb.lift_weap_data.get().is_blank())
 		combo_has_flags |= CHAS_LIFT;
 	if(tmp_cmb.speed_mult != 1 || tmp_cmb.speed_div != 1 || tmp_cmb.speed_add
 		|| tmp_cmb.sfx_appear || tmp_cmb.sfx_disappear || tmp_cmb.sfx_loop || tmp_cmb.sfx_walking || tmp_cmb.sfx_standing
@@ -1762,7 +1764,7 @@ int32_t writecombo_loop(PACKFILE *f, newcombo const& tmp_cmb)
 		|| tmp_cmb.sfx_drowning || tmp_cmb.sfx_lava_drowning || tmp_cmb.z_height || tmp_cmb.z_step_height
 		|| tmp_cmb.dive_under_level || tmp_cmb.large_combo_dirs)
 		combo_has_flags |= CHAS_GENERAL;
-	if(!tmp_cmb.misc_weap_data.is_blank())
+	if(!tmp_cmb.misc_weap_data.get().is_blank())
 		combo_has_flags |= CHAS_MISC_WEAP_DATA;
 
 	if(!p_iputw(combo_has_flags,f))
@@ -1883,7 +1885,7 @@ int32_t writecombo_loop(PACKFILE *f, newcombo const& tmp_cmb)
 			return 68;
 		if(!p_iputw(tmp_cmb.lift_parent_item,f))
 			return 78;
-		if(auto ret = write_weap_data(tmp_cmb.lift_weap_data, f))
+		if(auto ret = write_weap_data(tmp_cmb.lift_weap_data.get(), f))
 			return ret;
 	}
 	if(combo_has_flags&CHAS_GENERAL)
@@ -1939,7 +1941,7 @@ int32_t writecombo_loop(PACKFILE *f, newcombo const& tmp_cmb)
 	}
 	if(combo_has_flags&CHAS_MISC_WEAP_DATA)
 	{
-		if(auto ret = write_weap_data(tmp_cmb.misc_weap_data, f))
+		if(auto ret = write_weap_data(tmp_cmb.misc_weap_data.get(), f))
 			return ret;
 	}
 	return 0;

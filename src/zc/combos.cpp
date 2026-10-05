@@ -1625,7 +1625,7 @@ static void trigger_stepfx_add_weapon_and_load_gfx(sprite_list& list, const newc
 		wpn->LOADGFX(cmb.c_attributes[11].getTrunc());
 	
 	if(cmb.usrflags & cflag10)
-		wpn->load_weap_data(cmb.misc_weap_data);
+		wpn->load_weap_data(cmb.misc_weap_data.get());
 }
 
 bool trigger_stepfx(const combined_handle_t& handle, bool stepped)
@@ -1861,7 +1861,7 @@ static weapon* fire_shooter_wpn(newcombo const& cmb, zfix& wx, zfix& wy, bool an
 	
 	wpn->scrconfig.script = cmb.c_attributes[13].getTrunc();
 	if (cmb.usrflags & cflag10)
-		wpn->load_weap_data(cmb.misc_weap_data);
+		wpn->load_weap_data(cmb.misc_weap_data.get());
 	
 	if(!((lw ? lwpnmap : ewpnmap)[wpn->scrconfig.script-1].hasScriptData())) // validate script
 		wpn->scrconfig.clear();
@@ -1943,7 +1943,7 @@ bool trigger_shooter(newcombo const& cmb, zfix wx, zfix wy)
 		int pitem = lw ? cmb.c_attributes[14].getTrunc() : -1;
 		if (lw && (!pitem || invalid_item_id(pitem))) pitem = -1;
 
-		if (const weapon_data* wpn_data = (cmb.usrflags & cflag10) ? &(cmb.misc_weap_data) : get_weapon_data_for_id(weapid, pitem, -1, lw))
+		if (const weapon_data* wpn_data = (cmb.usrflags & cflag10) ? &(cmb.misc_weap_data.get()) : get_weapon_data_for_id(weapid, pitem, -1, lw))
 		{
 			if (wpn_data->viewport_suspend_range > 0 || wpn_data->viewport_despawn_range > 0)
 			{
@@ -3412,7 +3412,7 @@ bool do_lift_combo(const combined_handle_t& base_handle, int32_t gloveid)
 	w->death_sprite = cmb.liftbreaksprite;
 	w->death_sfx = cmb.liftbreaksfx;
 	
-	w->load_weap_data(cmb.lift_weap_data);
+	w->load_weap_data(cmb.lift_weap_data.get());
 	
 	Hero.lift(w, cmb.lifttime, cmb.lifthei);
 	

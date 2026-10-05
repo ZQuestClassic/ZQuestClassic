@@ -27,5 +27,5 @@ weapon_data weapon_data::make_blank_lifting()
 	return data;
 }
 
-weapon_data weapon_data::def_data;
-weapon_data weapon_data::def_lifting_data = weapon_data::make_blank_lifting();
+const weapon_data weapon_data::def_data{};
+const weapon_data weapon_data::def_lifting_data = weapon_data::make_blank_lifting();

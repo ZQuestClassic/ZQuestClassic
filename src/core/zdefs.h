@@ -2,6 +2,7 @@
 #define CORE_ZDEFS_H_
 
 #include "base/general.h"
+#include "base/lazy_default.h"
 #include <cstdint>
 #define DEVLEVEL 0
 #define COLLECT_SCRIPT_ITEM_ZERO -32767
@@ -1440,86 +1441,7 @@ struct zasm_meta
 	{
 		
 	}
-	zasm_meta& operator=(zasm_meta const& other)
-	{
-		zasm_v = other.zasm_v;
-		meta_v = other.meta_v;
-		ffscript_v = other.ffscript_v;
-		script_type = other.script_type;
-		for(auto q = 0; q < NUM_ZMETA_ATTRIBUTES; ++q)
-		{
-			attributes[q] = other.attributes[q];
-			attributes_help[q] = other.attributes_help[q];
-			if(q > 15) continue;
-			usrflags[q] = other.usrflags[q];
-			usrflags_help[q] = other.usrflags_help[q];
-			if(q > 7) continue;
-			initd_label[q] = other.initd_label[q];
-			initd_help[q] = other.initd_help[q];
-			initd_type[q] = other.initd_type[q];
-			run_idens[q] = other.run_idens[q];
-			run_types[q] = other.run_types[q];
-		}
-		flags = other.flags;
-		compiler_v1 = other.compiler_v1;
-		compiler_v2 = other.compiler_v2;
-		compiler_v3 = other.compiler_v3;
-		compiler_v4 = other.compiler_v4;
-		script_name = other.script_name;
-		author = other.author;
-		script_info = other.script_info;
-		script_setup = other.script_setup;
-		return *this;
-	}
-	bool operator==(zasm_meta const& other) const
-	{
-		if(zasm_v != other.zasm_v) return false;
-		if(meta_v != other.meta_v) return false;
-		if(ffscript_v != other.ffscript_v) return false;
-		if(script_type != other.script_type) return false;
-		if(flags != other.flags) return false;
-		if(compiler_v1 != other.compiler_v1) return false;
-		if(compiler_v2 != other.compiler_v2) return false;
-		if(compiler_v3 != other.compiler_v3) return false;
-		if(compiler_v4 != other.compiler_v4) return false;
-		for(auto q = 0; q < NUM_ZMETA_ATTRIBUTES; ++q)
-		{
-			if(attributes[q].compare(other.attributes[q]))
-				return false;
-			if(attributes_help[q].compare(other.attributes_help[q]))
-				return false;
-			if(q > 15) continue;
-			if(usrflags[q].compare(other.usrflags[q]))
-				return false;
-			if(usrflags_help[q].compare(other.usrflags_help[q]))
-				return false;
-			if(q > 7) continue;
-			if(initd_label[q].compare(other.initd_label[q]))
-				return false;
-			if(initd_help[q].compare(other.initd_help[q]))
-				return false;
-			if(initd_type[q] != other.initd_type[q])
-				return false;
-			if(run_idens[q].compare(other.run_idens[q]))
-				return false;
-			if(run_types[q] != other.run_types[q])
-				return false;
-		}
-		if (script_name.compare(other.script_name))
-			return false;
-		if (author.compare(other.author))
-			return false;
-		if (script_info.compare(other.script_info))
-			return false;
-		if (script_setup.compare(other.script_setup))
-			return false;
-		return true;
-	}
-	bool operator!=(zasm_meta const& other) const
-	{
-		return !(*this == other);
-	}
-	
+	bool operator==(zasm_meta const& other) const = default;
 	bool parse_meta(const char *buffer);
 	std::string get_meta() const;
 };
@@ -1688,13 +1610,17 @@ struct zasm_script
 	}
 };
 
+// The default (zeroed) metadata of an unused script slot.
+extern const zasm_meta empty_zasm_meta;
+
 struct script_data
 {
 	// The zasm instructions used by this script.
 	// In quests before 3.0, each script had its own chunk of zasm.
 	// Since 3.0 all scripts share the same chunk.
 	std::shared_ptr<::zasm_script> zasm_script = nullptr;
-	zasm_meta meta;
+	// Most of the thousands of script slots are unused, so metadata is only allocated when set.
+	lazy_default<zasm_meta, &empty_zasm_meta> meta;
 	script_id id;
 	// Start of script within `zasm_script`.
 	uint32_t pc;
@@ -1709,10 +1635,10 @@ struct script_data
 
 	std::string name() const
 	{
-		if (meta.script_name.empty())
+		if (meta.get().script_name.empty())
 			return fmt::format("{}-{}", ScriptTypeToString(id.type), id.index);
 		else
-			return fmt::format("{}-{}-{}", ScriptTypeToString(id.type), id.index, meta.script_name);
+			return fmt::format("{}-{}-{}", ScriptTypeToString(id.type), id.index, meta.get().script_name);
 	}
 	
 	bool valid() const
@@ -1731,7 +1657,7 @@ struct script_data
 	{
 		zasm_script = nullptr;
 		pc = end_pc = 0;
-		meta.zero();
+		meta.reset();
 		script_d_init.clear();
 		script_d_exports.clear();
 	}

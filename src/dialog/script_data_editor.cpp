@@ -50,7 +50,7 @@ std::shared_ptr<GUI::Widget> ScriptDataDialog::view()
 	if (local_ref.script)
 	{
 		scrdata = scrdatas[local_ref.script];
-		meta = &scrdata->meta;
+		meta = &scrdata->meta.get();
 	}
 	
 	auto initd_grid = Rows<3>(spacing = 2_px, topPadding = 10_px);

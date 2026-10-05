@@ -6,6 +6,7 @@
 #include "base/containers.h"
 #include "core/flags.h"
 #include "core/weapon_data.h"
+#include "base/lazy_default.h"
 #include <functional>
 
 namespace flags {
@@ -175,9 +176,9 @@ struct newcombo
 	byte lifthei = 8;
 	byte lifttime = 16;
 	word lift_parent_item;
-	// TODO: reduce size.
-	weapon_data lift_weap_data {weapon_data::def_lifting_data};
-	weapon_data misc_weap_data {weapon_data::def_data};
+	// Most combos never change these from the defaults, so they are only allocated once written.
+	lazy_default<weapon_data, &weapon_data::def_lifting_data> lift_weap_data;
+	lazy_default<weapon_data, &weapon_data::def_data> misc_weap_data;
 	std::string label;
 	script_config scrconfig;
 	int32_t o_tile;

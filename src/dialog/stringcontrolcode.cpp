@@ -1683,7 +1683,7 @@ std::shared_ptr<GUI::Widget> SCCDialog::view()
 			// Optional InitD arguments, driven by the selected script's metadata.
 			// These are stored after the two required args (script num, redraw).
 			if (cur_args[0])
-				meta = genericscripts[cur_args[0].getTrunc()]->meta;
+				meta = genericscripts[cur_args[0].getTrunc()]->meta.get();
 			auto row = Rows<3>();
 			tabs->add(TabRef(name = "Args",
 				row

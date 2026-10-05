@@ -60,8 +60,8 @@ struct weapon_data
 	bool is_blank_lifting() const;
 	bool operator==(const weapon_data&) const = default;
 	
-	static weapon_data def_data;
-	static weapon_data def_lifting_data;
+	static const weapon_data def_data;
+	static const weapon_data def_lifting_data;
 private:
 	static weapon_data make_blank_lifting();
 };

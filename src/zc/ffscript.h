@@ -263,6 +263,8 @@ struct user_weapondata : public script_object_base
 	weapon_data* inner_data = nullptr;
 	
 	weapon_data* get_data();
+	// Like get_data, but reading a combo's weapon data doesn't allocate it.
+	const weapon_data* get_data_for_read();
 	
 	~user_weapondata()
 	{

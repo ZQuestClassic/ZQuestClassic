@@ -176,22 +176,34 @@ extern UserDataContainer<user_stack, MAX_USER_STACKS> user_stacks;
 extern UserDataContainer<user_bitmap, MAX_USER_BITMAPS> user_bitmaps;
 static UserDataContainer<user_weapondata, MAX_USER_WEAPONDATAS> user_weapondatas = {script_object_type::weapondata, "weapondata"};
 
-weapon_data* checkWeaponData(int32_t ref, bool skipError)
+// Shared by checkWeaponData and checkWeaponDataForRead; `get` is the user_weapondata accessor.
+static auto check_weapondata(int32_t ref, bool skipError, auto get)
 {
+	using Ptr = decltype(get((user_weapondata*)nullptr));
 	auto* ptr = user_weapondatas.check(ref, skipError);
 	if (ptr)
 	{
 		auto old_suppress_script_error_logging =  suppress_script_error_logging;
 		if (skipError)
 			suppress_script_error_logging = true;
-		auto* data = ptr->get_data();
+		Ptr data = get(ptr);
 		suppress_script_error_logging = old_suppress_script_error_logging;
 		if (data)
 			return data;
 	}
 	if(!skipError)
 		scripting_log_error_with_context("Invalid {} using UID = {}", "weapondata", ref);
-	return nullptr;
+	return Ptr(nullptr);
+}
+
+weapon_data* checkWeaponData(int32_t ref, bool skipError)
+{
+	return check_weapondata(ref, skipError, [](user_weapondata* p) { return p->get_data(); });
+}
+
+const weapon_data* checkWeaponDataForRead(int32_t ref, bool skipError)
+{
+	return check_weapondata(ref, skipError, [](user_weapondata* p) { return p->get_data_for_read(); });
 }
 
 weapon_data* user_weapondata::get_data()
@@ -215,11 +227,29 @@ weapon_data* user_weapondata::get_data()
 		case wdata_type::combodata_lift:
 			if (data_index >= MAXCOMBOS)
 				break;
-			return &combobuf[data_index].lift_weap_data;
+			return &combobuf[data_index].lift_weap_data.mut();
 		case wdata_type::combodata_misc:
 			if (data_index >= MAXCOMBOS)
 				break;
-			return &combobuf[data_index].misc_weap_data;
+			return &combobuf[data_index].misc_weap_data.mut();
+	}
+	return nullptr;
+}
+
+const weapon_data* user_weapondata::get_data_for_read()
+{
+	switch (data_type)
+	{
+		case wdata_type::combodata_lift:
+			if (data_index >= MAXCOMBOS)
+				break;
+			return &combobuf[data_index].lift_weap_data.get();
+		case wdata_type::combodata_misc:
+			if (data_index >= MAXCOMBOS)
+				break;
+			return &combobuf[data_index].misc_weap_data.get();
+		default:
+			return get_data();
 	}
 	return nullptr;
 }
@@ -9576,9 +9606,6 @@ int32_t run_script(ScriptType type, word script, int32_t i)
 	auto& data = get_script_engine_data(type, i);
 	set_current_script_engine_data(data, type, script, next_script_data, i);
 
-	// Because qst.cpp likes to write script_data without setting this.
-	curscript->meta.script_type = type;
-
 	// Attribute this outermost call's time to the script by name (-script-timings).
 	if (script_timings_enabled && script_timings_is_outermost())
 		script_timings_set_current_name(curscript->name());
@@ -9646,7 +9673,7 @@ int32_t run_script(ScriptType type, word script, int32_t i)
 		}
 		runtime_script_debug_handle = &script_debug_handles.at(curscript->id);
 		runtime_script_debug_handle->update_file();
-		std::string line = fmt::format("=== running script type: {} index: {} name: {} i: {} script: {}", ScriptTypeToString(curscript->id.type), curscript->id.index, curscript->meta.script_name, i, script);
+		std::string line = fmt::format("=== running script type: {} index: {} name: {} i: {} script: {}", ScriptTypeToString(curscript->id.type), curscript->id.index, curscript->meta.get().script_name, i, script);
 		runtime_script_debug_handle->print("\n");
 		runtime_script_debug_handle->print(line.c_str());
 		runtime_script_debug_handle->print("\n");
@@ -9716,7 +9743,7 @@ int32_t run_script(ScriptType type, word script, int32_t i)
 				else
 					log_call_limit_error();
 
-				if (!(script_funcrun && curscript->meta.ffscript_v < 23))
+				if (!(script_funcrun && curscript->meta.get().ffscript_v < 23))
 				{
 					script_exit_cleanup(false);
 					result = RUNSCRIPT_STOPPED;
@@ -9837,7 +9864,7 @@ int32_t run_script_int(JittedScriptInstance* j_instance)
 	current_zasm_command=(ASM_DEFINE)0; // this is actually SETV, but we never will print that as a context string, so it's fine.
 
 	int commands_run = 0;
-	bool old_script_funcrun = script_funcrun && curscript->meta.ffscript_v < 23;
+	bool old_script_funcrun = script_funcrun && curscript->meta.get().ffscript_v < 23;
 	if(!is_jitted)
 	{
 		if(ri->waitframes)

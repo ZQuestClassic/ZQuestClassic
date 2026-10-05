@@ -835,7 +835,7 @@ std::shared_ptr<GUI::Widget> InitGenscriptWizard::view()
 	using namespace GUI::Builder;
 	using namespace GUI::Props;
 	
-	zasm_meta const& meta = genericscripts[index]->meta;
+	zasm_meta const& meta = genericscripts[index]->meta.get();
 	
 	std::shared_ptr<GUI::TabPanel> tabs;
 	
