@@ -6427,7 +6427,10 @@ bool hit_walkflag(int32_t x,int32_t y,int32_t cnt)
 bool solpush_walkflag(int32_t x, int32_t y, solid_object const* ign)
 {
 	// 16 pixel buffer to account for slopes that are on bordering screens.
-	if(x<0 || y<0 || x>=256+16 || y>=176+16)
+	// In sideview, also allow being pushed up past the top edge, so a slope can carry the
+	// hero to the screen above. This matters for the large hitbox, which starts at y+0.
+	int min_y = ign && ign->sideview_mode() ? -16 : 0;
+	if(x<0 || y<min_y || x>=256+16 || y>=176+16)
 		return true;
 		
 	//  for(int32_t i=0; i<4; i++)
