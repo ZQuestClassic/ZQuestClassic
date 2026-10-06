@@ -18554,9 +18554,16 @@ static void update_slope_combopos_bordering_screen(int slope_count, int cid, boo
 }
 
 // Load a single column or row from a nearby screen, and load its slopes.
-static void handle_slope_combopos_bordering_screen(int& bordering_slope_count, int initial_screen, int dir, int scr_x, int scr_y)
+static void handle_slope_combopos_bordering_screen(int& bordering_slope_count, const mapscr* base_scr, int dir, int scr_x, int scr_y)
 {
-	auto [map, screen] = nextscr2(cur_map, initial_screen, dir);
+	// Edges shared with another screen of the region aren't borders, and their sidewarps can never trigger.
+	int scr_col = base_scr->screen % 16;
+	bool neighbor_on_map = (dir == left && scr_col > 0) || (dir == right && scr_col < 15) || dir == up || dir == down;
+	if (neighbor_on_map && is_in_current_region(cur_map, screen_index_direction(base_scr->screen, (direction)dir)))
+		return;
+
+	// Follow this screen's sidewarps, not the hero's screen's.
+	auto [map, screen] = nextscr2(cur_map, base_scr->screen, dir, base_scr);
 	if (map == -1 || is_in_current_region(map, screen))
 		return;
 
@@ -18612,7 +18619,7 @@ void update_slope_comboposes()
 		int bordering_slope_count = 0;
 		for_every_base_screen_in_region([&](mapscr* scr, unsigned int region_scr_x, unsigned int region_scr_y) {
 			for (int dir = up; dir <= right; dir++)
-				handle_slope_combopos_bordering_screen(bordering_slope_count, scr->screen, dir, region_scr_x * 256, region_scr_y * 176);
+				handle_slope_combopos_bordering_screen(bordering_slope_count, scr, dir, region_scr_x * 256, region_scr_y * 176);
 		});
 	}
 

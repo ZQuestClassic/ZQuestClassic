@@ -475,7 +475,8 @@ bool hitflag(int32_t x, int32_t y, int32_t flagtype, byte layers = 0b0000001);
 optional<int> nextscr(int screen, int dir);
 optional<int> nextscr_mi(int mi, int dir);
 std::pair<int32_t, int32_t> nextscr2(int32_t dir);
-std::pair<int32_t, int32_t> nextscr2(int m, int s, int32_t dir);
+// Follows the scrolling sidewarps of `warp_scr` (default: the hero's screen).
+std::pair<int32_t, int32_t> nextscr2(int m, int s, int32_t dir, const mapscr* warp_scr = nullptr);
 void bombdoor(int32_t x,int32_t y);
 bool lenscheck(mapscr* scr, int layer);
 void do_ffc_layer(BITMAP* bmp, int32_t layer, const screen_handle_t& screen_handle, int32_t x, int32_t y);

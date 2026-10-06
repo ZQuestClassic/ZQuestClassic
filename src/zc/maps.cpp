@@ -3891,42 +3891,45 @@ std::pair<int32_t, int32_t> nextscr2(int32_t dir)
 	return nextscr2(map, screen, dir);
 }
 
-std::pair<int32_t, int32_t> nextscr2(int map, int screen, int32_t dir)
+std::pair<int32_t, int32_t> nextscr2(int map, int screen, int32_t dir, const mapscr* warp_scr)
 {
+	if (!warp_scr)
+		warp_scr = hero_scr;
+
 	screen = screen_index_direction(screen, (direction)dir);
 
     // need to check for screens on other maps, 's' not valid, etc.
-    int32_t index = (hero_scr->sidewarpindex >> (dir*2))&3;
+    int32_t index = (warp_scr->sidewarpindex >> (dir*2))&3;
     
     // Fun fact: when a scrolling warp is triggered, this function
     // is never even called! - Saf
-    if(hero_scr->sidewarptype[index] == 3)                                // scrolling warp
+    if(warp_scr->sidewarptype[index] == 3)                                // scrolling warp
     {
         switch(dir)
         {
         case up:
-            if(!(hero_scr->flags2&wfUP))    goto nowarp;
+            if(!(warp_scr->flags2&wfUP))    goto nowarp;
             
             break;
             
         case down:
-            if(!(hero_scr->flags2&wfDOWN))  goto nowarp;
+            if(!(warp_scr->flags2&wfDOWN))  goto nowarp;
             
             break;
             
         case left:
-            if(!(hero_scr->flags2&wfLEFT))  goto nowarp;
+            if(!(warp_scr->flags2&wfLEFT))  goto nowarp;
             
             break;
             
         case right:
-            if(!(hero_scr->flags2&wfRIGHT)) goto nowarp;
+            if(!(warp_scr->flags2&wfRIGHT)) goto nowarp;
             
             break;
         }
         
-        map = DMaps[hero_scr->sidewarpdmap[index]].map;
-        screen = hero_scr->sidewarpscr[index] + DMaps[hero_scr->sidewarpdmap[index]].xoff;
+        map = DMaps[warp_scr->sidewarpdmap[index]].map;
+        screen = warp_scr->sidewarpscr[index] + DMaps[warp_scr->sidewarpdmap[index]].xoff;
     }
     
 nowarp:
