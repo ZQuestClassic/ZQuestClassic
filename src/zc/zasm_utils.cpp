@@ -360,7 +360,7 @@ std::set<pc_t> zasm_find_yielding_functions(const zasm_script* script, Structure
 	return seen_ids;
 }
 
-static bool is_in_ranges(pc_t pc, const std::vector<std::pair<pc_t, pc_t>> pc_ranges)
+static bool is_in_ranges(pc_t pc, const std::vector<std::pair<pc_t, pc_t>>& pc_ranges)
 {
 	// Fast path for common case.
 	if (pc_ranges.size() == 1)
@@ -403,8 +403,19 @@ std::pair<pc_t, pc_t> ZasmCFG::get_block_bounds(int block) const
 	return {block_starts.at(block), get_block_final(block)};
 }
 
-ZasmCFG zasm_construct_cfg(const zasm_script* script, std::vector<std::pair<pc_t, pc_t>> pc_ranges)
+// Splits `pc_ranges` into blocks. A jump or call to a pc outside of `target_range` (when given;
+// otherwise outside of pc_ranges) is ignored: it neither ends its block nor gets an edge (except
+// a conditional jump, whose edge goes to whichever block id that pc sorts to). With a
+// target_range, a target outside of pc_ranges still gets a block, with no edges of its own, and so
+// does the instruction after a range (fallen through to) when target_range has it.
+static ZasmCFG construct_cfg(const zasm_script* script, const std::vector<std::pair<pc_t, pc_t>>& pc_ranges, std::optional<std::pair<pc_t, pc_t>> target_range)
 {
+	auto is_target = [&](pc_t pc) {
+		if (target_range)
+			return pc >= target_range->first && pc <= target_range->second;
+		return is_in_ranges(pc, pc_ranges);
+	};
+
 	ZasmCFG cfg{};
 
 	cfg.final_pc = pc_ranges.back().second;
@@ -412,7 +423,10 @@ ZasmCFG zasm_construct_cfg(const zasm_script* script, std::vector<std::pair<pc_t
 	// Reserve an amount proportional to the number of instructions.
 	// Note: picked randomly, one could do more research here.
 	auto& block_starts = cfg.block_starts;
-	block_starts.reserve(pc_ranges.back().second / 4); 
+	size_t num_instructions = 0;
+	for (auto [start_pc, final_pc] : pc_ranges)
+		num_instructions += final_pc - start_pc + 1;
+	block_starts.reserve(num_instructions / 4);
 
 	for (auto [start_pc, final_pc] : pc_ranges)
 	{
@@ -426,7 +440,7 @@ ZasmCFG zasm_construct_cfg(const zasm_script* script, std::vector<std::pair<pc_t
 			{
 				// Ignore GOTO jumps outside provided bounds.
 				// This allows for creating a CFG that is internal to this function only.
-				if (!is_in_ranges(arg1, pc_ranges))
+				if (!is_target(arg1))
 				{
 					continue;
 				}
@@ -445,7 +459,7 @@ ZasmCFG zasm_construct_cfg(const zasm_script* script, std::vector<std::pair<pc_t
 			{
 				for (pc_t target : zasm_jump_targets(command, script->zasm[i].vecptr))
 				{
-					if (is_in_ranges(target, pc_ranges))
+					if (is_target(target))
 						block_starts.push_back(target);
 				}
 				if (i + 1 <= final_pc)
@@ -459,6 +473,10 @@ ZasmCFG zasm_construct_cfg(const zasm_script* script, std::vector<std::pair<pc_t
 					block_starts.push_back(i + 1);
 			}
 		}
+
+		// The range may fall through to the instruction after it.
+		if (target_range && is_target(final_pc + 1))
+			block_starts.push_back(final_pc + 1);
 	}
 
 	// Sort and remove duplicates.
@@ -471,6 +489,10 @@ ZasmCFG zasm_construct_cfg(const zasm_script* script, std::vector<std::pair<pc_t
 
 	for (pc_t j = 1; j <= num_blocks; j++)
 	{
+		// A block outside of pc_ranges is just somewhere a jump lands.
+		if (target_range && !is_in_ranges(block_starts[j - 1], pc_ranges))
+			continue;
+
 		auto& edges = block_edges[j - 1];
 		edges.reserve(2);
 		int i = j < num_blocks ? block_starts[j] - 1 : cfg.final_pc;
@@ -478,7 +500,7 @@ ZasmCFG zasm_construct_cfg(const zasm_script* script, std::vector<std::pair<pc_t
 		int prev_arg1 = script->zasm[i].arg1;
 		if (prev_command == GOTO || prev_command == CALLFUNC)
 		{
-			if (is_in_ranges(prev_arg1, pc_ranges))
+			if (is_target(prev_arg1))
 			{
 				// Previous block unconditionally continues to some other block.
 				auto other_block = cfg.block_id_from_start_pc(prev_arg1);
@@ -499,7 +521,7 @@ ZasmCFG zasm_construct_cfg(const zasm_script* script, std::vector<std::pair<pc_t
 			// dedupe the edges.
 			for (pc_t target : zasm_jump_targets(prev_command, script->zasm[i].vecptr))
 			{
-				if (!is_in_ranges(target, pc_ranges))
+				if (!is_target(target))
 					continue;
 
 				auto other_block = cfg.block_id_from_start_pc(target);
@@ -517,10 +539,22 @@ ZasmCFG zasm_construct_cfg(const zasm_script* script, std::vector<std::pair<pc_t
 	return cfg;
 }
 
+ZasmCFG zasm_construct_cfg(const zasm_script* script, std::vector<std::pair<pc_t, pc_t>> pc_ranges)
+{
+	return construct_cfg(script, pc_ranges, std::nullopt);
+}
+
+ZasmCFG zasm_construct_function_cfg(const zasm_script* script, const StructuredZasm& structured_zasm, const ZasmFunction& fn)
+{
+	// Functions are contiguous, so a pc in any of their ranges is one in the script's range.
+	std::pair<pc_t, pc_t> script_range = {structured_zasm.functions.front().start_pc, structured_zasm.functions.back().final_pc};
+	return construct_cfg(script, {{fn.start_pc, fn.final_pc}}, script_range);
+}
+
 // https://en.wikipedia.org/wiki/Data-flow_analysis
 // https://www.cs.cornell.edu/courses/cs4120/2022sp/notes.html?id=livevar
 // https://www.cs.cmu.edu/afs/cs/academic/class/15745-s19/www/lectures/L5-Intro-to-Dataflow.pdf
-ZasmLiveness zasm_run_liveness_analysis(const zasm_script* script, const ZasmCFG& cfg, bool suspend_uses_all_registers, const StructuredZasm* structured_zasm)
+ZasmLiveness zasm_run_liveness_analysis(const zasm_script* script, const ZasmCFG& cfg, bool suspend_uses_all_registers, const StructuredZasm* structured_zasm, const std::vector<std::optional<uint8_t>>* fixed_live_in)
 {
 	#define C(i) (script->zasm[i])
 	#define E(i) (cfg.block_edges[i])
@@ -547,6 +581,16 @@ ZasmLiveness zasm_run_liveness_analysis(const zasm_script* script, const ZasmCFG
 
 	for (pc_t block_index = 0; block_index < cfg.block_starts.size(); block_index++)
 	{
+		// A block with a fixed live-in reads exactly that and writes everything, so its live-in
+		// stays that value. It has no successors, so nothing ever queues it, and its live-in is
+		// final from the start.
+		if (fixed_live_in && (*fixed_live_in)[block_index])
+		{
+			uint8_t live_in = *(*fixed_live_in)[block_index];
+			vars[block_index] = {live_in, 0, live_in, 0xFF, false};
+			continue;
+		}
+
 		uint8_t gen = 0;
 		uint8_t kill = 0;
 		bool returns = false;

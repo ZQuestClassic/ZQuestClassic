@@ -19,6 +19,7 @@
 #include <cstdint>
 #include <deque>
 #include <map>
+#include <memory>
 #include <optional>
 
 class ScriptDebugHandle;
@@ -71,12 +72,26 @@ struct JittedFunction
 	std::map<pc_t, uintptr_t> pc_to_resume_address;
 };
 
-struct JittedScript
+// The control flow and D-register liveness a function is compiled with.
+struct JitFunctionAnalysis
 {
-	StructuredZasm structured_zasm;
 	ZasmCFG cfg;
 	ZasmLiveness liveness;
 	std::vector<std::vector<pc_t>> block_predecessors;
+};
+
+struct JittedScript
+{
+	StructuredZasm structured_zasm;
+	// The D-registers live on entry to each function (by id), which the liveness of a function
+	// that calls or falls through to it depends on. With this, a function's analysis can be
+	// built just before compiling it, rather than holding it for the whole script.
+	std::vector<uint8_t> function_live_in;
+	// The analysis of the whole script. Only set if control enters some function somewhere other
+	// than its start, which a function's own analysis can't account for. When set,
+	// jit_analyze_function returns this for every function instead of building a per-function
+	// analysis.
+	std::unique_ptr<JitFunctionAnalysis> script_analysis;
 	std::vector<pc_t> function_start_pcs;
 	std::vector<JittedFunction> compiled_functions;
 	std::deque<JittedFunction> pending_compiled_jit_functions;
@@ -117,6 +132,10 @@ struct JittedScriptInstance
 // Provided by the per-architecture backend (jit_x64.cpp / jit_a64.cpp): compile
 // one function to native code, or std::nullopt if it should stay interpreted.
 std::optional<JittedFunction> jit_backend_compile_function(zasm_script* script, JittedScript* j_script, const ZasmFunction& fn);
+
+// The analysis to compile a function with: the script's if it has one, otherwise `storage`,
+// filled in for just this function.
+const JitFunctionAnalysis& jit_analyze_function(zasm_script* script, JittedScript* j_script, const ZasmFunction& fn, JitFunctionAnalysis& storage);
 
 int32_t jit_direct_enter(JittedExecutionContext* ctx, int32_t callee_start_pc);
 void jit_direct_retstack_pop();

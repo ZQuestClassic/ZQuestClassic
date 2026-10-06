@@ -5,6 +5,7 @@
 #include "core/zdefs.h"
 #include "components/zasm/pc.h"
 #include <map>
+#include <optional>
 #include <set>
 #include <stdint.h>
 #include <string>
@@ -127,13 +128,25 @@ std::set<pc_t> zasm_find_yielding_functions(const zasm_script* script, Structure
 // https://www2.cs.arizona.edu/~collberg/Teaching/453/2009/Handouts/Handout-15.pdf
 ZasmCFG zasm_construct_cfg(const zasm_script* script, std::vector<std::pair<pc_t, pc_t>> pc_ranges);
 
+// Returns the control flow graph of one function, with the same blocks and edges the function has
+// in the CFG of every function in its script. Control that leaves the function (a call, a jump,
+// or falling through into the next function) still ends a block and has an edge, to an extra
+// block for the pc it goes to - one with no edges of its own. Give those blocks their live-in to
+// zasm_run_liveness_analysis (fixed_live_in).
+//
+// This only matches the script's CFG if control never enters a function anywhere but its start.
+ZasmCFG zasm_construct_function_cfg(const zasm_script* script, const struct StructuredZasm& structured_zasm, const ZasmFunction& fn);
+
 // When suspend_uses_all_registers is set, a suspend point (WaitX/RUNGENFRZSCR) is treated as
 // reading every D register, keeping them live on all paths to the suspend. The JIT needs this
 // because a suspend serializes the whole register file to ri->d[]; the optimizer does not. When
 // structured_zasm is also given, a CALLFUNC into a function that may_yield is likewise treated
 // as reading every register - the callee observes the caller's register file at its suspend - so
 // those values stay live up to the call (its may_yield flag must already be populated).
-ZasmLiveness zasm_run_liveness_analysis(const zasm_script* script, const ZasmCFG& cfg, bool suspend_uses_all_registers = false, const struct StructuredZasm* structured_zasm = nullptr);
+//
+// Blocks with a value in fixed_live_in (indexed by block) are not analyzed - their live-in is
+// that value. See zasm_construct_function_cfg.
+ZasmLiveness zasm_run_liveness_analysis(const zasm_script* script, const ZasmCFG& cfg, bool suspend_uses_all_registers = false, const struct StructuredZasm* structured_zasm = nullptr, const std::vector<std::optional<uint8_t>>* fixed_live_in = nullptr);
 
 std::string zasm_to_string(const zasm_script* script, bool top_functions = false, bool generate_yielder = false);
 

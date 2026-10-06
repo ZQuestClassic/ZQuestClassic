@@ -2198,12 +2198,13 @@ struct LoopOps
 	x86::Compiler& cc;
 	zasm_script* script;
 	JittedScript* j_script;
+	const JitFunctionAnalysis& analysis;
 
 	void set_pc(pc_t i) { state.pc = i; }
 	void cache_flush_policy(pc_t i, pc_t block_id, bool is_block_start)
 	{
 		CacheOps ops{state, cc};
-		jit_reg_cache_flush_policy(ops, state.dreg_cache, j_script, script, i, block_id, is_block_start);
+		jit_reg_cache_flush_policy(ops, state.dreg_cache, j_script, analysis, script, i, block_id, is_block_start);
 	}
 	void loop_extras(int command)
 	{
@@ -2420,8 +2421,10 @@ std::optional<JittedFunction> jit_backend_compile_function(zasm_script* script, 
 
 	state.use_cached_regs = jit_is_use_cached_regs_enabled() && !runtime_debugging;
 
-	LoopOps loop_ops{state, cc, script, j_script};
-	jit_emit_function_body(loop_ops, script, j_script, start_pc, final_pc, runtime_debugging, comment, uncompiled_command_counts);
+	JitFunctionAnalysis analysis_storage;
+	const JitFunctionAnalysis& analysis = jit_analyze_function(script, j_script, fn, analysis_storage);
+	LoopOps loop_ops{state, cc, script, j_script, analysis};
+	jit_emit_function_body(loop_ops, script, j_script, analysis, start_pc, final_pc, runtime_debugging, comment, uncompiled_command_counts);
 
 	if (DEBUG_JIT_PRINT_ASM)
 	{

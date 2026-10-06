@@ -174,6 +174,68 @@ static int stub_exec_function(JittedExecutionContext* ctx)
 	return EXEC_RESULT_CONTINUE;
 }
 
+static std::vector<std::vector<pc_t>> find_block_predecessors(const ZasmCFG& cfg)
+{
+	std::vector<std::vector<pc_t>> block_predecessors(cfg.block_starts.size());
+	for (pc_t i = 0; i < block_predecessors.size(); i++)
+	{
+		for (pc_t edge : cfg.block_edges[i])
+		{
+			block_predecessors[edge].push_back(i);
+		}
+	}
+	return block_predecessors;
+}
+
+// True if the functions cover the script without gaps, and control enters each one only at its
+// start (by a call, or falling through from the function before it). Then the analysis of each
+// function on its own (see zasm_construct_function_cfg) matches its part of the script's.
+static bool control_enters_functions_only_at_start(const zasm_script* script, const StructuredZasm& structured_zasm, const ZasmCFG& cfg)
+{
+	const auto& functions = structured_zasm.functions;
+	for (size_t i = 1; i < functions.size(); i++)
+	{
+		if (functions[i].start_pc != functions[i - 1].final_pc + 1)
+			return false;
+	}
+
+	// A conditional jump outside of the script has an edge to an arbitrary block.
+	pc_t script_start_pc = functions.front().start_pc;
+	pc_t script_final_pc = functions.back().final_pc;
+	for (pc_t i = script_start_pc; i <= script_final_pc; i++)
+	{
+		int command = script->zasm[i].command;
+		int arg1 = script->zasm[i].arg1;
+		if ((command == GOTOCMP || command == GOTOTRUE || command == GOTOFALSE || command == GOTOLESS || command == GOTOMORE) &&
+			(arg1 < (int)script_start_pc || arg1 > (int)script_final_pc))
+			return false;
+	}
+
+	std::vector<pc_t> block_function_ids(cfg.block_starts.size());
+	pc_t fn_id = 0;
+	for (pc_t block = 0; block < cfg.block_starts.size(); block++)
+	{
+		while (cfg.block_starts[block] > functions[fn_id].final_pc)
+			fn_id++;
+		block_function_ids[block] = fn_id;
+	}
+
+	for (pc_t block = 0; block < cfg.block_starts.size(); block++)
+	{
+		for (pc_t edge : cfg.block_edges[block])
+		{
+			if (edge >= cfg.block_starts.size())
+				return false;
+
+			pc_t edge_fn_id = block_function_ids[edge];
+			if (edge_fn_id != block_function_ids[block] && cfg.block_starts[edge] != functions[edge_fn_id].start_pc)
+				return false;
+		}
+	}
+
+	return true;
+}
+
 static JittedScript* init_jitted_script(zasm_script* script)
 {
 	StructuredZasm structured_zasm = zasm_construct_structured(script);
@@ -185,22 +247,34 @@ static JittedScript* init_jitted_script(zasm_script* script)
 
 	auto j_script = new JittedScript{
 		.structured_zasm = std::move(structured_zasm),
-		.cfg = zasm_construct_cfg(script, pc_ranges),
 	};
 
 	// Populate ZasmFunction::may_yield (used once the register cache is ported;
 	// harmless to compute now and keeps init identical to the x64 backend).
 	zasm_find_yielding_functions(script, j_script->structured_zasm);
 
-	j_script->liveness = zasm_run_liveness_analysis(script, j_script->cfg, true, &j_script->structured_zasm);
+	// Only finding the yielding functions needs the call graph, and only the ZASM optimizer needs
+	// the call sites.
+	for (auto& fn : j_script->structured_zasm.functions)
+		fn.called_by_functions.clear();
+	j_script->structured_zasm.function_calls.clear();
 
-	j_script->block_predecessors.resize(j_script->cfg.block_starts.size());
-	for (pc_t i = 0; i < j_script->block_predecessors.size(); i++)
+	// What is live on entry to a function depends on every function it can reach, so that takes
+	// analyzing the whole script. Only keep the result for each function's entry.
+	JitFunctionAnalysis analysis{
+		.cfg = zasm_construct_cfg(script, pc_ranges),
+	};
+	analysis.liveness = zasm_run_liveness_analysis(script, analysis.cfg, true, &j_script->structured_zasm);
+
+	j_script->function_live_in.reserve(j_script->structured_zasm.functions.size());
+	for (const auto& fn : j_script->structured_zasm.functions)
+		j_script->function_live_in.push_back(analysis.liveness[analysis.cfg.block_id_from_start_pc(fn.start_pc)].in);
+
+	if (!control_enters_functions_only_at_start(script, j_script->structured_zasm, analysis.cfg))
 	{
-		for (pc_t edge : j_script->cfg.block_edges[i])
-		{
-			j_script->block_predecessors[edge].push_back(i);
-		}
+		jit_printf("[jit] keeping the analysis of the whole script, since control enters a function somewhere other than its start: %s\n", script->name.c_str());
+		analysis.block_predecessors = find_block_predecessors(analysis.cfg);
+		j_script->script_analysis = std::make_unique<JitFunctionAnalysis>(std::move(analysis));
 	}
 
 	j_script->function_start_pcs.reserve(j_script->structured_zasm.functions.size());
@@ -233,6 +307,30 @@ void jit_startup_impl()
 {
 	hot_function_loop_count_threshold = std::max(1, (int)get_flag_int("-jit-hot-function-loop-count").value_or(zc_get_config("ZSCRIPT", "jit_hot_function_loop_count", 1000)));
 	hot_function_call_count_threshold = std::max(1, (int)get_flag_int("-jit-hot-function-call-count").value_or(zc_get_config("ZSCRIPT", "jit_hot_function_call_count", 10)));
+}
+
+const JitFunctionAnalysis& jit_analyze_function(zasm_script* script, JittedScript* j_script, const ZasmFunction& fn, JitFunctionAnalysis& storage)
+{
+	if (j_script->script_analysis)
+		return *j_script->script_analysis;
+
+	const auto& structured_zasm = j_script->structured_zasm;
+	storage.cfg = zasm_construct_function_cfg(script, structured_zasm, fn);
+
+	// The blocks outside of this function are where it calls or falls through to - the start of
+	// some function.
+	size_t num_blocks = storage.cfg.block_starts.size();
+	std::vector<std::optional<uint8_t>> fixed_live_in(num_blocks);
+	for (pc_t block = 0; block < num_blocks; block++)
+	{
+		pc_t pc = storage.cfg.block_starts[block];
+		if (pc < fn.start_pc || pc > fn.final_pc)
+			fixed_live_in[block] = j_script->function_live_in[structured_zasm.start_pc_to_function.at(pc)];
+	}
+
+	storage.liveness = zasm_run_liveness_analysis(script, storage.cfg, true, &structured_zasm, &fixed_live_in);
+	storage.block_predecessors = find_block_predecessors(storage.cfg);
+	return storage;
 }
 
 // Doesn't actually compile anything (unless precompile is enabled).

@@ -184,7 +184,7 @@ private:
 // every compare precisely so that it is empty by the time this runs.
 template <typename Ops, typename Reg>
 void jit_reg_cache_flush_policy(Ops& ops, DRegCache<Reg>& cache, JittedScript* j_script,
-	zasm_script* script, pc_t i, pc_t current_block_id, bool is_block_start)
+	const JitFunctionAnalysis& analysis, zasm_script* script, pc_t i, pc_t current_block_id, bool is_block_start)
 {
 	int command = script->zasm[i].command;
 
@@ -223,9 +223,9 @@ void jit_reg_cache_flush_policy(Ops& ops, DRegCache<Reg>& cache, JittedScript* j
 		// does before returning). Skip the dead-drop and flush every dirty register.
 		bool is_returnfunc = command == RETURNFUNC;
 
-		if (!is_returnfunc && !callee_may_yield && j_script->cfg.contains_block_start(i + 1))
+		if (!is_returnfunc && !callee_may_yield && analysis.cfg.contains_block_start(i + 1))
 		{
-			uint8_t out = j_script->liveness[current_block_id].out;
+			uint8_t out = analysis.liveness[current_block_id].out;
 
 			// For a CALLFUNC the block's own .out is the callee's live-in (the CFG edge
 			// goes to the callee), which does not capture what the caller needs once the
@@ -234,7 +234,7 @@ void jit_reg_cache_flush_policy(Ops& ops, DRegCache<Reg>& cache, JittedScript* j
 			// value it leaves untouched has to already be in ri->d[] (e.g. a loop/array
 			// index kept in a register across a helper call). Keep those too.
 			if (command == CALLFUNC)
-				out |= j_script->liveness[j_script->cfg.block_id_from_start_pc(i + 1)].in;
+				out |= analysis.liveness[analysis.cfg.block_id_from_start_pc(i + 1)].in;
 
 			cache.drop_dead(out);
 		}
@@ -246,13 +246,13 @@ void jit_reg_cache_flush_policy(Ops& ops, DRegCache<Reg>& cache, JittedScript* j
 		pc_t block_id = current_block_id;
 		bool is_linear_flow =
 			block_id > 0 &&
-			j_script->cfg.block_edges[block_id - 1].size() == 1 &&
-			j_script->cfg.block_edges[block_id - 1][0] == block_id &&
-			j_script->block_predecessors[block_id].size() == 1;
+			analysis.cfg.block_edges[block_id - 1].size() == 1 &&
+			analysis.cfg.block_edges[block_id - 1][0] == block_id &&
+			analysis.block_predecessors[block_id].size() == 1;
 		if (!is_linear_flow)
 		{
 			if (current_block_id > 0)
-				cache.drop_dead(j_script->liveness[current_block_id - 1].out);
+				cache.drop_dead(analysis.liveness[current_block_id - 1].out);
 
 			ops.flush_cache();
 		}
@@ -484,10 +484,10 @@ void jit_print_compile_debug_dump(DebugHandle* debug_handle, const std::string& 
 // for the logger), so the caller owns it.
 template <typename Backend>
 void jit_emit_function_body(Backend& b, zasm_script* script, JittedScript* j_script,
-	pc_t start_pc, pc_t final_pc, bool runtime_debugging,
+	const JitFunctionAnalysis& analysis, pc_t start_pc, pc_t final_pc, bool runtime_debugging,
 	std::string& comment, std::map<int, int>& uncompiled_command_counts)
 {
-	pc_t current_block_id = j_script->cfg.block_id_from_start_pc(start_pc);
+	pc_t current_block_id = analysis.cfg.block_id_from_start_pc(start_pc);
 
 	for (pc_t i = start_pc; i <= final_pc; i++)
 	{
@@ -503,7 +503,7 @@ void jit_emit_function_body(Backend& b, zasm_script* script, JittedScript* j_scr
 		}
 		else
 		{
-			is_block_start = j_script->cfg.contains_block_start(i);
+			is_block_start = analysis.cfg.contains_block_start(i);
 			if (is_block_start)
 				current_block_id++;
 		}
