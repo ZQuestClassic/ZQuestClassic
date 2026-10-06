@@ -248,6 +248,46 @@ def configure_signatures(ctx: CiContext):
     logger.info(f"Successfully generated {metadata_file}")
 
 
+BISON_VERSION = "3.8.2"
+BISON_SHA256 = "9bba0214ccf7f1079c5d59210045227bcf619519840ebfa80cd3849cff5a5bf2"
+# ftp.gnu.org and the ftpmirror.gnu.org redirector are the same FSF host, so
+# when it is down neither helps. Try independent mirrors first; the checksum
+# makes any of them as trustworthy as the origin.
+GNU_MIRRORS = [
+    "https://mirrors.kernel.org/gnu",
+    "https://mirrors.ocf.berkeley.edu/gnu",
+    "https://mirror.csclub.uwaterloo.ca/gnu",
+    "https://mirrors.dotsrc.org/gnu",
+    "https://ftpmirror.gnu.org/gnu",
+    "https://ftp.gnu.org/gnu",
+]
+
+
+def download_bison() -> Path:
+    filename = f"bison-{BISON_VERSION}.tar.xz"
+    tarball = Path(filename).absolute()
+    for mirror in GNU_MIRRORS:
+        url = f"{mirror}/bison/{filename}"
+        logger.info(f"Downloading {url}")
+        result = subprocess.run(
+            ['curl', '-sSfL', '--connect-timeout', '20', '--max-time', '300']
+            + ['-o', str(tarball), url]
+        )
+        if result.returncode != 0:
+            logger.warning(f"Download failed (curl exit {result.returncode})")
+            continue
+
+        digest = hashlib.sha256(tarball.read_bytes()).hexdigest()
+        if digest != BISON_SHA256:
+            logger.warning(f"sha256 mismatch: {digest}")
+            continue
+
+        return tarball
+
+    logger.error("Could not download bison from any mirror")
+    sys.exit(1)
+
+
 @command("install-deps", help="Install OS-level dependencies")
 def install_deps(ctx: CiContext, args):
     logger.info("Starting dependency installation...")
@@ -268,14 +308,12 @@ def install_deps(ctx: CiContext, args):
                 with open(github_path, 'a') as f:
                     f.write(f"{bison_prefix}/bin\n")
         else:
-            logger.info("Building Bison 3.8.2...")
-            run_cmd(
-                "wget --tries=3 --timeout=60 https://ftpmirror.gnu.org/gnu/bison/bison-3.8.2.tar.xz"
-            )
-            run_cmd("tar -xf bison-3.8.2.tar.xz")
-            run_cmd("./configure --disable-nls", cwd="bison-3.8.2")
-            run_cmd(f"make -j{os.cpu_count() or 2}", cwd="bison-3.8.2")
-            run_cmd("sudo make install", cwd="bison-3.8.2")
+            logger.info(f"Building Bison {BISON_VERSION}...")
+            tarball = download_bison()
+            run_cmd(['tar', '-xf', tarball])
+            run_cmd("./configure --disable-nls", cwd=f"bison-{BISON_VERSION}")
+            run_cmd(f"make -j{os.cpu_count() or 2}", cwd=f"bison-{BISON_VERSION}")
+            run_cmd("sudo make install", cwd=f"bison-{BISON_VERSION}")
 
     elif ctx.is_linux:
         logger.info("Linux detected. Installing via apt-get.")
