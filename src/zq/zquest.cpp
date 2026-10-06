@@ -18212,11 +18212,12 @@ auto_do_slots:
 		write_script(zasmCompilerResult, zasm_str, false, false);
 
 		std::vector<ffscript> zasm;
-		if(parse_script_string(zasm, zasm_str, false))
+		zasm_literals literals;
+		if(parse_script_string(zasm, literals, zasm_str, false))
 			goto exit_do_slots;
 
 		zasm_scripts.clear();
-		zasm_scripts.emplace_back(std::make_shared<zasm_script>(std::move(zasm)));
+		zasm_scripts.emplace_back(std::make_shared<zasm_script>(std::move(zasm), std::move(literals)));
 		zasm_debug_data = std::move(zasmCompilerResult.debugData);
 
 		if(!handle_slot_map(ffcmap, 1, ffscripts))

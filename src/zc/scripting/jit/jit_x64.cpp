@@ -1479,7 +1479,7 @@ static void compile_single_command(CompilationState& state, x86::Compiler& cc, c
 			// Range search; see the opcode's comment in defines.h. Binary search
 			// over the sorted ranges, comparing the key itself - no index math,
 			// so non-integral keys inside a range work like the interpreter's.
-			const auto& table = *instr.vecptr;
+			const auto& table = *script->literals.vec(instr);
 			size_t num_ranges = gotoranges_count(table);
 
 			std::map<int, Label> bail_stubs;
@@ -1540,7 +1540,7 @@ static void compile_single_command(CompilationState& state, x86::Compiler& cc, c
 			// Dense-switch dispatch; see the opcode's comment in defines.h. Emitted as
 			// a balanced compare tree over the table index - every branch is static,
 			// and an N-way switch costs ~log2(N) compares instead of a linear ladder.
-			const auto& table = *instr.vecptr;
+			const auto& table = *script->literals.vec(instr);
 			int32_t min_key = table[0];
 			size_t num_targets = table.size() - 2;
 

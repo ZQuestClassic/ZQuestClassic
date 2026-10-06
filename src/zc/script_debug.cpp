@@ -176,13 +176,15 @@ void ScriptDebugHandle::print_command(int i)
 		print(CConsoleLoggerEx::COLOR_WHITE | CConsoleLoggerEx::COLOR_BACKGROUND_BLACK, ", ");
 		if(sc->arr_type == 1)
 		{
-			printf(CConsoleLoggerEx::COLOR_WHITE | CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,
-				"\t %s", op.strptr->c_str());
+			if (auto str = script->literals.str(op))
+				printf(CConsoleLoggerEx::COLOR_WHITE | CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,
+					"\t %s", str->c_str());
 		}
 		else //if(sc->arr_type == 2)
 		{
-			printf(CConsoleLoggerEx::COLOR_WHITE | CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,
-				"\t %s", fmt::format("{{ {} }}", fmt::join(*op.vecptr, ", ")).c_str());
+			if (auto vec = script->literals.vec(op))
+				printf(CConsoleLoggerEx::COLOR_WHITE | CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,
+					"\t %s", fmt::format("{{ {} }}", fmt::join(*vec, ", ")).c_str());
 		}
 	}
 	print("\n");
@@ -227,7 +229,7 @@ void ScriptDebugHandle::pre_command()
 		std::string line = script_debug_registers_and_stack_to_string();
 		util::replchar(line, '\n', ' ');
 
-		replay_step_comment(fmt::format("{} pc: {} {} | {}", script_debug_source_location(i), i, zasm_op_to_string(op), line));
+		replay_step_comment(fmt::format("{} pc: {} {} | {}", script_debug_source_location(i), i, zasm_op_to_string(op, script->literals), line));
 
 		if (command == COMPAREV || command == COMPARER)
 		{

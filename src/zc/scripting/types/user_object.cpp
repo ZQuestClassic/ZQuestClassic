@@ -12,8 +12,8 @@ extern refInfo *ri;
 extern int32_t sarg1;
 extern int32_t sarg2;
 extern int32_t sarg3;
-extern vector<int32_t> *sargvec;
-extern string *sargstr;
+extern const vector<int32_t> *sargvec;
+extern const string *sargstr;
 
 static UserDataContainer<user_object, MAX_USER_OBJECTS> user_objects = {script_object_type::object, "object"};
 

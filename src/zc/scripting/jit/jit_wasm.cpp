@@ -1136,7 +1136,7 @@ template <typename Branch>
 static void emit_gotoranges_tree(CompilationState& state, const zasm_script* script, pc_t pc, Branch branch)
 {
 	WasmAssembler& wasm = *state.wasm;
-	const auto& table = *script->zasm[pc].vecptr;
+	const auto& table = *script->literals.vec(script->zasm[pc]);
 	size_t num_ranges = gotoranges_count(table);
 
 	if (num_ranges == 0)
@@ -1196,7 +1196,7 @@ static void emit_gotoranges_search(CompilationState& state, const zasm_script* s
 static void emit_gototable_index(CompilationState& state, const zasm_script* script, pc_t pc)
 {
 	WasmAssembler& wasm = *state.wasm;
-	const auto& table = *script->zasm[pc].vecptr;
+	const auto& table = *script->literals.vec(script->zasm[pc]);
 
 	get_z_register(state, script->zasm[pc].arg1);
 	wasm.emitI32Const(table[0]);
@@ -2485,7 +2485,7 @@ static std::optional<WasmAssembler> compile_function_structured(CompilationState
 			// via the sink: a br_table for a table, a compare tree for ranges.
 			// succ_switch is {default, targets...}, matching zasm_jump_targets.
 			bi.term = Term::Switch;
-			for (int pc2 : zasm_jump_targets(command, script->zasm[bfinal].vecptr))
+			for (int pc2 : zasm_jump_targets(command, script->literals.vec(script->zasm[bfinal])))
 			{
 				int target = pc2 >= (int)start_pc && pc2 <= (int)final_pc ? block_id_of(pc2) : -1;
 				if (target < 0)
@@ -3275,7 +3275,7 @@ static WasmAssembler compile_function(CompilationState& state, const zasm_script
 					// Range search; see the opcode's comment in defines.h. As with
 					// GOTOTABLE below, the loop-switch reaches every target through
 					// the dispatch variable.
-					const auto& table = *script->zasm[i].vecptr;
+					const auto& table = *script->literals.vec(script->zasm[i]);
 					int base_depth = num_frames - current_rank;
 					emit_gotoranges_tree(state, script, i, [&](int target_index, int extra) {
 						int target_pc = target_index < 0 ? table[0] : gotoranges_at(table, target_index).target;
@@ -3293,7 +3293,7 @@ static WasmAssembler compile_function(CompilationState& state, const zasm_script
 					// dispatch variable, so lower to a balanced compare tree over
 					// the table index whose leaves set the dispatch target. (The
 					// structured lowering uses a real br_table instead.)
-					const auto& table = *script->zasm[i].vecptr;
+					const auto& table = *script->literals.vec(script->zasm[i]);
 					size_t num_targets = table.size() - 2;
 					auto runs = gototable_compress(table);
 					int base_depth = num_frames - current_rank;

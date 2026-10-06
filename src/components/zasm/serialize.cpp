@@ -40,7 +40,7 @@ std::string zasm_arg_to_string(int32_t arg, ARGTY arg_ty)
 	}
 }
 
-std::string zasm_op_to_string(word scommand, int32_t arg1, int32_t arg2, int32_t arg3, std::vector<int>* argvec, std::string* argstr)
+std::string zasm_op_to_string(word scommand, int32_t arg1, int32_t arg2, int32_t arg3, const std::vector<int>* argvec, const std::string* argstr)
 {
 	std::stringstream ss;
 	auto c = get_script_command(scommand);
@@ -97,9 +97,9 @@ std::string zasm_op_to_string(word scommand, int32_t arg1, int32_t arg2, int32_t
 	return ss.str();
 }
 
-std::string zasm_op_to_string(const ffscript& c)
+std::string zasm_op_to_string(const ffscript& c, const zasm_literals& literals)
 {
-	return zasm_op_to_string(c.command, c.arg1, c.arg2, c.arg3, c.vecptr, c.strptr);
+	return zasm_op_to_string(c.command, c.arg1, c.arg2, c.arg3, literals.vec(c), literals.str(c));
 }
 
 std::string zasm_op_to_string(word scommand)
@@ -188,9 +188,10 @@ static std::optional<int> parse_zasm_numerical_arg(const std::vector<std::string
 	return std::nullopt;
 }
 
-ffscript parse_zasm_op(std::string op_str)
+ffscript parse_zasm_op(std::string op_str, zasm_literals& literals)
 {
 	ffscript result{};
+	zasm_literal literal;
 
 	auto tokens = util::split_args(op_str);
 	CHECK(tokens.size() >= 2);
@@ -217,18 +218,19 @@ ffscript parse_zasm_op(std::string op_str)
 			iss >> word;
 		std::getline(iss >> std::ws, rest);
 		if (rest.starts_with('"'))
-			result.strptr = new std::string(util::unescape_string(rest));
+			literal.str = util::unescape_string(rest);
 	}
 	else if (sc->arr_type == 2 && token_index < tokens.size() && tokens[token_index] == "{")
 	{
-		result.vecptr = new std::vector<int32_t>();
+		auto& vec = literal.vec.emplace();
 		token_index++;
 		// Annotations may follow the closing brace (older text even ran them
 		// into it, as in "}[Block 1 -> 2]").
 		while (token_index < tokens.size() && !tokens[token_index].starts_with('}'))
-			result.vecptr->push_back(std::stoi(tokens[token_index++]));
+			vec.push_back(std::stoi(tokens[token_index++]));
 		CHECK(token_index < tokens.size());
 	}
 
+	CHECK(literals.set(result, std::move(literal)));
 	return result;
 }

@@ -443,6 +443,22 @@ static bool optimize_strength_reduce(OptContext& ctx)
 	return true;
 }
 
+static bool is_podarray_run_write(const ffscript& op)
+{
+	// Immediate-index, type-none POD element write (VV = const value, VR = register value).
+	return (op.command == WRITEPODARRAYVV || op.command == WRITEPODARRAYVR) && op.arg3 == 0;
+}
+
+static bool is_podarray_run_start(const ffscript& op)
+{
+	// Run must begin at element 0.
+	return is_podarray_run_write(op) && op.arg1 == 0;
+}
+
+// The functions of a script may be optimized at the same time, so the literals the collapsed runs
+// need are reserved up front (see zasm_optimize_script) - adding one must never reallocate them.
+static std::mutex podarray_literals_mutex;
+
 // Collapse a run of per-element array writes into a single bulk array write:
 //
 //   WRITEPODARRAYVV 0      v0       WRITEPODARRAY   rINDEX {v0, 0, v2, ...}
@@ -460,22 +476,16 @@ static bool optimize_strength_reduce(OptContext& ctx)
 // (setArray) bulk-writes from index 0.
 static bool optimize_collapse_podarray_init(OptContext& ctx)
 {
-	auto is_run_write = [](const ffscript& op) {
-		// Immediate-index, type-none POD element write (VV = const value, VR = register value).
-		return (op.command == WRITEPODARRAYVV || op.command == WRITEPODARRAYVR) && op.arg3 == 0;
-	};
-
 	for (pc_t i = ctx.fn.start_pc; i <= ctx.fn.final_pc; i++)
 	{
-		// Run must begin at element 0.
-		if (!is_run_write(C(i)) || C(i).arg1 != 0)
+		if (!is_podarray_run_start(C(i)))
 			continue;
 
 		// Extend over the maximal contiguous, sequentially-indexed run.
 		pc_t j = i;
 		int expected_index = 0;
 		int n_const = 0;
-		while (j <= ctx.fn.final_pc && is_run_write(C(j)) && C(j).arg1 == expected_index)
+		while (j <= ctx.fn.final_pc && is_podarray_run_write(C(j)) && C(j).arg1 == expected_index)
 		{
 			if (C(j).command == WRITEPODARRAYVV)
 				n_const++;
@@ -491,24 +501,37 @@ static bool optimize_collapse_podarray_init(OptContext& ctx)
 		if (bisect_tool_should_skip())
 			continue;
 
-		auto values = new std::vector<int32_t>();
-		values->reserve(len);
+		std::vector<int32_t> values;
+		values.reserve(len);
 		std::vector<ffscript> leftovers;
 		for (pc_t k = i; k < j; k++)
 		{
 			if (C(k).command == WRITEPODARRAYVV)
 			{
-				values->push_back(C(k).arg2);
+				values.push_back(C(k).arg2);
 			}
 			else // WRITEPODARRAYVR: register value -> placeholder, re-emit after the bulk write
 			{
-				values->push_back(0);
+				values.push_back(0);
 				leftovers.push_back({WRITEPODARRAYVR, C(k).arg1, C(k).arg2, C(k).arg3});
 			}
 		}
 
+		uint16_t literal;
+		{
+			std::lock_guard lock(podarray_literals_mutex);
+			auto& literals = ctx.script->literals;
+			// Only the runs counted up front were reserved. None of the earlier passes
+			// creates a run, so this should not happen, but adding one would reallocate.
+			if (literals.size() >= literals.capacity())
+				continue;
+			literal = literals.add({.vec = std::move(values)});
+		}
+		if (!literal)
+			continue;
+
 		C(i) = {WRITEPODARRAY, rINDEX};
-		C(i).vecptr = values;
+		C(i).literal = literal;
 		pc_t w = i + 1;
 		for (const auto& lo : leftovers)
 			C(w++) = lo;
@@ -1230,7 +1253,7 @@ static void simulate_block(OptContext& ctx, SimulationState& state)
 		simulate(ctx, state);
 		if (ctx.debug)
 		{
-			fmt::println("{}: {}", state.pc, zasm_op_to_string(C(state.pc)));
+			fmt::println("{}: {}", state.pc, zasm_op_to_string(C(state.pc), ctx.script->literals));
 			for (int i = 0; i < 8; i++)
 			{
 				if (!state.d[i].is_register())
@@ -1669,7 +1692,7 @@ static bool optimize_spurious_branches(OptContext& ctx)
 			ctx.cfg_stale = true;
 		C(final_pc) = {GOTOCMP, (int)goto_pc, command_to_cmp(command, C(final_pc).arg2)};
 		if (ctx.debug)
-			fmt::println("rewrite {}: {}", final_pc, zasm_op_to_string(C(final_pc)));
+			fmt::println("rewrite {}: {}", final_pc, zasm_op_to_string(C(final_pc), ctx.script->literals));
 	});
 
 	return true;
@@ -1840,7 +1863,7 @@ static bool optimize_reduce_comparisons(OptContext& ctx)
 			{
 				fmt::println("rewrite {}: {} -> {} commands", j, final_pc - j + 1, expression_zasm.size());
 				for (int i = j; i <= final_pc; i++)
-					fmt::println("{}: {}", i, zasm_op_to_string(C(i)));
+					fmt::println("{}: {}", i, zasm_op_to_string(C(i), ctx.script->literals));
 			}
 
 			// TODO: Will need to be a loop when more than just final command being GOTO is handled.
@@ -2087,7 +2110,7 @@ static bool optimize_inline_functions(OptContext& ctx)
 			}
 
 			found_instr = true;
-			C(k).copy(data.inline_instr);
+			data.inline_instr = C(k);
 		}
 		if (bail)
 			continue;
@@ -2252,7 +2275,7 @@ static bool optimize_inline_functions(OptContext& ctx)
 		{
 			fmt::println("rewrite {}: {} -> {} commands", hole_start_pc, hole_length, inlined_zasm.size());
 			for (int i = hole_start_pc; i <= hole_final_pc; i++)
-				fmt::println("{}: {}", i, zasm_op_to_string(C(i)));
+				fmt::println("{}: {}", i, zasm_op_to_string(C(i), ctx.script->literals));
 		}
 
 		if (hole_start_pc > 0 && C(hole_start_pc - 1).command == PEEK)
@@ -2453,6 +2476,14 @@ static OptimizeResults create_opt_results()
 OptimizeResults zasm_optimize_script(zasm_script* script)
 {
 	OptimizeResults results = create_opt_results();
+
+	size_t podarray_runs = 0;
+	for (const auto& op : script->zasm)
+	{
+		if (is_podarray_run_start(op))
+			podarray_runs++;
+	}
+	script->literals.reserve(script->literals.size() + podarray_runs);
 
 	auto start_time = std::chrono::steady_clock::now();
 	auto structured_zasm = zasm_construct_structured(script);

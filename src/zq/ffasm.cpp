@@ -96,6 +96,7 @@ std::map<std::string, int32_t> labels;
 #define ERR_PARAM3       3
 #define ERR_STR          4
 #define ERR_VEC          5
+#define ERR_LITERALS     6
 static const char* errstrbuf[] =
 {
 	"invalid instruction!",
@@ -103,9 +104,10 @@ static const char* errstrbuf[] =
 	"parameter 2 invalid!",
 	"parameter 3 invalid!",
 	"string parameter invalid!",
-	"vector parameter invalid!"
+	"vector parameter invalid!",
+	"too many string and array literals!",
 };
-int32_t parse_script_string(std::vector<ffscript>& zasm, std::string const& scriptstr, bool report_success)
+int32_t parse_script_string(std::vector<ffscript>& zasm, zasm_literals& literals, std::string const& scriptstr, bool report_success)
 {
 	mark_save_dirty();
 	string buffer;
@@ -425,7 +427,7 @@ int32_t parse_script_string(std::vector<ffscript>& zasm, std::string const& scri
 		int32_t parse_err;
 		ffscript& zas = zasm.emplace_back();
 		if(bad_dstr || bad_dvec ||
-			!(parse_script_section(combuf, argbufs, zas, parse_err, has_vec ? &arr_vec : nullptr, has_str ? &arr_str : nullptr)))
+			!(parse_script_section(combuf, argbufs, zas, literals, parse_err, has_vec ? &arr_vec : nullptr, has_str ? &arr_str : nullptr)))
 		{
 			if(bad_dstr)
 				parse_err = ERR_STR;
@@ -436,14 +438,19 @@ int32_t parse_script_string(std::vector<ffscript>& zasm, std::string const& scri
 			char vstrbuf[64] = {0};
 			if(has_str || has_vec)
 				snprintf(vstrbuf, sizeof(vstrbuf), " (%s%s%s)",has_str ? "str" : "", has_str&&has_vec ? "," : "", has_vec ? "vec" : "");
-			InfoDialog("Error", fmt::format(
+			std::string error = errstrbuf[parse_err];
+			if (parse_err == ERR_LITERALS)
+				error += fmt::format(" A script can have at most {}.", zasm_literals::max_size);
+			std::string message = fmt::format(
 				"Unable to parse instruction {}"
 				"\nThe error was: {}"
 				"\nThe command was ({}) ({},{},{}){}",
 				i+1,
-				errstrbuf[parse_err],
+				error,
 				combuf, arg1buf, arg2buf, arg3buf, vstrbuf
-			)).show();
+			);
+			zprint2("Error: %s\n", message.c_str());
+			InfoDialog("Error", message).show();
 			stop=true;
 			success=false;
 			zasm.pop_back();
@@ -540,20 +547,16 @@ bool handle_arg(ARGTY ty, char const* buf, int& arg)
 	return false;
 }
 
-int32_t parse_script_section(char const* combuf, char const* const* argbufs, ffscript& zas, int32_t &retcode, std::vector<int32_t> *vptr, std::string *sptr)
+int32_t parse_script_section(char const* combuf, char const* const* argbufs, ffscript& zas, zasm_literals& literals, int32_t &retcode, std::vector<int32_t> *vptr, std::string *sptr)
 {
 	zas.arg1 = 0;
 	zas.arg2 = 0;
-	zas.vecptr = nullptr;
-	zas.strptr = nullptr;
+	zas.literal = 0;
+	zasm_literal literal;
 	if(vptr)
-	{
-		zas.vecptr = new std::vector<int32_t>(*vptr);
-	}
+		literal.vec = *vptr;
 	if(sptr)
-	{
-		zas.strptr = new std::string(*sptr);
-	}
+		literal.str = *sptr;
 
 	auto sc = get_script_command(combuf);
 	if (!sc)
@@ -612,20 +615,26 @@ int32_t parse_script_section(char const* combuf, char const* const* argbufs, ffs
 		case GOTOTABLE:
 			// The vector is {min_key, default_pc, targets...}; every entry past
 			// the key is a label, written 1-indexed like the goto args above.
-			if(zas.vecptr)
-				for(size_t q = 1; q < zas.vecptr->size(); ++q)
-					(*zas.vecptr)[q] -= 1;
+			if(literal.vec)
+				for(size_t q = 1; q < literal.vec->size(); ++q)
+					(*literal.vec)[q] -= 1;
 			break;
 		case GOTORANGES:
 			// The vector is {default_pc, start, end, pc, ...}; the default and
 			// every third entry after it are labels, the bounds are values.
-			if(zas.vecptr)
+			if(literal.vec)
 			{
-				(*zas.vecptr)[0] -= 1;
-				for(size_t q = 3; q < zas.vecptr->size(); q += 3)
-					(*zas.vecptr)[q] -= 1;
+				(*literal.vec)[0] -= 1;
+				for(size_t q = 3; q < literal.vec->size(); q += 3)
+					(*literal.vec)[q] -= 1;
 			}
 			break;
+	}
+
+	if (!literals.set(zas, std::move(literal)))
+	{
+		retcode = ERR_LITERALS;
+		return 0;
 	}
 
 	return 1;

@@ -91,23 +91,35 @@ static void expect(std::string name, const SimulationValue& expected, const Simu
 	}
 }
 
-static void expect(std::string name, zasm_script* script, std::vector<ffscript>&& s)
+static bool same_instruction(const zasm_script* a, const ffscript& a_op, const zasm_script* b, const ffscript& b_op)
 {
+	if (a_op.command != b_op.command || a_op.arg1 != b_op.arg1 || a_op.arg2 != b_op.arg2 || a_op.arg3 != b_op.arg3)
+		return false;
+
+	auto a_literal = a->literals.get(a_op);
+	auto b_literal = b->literals.get(b_op);
+	if (!a_literal || !b_literal)
+		return a_literal == b_literal;
+	return *a_literal == *b_literal;
+}
+
+static void expect(std::string name, zasm_script* script, const zasm_script* expected_script)
+{
+	const auto& s = expected_script->zasm;
 	bool success = script->size == s.size();
 	for (int i = 0; i < s.size(); i++)
 	{
 		if (!success) break;
 		if (script->zasm[i].command == NOP && s[i].command == NOP)
 			continue;
-		if (script->zasm[i] != s[i])
+		if (!same_instruction(script, script->zasm[i], expected_script, s[i]))
 			success = false;
 	}
 
 	if (!success)
 	{
 		current_test_failed = true;
-		auto expected_script = zasm_script{std::move(s)};
-		std::string expected = zasm_to_string_clean(&expected_script);
+		std::string expected = zasm_to_string_clean(expected_script);
 		std::string got = zasm_to_string_clean(script);
 		fmt::println("failure: {}\n{}:{}\n", name, expect_file, expect_line);
 		fmt::println("= expected:\n\n{}", expected);
@@ -116,12 +128,19 @@ static void expect(std::string name, zasm_script* script, std::vector<ffscript>&
 	}
 }
 
+static void expect(std::string name, zasm_script* script, std::vector<ffscript>&& s)
+{
+	auto expected_script = zasm_script{std::move(s)};
+	expect(name, script, &expected_script);
+}
+
 // Simplified version of parsing ZASM.
 static zasm_script zasm_from_string(std::string text)
 {
 	normalize_whitespace(text);
 
 	std::vector<ffscript> instructions;
+	zasm_literals literals;
 	std::vector<std::string> lines;
 	util::split(text, lines, '\n');
 	for (auto& line : lines)
@@ -130,11 +149,11 @@ static zasm_script zasm_from_string(std::string text)
 		if (line.empty() || line.starts_with("Function"))
 			continue;
 
-		instructions.push_back(parse_zasm_op(line));
+		instructions.push_back(parse_zasm_op(line, literals));
 	}
 
 	instructions.emplace_back(0xFFFF);
-	return {std::move(instructions)};
+	return {std::move(instructions), std::move(literals)};
 }
 
 // Used by test_optimize_zasm_unit.py
@@ -596,17 +615,43 @@ TestResults test_zasm_optimize([[maybe_unused]] bool verbose)
 		}
 	});
 
+	TEST("zasm_literals", tr, [&]{
+		zasm_literals literals;
+		ffscript op{WRITEPODSTRING, D(2)};
+
+		// A literal with neither a string nor an array is not stored.
+		assertTrue(literals.set(op, {}));
+		assertEqual(op.literal, uint16_t(0));
+		assertTrue(literals.get(op) == nullptr);
+
+		assertTrue(literals.set(op, {.str = ""}));
+		assertEqual(op.literal, uint16_t(1));
+		assertEqual(*literals.str(op), std::string(""));
+		assertTrue(literals.vec(op) == nullptr);
+
+		while (literals.size() < zasm_literals::max_size)
+			assertTrue(literals.add({.vec = std::vector<int32_t>{(int32_t)literals.size()}}) != 0);
+		assertEqual(literals.add({.str = "x"}), uint16_t(0));
+		assertTrue(!literals.set(op, {.str = "x"}));
+		assertEqual(op.literal, uint16_t(0));
+
+		ffscript last{WRITEPODARRAY, D(2)};
+		last.literal = zasm_literals::max_size;
+		assertEqual((*literals.vec(last))[0], int32_t(zasm_literals::max_size - 1));
+	});
+
 	TEST("zasm_text_round_trip", tr, [&]{
 		// The snippet tests re-save their input by printing what they parsed, so
 		// parsing printed ZASM must give back the same script.
-		auto with_string = [](std::string str){
+		zasm_literals literals;
+		auto with_string = [&](std::string str){
 			ffscript op{WRITEPODSTRING, D(2)};
-			op.strptr = new std::string(std::move(str));
+			literals.set(op, {.str = std::move(str)});
 			return op;
 		};
-		auto with_vector = [](int command, int arg1, std::vector<int32_t> vec){
+		auto with_vector = [&](int command, int arg1, std::vector<int32_t> vec){
 			ffscript op(command, arg1);
-			op.vecptr = new std::vector<int32_t>(std::move(vec));
+			literals.set(op, {.vec = std::move(vec)});
 			return op;
 		};
 
@@ -623,10 +668,9 @@ TestResults test_zasm_optimize([[maybe_unused]] bool verbose)
 		zasm.push_back({QUIT});
 		zasm.emplace_back(0xFFFF);
 
-		std::vector<ffscript> expected = zasm;
-		zasm_script script{std::move(zasm)};
+		zasm_script script{std::move(zasm), std::move(literals)};
 		auto parsed = zasm_from_string(zasm_to_string_clean(&script));
-		EXPECT(name, &parsed, std::move(expected));
+		EXPECT(name, &parsed, &script);
 	});
 
 	TEST("liveness_branch_then_call", tr, [&]{

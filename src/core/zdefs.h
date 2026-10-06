@@ -35,6 +35,7 @@
 #include <math.h>
 #include <cstring>
 #include <memory>
+#include <optional>
 #include <set>
 #include <assert.h>
 #include <algorithm>
@@ -1449,128 +1450,104 @@ ScriptType get_script_type(std::string const& name);
 std::string get_script_name(ScriptType type);
 
 #define NUM_ZS_ARGS 3
+// One ZASM instruction. A string or array it carries (its literal) is held by its zasm_script.
 struct ffscript
 {
 	word command;
+	// 1 + the index of this instruction's literal in its script's zasm_literals, or 0 if it has
+	// none.
+	uint16_t literal;
 	int32_t arg1, arg2, arg3;
-	std::vector<int32_t> *vecptr;
-	std::string *strptr;
-	ffscript() : vecptr(), strptr()
-	{
-		clear();
-	}
+
+	ffscript() : command(0xFFFF), literal(0), arg1(0), arg2(0), arg3(0) {}
 	ffscript(word command, int32_t arg1 = 0, int32_t arg2 = 0, int32_t arg3 = 0)
-		: command(command), arg1(arg1), arg2(arg2), arg3(arg3),
-		vecptr(nullptr), strptr(nullptr)
+		: command(command), literal(0), arg1(arg1), arg2(arg2), arg3(arg3)
 	{}
-	ffscript(ffscript const& other) : vecptr(), strptr()
+};
+// Quests have many millions of instructions.
+static_assert(sizeof(ffscript) == 16);
+
+// A string or array of values an instruction carries, like the string a WRITEPODSTRING writes or
+// the table of a GOTOTABLE. Which one a command uses is its arr_type (see script_command), but the
+// qst format allows both on any instruction.
+//
+// Not having a string (or array) is different from having an empty one: WRITEPODSTRING does nothing
+// without a string, but with "" it writes a terminator. ZASM text keeps the difference (nothing is
+// printed for a missing one), the qst format does not (both save as length 0 and load as missing).
+struct zasm_literal
+{
+	std::optional<std::string> str;
+	std::optional<std::vector<int32_t>> vec;
+
+	// True if there is neither a string nor an array.
+	bool unset() const
 	{
-		other.copy(*this);
+		return !str && !vec;
 	}
-	ffscript(ffscript&& other) : ffscript()
+	bool operator==(const zasm_literal&) const = default;
+};
+
+// The literals of a script's instructions, which refer to them by index (ffscript::literal).
+//
+// Not thread safe, except that literals may be read while another thread adds one, as long as
+// that doesn't grow the capacity (see reserve).
+class zasm_literals
+{
+public:
+	// ffscript::literal is 16 bits, and 0 means no literal.
+	static constexpr size_t max_size = UINT16_MAX;
+
+	// Returns the value of ffscript::literal for an instruction with this literal, or 0 if there
+	// are already max_size literals.
+	uint16_t add(zasm_literal literal)
 	{
-		swap(other);
-	}
-	ffscript& operator=(ffscript const& other)
-	{
-		ffscript temp(other);
-		swap(temp);
-		return *this;
+		if (literals.size() >= max_size)
+			return 0;
+		literals.push_back(std::move(literal));
+		return (uint16_t)literals.size();
 	}
 
-	ffscript& operator=(ffscript&& other) noexcept
+	// Sets the literal of `op`, unless it is unset (then `op` gets none). Returns false if there
+	// are already max_size literals.
+	bool set(ffscript& op, zasm_literal literal)
 	{
-		swap(other);
-		return *this;
+		op.literal = 0;
+		if (literal.unset())
+			return true;
+		op.literal = add(std::move(literal));
+		return op.literal != 0;
 	}
-	~ffscript()
+
+	const zasm_literal* get(const ffscript& op) const
 	{
-		if(vecptr)
-		{
-			delete vecptr;
-			vecptr = nullptr;
-		}
-		if(strptr)
-		{
-			delete strptr;
-			strptr = nullptr;
-		}
+		return op.literal ? &literals[op.literal - 1] : nullptr;
 	}
-	
-	void swap(ffscript& other) noexcept
+	const std::string* str(const ffscript& op) const
 	{
-		std::swap(command, other.command);
-        std::swap(arg1, other.arg1);
-        std::swap(arg2, other.arg2);
-        std::swap(arg3, other.arg3);
-        std::swap(vecptr, other.vecptr);
-        std::swap(strptr, other.strptr);
+		auto literal = get(op);
+		return literal && literal->str ? &*literal->str : nullptr;
 	}
-	void clear()
+	const std::vector<int32_t>* vec(const ffscript& op) const
 	{
-		command = 0xFFFF;
-		arg1 = 0;
-		arg2 = 0;
-		arg3 = 0;
-		if(vecptr)
-		{
-			delete vecptr;
-			vecptr = nullptr;
-		}
-		if(strptr)
-		{
-			delete strptr;
-			strptr = nullptr;
-		}
+		auto literal = get(op);
+		return literal && literal->vec ? &*literal->vec : nullptr;
 	}
-	void copy(ffscript& other) const
+
+	size_t size() const
 	{
-		other.clear();
-		other.command = command;
-		other.arg1 = arg1;
-		other.arg2 = arg2;
-		other.arg3 = arg3;
-		if(vecptr)
-		{
-			other.vecptr = new std::vector<int32_t>();
-			for(int32_t val : *vecptr)
-				other.vecptr->push_back(val);
-		}
-		if(strptr)
-		{
-			other.strptr = new std::string();
-			for(char c : *strptr)
-				other.strptr->push_back(c);
-		}
+		return literals.size();
 	}
-	
-	bool operator==(ffscript const& other) const
+	size_t capacity() const
 	{
-		//Compare primitive members
-		if(command != other.command) return false;
-		if(arg1 != other.arg1) return false;
-		if(arg2 != other.arg2) return false;
-		if(arg3 != other.arg3) return false;
-		//Check for pointer existence differences
-		if((vecptr==nullptr)!=(other.vecptr==nullptr)) return false;
-		if((strptr==nullptr)!=(other.strptr==nullptr)) return false;
-		//If both have a pointer, compare pointer size/contents
-		if(vecptr)
-		{
-			if(vecptr->size() != other.vecptr->size())
-				return false;
-			if((*vecptr) != (*other.vecptr))
-				return false;
-		}
-		if(strptr)
-		{
-			if(strptr->size() != other.strptr->size())
-				return false;
-			if(strptr->compare(*other.strptr))
-				return false;
-		}
-		return true;
+		return literals.capacity();
 	}
+	void reserve(size_t size)
+	{
+		literals.reserve(size);
+	}
+
+private:
+	std::vector<zasm_literal> literals;
 };
 
 struct script_id {
@@ -1588,14 +1565,15 @@ struct script_data;
 struct zasm_script
 {
 	zasm_script() = default;
-	zasm_script(zasm_script_id id, std::string name, std::vector<ffscript>&& zasm) : id(id), optimized(false), name(name), size(zasm.size()), zasm(std::exchange(zasm, {})), script_datas() {}
-	zasm_script(std::vector<ffscript>&& zasm) : id(0), optimized(false), name(""), size(zasm.size()), zasm(std::exchange(zasm, {})), script_datas() {}
+	zasm_script(zasm_script_id id, std::string name, std::vector<ffscript>&& zasm, zasm_literals&& literals = {}) : id(id), optimized(false), name(name), size(zasm.size()), zasm(std::exchange(zasm, {})), literals(std::exchange(literals, {})), script_datas() {}
+	zasm_script(std::vector<ffscript>&& zasm, zasm_literals&& literals = {}) : id(0), optimized(false), name(""), size(zasm.size()), zasm(std::exchange(zasm, {})), literals(std::exchange(literals, {})), script_datas() {}
 
 	zasm_script_id id;
 	bool optimized;
 	std::string name;
 	size_t size;
 	std::vector<ffscript> zasm;
+	zasm_literals literals;
 	std::vector<script_data*> script_datas;
 
 	// One past the highest SCRIPT_INST_VARS register any instruction in this

@@ -662,8 +662,8 @@ int32_t FF_UserMidis[NUM_USER_MIDI_OVERRIDES]; //MIDIs to use for Game Over, and
 int32_t sarg1;
 int32_t sarg2;
 int32_t sarg3;
-vector<int32_t> *sargvec;
-string *sargstr;
+const vector<int32_t> *sargvec;
+const string *sargstr;
 refInfo *ri;
 script_data *curscript;
 int32_t(*stack)[MAX_STACK_SIZE];
@@ -681,8 +681,8 @@ static vector<int32_t> curScriptIndex_cache;
 static vector<int32_t> sarg1cache;
 static vector<int32_t> sarg2cache;
 static vector<int32_t> sarg3cache;
-static vector<vector<int32_t>*> sargvec_cache;
-static vector<string*> sargstr_cache;
+static vector<const vector<int32_t>*> sargvec_cache;
+static vector<const string*> sargstr_cache;
 static vector<refInfo*> ricache;
 static vector<script_data*> sdcache;
 static vector<int32_t(*)[MAX_STACK_SIZE]> stackcache;
@@ -9307,7 +9307,8 @@ int32_t jit_string_compare(int32_t arrayptr_a, int32_t arrayptr_b, int32_t insen
 void jit_writepodarr(int32_t id, int32_t pc)
 {
 	ri->pc = pc;
-	auto vec = curscript->zasm_script->zasm[pc].vecptr;
+	auto& zs = *curscript->zasm_script;
+	auto vec = zs.literals.vec(zs.zasm[pc]);
 	if (!vec) return;
 	ArrayH::setArray(id, vec->size(), vec->data(), false);
 }
@@ -9907,7 +9908,9 @@ int32_t run_script_int(JittedScriptInstance* j_instance)
 	bool is_debugging = script_debug_is_runtime_debugging() == 2;
 	bool increment = true;
 	static std::vector<ffscript> empty_zasm = {{0xFFFF}};
+	static zasm_literals empty_literals;
 	const auto& zasm = curscript->valid() ? curscript->zasm_script->zasm : empty_zasm;
+	const auto& literals = curscript->valid() ? curscript->zasm_script->literals : empty_literals;
 	const ffscript* code = zasm.data();
 	word scommand = code[ri->pc].command;
 	bool hit_invalid_zasm = false;
@@ -9931,8 +9934,16 @@ int32_t run_script_int(JittedScriptInstance* j_instance)
 		sarg1 = op.arg1;
 		sarg2 = op.arg2;
 		sarg3 = op.arg3;
-		sargstr = op.strptr;
-		sargvec = op.vecptr;
+		if (unlikely(op.literal))
+		{
+			sargstr = literals.str(op);
+			sargvec = literals.vec(op);
+		}
+		else
+		{
+			sargstr = nullptr;
+			sargvec = nullptr;
+		}
 
 		current_zasm_command = (ASM_DEFINE)scommand;
 

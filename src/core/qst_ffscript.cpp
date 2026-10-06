@@ -13,6 +13,13 @@ namespace {
 std::vector<const script_data*> read_scripts;
 script_data fake_script_data(ScriptType::None, 0);
 
+int32_t report_too_many_literals(const std::string& script_name)
+{
+	zprint2("Error: script '%s' has more than %zu string and array literals, which is the most a script can have\n",
+		script_name.c_str(), zasm_literals::max_size);
+	return qe_invalid;
+}
+
 // 3.0+ calls this.
 int32_t read_quest_zasm(PACKFILE *f, word s_version)
 {
@@ -29,6 +36,7 @@ int32_t read_quest_zasm(PACKFILE *f, word s_version)
 		return qe_invalid;
 
 	std::vector<ffscript> zasm;
+	zasm_literals literals;
 	zasm.reserve(num_commands);
 	for(int32_t j=0; j<num_commands; j++)
 	{
@@ -45,39 +53,42 @@ int32_t read_quest_zasm(PACKFILE *f, word s_version)
 		if(!p_igetl(&(temp_script.arg3),f))
 			return qe_invalid;
 		
+		zasm_literal literal;
 		uint32_t sz = 0;
 		if(!p_igetl(&sz,f))
 			return qe_invalid;
 		if(sz) //string found
 		{
-			temp_script.strptr = new std::string();
+			auto& str = literal.str.emplace();
 			char dummy;
 			for(size_t q = 0; q < sz; ++q)
 			{
 				if(!p_getc(&dummy,f))
 					return qe_invalid;
-				temp_script.strptr->push_back(dummy);
+				str.push_back(dummy);
 			}
 		}
 		if(!p_igetl(&sz,f))
 			return qe_invalid;
 		if(sz) //vector found
 		{
-			temp_script.vecptr = new std::vector<int32_t>();
+			auto& vec = literal.vec.emplace();
 			int32_t dummy;
 			for(size_t q = 0; q < sz; ++q)
 			{
 				if(!p_igetl(&dummy,f))
 					return qe_invalid;
-				temp_script.vecptr->push_back(dummy);
+				vec.push_back(dummy);
 			}
 		}
-		zasm.emplace_back(std::move(temp_script));
+		if (!literals.set(temp_script, std::move(literal)))
+			return report_too_many_literals("@single");
+		zasm.push_back(temp_script);
 	}
 
 	assert(zasm_scripts.empty());
 	zasm_script_id id = zasm_scripts.size();
-	zasm_scripts.emplace_back(std::make_shared<zasm_script>(id, "@single", std::move(zasm)));
+	zasm_scripts.emplace_back(std::make_shared<zasm_script>(id, "@single", std::move(zasm), std::move(literals)));
 
 	return 0;
 }
@@ -267,6 +278,7 @@ int32_t read_old_ffscript(PACKFILE *f, word s_version, script_data *script, word
 	}
 
 	std::vector<ffscript> zasm;
+	zasm_literals literals;
 	zasm.reserve(num_commands);
 
 	if(s_version >= 16)
@@ -305,6 +317,7 @@ int32_t read_old_ffscript(PACKFILE *f, word s_version, script_data *script, word
 			
 			if(s_version >= 21)
 			{
+				zasm_literal literal;
 				uint32_t sz = 0;
 				if(!p_igetl(&sz,f))
 				{
@@ -312,7 +325,7 @@ int32_t read_old_ffscript(PACKFILE *f, word s_version, script_data *script, word
 				}
 				if(sz) //string found
 				{
-					sc.strptr = new std::string();
+					auto& str = literal.str.emplace();
 					char dummy;
 					for(size_t q = 0; q < sz; ++q)
 					{
@@ -320,7 +333,7 @@ int32_t read_old_ffscript(PACKFILE *f, word s_version, script_data *script, word
 						{
 							return qe_invalid;
 						}
-						sc.strptr->push_back(dummy);
+						str.push_back(dummy);
 					}
 				}
 				if(!p_igetl(&sz,f))
@@ -329,7 +342,7 @@ int32_t read_old_ffscript(PACKFILE *f, word s_version, script_data *script, word
 				}
 				if(sz) //vector found
 				{
-					sc.vecptr = new std::vector<int32_t>();
+					auto& vec = literal.vec.emplace();
 					int32_t dummy;
 					for(size_t q = 0; q < sz; ++q)
 					{
@@ -337,9 +350,11 @@ int32_t read_old_ffscript(PACKFILE *f, word s_version, script_data *script, word
 						{
 							return qe_invalid;
 						}
-						sc.vecptr->push_back(dummy);
+						vec.push_back(dummy);
 					}
 				}
+				if (!literals.set(sc, std::move(literal)))
+					return report_too_many_literals(script->name());
 			}
 		}
 	}
@@ -356,7 +371,7 @@ int32_t read_old_ffscript(PACKFILE *f, word s_version, script_data *script, word
 	}
 
 	zasm_script_id id = zasm_scripts.size();
-	auto& zs = zasm_scripts.emplace_back(std::make_shared<zasm_script>(id, script->name(), std::move(zasm)));
+	auto& zs = zasm_scripts.emplace_back(std::make_shared<zasm_script>(id, script->name(), std::move(zasm), std::move(literals)));
 	script->zasm_script = zs;
 	script->pc = 0;
 	script->end_pc = zs->size;

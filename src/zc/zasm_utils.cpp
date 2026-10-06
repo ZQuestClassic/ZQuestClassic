@@ -460,7 +460,7 @@ static ZasmCFG construct_cfg(const zasm_script* script, const std::vector<std::p
 			}
 			else if (command == GOTOTABLE || command == GOTORANGES)
 			{
-				for (pc_t target : zasm_jump_targets(command, script->zasm[i].vecptr))
+				for (pc_t target : zasm_jump_targets(command, script->literals.vec(script->zasm[i])))
 				{
 					if (is_target(target))
 						block_starts.push_back(target);
@@ -522,7 +522,7 @@ static ZasmCFG construct_cfg(const zasm_script* script, const std::vector<std::p
 			// Previous block continues to one of the dispatch targets (default
 			// included, no fallthrough). Several keys can share a target, so
 			// dedupe the edges.
-			for (pc_t target : zasm_jump_targets(prev_command, script->zasm[i].vecptr))
+			for (pc_t target : zasm_jump_targets(prev_command, script->literals.vec(script->zasm[i])))
 			{
 				if (!is_target(target))
 					continue;
@@ -805,7 +805,7 @@ static LivenessGraph build_liveness_graph(const zasm_script* script, const ZasmC
 			}
 			else if (instr.command == GOTOTABLE || instr.command == GOTORANGES)
 			{
-				for (pc_t target : zasm_jump_targets(instr.command, instr.vecptr))
+				for (pc_t target : zasm_jump_targets(instr.command, script->literals.vec(instr)))
 				{
 					if (!cfg.contains_block_start(target))
 						g.leaves_cfg[b] = true;
@@ -1221,7 +1221,7 @@ static std::string zasm_to_string(const zasm_script* script, const StructuredZas
 		{
 			const auto& op = script->zasm[i];
 			pc_t command = op.command;
-			std::string str = zasm_op_to_string(op);
+			std::string str = zasm_op_to_string(op, script->literals);
 
 			// A long op (like a jump table) still gets a space before its annotations.
 			std::stringstream line_ss;
@@ -1426,12 +1426,12 @@ uint64_t zasm_scripts_hash()
 			buffer.push_back(instr.arg1);
 			buffer.push_back(instr.arg2);
 			buffer.push_back(instr.arg3);
-			if (instr.vecptr)
-				buffer.insert(buffer.end(), instr.vecptr->begin(), instr.vecptr->end());
-			if (instr.strptr)
+			if (auto vec = c.script->literals.vec(instr))
+				buffer.insert(buffer.end(), vec->begin(), vec->end());
+			if (auto str = c.script->literals.str(instr))
 			{
 				flush();
-				XXH3_64bits_update(state, instr.strptr->data(), instr.strptr->size());
+				XXH3_64bits_update(state, str->data(), str->size());
 			}
 			if (buffer.size() >= batch_length)
 				flush();

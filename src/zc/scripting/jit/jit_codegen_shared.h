@@ -269,7 +269,7 @@ void jit_create_labels(State& state, Compiler& cc, zasm_script* script, pc_t sta
 		}
 		else if (command == GOTOTABLE || command == GOTORANGES)
 		{
-			for (int pc : zasm_jump_targets(command, script->zasm[i].vecptr))
+			for (int pc : zasm_jump_targets(command, script->literals.vec(script->zasm[i])))
 			{
 				if (pc >= (int)start_pc && pc <= (int)final_pc && !state.goto_labels.contains(pc))
 					state.goto_labels[pc] = cc.newLabel();
@@ -456,7 +456,7 @@ void jit_emit_function_body(Backend& b, zasm_script* script, JittedScript* j_scr
 			b.emit_comment_nop((comment = fmt::format("function {}", j_script->structured_zasm.start_pc_to_function[i])).c_str());
 
 		if (DEBUG_JIT_PRINT_ASM)
-			b.emit_comment_nop((comment = fmt::format("{} {}", i, zasm_op_to_string(op))).c_str());
+			b.emit_comment_nop((comment = fmt::format("{} {}", i, zasm_op_to_string(op, script->literals))).c_str());
 
 		// Debugging tool used by scripts/jit_runtime_debug.py.
 		//
@@ -502,7 +502,7 @@ void jit_emit_function_body(Backend& b, zasm_script* script, JittedScript* j_scr
 
 				uncompiled_command_count += 1;
 				if (DEBUG_JIT_PRINT_ASM)
-					b.emit_comment_nop((comment = fmt::format("{} {}", j, zasm_op_to_string(script->zasm[j]))).c_str());
+					b.emit_comment_nop((comment = fmt::format("{} {}", j, zasm_op_to_string(script->zasm[j], script->literals))).c_str());
 			}
 
 			b.compile_uncompiled_batch(uncompiled_command_count);

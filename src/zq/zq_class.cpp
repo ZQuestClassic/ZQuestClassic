@@ -12038,6 +12038,7 @@ int32_t write_quest_zasm(PACKFILE *f)
 	}
 
 	auto& zasm = zasm_scripts[0]->zasm;
+	auto& literals = zasm_scripts[0]->literals;
     size_t num_commands = zasm.size();
     
     if(!p_iputl(num_commands,f))
@@ -12063,14 +12064,16 @@ int32_t write_quest_zasm(PACKFILE *f)
             if(!p_iputl(zas.arg3,f))
                 new_return(5);
 			
+			auto strptr = literals.str(zas);
+			auto vecptr = literals.vec(zas);
 			uint32_t sz = 0;
-			if(zas.strptr)
-				sz = zas.strptr->size();
+			if(strptr)
+				sz = strptr->size();
 			if(!p_iputl(sz,f))
 				new_return(6);
 			if(sz)
 			{
-				auto& str = *zas.strptr;
+				auto& str = *strptr;
 				for(size_t q = 0; q < sz; ++q)
 				{
 					if(!p_putc(str[q],f))
@@ -12078,13 +12081,13 @@ int32_t write_quest_zasm(PACKFILE *f)
 				}
 			}
 			sz = 0;
-			if(zas.vecptr)
-				sz = zas.vecptr->size();
+			if(vecptr)
+				sz = vecptr->size();
 			if(!p_iputl(sz,f))
 				new_return(8);
 			if(sz) //vector found
 			{
-				auto& vec = *zas.vecptr;
+				auto& vec = *vecptr;
 				for(size_t q = 0; q < sz; ++q)
 				{
 					if(!p_iputl(vec[q],f))
@@ -12960,16 +12963,18 @@ int32_t write_one_ffscript_old(PACKFILE *f, script_data *script)
                 new_return(23);
             }
 			
+			auto strptr = script->zasm_script->literals.str(zas);
+			auto vecptr = script->zasm_script->literals.vec(zas);
 			uint32_t sz = 0;
-			if(zas.strptr)
-				sz = zas.strptr->size();
+			if(strptr)
+				sz = strptr->size();
 			if(!p_iputl(sz,f))
 			{
                 new_return(23);
 			}
 			if(sz)
 			{
-				auto& str = *zas.strptr;
+				auto& str = *strptr;
 				for(size_t q = 0; q < sz; ++q)
 				{
 					if(!p_putc(str[q],f))
@@ -12979,15 +12984,15 @@ int32_t write_one_ffscript_old(PACKFILE *f, script_data *script)
 				}
 			}
 			sz = 0;
-			if(zas.vecptr)
-				sz = zas.vecptr->size();
+			if(vecptr)
+				sz = vecptr->size();
 			if(!p_iputl(sz,f))
 			{
                 new_return(25);
 			}
 			if(sz) //vector found
 			{
-				auto& vec = *zas.vecptr;
+				auto& vec = *vecptr;
 				for(size_t q = 0; q < sz; ++q)
 				{
 					if(!p_iputl(vec[q],f))
