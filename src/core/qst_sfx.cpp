@@ -30,7 +30,13 @@ int32_t readsfx_old(PACKFILE *f, word s_version)
 	//int32_t ret;
 	const size_t WAV_COUNT = 256;
 	SAMPLE samples[WAV_COUNT] = {};
-	
+	// Each ZCSFX copies its sample's data.
+	ScopeExitHandler free_samples([&]()
+	{
+		for (auto& sample : samples)
+			free(sample.data);
+	});
+
 	/* HIGHLY UNORTHODOX UPDATING THING, by L
 	 * This fixes quests made before revision 411 (such as the 'Lost Isle Build'),
 	 * where the meaning of GOTOLESS changed. It also coincided with V_SFX
