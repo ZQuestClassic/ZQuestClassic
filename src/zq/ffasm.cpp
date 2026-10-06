@@ -93,8 +93,9 @@ std::map<std::string, int32_t> labels;
 #define ERR_INSTRUCTION  0
 #define ERR_PARAM1       1
 #define ERR_PARAM2       2
-#define ERR_STR          3
-#define ERR_VEC          4
+#define ERR_PARAM3       3
+#define ERR_STR          4
+#define ERR_VEC          5
 static const char* errstrbuf[] =
 {
 	"invalid instruction!",
