@@ -918,8 +918,12 @@ ZCSFX::ZCSFX(ZCSFX const& other) : ZCSFX()
 }
 ZCSFX& ZCSFX::operator=(ZCSFX const& other)
 {
+	if (this == &other)
+		return *this;
+
 	cleanup_memory();
 	sfx_name = other.sfx_name;
+	base_vol = other.base_vol;
 	
 	if (other.internal)
 		internal = other.internal->duplicate();
@@ -928,14 +932,20 @@ ZCSFX& ZCSFX::operator=(ZCSFX const& other)
 		cleanup_memory();
 	return *this;
 }
-ZCSFX::ZCSFX(ZCSFX&& other) : ZCSFX()
+ZCSFX::ZCSFX(ZCSFX&& other) noexcept : ZCSFX()
 {
-	*this = other;
+	*this = std::move(other);
 }
-ZCSFX& ZCSFX::operator=(ZCSFX&& other)
+ZCSFX& ZCSFX::operator=(ZCSFX&& other) noexcept
 {
+	if (this == &other)
+		return *this;
+
 	cleanup_memory();
-	sfx_name = other.sfx_name;
+	sfx_name = std::move(other.sfx_name);
+	// The sample may be playing; keep the volume it was played at so a later global
+	// volume change re-applies the same gain.
+	base_vol = other.base_vol;
 
 	// Take ownership
 	internal = other.internal;

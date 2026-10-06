@@ -84,8 +84,8 @@ public:
 	ZCSFX(SAMPLE const& s);
 	ZCSFX(ZCSFX const& other);
 	ZCSFX& operator=(ZCSFX const& other);
-	ZCSFX(ZCSFX&& other);
-	ZCSFX& operator=(ZCSFX&& other);
+	ZCSFX(ZCSFX&& other) noexcept;
+	ZCSFX& operator=(ZCSFX&& other) noexcept;
 	~ZCSFX();
 	
 	SampleType get_sample_type() const;
