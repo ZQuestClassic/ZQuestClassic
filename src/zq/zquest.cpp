@@ -22,11 +22,11 @@
 #include "zq/commands.h"
 #include "zq/render_map_view.h"
 #include "zsyssimple.h"
-#ifdef __APPLE__
-// malloc.h is deprecated, but malloc also lives in stdlib
-#include <stdlib.h>
-#else
+#if defined(__linux__) || defined(_WIN32)
 #include <malloc.h>
+#else
+// malloc.h is deprecated on macOS and an #error on the BSDs, but malloc also lives in stdlib
+#include <stdlib.h>
 #endif
 
 #include "zalleg/zalleg.h"
