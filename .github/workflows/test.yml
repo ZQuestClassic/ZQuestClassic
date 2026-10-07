@@ -40,8 +40,10 @@ on:
       from-ci-workflow:
         type: boolean
     secrets:
+      # Repository secrets are never exposed to pull_request runs from forks, so
+      # this arrives empty there and the steps that need it are skipped.
       GH_PAT_ZSCRIPT_DATABASE:
-        required: true
+        required: false
 
 env:
   PYTHONUNBUFFERED: '1'
@@ -79,6 +81,11 @@ jobs:
       fail-fast: false
     name: Replays ${{ matrix.shard_index }}/${{ matrix.num_shards }}
     runs-on: ${{ inputs.runs-on }}
+    env:
+      # The zscript database is a private repo. Without the token (pull requests
+      # from forks) its checkout is skipped and tests/test_zscript_database.py
+      # skips itself.
+      HAS_ZSCRIPT_DATABASE_TOKEN: ${{ secrets.GH_PAT_ZSCRIPT_DATABASE != '' }}
     steps:
       - name: git clone
         uses: connorjclark/action-cached-lfs-checkout@3ea4dc59b06f3baa8c01ba891fbfc2dbfdce5bc8
@@ -196,7 +203,7 @@ jobs:
           key: vscode-test-cache-${{ inputs.runs-on }}-${{ runner.arch }}-${{ hashFiles('vscode-extension/client/src/test/runTest.ts') }}
 
       - name: Checkout zscript database
-        if: ${{ matrix.shard_index == 1 && inputs.from-ci-workflow }}
+        if: ${{ matrix.shard_index == 1 && inputs.from-ci-workflow && env.HAS_ZSCRIPT_DATABASE_TOKEN == 'true' }}
         uses: actions/checkout@v4
         with:
           token: ${{ secrets.GH_PAT_ZSCRIPT_DATABASE }}

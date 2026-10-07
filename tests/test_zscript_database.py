@@ -278,6 +278,11 @@ class TestZScriptDatabase(ZCTestCase):
         self.maxDiff = None
 
     def test_zscript_database(self):
+        # Set by .github/workflows/test.yml. The database is a private repo, so
+        # without a token (pull requests from forks) it can't be fetched.
+        if os.environ.get('HAS_ZSCRIPT_DATABASE_TOKEN') == 'false':
+            self.skipTest('no token for the private zscript-database repo')
+
         database_dir = root_dir / '.tmp/zscript-database'
         if not database_dir.exists():
             print('Cloning zscript-database repo, this will take a moment')
