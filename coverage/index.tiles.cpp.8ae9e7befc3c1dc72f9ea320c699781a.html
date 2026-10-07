@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2026-10-05 03:43:42</td>
+      <td>2026-10-07 05:06:51</td>
     </tr>
   </table>
 </div>
@@ -42,7 +42,7 @@
     <tr>
       <th scope="row">Lines:</th>
       <td>1040</td>
-      <td>1616</td>
+      <td>1615</td>
       <td class="coverage-low">64.4%</td>
     </tr>
     <tr>
@@ -53,9 +53,9 @@
     </tr>
     <tr>
       <th scope="row">Branches:</th>
-      <td>684</td>
-      <td>1232</td>
-      <td class="coverage-low">55.5%</td>
+      <td>663</td>
+      <td>1190</td>
+      <td class="coverage-low">55.7%</td>
     </tr>
   </table>
 </div>
@@ -94,7 +94,7 @@
     <tr><td><a href="#l877">draw_tile8_transparent_fast(BITMAP*, unsigned char const*, int, int, int, int) (line 877)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l994">draw_tile8_unified(BITMAP*, int, int, int, int, unsigned char const*, int, int, int, int) (line 994)</a></td><td>called 768744648 times, returned 768744648 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l2865">drawtile16_cs2(BITMAP*, int, int, int, int*, int, bool) (line 2865)</a></td><td>called 47508681 times, returned 47508681 times</td><td>78.0%</td></tr>
-    <tr><td><a href="#l1969">eyeball_combo_tile(combo_caches::minicombo_drawing const&amp;, int, int, int) (line 1969)</a></td><td>called 2582762 times, returned 2582762 times</td><td>76.0%</td></tr>
+    <tr><td><a href="#l1969">eyeball_combo_tile(combo_caches::minicombo_drawing const&amp;, int, int, int) (line 1969)</a></td><td>called 2582762 times, returned 2582762 times</td><td>96.0%</td></tr>
     <tr><td><a href="#l1969">eyeball_combo_tile(newcombo const&amp;, int, int, int) (line 1969)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l614">get_tile_bytes(int, int) (line 614)</a></td><td>called 6995075492 times, returned 6995075492 times</td><td>75.0%</td></tr>
     <tr><td><a href="#l2994">is_valid_format(unsigned char) (line 2994)</a></td><td>not called</td><td>0.0%</td></tr>
@@ -15437,28 +15437,9 @@
     <tr class="source-line">
       <td class="lineno"><a id="l1996" href="#l1996">1996</a></td>
       <td class="linebranch">
-        <details class="linebranchDetails">
-        <summary class="linebranchSummary">7/14</summary>
-        <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 1543736 times.</div>
-          <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
-          <div class="takenBranch">&check; Branch 2 taken 1543736 times.</div>
-          <div class="notTakenBranch">&cross; Branch 3 not taken.</div>
-          <div class="takenBranch">&check; Branch 4 taken 1543736 times.</div>
-          <div class="notTakenBranch">&cross; Branch 5 not taken.</div>
-          <div class="takenBranch">&check; Branch 6 taken 1543736 times.</div>
-          <div class="notTakenBranch">&cross; Branch 7 not taken.</div>
-          <div class="notTakenBranch">&cross; Branch 8 not taken.</div>
-          <div class="takenBranch">&check; Branch 9 taken 1543736 times.</div>
-          <div class="takenBranch">&check; Branch 10 taken 1543736 times.</div>
-          <div class="notTakenBranch">&cross; Branch 11 not taken.</div>
-          <div class="takenBranch">&check; Branch 12 taken 1543736 times.</div>
-          <div class="notTakenBranch">&cross; Branch 13 not taken.</div>
-        </div>
-        </details>
       </td>
-      <td class="linecount partialCoveredLine">1543736</td>
-      <td class="src partialCoveredLine"><span class="w">        </span><span class="kt">double</span><span class="w"> </span><span class="n">ddir</span><span class="o">=</span><span class="n">zc</span><span class="o">::</span><span class="n">math</span><span class="o">::</span><span class="n">ArcTan2</span><span class="p">((</span><span class="kt">double</span><span class="p">)(</span><span class="n">y</span><span class="o">-</span><span class="n">HeroModifiedY</span><span class="p">()</span><span class="o">-</span><span class="n">playing_field_offset</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="kt">double</span><span class="p">)(</span><span class="n">HeroModifiedX</span><span class="p">()</span><span class="o">-</span><span class="n">x</span><span class="p">));</span></td>
+      <td class="linecount coveredLine">1543736</td>
+      <td class="src coveredLine"><span class="w">        </span><span class="kt">double</span><span class="w"> </span><span class="n">ddir</span><span class="o">=</span><span class="n">zc</span><span class="o">::</span><span class="n">math</span><span class="o">::</span><span class="n">ArcTan2</span><span class="p">((</span><span class="kt">double</span><span class="p">)(</span><span class="n">y</span><span class="o">-</span><span class="n">HeroModifiedY</span><span class="p">()</span><span class="o">-</span><span class="n">playing_field_offset</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="kt">double</span><span class="p">)(</span><span class="n">HeroModifiedX</span><span class="p">()</span><span class="o">-</span><span class="n">x</span><span class="p">));</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1997" href="#l1997">1997</a></td>
@@ -15697,8 +15678,8 @@
         <div class="linebranchContents">
           <div class="takenBranch">&check; Branch 0 taken 285683 times.</div>
           <div class="takenBranch">&check; Branch 1 taken 130474 times.</div>
-          <div class="takenBranch">&check; Branch 2 taken 127855 times.</div>
-          <div class="takenBranch">&check; Branch 3 taken 157828 times.</div>
+          <div class="takenBranch">&check; Branch 2 taken 157828 times.</div>
+          <div class="takenBranch">&check; Branch 3 taken 127855 times.</div>
         </div>
         </details>
       </td>
@@ -15799,28 +15780,9 @@
     <tr class="source-line">
       <td class="lineno"><a id="l2036" href="#l2036">2036</a></td>
       <td class="linebranch">
-        <details class="linebranchDetails">
-        <summary class="linebranchSummary">7/14</summary>
-        <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 991862 times.</div>
-          <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
-          <div class="takenBranch">&check; Branch 2 taken 991862 times.</div>
-          <div class="notTakenBranch">&cross; Branch 3 not taken.</div>
-          <div class="takenBranch">&check; Branch 4 taken 991862 times.</div>
-          <div class="notTakenBranch">&cross; Branch 5 not taken.</div>
-          <div class="takenBranch">&check; Branch 6 taken 991862 times.</div>
-          <div class="notTakenBranch">&cross; Branch 7 not taken.</div>
-          <div class="takenBranch">&check; Branch 8 taken 991862 times.</div>
-          <div class="notTakenBranch">&cross; Branch 9 not taken.</div>
-          <div class="takenBranch">&check; Branch 10 taken 991862 times.</div>
-          <div class="notTakenBranch">&cross; Branch 11 not taken.</div>
-          <div class="takenBranch">&check; Branch 12 taken 991862 times.</div>
-          <div class="notTakenBranch">&cross; Branch 13 not taken.</div>
-        </div>
-        </details>
       </td>
-      <td class="linecount partialCoveredLine">991862</td>
-      <td class="src partialCoveredLine"><span class="w">        </span><span class="kt">double</span><span class="w"> </span><span class="n">ddir</span><span class="o">=</span><span class="n">zc</span><span class="o">::</span><span class="n">math</span><span class="o">::</span><span class="n">ArcTan2</span><span class="p">((</span><span class="kt">double</span><span class="p">)(</span><span class="n">y</span><span class="o">-</span><span class="n">HeroModifiedY</span><span class="p">()</span><span class="o">-</span><span class="n">playing_field_offset</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="kt">double</span><span class="p">)(</span><span class="n">HeroModifiedX</span><span class="p">()</span><span class="o">-</span><span class="n">x</span><span class="p">));</span></td>
+      <td class="linecount coveredLine">991862</td>
+      <td class="src coveredLine"><span class="w">        </span><span class="kt">double</span><span class="w"> </span><span class="n">ddir</span><span class="o">=</span><span class="n">zc</span><span class="o">::</span><span class="n">math</span><span class="o">::</span><span class="n">ArcTan2</span><span class="p">((</span><span class="kt">double</span><span class="p">)(</span><span class="n">y</span><span class="o">-</span><span class="n">HeroModifiedY</span><span class="p">()</span><span class="o">-</span><span class="n">playing_field_offset</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="kt">double</span><span class="p">)(</span><span class="n">HeroModifiedX</span><span class="p">()</span><span class="o">-</span><span class="n">x</span><span class="p">));</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2037" href="#l2037">2037</a></td>
@@ -16013,28 +15975,9 @@
     <tr class="source-line">
       <td class="lineno"><a id="l2060" href="#l2060">2060</a></td>
       <td class="linebranch">
-        <details class="linebranchDetails">
-        <summary class="linebranchSummary">7/14</summary>
-        <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 47164 times.</div>
-          <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
-          <div class="takenBranch">&check; Branch 2 taken 47164 times.</div>
-          <div class="notTakenBranch">&cross; Branch 3 not taken.</div>
-          <div class="takenBranch">&check; Branch 4 taken 47164 times.</div>
-          <div class="notTakenBranch">&cross; Branch 5 not taken.</div>
-          <div class="takenBranch">&check; Branch 6 taken 47164 times.</div>
-          <div class="notTakenBranch">&cross; Branch 7 not taken.</div>
-          <div class="takenBranch">&check; Branch 8 taken 47164 times.</div>
-          <div class="notTakenBranch">&cross; Branch 9 not taken.</div>
-          <div class="takenBranch">&check; Branch 10 taken 47164 times.</div>
-          <div class="notTakenBranch">&cross; Branch 11 not taken.</div>
-          <div class="takenBranch">&check; Branch 12 taken 47164 times.</div>
-          <div class="notTakenBranch">&cross; Branch 13 not taken.</div>
-        </div>
-        </details>
       </td>
-      <td class="linecount partialCoveredLine">47164</td>
-      <td class="src partialCoveredLine"><span class="w">        </span><span class="kt">double</span><span class="w"> </span><span class="n">ddir</span><span class="o">=</span><span class="n">zc</span><span class="o">::</span><span class="n">math</span><span class="o">::</span><span class="n">ArcTan2</span><span class="p">((</span><span class="kt">double</span><span class="p">)(</span><span class="n">y</span><span class="o">-</span><span class="n">HeroModifiedY</span><span class="p">()</span><span class="o">-</span><span class="n">playing_field_offset</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="kt">double</span><span class="p">)(</span><span class="n">HeroModifiedX</span><span class="p">()</span><span class="o">-</span><span class="n">x</span><span class="p">));</span></td>
+      <td class="linecount coveredLine">47164</td>
+      <td class="src coveredLine"><span class="w">        </span><span class="kt">double</span><span class="w"> </span><span class="n">ddir</span><span class="o">=</span><span class="n">zc</span><span class="o">::</span><span class="n">math</span><span class="o">::</span><span class="n">ArcTan2</span><span class="p">((</span><span class="kt">double</span><span class="p">)(</span><span class="n">y</span><span class="o">-</span><span class="n">HeroModifiedY</span><span class="p">()</span><span class="o">-</span><span class="n">playing_field_offset</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="kt">double</span><span class="p">)(</span><span class="n">HeroModifiedX</span><span class="p">()</span><span class="o">-</span><span class="n">x</span><span class="p">));</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2061" href="#l2061">2061</a></td>
@@ -16376,8 +16319,8 @@
       <td class="lineno"><a id="l2100" href="#l2100">2100</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="p">}</span></td>
+      <td class="linecount "></td>
+      <td class="src "><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2101" href="#l2101">2101</a></td>

@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2026-10-05 03:43:42</td>
+      <td>2026-10-07 05:06:51</td>
     </tr>
   </table>
 </div>
@@ -53,9 +53,9 @@
     </tr>
     <tr>
       <th scope="row">Branches:</th>
-      <td>60</td>
-      <td>140</td>
-      <td class="coverage-low">42.9%</td>
+      <td>37</td>
+      <td>66</td>
+      <td class="coverage-low">56.1%</td>
     </tr>
   </table>
 </div>
@@ -75,9 +75,9 @@
     </tr>
     <tr><td><a href="#l20">weapon_data::operator=(weapon_data const&amp;) (line 20)</a></td><td>called 464840 times, returned 464840 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l20">weapon_data::operator=(weapon_data&amp;&amp;) (line 20)</a></td><td>called 215484908 times, returned 215484908 times</td><td>100.0%</td></tr>
-    <tr><td><a href="#l61">weapon_data::operator==(weapon_data const&amp;) const (line 61)</a></td><td>called 641028 times, returned 641028 times</td><td>72.0%</td></tr>
-    <tr><td><a href="#l20">weapon_data::weapon_data() (line 20)</a></td><td>called 2997578 times, returned 2997578 times</td><td>38.0%</td></tr>
-    <tr><td><a href="#l20">weapon_data::weapon_data(weapon_data const&amp;) (line 20)</a></td><td>called 336752216 times, returned 336752216 times</td><td>38.0%</td></tr>
+    <tr><td><a href="#l61">weapon_data::operator==(weapon_data const&amp;) const (line 61)</a></td><td>called 641028 times, returned 641028 times</td><td>95.0%</td></tr>
+    <tr><td><a href="#l20">weapon_data::weapon_data() (line 20)</a></td><td>called 2997578 times, returned 2997578 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l20">weapon_data::weapon_data(weapon_data const&amp;) (line 20)</a></td><td>called 336752216 times, returned 336752216 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l20">weapon_data::weapon_data(weapon_data&amp;&amp;) (line 20)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l20">weapon_data::~weapon_data() (line 20)</a></td><td>called 323529168 times, returned 323529168 times</td><td>100.0%</td></tr>
   </table>
@@ -230,30 +230,9 @@
     <tr class="source-line">
       <td class="lineno"><a id="l20" href="#l20">20</a></td>
       <td class="linebranch">
-        <details class="linebranchDetails">
-        <summary class="linebranchSummary">6/16</summary>
-        <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 18049386 times.</div>
-          <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
-          <div class="takenBranch">&check; Branch 2 taken 18049386 times.</div>
-          <div class="notTakenBranch">&cross; Branch 3 not taken.</div>
-          <div class="notTakenBranch">&cross; Branch 4 not taken.</div>
-          <div class="takenBranch">&check; Branch 5 taken 18049386 times.</div>
-          <div class="takenBranch">&check; Branch 6 taken 321700408 times.</div>
-          <div class="notTakenBranch">&cross; Branch 7 not taken.</div>
-          <div class="takenBranch">&check; Branch 8 taken 321700408 times.</div>
-          <div class="notTakenBranch">&cross; Branch 9 not taken.</div>
-          <div class="notTakenBranch">&cross; Branch 10 not taken.</div>
-          <div class="takenBranch">&check; Branch 11 taken 321700408 times.</div>
-          <div class="notTakenBranch">&cross; Branch 12 not taken.</div>
-          <div class="notTakenBranch">&cross; Branch 13 not taken.</div>
-          <div class="notTakenBranch">&cross; Branch 14 not taken.</div>
-          <div class="notTakenBranch">&cross; Branch 15 not taken.</div>
-        </div>
-        </details>
       </td>
-      <td class="linecount partialCoveredLine">342747372</td>
-      <td class="src partialCoveredLine"><span class="k">struct</span><span class="w"> </span><span class="nc">weapon_data</span></td>
+      <td class="linecount coveredLine">8992734</td>
+      <td class="src coveredLine"><span class="k">struct</span><span class="w"> </span><span class="nc">weapon_data</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l21" href="#l21">21</a></td>
@@ -433,16 +412,9 @@
     <tr class="source-line">
       <td class="lineno"><a id="l46" href="#l46">46</a></td>
       <td class="linebranch">
-        <details class="linebranchDetails">
-        <summary class="linebranchSummary">1/2</summary>
-        <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 2997578 times.</div>
-          <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
-        </div>
-        </details>
       </td>
-      <td class="linecount partialCoveredLine">2997578</td>
-      <td class="src partialCoveredLine"><span class="w">	</span><span class="n">zfix</span><span class="w"> </span><span class="n">lift_height</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">8</span><span class="p">;</span></td>
+      <td class="linecount coveredLine">2997578</td>
+      <td class="src coveredLine"><span class="w">	</span><span class="n">zfix</span><span class="w"> </span><span class="n">lift_height</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">8</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l47" href="#l47">47</a></td>
@@ -546,7 +518,7 @@
       <td class="lineno"><a id="l61" href="#l61">61</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
-        <summary class="linebranchSummary">53/122</summary>
+        <summary class="linebranchSummary">37/66</summary>
         <div class="linebranchContents">
           <div class="takenBranch">&check; Branch 0 taken 320672 times.</div>
           <div class="takenBranch">&check; Branch 1 taken 320356 times.</div>
@@ -556,16 +528,16 @@
           <div class="takenBranch">&check; Branch 5 taken 320672 times.</div>
           <div class="takenBranch">&check; Branch 6 taken 1603360 times.</div>
           <div class="takenBranch">&check; Branch 7 taken 320672 times.</div>
-          <div class="notTakenBranch">&cross; Branch 8 not taken.</div>
-          <div class="takenBranch">&check; Branch 9 taken 1603360 times.</div>
+          <div class="takenBranch">&check; Branch 8 taken 1603360 times.</div>
+          <div class="notTakenBranch">&cross; Branch 9 not taken.</div>
           <div class="takenBranch">&check; Branch 10 taken 1603360 times.</div>
           <div class="takenBranch">&check; Branch 11 taken 320672 times.</div>
-          <div class="notTakenBranch">&cross; Branch 12 not taken.</div>
-          <div class="takenBranch">&check; Branch 13 taken 1603360 times.</div>
+          <div class="takenBranch">&check; Branch 12 taken 1603360 times.</div>
+          <div class="notTakenBranch">&cross; Branch 13 not taken.</div>
           <div class="takenBranch">&check; Branch 14 taken 1603360 times.</div>
           <div class="takenBranch">&check; Branch 15 taken 320672 times.</div>
-          <div class="notTakenBranch">&cross; Branch 16 not taken.</div>
-          <div class="takenBranch">&check; Branch 17 taken 1603360 times.</div>
+          <div class="takenBranch">&check; Branch 16 taken 1603360 times.</div>
+          <div class="notTakenBranch">&cross; Branch 17 not taken.</div>
           <div class="notTakenBranch">&cross; Branch 18 not taken.</div>
           <div class="takenBranch">&check; Branch 19 taken 320672 times.</div>
           <div class="notTakenBranch">&cross; Branch 20 not taken.</div>
@@ -592,84 +564,28 @@
           <div class="notTakenBranch">&cross; Branch 41 not taken.</div>
           <div class="notTakenBranch">&cross; Branch 42 not taken.</div>
           <div class="takenBranch">&check; Branch 43 taken 320672 times.</div>
-          <div class="takenBranch">&check; Branch 44 taken 320672 times.</div>
-          <div class="notTakenBranch">&cross; Branch 45 not taken.</div>
-          <div class="takenBranch">&check; Branch 46 taken 320672 times.</div>
-          <div class="notTakenBranch">&cross; Branch 47 not taken.</div>
+          <div class="notTakenBranch">&cross; Branch 44 not taken.</div>
+          <div class="takenBranch">&check; Branch 45 taken 320672 times.</div>
+          <div class="notTakenBranch">&cross; Branch 46 not taken.</div>
+          <div class="takenBranch">&check; Branch 47 taken 320672 times.</div>
           <div class="notTakenBranch">&cross; Branch 48 not taken.</div>
           <div class="takenBranch">&check; Branch 49 taken 320672 times.</div>
-          <div class="takenBranch">&check; Branch 50 taken 320672 times.</div>
-          <div class="notTakenBranch">&cross; Branch 51 not taken.</div>
-          <div class="takenBranch">&check; Branch 52 taken 320672 times.</div>
-          <div class="notTakenBranch">&cross; Branch 53 not taken.</div>
+          <div class="notTakenBranch">&cross; Branch 50 not taken.</div>
+          <div class="takenBranch">&check; Branch 51 taken 320672 times.</div>
+          <div class="notTakenBranch">&cross; Branch 52 not taken.</div>
+          <div class="takenBranch">&check; Branch 53 taken 320672 times.</div>
           <div class="notTakenBranch">&cross; Branch 54 not taken.</div>
           <div class="takenBranch">&check; Branch 55 taken 320672 times.</div>
           <div class="notTakenBranch">&cross; Branch 56 not taken.</div>
           <div class="takenBranch">&check; Branch 57 taken 320672 times.</div>
           <div class="notTakenBranch">&cross; Branch 58 not taken.</div>
           <div class="takenBranch">&check; Branch 59 taken 320672 times.</div>
-          <div class="notTakenBranch">&cross; Branch 60 not taken.</div>
-          <div class="takenBranch">&check; Branch 61 taken 320672 times.</div>
+          <div class="takenBranch">&check; Branch 60 taken 320672 times.</div>
+          <div class="notTakenBranch">&cross; Branch 61 not taken.</div>
           <div class="notTakenBranch">&cross; Branch 62 not taken.</div>
           <div class="takenBranch">&check; Branch 63 taken 320672 times.</div>
           <div class="notTakenBranch">&cross; Branch 64 not taken.</div>
           <div class="takenBranch">&check; Branch 65 taken 320672 times.</div>
-          <div class="notTakenBranch">&cross; Branch 66 not taken.</div>
-          <div class="takenBranch">&check; Branch 67 taken 320672 times.</div>
-          <div class="takenBranch">&check; Branch 68 taken 320672 times.</div>
-          <div class="notTakenBranch">&cross; Branch 69 not taken.</div>
-          <div class="takenBranch">&check; Branch 70 taken 320672 times.</div>
-          <div class="notTakenBranch">&cross; Branch 71 not taken.</div>
-          <div class="notTakenBranch">&cross; Branch 72 not taken.</div>
-          <div class="takenBranch">&check; Branch 73 taken 320672 times.</div>
-          <div class="notTakenBranch">&cross; Branch 74 not taken.</div>
-          <div class="takenBranch">&check; Branch 75 taken 320672 times.</div>
-          <div class="notTakenBranch">&cross; Branch 76 not taken.</div>
-          <div class="takenBranch">&check; Branch 77 taken 320672 times.</div>
-          <div class="notTakenBranch">&cross; Branch 78 not taken.</div>
-          <div class="takenBranch">&check; Branch 79 taken 320672 times.</div>
-          <div class="notTakenBranch">&cross; Branch 80 not taken.</div>
-          <div class="takenBranch">&check; Branch 81 taken 320672 times.</div>
-          <div class="notTakenBranch">&cross; Branch 82 not taken.</div>
-          <div class="takenBranch">&check; Branch 83 taken 320672 times.</div>
-          <div class="notTakenBranch">&cross; Branch 84 not taken.</div>
-          <div class="takenBranch">&check; Branch 85 taken 320672 times.</div>
-          <div class="notTakenBranch">&cross; Branch 86 not taken.</div>
-          <div class="takenBranch">&check; Branch 87 taken 320672 times.</div>
-          <div class="notTakenBranch">&cross; Branch 88 not taken.</div>
-          <div class="takenBranch">&check; Branch 89 taken 320672 times.</div>
-          <div class="notTakenBranch">&cross; Branch 90 not taken.</div>
-          <div class="takenBranch">&check; Branch 91 taken 320672 times.</div>
-          <div class="notTakenBranch">&cross; Branch 92 not taken.</div>
-          <div class="takenBranch">&check; Branch 93 taken 320672 times.</div>
-          <div class="notTakenBranch">&cross; Branch 94 not taken.</div>
-          <div class="takenBranch">&check; Branch 95 taken 320672 times.</div>
-          <div class="notTakenBranch">&cross; Branch 96 not taken.</div>
-          <div class="takenBranch">&check; Branch 97 taken 320672 times.</div>
-          <div class="notTakenBranch">&cross; Branch 98 not taken.</div>
-          <div class="notTakenBranch">&cross; Branch 99 not taken.</div>
-          <div class="notTakenBranch">&cross; Branch 100 not taken.</div>
-          <div class="notTakenBranch">&cross; Branch 101 not taken.</div>
-          <div class="notTakenBranch">&cross; Branch 102 not taken.</div>
-          <div class="notTakenBranch">&cross; Branch 103 not taken.</div>
-          <div class="notTakenBranch">&cross; Branch 104 not taken.</div>
-          <div class="notTakenBranch">&cross; Branch 105 not taken.</div>
-          <div class="notTakenBranch">&cross; Branch 106 not taken.</div>
-          <div class="notTakenBranch">&cross; Branch 107 not taken.</div>
-          <div class="notTakenBranch">&cross; Branch 108 not taken.</div>
-          <div class="notTakenBranch">&cross; Branch 109 not taken.</div>
-          <div class="notTakenBranch">&cross; Branch 110 not taken.</div>
-          <div class="notTakenBranch">&cross; Branch 111 not taken.</div>
-          <div class="notTakenBranch">&cross; Branch 112 not taken.</div>
-          <div class="notTakenBranch">&cross; Branch 113 not taken.</div>
-          <div class="notTakenBranch">&cross; Branch 114 not taken.</div>
-          <div class="notTakenBranch">&cross; Branch 115 not taken.</div>
-          <div class="notTakenBranch">&cross; Branch 116 not taken.</div>
-          <div class="notTakenBranch">&cross; Branch 117 not taken.</div>
-          <div class="notTakenBranch">&cross; Branch 118 not taken.</div>
-          <div class="notTakenBranch">&cross; Branch 119 not taken.</div>
-          <div class="notTakenBranch">&cross; Branch 120 not taken.</div>
-          <div class="notTakenBranch">&cross; Branch 121 not taken.</div>
         </div>
         </details>
       </td>

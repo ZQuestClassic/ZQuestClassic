@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2026-10-05 03:43:42</td>
+      <td>2026-10-07 05:06:51</td>
     </tr>
   </table>
 </div>
@@ -100,7 +100,7 @@
     <tr><td><a href="#l111">zcmusic_load_for_quest(char const*, char const*)::$_0::operator()(std::filesystem::__cxx11::path const&amp;) const (line 111)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l571">zcmusic_pause(ZCMUSIC*, int) (line 571)</a></td><td>called 66 times, returned 66 times</td><td>13.0%</td></tr>
     <tr><td><a href="#l501">zcmusic_play(ZCMUSIC*, int) (line 501)</a></td><td>not called</td><td>0.0%</td></tr>
-    <tr><td><a href="#l266">zcmusic_poll(int) (line 266)</a></td><td>called 2 times, returned 2 times</td><td>14.0%</td></tr>
+    <tr><td><a href="#l266">zcmusic_poll(int) (line 266)</a></td><td>called 1 time, returned 1 time</td><td>14.0%</td></tr>
     <tr><td><a href="#l887">zcmusic_set_curpos(ZCMUSIC*, int) (line 887)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l934">zcmusic_set_loop(ZCMUSIC*, double, double) (line 934)</a></td><td>called 3 times, returned 3 times</td><td>37.0%</td></tr>
     <tr><td><a href="#l902">zcmusic_set_speed(ZCMUSIC*, int) (line 902)</a></td><td>not called</td><td>0.0%</td></tr>
@@ -2029,7 +2029,7 @@
       <td class="lineno"><a id="l266" href="#l266">266</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">2</td>
+      <td class="linecount coveredLine">1</td>
       <td class="src coveredLine"><span class="kt">bool</span><span class="w"> </span><span class="nf">zcmusic_poll</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">flags</span><span class="p">)</span><span class="w">                              </span><span class="cm">/* = -1 */</span></td>
     </tr>
     <tr class="source-line">
@@ -2043,7 +2043,7 @@
       <td class="lineno"><a id="l268" href="#l268">268</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">2</td>
+      <td class="linecount coveredLine">1</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">al_lock_mutex</span><span class="p">(</span><span class="n">playlistmutex</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
@@ -2071,7 +2071,7 @@
       <td class="lineno"><a id="l272" href="#l272">272</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">2</td>
+      <td class="linecount coveredLine">1</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">ZCMUSIC</span><span class="o">*&gt;::</span><span class="n">iterator</span><span class="w"> </span><span class="n">b</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">playlist</span><span class="p">.</span><span class="n">begin</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
@@ -2088,11 +2088,11 @@
         <summary class="linebranchSummary">1/2</summary>
         <div class="linebranchContents">
           <div class="notTakenBranch">&cross; Branch 0 not taken.</div>
-          <div class="takenBranch">&check; Branch 1 taken 2 times.</div>
+          <div class="takenBranch">&check; Branch 1 taken 1 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">2</td>
+      <td class="linecount partialCoveredLine">1</td>
       <td class="src partialCoveredLine"><span class="w">	</span><span class="k">while</span><span class="p">(</span><span class="n">b</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">playlist</span><span class="p">.</span><span class="n">end</span><span class="p">())</span></td>
     </tr>
     <tr class="source-line">
@@ -2358,7 +2358,7 @@
       <td class="lineno"><a id="l312" href="#l312">312</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">2</td>
+      <td class="linecount coveredLine">1</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">al_unlock_mutex</span><span class="p">(</span><span class="n">playlistmutex</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
@@ -2386,7 +2386,7 @@
       <td class="lineno"><a id="l316" href="#l316">316</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">2</td>
+      <td class="linecount coveredLine">1</td>
       <td class="src coveredLine"><span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
