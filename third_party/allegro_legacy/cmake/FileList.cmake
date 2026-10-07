@@ -132,6 +132,11 @@ set(ALLEGRO_LEGACY_SRC_MIDIA5_UNIX_FILES
         )
 
 # local edit
+set(ALLEGRO_LEGACY_SRC_MIDIA5_NULL_FILES
+        src/a5/midia5/null/null_midi.c
+        )
+
+# local edit
 set(ALLEGRO_LEGACY_SRC_MIDIA5_SDL_FILES
         src/a5/midia5/sdl/sdl_midi.c
 )

@@ -18,6 +18,34 @@ if(UNIX AND NOT APPLE)
 	set(LINUX TRUE)
 endif()
 
+# The BSDs keep third-party packages outside the compiler's default search paths. Add them the
+# way CFLAGS/LDFLAGS would, so the configure-time checks of dependencies (for example Allegro
+# looking for Xcursor) can find those libraries too.
+if(CMAKE_SYSTEM_NAME MATCHES "FreeBSD|DragonFly|NetBSD|OpenBSD")
+	set(IS_BSD TRUE)
+	if(CMAKE_SYSTEM_NAME STREQUAL "NetBSD")
+		set(ZC_BSD_PREFIXES /usr/pkg /usr/X11R7)
+	elseif(CMAKE_SYSTEM_NAME STREQUAL "OpenBSD")
+		set(ZC_BSD_PREFIXES /usr/local /usr/X11R6)
+	else()
+		set(ZC_BSD_PREFIXES /usr/local)
+	endif()
+	foreach(prefix IN LISTS ZC_BSD_PREFIXES)
+		if(IS_DIRECTORY "${prefix}/lib")
+			list(APPEND CMAKE_PREFIX_PATH "${prefix}")
+			string(APPEND CMAKE_C_FLAGS " -I${prefix}/include")
+			string(APPEND CMAKE_CXX_FLAGS " -I${prefix}/include")
+			foreach(kind EXE SHARED MODULE)
+				string(APPEND CMAKE_${kind}_LINKER_FLAGS " -L${prefix}/lib")
+				if(CMAKE_SYSTEM_NAME STREQUAL "NetBSD")
+					# NetBSD's loader does not search the pkgsrc prefix by default.
+					string(APPEND CMAKE_${kind}_LINKER_FLAGS " -Wl,-R${prefix}/lib")
+				endif()
+			endforeach()
+		endif()
+	endforeach()
+endif()
+
 set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 include(FetchContent)
 include(CodeCoverage)
@@ -356,6 +384,16 @@ if(NOT EMSCRIPTEN)
 	set(SDL_MISC OFF CACHE BOOL "" FORCE)
 	FetchContent_MakeAvailable(SDL2)
 	set(WANT_SDL2_JOYSTICK ON CACHE BOOL "" FORCE)
+endif()
+
+if(IS_BSD)
+	# Allegro auto-detects Linux-only code, which then fails to compile here:
+	# - linux/input.h may be installed for compatibility (evdev-proto), but it lacks the kernel
+	#   types (__u16, __s32, ...) Allegro's Linux input drivers need. Joysticks come from SDL2.
+	# - the ALSA driver includes <alloca.h>, which some BSDs do not have, and ALSA is a Linux API
+	#   anyway. OSS and PulseAudio are used instead.
+	set(ALLEGRO_HAVE_LINUX_INPUT_H FALSE CACHE INTERNAL "" FORCE)
+	set(WANT_ALSA OFF CACHE BOOL "" FORCE)
 endif()
 
 FetchContent_Declare(
