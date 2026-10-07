@@ -27,6 +27,16 @@
 #include <sys/syslimits.h>
 #endif
 
+#if defined(__FreeBSD__) || defined(__DragonFly__) || defined(__NetBSD__)
+#include <sys/types.h>
+#include <sys/sysctl.h>
+#endif
+
+#ifndef _WIN32
+#include <limits.h>
+#include <stdlib.h>
+#endif
+
 #ifdef HAS_SENTRY
 #define SENTRY_BUILD_STATIC 1
 #include "sentry.h"
@@ -56,6 +66,43 @@ static int argc;
 static char** argv;
 static App app_id = App::undefined;
 
+#if !defined(_WIN32) && !defined(__APPLE__) && !defined(__EMSCRIPTEN__)
+// Best-effort path to the running executable from argv[0], for systems that have no API
+// for it (OpenBSD) or where procfs is unavailable. Like a shell, a bare command name is
+// looked up in PATH.
+static std::string resolve_argv0_path()
+{
+	if (!argv || !argv[0] || !argv[0][0])
+		return "";
+
+	char resolved[PATH_MAX];
+	std::string arg0 = argv[0];
+	if (arg0.find('/') != std::string::npos)
+		return realpath(arg0.c_str(), resolved) ? resolved : "";
+
+	const char* path_env = std::getenv("PATH");
+	if (!path_env)
+		return "";
+
+	std::string dirs = path_env;
+	size_t start = 0;
+	while (start <= dirs.size())
+	{
+		size_t end = dirs.find(':', start);
+		if (end == std::string::npos)
+			end = dirs.size();
+		std::string dir = dirs.substr(start, end - start);
+		if (dir.empty())
+			dir = ".";
+		std::string candidate = dir + "/" + arg0;
+		if (access(candidate.c_str(), X_OK) == 0 && realpath(candidate.c_str(), resolved))
+			return resolved;
+		start = end + 1;
+	}
+	return "";
+}
+#endif
+
 // No trailing slash.
 static std::string get_exe_folder_path()
 {
@@ -75,9 +122,32 @@ static std::string get_exe_folder_path()
 #elif defined(__EMSCRIPTEN__)
 	path = "";
 #else
-	char c[260] = {0};
-	int length = (int)readlink("/proc/self/exe", c, 260);
-	path = std::string(c, length>0 ? length : 0);
+#if defined(__FreeBSD__) || defined(__DragonFly__)
+	// procfs is not mounted by default on the BSDs.
+	char buf[PATH_MAX] = {0};
+	size_t length = sizeof(buf);
+	int mib[4] = {CTL_KERN, KERN_PROC, KERN_PROC_PATHNAME, -1};
+	if (sysctl(mib, 4, buf, &length, NULL, 0) == 0 && length > 0)
+		path = std::string(buf);
+#elif defined(__NetBSD__)
+	char buf[PATH_MAX] = {0};
+	size_t length = sizeof(buf);
+	int mib[4] = {CTL_KERN, KERN_PROC_ARGS, -1, KERN_PROC_PATHNAME};
+	if (sysctl(mib, 4, buf, &length, NULL, 0) == 0 && length > 0)
+		path = std::string(buf);
+#elif defined(__sun)
+	char buf[PATH_MAX] = {0};
+	ssize_t length = readlink("/proc/self/path/a.out", buf, sizeof(buf) - 1);
+	if (length > 0)
+		path = std::string(buf, length);
+#elif defined(__linux__)
+	char buf[PATH_MAX] = {0};
+	ssize_t length = readlink("/proc/self/exe", buf, sizeof(buf) - 1);
+	if (length > 0)
+		path = std::string(buf, length);
+#endif
+	if (path.empty())
+		path = resolve_argv0_path();
 #endif
 
 	return path.substr(0, path.rfind('/'));
