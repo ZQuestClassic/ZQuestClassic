@@ -1755,7 +1755,7 @@ int32_t writecombo_loop(PACKFILE *f, newcombo const& tmp_cmb)
 		|| tmp_cmb.liftundercmb || tmp_cmb.liftundercs
 		|| tmp_cmb.liftbreaksprite!=-1 || tmp_cmb.liftbreaksfx
 		|| tmp_cmb.lifthei!=8 || tmp_cmb.lifttime!=16
-		|| tmp_cmb.lift_parent_item || !tmp_cmb.lift_weap_data.get().is_blank())
+		|| tmp_cmb.lift_parent_item || !tmp_cmb.lift_weap_data.get().is_blank_lifting())
 		combo_has_flags |= CHAS_LIFT;
 	if(tmp_cmb.speed_mult != 1 || tmp_cmb.speed_div != 1 || tmp_cmb.speed_add
 		|| tmp_cmb.sfx_appear || tmp_cmb.sfx_disappear || tmp_cmb.sfx_loop || tmp_cmb.sfx_walking || tmp_cmb.sfx_standing

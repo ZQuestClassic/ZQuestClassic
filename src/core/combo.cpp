@@ -1360,7 +1360,7 @@ bool newcombo::is_blank(bool ignoreEff) const
 	
 	if(!triggers.empty()) return false;
 	if(!misc_weap_data.get().is_blank()) return false;
-	if(!lift_weap_data.get().is_blank()) return false;
+	if(!lift_weap_data.get().is_blank_lifting()) return false;
 	return true;
 }
 
