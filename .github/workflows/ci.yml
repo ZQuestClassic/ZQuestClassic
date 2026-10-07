@@ -176,7 +176,7 @@ jobs:
           BUILD_FOLDER: ../build_emscripten/RelWithDebInfo
       - uses: actions/setup-python@v6
         with:
-          python-version: '3.12.8'
+          python-version: '3.12'
           cache: pip
       - run: pip install -r requirements.txt
       # Run each replay for just ~15 seconds, but run all of classic_1st_lvl1.zplay
