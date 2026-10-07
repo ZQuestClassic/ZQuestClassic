@@ -2,7 +2,7 @@
 
 #include "../midia5.h"
 
-/*
+/* THIS IS A PLACEHOLDER FILE
  * Output-less MIDI backend, for systems without a usable MIDI output API: the ALSA sequencer
  * backend is Linux-only, so the BSDs and other Unixes use this one. Reporting zero output
  * devices makes Allegro's MIDI driver behave as if no synthesizer were available (the same
