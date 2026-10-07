@@ -41,7 +41,7 @@ void zalleg_osx_get_main_screen_usable_size(int* w, int* h);
 float zalleg_osx_get_main_screen_scale_factor(void);
 #endif
 
-#ifdef __linux__
+#ifdef ALLEGRO_WITH_XWINDOWS
 #include <allegro5/allegro_x.h>
 #endif
 
@@ -538,7 +538,7 @@ void zalleg_bring_window_to_foreground(ALLEGRO_DISPLAY* display)
 	SetForegroundWindow(hwnd);
 #elif defined(ALLEGRO_MACOSX)
 	zalleg_osx_bring_window_to_foreground(display);
-#elif defined(__linux__)
+#elif defined(ALLEGRO_WITH_XWINDOWS)
 	XID window_id = al_get_x_window_id(display);
 	Display* x_display = XOpenDisplay(nullptr);
 	if (x_display)

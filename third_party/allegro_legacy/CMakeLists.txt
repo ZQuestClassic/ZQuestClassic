@@ -412,8 +412,12 @@ if(ALLEGRO_LEGACY_UNIX)
     # local edit
     if (ALLEGRO_SDL)
         list(APPEND PLATFORM_SOURCES ${ALLEGRO_LEGACY_SRC_MIDIA5_SDL_FILES})
-    else()
+    elseif(CMAKE_SYSTEM_NAME MATCHES "Linux|Android")
+        # The ALSA sequencer is a Linux API.
         list(APPEND PLATFORM_SOURCES ${ALLEGRO_LEGACY_SRC_MIDIA5_UNIX_FILES})
+    else()
+        # The BSDs and other Unixes: no MIDI output.
+        list(APPEND PLATFORM_SOURCES ${ALLEGRO_LEGACY_SRC_MIDIA5_NULL_FILES})
     endif()
 endif(ALLEGRO_LEGACY_UNIX)
 if(ALLEGRO_LEGACY_WINDOWS)
