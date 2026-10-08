@@ -10225,7 +10225,7 @@ int32_t onGotoTiles(int32_t startfrom)
 }
 
 int32_t combopage_animate = 1;
-void draw_combo(BITMAP *dest, int x,int y,int c,int cs,bool animate)
+void draw_combo(BITMAP *dest, int x,int y,int c,int cs,bool animate,int flags)
 {
 	if(unsigned(c)<MAXCOMBOS)
 	{
@@ -10233,7 +10233,10 @@ void draw_combo(BITMAP *dest, int x,int y,int c,int cs,bool animate)
 		int t = cmb.tile;
 		if(!animate)
 			cmb.tile = cmb.o_tile;
-		put_combo(dest,x,y,c,cs,0,0);
+		// Flags go on top of walkability, as on the map.
+		put_combo(dest,x,y,c,cs,flags&~cFLAGS,0);
+		if(flags&cFLAGS)
+			put_flags(dest,x,y,c,cs,cFLAGS,0);
 		cmb.tile = t;
 	}
 	else
@@ -10265,7 +10268,7 @@ void draw_combos(int32_t page,int32_t cs,bool cols)
 			
 			combotile_override_x = x+screen_xofs+(w-16)/2;
 			combotile_override_y = y+screen_yofs+(h-16)/2;
-			draw_combo(buf,0,0,i+(page<<8),cs,combopage_animate);
+			draw_combo(buf,0,0,i+(page<<8),cs,combopage_animate,Flags&(cFLAGS|cWALK));
 			stretch_blit(buf,screen2,0,0,16,16,x,y,w,h);
 		}
 	}
@@ -10280,7 +10283,7 @@ void draw_combos(int32_t page,int32_t cs,bool cols)
 			
 			combotile_override_x = x+screen_xofs+(w-16)/2;
 			combotile_override_y = y+screen_yofs+(h-16)/2;
-			draw_combo(buf,0,0,c+(page<<8),cs,combopage_animate);
+			draw_combo(buf,0,0,c+(page<<8),cs,combopage_animate,Flags&(cFLAGS|cWALK));
 			stretch_blit(buf,screen2,0,0,16,16,x,y,w,h);
 			++c;
 			
@@ -10638,6 +10641,14 @@ bool select_combo_2(int32_t &cmb,int32_t &cs)
 				}
 				break;
 			}
+			
+			case KEY_W:
+				Flags^=cWALK;
+				break;
+				
+			case KEY_F:
+				Flags^=cFLAGS;
+				break;
 			}
 			
 			clear_keybuf();
@@ -11051,6 +11062,14 @@ int32_t combo_screen(int32_t pg, int32_t tl)
 			}
 			break;
 			
+			case KEY_W:
+				Flags^=cWALK;
+				break;
+				
+			case KEY_F:
+				Flags^=cFLAGS;
+				break;
+				
 			case KEY_U:
 				comeback_combos();
 				break;

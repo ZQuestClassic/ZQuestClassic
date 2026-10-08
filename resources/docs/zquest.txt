@@ -1360,6 +1360,8 @@ Hot keys are:
  - v: paste. This will copy the source combo to the destination.  
  - p: go to a specific page.
  - page up, page down: changes the combo page
+ - w: toggle showing each combo's walkability
+ - f: toggle showing each combo's inherent flag
 
    Note: To copy and paste a whole combo page (or part of one), click on the first combo, hold shift and click on the last combo. Press c. Go to the combo page you want to copy to. Click on the first space and hit v. This method can also be used to delete a number of combos by pressing delete after selecting the combos. 
 
