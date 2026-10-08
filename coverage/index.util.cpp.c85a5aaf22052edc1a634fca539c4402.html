@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2026-10-07 05:06:51</td>
+      <td>2026-10-08 07:59:03</td>
     </tr>
   </table>
 </div>
@@ -108,7 +108,7 @@
     <tr><td><a href="#l409">util::is_relative_path(std::basic_string_view&lt;char, std::char_traits&lt;char&gt; &gt;) (line 409)</a></td><td>called 1040 times, returned 1040 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l986">util::is_subpath_of(std::filesystem::__cxx11::path const&amp;, std::filesystem::__cxx11::path const&amp;) (line 986)</a></td><td>called 2 times, returned 2 times</td><td>44.0%</td></tr>
     <tr><td><a href="#l191">util::longest_common_prefix(std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt; const&amp;, std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt; const&amp;) (line 191)</a></td><td>called 5219 times, returned 5219 times</td><td>100.0%</td></tr>
-    <tr><td><a href="#l97">util::lowerstr(std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt;&amp;) (line 97)</a></td><td>called 60732 times, returned 60732 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l97">util::lowerstr(std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt;&amp;) (line 97)</a></td><td>called 60696 times, returned 60696 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l434">util::make_dirs_for_file(std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt;&amp;) (line 434)</a></td><td>called 3 times, returned 3 times</td><td>63.0%</td></tr>
     <tr><td><a href="#l1035">util::md5_file(std::filesystem::__cxx11::path const&amp;) (line 1035)</a></td><td>called 1080 times, returned 1080 times</td><td>86.0%</td></tr>
     <tr><td><a href="#l1025">util::md5_hash_bytes(std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt; const&amp;) (line 1025)</a></td><td>called 1 time, returned 1 time</td><td>100.0%</td></tr>
@@ -932,7 +932,7 @@
       <td class="lineno"><a id="l97" href="#l97">97</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">60732</td>
+      <td class="linecount coveredLine">60696</td>
       <td class="src coveredLine"><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">lowerstr</span><span class="p">(</span><span class="n">string</span><span class="o">&amp;</span><span class="w"> </span><span class="n">str</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -948,26 +948,26 @@
         <details class="linebranchDetails">
         <summary class="linebranchSummary">2/2</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 495978 times.</div>
-          <div class="takenBranch">&check; Branch 1 taken 60732 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 495684 times.</div>
+          <div class="takenBranch">&check; Branch 1 taken 60696 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount coveredLine">556710</td>
+      <td class="linecount coveredLine">556380</td>
       <td class="src coveredLine"><span class="w">		</span><span class="k">for</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">q</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">str</span><span class="p">.</span><span class="n">size</span><span class="p">()</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="n">q</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="o">--</span><span class="n">q</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l100" href="#l100">100</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">495978</td>
+      <td class="linecount coveredLine">495684</td>
       <td class="src coveredLine"><span class="w">			</span><span class="n">str</span><span class="p">[</span><span class="n">q</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tolower</span><span class="p">(</span><span class="n">str</span><span class="p">[</span><span class="n">q</span><span class="p">]);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l101" href="#l101">101</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">60732</td>
+      <td class="linecount coveredLine">60696</td>
       <td class="src coveredLine"><span class="w">	</span><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
