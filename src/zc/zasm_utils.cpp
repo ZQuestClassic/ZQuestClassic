@@ -551,6 +551,44 @@ ZasmCFG zasm_construct_function_cfg(const zasm_script* script, const StructuredZ
 	return construct_cfg(script, {{fn.start_pc, fn.final_pc}}, script_range);
 }
 
+// Computes, for every block of `cfg`, which of the eight D registers hold a value that some
+// later instruction may still read: `in` is that set at the block's first instruction and `out`
+// the set after its last. A register not in `out` is dead at the end of the block, so whatever
+// value it holds there can be discarded.
+//
+// Two things consume this:
+//
+//  - The ZASM optimizer uses `out` to remove writes nobody reads, and to tell whether a
+//    comparison still has to leave its result in D2.
+//  - The JIT's D-register cache uses `in` and `out` to decide what must be written back to
+//    ri->d[] at a block boundary, a suspend, or a call (see jit_reg_cache_flush_policy). A
+//    register that is dead there is simply dropped.
+//
+// This is textbook backward dataflow. Each block is first summarized from a forward scan of its
+// instructions: `gen` is the registers it reads before it writes them (a read of something the
+// block already wrote is satisfied locally and does not count), and `kill` is everything it
+// writes. Then
+//
+//     out = union of `in` over the block's successors
+//     in  = gen | (out & ~kill)
+//
+// are iterated to a fixpoint with a worklist: whenever a block's `in` changes, its predecessors
+// are queued again. The sets are 8-bit masks, so each step is a few bitwise ops, and the answer is
+// conservative - a register counts as live if it is live on any path.
+//
+// Calls and returns are where this departs from a single-function textbook. The CFG gives a
+// CALLFUNC one edge, to the callee's entry, and none to the instruction after the call; a
+// RETURNFUNC has no edges at all. So a block after a call starts fresh, and the caller's values
+// that survive the call are the flush policy's problem, not this analysis's - which is why
+// CALLFUNC kills every register. A returning block exposes D2 in `out`, since that is where the
+// caller reads the return value. Both JIT-only modes (suspend_uses_all_registers, and the
+// may_yield treatment of calls) exist because a suspend spills the whole register file: the
+// values in it at that point are observed by whoever resumes the script.
+//
+// Reads can also be implicit: an instruction's implicit_read_mask covers registers the command
+// always touches, and register_dependency_mask_cache covers non-D arguments that read a D
+// register (an indexed register like COMBODD reads rINDEX), so those stay live too.
+//
 // https://en.wikipedia.org/wiki/Data-flow_analysis
 // https://www.cs.cornell.edu/courses/cs4120/2022sp/notes.html?id=livevar
 // https://www.cs.cmu.edu/afs/cs/academic/class/15745-s19/www/lectures/L5-Intro-to-Dataflow.pdf
