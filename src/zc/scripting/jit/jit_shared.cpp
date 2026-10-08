@@ -249,8 +249,9 @@ static JittedScript* init_jitted_script(zasm_script* script)
 		.structured_zasm = std::move(structured_zasm),
 	};
 
-	// Populate ZasmFunction::may_yield (used once the register cache is ported;
-	// harmless to compute now and keeps init identical to the x64 backend).
+	// Populate ZasmFunction::may_yield. A call into a function that may yield is treated as
+	// reading every register (by the liveness analysis below, and the register cache flushes
+	// everything before it), and is never emitted as a direct native call.
 	zasm_find_yielding_functions(script, j_script->structured_zasm);
 
 	// Only finding the yielding functions needs the call graph, and only the ZASM optimizer needs
