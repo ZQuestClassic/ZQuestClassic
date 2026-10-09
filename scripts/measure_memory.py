@@ -78,6 +78,11 @@ QUESTS = [
         'replay': 'tests/replays/hollow_forest.zplay',
     },
     {
+        'name': 'Panoply of Calatia',
+        'qst': '.tmp/replay_uploads/69162522CA4C5DAD4DA0CAEDA505FBFB/69162522CA4C5DAD4DA0CAEDA505FBFB.qst',
+        'replay': '.tmp/replay_uploads/69162522CA4C5DAD4DA0CAEDA505FBFB/8c0eb8cd-26e7-4553-9988-9ca99bdb59ea-updated-main.zplay',
+    },
+    {
         'name': 'The ROSEMASTER',
         'qst': '.tmp/replay_uploads/219D5C45D53EE92C96821EF3821BB201/219D5C45D53EE92C96821EF3821BB201.qst',
         'replay': '.tmp/replay_uploads/219D5C45D53EE92C96821EF3821BB201/a3174566-e01c-4c74-b627-a472963f1ff6.zplay',

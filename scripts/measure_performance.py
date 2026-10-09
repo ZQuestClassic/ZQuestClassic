@@ -66,7 +66,8 @@ MODES = {
 }
 DEFAULT_MODES = ['jit', 'nojit', 'nojit-noopt']
 
-# Paths are relative to tests/replays/.
+# Paths are relative to tests/replays/, except those starting with .tmp/, which are relative to the
+# repo root (local-only replays, like replay uploads - skipped if missing).
 DEFAULT_REPLAYS = [
     'classic_1st/classic_1st_lvl1.zplay',
     'crucible_quest/crucible_quest_short_1.zplay',
@@ -80,6 +81,9 @@ DEFAULT_REPLAYS = [
     # 'terror_of_necromancy_demo6/terror_of_necromancy_demo6_05_of_54.zplay',
     'yuurand/yuurand_riviere.zplay',
     'z3/z3.zplay',
+    # "The Adventure of Link and Zelda: Panoply of Calatia": a decompiled 2.50-era global script
+    # with ~12.7k call sites in one 149k-instruction function.
+    '.tmp/replay_uploads/69162522CA4C5DAD4DA0CAEDA505FBFB/8c0eb8cd-26e7-4553-9988-9ca99bdb59ea-updated-main.zplay',
 ]
 
 # Synthetic CPU-bound benchmark: playground's maths.zs runs on dmap 0 / screen 5.
@@ -139,7 +143,10 @@ def resolve_replays(args) -> list[Path]:
         seen = set()  # de-dupe, preserve order
         paths = [p for p in paths if not (p in seen or seen.add(p))]
     else:
-        paths = [replays_dir / r for r in DEFAULT_REPLAYS]
+        paths = [
+            root_dir / r if r.startswith('.tmp/') else replays_dir / r
+            for r in DEFAULT_REPLAYS
+        ]
 
     existing = []
     for p in paths:
@@ -156,11 +163,12 @@ def build_benchmarks(args) -> list[dict]:
         benchmarks.append(dict(MATHS_BENCHMARK))
     if args.replays:
         for p in resolve_replays(args):
-            rel = (
-                p.relative_to(replays_dir).as_posix()
-                if p.is_relative_to(replays_dir)
-                else p.name
-            )
+            if p.is_relative_to(replays_dir):
+                rel = p.relative_to(replays_dir).as_posix()
+            elif p.is_relative_to(root_dir):
+                rel = f'{p.parent.name}/{p.name}'
+            else:
+                rel = p.name
             benchmarks.append(dict(kind='replay', name=rel, path=p))
     return benchmarks
 
