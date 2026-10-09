@@ -966,8 +966,10 @@ TestResults test_debugger([[maybe_unused]] bool verbose)
 	// Better approach: make a global "features" struct that is set on startup based on CLI/cfg, and
 	// then here just override the settings directly rather than replace CLI args.
 	// JIT isn't really utilized, but this ensures that the script engine falls back to interpreted mode
-	// when the debugger is open.
-	static std::vector<const char*> test_args = {"", "-test-zc", test_dir.data(), "-optimize-zasm", "-jit", "-debugger"};
+	// when the debugger is open. The experimental optimizer passes remove the most code, so they
+	// best catch the optimizer removing something the debugger observes (like a function result
+	// the script discards, or a write to the stack frame register).
+	static std::vector<const char*> test_args = {"", "-test-zc", test_dir.data(), "-optimize-zasm", "-optimize-zasm-experimental", "-jit", "-debugger"};
 	zapp_replace_args(test_args.size(), const_cast<char**>(test_args.data()));
 
 	TEST("maths.zplay (save breakpoints)", tr, [](){

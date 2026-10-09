@@ -26,21 +26,21 @@ Function run_none-0
 
 
 Function Function #1
-   24: NOP                                          [Block 0 -> ]
+   24: SETR            D4               SP2         [Block 0 -> ]
    25: SETR            D2               LINKX
    26: ADDV            D2               80000
    27: RETURNFUNC
 
 
 Function Function #2
-   28: NOP                                          [Block 0 -> ]
+   28: SETR            D4               SP2         [Block 0 -> ]
    29: SETR            D2               LINKY
    30: ADDV            D2               80000
    31: RETURNFUNC
 
 
 Function Function #3
-   32: NOP                                          [Block 0 -> ]
+   32: SETR            D4               SP2         [Block 0 -> ]
    33: POP             D2
    34: TRACER          D2
    35: TRACEV          1

@@ -1,13 +1,13 @@
 Function run_none-0
     0: PUSHV           0                            [Block 0 -> ]
-    1: NOP
+    1: SETR            D4               SP2
     2: PUSHR           SP2
     3: NOP
     4: CALLFUNC        14                           [Function #1]
-    5: NOP
+    5: PEEK            D4
     6: NOP
     7: CALLFUNC        16                           [Function #2]
-    8: NOP
+    8: PEEK            D4
     9: NOP
    10: CALLFUNC        18                           [Function #3]
    11: POP             D4

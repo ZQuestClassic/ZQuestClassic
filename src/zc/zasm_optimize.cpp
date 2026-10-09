@@ -2320,7 +2320,9 @@ static bool optimize_dead_code(OptContext& ctx)
 				for_every_side_effect_d_registers_only(C(i), [&](bool read, bool write, int reg){
 					if (write)
 					{
-						if (!(live & (1 << reg)))
+						// Writing the stack frame register (D4) is observed by the script debugger,
+						// which takes it as the base of the current function's locals (see do_set).
+						if (!(live & (1 << reg)) && reg != rSFRAME)
 						{
 							// Don't remove writes that have other side effects (like modifying the stack).
 							if (command_is_pure(C(i).command) && !bisect_tool_should_skip())

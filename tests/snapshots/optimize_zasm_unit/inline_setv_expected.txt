@@ -30,5 +30,5 @@ Function Function #2
 
 
 Function Function #3
-   22: NOP                                          [Block 0 -> ]
+   22: SETR            D4               SP2         [Block 0 -> ]
    23: RETURNFUNC

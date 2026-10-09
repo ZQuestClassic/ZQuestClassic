@@ -1,9 +1,9 @@
 Function run_none-0
     0: PUSHV           0                            [Block 0 -> ]
-    1: NOP
+    1: SETR            D4               SP2
     2: PUSHR           SP2
     3: CALLFUNC        7                            [Function #1]
-    4: NOP
+    4: PEEK            D4
     5: CALLFUNC        9                            [Function #2]
     6: QUIT
 

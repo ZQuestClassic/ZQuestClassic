@@ -13,5 +13,5 @@ Finished optimizing scripts:
 	[collapse_podarray] saved 0 instr (0.0%)
 	[strength_reduce] improved 0 instances
 	[unreachable_blocks_2] saved 3395 instr (0.0%)
-	[dead_code] saved 325140 instr (2.4%)
-	[total] saved 5205161 instr (38.4%)
+	[dead_code] saved 321177 instr (2.4%)
+	[total] saved 5201198 instr (38.4%)
