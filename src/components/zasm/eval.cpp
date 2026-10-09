@@ -939,7 +939,11 @@ DebugValue ExpressionEvaluator::evalBinaryOp(const std::string& op, DebugValue l
 			res.raw_value = (int32_t)(bigL / r_val);
 		}
 		else
-			res.raw_value = l_val / r_val;
+		{
+			// Divide in 64 bits: INT_MIN / -1 overflows a 32-bit divide (SIGFPE on x86). The
+			// truncation wraps, like the fixed path.
+			res.raw_value = (int32_t)((int64_t)l_val / r_val);
+		}
 	}
 	else if (op == "%")
 	{

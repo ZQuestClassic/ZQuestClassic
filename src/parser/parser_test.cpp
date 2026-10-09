@@ -825,6 +825,11 @@ TestResults test_parser([[maybe_unused]] bool verbose)
 
 			val = eval("24 / 2 / 3");
 			assertEqual(val.raw_value, 4 * FIXED_ONE);
+
+			// INT_MIN / -1 doesn't fit, which crashes a 32-bit divide on x86. It wraps instead.
+			val = eval("(-2147483647L - 1L) / -1L");
+			assertEqual(val.raw_value, INT32_MIN);
+			assertTrue(val.type->isLong(debugData));
 		}
 
 		// Number literals.
