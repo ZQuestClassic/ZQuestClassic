@@ -666,7 +666,7 @@ void set_last_timed_save(char const* buf)
 	if(buf && buf[0])
 	{
 		if(buf != last_timed_save)
-			strcpy(last_timed_save, buf);
+			set_zq_path(last_timed_save, buf);
     }
 	else
 	{
@@ -921,7 +921,7 @@ void load_recent_quests()
 			std::string qst_path = qst_str;
 			util::legacy_path_to_utf8(qst_path);
 			strncpy(rec_menu_fullpaths[q], qst_path.c_str(), 511);
-			relativize_path(buf, rec_menu_fullpaths[q]);
+			snprintf(buf, sizeof(buf), "%s", relativize_path(std::string(rec_menu_fullpaths[q])).c_str());
 			if(strlen(buf) > 62)
 			{
 				buf[60] = buf[61] = buf[62] = '.'; //add "..." as the last 3 characters
@@ -988,8 +988,8 @@ void update_recent_quest(char const* path)
 		}
 	}
 	char buf[512] = {0};
-	strcpy(rec_menu_fullpaths[0], path);
-	relativize_path(buf, rec_menu_fullpaths[0]);
+	snprintf(rec_menu_fullpaths[0], sizeof(rec_menu_fullpaths[0]), "%s", path);
+	snprintf(buf, sizeof(buf), "%s", relativize_path(std::string(rec_menu_fullpaths[0])).c_str());
 	if(strlen(buf) > 62)
 	{
 		buf[60] = buf[61] = buf[62] = '.'; //add "..." as the last 3 characters
@@ -3803,7 +3803,7 @@ int32_t playMusic()
 	
 	if(prompt_for_existing_file_compat("Load Music",(char*)allmusic_types,NULL,midipath,false))
 	{
-		strcpy(midipath,temppath);
+		set_zq_path(midipath, temppath);
 		
 		ext=get_extension(midipath);
 		
@@ -4362,7 +4362,7 @@ int32_t load_the_pic(BITMAP **dst, PALETTE dstpal)
         return 1;
     }
     
-    strcpy(imagepath,temppath);
+    set_zq_path(imagepath, temppath);
     
     if(*dst)
     {
@@ -4428,7 +4428,7 @@ int load_the_pic_new(BITMAP **dst, PALETTE dstpal)
     if(!gotit)
         return 1;
     
-    strcpy(imagepath,temppath);
+    set_zq_path(imagepath, temppath);
     
     if(*dst)
         destroy_bitmap(*dst);
@@ -25235,14 +25235,21 @@ bool no_subscreen()
     return false;
 }
 
+void set_zq_path(char* dest, char const* src)
+{
+	size_t len = strnlen(src, ZQ_PATH_SIZE-1);
+	memcpy(dest, src, len);
+	dest[len] = 0;
+}
+
 static void allocate_crap()
 {
-	filepath=(char*)malloc(2048);
-	datapath=(char*)malloc(2048);
-	midipath=(char*)malloc(2048);
-	imagepath=(char*)malloc(2048);
-	tmusicpath=(char*)malloc(2048);
-	last_timed_save=(char*)malloc(2048);
+	filepath=(char*)malloc(ZQ_PATH_SIZE);
+	datapath=(char*)malloc(ZQ_PATH_SIZE);
+	midipath=(char*)malloc(ZQ_PATH_SIZE);
+	imagepath=(char*)malloc(ZQ_PATH_SIZE);
+	tmusicpath=(char*)malloc(ZQ_PATH_SIZE);
+	last_timed_save=(char*)malloc(ZQ_PATH_SIZE);
 	
 	if(!filepath || !datapath || !imagepath || !midipath || !tmusicpath || !last_timed_save)
 	{
@@ -25865,10 +25872,10 @@ int32_t main(int32_t argc,char **argv)
 	
 	const char *default_path="";
 	
-	strcpy(datapath,zc_get_config("zquest",data_path_name,default_path));
-	strcpy(midipath,zc_get_config("zquest",midi_path_name,default_path));
-	strcpy(imagepath,zc_get_config("zquest",image_path_name,default_path));
-	strcpy(tmusicpath,zc_get_config("zquest",tmusic_path_name,default_path));
+	set_zq_path(datapath, zc_get_config("zquest",data_path_name,default_path));
+	set_zq_path(midipath, zc_get_config("zquest",midi_path_name,default_path));
+	set_zq_path(imagepath, zc_get_config("zquest",image_path_name,default_path));
+	set_zq_path(tmusicpath, zc_get_config("zquest",tmusic_path_name,default_path));
 	chop_path(datapath);
 	chop_path(midipath);
 	chop_path(imagepath);
@@ -25990,7 +25997,7 @@ int32_t main(int32_t argc,char **argv)
 	OnlyCheckNewTilesForDuplicates = zc_get_config("zquest","only_check_new_tiles_for_duplicates",0);
 	//gui_colorset				   = zc_get_config("zquest","gui_colorset",0);
 	
-	strcpy(last_timed_save,zc_get_config("zquest","last_timed_save",""));
+	set_zq_path(last_timed_save, zc_get_config("zquest","last_timed_save",""));
 	
 	midi_volume					= zc_get_config("zquest", "midi", 255);
 	
@@ -26325,7 +26332,7 @@ int32_t main(int32_t argc,char **argv)
 			
 			if(ret == qe_OK)
 			{
-				strcpy(filepath,last_timed_save);
+				set_zq_path(filepath, last_timed_save);
 				load_last_timed_save=true;
 				mark_save_dirty();
 			}
@@ -26338,7 +26345,7 @@ int32_t main(int32_t argc,char **argv)
 	
 	if(!load_last_timed_save)
 	{
-		strcpy(filepath,zc_get_config("zquest",last_quest_name,""));
+		set_zq_path(filepath, zc_get_config("zquest",last_quest_name,""));
 		
 		if(argc>1 && argv[1][0]!='-')
 		{
@@ -26347,7 +26354,7 @@ int32_t main(int32_t argc,char **argv)
 			if(ret == qe_OK)
 			{
 				first_save=true;
-				strcpy(filepath,argv[1]);
+				set_zq_path(filepath, argv[1]);
 				refresh(rALL);
 			}
 		}
@@ -26394,7 +26401,7 @@ int32_t main(int32_t argc,char **argv)
 
 						if(ret == qe_OK)
 						{
-							strcpy(filepath,path);
+							set_zq_path(filepath, path);
 							loaded = true;
 						}
 						else if(ret == qe_notfound)
