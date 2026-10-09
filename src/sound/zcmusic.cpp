@@ -212,7 +212,7 @@ int32_t unload_gme_file(GMEFILE* gme);
 int32_t gme_play(GMEFILE *gme, int32_t vol);
 
 
-void zcm_extract_name(const char *path,char *name,int32_t type)
+void zcm_extract_name(const char *path,char *name,size_t size,int32_t type)
 {
 	int32_t l=(int32_t)strlen(path);
 	int32_t i=l;
@@ -234,7 +234,7 @@ void zcm_extract_name(const char *path,char *name,int32_t type)
 	}
 	else
 	{
-		while(i<l)
+		while(i<l && n<(int32_t)size-1)
 			name[n++]=path[i++];
 	}
 
@@ -401,7 +401,7 @@ ZCMUSIC * zcmusic_load_file(const char *filename)
 		p->fadeoutframes = 0;
 		p->fadevolume = 10000;
 		ZCMUSIC *music=(ZCMUSIC*)p;
-		zcm_extract_name(filename, music->filename, FILENAMEALL);
+		zcm_extract_name(filename, music->filename, sizeof(music->filename), FILENAMEALL);
 		music->filename[255]='\0';
 		music->track=0;
 		return music;
@@ -431,7 +431,7 @@ ZCMUSIC * zcmusic_load_file(const char *filename)
 		p->fadeoutframes = 0;
 		p->fadevolume = 10000;
 		ZCMUSIC *music=(ZCMUSIC*)p;
-		zcm_extract_name(filename, music->filename, FILENAMEALL);
+		zcm_extract_name(filename, music->filename, sizeof(music->filename), FILENAMEALL);
 		music->filename[255]='\0';
 		music->track=0;
 		return music;
@@ -461,7 +461,7 @@ ZCMUSIC * zcmusic_load_file(const char *filename)
 		p->fadeoutframes = 0;
 		p->fadevolume = 10000;
 		ZCMUSIC *music=(ZCMUSIC*)p;
-		zcm_extract_name(filename, music->filename, FILENAMEALL);
+		zcm_extract_name(filename, music->filename, sizeof(music->filename), FILENAMEALL);
 		music->filename[255]='\0';
 		music->track=0;
 		return music;
@@ -488,7 +488,7 @@ ZCMUSIC * zcmusic_load_file(const char *filename)
 				p->fadeoutframes = 0;
 				p->fadevolume = 10000;
 				ZCMUSIC *music=(ZCMUSIC*)p;
-				zcm_extract_name(filename, music->filename, FILENAMEALL);
+				zcm_extract_name(filename, music->filename, sizeof(music->filename), FILENAMEALL);
 				music->filename[255]='\0';
 				music->track=0;
 				return music;
