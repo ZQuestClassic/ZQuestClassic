@@ -65,9 +65,22 @@ struct JittedExecutionContext
 
 using JittedFunctionImpl = int (*)(JittedExecutionContext* ctx);
 
+// The unit of native compilation: a whole function, or one piece of a function too large to
+// compile at once (see jit_split_function). Pieces split a function at the start of a block, and
+// control moves between them through the driver: a piece exits to a pc in another piece like a
+// GOTO out of the function, and the driver enters a piece at a pc in its middle the same way it
+// resumes after a call or wait. Nothing about the function changes for the script.
+struct JitPiece
+{
+	pc_t fn_id;
+	pc_t start_pc;
+	pc_t final_pc;
+};
+
 struct JittedFunction
 {
 	JittedFunctionImpl exec;
+	// The piece id.
 	pc_t id;
 	std::map<pc_t, uintptr_t> pc_to_resume_address;
 };
@@ -96,7 +109,12 @@ struct JittedScript
 	// jit_analyze_function returns this for every function instead of building a per-function
 	// analysis.
 	std::unique_ptr<JitFunctionAnalysis> script_analysis;
-	std::vector<pc_t> function_start_pcs;
+	// Every function's pieces, in pc order (most functions are one piece).
+	std::vector<JitPiece> pieces;
+	std::vector<pc_t> piece_start_pcs;
+	// The id of each function's first piece, by function id.
+	std::vector<pc_t> function_first_piece;
+	// By piece id.
 	std::vector<JittedFunction> compiled_functions;
 	std::deque<JittedFunction> pending_compiled_jit_functions;
 	// Native entry per function for direct calls between compiled functions,
@@ -134,8 +152,8 @@ struct JittedScriptInstance
 };
 
 // Provided by the per-architecture backend (jit_x64.cpp / jit_a64.cpp): compile
-// one function to native code, or std::nullopt if it should stay interpreted.
-std::optional<JittedFunction> jit_backend_compile_function(zasm_script* script, JittedScript* j_script, const ZasmFunction& fn);
+// one piece of a function to native code, or std::nullopt if it should stay interpreted.
+std::optional<JittedFunction> jit_backend_compile_function(zasm_script* script, JittedScript* j_script, pc_t piece_id);
 
 // The analysis to compile a function with: the script's if it has one, otherwise `storage`,
 // filled in for just this function.

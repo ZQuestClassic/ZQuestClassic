@@ -49,22 +49,18 @@ static bool bisect_tool_should_skip()
 #endif
 }
 
-static bool compile_and_queue_function(zasm_script* script, JittedScript* j_script, const ZasmFunction& fn)
+static void compile_and_queue_piece(zasm_script* script, JittedScript* j_script, pc_t piece_id)
 {
-	j_script->functions_requested_to_be_compiled[fn.id] = true;
-
 	if (bisect_tool_should_skip())
-		return false;
+		return;
 
-	auto j_fn = jit_backend_compile_function(script, j_script, fn);
+	auto j_fn = jit_backend_compile_function(script, j_script, piece_id);
 	if (!j_fn)
-		return false;
+		return;
 
 	al_lock_mutex(j_script->mutex);
 	j_script->pending_compiled_jit_functions.push_back(std::move(*j_fn));
 	al_unlock_mutex(j_script->mutex);
-
-	return true;
 }
 
 // Note: even if the function is compiled instantly, the current execution will continue to use the
@@ -73,15 +69,23 @@ static bool compile_and_queue_function(zasm_script* script, JittedScript* j_scri
 // call to exec_script) reduces a lot of lock overhead.
 static void create_compile_function_task(JittedScript* j_script, zasm_script* script, const ZasmFunction& fn)
 {
-	if (auto worker_pool = zasm_pipeline_worker_pool())
+	j_script->functions_requested_to_be_compiled[fn.id] = true;
+
+	// Each piece compiles on its own, so the memory a compile needs is bounded by the piece size.
+	auto worker_pool = zasm_pipeline_worker_pool();
+	for (pc_t piece_id = j_script->function_first_piece[fn.id];
+		piece_id < j_script->pieces.size() && j_script->pieces[piece_id].fn_id == fn.id; piece_id++)
 	{
-		worker_pool->add_task([script, j_script, fn](){
-			compile_and_queue_function(script, j_script, fn);
-		});
-	}
-	else
-	{
-		compile_and_queue_function(script, j_script, fn);
+		if (worker_pool)
+		{
+			worker_pool->add_task([script, j_script, piece_id](){
+				compile_and_queue_piece(script, j_script, piece_id);
+			});
+		}
+		else
+		{
+			compile_and_queue_piece(script, j_script, piece_id);
+		}
 	}
 }
 
@@ -133,30 +137,30 @@ static void profiler_increment_function_call(JittedExecutionContext* ctx, const 
 	}
 }
 
-static pc_t find_function_id_containing_pc(const std::vector<pc_t>& function_start_pcs, pc_t pc)
+static pc_t find_piece_id_containing_pc(const std::vector<pc_t>& piece_start_pcs, pc_t pc)
 {
-	pc_t fn_id;
-	if (auto it = std::upper_bound(function_start_pcs.begin(), function_start_pcs.end(), pc); it != function_start_pcs.begin())
+	pc_t piece_id;
+	if (auto it = std::upper_bound(piece_start_pcs.begin(), piece_start_pcs.end(), pc); it != piece_start_pcs.begin())
 	{
-		fn_id = std::distance(function_start_pcs.begin(), it) - 1;
+		piece_id = std::distance(piece_start_pcs.begin(), it) - 1;
 	}
 	else
 	{
 		// Shouldn't happen.
 		jit_error("[jit ERROR] unknown function for pc: %d\n", pc);
-		fn_id = -1;
+		piece_id = -1;
 	}
 
-	return fn_id;
+	return piece_id;
 }
 
 static int stub_exec_function(JittedExecutionContext* ctx)
 {
 	JittedScriptInstance* j_instance = ctx->j_instance;
 	JittedScript* j_script = j_instance->j_script;
-	pc_t fn_id = find_function_id_containing_pc(j_script->function_start_pcs, ctx->pc);
-	CHECK(fn_id != (pc_t)-1);
-	ZasmFunction& fn = ctx->j_instance->j_script->structured_zasm.functions[fn_id];
+	pc_t piece_id = find_piece_id_containing_pc(j_script->piece_start_pcs, ctx->pc);
+	CHECK(piece_id != (pc_t)-1);
+	ZasmFunction& fn = j_script->structured_zasm.functions[j_script->pieces[piece_id].fn_id];
 
 	profiler_increment_function_call(ctx, fn);
 
@@ -236,6 +240,131 @@ static bool control_enters_functions_only_at_start(const zasm_script* script, co
 	return true;
 }
 
+// The most (non-NOP) instructions a piece of a function compiles at once. The memory asmjit needs
+// to compile a function grows about linearly with its size up to ~20k instructions (at most 5.4 KB
+// per instruction on a64, measured over every function of several large quests), and faster past
+// that: Panoply of Calatia's 149k-instruction global script needs 1.4 GB in one go. Splitting
+// bigger functions into pieces bounds every compile.
+static size_t jit_max_piece_size()
+{
+	static size_t max_piece_size = std::max<int64_t>(1, get_flag_int("-jit-max-piece-size").value_or(10000));
+	return max_piece_size;
+}
+
+// Splits a function into pieces of at most about jit_max_piece_size instructions each, of similar
+// size. Pieces start at a block start (so the register cache is in a known state there). Two things
+// do not survive leaving a piece, so a piece can't start where either is still needed: the flags of
+// a comparison, read by the next non-NOP command after it (and, in hand-written ZASM, by the target
+// of a jump - the compiler only ever jumps to a comparison - so such a jump stays in one piece with
+// its target); and SWITCHKEY, which the backends keep only in a host register, between a write to it
+// and its reads (a switch's compare ladder).
+static void jit_split_function(const zasm_script* script, const ZasmFunction& fn, const ZasmCFG& cfg, std::vector<JitPiece>& pieces)
+{
+	size_t size_no_nops = 0;
+	for (pc_t i = fn.start_pc; i <= fn.final_pc; i++)
+	{
+		if (script->zasm[i].command != NOP)
+			size_no_nops++;
+	}
+
+	if (size_no_nops <= jit_max_piece_size())
+	{
+		pieces.push_back({fn.id, fn.start_pc, fn.final_pc});
+		return;
+	}
+
+	// Where SWITCHKEY is live, in pc order: from just after a write up to its last read before the
+	// next write. Compare ladders are straight-line code, so pc order is enough. Only register
+	// arguments count - a literal that happens to equal SWITCHKEY's id would otherwise extend the
+	// range to wherever it is.
+	std::vector<bool> no_split(fn.final_pc - fn.start_pc + 1);
+	{
+		std::optional<pc_t> last_write;
+		for (pc_t i = fn.start_pc; i <= fn.final_pc; i++)
+		{
+			const auto& op = script->zasm[i];
+			const int args[] = {op.arg1, op.arg2, op.arg3};
+			bool reads = false, writes = false;
+			for (int a = 0; a < 3; a++)
+			{
+				if (args[a] != SWITCHKEY)
+					continue;
+				auto [read, write] = get_command_rw(op.command, a);
+				reads |= read;
+				writes |= write;
+			}
+			if (reads && last_write)
+			{
+				for (pc_t j = *last_write + 1; j <= i; j++)
+					no_split[j - fn.start_pc] = true;
+				last_write = i;
+			}
+			if (writes)
+				last_write = i;
+		}
+	}
+
+	// Where the flags of a comparison are still to be read: at the command that reads them, at any
+	// NOPs before it (NOPs emit nothing, so flags pass through them), and at a GOTO to any of those
+	// (which only touches the flags in hand-written ZASM). A GOTO backward to such a place is only
+	// seen on the next pass, so repeat until nothing changes - which takes one more pass, unless
+	// hand-written ZASM chains GOTOs to a flag reader.
+	std::vector<bool> flags_read_next(fn.final_pc - fn.start_pc + 1);
+	for (bool changed = true; changed;)
+	{
+		changed = false;
+		bool read_next = false;
+		for (pc_t i = fn.final_pc + 1; i-- > fn.start_pc;)
+		{
+			const auto& op = script->zasm[i];
+			if (op.command == GOTO)
+				read_next = op.arg1 >= (int)fn.start_pc && op.arg1 <= (int)fn.final_pc && flags_read_next[op.arg1 - fn.start_pc];
+			else if (op.command != NOP)
+				read_next = command_uses_comparison_result(op.command);
+			if (read_next && !flags_read_next[i - fn.start_pc])
+			{
+				flags_read_next[i - fn.start_pc] = true;
+				no_split[i - fn.start_pc] = true;
+				changed = true;
+			}
+		}
+	}
+
+	// A jump whose target reads the flags set before the jump must stay in the target's piece.
+	for (pc_t i = fn.start_pc; i <= fn.final_pc; i++)
+	{
+		const auto& op = script->zasm[i];
+		if (!command_is_goto(op.command))
+			continue;
+		int target = op.arg1;
+		if (target < (int)fn.start_pc || target > (int)fn.final_pc || !flags_read_next[target - fn.start_pc])
+			continue;
+		pc_t lo = std::min<pc_t>(i, target), hi = std::max<pc_t>(i, target);
+		for (pc_t j = lo + 1; j <= hi; j++)
+			no_split[j - fn.start_pc] = true;
+	}
+
+	size_t max_piece_size = jit_max_piece_size();
+	size_t num_pieces = (size_no_nops + max_piece_size - 1) / max_piece_size;
+	size_t target_size = num_pieces > 1 ? (size_no_nops + num_pieces - 1) / num_pieces : SIZE_MAX;
+
+	pc_t piece_start_pc = fn.start_pc;
+	size_t piece_size = 0;
+	for (pc_t i = fn.start_pc; i <= fn.final_pc; i++)
+	{
+		if (piece_size >= target_size && cfg.contains_block_start(i) && !no_split[i - fn.start_pc])
+		{
+			pieces.push_back({fn.id, piece_start_pc, i - 1});
+			piece_start_pc = i;
+			piece_size = 0;
+		}
+
+		if (script->zasm[i].command != NOP)
+			piece_size++;
+	}
+	pieces.push_back({fn.id, piece_start_pc, fn.final_pc});
+}
+
 static JittedScript* init_jitted_script(zasm_script* script)
 {
 	StructuredZasm structured_zasm = zasm_construct_structured(script);
@@ -272,6 +401,13 @@ static JittedScript* init_jitted_script(zasm_script* script)
 	for (const auto& fn : j_script->structured_zasm.functions)
 		j_script->function_live_in.push_back(analysis.liveness[analysis.cfg.block_id_from_start_pc(fn.start_pc)].in);
 
+	j_script->function_first_piece.reserve(j_script->structured_zasm.functions.size());
+	for (const auto& fn : j_script->structured_zasm.functions)
+	{
+		j_script->function_first_piece.push_back(j_script->pieces.size());
+		jit_split_function(script, fn, analysis.cfg, j_script->pieces);
+	}
+
 	if (!control_enters_functions_only_at_start(script, j_script->structured_zasm, analysis.cfg))
 	{
 		jit_printf("[jit] keeping the analysis of the whole script, since control enters a function somewhere other than its start: %s\n", script->name.c_str());
@@ -279,15 +415,13 @@ static JittedScript* init_jitted_script(zasm_script* script)
 		j_script->script_analysis = std::make_unique<JitFunctionAnalysis>(std::move(analysis));
 	}
 
-	j_script->function_start_pcs.reserve(j_script->structured_zasm.functions.size());
-	for (const auto& fn : j_script->structured_zasm.functions)
+	j_script->piece_start_pcs.reserve(j_script->pieces.size());
+	j_script->compiled_functions.reserve(j_script->pieces.size());
+	for (pc_t piece_id = 0; piece_id < j_script->pieces.size(); piece_id++)
 	{
-		j_script->function_start_pcs.push_back(fn.start_pc);
+		j_script->piece_start_pcs.push_back(j_script->pieces[piece_id].start_pc);
+		j_script->compiled_functions.push_back({stub_exec_function, piece_id});
 	}
-
-	j_script->compiled_functions.reserve(j_script->structured_zasm.functions.size());
-	for (ZasmFunction& fn : j_script->structured_zasm.functions)
-		j_script->compiled_functions.push_back({stub_exec_function, fn.id});
 
 	// No function may be direct-called until it is compiled and committed.
 	size_t num_functions = j_script->structured_zasm.functions.size();
@@ -373,22 +507,29 @@ static bool exec_script(JittedExecutionContext* ctx)
 	JittedScriptInstance* j_instance = ctx->j_instance;
 	JittedScript* j_script = j_instance->j_script;
 
-	pc_t fn_id = find_function_id_containing_pc(j_script->function_start_pcs, ctx->pc);
+	pc_t piece_id = find_piece_id_containing_pc(j_script->piece_start_pcs, ctx->pc);
 
 	int exec_result;
-	if (fn_id != (pc_t)-1)
+	if (piece_id != (pc_t)-1)
 	{
-		auto& j_fn = j_script->compiled_functions[fn_id];
+		auto& j_fn = j_script->compiled_functions[piece_id];
 
 		ctx->resume_address = 0;
-		if (ctx->pc != j_script->structured_zasm.functions[fn_id].start_pc)
+		ctx->entry_mode = 0;
+		if (ctx->pc != j_script->pieces[piece_id].start_pc)
 		{
+			// Resuming after a call or wait, or entering a piece of a function at a jump target
+			// from another piece - both are registered by the pc just before.
 			if (auto address = util::find(j_script->pc_to_resume_address, ctx->pc - 1))
 				ctx->resume_address = *address;
 		}
 
-		ctx->entry_mode = 0;
-		exec_result = j_fn.exec(ctx);
+		// Compiled code can only be entered at its start or a registered address; any other pc
+		// (e.g. a jump into the middle of some other function) runs in the interpreter.
+		if (ctx->pc != j_script->pieces[piece_id].start_pc && !ctx->resume_address)
+			exec_result = stub_exec_function(ctx);
+		else
+			exec_result = j_fn.exec(ctx);
 	}
 	else
 	{
@@ -476,13 +617,15 @@ int jit_run_script(JittedScriptInstance* j_instance)
 			JittedFunction& j_fn = pending.front();
 			j_instance->j_script->pc_to_resume_address.insert(j_fn.pc_to_resume_address.begin(), j_fn.pc_to_resume_address.end());
 			j_fn.pc_to_resume_address.clear();
-			pc_t id = j_fn.id;
+			pc_t piece_id = j_fn.id;
 			JittedFunctionImpl exec = j_fn.exec;
-			j_instance->j_script->compiled_functions[id] = std::move(j_fn);
-			// Publish for direct calls only once the function is committed, and
+			j_instance->j_script->compiled_functions[piece_id] = std::move(j_fn);
+			// Publish for direct calls only once the function's first piece is committed, and
 			// never for functions that can yield (see the field's comment).
-			if (!j_instance->j_script->structured_zasm.functions[id].may_yield)
-				j_instance->j_script->direct_entry_table[id] = (uintptr_t)exec;
+			const auto& piece = j_instance->j_script->pieces[piece_id];
+			const auto& fn = j_instance->j_script->structured_zasm.functions[piece.fn_id];
+			if (piece.start_pc == fn.start_pc && !fn.may_yield)
+				j_instance->j_script->direct_entry_table[fn.id] = (uintptr_t)exec;
 			pending.pop_front();
 		}
 	}

@@ -231,32 +231,46 @@ void jit_reg_cache_flush_policy(Ops& ops, DRegCache<Reg>& cache, JittedScript* j
 	}
 }
 
-// Counts a function's non-NOP instructions and rejects functions too large to
-// be worth compiling. Returns std::nullopt if the function should stay
-// interpreted.
-inline std::optional<size_t> jit_function_size_within_cap(zasm_script* script, const ZasmFunction& fn)
+// Flushes the register cache before falling off the end of a piece into the function's next piece
+// (see JitPiece). The next piece starts a block, so what may still be read there is the live-out of
+// this piece's last block.
+template <typename Ops, typename Reg>
+void jit_reg_cache_flush_at_piece_end(Ops& ops, DRegCache<Reg>& cache, const JitFunctionAnalysis& analysis, pc_t final_pc)
+{
+	pc_t next_block_id = analysis.cfg.block_id_from_start_pc(final_pc + 1);
+	cache.drop_dead(analysis.liveness[next_block_id - 1].out);
+	ops.flush_cache();
+}
+
+// Counts a piece's non-NOP instructions and rejects pieces too large to be
+// worth compiling. Returns std::nullopt if the piece should stay interpreted.
+inline std::optional<size_t> jit_function_size_within_cap(zasm_script* script, const ZasmFunction& fn, pc_t start_pc, pc_t final_pc)
 {
 	size_t size_no_nops = 0;
-	for (pc_t i = fn.start_pc; i <= fn.final_pc; i++)
+	for (pc_t i = start_pc; i <= final_pc; i++)
 	{
 		if (script->zasm[i].command != NOP)
 			size_no_nops += 1;
 	}
 
-	// ~170k is the largest function I've seen (from Yuurand, but if optimizer is on that script is ~100k).
+	// Functions are split into pieces far smaller than this (see jit_max_piece_size), unless the
+	// piece size is raised to compile them whole.
 	if (size_no_nops > 150000)
 	{
-		al_trace("[jit] not compiling function because it is too big (name: %s, start: %d, len: %zu)\n", fn.name().c_str(), fn.start_pc, size_no_nops);
+		al_trace("[jit] not compiling function because it is too big (name: %s, start: %d, len: %zu)\n", fn.name().c_str(), start_pc, size_no_nops);
 		return std::nullopt;
 	}
 
 	return size_no_nops;
 }
 
-// Creates the control flow labels: one per in-function GOTO target, and one
-// resume label per call/wait (where execution re-enters the function).
+// Creates the control flow labels: one per in-piece GOTO target, and one
+// resume label per call/wait (where execution re-enters the function). A piece
+// of a function (see JitPiece) can also be entered at the targets of jumps from
+// its function's other pieces: those are registered like resume points, keyed by
+// the pc before the target - the key the driver looks up on entering at a pc.
 template <typename State, typename Compiler>
-void jit_create_labels(State& state, Compiler& cc, zasm_script* script, pc_t start_pc, pc_t final_pc)
+void jit_create_labels(State& state, Compiler& cc, zasm_script* script, const ZasmFunction& fn, pc_t start_pc, pc_t final_pc)
 {
 	for (size_t i = start_pc; i <= final_pc; i++)
 	{
@@ -286,6 +300,36 @@ void jit_create_labels(State& state, Compiler& cc, zasm_script* script, pc_t sta
 			state.resume_labels[i] = cc.newLabel();
 		}
 	}
+
+	auto add_entry = [&](int pc) {
+		if (pc <= (int)start_pc || pc > (int)final_pc)
+			return;
+		if (!state.goto_labels.contains(pc))
+			state.goto_labels[pc] = cc.newLabel();
+		// A call or wait just before the target already resumes at the same place: the register
+		// cache is empty after either, and there is nothing to flush on the way to the target.
+		if (!state.resume_labels.contains(pc - 1))
+			state.resume_labels[pc - 1] = state.goto_labels[pc];
+	};
+	for (pc_t i = fn.start_pc; i <= fn.final_pc; i++)
+	{
+		if (i == start_pc)
+		{
+			i = final_pc;
+			continue;
+		}
+
+		int command = script->zasm[i].command;
+		if (command_is_goto(command))
+		{
+			add_entry(script->zasm[i].arg1);
+		}
+		else if (command == GOTOTABLE || command == GOTORANGES)
+		{
+			for (int pc : zasm_jump_targets(command, script->literals.vec(script->zasm[i])))
+				add_entry(pc);
+		}
+	}
 }
 
 // Scans the contiguous run of PUSH/POP commands starting at pc, returning the
@@ -297,7 +341,7 @@ struct JitPushRunScan
 	pc_t end_pc;
 };
 
-inline JitPushRunScan jit_scan_push_run(const zasm_script* script, pc_t pc)
+inline JitPushRunScan jit_scan_push_run(const zasm_script* script, pc_t pc, pc_t final_pc)
 {
 	// The first command may itself be a multi-slot PUSHARGS (the optimizer's
 	// push-combining makes that the common case). Counting it as 1 understated
@@ -310,7 +354,7 @@ inline JitPushRunScan jit_scan_push_run(const zasm_script* script, pc_t pc)
 	int max_stack_delta = stack_delta;
 
 	pc_t j = pc + 1;
-	for (; j < script->size; j++)
+	for (; j <= final_pc; j++)
 	{
 		const auto& op = script->zasm[j];
 		if (op.command == PUSHV || op.command == PUSHR)

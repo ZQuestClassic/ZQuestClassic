@@ -72,6 +72,9 @@ struct CompilationState
 	x86::Gp ptrRegisters;
 	x86::Gp ptrStackBase;
 	std::map<int, Label> goto_labels;
+	// For conditional jumps out of this piece (see JitPiece): stubs bound after the epilog that
+	// continue at the target pc through the driver, by target pc.
+	std::map<int, Label> exit_stubs;
 	// Labels for both function calls and wait frame commands.
 	std::map<int, Label> resume_labels;
 	// When to end the "lookahead" for stack pointer bounds checking (and start checking again).
@@ -637,13 +640,23 @@ static x86::Gp immutable_cast_bool(x86::Compiler& cc, x86::Gp reg)
 	return out;
 }
 
+// Where a conditional jump to `target_pc` branches to: the target's label, or for a target outside
+// this piece, an exit stub.
+static Label goto_target(CompilationState& state, x86::Compiler& cc, int target_pc)
+{
+	if (target_pc >= (int)state.start_pc && target_pc <= (int)state.final_pc)
+		return state.goto_labels[target_pc];
+	auto [it, fresh] = state.exit_stubs.try_emplace(target_pc);
+	if (fresh)
+		it->second = cc.newLabel();
+	return it->second;
+}
+
 static void compile_compare_goto(CompilationState& state, x86::Compiler& cc, int command, int arg1, int arg2, int arg3)
 {
-	auto& goto_labels = state.goto_labels;
-	
 	if(command == GOTOCMP)
 	{
-		auto lbl = goto_labels[arg1];
+		auto lbl = goto_target(state, cc, arg1);
 		switch(arg2 & CMP_FLAGS)
 		{
 			default:
@@ -673,22 +686,22 @@ static void compile_compare_goto(CompilationState& state, x86::Compiler& cc, int
 	}
 	else if (command == GOTOTRUE)
 	{
-		cc.je(goto_labels[arg1]);
+		cc.je(goto_target(state, cc, arg1));
 	}
 	else if (command == GOTOFALSE)
 	{
-		cc.jne(goto_labels[arg1]);
+		cc.jne(goto_target(state, cc, arg1));
 	}
 	else if (command == GOTOMORE)
 	{
-		cc.jge(goto_labels[arg1]);
+		cc.jge(goto_target(state, cc, arg1));
 	}
 	else if (command == GOTOLESS)
 	{
 		if (get_qr(qr_GOTOLESSNOTEQUAL))
-			cc.jl(goto_labels[arg1]);
+			cc.jl(goto_target(state, cc, arg1));
 		else
-			cc.jle(goto_labels[arg1]);
+			cc.jle(goto_target(state, cc, arg1));
 	}
 	else
 	{
@@ -961,7 +974,7 @@ static void handle_check_sp_push(CompilationState& state, x86::Compiler& cc, con
 {
 	if (state.pc >= state.num_push_commands_in_row_end_pc)
 	{
-		auto scan = jit_scan_push_run(script, state.pc);
+		auto scan = jit_scan_push_run(script, state.pc, state.final_pc);
 		check_sp(state, cc, state.vSp, -scan.max_stack_delta);
 		state.num_push_commands_in_row_end_pc = scan.end_pc;
 	}
@@ -2254,12 +2267,14 @@ struct LoopOps
 	void compile_command(const ffscript& op) { compile_single_command(state, cc, op, script); }
 };
 
-std::optional<JittedFunction> jit_backend_compile_function(zasm_script* script, JittedScript* j_script, const ZasmFunction& fn)
+std::optional<JittedFunction> jit_backend_compile_function(zasm_script* script, JittedScript* j_script, pc_t piece_id)
 {
-	pc_t start_pc = fn.start_pc;
-	pc_t final_pc = fn.final_pc;
+	const JitPiece& piece = j_script->pieces[piece_id];
+	const ZasmFunction& fn = j_script->structured_zasm.functions[piece.fn_id];
+	pc_t start_pc = piece.start_pc;
+	pc_t final_pc = piece.final_pc;
 
-	auto size_no_nops_opt = jit_function_size_within_cap(script, fn);
+	auto size_no_nops_opt = jit_function_size_within_cap(script, fn, start_pc, final_pc);
 	if (!size_no_nops_opt)
 		return std::nullopt;
 	size_t size_no_nops = *size_no_nops_opt;
@@ -2277,7 +2292,8 @@ std::optional<JittedFunction> jit_backend_compile_function(zasm_script* script, 
 		.start_pc = start_pc,
 		.final_pc = final_pc,
 		.direct_calls = direct_calls,
-		.direct_entry = direct_calls && !fn.may_yield,
+		// Direct calls enter a function at its start, so only its first piece.
+		.direct_entry = direct_calls && !fn.may_yield && start_pc == fn.start_pc,
 		.runtime_debugging = runtime_debugging,
 	};
 
@@ -2315,7 +2331,7 @@ std::optional<JittedFunction> jit_backend_compile_function(zasm_script* script, 
 	x86::Compiler cc(&code);
 
 	JumpAnnotation* resume_annotation = cc.newJumpAnnotation();
-	jit_create_labels(state, cc, script, start_pc, final_pc);
+	jit_create_labels(state, cc, script, fn, start_pc, final_pc);
 
 	for (auto& [pc, label] : state.resume_labels)
 		resume_annotation->addLabel(label);
@@ -2437,7 +2453,15 @@ std::optional<JittedFunction> jit_backend_compile_function(zasm_script* script, 
 		cc.nop();
 	}
 
-	if (fn.id == j_script->structured_zasm.functions.back().id)
+	if (final_pc != fn.final_pc)
+	{
+		// Continue in the function's next piece.
+		CacheOps ops{state, cc};
+		jit_reg_cache_flush_at_piece_end(ops, state.dreg_cache, analysis, final_pc);
+		set_ctx_pc(state, cc, final_pc + 1);
+		cc.mov(state.vResult, EXEC_RESULT_CONTINUE);
+	}
+	else if (fn.id == j_script->structured_zasm.functions.back().id)
 	{
 		// The last command for the last function is 0xFFFF. But, it's not included as part of the
 		// function bounds (final_pc will be the one just before it–see zasm_construct_structured).
@@ -2457,6 +2481,14 @@ std::optional<JittedFunction> jit_backend_compile_function(zasm_script* script, 
 
 	restore_regs(state, cc);
 	cc.ret(state.vResult);
+
+	for (auto& [pc, label] : state.exit_stubs)
+	{
+		cc.bind(label);
+		set_ctx_pc(state, cc, pc);
+		cc.mov(state.vResult, EXEC_RESULT_CONTINUE);
+		cc.jmp(state.L_End);
+	}
 
 	if (state.L_PropagateEnd.isValid())
 	{
@@ -2492,7 +2524,7 @@ std::optional<JittedFunction> jit_backend_compile_function(zasm_script* script, 
 
 	JittedFunction j_fn{
 		.exec = compiled_fn,
-		.id = fn.id,
+		.id = piece_id,
 		.pc_to_resume_address = std::move(pc_to_resume_address),
 	};
 	return j_fn;
