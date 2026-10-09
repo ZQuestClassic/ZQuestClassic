@@ -882,11 +882,15 @@ void Debugger::SetSelectedScriptIndex(int index)
 
 void Debugger::SetSelectedStackFrameIndex(int index)
 {
-	selected_stack_frame_index = index;
+	// Rows don't map 1:1 to call frames: repeated frames are elided into a single marker row,
+	// and frames without debug info are left out.
+	const StackFrame& frame = current_stack_trace->frames[index];
+	if (frame.depth < 0)
+		return;
 
-	pc_t pc = current_stack_trace->frames[index].pc;
-	selected_scope = zasm_debug_data.resolveScope(pc);
-	vm.current_frame_index = index;
+	selected_stack_frame_index = index;
+	selected_scope = zasm_debug_data.resolveScope(frame.pc);
+	vm.current_frame_index = frame.depth;
 	UpdateVariables();
 }
 

@@ -423,6 +423,9 @@ struct StackFrame
 	pc_t pc;
 	std::string function_name;
 	std::string extra;
+	// How many calls below the top frame this frame is (0 is the top), i.e. the debugger's
+	// current_frame_index for it. -1 for a "... (xN)" marker standing in for elided frames.
+	int depth = -1;
 
 	std::string to_string() const;
 	std::string to_short_string() const;

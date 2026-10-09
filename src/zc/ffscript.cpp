@@ -16733,7 +16733,10 @@ std::optional<StackTrace> FFScript::create_stack_trace(const refInfo* ri, const 
 			repeated_count = 1;
 
 		if (auto frame = get_script_stack_frame(pc))
+		{
+			frame->depth = i;
 			result.frames.push_back(*frame);
+		}
 
 		// Elide repeated frames.
 		if (repeated_count == 2)

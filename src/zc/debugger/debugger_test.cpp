@@ -938,6 +938,46 @@ static TestTask run_scopes_replay_coroutine()
 	debugger->SetState(Debugger::State::Playing);
 }
 
+static TestTask run_call_limit_replay_coroutine()
+{
+	auto* debugger = zscript_debugger_open();
+	assertTrue(debugger);
+
+	// The coroutine can first resume during the title screen (e.g. when the build
+	// folder has existing saves), before the quest and its debug data have loaded.
+	co_await WaitFor([]{ return zasm_debug_data.exists(); });
+
+	// Pause six calls deep into the recursion. The call stack then elides the repeated frames:
+	//   call_recursive_forever           (depth 0)
+	//   call_recursive_forever           (depth 1)
+	//   call_recursive_forever           (depth 2)
+	//   ... (x3)                         (depths 3-5)
+	//   call_limit::run                  (depth 6)
+	debugger->RemoveBreakpoints();
+	add_breakpoint(debugger, "call_limit.zs", "Trace(call_recursive_forever_count++);");
+	for (int i = 0; i < 6; i++)
+		co_await PlayAndWaitForPause(debugger);
+
+	auto& frames = debugger->current_stack_trace->frames;
+	assertSize(frames, 5);
+	assertEqual(frames[3].extra, "  ... (x3)"s);
+	assertEqual(frames[4].function_name, "call_limit::run"s);
+
+	// Selecting a row below the elided frames must select its actual call frame, not the row's.
+	debugger->SetSelectedStackFrameIndex(4);
+	assertEqual(debugger->selected_stack_frame_index, 4);
+	assertEqual(debugger->vm.current_frame_index, 6);
+	verify_variable(debugger, "this", "genericdata");
+
+	// The elision marker row isn't a frame, so selecting it does nothing.
+	debugger->SetSelectedStackFrameIndex(3);
+	assertEqual(debugger->selected_stack_frame_index, 4);
+	assertEqual(debugger->vm.current_frame_index, 6);
+
+	debugger->RemoveBreakpoints();
+	debugger->SetState(Debugger::State::Playing);
+}
+
 // Plays a replay, driving `task` once per frame until it finishes.
 static bool run_replay_test(TestTask task, const std::string& replay_path)
 {
@@ -1029,6 +1069,10 @@ TestResults test_debugger([[maybe_unused]] bool verbose)
 
 	TEST("scopes.zplay", tr, [](){
 		return run_replay_test(run_scopes_replay_coroutine(), test_dir + "/replays/playground/auto_scopes.zplay");
+	});
+
+	TEST("call_limit.zplay", tr, [](){
+		return run_replay_test(run_call_limit_replay_coroutine(), test_dir + "/replays/playground/auto_call_limit.zplay");
 	});
 
 	return tr;
