@@ -767,6 +767,17 @@ static TestTask run_scopes_replay_coroutine()
 	verify_expression(debugger, "DebugFunctionVarargs(1)", "1.0000");
 	verify_expression(debugger, "DebugFunctionVarargs(1, 2, 3)", "6.0000");
 
+	// Function calls must not re-enter the debugger GUI, which they did every `hangcount` engine
+	// instructions. The GUI rebuilds the file tree whenever it is empty, which reveals a re-entry.
+	{
+		extern int32_t hangcount;
+		debugger->root_node = {};
+		// Each call runs well over 32 instructions, so this crosses `hangcount` at least once.
+		for (int i = 0; i < hangcount / 32 + 1; i++)
+			assertTrue(debugger->Evaluate("DebugFunctionVarargs(1, 2, 3)", true).has_value());
+		assertTrue(debugger->root_node.children.empty());
+	}
+
 	// 'new' expression.
 	verify_expression(debugger, "new A::CL()", "CL {A_var = 11.0000, arr = {0.0000, 1.0000, 2.0000}, arr_untyped = {0, 10000, ...}, this_ptr = ...}");
 	verify_expression(debugger, "new A::CL()->A_var", "11.0000");

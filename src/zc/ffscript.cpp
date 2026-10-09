@@ -9947,7 +9947,10 @@ int32_t run_script_int(JittedScriptInstance* j_instance)
 			numInstructions=0;
 			poll_keyboard();
 			checkQuitKeys();
-			zscript_debugger_update();
+			// Not while the debugger is evaluating an expression: that runs from within the
+			// debugger (often mid-GUI frame), which must not be re-entered.
+			if (!script_is_within_debugger_vm)
+				zscript_debugger_update();
 			if(Quit)
 				scommand=0xFFFF;
 		}
