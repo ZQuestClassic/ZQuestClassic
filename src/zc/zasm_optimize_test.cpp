@@ -208,6 +208,89 @@ static void TEST(const std::string& test_name, TestResults& tr, const std::funct
 		tr.failed++;
 }
 
+// Like zasm_from_string, for ZASM written without the pcs in front of each instruction.
+static zasm_script zasm_from_instructions(std::string text)
+{
+	normalize_whitespace(text);
+
+	std::vector<std::string> lines;
+	util::split(text, lines, '\n');
+	std::string numbered;
+	int pc = 0;
+	for (auto& line : lines)
+	{
+		util::trimstr(line);
+		if (!line.empty())
+			numbered += fmt::format("{}: {}\n", pc++, line);
+	}
+	return zasm_from_string(numbered);
+}
+
+// The liveness of the whole script, and of every function analyzed on its own (as the JIT does).
+struct LivenessResult
+{
+	StructuredZasm structured_zasm;
+	ZasmCFG cfg;
+	ZasmFunctionLivenessList function_liveness;
+	ZasmLiveness liveness;
+
+	// The D registers live just before the instruction at `pc`.
+	uint8_t live_before(const zasm_script* script, pc_t pc) const
+	{
+		pc_t block = std::upper_bound(cfg.block_starts.begin(), cfg.block_starts.end(), pc) - cfg.block_starts.begin() - 1;
+		uint8_t live = liveness.at(block).out;
+		for (pc_t i = cfg.get_block_final(block); i >= pc; i--)
+		{
+			live = zasm_live_before(script->zasm[i], live, structured_zasm, function_liveness, true);
+			if (i == 0)
+				break;
+		}
+		return live;
+	}
+};
+
+static LivenessResult analyze_liveness(const zasm_script* script)
+{
+	LivenessResult r;
+	r.structured_zasm = zasm_construct_structured(script);
+	std::vector<std::pair<pc_t, pc_t>> pc_ranges;
+	for (const auto& fn : r.structured_zasm.functions)
+		pc_ranges.emplace_back(fn.start_pc, fn.final_pc);
+	r.cfg = zasm_construct_cfg(script, pc_ranges);
+	r.function_liveness = zasm_analyze_function_liveness(script, r.cfg, r.structured_zasm, true, &r.liveness);
+
+	// The analysis of each function on its own must match its part of the whole script's.
+	for (const auto& fn : r.structured_zasm.functions)
+	{
+		auto fn_cfg = zasm_construct_function_cfg(script, r.structured_zasm, fn);
+		std::vector<std::optional<uint8_t>> fixed_live_in(fn_cfg.block_starts.size());
+		for (pc_t b = 0; b < fn_cfg.block_starts.size(); b++)
+		{
+			pc_t pc = fn_cfg.block_starts[b];
+			if (pc < fn.start_pc || pc > fn.final_pc)
+				fixed_live_in[b] = r.liveness.at(r.cfg.block_id_from_start_pc(pc)).in;
+		}
+		auto fn_liveness = zasm_run_liveness_analysis(script, fn_cfg, r.structured_zasm, r.function_liveness, true, &fixed_live_in);
+		for (pc_t b = 0; b < fn_cfg.block_starts.size(); b++)
+		{
+			pc_t pc = fn_cfg.block_starts[b];
+			if (pc < fn.start_pc || pc > fn.final_pc)
+				continue;
+
+			const auto& expected = r.liveness.at(r.cfg.block_id_from_start_pc(pc));
+			assertEqual((int)fn_liveness.at(b).in, (int)expected.in);
+			assertEqual((int)fn_liveness.at(b).out, (int)expected.out);
+		}
+	}
+
+	return r;
+}
+
+static bool is_live(uint8_t mask, int reg)
+{
+	return mask & (1 << reg);
+}
+
 TestResults test_zasm_optimize([[maybe_unused]] bool verbose)
 {
 	TestResults tr{};
@@ -544,6 +627,112 @@ TestResults test_zasm_optimize([[maybe_unused]] bool verbose)
 		zasm_script script{std::move(zasm)};
 		auto parsed = zasm_from_string(zasm_to_string_clean(&script));
 		EXPECT(name, &parsed, std::move(expected));
+	});
+
+	TEST("liveness_branch_then_call", tr, [&]{
+		// D3 is written before a branch into two calls of a function that never touches it, and
+		// read after they merge. It must be live at the branch.
+		auto script = zasm_from_instructions(R"(
+			SETV            D3               7
+			COMPAREV        D2               0
+			GOTOCMP         5                ==
+			CALLFUNC        8
+			GOTO            6
+			CALLFUNC        8
+			TRACER          D3
+			QUIT
+			SETV            D2               1
+			RETURNFUNC
+		)");
+		zasm_init_meta_cache();
+		auto r = analyze_liveness(&script);
+		assertTrue(is_live(r.live_before(&script, 2), 3));
+		assertTrue(is_live(r.live_before(&script, 3), 3));
+		assertTrue(is_live(r.live_before(&script, 5), 3));
+	});
+
+	TEST("liveness_written_before_return", tr, [&]{
+		// The callee writes D3, then branches to its return. The caller reads D3 after the call.
+		auto script = zasm_from_instructions(R"(
+			CALLFUNC        3
+			TRACER          D3
+			QUIT
+			SETV            D3               9
+			COMPAREV        D2               0
+			GOTOCMP         6                ==
+			RETURNFUNC
+		)");
+		zasm_init_meta_cache();
+		auto r = analyze_liveness(&script);
+		assertTrue(is_live(r.function_liveness.at(1).read_after_return, 3));
+		assertTrue(is_live(r.live_before(&script, 5), 3));
+		assertTrue(is_live(r.live_before(&script, 6), 3));
+		// Nothing calls the entry function, but its return value is still read (the debugger can
+		// call any function).
+		assertEqual((int)r.function_liveness.at(0).read_after_return, 1 << 2);
+	});
+
+	TEST("liveness_kept_across_calls", tr, [&]{
+		// D3 is kept across two calls of a function that never touches it. D2 is not: the callee
+		// always writes it.
+		auto script = zasm_from_instructions(R"(
+			SETV            D3               7
+			SETV            D2               7
+			CALLFUNC        7
+			CALLFUNC        7
+			TRACER          D3
+			TRACER          D2
+			QUIT
+			SETV            D2               1
+			RETURNFUNC
+		)");
+		zasm_init_meta_cache();
+		auto r = analyze_liveness(&script);
+		assertEqual((int)r.function_liveness.at(1).must_write, 1 << 2);
+		assertTrue(is_live(r.live_before(&script, 2), 3));
+		assertTrue(is_live(r.live_before(&script, 3), 3));
+		assertTrue(!is_live(r.live_before(&script, 2), 2));
+		assertTrue(!is_live(r.live_before(&script, 3), 2));
+	});
+
+	TEST("liveness_must_write", tr, [&]{
+		// D3 is written on only one path to the return (just before a recursive call), so it is not
+		// written for sure. D2 is written on every path to the return.
+		auto script = zasm_from_instructions(R"(
+			SETV            D3               7
+			CALLFUNC        5
+			TRACER          D3
+			TRACER          D2
+			QUIT
+			COMPAREV        D2               0
+			GOTOCMP         9                ==
+			SETV            D3               1
+			CALLFUNC        5
+			SETV            D2               1
+			RETURNFUNC
+		)");
+		zasm_init_meta_cache();
+		auto r = analyze_liveness(&script);
+		assertEqual((int)r.function_liveness.at(1).must_write, 1 << 2);
+		assertTrue(is_live(r.live_before(&script, 1), 3));
+		// The callee reads D2 (for the comparison) before writing it.
+		assertTrue(is_live(r.function_liveness.at(1).live_in, 2));
+	});
+
+	TEST("liveness_callee_reads_on_entry", tr, [&]{
+		// The callee reads D3 on entry, and the block calling it reads nothing itself. (The
+		// analysis of the caller on its own used to miss this.)
+		auto script = zasm_from_instructions(R"(
+			SETV            D3               7
+			CALLFUNC        3
+			QUIT
+			TRACER          D3
+			RETURNFUNC
+		)");
+		zasm_init_meta_cache();
+		auto r = analyze_liveness(&script);
+		assertTrue(is_live(r.function_liveness.at(1).live_in, 3));
+		assertTrue(is_live(r.live_before(&script, 1), 3));
 	});
 
 	return tr;

@@ -68,9 +68,9 @@ Function Function #2
 Function Function #3
    22: NOP                                          [Block 0 -> ]
    23: SETV            D1               1337
-   24: NOP
+   24: SETR            D3               LINKX
    25: COMPAREV        LINKX            0
    26: GOTOCMP         20               ==
-   27: NOP
+   27: SETV            D0               1000
    28: TRACER          D1
    29: RETURNFUNC

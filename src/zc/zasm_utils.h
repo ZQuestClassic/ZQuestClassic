@@ -89,11 +89,26 @@ struct ZasmCFG
 
 struct ZasmBlockVars
 {
-	uint8_t in, out, gen, kill;
-	bool returns;
+	uint8_t in, out;
 };
 
 using ZasmLiveness = std::vector<ZasmBlockVars>;
+
+// What the liveness analysis knows about a function, as seen from its call sites and returns.
+struct ZasmFunctionLiveness
+{
+	// The D registers the function (or a function it calls) may read before writing them. Not
+	// counting what is read after it returns.
+	uint8_t live_in;
+	// The D registers written on every path from the function's entry to a return.
+	uint8_t must_write;
+	// The D registers that may be read after the function returns, before being written - by a
+	// caller, or by the callers of that caller. Always includes D2, the return value.
+	uint8_t read_after_return;
+};
+
+// Indexed by function id.
+using ZasmFunctionLivenessList = std::vector<ZasmFunctionLiveness>;
 
 // Given a ZASM script, discover all functions within (including function names, start/end pcs,
 // and function calls).
@@ -137,16 +152,29 @@ ZasmCFG zasm_construct_cfg(const zasm_script* script, std::vector<std::pair<pc_t
 // This only matches the script's CFG if control never enters a function anywhere but its start.
 ZasmCFG zasm_construct_function_cfg(const zasm_script* script, const struct StructuredZasm& structured_zasm, const ZasmFunction& fn);
 
+// Computes what the liveness analysis needs to know about each function of a script, from the
+// CFG of the whole script (one range per function, see zasm_construct_cfg). If script_liveness is
+// given, it is set to the liveness of every block of script_cfg.
+//
 // When suspend_uses_all_registers is set, a suspend point (WaitX/RUNGENFRZSCR) is treated as
-// reading every D register, keeping them live on all paths to the suspend. The JIT needs this
-// because a suspend serializes the whole register file to ri->d[]; the optimizer does not. When
-// structured_zasm is also given, a CALLFUNC into a function that may_yield is likewise treated
-// as reading every register - the callee observes the caller's register file at its suspend - so
-// those values stay live up to the call (its may_yield flag must already be populated).
+// reading every D register, and so is a call into a function that may_yield (its may_yield flag
+// must already be populated). The JIT needs this because a suspend serializes the whole register
+// file to ri->d[]; the optimizer does not.
+ZasmFunctionLivenessList zasm_analyze_function_liveness(const zasm_script* script, const ZasmCFG& script_cfg, const StructuredZasm& structured_zasm, bool suspend_uses_all_registers, ZasmLiveness* script_liveness = nullptr);
+
+// Computes, for every block of `cfg`, which D registers may be read before being written after
+// the start (in) and the end (out) of the block. `function_liveness` must come from
+// zasm_analyze_function_liveness, given the same suspend_uses_all_registers.
 //
 // Blocks with a value in fixed_live_in (indexed by block) are not analyzed - their live-in is
 // that value. See zasm_construct_function_cfg.
-ZasmLiveness zasm_run_liveness_analysis(const zasm_script* script, const ZasmCFG& cfg, bool suspend_uses_all_registers = false, const struct StructuredZasm* structured_zasm = nullptr, const std::vector<std::optional<uint8_t>>* fixed_live_in = nullptr);
+ZasmLiveness zasm_run_liveness_analysis(const zasm_script* script, const ZasmCFG& cfg, const StructuredZasm& structured_zasm, const ZasmFunctionLivenessList& function_liveness, bool suspend_uses_all_registers = false, const std::vector<std::optional<uint8_t>>* fixed_live_in = nullptr);
+
+// The D registers live just before `instr`, given the ones live just after it: the analysis's
+// transfer function for one instruction, for code that walks a block's instructions itself (the
+// JIT's register cache flush policy, the optimizer's dead code pass) so that it agrees with the
+// analysis at calls.
+uint8_t zasm_live_before(const ffscript& instr, uint8_t live_after, const StructuredZasm& structured_zasm, const ZasmFunctionLivenessList& function_liveness, bool suspend_uses_all_registers);
 
 std::string zasm_to_string(const zasm_script* script, bool top_functions = false, bool generate_yielder = false);
 

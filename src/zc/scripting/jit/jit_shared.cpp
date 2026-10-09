@@ -250,7 +250,7 @@ static JittedScript* init_jitted_script(zasm_script* script)
 	};
 
 	// Populate ZasmFunction::may_yield. A call into a function that may yield is treated as
-	// reading every register (by the liveness analysis below, and the register cache flushes
+	// reading every register by the liveness analysis below (so the register cache flushes
 	// everything before it), and is never emitted as a direct native call.
 	zasm_find_yielding_functions(script, j_script->structured_zasm);
 
@@ -260,12 +260,13 @@ static JittedScript* init_jitted_script(zasm_script* script)
 		fn.called_by_functions.clear();
 	j_script->structured_zasm.function_calls.clear();
 
-	// What is live on entry to a function depends on every function it can reach, so that takes
-	// analyzing the whole script. Only keep the result for each function's entry.
+	// What is live in a function depends on every function it calls and every function that
+	// calls it, so that takes analyzing the whole script. Only keep the summary of each function,
+	// and what is live on its entry.
 	JitFunctionAnalysis analysis{
 		.cfg = zasm_construct_cfg(script, pc_ranges),
 	};
-	analysis.liveness = zasm_run_liveness_analysis(script, analysis.cfg, true, &j_script->structured_zasm);
+	j_script->function_liveness = zasm_analyze_function_liveness(script, analysis.cfg, j_script->structured_zasm, true, &analysis.liveness);
 
 	j_script->function_live_in.reserve(j_script->structured_zasm.functions.size());
 	for (const auto& fn : j_script->structured_zasm.functions)
@@ -318,8 +319,8 @@ const JitFunctionAnalysis& jit_analyze_function(zasm_script* script, JittedScrip
 	const auto& structured_zasm = j_script->structured_zasm;
 	storage.cfg = zasm_construct_function_cfg(script, structured_zasm, fn);
 
-	// The blocks outside of this function are where it calls or falls through to - the start of
-	// some function.
+	// The blocks outside of this function are where it calls, jumps or falls through to - the
+	// start of some function. Calls get their effect from function_liveness instead.
 	size_t num_blocks = storage.cfg.block_starts.size();
 	std::vector<std::optional<uint8_t>> fixed_live_in(num_blocks);
 	for (pc_t block = 0; block < num_blocks; block++)
@@ -329,7 +330,7 @@ const JitFunctionAnalysis& jit_analyze_function(zasm_script* script, JittedScrip
 			fixed_live_in[block] = j_script->function_live_in[structured_zasm.start_pc_to_function.at(pc)];
 	}
 
-	storage.liveness = zasm_run_liveness_analysis(script, storage.cfg, true, &structured_zasm, &fixed_live_in);
+	storage.liveness = zasm_run_liveness_analysis(script, storage.cfg, structured_zasm, j_script->function_liveness, true, &fixed_live_in);
 	storage.block_predecessors = find_block_predecessors(storage.cfg);
 	return storage;
 }

@@ -86,3 +86,9 @@ Function run_none-0
    13: NOP                                          [Block 4 -> ]
    14: POP             D3
    15: RETURNFUNC
+
+
+Function Function #1
+   16: CALLFUNC        0                            [Block 0 -> ][run_none-0]
+   17: TRACER          D2
+   18: QUIT

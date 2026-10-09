@@ -859,6 +859,10 @@ static TestTask run_scopes_replay_coroutine()
 	// ReturnVisitor::analyzeFunctionInternals). Ensure the debugger can still call it.
 	verify_expression(debugger, "returnOne()", "1.0000");
 
+	// The script discards this function's result, so no caller reads D2 after it returns - but
+	// the debugger does. The optimizer must still leave the result in D2.
+	verify_expression(debugger, "addOne(41)", "42.0000");
+
 	verify_variable(debugger, "this", "genericdata"); // not hidden
 	verify_expression(debugger, "this", "genericdata {Data = {}, DataSize = 0.0000, EventListen = {false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false}, ExitState = {false, false, false, false, false}, InitD = {0, 0, 0, 0, 0, 0, 0, 0}, ReloadState = {false, false, false, false, false}, Running = true}");
 	verify_expression(debugger, "this->Running", "true");

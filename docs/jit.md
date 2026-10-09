@@ -67,7 +67,7 @@ mov dword ptr [rbp+8], ecx
 
 Not only is this far fewer ops, but there are no jumps. For example, the intrepreter has to jump in a big switch block to know to call `do_add`, which likely makes the CPU's instruction cache less effective.
 
-The native backends also cache `D0`..`D7` in host registers between flush points (the D-register cache in `jit_codegen_shared.h`), so runs of instructions like the above usually don't even touch memory - dirty values are written back at waits, branches, and calls into the engine, with a liveness analysis skipping writes no later instruction can observe.
+The native backends also cache `D0`..`D7` in host registers between flush points (the D-register cache in `jit_codegen_shared.h`), so runs of instructions like the above usually don't even touch memory - dirty values are written back at waits, branches, function calls and returns, and calls into the engine, with a liveness analysis skipping writes no later instruction can observe (that analysis is summarized per function so a value kept in a register across a `CALLFUNC`, or left in one for the caller to read after a `RETURNFUNC`, is seen as live - see `zasm_analyze_function_liveness`).
 
 This can result in ~20x better performance for scripts that are just pure math. In practice, quests with large amounts of scripting should see a 5-10x improvement.
 

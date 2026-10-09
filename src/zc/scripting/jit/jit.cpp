@@ -187,7 +187,7 @@ bool jit_log_is_enabled()
 // It is worth keeping. Disabling it (-no-jit-cache-registers) is also a handy
 // correctness oracle: it forces every access through ri->d[], matching the
 // interpreter's global-register semantics, which flushes out register-cache
-// miscompiles (see the liveness/flush handling in jit_x64.cpp).
+// miscompiles (see jit_reg_cache_flush_policy).
 bool jit_is_use_cached_regs_enabled()
 {
 	return jit_use_cached_regs_enabled;

@@ -10,9 +10,6 @@ inferred D2: 1
 8: RETURNFUNC     
 	D2 = IBool(D2)
 	side_effects
-9: QUIT           
-	D2 = IBool(D2)
-	side_effects
 rewrite 1: GOTOCMP         5                !=     
 
 [reduce_comparisons] Block #0
@@ -32,4 +29,6 @@ Function run_none-0
 
 
 Function Function #1
-    9: QUIT                                         [Block 0 -> ]
+    9: CALLFUNC        0                            [Block 0 -> ][run_none-0]
+   10: TRACER          D2
+   11: QUIT

@@ -173,9 +173,9 @@ private:
 };
 
 // The D-register cache flush/invalidation points, applied before the command
-// at pc `i` is compiled. This logic is subtle and has a history of dead-drop
-// bugs (see the suspend-aware liveness work) - it must stay identical between
-// the backends, which is why it lives here.
+// at pc `i` is compiled. Dropping a dirty register is only as sound as the
+// liveness analysis it relies on (see zasm_analyze_function_liveness) - this
+// must stay identical between the backends, which is why it lives here.
 //
 // This can run between a comparison and its consumer (e.g. at a GOTOCMP), so
 // everything emitted here must leave the flags untouched. DRegCache emits
@@ -199,44 +199,16 @@ void jit_reg_cache_flush_policy(Ops& ops, DRegCache<Reg>& cache, JittedScript* j
 	}
 	else if (command_is_goto(command) || command == GOTOTABLE || command == GOTORANGES || command == CALLFUNC || command == RETURNFUNC)
 	{
-		// A CALLFUNC into a function that can suspend (a WaitX/RUNGENFRZSCR reached
-		// transitively) needs the caller's whole modified register state in memory: at the
-		// callee's suspend the full D-register file is serialized to ri->d[] and restored
-		// on resume, and this caller's intra-procedural liveness cannot see that its
-		// registers are observed there. So flush every dirty register (skip the dead-drop)
-		// before such a call. A CALLFUNC ends a block, so the cache holds a single-path
-		// value here - flushing it is always correct (unlike a merge block start).
-		bool callee_may_yield = false;
-		if (command == CALLFUNC)
+		// Control leaves the block, so flush. A register that is dead just before this
+		// instruction needs no write-back - which is known when the instruction ends its block,
+		// as then what is live after it is the block's live-out. For a CALLFUNC that is what is
+		// live once the call returns, and for a RETURNFUNC what the callers may read (see
+		// zasm_analyze_function_liveness).
+		if (analysis.cfg.contains_block_start(i + 1))
 		{
-			auto it = j_script->structured_zasm.start_pc_to_function.find(script->zasm[i].arg1);
-			callee_may_yield = it != j_script->structured_zasm.start_pc_to_function.end() &&
-				j_script->structured_zasm.functions[it->second].may_yield;
-		}
-
-		// A RETURNFUNC hands control back to the caller, whose successors this function's
-		// intra-procedural liveness cannot see. ZASM D-registers are global, so every
-		// register this function wrote (dirty in the cache) is observed by the caller once
-		// it resumes - exactly as the interpreter leaves them in ri->d[]. The block's own
-		// .out for a returns-block is only D2 (the return-value convention), so the dead-drop
-		// would strand any other register written here (e.g. a POP D3 that a setter helper
-		// does before returning). Skip the dead-drop and flush every dirty register.
-		bool is_returnfunc = command == RETURNFUNC;
-
-		if (!is_returnfunc && !callee_may_yield && analysis.cfg.contains_block_start(i + 1))
-		{
-			uint8_t out = analysis.liveness[current_block_id].out;
-
-			// For a CALLFUNC the block's own .out is the callee's live-in (the CFG edge
-			// goes to the callee), which does not capture what the caller needs once the
-			// call returns. Execution resumes at i+1, and a register live there must
-			// survive the call: the callee is not required to write every register, so a
-			// value it leaves untouched has to already be in ri->d[] (e.g. a loop/array
-			// index kept in a register across a helper call). Keep those too.
-			if (command == CALLFUNC)
-				out |= analysis.liveness[analysis.cfg.block_id_from_start_pc(i + 1)].in;
-
-			cache.drop_dead(out);
+			uint8_t live = zasm_live_before(script->zasm[i], analysis.liveness[current_block_id].out,
+				j_script->structured_zasm, j_script->function_liveness, true);
+			cache.drop_dead(live);
 		}
 
 		ops.flush_cache();

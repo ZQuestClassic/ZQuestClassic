@@ -1,6 +1,7 @@
 ; comparisons across blocks, returning comparison result as int (1)
 ; Source: Function #4 L548 playground.qst/zasm-ffc-3-LttP_Bumper.txt
 ; Similar to bool CanWalk, but without the switch.
+; Function #1 calls it and reads the result, so it must stay in D2.
 Function run_none-0
     0: COMPAREV        D2               0           [Block 0 -> 1, 2]
     1: GOTOFALSE       5
@@ -10,5 +11,10 @@ Function run_none-0
     5: SETCMP          D2               I!=         [Block 2 -> 4]
     6: GOTO            8
     7: NOP                                          [Block 3 -> 4]
-    8: RETURN                                       [Block 4 -> ]
-    9: QUIT
+    8: RETURNFUNC                                   [Block 4 -> ]
+
+
+Function Function #1
+    9: CALLFUNC        0                            [Block 0 -> ][run_none-0]
+   10: TRACER          D2
+   11: QUIT

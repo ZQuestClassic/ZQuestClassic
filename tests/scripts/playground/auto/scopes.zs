@@ -384,6 +384,12 @@ int returnOne()
 	return 1;
 }
 
+// The script discards this result, but the debugger reads it when it calls this.
+int addOne(int x)
+{
+	return x + 1;
+}
+
 void DebugStaticClassFunction()
 {
 	// Call an instance method first, leaving a lingering `this` object behind.
@@ -434,6 +440,7 @@ generic script scopes
 		Test::AssertEqual(A::DataBag.StaticClassFunction(), 123);
 		AccessScriptScopedMembers();
 		Test::AssertEqual(returnOne(), 1);
+		addOne(1);
 
 		Test::Assert(globalThings);
 		A::A_fn();

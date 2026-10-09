@@ -181,10 +181,11 @@ static void for_every_register_side_effect(const ffscript& instr, T fn)
 #define C(i) (ctx.script->zasm[i])
 #define E(i) (ctx.cfg.block_edges[i])
 
-static OptContext create_context_no_cfg(StructuredZasm& structured_zasm, zasm_script* script, const ZasmFunction& fn)
+static OptContext create_context_no_cfg(StructuredZasm& structured_zasm, zasm_script* script, const ZasmFunction& fn, std::shared_ptr<const ZasmFunctionLivenessList> function_liveness = nullptr)
 {
 	OptContext ctx{};
 	ctx.structured_zasm = &structured_zasm;
+	ctx.function_liveness = std::move(function_liveness);
 	ctx.script = script;
 	ctx.fn = fn;
 	ctx.debug = zasm_optimize_verbose;
@@ -202,9 +203,19 @@ static void add_context_cfg(OptContext& ctx)
 	ctx.cfg_stale = false;
 }
 
+static ZasmFunctionLivenessList analyze_function_liveness(const zasm_script* script, const StructuredZasm& structured_zasm)
+{
+	std::vector<std::pair<pc_t, pc_t>> pc_ranges;
+	for (const auto& fn : structured_zasm.functions)
+		pc_ranges.emplace_back(fn.start_pc, fn.final_pc);
+	return zasm_analyze_function_liveness(script, zasm_construct_cfg(script, pc_ranges), structured_zasm, false);
+}
+
 static void add_context_liveness(OptContext& ctx)
 {
-	ctx.liveness_vars = zasm_run_liveness_analysis(ctx.script, ctx.cfg);
+	if (!ctx.function_liveness)
+		ctx.function_liveness = std::make_shared<const ZasmFunctionLivenessList>(analyze_function_liveness(ctx.script, *ctx.structured_zasm));
+	ctx.liveness_vars = zasm_run_liveness_analysis(ctx.script, ctx.cfg, *ctx.structured_zasm, *ctx.function_liveness);
 }
 
 OptContext create_context(StructuredZasm& structured_zasm, zasm_script* script, const ZasmFunction& fn)
@@ -2280,32 +2291,47 @@ static bool optimize_dead_code(OptContext& ctx)
 	add_context_liveness(ctx);
 
 	optimize_by_block(ctx, [&](pc_t block_index, pc_t start_pc, pc_t final_pc){
-		uint8_t out = ctx.liveness_vars.at(block_index).out;
+		// The block's live-out is for the last instruction that can run: the liveness analysis
+		// stops at a RETURNFUNC, or a GOTO out of this CFG (see build_liveness_graph). Nothing
+		// after one of those runs, and walking it would let its writes hide the live ones
+		// before it.
+		pc_t last_pc = final_pc;
+		for (pc_t i = start_pc; i <= final_pc; i++)
+		{
+			int command = C(i).command;
+			if (command == RETURNFUNC || (command == GOTO && !ctx.cfg.contains_block_start(C(i).arg1)))
+			{
+				last_pc = i;
+				break;
+			}
+		}
 
-		// fmt::print("{} in: ", block_index);
-		// for (int i = 0; i < 8; i++) if (in & (1 << i)) fmt::print("D{} ", i);
-		// fmt::print("out: ");
-		// for (int i = 0; i < 8; i++) if (out & (1 << i)) fmt::print("D{} ", i);
-		// fmt::print("\n");
-
-		int live = out;
-		pc_t i = final_pc;
+		int live = ctx.liveness_vars.at(block_index).out;
+		pc_t i = last_pc;
 		while (true)
 		{
-			for_every_side_effect_d_registers_only(C(i), [&](bool read, bool write, int reg){
-				if (write)
-				{
-					if (!(live & (1 << reg)))
+			if (C(i).command == CALLFUNC)
+			{
+				// What a call reads and writes comes from its callee's summary.
+				live = zasm_live_before(C(i), live, *ctx.structured_zasm, *ctx.function_liveness, false);
+			}
+			else
+			{
+				for_every_side_effect_d_registers_only(C(i), [&](bool read, bool write, int reg){
+					if (write)
 					{
-						// Don't remove writes that have other side effects (like modifying the stack).
-						if (command_is_pure(C(i).command) && !bisect_tool_should_skip())
-							remove(ctx, i);
+						if (!(live & (1 << reg)))
+						{
+							// Don't remove writes that have other side effects (like modifying the stack).
+							if (command_is_pure(C(i).command) && !bisect_tool_should_skip())
+								remove(ctx, i);
+						}
+						live &= ~(1 << reg);
 					}
-					live &= ~(1 << reg);
-				}
-				if (read)
-					live |= 1 << reg;
-			});
+					if (read)
+						live |= 1 << reg;
+				});
+			}
 
 			if (i == start_pc)
 				break;
@@ -2399,9 +2425,9 @@ static void run_pass(OptimizeResults& results, int i, OptContext& ctx, const Opt
 	results.passes[i].elapsed += std::chrono::duration_cast<std::chrono::microseconds>(end_time - start_time).count();
 }
 
-static void optimize_function(OptimizeResults& results, StructuredZasm& structured_zasm, zasm_script* script, const ZasmFunction& fn)
+static void optimize_function(OptimizeResults& results, StructuredZasm& structured_zasm, zasm_script* script, const ZasmFunction& fn, std::shared_ptr<const ZasmFunctionLivenessList> function_liveness)
 {
-	OptContext ctx = create_context_no_cfg(structured_zasm, script, fn);
+	OptContext ctx = create_context_no_cfg(structured_zasm, script, fn, std::move(function_liveness));
 	for (int i = 0; i < function_passes.size(); i++)
 	{
 		run_pass(results, script_passes.size() + i, ctx, function_passes[i]);
@@ -2457,6 +2483,15 @@ OptimizeResults zasm_optimize_script(zasm_script* script)
 		script->zasm[pop_pc] = {POP, D(2)};
 	}
 
+	// The liveness within a function depends on the functions it calls and the functions calling
+	// it, so summarize every function once, before the function passes. Those passes only
+	// simplify code within a function: they don't make a function read a register on entry that
+	// it didn't, or stop writing one that a caller reads after calling it, so the summaries stay
+	// sound for the code they leave behind.
+	std::shared_ptr<const ZasmFunctionLivenessList> function_liveness;
+	if (!is_minimal_mode())
+		function_liveness = std::make_shared<const ZasmFunctionLivenessList>(analyze_function_liveness(script, structured_zasm));
+
 	if (should_run_optimizer_in_parallel() && ZScriptVersion::singleZasmChunk())
 	{
 		std::vector<OptimizeResults> function_results;
@@ -2472,7 +2507,7 @@ OptimizeResults zasm_optimize_script(zasm_script* script)
 		std::for_each(std::execution::par_unseq, fn_iters.begin(), fn_iters.end(), [&](auto it){
 			int i = it - structured_zasm.functions.begin();
 			auto& fn = *it;
-			optimize_function(function_results[i], structured_zasm, script, fn);
+			optimize_function(function_results[i], structured_zasm, script, fn, function_liveness);
 		});
 
 		for (const auto& function_result : function_results)
@@ -2495,7 +2530,7 @@ OptimizeResults zasm_optimize_script(zasm_script* script)
 	{
 		for (const auto& fn : structured_zasm.functions)
 		{
-			optimize_function(results, structured_zasm, script, fn);
+			optimize_function(results, structured_zasm, script, fn, function_liveness);
 		}
 	}
 

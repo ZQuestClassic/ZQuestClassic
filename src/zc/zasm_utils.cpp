@@ -8,7 +8,10 @@
 #include "zc/script_debug.h"
 #include "components/zasm/serialize.h"
 #include "components/zasm/table.h"
+#include "base/util.h"
+#include <algorithm>
 #include <cstdint>
+#include <span>
 #include <fmt/format.h>
 #include <fmt/ranges.h>
 #include <xxhash.h>
@@ -551,190 +554,650 @@ ZasmCFG zasm_construct_function_cfg(const zasm_script* script, const StructuredZ
 	return construct_cfg(script, {{fn.start_pc, fn.final_pc}}, script_range);
 }
 
-// Computes, for every block of `cfg`, which of the eight D registers hold a value that some
-// later instruction may still read: `in` is that set at the block's first instruction and `out`
-// the set after its last. A register not in `out` is dead at the end of the block, so whatever
-// value it holds there can be discarded.
+// Liveness: for every block of a CFG, which of the eight D registers hold a value that some later
+// instruction may still read - `in` at the block's first instruction, `out` after its last. A
+// register not in `out` is dead at the end of the block, so whatever value it holds there can be
+// discarded.
 //
 // Two things consume this:
 //
-//  - The ZASM optimizer uses `out` to remove writes nobody reads, and to tell whether a
-//    comparison still has to leave its result in D2.
-//  - The JIT's D-register cache uses `in` and `out` to decide what must be written back to
-//    ri->d[] at a block boundary, a suspend, or a call (see jit_reg_cache_flush_policy). A
-//    register that is dead there is simply dropped.
+//  - The ZASM optimizer uses `out` to tell whether a comparison still has to leave its result in
+//    D2 (and, behind -optimize-zasm-experimental, to remove writes nobody reads).
+//  - The JIT's D-register cache uses it to decide what must be written back to ri->d[] at a block
+//    boundary, a call, or a return (see jit_reg_cache_flush_policy). A register that is dead there
+//    is dropped without being written back. So a register wrongly considered dead is a
+//    miscompile, while one wrongly considered live only costs a store: the analysis must only
+//    ever err toward live.
 //
-// This is textbook backward dataflow. Each block is first summarized from a forward scan of its
-// instructions: `gen` is the registers it reads before it writes them (a read of something the
-// block already wrote is satisfied locally and does not count), and `kill` is everything it
-// writes. Then
+// Within a function this is textbook backward dataflow. Each block's transfer function is built
+// from a forward scan of its instructions (a read counts unless the block already wrote that
+// register), then
 //
 //     out = union of `in` over the block's successors
-//     in  = gen | (out & ~kill)
+//     in  = transfer(out)
 //
-// are iterated to a fixpoint with a worklist: whenever a block's `in` changes, its predecessors
-// are queued again. The sets are 8-bit masks, so each step is a few bitwise ops, and the answer is
-// conservative - a register counts as live if it is live on any path.
+// is iterated to a fixpoint with a worklist: whenever a block's `in` changes, its predecessors are
+// queued again. The sets are 8-bit masks, so each step is a few bitwise ops.
 //
-// Calls and returns are where this departs from a single-function textbook. The CFG gives a
-// CALLFUNC one edge, to the callee's entry, and none to the instruction after the call; a
-// RETURNFUNC has no edges at all. So a block after a call starts fresh, and the caller's values
-// that survive the call are the flush policy's problem, not this analysis's - which is why
-// CALLFUNC kills every register. A returning block exposes D2 in `out`, since that is where the
-// caller reads the return value. Both JIT-only modes (suspend_uses_all_registers, and the
-// may_yield treatment of calls) exist because a suspend spills the whole register file: the
-// values in it at that point are observed by whoever resumes the script.
+// Calls and returns need more, because ZASM D registers are global: a callee reads and writes the
+// same ri->d[] as its caller, so values flow into a callee, through it untouched, and back out of it
+// in any register (not only D2, the return value). Each function is summarized once for the whole
+// script (ZasmFunctionLiveness), and then:
+//
+//  - A CALLFUNC is an ordinary instruction that continues to the instruction after it. It reads the
+//    callee's live_in, and writes only the callee's must_write - a register the callee writes on
+//    just some paths may still hold the caller's value after the call.
+//  - A RETURNFUNC exposes the function's read_after_return: everything any of its callers may read
+//    after calling it, before writing it. That always includes D2, the return value, even when no
+//    caller reads it: the script debugger calls functions itself and reads the result from D2.
+//
+// zasm_analyze_function_liveness computes the summaries over the CFG of the whole script:
+//
+//  1. must_write: a forward "must" analysis (intersection at merges) from each function's entry to
+//     its returns, with each call writing its callee's must_write. Every function starts out
+//     writing everything, and that is iterated down to a fixpoint, which handles recursion.
+//  2. live_in: the backward analysis, with returns exposing nothing and each call reading the `in`
+//     of its callee's entry block (so a call is queued again when that changes). What a caller
+//     reads after the call is accounted for at the call site instead.
+//  3. read_after_return, and the liveness of every block: the backward analysis again, with calls
+//     reading the live_in from (2), and returns exposing the union of what is live after every
+//     call to their function - accumulated as those calls are evaluated.
+//
+// Keeping (2) apart from (3) keeps one caller's needs from leaking into every other caller through
+// the callee's live_in.
+//
+// When control leaves a function other than by a call or a return - falling through into the next
+// function, or jumping to another function's start - the function it enters returns on its behalf.
+// So the entered function's read_after_return includes the left one's, and the left function is
+// taken to write nothing for sure.
+//
+// A suspend serializes the whole register file, so for the JIT (suspend_uses_all_registers) a
+// suspend - and a call into a function that may suspend - reads every register.
 //
 // Reads can also be implicit: an instruction's implicit_read_mask covers registers the command
-// always touches, and register_dependency_mask_cache covers non-D arguments that read a D
-// register (an indexed register like COMBODD reads rINDEX), so those stay live too.
+// always touches, and register_dependency_mask_cache covers non-D arguments that read a D register
+// (an indexed register like COMBODD reads rINDEX), so those stay live too.
+//
+// There are two entry points. zasm_analyze_function_liveness runs the steps above over the whole
+// script, which also yields the liveness of every block. zasm_run_liveness_analysis runs the
+// backward analysis over one function's CFG, given the summaries; the blocks of other functions
+// it jumps or falls through to are not analyzed but fixed to a given live-in. The JIT uses the
+// first at init and keeps only its per-function results (the summaries, and each function's entry
+// live-in), then uses the second just before compiling each function, because keeping the whole
+// script's CFG and liveness until its last function is compiled costs too much memory
+// (d6cffc8ae5). That relies on the second giving the same `in` and `out` for the function's blocks
+// as the first did - which it does, being the same analysis on the same blocks with the same
+// values at every call, return and edge out of the function - and on control entering each
+// function at its start; otherwise the JIT keeps the whole-script analysis
+// (JittedScript::script_analysis). The optimizer unit tests check the agreement
+// (analyze_liveness in zasm_optimize_test.cpp).
 //
 // https://en.wikipedia.org/wiki/Data-flow_analysis
 // https://www.cs.cornell.edu/courses/cs4120/2022sp/notes.html?id=livevar
 // https://www.cs.cmu.edu/afs/cs/academic/class/15745-s19/www/lectures/L5-Intro-to-Dataflow.pdf
-ZasmLiveness zasm_run_liveness_analysis(const zasm_script* script, const ZasmCFG& cfg, bool suspend_uses_all_registers, const StructuredZasm* structured_zasm, const std::vector<std::optional<uint8_t>>* fixed_live_in)
-{
-	#define C(i) (script->zasm[i])
-	#define E(i) (cfg.block_edges[i])
 
-	std::vector<std::vector<pc_t>> precede(cfg.block_starts.size());
-	for (pc_t i = 0; i < cfg.block_starts.size(); i++)
+namespace {
+
+// A block's transfer function is a sequence of steps, in program order: the instructions between
+// calls collapse into one gen/kill step, and each call is a step of its own. A Call reads its
+// callee's live_in and writes its must_write. A CallReadsAll reads every register: its target is
+// not a function, or (for the JIT) is one that may suspend.
+struct LivenessStep
+{
+	enum Kind : uint8_t { GenKill, Call, CallReadsAll } kind;
+	uint8_t gen, kill;
+	// The function a call goes to, or -1 if its target is not the start of a function.
+	int32_t callee;
+};
+
+struct LivenessGraph
+{
+	const ZasmCFG* cfg;
+	std::vector<LivenessStep> steps;
+	// Block b's steps are steps[step_start[b], step_start[b + 1]).
+	std::vector<uint32_t> step_start;
+	// Per block: whether it returns. Its steps stop at the RETURNFUNC.
+	std::vector<bool> returns;
+	// Per block: whether it may jump somewhere outside of the CFG, where anything may be read.
+	std::vector<bool> leaves_cfg;
+	// Per block: whether its live-in is fixed (not analyzed).
+	std::vector<bool> fixed;
+	// Per block: the function containing it, or -1.
+	std::vector<int32_t> block_fn;
+	// Per block: its successors are the CFG's edges (SUCC_CFG), none (SUCC_NONE), or this one
+	// block - a block ending in a call continues after the call, not into the callee.
+	std::vector<pc_t> single_succ;
+	// Block b's predecessors are pred[pred_start[b], pred_start[b + 1]).
+	std::vector<pc_t> pred;
+	std::vector<uint32_t> pred_start;
+
+	static constexpr pc_t SUCC_CFG = UINT32_MAX;
+	static constexpr pc_t SUCC_NONE = UINT32_MAX - 1;
+
+	size_t num_blocks() const
 	{
-		for (pc_t e : E(i))
-		{
-			// By far the most common number of predecessors is 2. Prevent some reallocations by
-			// preserving that much upfront.
-			if (precede[e].empty())
-				precede[e].reserve(2);
-			precede[e].push_back(i);
-		}
+		return step_start.size() - 1;
 	}
 
-	ZasmLiveness vars;
-	vars.resize(cfg.block_starts.size());
-
-	std::vector<pc_t> worklist;
-	worklist.reserve(cfg.block_starts.size());
-	std::vector<bool> in_worklist(cfg.block_starts.size());
-
-	for (pc_t block_index = 0; block_index < cfg.block_starts.size(); block_index++)
+	std::span<const pc_t> succ(pc_t b) const
 	{
-		// A block with a fixed live-in reads exactly that and writes everything, so its live-in
-		// stays that value. It has no successors, so nothing ever queues it, and its live-in is
-		// final from the start.
-		if (fixed_live_in && (*fixed_live_in)[block_index])
+		if (single_succ[b] == SUCC_CFG)
+			return cfg->block_edges[b];
+		if (single_succ[b] == SUCC_NONE)
+			return {};
+		return {&single_succ[b], 1};
+	}
+
+	std::span<const pc_t> preds(pc_t b) const
+	{
+		return {pred.data() + pred_start[b], pred.data() + pred_start[b + 1]};
+	}
+};
+
+}
+
+static int32_t callee_of(const ffscript& instr, const StructuredZasm& structured_zasm)
+{
+	auto it = structured_zasm.start_pc_to_function.find(instr.arg1);
+	return it == structured_zasm.start_pc_to_function.end() ? -1 : (int32_t)it->second;
+}
+
+static bool call_reads_all(int32_t callee, const StructuredZasm& structured_zasm, bool suspend_uses_all_registers)
+{
+	return callee == -1 || (suspend_uses_all_registers && structured_zasm.functions[callee].may_yield);
+}
+
+static void instruction_reads_writes(const ffscript& instr, bool suspend_uses_all_registers, uint8_t& reads, uint8_t& writes)
+{
+	auto& meta = command_meta_cache[instr.command];
+
+	// An instruction's reads all happen before its writes, so collect the masks for every arg
+	// first. Interleaving them per-arg would drop the read when one arg writes a register another
+	// arg reads (e.g. READPODARRAYR D2 D2: arg1 writes D2, arg2 reads it).
+	reads = meta.implicit_read_mask;
+	writes = meta.implicit_write_mask;
+
+	const int32_t* p_arg = &instr.arg1;
+	for (int argn = 0; argn < 3; ++argn)
+	{
+		const auto& arg_info = meta.args[argn];
+		if (!arg_info.is_reg) continue;
+
+		int reg = p_arg[argn];
+		if (reg < 8)
 		{
-			uint8_t live_in = *(*fixed_live_in)[block_index];
-			vars[block_index] = {live_in, 0, live_in, 0xFF, false};
+			if (arg_info.reads)
+				reads |= (1 << reg);
+			if (arg_info.writes)
+				writes |= (1 << reg);
+		}
+
+		reads |= register_dependency_mask_cache[reg];
+	}
+
+	if (suspend_uses_all_registers && command_is_suspend(instr.command))
+		reads = 0xFF;
+}
+
+static LivenessGraph build_liveness_graph(const zasm_script* script, const ZasmCFG& cfg, const StructuredZasm& structured_zasm, bool suspend_uses_all_registers, const std::vector<std::optional<uint8_t>>* fixed_live_in)
+{
+	size_t num_blocks = cfg.block_starts.size();
+
+	LivenessGraph g;
+	g.cfg = &cfg;
+	g.steps.reserve(num_blocks * 2);
+	g.step_start.resize(num_blocks + 1);
+	g.returns.resize(num_blocks);
+	g.leaves_cfg.resize(num_blocks);
+	g.fixed.resize(num_blocks);
+	g.block_fn.resize(num_blocks);
+	g.single_succ.resize(num_blocks, LivenessGraph::SUCC_CFG);
+
+	// Blocks and functions are both sorted by pc, so walk them together.
+	const auto& functions = structured_zasm.functions;
+	size_t fn = 0;
+	for (pc_t b = 0; b < num_blocks; b++)
+	{
+		pc_t block_start = cfg.block_starts[b];
+		while (fn < functions.size() && functions[fn].final_pc < block_start)
+			fn++;
+		g.block_fn[b] = fn < functions.size() && functions[fn].start_pc <= block_start ? (int32_t)fn : -1;
+
+		g.step_start[b] = g.steps.size();
+		if (fixed_live_in && (*fixed_live_in)[b])
+		{
+			g.fixed[b] = true;
+			g.single_succ[b] = LivenessGraph::SUCC_NONE;
 			continue;
 		}
 
+		auto [start_pc, final_pc] = cfg.get_block_bounds(b);
 		uint8_t gen = 0;
 		uint8_t kill = 0;
 		bool returns = false;
-		auto [start_pc, final_pc] = cfg.get_block_bounds(block_index);
 		for (pc_t i = start_pc; i <= final_pc; i++)
 		{
-			auto& instr = C(i);
+			const auto& instr = script->zasm[i];
 			if (instr.command == CALLFUNC)
 			{
-				// A call into a function that can suspend observes the caller's whole register
-				// file at the callee's suspend point, so those values are live up to the call
-				// (matching the JIT's flush before such a call). Record that as a read before
-				// the call clobbers everything.
-				if (suspend_uses_all_registers && structured_zasm)
-				{
-					auto it = structured_zasm->start_pc_to_function.find(instr.arg1);
-					if (it != structured_zasm->start_pc_to_function.end() &&
-						structured_zasm->functions[it->second].may_yield)
-						gen |= (0xFF & ~kill);
-				}
-				kill = 0xFF;
+				g.steps.push_back({LivenessStep::GenKill, gen, kill, -1});
+				gen = kill = 0;
+
+				int32_t callee = callee_of(instr, structured_zasm);
+				auto kind = call_reads_all(callee, structured_zasm, suspend_uses_all_registers) ? LivenessStep::CallReadsAll : LivenessStep::Call;
+				g.steps.push_back({kind, 0, 0, callee});
 				continue;
 			}
 
 			if (instr.command == RETURNFUNC)
-				returns = true;
-
-			// A suspend serializes the whole D-register file to ri->d[] and restores it on
-			// resume, so it effectively reads every register live at that point. Treat it as
-			// reading all registers not already redefined in this block; the values defined
-			// earlier in the block are still live and get flushed as usual.
-			if (suspend_uses_all_registers && command_is_suspend(instr.command))
-				gen |= (0xFF & ~kill);
-
-			auto& meta = command_meta_cache[instr.command];
-
-			// An instruction's reads all happen before its writes, so collect the
-			// masks for every arg first and only then apply the kills. Interleaving
-			// them per-arg drops the read when one arg writes a register another
-			// arg reads (e.g. READPODARRAYR D2 D2: arg1 writes D2, arg2 reads it).
-			uint8_t instr_reads = meta.implicit_read_mask;
-			uint8_t instr_writes = meta.implicit_write_mask;
-
-			const int32_t* p_arg = &instr.arg1;
-			for (int argn = 0; argn < 3; ++argn)
 			{
-				const auto& arg_info = meta.args[argn];
-				if (!arg_info.is_reg) continue;
-
-				int reg = p_arg[argn];
-				if (reg < 8)
-				{
-					if (arg_info.reads)
-						instr_reads |= (1 << reg);
-					if (arg_info.writes)
-						instr_writes |= (1 << reg);
-				}
-
-				instr_reads |= register_dependency_mask_cache[reg];
+				// Nothing after it in this block runs.
+				returns = true;
+				break;
 			}
 
-			gen |= (instr_reads & ~kill);
-			kill |= instr_writes;
+			// A CFG made of only some functions has no block (or edge) for a jump out of them.
+			if (command_is_goto(instr.command) && !cfg.contains_block_start(instr.arg1))
+			{
+				g.leaves_cfg[b] = true;
+				if (instr.command == GOTO)
+					break;
+			}
+			else if (instr.command == GOTOTABLE || instr.command == GOTORANGES)
+			{
+				for (pc_t target : zasm_jump_targets(instr.command, instr.vecptr))
+				{
+					if (!cfg.contains_block_start(target))
+						g.leaves_cfg[b] = true;
+				}
+			}
+
+			uint8_t reads, writes;
+			instruction_reads_writes(instr, suspend_uses_all_registers, reads, writes);
+			gen |= reads & ~kill;
+			kill |= writes;
 		}
+		g.steps.push_back({LivenessStep::GenKill, gen, kill, -1});
+		g.returns[b] = returns;
 
-		vars[block_index] = {0, 0, gen, kill, returns};
-
-		// Minor optimization: only seed the worklist with exit blocks or blocks that use a register.
-		if (returns || gen || E(block_index).empty())
+		if (returns)
 		{
-			worklist.push_back(block_index);
-			in_worklist[block_index] = true;
+			g.single_succ[b] = LivenessGraph::SUCC_NONE;
+		}
+		else if (script->zasm[final_pc].command == CALLFUNC)
+		{
+			// The CFG's edge goes to the callee, but its effect is in the call's step. Execution
+			// continues after the call.
+			g.single_succ[b] = cfg.contains_block_start(final_pc + 1) ?
+				cfg.block_id_from_start_pc(final_pc + 1) : LivenessGraph::SUCC_NONE;
+		}
+	}
+	g.step_start[num_blocks] = g.steps.size();
+
+	// Count each block's predecessors, then place them.
+	g.pred_start.resize(num_blocks + 1);
+	for (pc_t b = 0; b < num_blocks; b++)
+	{
+		for (pc_t s : g.succ(b))
+			g.pred_start[s + 1]++;
+	}
+	for (pc_t b = 0; b < num_blocks; b++)
+		g.pred_start[b + 1] += g.pred_start[b];
+	g.pred.resize(g.pred_start[num_blocks]);
+	std::vector<uint32_t> next_pred(g.pred_start.begin(), g.pred_start.end() - 1);
+	for (pc_t b = 0; b < num_blocks; b++)
+	{
+		for (pc_t s : g.succ(b))
+			g.pred[next_pred[s]++] = b;
+	}
+
+	return g;
+}
+
+// Applies block b's transfer function to `out`. For each call, on_call(callee, live after the call)
+// is called first.
+template <typename CalleeLiveIn, typename OnCall>
+static uint8_t liveness_transfer(const LivenessGraph& g, pc_t b, uint8_t out, const ZasmFunctionLivenessList& fl, CalleeLiveIn callee_live_in, OnCall on_call)
+{
+	uint8_t live = out;
+	for (uint32_t s = g.step_start[b + 1]; s-- > g.step_start[b];)
+	{
+		const auto& step = g.steps[s];
+		switch (step.kind)
+		{
+			case LivenessStep::GenKill:
+				live = step.gen | (live & ~step.kill);
+				break;
+
+			case LivenessStep::Call:
+				on_call(step.callee, live);
+				live = callee_live_in(step.callee) | (live & ~fl[step.callee].must_write);
+				break;
+
+			case LivenessStep::CallReadsAll:
+				if (step.callee != -1)
+					on_call(step.callee, live);
+				live = 0xFF;
+				break;
+		}
+	}
+	return live;
+}
+
+// Step 1 of zasm_analyze_function_liveness: sets each function's must_write.
+static void compute_must_write(const LivenessGraph& g, const StructuredZasm& structured_zasm, ZasmFunctionLivenessList& fl)
+{
+	size_t num_blocks = g.num_blocks();
+	size_t num_fns = fl.size();
+
+	// Nothing is written for sure on entry to a function, or to a block entered from another
+	// function. A function that control leaves other than by a call or a return writes nothing for
+	// sure (the function it enters returns on its behalf).
+	std::vector<bool> enters(num_blocks);
+	std::vector<bool> leaves(num_fns);
+	for (pc_t b = 0; b < num_blocks; b++)
+	{
+		int32_t fn = g.block_fn[b];
+		if (fn == -1 || g.cfg->block_starts[b] == structured_zasm.functions[fn].start_pc)
+			enters[b] = true;
+		for (pc_t s : g.succ(b))
+		{
+			if (g.block_fn[s] != fn)
+			{
+				enters[s] = true;
+				if (fn != -1)
+					leaves[fn] = true;
+			}
 		}
 	}
 
+	for (auto& f : fl)
+		f.must_write = 0xFF;
+
+	// Two nested fixpoints: the inner loop runs the blocks with the functions' current must_write
+	// until nothing changes, then each function's must_write is taken from its returning blocks.
+	// When that lowered one (a call to it writes less than assumed), the blocks run again.
+	//
+	// def_out: written for sure at the end of each block (at the RETURNFUNC, for a returning
+	// block).
+	std::vector<uint8_t> def_out(num_blocks, 0xFF);
+	std::vector<uint8_t> must_write(num_fns);
+	while (true)
+	{
+		bool changed = true;
+		while (changed)
+		{
+			changed = false;
+			for (pc_t b = 0; b < num_blocks; b++)
+			{
+				uint8_t def = 0;
+				if (!enters[b])
+				{
+					def = 0xFF;
+					for (pc_t p : g.preds(b))
+						def &= def_out[p];
+				}
+
+				for (uint32_t s = g.step_start[b]; s < g.step_start[b + 1]; s++)
+				{
+					const auto& step = g.steps[s];
+					if (step.kind == LivenessStep::GenKill)
+						def |= step.kill;
+					else if (step.callee != -1)
+						def |= fl[step.callee].must_write;
+				}
+
+				if (def != def_out[b])
+				{
+					def_out[b] = def;
+					changed = true;
+				}
+			}
+		}
+
+		std::fill(must_write.begin(), must_write.end(), 0xFF);
+		for (pc_t b = 0; b < num_blocks; b++)
+		{
+			if (g.returns[b] && g.block_fn[b] != -1)
+				must_write[g.block_fn[b]] &= def_out[b];
+		}
+
+		bool fl_changed = false;
+		for (size_t fn = 0; fn < num_fns; fn++)
+		{
+			uint8_t value = leaves[fn] ? 0 : must_write[fn];
+			if (value != fl[fn].must_write)
+			{
+				fl[fn].must_write = value;
+				fl_changed = true;
+			}
+		}
+		if (!fl_changed)
+			break;
+	}
+}
+
+namespace {
+
+enum class LivenessMode
+{
+	// Calls read the summaries' live_in; returns expose their read_after_return.
+	Summaries,
+	// Step 2 of zasm_analyze_function_liveness: calls read the `in` of their callee's entry block;
+	// returns expose nothing.
+	ComputeLiveIn,
+	// Step 3 of zasm_analyze_function_liveness: like Summaries, but what returns expose is
+	// accumulated (into read_after_return) from what is live after each call.
+	ComputeReadAfterReturn,
+};
+
+}
+
+// Runs the backward analysis over every block of `g`. In ComputeReadAfterReturn mode,
+// *read_after_return (indexed by function) accumulates what is live after each call to the
+// function, so the caller must initialize it with what is read after every return regardless of
+// callers (D2, for the debugger), and takes the result from it.
+static ZasmLiveness run_backward_liveness(const LivenessGraph& g, const StructuredZasm& structured_zasm, const std::vector<std::optional<uint8_t>>* fixed_live_in, const ZasmFunctionLivenessList& fl, LivenessMode mode, std::vector<uint8_t>* read_after_return = nullptr)
+{
+	size_t num_blocks = g.num_blocks();
+	size_t num_fns = fl.size();
+
+	ZasmLiveness vars(num_blocks, {0, 0});
+	for (pc_t b = 0; b < num_blocks; b++)
+	{
+		if (g.fixed[b])
+			vars[b].in = *(*fixed_live_in)[b];
+	}
+
+	std::vector<pc_t> worklist;
+	worklist.reserve(num_blocks);
+	std::vector<bool> in_worklist(num_blocks);
+	auto queue = [&](pc_t b){
+		if (!in_worklist[b] && !g.fixed[b])
+		{
+			worklist.push_back(b);
+			in_worklist[b] = true;
+		}
+	};
+
+	// ComputeLiveIn: each function's entry block, and the blocks calling it (which depend on it).
+	std::vector<int32_t> entry_block;
+	std::vector<std::vector<pc_t>> call_blocks;
+	if (mode == LivenessMode::ComputeLiveIn)
+	{
+		entry_block.resize(num_fns, -1);
+		for (size_t fn = 0; fn < num_fns; fn++)
+		{
+			pc_t start_pc = structured_zasm.functions[fn].start_pc;
+			if (g.cfg->contains_block_start(start_pc))
+				entry_block[fn] = g.cfg->block_id_from_start_pc(start_pc);
+		}
+
+		call_blocks.resize(num_fns);
+		for (pc_t b = 0; b < num_blocks; b++)
+		{
+			for (uint32_t s = g.step_start[b]; s < g.step_start[b + 1]; s++)
+			{
+				if (g.steps[s].kind == LivenessStep::Call)
+					call_blocks[g.steps[s].callee].push_back(b);
+			}
+		}
+	}
+
+	// ComputeReadAfterReturn: each function's returning blocks, and the functions it enters other
+	// than by a call (which return on its behalf).
+	std::vector<std::vector<pc_t>> return_blocks;
+	std::vector<std::vector<int32_t>> enters_functions;
+	std::vector<std::pair<int32_t, uint8_t>> rar_work;
+	if (mode == LivenessMode::ComputeReadAfterReturn)
+	{
+		return_blocks.resize(num_fns);
+		enters_functions.resize(num_fns);
+		for (pc_t b = 0; b < num_blocks; b++)
+		{
+			int32_t fn = g.block_fn[b];
+			if (fn == -1)
+				continue;
+
+			if (g.returns[b])
+				return_blocks[fn].push_back(b);
+			for (pc_t s : g.succ(b))
+			{
+				int32_t entered = g.block_fn[s];
+				if (entered != -1 && entered != fn && !util::contains(enters_functions[fn], entered))
+					enters_functions[fn].push_back(entered);
+			}
+		}
+	}
+
+	auto add_read_after_return = [&](int32_t fn, uint8_t mask){
+		rar_work.push_back({fn, mask});
+		while (!rar_work.empty())
+		{
+			auto [fn, mask] = rar_work.back();
+			rar_work.pop_back();
+
+			uint8_t& rar = (*read_after_return)[fn];
+			if ((rar | mask) == rar)
+				continue;
+
+			rar |= mask;
+			for (pc_t b : return_blocks[fn])
+				queue(b);
+			for (int32_t entered : enters_functions[fn])
+				rar_work.push_back({entered, rar});
+		}
+	};
+
+	auto callee_live_in = [&](int32_t callee) -> uint8_t {
+		if (mode != LivenessMode::ComputeLiveIn)
+			return fl[callee].live_in;
+		return entry_block[callee] == -1 ? 0xFF : vars[entry_block[callee]].in;
+	};
+
+	auto on_call = [&](int32_t callee, uint8_t live_after){
+		if (mode == LivenessMode::ComputeReadAfterReturn)
+			add_read_after_return(callee, live_after);
+	};
+
+	// Process the blocks last to first the first time through, which suits a backward analysis.
+	for (pc_t b = 0; b < num_blocks; b++)
+		queue(b);
+
 	while (!worklist.empty())
 	{
-		pc_t block_index = worklist.back();
+		pc_t b = worklist.back();
 		worklist.pop_back();
-		in_worklist[block_index] = false;
+		in_worklist[b] = false;
 
-		auto& [in, out, gen, kill, returns] = vars[block_index];
-
-		out = 0;
-		for (pc_t e : E(block_index))
-			out |= vars[e].in;
-		if (returns)
-			out |= 1 << D(2);
-
-		uint8_t old_in = in;
-		in = gen | (out & ~kill);
-
-		if (in != old_in)
+		uint8_t out = 0;
+		if (g.returns[b])
 		{
-			for (pc_t predecessor : precede[block_index])
+			int32_t fn = g.block_fn[b];
+			if (fn == -1)
+				out = 0xFF;
+			else if (mode == LivenessMode::Summaries)
+				out = fl[fn].read_after_return;
+			else if (mode == LivenessMode::ComputeReadAfterReturn)
+				out = (*read_after_return)[fn];
+		}
+		else
+		{
+			for (pc_t s : g.succ(b))
+				out |= vars[s].in;
+		}
+		if (g.leaves_cfg[b])
+			out = 0xFF;
+		vars[b].out = out;
+
+		uint8_t in = liveness_transfer(g, b, out, fl, callee_live_in, on_call);
+		if (in == vars[b].in)
+			continue;
+
+		vars[b].in = in;
+		for (pc_t p : g.preds(b))
+			queue(p);
+
+		if (mode == LivenessMode::ComputeLiveIn)
+		{
+			int32_t fn = g.block_fn[b];
+			if (fn != -1 && entry_block[fn] == (int32_t)b)
 			{
-				if (!in_worklist[predecessor])
-				{
-					worklist.push_back(predecessor);
-					in_worklist[predecessor] = true;
-				}
+				for (pc_t c : call_blocks[fn])
+					queue(c);
 			}
 		}
 	}
 
 	return vars;
+}
+
+ZasmFunctionLivenessList zasm_analyze_function_liveness(const zasm_script* script, const ZasmCFG& script_cfg, const StructuredZasm& structured_zasm, bool suspend_uses_all_registers, ZasmLiveness* script_liveness)
+{
+	ZasmFunctionLivenessList fl(structured_zasm.functions.size());
+	auto g = build_liveness_graph(script, script_cfg, structured_zasm, suspend_uses_all_registers, nullptr);
+
+	compute_must_write(g, structured_zasm, fl);
+
+	auto vars = run_backward_liveness(g, structured_zasm, nullptr, fl, LivenessMode::ComputeLiveIn);
+	for (size_t fn = 0; fn < fl.size(); fn++)
+	{
+		pc_t start_pc = structured_zasm.functions[fn].start_pc;
+		fl[fn].live_in = script_cfg.contains_block_start(start_pc) ? vars[script_cfg.block_id_from_start_pc(start_pc)].in : 0xFF;
+	}
+
+	// The debugger reads the return value of a function it calls (see VM::executeSandboxed).
+	std::vector<uint8_t> read_after_return(fl.size(), 1 << D(2));
+	vars = run_backward_liveness(g, structured_zasm, nullptr, fl, LivenessMode::ComputeReadAfterReturn, &read_after_return);
+	for (size_t fn = 0; fn < fl.size(); fn++)
+		fl[fn].read_after_return = read_after_return[fn];
+	if (script_liveness)
+		*script_liveness = std::move(vars);
+
+	return fl;
+}
+
+ZasmLiveness zasm_run_liveness_analysis(const zasm_script* script, const ZasmCFG& cfg, const StructuredZasm& structured_zasm, const ZasmFunctionLivenessList& function_liveness, bool suspend_uses_all_registers, const std::vector<std::optional<uint8_t>>* fixed_live_in)
+{
+	auto g = build_liveness_graph(script, cfg, structured_zasm, suspend_uses_all_registers, fixed_live_in);
+	return run_backward_liveness(g, structured_zasm, fixed_live_in, function_liveness, LivenessMode::Summaries);
+}
+
+uint8_t zasm_live_before(const ffscript& instr, uint8_t live_after, const StructuredZasm& structured_zasm, const ZasmFunctionLivenessList& function_liveness, bool suspend_uses_all_registers)
+{
+	if (instr.command == CALLFUNC)
+	{
+		int32_t callee = callee_of(instr, structured_zasm);
+		if (call_reads_all(callee, structured_zasm, suspend_uses_all_registers))
+			return 0xFF;
+
+		const auto& f = function_liveness[callee];
+		return f.live_in | (live_after & ~f.must_write);
+	}
+
+	uint8_t reads, writes;
+	instruction_reads_writes(instr, suspend_uses_all_registers, reads, writes);
+	return reads | (live_after & ~writes);
 }
 
 static std::string zasm_fn_get_label(const ZasmFunction& function)

@@ -81,7 +81,7 @@ rewrite 12: 2 -> 2 commands
 12: COMPAREV        D3               0      
 13: GOTOCMP         15               ==     
 Function run_none-0
-    0: SETV            D3               0           [Block 0 -> 1, 2]
+    0: NOP                                          [Block 0 -> 1, 2]
     1: PUSHR           D4
     2: NOP
     3: PUSHV           80000
@@ -101,7 +101,7 @@ Function run_none-0
 
 Function Function #1
    16: POP             D2                           [Block 0 -> ]
-   17: NOP
+   17: SETR            D3               LINKX
    18: ADDR            D2               LINKX
    19: TRACER          D2
    20: RETURNFUNC

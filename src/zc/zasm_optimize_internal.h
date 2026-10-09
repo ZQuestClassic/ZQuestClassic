@@ -180,6 +180,9 @@ struct OptContext
 	ZasmLiveness liveness_vars;
 	std::set<pc_t> block_unreachable;
 	StructuredZasm* structured_zasm;
+	// What the liveness analysis knows about every function of the script. Computed once, before
+	// the function passes run (or on first use, when not given).
+	std::shared_ptr<const ZasmFunctionLivenessList> function_liveness;
 	bool debug;
 };
 

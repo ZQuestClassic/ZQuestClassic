@@ -1,5 +1,6 @@
 ; comparisons across blocks, returning comparison result as bool
 ; Source: stellar_seas_randomizer.qst/zasm-item-2-TidalGauntlet.txt pc 3715
+; Function #1 calls it and reads the result, so it must stay in D2.
 Function run_none-0
     0: COMPARER        D2               D3          [Block 0 -> 1, 2]
     1: SETTRUEI        D2
@@ -16,4 +17,10 @@ Function run_none-0
    12: NOP                                          [Block 4 -> 5]
    13: SETV            D3               0           [Block 5 -> ]
    14: POP             D3
-   15: RETURN
+   15: RETURNFUNC
+
+
+Function Function #1
+   16: CALLFUNC        0                            [Block 0 -> ][run_none-0]
+   17: TRACER          D2
+   18: QUIT

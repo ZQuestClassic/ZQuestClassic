@@ -83,9 +83,13 @@ struct JitFunctionAnalysis
 struct JittedScript
 {
 	StructuredZasm structured_zasm;
+	// What the liveness analysis knows about each function (by id), from analyzing the whole
+	// script: what a call to it reads and writes, and what may be read after it returns.
+	ZasmFunctionLivenessList function_liveness;
 	// The D-registers live on entry to each function (by id), which the liveness of a function
-	// that calls or falls through to it depends on. With this, a function's analysis can be
-	// built just before compiling it, rather than holding it for the whole script.
+	// that jumps or falls through to it depends on. With this and function_liveness, a
+	// function's analysis can be built just before compiling it, rather than holding it for the
+	// whole script.
 	std::vector<uint8_t> function_live_in;
 	// The analysis of the whole script. Only set if control enters some function somewhere other
 	// than its start, which a function's own analysis can't account for. When set,

@@ -40,7 +40,7 @@ Function Function #1
 
 
 Function Function #2
-   35: NOP                                          [Block 0 -> ]
+   35: SETR            D4               SP2         [Block 0 -> ]
    36: SETR            D2               INPUTA
    37: GOTO            31                           [Function #1]
    38: RETURNFUNC
