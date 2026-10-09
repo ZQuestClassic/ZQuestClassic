@@ -577,7 +577,10 @@ void handle_trace(const std::string& s, bool is_error = false, bool no_prefix = 
 // repeat counts of script errors that have stopped repeating. With force, it instead reports
 // every hidden count and forgets all tracked errors, without advancing the frame count.
 void flush_repeated_script_errors(bool force = false);
+// The stack trace of the currently executing script, ri.
 std::optional<StackTrace> create_stack_trace(const refInfo* ri);
+// The stack trace of any script, given the return stack it runs with (ScriptEngineData::ret_stack).
+std::optional<StackTrace> create_stack_trace(const refInfo* ri, const int32_t* ri_ret_stack);
 // Whether script error/Trace output should include source stack traces. Also
 // gates the JIT upkeep (ri->pc, the call stack) that only those traces consume.
 bool should_display_stack_traces();

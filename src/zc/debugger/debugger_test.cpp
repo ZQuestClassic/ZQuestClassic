@@ -857,6 +857,24 @@ static TestTask run_scopes_replay_coroutine()
 	verify_expression(debugger, "b", "5.0000");
 	verify_expression(debugger, "d", "18.0000");
 
+	// The call stack of a script other than the paused one. Pause in the TestRunner script while
+	// this script waits two calls deep (DebugFunctionCallsWaitframe2's Waitframe), then select it.
+	debugger->RemoveBreakpoints();
+	add_breakpoint(debugger, "scopes.zs", "DebugFunctionCallsWaitframe2();");
+	co_await PlayAndWaitForPause(debugger);
+	debugger->RemoveBreakpoints();
+	add_breakpoint(debugger, "test_runner.zs", "while (gd->Running)");
+	co_await PlayAndWaitForPause(debugger);
+	assertEqual(debugger->current_stack_trace->frames.front().function_name, "TestRunner::run"s);
+	select_script(debugger, "scopes (GENERIC)");
+	{
+		std::vector<std::string> function_names;
+		for (auto& frame : debugger->current_stack_trace->frames)
+			function_names.push_back(frame.function_name);
+		assertEqual(fmt::format("{}", fmt::join(function_names, ", ")),
+			"DebugFunctionCallsWaitframe2, DebugFunctionCallsWaitframe1, scopes::run"s);
+	}
+
 	debugger->RemoveBreakpoints();
 	add_breakpoint(debugger, "scopes.zs", "// end of DebugFunctionDefaultCtor2");
 	co_await PlayAndWaitForPause(debugger);

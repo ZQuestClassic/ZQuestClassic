@@ -862,7 +862,7 @@ void Debugger::SetState(State new_state)
 void Debugger::SetSelectedScriptIndex(int index)
 {
 	selected_script = &active_scripts[index];
-	current_stack_trace = FFCore.create_stack_trace(&selected_script->data->ref);
+	current_stack_trace = FFCore.create_stack_trace(&selected_script->data->ref, selected_script->data->ret_stack);
 	selected_stack_frame_index = 0;
 	vm.current_data = selected_script->data;
 	vm.current_frame_index = 0;

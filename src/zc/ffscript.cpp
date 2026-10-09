@@ -16701,6 +16701,11 @@ bool FFScript::should_display_stack_traces()
 
 std::optional<StackTrace> FFScript::create_stack_trace(const refInfo* ri)
 {
+	return create_stack_trace(ri, *ret_stack);
+}
+
+std::optional<StackTrace> FFScript::create_stack_trace(const refInfo* ri, const int32_t* ri_ret_stack)
+{
 	if (!should_display_stack_traces())
 		return std::nullopt;
 
@@ -16711,7 +16716,7 @@ std::optional<StackTrace> FFScript::create_stack_trace(const refInfo* ri)
 
 	for (int i = ri->retsp - 1; i >= 0; i--)
 	{
-		pc_t pc = (*ret_stack)[i];
+		pc_t pc = ri_ret_stack[i];
 		frames.push_back(pc - 1);
 	}
 
