@@ -146,8 +146,9 @@ void Debugger::Clear()
 	vm.suppress_errors_in_sandbox = true;
 	current_stack_trace = std::nullopt;
 	selected_scope = nullptr;
-	breakpoints.clear();
-	value_breakpoints.clear();
+	// Also clears the Breakpoints panel's cache, which points into the debug data that's about to
+	// be replaced.
+	RemoveBreakpoints();
 	value_bp_cached_ri = nullptr;
 	value_bp_cached_data = nullptr;
 	hit_breakpoint_source_file = nullptr;

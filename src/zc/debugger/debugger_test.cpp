@@ -1009,6 +1009,14 @@ static TestTask run_call_limit_replay_coroutine()
 	assertEqual(debugger->selected_stack_frame_index, 4);
 	assertEqual(debugger->vm.current_frame_index, 6);
 
+	// Clearing the debugger (as loading a quest does) also clears the Breakpoints panel's cache of
+	// breakpoints, which points into the old quest's debug data.
+	co_await NextFrame{};
+	assertTrue(std::ranges::any_of(debugger->breakpoints_deduped, [](auto& bp){ return bp.source_file; }));
+	debugger->Clear();
+	assertTrue(std::ranges::none_of(debugger->breakpoints_deduped, [](auto& bp){ return bp.source_file; }));
+	debugger->Init();
+
 	debugger->RemoveBreakpoints();
 	debugger->SetState(Debugger::State::Playing);
 }
