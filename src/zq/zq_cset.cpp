@@ -673,8 +673,13 @@ bool grab_dataset(int32_t dataset)
 	
 	load_palette(picbackpal,a5picpal,picpal);
 	
-	char fname[65];
-	extract_name(imagepath,fname,-1);
+	auto get_fname = [](){
+		std::string name = imagepath;
+		if(auto i = name.find_last_of("/\\"); i != std::string::npos)
+			name.erase(0, i+1);
+		return name;
+	};
+	std::string fname = get_fname();
 	
 	ALLEGRO_BITMAP* oldtarg = al_get_target_bitmap();
 	
@@ -710,8 +715,7 @@ bool grab_dataset(int32_t dataset)
 			{
 				load_palette(picbackpal,a5picpal,picpal);
 				redraw=true;
-				memset(fname,0,sizeof(fname));
-				extract_name(imagepath,fname,-1);
+				fname = get_fname();
 			}
 		}
 		
@@ -723,7 +727,7 @@ bool grab_dataset(int32_t dataset)
 			jwin_draw_frame(screen,imagepos.x-2,imagepos.y-2,imagepos.tw()+4,imagepos.th()+4,FR_DEEP);
 			jwin_draw_frame(screen,palpos.x-3,palpos.y-3,palpos.tw()+6,palpos.th()+6,FR_DEEP);
 			
-			textout_ex(screen,get_zc_font(font_lfont_l),fname,filenamex,filenamey,jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
+			textout_ex(screen,get_zc_font(font_lfont_l),fname.c_str(),filenamex,filenamey,jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
 			draw_text_button(screen,buttonx,buttony+(36),(90),(31),"File",vc(0),vc(15),0,true);
 			draw_text_button(screen,buttonx+(114),buttony,
 							 (90),(31),"OK",vc(0),vc(15),0,true);

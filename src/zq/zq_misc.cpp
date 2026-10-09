@@ -47,9 +47,7 @@ int32_t filetype(const char *path)
     if(path==NULL || strlen(get_filename(path))==0)
         return 0;
 
-    char ext[40];
-    strcpy(ext,get_extension(path));
-    strupr(ext);
+    const char* ext = get_extension(path);
 
     for(int32_t i=0; i<ssfmtMAX; ++i)
     {

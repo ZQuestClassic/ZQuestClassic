@@ -1074,7 +1074,6 @@ static int32_t fs_elist_proc(int32_t msg, DIALOG *d, int32_t c)
     int32_t ret;
     int32_t sel = d->d1;
     char *s, *tok;
-    char tmp[80], ext[80];
     static char ext_tokens[] = " ,;";
     
     s = (char *) file_selector[FS_EDIT].dp;
@@ -1100,9 +1099,9 @@ static int32_t fs_elist_proc(int32_t msg, DIALOG *d, int32_t c)
         // check whether the extension on the current file name is still valid
         if((fext) && (strlen(get_filename(s))))
         {
-            strcpy(tmp, fext);
-            strcpy(ext, get_extension(s));
-            tok = strtok(tmp, ext_tokens);
+            std::string tmp = fext;
+            const char* ext = get_extension(s);
+            tok = strtok(tmp.data(), ext_tokens);
             
             while(tok)
             {

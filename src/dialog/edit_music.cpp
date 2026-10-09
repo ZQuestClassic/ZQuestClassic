@@ -306,7 +306,7 @@ std::shared_ptr<GUI::Widget> EditMusicDialog::view()
 
 									if (prompt_for_existing_file_compat("Load Enhanced Music", (char*)zcmusic_types, NULL, tmusicpath, false))
 									{
-										strcpy(tmusicpath, temppath);
+										set_zq_path(tmusicpath, temppath);
 										char* tmfname = get_filename(tmusicpath);
 
 										if (strlen(tmfname) > 256)

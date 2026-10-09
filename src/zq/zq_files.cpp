@@ -473,7 +473,7 @@ int32_t onSaveAs()
 	
 	if(!ret)
 	{
-		strcpy(filepath,temppath);
+		set_zq_path(filepath, temppath);
 		update_recent_quest(temppath);
 		snprintf(buf, sizeof(buf), "ZC Editor - [%s]", get_filename(filepath));
 		set_window_title(buf);
@@ -511,7 +511,7 @@ int32_t open_quest(char const* path)
 	{
 		update_recent_quest(path);
 		saved = autosaved = true;
-		strcpy(filepath, path);
+		set_zq_path(filepath, path);
 		first_save=true;
 		quest_browser_record_loaded_quest(path);
 	}

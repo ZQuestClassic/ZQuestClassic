@@ -5251,7 +5251,7 @@ void grab_tile(int32_t tile,int32_t &cs)
 				pal=0;
 				white=vc(15);
 				black=vc(0);
-				strcpy(imagepath,temppath);
+				set_zq_path(imagepath, temppath);
 				load_imagebuf();
 				imagex=imagey=0;
 				calc_cset_reduce_table(imagepal, cs);
