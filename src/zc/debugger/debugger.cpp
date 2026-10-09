@@ -947,6 +947,7 @@ void Debugger::UpdateVariables()
 		return var;
 	};
 
+	variables_version++;
 	variable_groups.clear();
 
 	variable_groups.reserve(4);

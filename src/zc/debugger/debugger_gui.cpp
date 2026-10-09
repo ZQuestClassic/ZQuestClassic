@@ -1719,8 +1719,21 @@ void Debugger::InitGui()
 	text_editor.SetHoverCallback([&](const std::string& word) {
 		if (state != Debugger::State::Paused) return;
 
+		// The tooltip can be expensive to build, so it's cached while hovering the same value. The
+		// contents of an array or object can change without its pointer changing, so it is also
+		// rebuilt whenever the variables are.
 		static DebugValue prev_value;
+		static int prev_variables_version = -1;
 		static std::string prev_str;
+		auto update_tooltip = [&](DebugValue value){
+			if (value != prev_value || variables_version != prev_variables_version)
+			{
+				prev_value = value;
+				prev_variables_version = variables_version;
+				prev_str = ValueToStringTooltip(value);
+			}
+		};
+
 		const Variable* var = FindVariable(word);
 		if (!var)
 		{
@@ -1730,22 +1743,13 @@ void Debugger::InitGui()
 			DebugValue value = expr.value();
 			if (value.type->isVoid(zasm_debug_data)) return;
 
-			if (value != prev_value)
-			{
-				prev_value = value;
-				prev_str = ValueToStringTooltip(value);
-			}
-
+			update_tooltip(value);
 			auto var = CreateVariableFromValue("", value);
 			DrawVariableTooltip(this, &var, prev_str);
 			return;
 		}
 
-		if (var->value != prev_value)
-		{
-			prev_value = var->value;
-			prev_str = ValueToStringTooltip(var->value);
-		}
+		update_tooltip(var->value);
 
 		DrawVariableTooltip(this, var, prev_str);
 	});
