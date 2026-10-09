@@ -957,6 +957,10 @@ static TestTask run_scopes_replay_coroutine()
 
 	debugger->breakpoints.clear();
 	debugger->SetState(Debugger::State::Playing);
+	// Watches keep evaluating while running, after the paused script's data may be destroyed, so
+	// they must not keep reading it.
+	assertTrue(!debugger->vm.current_data);
+	assertTrue(!debugger->selected_script);
 }
 
 static TestTask run_call_limit_replay_coroutine()

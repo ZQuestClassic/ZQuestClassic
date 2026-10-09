@@ -805,6 +805,10 @@ void Debugger::SetState(State new_state)
 	last_retsp = 0;
 	selected_scope = nullptr;
 	selected_stack_frame_index = 0;
+	// The selected script is only inspected while paused. Once running, its ScriptEngineData can be
+	// destroyed (e.g. its sprite dies), but watches still evaluate.
+	selected_script = nullptr;
+	vm.current_data = nullptr;
 	vm.current_frame_index = 0;
 	playing_last_update_time = {};
 
@@ -834,19 +838,14 @@ void Debugger::SetState(State new_state)
 
 	UpdateActiveScripts();
 
-	selected_script = nullptr;
-	vm.current_data = nullptr;
-	if (state != State::Playing)
+	for (auto& active_script : active_scripts)
 	{
-		for (auto& active_script : active_scripts)
+		if (&active_script.data->ref == ri)
 		{
-			if (&active_script.data->ref == ri)
-			{
-				active_script.name = "*" + active_script.name;
-				selected_script = &active_script;
-				vm.current_data = selected_script->data;
-				break;
-			}
+			active_script.name = "*" + active_script.name;
+			selected_script = &active_script;
+			vm.current_data = selected_script->data;
+			break;
 		}
 	}
 
