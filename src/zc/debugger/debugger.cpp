@@ -361,6 +361,16 @@ bool Debugger::HasBreakpoint(pc_t pc)
 	return false;
 }
 
+void Debugger::SetAllBreakpointsEnabled(bool enabled)
+{
+	for (auto& breakpoint : breakpoints)
+		breakpoint.enabled = enabled;
+	for (auto& breakpoint : value_breakpoints)
+		breakpoint.enabled = enabled;
+	breakpoints_dirty = true;
+	UpdateTextEditorBreakpoints();
+}
+
 void Debugger::AddValueChangeBreakpoint(std::string expression, bool enabled)
 {
 	if (HasValueChangeBreakpoint(expression))

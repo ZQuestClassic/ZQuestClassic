@@ -197,6 +197,8 @@ struct Debugger
 	void RemoveBreakpoint(pc_t pc);
 	void RemoveBreakpoints();
 	bool HasBreakpoint(pc_t pc);
+	// Line and value-change breakpoints. "On script start" and "on error" are separate options.
+	void SetAllBreakpointsEnabled(bool enabled);
 	void AddValueChangeBreakpoint(std::string expression, bool enabled = true);
 	void RemoveValueChangeBreakpoint(const std::string& expression);
 	// Changes an existing value-change breakpoint's expression, clearing any remembered state.

@@ -519,6 +519,15 @@ static TestTask run_scopes_replay_coroutine()
 	assertEqual(debugger->watch_variables[0].name, "CONST_GLOBAL_VAR"s);
 	debugger->RemoveWatches();
 
+	// Enabling/disabling all breakpoints includes value-change breakpoints.
+	debugger->AddValueChangeBreakpoint("GLOBAL_VAR");
+	debugger->SetAllBreakpointsEnabled(false);
+	assertTrue(!debugger->value_breakpoints[0].enabled);
+	assertTrue(!debugger->breakpoints[0].enabled);
+	debugger->SetAllBreakpointsEnabled(true);
+	assertTrue(debugger->value_breakpoints[0].enabled);
+	assertTrue(debugger->breakpoints[0].enabled);
+
 	// Pause within first call to `new A::CL()`
 	debugger->RemoveBreakpoints();
 	add_breakpoint(debugger, "scopes.zs", "d->dosomething()");

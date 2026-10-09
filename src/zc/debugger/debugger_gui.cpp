@@ -907,21 +907,13 @@ void DrawLeftPaneContent(Debugger* debugger)
 			ImGui::SameLine(ImGui::GetWindowWidth() - buttons_total_w);
 
 			if (ImGui::Button("√##break", ImVec2(button_w, 0)))
-			{
-				for (auto& breakpoint : debugger->breakpoints) breakpoint.enabled = true;
-				debugger->breakpoints_dirty = true;
-				debugger->UpdateTextEditorBreakpoints();
-			}
+				debugger->SetAllBreakpointsEnabled(true);
 			if (ImGui::IsItemHovered()) ImGui::SetTooltip("Enable All");
 
 			ImGui::SameLine();
 
 			if (ImGui::Button("X##break", ImVec2(button_w, 0)))
-			{
-				for (auto& breakpoint : debugger->breakpoints) breakpoint.enabled = false;
-				debugger->breakpoints_dirty = true;
-				debugger->UpdateTextEditorBreakpoints();
-			}
+				debugger->SetAllBreakpointsEnabled(false);
 			if (ImGui::IsItemHovered()) ImGui::SetTooltip("Disable All");
 
 			ImGui::SameLine();
