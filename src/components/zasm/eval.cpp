@@ -785,32 +785,45 @@ void ExpressionEvaluator::assignTo(std::shared_ptr<ExprNode> target, DebugValue 
 
 		const DebugType* type = debugData.getType(sym->type_id);
 		bool holds_reference = type->isArray(debugData) || type->isClass(debugData);
+		// Retain the new value before releasing the old one - if the old value holds the only
+		// reference to the new one (`x = x`, `node = node->next`), releasing first frees it.
+		DebugValue previous_value{};
 		if (holds_reference)
 		{
-			DebugValue previous_value = readSymbol(sym);
-			vm.decreaseObjectReference(previous_value, sym);
+			previous_value = readSymbol(sym);
+			vm.increaseObjectReference(val, sym);
 		}
-		
-		if (sym->storage == LOC_GLOBAL)
-			vm.writeGlobal(sym->offset, val.raw_value);
-		else if (sym->storage == LOC_SCRIPT_INSTANCE)
-			vm.writeScript(sym->offset, val.raw_value);
-		else if (sym->storage == LOC_STACK)
-			vm.writeStack(sym->offset, val.raw_value);
-		else if (sym->storage == LOC_REGISTER)
-			vm.writeRegister(sym->offset, val.raw_value);
-		else if (sym->storage == LOC_CLASS)
+
+		try
 		{
-			int32_t thisPtr = vm.getThisPointer();
-			DebugValue thisVal{thisPtr, nullptr}; // Type doesn't matter for the raw pointer
-			if (!vm.writeObjectMember(thisVal, sym, val))
-				throw std::runtime_error("Failed to write to member variable");
+			if (sym->storage == LOC_GLOBAL)
+				vm.writeGlobal(sym->offset, val.raw_value);
+			else if (sym->storage == LOC_SCRIPT_INSTANCE)
+				vm.writeScript(sym->offset, val.raw_value);
+			else if (sym->storage == LOC_STACK)
+				vm.writeStack(sym->offset, val.raw_value);
+			else if (sym->storage == LOC_REGISTER)
+				vm.writeRegister(sym->offset, val.raw_value);
+			else if (sym->storage == LOC_CLASS)
+			{
+				int32_t thisPtr = vm.getThisPointer();
+				DebugValue thisVal{thisPtr, nullptr}; // Type doesn't matter for the raw pointer
+				if (!vm.writeObjectMember(thisVal, sym, val))
+					throw std::runtime_error("Failed to write to member variable");
+			}
+			else
+				throw std::runtime_error("Variable is not writable (Storage type " + std::to_string(sym->storage) + ")");
 		}
-		else
-			throw std::runtime_error("Variable is not writable (Storage type " + std::to_string(sym->storage) + ")");
+		catch (...)
+		{
+			// Nothing was written, so the variable still holds the old value.
+			if (holds_reference)
+				vm.decreaseObjectReference(val, sym);
+			throw;
+		}
 
 		if (holds_reference)
-			vm.increaseObjectReference(val, sym);
+			vm.decreaseObjectReference(previous_value, sym);
 	}
 	else if (target->type == E_MEMBER)
 	{

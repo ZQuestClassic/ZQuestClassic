@@ -668,6 +668,9 @@ static TestTask run_scopes_replay_coroutine()
 	verify_expression(debugger, "RefCount(arr1)", "2L");
 	verify_expression(debugger, "arr6[0] = NULL", "0");
 	verify_expression(debugger, "RefCount(arr1)", "1L");
+	// Assigning a variable the object it already solely references must not free the object.
+	verify_expression(debugger, "arr1 = arr1", "{101.0000, 101.0000}");
+	verify_expression(debugger, "RefCount(arr1)", "1L");
 
 	// A script error raised while evaluating must not pause the debugger, even when breaking on
 	// errors: that paused on the evaluation's temporary state, and the pause's own variable reads
