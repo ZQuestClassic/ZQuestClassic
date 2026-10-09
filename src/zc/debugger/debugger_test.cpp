@@ -507,6 +507,18 @@ static TestTask run_scopes_replay_coroutine()
 
 	verify_expression(debugger, "GLOBAL_VAR", "3.0000");
 
+	// Removing a watch refreshes the watch rows, which the GUI pairs with watches by index.
+	debugger->RemoveWatches();
+	debugger->AddWatchExpression("GLOBAL_VAR");
+	debugger->AddWatchExpression("CONST_GLOBAL_VAR");
+	co_await NextFrame{};
+	assertSize(debugger->watch_variables, 2);
+	debugger->RemoveWatch(0);
+	co_await NextFrame{};
+	assertSize(debugger->watch_variables, 1);
+	assertEqual(debugger->watch_variables[0].name, "CONST_GLOBAL_VAR"s);
+	debugger->RemoveWatches();
+
 	// Pause within first call to `new A::CL()`
 	debugger->RemoveBreakpoints();
 	add_breakpoint(debugger, "scopes.zs", "d->dosomething()");

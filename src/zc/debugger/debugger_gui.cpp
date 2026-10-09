@@ -499,7 +499,7 @@ void RenderDebugVariable(Debugger* debugger, Variable& var, std::vector<Variable
 			if (ImGui::MenuItem(watch_exists ? "Unwatch (expression)" : "Watch (expression)"))
 			{
 				if (watch_exists)
-					debugger->watches.erase(it);
+					debugger->RemoveWatch(it - debugger->watches.begin());
 				else
 					debugger->AddWatchExpression(std::move(expression));
 			}
@@ -512,7 +512,7 @@ void RenderDebugVariable(Debugger* debugger, Variable& var, std::vector<Variable
 				if (ImGui::MenuItem(watch_exists ? "Unwatch (value)" : "Watch (value)"))
 				{
 					if (watch_exists)
-						debugger->watches.erase(it);
+						debugger->RemoveWatch(it - debugger->watches.begin());
 					else
 						debugger->AddWatchValue(var.value, fmt::format("({})", expression));
 				}

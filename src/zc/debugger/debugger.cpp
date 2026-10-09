@@ -567,6 +567,15 @@ void Debugger::AddWatchValue(DebugValue value, std::string label)
 	variables_dirty = true;
 }
 
+void Debugger::RemoveWatch(size_t index)
+{
+	if (index >= watches.size())
+		return;
+
+	watches.erase(watches.begin() + index);
+	variables_dirty = true;
+}
+
 void Debugger::RemoveWatches()
 {
 	watches.clear();

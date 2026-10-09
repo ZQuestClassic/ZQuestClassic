@@ -212,6 +212,7 @@ struct Debugger
 	// Watches.
 	void AddWatchExpression(std::string expression);
 	void AddWatchValue(DebugValue value, std::string label);
+	void RemoveWatch(size_t index);
 	void RemoveWatches();
 
 	// Console messages.
