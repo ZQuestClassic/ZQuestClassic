@@ -80,7 +80,7 @@ char *time_str_short2(dword time)
     return s;
 }
 
-void extract_name(char const* path,char *name,int32_t type)
+void extract_name(char const* path,char *name,size_t size,int32_t type)
 {
     int32_t l=(int32_t)strlen(path);
     int32_t i=l;
@@ -102,7 +102,7 @@ void extract_name(char const* path,char *name,int32_t type)
     }
     else
     {
-        while(i<l)
+        while(i<l && n<(int32_t)size-1)
             name[n++]=path[i++];
     }
     
