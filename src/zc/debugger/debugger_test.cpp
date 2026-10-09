@@ -31,7 +31,25 @@ struct TestTaskPromise
 	std::suspend_always initial_suspend() { return {}; }
 	std::suspend_always final_suspend() noexcept { return {}; }
 	void return_void() {}
-	void unhandled_exception() { std::terminate(); }
+
+	// A failed assertion throws. Record it, rather than letting it escape the coroutine (which
+	// terminates the process).
+	void unhandled_exception()
+	{
+		has_failed = true;
+		try
+		{
+			throw;
+		}
+		catch (const std::exception& e)
+		{
+			failure_message = e.what();
+		}
+		catch (...)
+		{
+			failure_message = "unknown exception";
+		}
+	}
 };
 
 struct TestTask
@@ -97,7 +115,12 @@ struct TestTask
 		parent.promise().nested_task = handle;
 	}
 
-	void await_resume() {}
+	// A failure in the awaited task fails the task awaiting it.
+	void await_resume()
+	{
+		if (handle && handle.promise().has_failed)
+			throw std::runtime_error(handle.promise().failure_message);
+	}
 };
 
 // Implement deferred definition
@@ -872,6 +895,42 @@ static TestTask run_scopes_replay_coroutine()
 	debugger->SetState(Debugger::State::Playing);
 }
 
+// Plays a replay, driving `task` once per frame until it finishes.
+static bool run_replay_test(TestTask task, const std::string& replay_path)
+{
+	bool success = false;
+
+	test_update = [&](){
+		if (task.resume())
+			return;
+
+		auto& promise = task.handle.promise();
+		if (promise.has_failed)
+		{
+			fmt::println("error: {}", promise.failure_message);
+
+			// Let the replay play out, rather than staying paused with nothing to resume it.
+			if (auto* debugger = zscript_debugger_open())
+			{
+				debugger->RemoveBreakpoints();
+				debugger->SetState(Debugger::State::Playing);
+			}
+		}
+		else
+		{
+			success = true;
+		}
+
+		test_update = nullptr;
+	};
+
+	load_replay_file_deferred(ReplayMode::Replay, replay_path);
+	init_and_run_main_zplayer_loop();
+
+	assertTrue(success);
+	return success;
+}
+
 static void TEST(std::string name, TestResults& tr, std::function<bool()> cb)
 {
 	try
@@ -912,99 +971,19 @@ TestResults test_debugger([[maybe_unused]] bool verbose)
 	zapp_replace_args(test_args.size(), const_cast<char**>(test_args.data()));
 
 	TEST("maths.zplay (save breakpoints)", tr, [](){
-		TestTask current_test = run_maths_replay_save_breakpoints_coroutine();
-		bool success = false;
-
-		test_update = [&](){
-			if (current_test.resume())
-				return;
-
-			auto& promise = current_test.handle.promise();
-			if (promise.has_failed)
-				fmt::println("error: {}", promise.failure_message);
-			else
-				success = true;
-
-			test_update = nullptr;
-		};
-
-		load_replay_file_deferred(ReplayMode::Replay, test_dir + "/replays/playground/maths.zplay");
-		init_and_run_main_zplayer_loop();
-
-		assertTrue(success);
-		return success;
+		return run_replay_test(run_maths_replay_save_breakpoints_coroutine(), test_dir + "/replays/playground/maths.zplay");
 	});
 
 	TEST("maths.zplay", tr, [](){
-		TestTask current_test = run_maths_replay_coroutine();
-		bool success = false;
-
-		test_update = [&](){
-			if (current_test.resume())
-				return;
-
-			auto& promise = current_test.handle.promise();
-			if (promise.has_failed)
-				fmt::println("error: {}", promise.failure_message);
-			else
-				success = true;
-
-			test_update = nullptr;
-		};
-
-		load_replay_file_deferred(ReplayMode::Replay, test_dir + "/replays/playground/maths.zplay");
-		init_and_run_main_zplayer_loop();
-
-		assertTrue(success);
-		return success;
+		return run_replay_test(run_maths_replay_coroutine(), test_dir + "/replays/playground/maths.zplay");
 	});
 
 	TEST("maths.zplay (value change breakpoints)", tr, [](){
-		TestTask current_test = run_value_change_breakpoints_replay_coroutine();
-		bool success = false;
-
-		test_update = [&](){
-			if (current_test.resume())
-				return;
-
-			auto& promise = current_test.handle.promise();
-			if (promise.has_failed)
-				fmt::println("error: {}", promise.failure_message);
-			else
-				success = true;
-
-			test_update = nullptr;
-		};
-
-		load_replay_file_deferred(ReplayMode::Replay, test_dir + "/replays/playground/maths.zplay");
-		init_and_run_main_zplayer_loop();
-
-		assertTrue(success);
-		return success;
+		return run_replay_test(run_value_change_breakpoints_replay_coroutine(), test_dir + "/replays/playground/maths.zplay");
 	});
 
 	TEST("scopes.zplay", tr, [](){
-		TestTask current_test = run_scopes_replay_coroutine();
-		bool success = false;
-
-		test_update = [&](){
-			if (current_test.resume())
-				return;
-
-			auto& promise = current_test.handle.promise();
-			if (promise.has_failed)
-				fmt::println("error: {}", promise.failure_message);
-			else
-				success = true;
-
-			test_update = nullptr;
-		};
-
-		load_replay_file_deferred(ReplayMode::Replay, test_dir + "/replays/playground/auto_scopes.zplay");
-		init_and_run_main_zplayer_loop();
-
-		assertTrue(success);
-		return success;
+		return run_replay_test(run_scopes_replay_coroutine(), test_dir + "/replays/playground/auto_scopes.zplay");
 	});
 
 	return tr;
