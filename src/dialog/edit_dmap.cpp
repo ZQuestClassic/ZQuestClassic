@@ -675,7 +675,7 @@ std::shared_ptr<GUI::Widget> EditDMapDialog::view()
 
 										if (prompt_for_existing_file_compat("Load DMap Music", (char*)zcmusic_types, NULL, tmusicpath, false))
 										{
-											strcpy(tmusicpath, temppath);
+											set_zq_path(tmusicpath, temppath);
 											char* tmfname = get_filename(tmusicpath);
 
 											if (strlen(tmfname) > 55)
