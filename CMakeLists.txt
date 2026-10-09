@@ -1070,7 +1070,7 @@ elseif(JIT_BACKEND STREQUAL "x64" OR JIT_BACKEND STREQUAL "a64")
 		GIT_REPOSITORY
 			https://github.com/connorjclark/asmjit.git
 		GIT_TAG
-			6ddfe86c26a49a27b5503070ccdde3233a6076c9
+			841dff23c4d447f95be7e0ae8f0f72ee6c3fc2cb
 		EXCLUDE_FROM_ALL
 	)
 	FetchContent_MakeAvailable(asmjit)
