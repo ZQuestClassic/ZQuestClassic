@@ -17,17 +17,19 @@ namespace {
 
 struct InDebuggerScopeGuard
 {
+	bool prev_script_is_within_debugger_vm;
 	bool prev_suppress_script_error_logging;
 
 	InDebuggerScopeGuard(bool suppress_errors_in_sandbox)
 	{
+		prev_script_is_within_debugger_vm = script_is_within_debugger_vm;
 		script_is_within_debugger_vm = true;
 		prev_suppress_script_error_logging = suppress_script_error_logging;
 		suppress_script_error_logging = suppress_errors_in_sandbox;
 	}
 	~InDebuggerScopeGuard()
 	{
-		script_is_within_debugger_vm = false;
+		script_is_within_debugger_vm = prev_script_is_within_debugger_vm;
 		suppress_script_error_logging = prev_suppress_script_error_logging;
 	}
 };

@@ -118,7 +118,10 @@ void scripting_log_error_with_context(std::string text)
 	if (disable_script_error_logs)
 		return;
 
-	if (auto debugger = zscript_debugger_get_if_open(); debugger && debugger->break_on_error)
+	// Errors raised while the debugger itself evaluates an expression must not pause: that would
+	// pause on the evaluation's temporary script state, and the pause re-reads variables (which
+	// can raise more errors, recursing forever).
+	if (auto debugger = zscript_debugger_get_if_open(); debugger && debugger->break_on_error && !script_is_within_debugger_vm)
 		debugger->SetState(Debugger::State::Paused);
 
 	if (current_zasm_context.empty())

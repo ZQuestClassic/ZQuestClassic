@@ -669,6 +669,17 @@ static TestTask run_scopes_replay_coroutine()
 	verify_expression(debugger, "arr6[0] = NULL", "0");
 	verify_expression(debugger, "RefCount(arr1)", "1L");
 
+	// A script error raised while evaluating must not pause the debugger, even when breaking on
+	// errors: that paused on the evaluation's temporary state, and the pause's own variable reads
+	// raised more errors, recursing until the stack overflowed.
+	debugger->break_on_error = true;
+	(void)debugger->Evaluate("Screen->LoadFFC(1000)->X", false);
+	debugger->break_on_error = false;
+	assertTrue(debugger->selected_script);
+	assertEqual(debugger->selected_script->name, "*scopes (GENERIC)"s);
+	assertEqual(debugger->current_stack_trace->frames.front().function_name, "DebugArrays"s);
+	verify_expression(debugger, "arr1", "{101.0000, 101.0000}");
+
 	debugger->RemoveBreakpoints();
 	add_breakpoint(debugger, "scopes.zs", "// end of DebugInternalObjects");
 	co_await PlayAndWaitForPause(debugger);
