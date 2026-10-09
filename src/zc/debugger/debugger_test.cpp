@@ -682,16 +682,26 @@ static TestTask run_scopes_replay_coroutine()
 	verify_expression(debugger, "arr5[0]->A_var", "123.0000");
 	verify_expression(debugger, "arr5[0]->arr = arr2", "{101.0000, 101.0000}");
 	verify_expression(debugger, "arr5[0]->arr", "{101.0000, 101.0000}");
+	verify_expression(debugger, "RefCount(arr1)", "3L"); // arr1, arr2, arr5[0]->arr
 
 	verify_expression(debugger, "arr2 = NULL", "0");
-	verify_expression(debugger, "RefCount(arr1)", "1L");
-	verify_expression(debugger, "arr6[0] = arr1", "{101.0000, 101.0000}");
 	verify_expression(debugger, "RefCount(arr1)", "2L");
+	verify_expression(debugger, "arr6[0] = arr1", "{101.0000, 101.0000}");
+	verify_expression(debugger, "RefCount(arr1)", "3L");
 	verify_expression(debugger, "arr6[0] = NULL", "0");
-	verify_expression(debugger, "RefCount(arr1)", "1L");
+	verify_expression(debugger, "RefCount(arr1)", "2L");
 	// Assigning a variable the object it already solely references must not free the object.
+	verify_expression(debugger, "arr5[0]->arr = NULL", "0");
+	verify_expression(debugger, "RefCount(arr1)", "1L");
 	verify_expression(debugger, "arr1 = arr1", "{101.0000, 101.0000}");
 	verify_expression(debugger, "RefCount(arr1)", "1L");
+
+	// Storing a user object in an untyped array retains it.
+	verify_expression(debugger, "RefCount(arr5[0])", "4L");
+	verify_expression(debugger, "arr6[1] = arr5[0]", "CL {A_var = 123.0000, arr = null (Array), arr_untyped = {0, 10000, ...}, this_ptr = ...}");
+	verify_expression(debugger, "RefCount(arr5[0])", "5L");
+	verify_expression(debugger, "arr6[1] = 123", "123.0000");
+	verify_expression(debugger, "RefCount(arr5[0])", "4L");
 
 	// A script error raised while evaluating must not pause the debugger, even when breaking on
 	// errors: that paused on the evaluation's temporary state, and the pause's own variable reads

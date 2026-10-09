@@ -85,8 +85,34 @@ const DebugType* getDebugTypeOfUntypedArrayElement(script_object_type engine_typ
 	return &BasicTypes[TYPE_UNTYPED];
 }
 
-const script_object_type getEngineTypeForDebugType(const DebugType* type)
+// Whether a class type is a user-defined class (whose instances are user_objects), rather than an
+// engine type like npc or ffc. Engine types expose their members as registers.
+bool isUserClass(const DebugType* type)
 {
+	type = type->asNonConst(zasm_debug_data);
+	if (type->tag != TYPE_CLASS)
+		return false;
+
+	const DebugScope* scope = &zasm_debug_data.scopes[type->extra];
+	while (true)
+	{
+		for (auto symbol : zasm_debug_data.getChildSymbols(scope))
+		{
+			if (symbol->storage == LOC_REGISTER)
+				return false;
+		}
+
+		if (scope->inheritance_index == -1)
+			break;
+		scope = &zasm_debug_data.scopes[scope->inheritance_index];
+	}
+
+	return true;
+}
+
+const script_object_type getEngineTypeForValue(DebugValue value)
+{
+	const DebugType* type = value.type;
 	if (type->isArray(zasm_debug_data))
 		return script_object_type::array;
 
@@ -99,6 +125,9 @@ const script_object_type getEngineTypeForDebugType(const DebugType* type)
 	if (name == "stack") return script_object_type::stack;
 	if (name == "websocket") return script_object_type::websocket;
 	if (name == "weapondata") return script_object_type::weapondata;
+
+	if (isUserClass(type) && dynamic_cast<user_object*>(get_script_object(value.raw_value)))
+		return script_object_type::object;
 
 	return script_object_type::none;
 }
@@ -371,6 +400,13 @@ bool VM::writeObjectMember(DebugValue object, const DebugSymbol* sym, DebugValue
 			{
 				if (sym->offset < user_obj->data.size())
 				{
+					// Retain, then release, like the engine (writeclass_impl) - so assigning a
+					// member the object it already solely references doesn't free it.
+					if (user_obj->isMemberObjectType(sym->offset))
+					{
+						script_object_ref_inc(value.raw_value);
+						script_object_ref_dec(user_obj->data[sym->offset]);
+					}
 					user_obj->data[sym->offset] = value.raw_value;
 					return true;
 				}
@@ -395,7 +431,7 @@ bool VM::writeArrayElement(DebugValue array, int32_t index, DebugValue value)
 		if (index < 0) return false;
 	}
 
-	am.set(index, value.raw_value, getEngineTypeForDebugType(value.type));
+	am.set(index, value.raw_value, getEngineTypeForValue(value));
 
 	return true;
 }

@@ -784,7 +784,8 @@ void ExpressionEvaluator::assignTo(std::shared_ptr<ExprNode> target, DebugValue 
 			throw std::runtime_error("Cannot assign to const variable: " + varNode->identifier);
 
 		const DebugType* type = debugData.getType(sym->type_id);
-		bool holds_reference = type->isArray(debugData) || type->isClass(debugData);
+		// Class members (LOC_CLASS) are reference counted by writeObjectMember.
+		bool holds_reference = (type->isArray(debugData) || type->isClass(debugData)) && sym->storage != LOC_CLASS;
 		// Retain the new value before releasing the old one - if the old value holds the only
 		// reference to the new one (`x = x`, `node = node->next`), releasing first frees it.
 		DebugValue previous_value{};

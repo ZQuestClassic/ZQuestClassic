@@ -146,6 +146,7 @@ public:
 	virtual void writeScript(int32_t offset, int32_t value) = 0;
 	virtual void writeStack(int32_t offset, int32_t value) = 0;
 	virtual void writeRegister(int32_t offset, int32_t value) = 0;
+	// Both of these retain the written value and release the replaced one, as the engine does.
 	virtual bool writeObjectMember(DebugValue object, const DebugSymbol* sym, DebugValue value) = 0;
 	virtual bool writeArrayElement(DebugValue array, int32_t index, DebugValue value) = 0;
 	virtual void decreaseObjectReference(DebugValue value, const DebugSymbol* sym) = 0;
