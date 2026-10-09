@@ -289,9 +289,11 @@ static JittedScript* init_jitted_script(zasm_script* script)
 	for (ZasmFunction& fn : j_script->structured_zasm.functions)
 		j_script->compiled_functions.push_back({stub_exec_function, fn.id});
 
-	// Zero-initialized: no function may be direct-called until it is compiled
-	// and committed.
-	j_script->direct_entry_table = std::make_unique<uintptr_t[]>(j_script->structured_zasm.functions.size());
+	// No function may be direct-called until it is compiled and committed.
+	size_t num_functions = j_script->structured_zasm.functions.size();
+	j_script->direct_entry_table = std::make_unique<uintptr_t[]>(num_functions);
+	for (size_t i = 0; i < num_functions; i++)
+		j_script->direct_entry_table[i] = (uintptr_t)jit_direct_not_compiled;
 
 	if (DEBUG_JIT_PRINT_ASM)
 		j_script->debug_handle = std::make_unique<ScriptDebugHandle>(script, ScriptDebugHandle::OutputSplit::ByScript, script->name);
@@ -523,8 +525,8 @@ void jit_release(JittedScript* j_script)
 //
 // Called at the top of a direct-entered function; the call site left the ZASM return pc in
 // ctx->call_pc. Returns 0 to proceed. Each direct call is a real machine stack frame, so past a
-// depth cap this instead rewrites ctx into a driver-path call (as if the call site had taken the
-// fallback) and returns 1; the callee propagates EXEC_RESULT_CALL without executing.
+// depth cap this instead rewrites ctx into a driver-path call (the same one jit_direct_not_compiled
+// makes) and returns 1; the callee propagates EXEC_RESULT_CALL without executing.
 int32_t jit_direct_enter(JittedExecutionContext* ctx, int32_t callee_start_pc)
 {
 	extern refInfo *ri;
@@ -542,6 +544,18 @@ int32_t jit_direct_enter(JittedExecutionContext* ctx, int32_t callee_start_pc)
 	ctx->pc = callee_start_pc;
 	retstack_push(ret_pc);
 	return 0;
+}
+
+// The direct entry of every function not (yet) compiled. Rewrites ctx into the driver-path call the
+// call site would otherwise have made, like jit_direct_enter does past its depth cap, so call sites
+// need no branch of their own for this case. The call site stored the return pc in ctx->call_pc;
+// the CALLFUNC just before it names the callee.
+int32_t jit_direct_not_compiled(JittedExecutionContext* ctx)
+{
+	pc_t call_pc = ctx->call_pc - 1;
+	ctx->pc = call_pc;
+	ctx->call_pc = ctx->j_instance->script->zasm_script->zasm[call_pc].arg1;
+	return EXEC_RESULT_CALL;
 }
 
 // Called at a direct-entered function's RETURNFUNC (the driver pops for driver-entered functions).

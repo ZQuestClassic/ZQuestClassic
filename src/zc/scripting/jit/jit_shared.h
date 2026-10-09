@@ -100,12 +100,12 @@ struct JittedScript
 	std::vector<JittedFunction> compiled_functions;
 	std::deque<JittedFunction> pending_compiled_jit_functions;
 	// Native entry per function for direct calls between compiled functions,
-	// indexed by function id. 0 until the function is compiled and committed;
-	// only non-yielding functions ever get an entry (a yield must unwind to
-	// the driver, which a native call frame cannot survive). Call sites load
-	// the slot at runtime and fall back to the driver on 0, so this doubles as
-	// the hot-swap point when a function finishes compiling. (Used by the a64
-	// backend; filling it is backend-neutral.)
+	// indexed by function id. jit_direct_not_compiled until the function is
+	// compiled and committed; only non-yielding functions ever get a real
+	// entry (a yield must unwind to the driver, which a native call frame
+	// cannot survive). Call sites load the slot at runtime and call it
+	// unconditionally - the stub turns the call into a driver-path call - so
+	// this doubles as the hot-swap point when a function finishes compiling.
 	std::unique_ptr<uintptr_t[]> direct_entry_table;
 	std::unique_ptr<ScriptDebugHandle> debug_handle;
 	ALLEGRO_MUTEX* mutex;
@@ -142,6 +142,7 @@ std::optional<JittedFunction> jit_backend_compile_function(zasm_script* script, 
 const JitFunctionAnalysis& jit_analyze_function(zasm_script* script, JittedScript* j_script, const ZasmFunction& fn, JitFunctionAnalysis& storage);
 
 int32_t jit_direct_enter(JittedExecutionContext* ctx, int32_t callee_start_pc);
+int32_t jit_direct_not_compiled(JittedExecutionContext* ctx);
 void jit_direct_retstack_pop();
 
 #endif

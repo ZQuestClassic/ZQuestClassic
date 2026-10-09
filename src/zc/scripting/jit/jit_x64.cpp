@@ -44,12 +44,19 @@ struct CompilationState
 	pc_t final_pc;
 	CallConvId calling_convention;
 	Label L_End;
+	// Return path for propagating a direct callee's non-RETURN exec result to the driver untouched.
+	// Unlike L_End it must not store vSp (ctx->sp holds the value saved by the function that
+	// actually exited).
+	Label L_PropagateEnd;
 	bool direct_calls;
 	// This function can be the target of direct calls (non-yielding), so its
 	// entry pushes the ZASM return pc and its RETURNFUNC pops it when entered
 	// directly (vMode holds ctx->entry_mode as read at entry).
 	bool direct_entry;
 	x86::Gp vMode;
+	// Where direct call sites keep ctx->saved_regs during the call (see CALLFUNC). One slot for the
+	// whole function, made on first use.
+	std::optional<x86::Mem> saved_regs_save_area;
 	x86::Gp vResult;
 	x86::Gp vSp;
 	x86::Gp vSwitchKey;
@@ -1052,39 +1059,40 @@ static void compile_single_command(CompilationState& state, x86::Compiler& cc, c
 			// extra: the callee's prologue saves its caller's pinned registers
 			// into the same single-slot ctx->saved_regs this function's entry
 			// used, so that area is preserved around the call.
-			bool emitted_direct = false;
 			const auto& sz = state.j_script->structured_zasm;
 			auto callee_it = sz.start_pc_to_function.find(arg1);
 			if (state.direct_calls && state.pc != state.final_pc &&
 				callee_it != sz.start_pc_to_function.end() && !sz.functions[callee_it->second].may_yield)
 			{
-				emitted_direct = true;
-				Label L_fallback = cc.newLabel();
-
 				if (state.modified_stack)
 					set_ctx_sp(state, cc, state.vSp);
 
-				// The slot is 0 until the callee is compiled and committed.
+				// Until the callee is compiled and committed the slot holds
+				// jit_direct_not_compiled, which turns this into a driver-path
+				// call. See the a64 backend's CALLFUNC for why this calls it
+				// unconditionally.
 				x86::Gp entry = cc.newIntPtr();
 				cc.mov(entry, (uint64_t)&state.j_script->direct_entry_table[callee_it->second]);
 				cc.mov(entry, x86::ptr(entry));
-				cc.test(entry, entry);
-				cc.jz(L_fallback);
 
-				// The callee's entry preamble pushes the ZASM return pc, which
-				// travels in ctx->call_pc (the fallback path below overwrites
-				// it with the call target).
+				// The callee's entry preamble pushes the ZASM return pc, which is stored in ctx->call_pc.
 				set_ctx_call_pc(state, cc, state.pc + 1);
 				cc.mov(x86::ptr_32(state.ptrCtx, offsetof(JittedExecutionContext, entry_mode)), 1);
 
-				x86::Gp saved0 = cc.newUInt64();
-				x86::Gp saved1 = cc.newUInt64();
-				x86::Gp saved2 = cc.newUInt64();
-				x86::Gp saved3 = cc.newUInt64();
-				cc.mov(saved0, x86::ptr(state.ptrCtx, offsetof(JittedExecutionContext, saved_regs) + 0));
-				cc.mov(saved1, x86::ptr(state.ptrCtx, offsetof(JittedExecutionContext, saved_regs) + 8));
-				cc.mov(saved2, x86::ptr(state.ptrCtx, offsetof(JittedExecutionContext, saved_regs) + 16));
-				cc.mov(saved3, x86::ptr(state.ptrCtx, offsetof(JittedExecutionContext, saved_regs) + 24));
+				// Copy ctx->saved_regs out to this frame's save area and back. Not virtual
+				// registers: those would live across the call, so each call site would get its own
+				// never-reused spill slots, which for functions with thousands of call sites grows
+				// the native frame by hundreds of KB - and asmjit emits no stack probes, so entering
+				// such a frame skips past the Windows stack guard page and faults.
+				if (!state.saved_regs_save_area)
+					state.saved_regs_save_area = cc.newStack(sizeof(JittedExecutionContext::saved_regs), 8);
+				x86::Mem save_area = *state.saved_regs_save_area;
+				for (int i = 0; i < 4; i++)
+				{
+					x86::Gp tmp = cc.newUInt64();
+					cc.mov(tmp, x86::ptr(state.ptrCtx, offsetof(JittedExecutionContext, saved_regs) + i * 8));
+					cc.mov(save_area.cloneAdjusted(i * 8), tmp);
+				}
 
 				x86::Gp ctxArg = cc.newIntPtr();
 				cc.mov(ctxArg, state.ptrCtx);
@@ -1093,35 +1101,34 @@ static void compile_single_command(CompilationState& state, x86::Compiler& cc, c
 				callNode->setArg(0, ctxArg);
 				callNode->setRet(0, state.vResult);
 
-				cc.mov(x86::ptr(state.ptrCtx, offsetof(JittedExecutionContext, saved_regs) + 0), saved0);
-				cc.mov(x86::ptr(state.ptrCtx, offsetof(JittedExecutionContext, saved_regs) + 8), saved1);
-				cc.mov(x86::ptr(state.ptrCtx, offsetof(JittedExecutionContext, saved_regs) + 16), saved2);
-				cc.mov(x86::ptr(state.ptrCtx, offsetof(JittedExecutionContext, saved_regs) + 24), saved3);
+				for (int i = 0; i < 4; i++)
+				{
+					x86::Gp tmp = cc.newUInt64();
+					cc.mov(tmp, save_area.cloneAdjusted(i * 8));
+					cc.mov(x86::ptr(state.ptrCtx, offsetof(JittedExecutionContext, saved_regs) + i * 8), tmp);
+				}
 
 				// EXEC_RESULT_RETURN is a normal return; anything else unwinds
-				// through this frame untouched (skipping the sp store - ctx
-				// holds the pc/sp saved by the function that actually exited).
-				Label L_returned = cc.newLabel();
+				// through this frame untouched (vResult already holds it, and
+				// L_PropagateEnd returns it as-is).
+				if (!state.L_PropagateEnd.isValid())
+					state.L_PropagateEnd = cc.newLabel();
 				cc.cmp(state.vResult, EXEC_RESULT_RETURN);
-				cc.je(L_returned);
-				restore_regs(state, cc);
-				cc.ret(state.vResult);
-
-				cc.bind(L_returned);
+				cc.jne(state.L_PropagateEnd);
 				// The callee consumed its arguments from the ZASM stack.
 				cc.mov(state.vSp, x86::ptr_32(state.ptrCtx, offsetof(JittedExecutionContext, sp)));
 				// Mirror the driver, which sets ctx->pc to the popped return pc
 				// on every return (error traces read it).
 				set_ctx_pc(state, cc, state.pc + 1);
-				cc.jmp(state.resume_labels[state.pc]);
-
-				cc.bind(L_fallback);
+				// Fall through to the resume label, where a driver-path call
+				// (made by the stub or the callee's depth cap) resumes.
+				cc.bind(state.resume_labels[state.pc]);
+				break;
 			}
 
 			set_ctx_pc(state, cc, state.pc);
 			set_ctx_call_pc(state, cc, arg1);
-			// The direct path already stored sp before probing the entry slot.
-			if (!emitted_direct && state.modified_stack)
+			if (state.modified_stack)
 				set_ctx_sp(state, cc, state.vSp);
 			cc.mov(state.vResult, EXEC_RESULT_CALL);
 			restore_regs(state, cc);
@@ -2257,8 +2264,6 @@ std::optional<JittedFunction> jit_backend_compile_function(zasm_script* script, 
 		return std::nullopt;
 	size_t size_no_nops = *size_no_nops_opt;
 
-	size_t direct_call_sites = jit_count_direct_call_sites(script, j_script->structured_zasm, fn);
-
 	std::chrono::steady_clock::time_point start_time, end_time;
 	start_time = std::chrono::steady_clock::now();
 
@@ -2271,7 +2276,7 @@ std::optional<JittedFunction> jit_backend_compile_function(zasm_script* script, 
 		.j_script = j_script,
 		.start_pc = start_pc,
 		.final_pc = final_pc,
-		.direct_calls = direct_calls && jit_direct_calls_worth_it(direct_call_sites),
+		.direct_calls = direct_calls,
 		.direct_entry = direct_calls && !fn.may_yield,
 		.runtime_debugging = runtime_debugging,
 	};
@@ -2452,6 +2457,13 @@ std::optional<JittedFunction> jit_backend_compile_function(zasm_script* script, 
 
 	restore_regs(state, cc);
 	cc.ret(state.vResult);
+
+	if (state.L_PropagateEnd.isValid())
+	{
+		cc.bind(state.L_PropagateEnd);
+		restore_regs(state, cc);
+		cc.ret(state.vResult);
+	}
 
 	cc.endFunc();
 	cc.finalize();

@@ -56,6 +56,10 @@ struct CompilationState
 	// Unlike L_End it must not store vSp (ctx->sp holds the value saved by the function that
 	// actually exited).
 	Label L_PropagateEnd;
+	// In functions with far branches, a `b L_PropagateEnd` placed among the direct call sites, so
+	// those within b.cond range of it branch there in one instruction (see CALLFUNC).
+	Label L_NearPropagate;
+	pc_t near_propagate_pc;
 	bool direct_calls;
 	// This function can be the target of direct calls (non-yielding), so its entry pushes the ZASM
 	// return pc and its RETURNFUNC pops it when entered directly (vMode holds ctx->entry_mode as
@@ -1051,29 +1055,28 @@ static void compile_single_command(CompilationState& state, a64::Compiler& cc, c
 			// scripts). The ZASM return stack is still maintained (via the helpers) so an unwind -
 			// interpreter bail, quit, or fallback to the driver path - leaves exactly the state a
 			// driver-made call would have.
-			bool emitted_direct = false;
 			const auto& sz = state.j_script->structured_zasm;
 			auto callee_it = sz.start_pc_to_function.find(arg1);
 			if (state.direct_calls && state.pc != state.final_pc &&
 				callee_it != sz.start_pc_to_function.end() && !sz.functions[callee_it->second].may_yield)
 			{
-				emitted_direct = true;
 				if (!state.L_PropagateEnd.isValid())
 					state.L_PropagateEnd = cc.newLabel();
-				Label L_fallback = cc.newLabel();
 
 				if (state.modified_stack)
 					set_ctx_sp(state, cc, state.vSp);
 
-				// The slot is 0 until the callee is compiled and committed.
+				// Until the callee is compiled and committed the slot holds
+				// jit_direct_not_compiled, which turns this into a driver-path call. Calling it
+				// unconditionally (rather than branching to the driver path here on an empty slot)
+				// keeps each call site to one extra block, which matters for scripts with thousands
+				// of call sites in one function: the register allocator's liveness sets grow with
+				// blocks * registers live across blocks.
 				a64::Gp entry = cc.newIntPtr();
 				cc.mov(entry, (uint64_t)&state.j_script->direct_entry_table[callee_it->second]);
 				cc.ldr(entry, a64::ptr(entry));
-				cc.cbz(entry, L_fallback);
 
-				// The callee's entry preamble pushes the ZASM return pc, which
-				// travels in ctx->call_pc (the fallback path below overwrites
-				// it with the call target).
+				// The callee's entry preamble pushes the ZASM return pc, which is stored in ctx->call_pc.
 				set_ctx_call_pc(state, cc, state.pc + 1);
 				cc.str(imm_to_reg(cc, 1), a64::ptr(state.ptrCtx, offsetof(JittedExecutionContext, entry_mode)));
 
@@ -1085,22 +1088,51 @@ static void compile_single_command(CompilationState& state, a64::Compiler& cc, c
 				// EXEC_RESULT_RETURN is a normal return; anything else unwinds
 				// through this frame untouched (vResult already holds it, and
 				// L_PropagateEnd returns it as-is).
+				//
+				// L_PropagateEnd is bound once, after L_End at the end of the function. A b.cond
+				// reaches +-1 MB, which in very large functions (far_branches) only the sites within
+				// ~4000 ZASM instructions of the end can rely on - the same distance rule as
+				// emit_cond_branch. The rest branch to L_NearPropagate: a `b L_PropagateEnd`
+				// trampoline placed inline at the first out-of-range site, then shared by every
+				// later site within ~4000 instructions of it, after which the next out-of-range
+				// site places a new one. The alternative, emit_cond_branch's per-site inverted
+				// branch over a `b`, would add a second block per site (see the comment above
+				// the entry slot load for why that matters).
 				cmp_constant(cc, state.vResult, EXEC_RESULT_RETURN);
-				emit_cond_branch(state, cc, a64::CondCode::kNE, state.L_PropagateEnd, state.final_pc - state.pc);
+				if (!state.far_branches || state.final_pc - state.pc <= 4000)
+				{
+					cc.b_ne(state.L_PropagateEnd);
+				}
+				else if (state.L_NearPropagate.isValid() && state.pc - state.near_propagate_pc <= 4000)
+				{
+					cc.b_ne(state.L_NearPropagate);
+				}
+				else
+				{
+					// Out of b.cond range of L_PropagateEnd and of the current trampoline (if
+					// any): place a new trampoline here for the nearby sites to share.
+					Label L_returned = cc.newLabel();
+					state.L_NearPropagate = cc.newLabel();
+					state.near_propagate_pc = state.pc;
+					cc.b_eq(L_returned);
+					cc.bind(state.L_NearPropagate);
+					cc.b(state.L_PropagateEnd);
+					cc.bind(L_returned);
+				}
 				// The callee consumed its arguments from the ZASM stack.
 				cc.ldr(state.vSp, a64::ptr(state.ptrCtx, offsetof(JittedExecutionContext, sp)));
 				// Mirror the driver, which sets ctx->pc to the popped return pc
 				// on every return (error traces read it).
 				set_ctx_pc(state, cc, state.pc + 1);
-				cc.b(state.resume_labels[state.pc]);
-
-				cc.bind(L_fallback);
+				// Fall through to the resume label, where a driver-path call
+				// (made by the stub or the callee's depth cap) resumes.
+				cc.bind(state.resume_labels[state.pc]);
+				break;
 			}
 
 			set_ctx_pc(state, cc, state.pc);
 			set_ctx_call_pc(state, cc, arg1);
-			// The direct path already stored sp before probing the entry slot.
-			if (!emitted_direct && state.modified_stack)
+			if (state.modified_stack)
 				set_ctx_sp(state, cc, state.vSp);
 			cc.mov(state.vResult, EXEC_RESULT_CALL);
 			cc.b(state.L_End);
@@ -2121,8 +2153,6 @@ std::optional<JittedFunction> jit_backend_compile_function(zasm_script* script, 
 		return std::nullopt;
 	size_t size_no_nops = *size_no_nops_opt;
 
-	size_t direct_call_sites = jit_count_direct_call_sites(script, j_script->structured_zasm, fn);
-
 	std::chrono::steady_clock::time_point start_time, end_time;
 	start_time = std::chrono::steady_clock::now();
 
@@ -2135,7 +2165,7 @@ std::optional<JittedFunction> jit_backend_compile_function(zasm_script* script, 
 		.j_script = j_script,
 		.start_pc = start_pc,
 		.final_pc = final_pc,
-		.direct_calls = direct_calls && jit_direct_calls_worth_it(direct_call_sites),
+		.direct_calls = direct_calls,
 		.direct_entry = direct_calls && !fn.may_yield,
 		.runtime_debugging = runtime_debugging,
 		// Emitted code averages well under 100 bytes per ZASM instruction, so
