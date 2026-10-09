@@ -203,7 +203,10 @@ extern volatile int32_t myvsync;
 extern int32_t fill_type;
 
 extern bool first_save;
+constexpr size_t ZQ_PATH_SIZE = 2048;
 extern char *filepath,*midipath,*datapath,*imagepath,*tmusicpath,*last_timed_save;
+// Copies src into one of the path buffers above, truncating to fit.
+void set_zq_path(char* dest, char const* src);
 extern char temppath[4096];
 extern std::string helpstr;
 
