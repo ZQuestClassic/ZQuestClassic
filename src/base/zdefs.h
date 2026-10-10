@@ -98,6 +98,7 @@
   */
 
 #include <cstdio>
+#include <optional>
 #include <math.h>
 #include <cstring>
 #include <set>
@@ -1886,111 +1887,99 @@ struct zasm_meta
 ScriptType get_script_type(std::string const& name);
 std::string get_script_name(ScriptType type);
 
+// One ZASM instruction. A string or array it carries (its literal) is held by its script_data.
 struct ffscript
 {
-    word command;
-    int32_t arg1;
-    int32_t arg2;
-	std::vector<int32_t> *vecptr;
-	std::string *strptr;
-	ffscript()
-	{
-		command = 0xFFFF;
-		arg1 = 0;
-		arg2 = 0;
-		vecptr = nullptr;
-		strptr = nullptr;
-	}
-	~ffscript()
-	{
-		if(vecptr)
-		{
-			delete vecptr;
-			vecptr = nullptr;
-		}
-		if(strptr)
-		{
-			delete strptr;
-			strptr = nullptr;
-		}
-	}
-	void give(ffscript& other)
-	{
-		other.command = command;
-		other.arg1 = arg1;
-		other.arg2 = arg2;
-		other.vecptr = vecptr;
-		other.strptr = strptr;
-		vecptr = nullptr;
-		strptr = nullptr;
-		clear();
-	}
+	word command;
+	// 1 + the index of this instruction's literal in its script's zasm_literals, or 0 if it has
+	// none.
+	uint16_t literal;
+	int32_t arg1;
+	int32_t arg2;
+
+	ffscript() : command(0xFFFF), literal(0), arg1(0), arg2(0) {}
+
 	void clear()
 	{
 		command = 0xFFFF;
+		literal = 0;
 		arg1 = 0;
 		arg2 = 0;
-		if(vecptr)
-		{
-			delete vecptr;
-			vecptr = nullptr;
-		}
-		if(strptr)
-		{
-			delete strptr;
-			strptr = nullptr;
-		}
 	}
-	void copy(ffscript& other)
+};
+// Quests have many millions of instructions.
+static_assert(sizeof(ffscript) == 12);
+
+// A string or array of values an instruction carries, like the string a WRITEPODSTRING writes or
+// the variable sizes of a CONSTRUCTCLASS. Which one a command uses is its arr_type (see
+// script_command), but the qst format allows both on any instruction.
+//
+// Not having a string (or array) is different from having an empty one: WRITEPODSTRING does nothing
+// without a string, but with "" it writes a terminator. ZASM text keeps the difference (nothing is
+// printed for a missing one), the qst format does not (both save as length 0 and load as missing).
+struct zasm_literal
+{
+	std::optional<std::string> str;
+	std::optional<std::vector<int32_t>> vec;
+
+	// True if there is neither a string nor an array.
+	bool unset() const
 	{
-		other.clear();
-		other.command = command;
-		other.arg1 = arg1;
-		other.arg2 = arg2;
-		if(vecptr)
-		{
-			other.vecptr = new std::vector<int32_t>();
-			for(int32_t val : *vecptr)
-				other.vecptr->push_back(val);
-		}
-		if(strptr)
-		{
-			other.strptr = new std::string();
-			for(char c : *strptr)
-				other.strptr->push_back(c);
-		}
+		return !str && !vec;
 	}
-	
-	bool operator==(ffscript const& other) const
+	bool operator==(const zasm_literal&) const = default;
+};
+
+// The literals of a script's instructions, which refer to them by index (ffscript::literal).
+class zasm_literals
+{
+public:
+	// ffscript::literal is 16 bits, and 0 means no literal.
+	static constexpr size_t max_size = UINT16_MAX;
+
+	// Returns the value of ffscript::literal for an instruction with this literal, or 0 if there
+	// are already max_size literals.
+	uint16_t add(zasm_literal literal)
 	{
-		//Compare primitive members
-		if(command != other.command) return false;
-		if(arg1 != other.arg1) return false;
-		if(arg2 != other.arg2) return false;
-		//Check for pointer existence differences
-		if((vecptr==nullptr)!=(other.vecptr==nullptr)) return false;
-		if((strptr==nullptr)!=(other.strptr==nullptr)) return false;
-		//If both have a pointer, compare pointer size/contents
-		if(vecptr)
-		{
-			if(vecptr->size() != other.vecptr->size())
-				return false;
-			if((*vecptr) != (*other.vecptr))
-				return false;
-		}
-		if(strptr)
-		{
-			if(strptr->size() != other.strptr->size())
-				return false;
-			if(strptr->compare(*other.strptr))
-				return false;
-		}
-		return true;
+		if (literals.size() >= max_size)
+			return 0;
+		literals.push_back(std::move(literal));
+		return (uint16_t)literals.size();
 	}
-	bool operator!=(ffscript const& other) const
+
+	// Sets the literal of `op`, unless it is unset (then `op` gets none). Returns false if there
+	// are already max_size literals.
+	bool set(ffscript& op, zasm_literal literal)
 	{
-		return !(*this == other);
+		op.literal = 0;
+		if (literal.unset())
+			return true;
+		op.literal = add(std::move(literal));
+		return op.literal != 0;
 	}
+
+	const zasm_literal* get(const ffscript& op) const
+	{
+		return op.literal ? &literals[op.literal - 1] : nullptr;
+	}
+	const std::string* str(const ffscript& op) const
+	{
+		auto literal = get(op);
+		return literal && literal->str ? &*literal->str : nullptr;
+	}
+	const std::vector<int32_t>* vec(const ffscript& op) const
+	{
+		auto literal = get(op);
+		return literal && literal->vec ? &*literal->vec : nullptr;
+	}
+
+	size_t size() const
+	{
+		return literals.size();
+	}
+
+private:
+	std::vector<zasm_literal> literals;
 };
 
 struct script_id {
@@ -2003,6 +1992,7 @@ struct script_id {
 struct script_data
 {
 	ffscript* zasm;
+	zasm_literals literals;
 	zasm_meta meta;
 	script_id id;
 	size_t size;
@@ -2015,6 +2005,7 @@ struct script_data
 			delete[] zasm;
 		zasm = new ffscript[newSize];
 		zasm[0].clear();
+		literals = {};
 		meta.zero();
 		size = newSize;
 	}
@@ -2029,6 +2020,7 @@ struct script_data
 		if(zasm)
 		{
 			zasm[0].clear();
+			literals = {};
 			size = 1;
 		}
 	}
@@ -2058,9 +2050,8 @@ struct script_data
 		{
 			zasm = new ffscript[other.size];
 			for(size_t q = 0; q < other.size; ++q)
-			{
-				other.zasm[q].copy(zasm[q]);
-			}
+				zasm[q] = other.zasm[q];
+			literals = other.literals;
 			size = other.size;
 		}
 		else
@@ -2094,6 +2085,7 @@ struct script_data
 		if(other.zasm)
 			delete[] other.zasm;
 		other.zasm = zasm;
+		other.literals = std::move(literals);
 		other.size = size;
 		zasm = NULL;
 		null_script();
@@ -2111,7 +2103,16 @@ struct script_data
 		if(valid() != other.valid()) return false;
 		for(auto q = 0; q < size; ++q)
 		{
-			if(zasm[q] != other.zasm[q]) return false;
+			const auto& a = zasm[q];
+			const auto& b = other.zasm[q];
+			if(a.command != b.command || a.arg1 != b.arg1 || a.arg2 != b.arg2) return false;
+			auto a_literal = literals.get(a);
+			auto b_literal = other.literals.get(b);
+			if(!a_literal || !b_literal)
+			{
+				if(a_literal != b_literal) return false;
+			}
+			else if(*a_literal != *b_literal) return false;
 		}
 		return true;
 	}
