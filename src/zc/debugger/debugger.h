@@ -193,6 +193,7 @@ struct Debugger
 	void Load();
 	void Save();
 	void InitGui();
+	void DestroyGui();
 
 	// Breakpoints.
 	void AddBreakpoint(const SourceFile* source_file, int line, pc_t pc, bool enabled = true);
@@ -265,5 +266,9 @@ void zscript_debugger_init();
 void zscript_debugger_update();
 void zscript_debugger_exec(pc_t pc);
 void zscript_debugger_close();
+// Saves and destroys the debugger, window included, for process exit. Must run before allegro_exit:
+// if the main display is destroyed while the debugger window exists, Allegro (on macOS) moves the
+// main display's bitmaps to the debugger window, and their render-target state dangles.
+void zscript_debugger_shutdown();
 
 #endif

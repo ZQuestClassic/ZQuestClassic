@@ -155,13 +155,13 @@ void zc_exit(int code)
 	zasm_pipeline_shutdown();
 	frame_timings_end();
 	script_timings_end();
-	if (auto debugger = zscript_debugger_get_if_open())
-		debugger->Save();
 	quit_game();
 
 	Z_message("ZQuest Classic website: https://zquestclassic.com\n");
 	Z_message("ZQuest Classic docs: https://docs.zquestclassic.com\n");
 
+	// Before allegro_exit destroys the main display - see zscript_debugger_shutdown.
+	zscript_debugger_shutdown();
 	allegro_exit();
 	zapp_exit(code);
 }

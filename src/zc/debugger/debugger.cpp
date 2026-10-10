@@ -125,15 +125,12 @@ Debugger::Debugger()
 
 Debugger::~Debugger()
 {
+	// At exit, the static `debugger` is destroyed after Allegro is uninstalled. zc_exit destroys
+	// the window first, via zscript_debugger_shutdown.
 	if (is_exiting())
 		return;
 
-	ImGui_ImplAllegro5_Shutdown();
-	ImGui::DestroyContext();
-	al_destroy_event_queue(queue);
-	queue = nullptr;
-	al_destroy_display(display);
-	display = nullptr;
+	DestroyGui();
 }
 
 void Debugger::Clear()
@@ -1669,6 +1666,16 @@ void zscript_debugger_update()
 
 	if (!zscript_debugger_gui_update(debugger.get()))
 		zscript_debugger_close();
+}
+
+void zscript_debugger_shutdown()
+{
+	if (!debugger)
+		return;
+
+	debugger->Save();
+	debugger->DestroyGui();
+	debugger.reset();
 }
 
 void zscript_debugger_close()

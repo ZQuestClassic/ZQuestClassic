@@ -1755,6 +1755,16 @@ void Debugger::InitGui()
 	});
 }
 
+void Debugger::DestroyGui()
+{
+	ImGui_ImplAllegro5_Shutdown();
+	ImGui::DestroyContext();
+	al_destroy_event_queue(queue);
+	queue = nullptr;
+	al_destroy_display(display);
+	display = nullptr;
+}
+
 bool zscript_debugger_gui_update(Debugger* debugger)
 {
 	al_set_target_backbuffer(debugger->display);
