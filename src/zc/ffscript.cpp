@@ -568,8 +568,8 @@ int32_t sz_int_arr(const int32_t ptr);
 //We gain some speed by not passing as arguments
 int32_t sarg1 = 0;
 int32_t sarg2 = 0;
-vector<int32_t> *sargvec;
-string *sargstr;
+const vector<int32_t> *sargvec;
+const string *sargstr;
 refInfo *ri = NULL;
 script_data *curscript = NULL;
 int32_t(*stack)[MAX_STACK_SIZE] = NULL;
@@ -585,8 +585,8 @@ static vector<int32_t> curScriptNum_cache;
 static vector<int32_t> curScriptIndex_cache;
 static vector<int32_t> sarg1cache;
 static vector<int32_t> sarg2cache;
-static vector<vector<int32_t>*> sargvec_cache;
-static vector<string*> sargstr_cache;
+static vector<const vector<int32_t>*> sargvec_cache;
+static vector<const string*> sargstr_cache;
 static vector<refInfo*> ricache;
 static vector<script_data*> sdcache;
 static vector<int32_t(*)[MAX_STACK_SIZE]> stackcache;
@@ -35989,6 +35989,7 @@ j_command:
 	bool is_debugging = script_debug_is_runtime_debugging() == 2;
 	bool increment = true;
 	const ffscript* code = curscript->zasm;
+	const zasm_literals& literals = curscript->literals;
 	word scommand = code[ri->pc].command;
 	bool hit_invalid_zasm = false;
 	bool no_dealloc = false;
@@ -36003,8 +36004,16 @@ j_command:
 		scommand = op.command;
 		sarg1 = op.arg1;
 		sarg2 = op.arg2;
-		sargstr = op.strptr;
-		sargvec = op.vecptr;
+		if (unlikely(op.literal))
+		{
+			sargstr = literals.str(op);
+			sargvec = literals.vec(op);
+		}
+		else
+		{
+			sargstr = nullptr;
+			sargvec = nullptr;
+		}
 		//zprint2("Executing zasm: %d,%d,%d,%d,%d\n",scommand,sarg1,sarg2,get_register(sarg1),get_register(sarg2));
 
 		if (unlikely(is_debugging) && (!is_jitted || commands_run > 0))

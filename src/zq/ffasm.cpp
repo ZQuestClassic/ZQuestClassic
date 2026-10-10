@@ -3001,6 +3001,13 @@ bool ffcheck(char const* arg)
 std::map<std::string, int32_t> labels;
 
 //The Dialogue that loads an ASM Script filename.
+#define ERR_INSTRUCTION 0
+#define ERR_PARAM1 1
+#define ERR_PARAM2 2
+#define ERR_STR    3
+#define ERR_VEC    4
+#define ERR_LITERALS 5
+
 int32_t parse_script(script_data **script)
 {
 	if(!prompt_for_existing_file_compat("Import Script (.txt, .asm, .zasm)","txt,asm,zasm",NULL,datapath,false))
@@ -3469,8 +3476,12 @@ int32_t parse_script_file(script_data **script, FILE* fscript, bool report_succe
 					"parameter 1 invalid!",
 					"parameter 2 invalid!",
 					"string parameter invalid!",
-					"vector parameter invalid!"
+					"vector parameter invalid!",
+					"too many string and array literals!"
 				};
+				std::string errstr = errstrbuf[parse_err];
+				if(parse_err == ERR_LITERALS)
+					errstr += " A script can have at most " + std::to_string(zasm_literals::max_size) + ".";
 				extract_name(temppath,name,FILENAME8_3);
 				char vstrbuf[64] = {0};
 				if(has_str || has_vec)
@@ -3479,17 +3490,16 @@ int32_t parse_script_file(script_data **script, FILE* fscript, bool report_succe
 					"\nThe error was: %s"
 					"\nThe command was (%s) (%s,%s)%s"
 					,i+1,name
-					,errstrbuf[parse_err]
+					,errstr.c_str()
 					,combuf,arg1buf,arg2buf,vstrbuf);
 				// sprintf(buf,"Unable to parse instruction %d from script %s",i+1,name);
 				// sprintf(buf2,"The error was: %s",errstrbuf[parse_err]);
 				// sprintf(buf3,"The command was (%s) (%s,%s)",combuf,arg1buf,arg2buf);
 				// jwin_alert("Error",buf,buf2,buf3,"O&K",NULL,'k',0,get_zc_font(font_lfont));
+				zprint2("Error: %s\n", buf);
 				InfoDialog("Error",buf).show();
 				stop=true;
 				success=false;
-				(*script)->zasm[i].strptr = nullptr;
-				(*script)->zasm[i].vecptr = nullptr;
 				(*script)->disable();
 			}
 		}
@@ -3959,8 +3969,12 @@ int32_t parse_script_string(script_data **script, std::string const& scriptstr, 
 					"parameter 1 invalid!",
 					"parameter 2 invalid!",
 					"string parameter invalid!",
-					"vector parameter invalid!"
+					"vector parameter invalid!",
+					"too many string and array literals!"
 				};
+				std::string errstr = errstrbuf[parse_err];
+				if(parse_err == ERR_LITERALS)
+					errstr += " A script can have at most " + std::to_string(zasm_literals::max_size) + ".";
 				extract_name(temppath,name,FILENAME8_3);
 				char vstrbuf[64] = {0};
 				if(has_str || has_vec)
@@ -3969,17 +3983,16 @@ int32_t parse_script_string(script_data **script, std::string const& scriptstr, 
 					"\nThe error was: %s"
 					"\nThe command was (%s) (%s,%s)%s"
 					,i+1,name
-					,errstrbuf[parse_err]
+					,errstr.c_str()
 					,combuf,arg1buf,arg2buf,vstrbuf);
 				// sprintf(buf,"Unable to parse instruction %d from script %s",i+1,name);
 				// sprintf(buf2,"The error was: %s",errstrbuf[parse_err]);
 				// sprintf(buf3,"The command was (%s) (%s,%s)",combuf,arg1buf,arg2buf);
 				// jwin_alert("Error",buf,buf2,buf3,"O&K",NULL,'k',0,get_zc_font(font_lfont));
+				zprint2("Error: %s\n", buf);
 				displayinfo("Error", buf);
 				stop=true;
 				success=false;
-				(*script)->zasm[i].strptr = nullptr;
-				(*script)->zasm[i].vecptr = nullptr;
 				(*script)->disable();
 			}
 		}
@@ -4052,27 +4065,17 @@ int32_t set_argument(char const* argbuf, script_data **script, int32_t com, int3
 	return 0;
 }
 
-#define ERR_INSTRUCTION 0
-#define ERR_PARAM1 1
-#define ERR_PARAM2 2
-#define ERR_STR    3
-#define ERR_VEC    4
-
 int32_t parse_script_section(char const* combuf, char const* arg1buf, char const* arg2buf, script_data **script, int32_t com, int32_t &retcode, std::vector<int32_t> *vptr, std::string *sptr)
 {
 	auto& zas = (*script)->zasm[com];
 	zas.arg1 = 0;
 	zas.arg2 = 0;
-	zas.vecptr = nullptr;
-	zas.strptr = nullptr;
+	zas.literal = 0;
+	zasm_literal literal;
 	if(vptr)
-	{
-		zas.vecptr = new std::vector<int32_t>(*vptr);
-	}
+		literal.vec = *vptr;
 	if(sptr)
-	{
-		zas.strptr = new std::string(*sptr);
-	}
+		literal.str = *sptr;
 	bool found_command=false;	
 	
 	for(int32_t i=0; i<NUMCOMMANDS&&!found_command; ++i)
@@ -4180,6 +4183,11 @@ int32_t parse_script_section(char const* combuf, char const* arg1buf, char const
 	
 	if(found_command)
 	{
+		if(!(*script)->literals.set(zas, std::move(literal)))
+		{
+			retcode = ERR_LITERALS;
+			return 0;
+		}
 		return 1;
 	}
 	

@@ -153,18 +153,20 @@ bool scr_func_exec::validate()
 		return false;
 	
 	ffscript &zas = sc_data->zasm[pc-1];
-	if(zas.command == STARTDESTRUCTOR && zas.strptr && name == *(zas.strptr))
+	auto zas_name = sc_data->literals.str(zas);
+	if(zas.command == STARTDESTRUCTOR && zas_name && name == *zas_name)
 		return true; //validated! Destructor already points to correct line
 	dword q = 0;
 	while(true)
 	{
 		ffscript& zas = sc_data->zasm[q];
+		auto zas_name = sc_data->literals.str(zas);
 		if(zas.command == 0xFFFF) //Ran out of script to check
 		{
 			zprint2("Destructor for class '%s' expected, but not found!\n", name.c_str());
 			return false;
 		}
-		else if(zas.command == STARTDESTRUCTOR && zas.strptr && name == *(zas.strptr))
+		else if(zas.command == STARTDESTRUCTOR && zas_name && name == *zas_name)
 		{ //Found the correct destructor
 			pc = q+1;
 			return true; //validated!
@@ -177,14 +179,15 @@ void user_object::prep(dword pc, ScriptType type, word script, int32_t i)
 {
 	if(!pc) return; //destructor is null
 	ffscript &zas = curscript->zasm[pc-1];
-	if(zas.command == STARTDESTRUCTOR && zas.strptr) //Destructor is valid
+	auto zas_name = curscript->literals.str(zas);
+	if(zas.command == STARTDESTRUCTOR && zas_name) //Destructor is valid
 	{
 		destruct.pc = pc;
 		destruct.type = type;
 		destruct.script = script;
 		destruct.i = i;
 		destruct.thiskey = ri->thiskey;
-		destruct.name = *zas.strptr;
+		destruct.name = *zas_name;
 	}
 	else zprint2("Destructor for object not found?\n"); //Should never occur
 }
