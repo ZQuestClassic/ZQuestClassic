@@ -10,6 +10,7 @@
 #include "auto/bug_mod_int_min.zs"
 #include "auto/bug_nested_class_constructors.zs"
 #include "auto/bug_npc_shield_write.zs"
+#include "auto/bug_reflected_eweapon_owned_leak.zs"
 #include "auto/bug_script_draw_error_logging.zs"
 #include "auto/bug_script_weapon_bomb_door.zs"
 #include "auto/bug_string_16bit_index.zs"

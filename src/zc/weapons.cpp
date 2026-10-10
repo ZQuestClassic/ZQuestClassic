@@ -843,6 +843,17 @@ void weapon::convertType(bool toLW)
 	}
 }
 
+// Must run right before a weapon switches between lweapon and eweapon. The script
+// engine keys a weapon's script state (and everything that script owns) by its
+// current type, and after the switch the weapon runs a script from the other
+// type's table. The state of the script it was running would otherwise be
+// stranded under the old key until the game restarts, as would its owned
+// objects and arrays.
+void weapon::clearScriptStateForTypeChange()
+{
+	FFCore.clear_script_engine_data(*get_scrtype(), getUID());
+}
+
 weapon::weapon(weapon const & other):
      //Struct Element			Type		Purpose
     sprite(other),
@@ -7232,6 +7243,7 @@ void weapon::onhit(bool clipped, int32_t special, int32_t linkdir, enemy* e, int
 
 			if(Ewpns.remove(this))
 				Lwpns.add(this);
+			clearScriptStateForTypeChange();
 			isLWeapon = true;
 
 			if(angular)
