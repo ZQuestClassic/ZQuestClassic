@@ -1180,7 +1180,7 @@ weapon::~weapon()
 	if (Hero.active_wind == this)
 		Hero.active_wind = nullptr;
 	
-	FFCore.deallocateAllScriptOwned(isLWeapon ? ScriptType::Lwpn : ScriptType::Ewpn, getUID());
+	FFCore.destroySprite(this);
 	cleanup_sfx();
 }
 
