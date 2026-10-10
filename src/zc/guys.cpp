@@ -562,7 +562,7 @@ int32_t enemy::getScriptUID() { return script_UID; }
 void enemy::setScriptUID(int32_t new_id) { script_UID = new_id; }
 enemy::~enemy()
 {
-	FFCore.deallocateAllScriptOwned(ScriptType::NPC, getUID());
+	FFCore.destroySprite(this);
 	if(hashero)
 	{
 		Hero.setEaten(0);

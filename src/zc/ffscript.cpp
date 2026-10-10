@@ -2631,6 +2631,17 @@ void FFScript::deallocateAllScriptOwned(ScriptType scriptType, const int32_t UID
 	}
 }
 
+// Called by the destructors of the sprites that can run scripts (weapons, enemies and item
+// sprites). Clears the sprite's script engine data, which also releases the script objects and
+// arrays its script owns. It must be called from the derived destructor: get_scrtype() is virtual,
+// so a call from sprite::~sprite would resolve to the base version and find no script type.
+void FFScript::destroySprite(sprite* sprite)
+{
+	ScriptType scriptType = *sprite->get_scrtype();
+	int32_t uid = sprite->getUID();
+	FFCore.clear_script_engine_data(scriptType, uid);
+}
+
 void FFScript::deallocateAllScriptOwnedOfType(ScriptType scriptType)
 {
 	for(int32_t q = MIN_USER_BITMAPS; q < MAX_USER_BITMAPS; ++q)

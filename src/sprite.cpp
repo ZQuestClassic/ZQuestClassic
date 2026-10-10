@@ -325,12 +325,9 @@ sprite::sprite(zfix X,zfix Y,int32_t T,int32_t CS,int32_t F,int32_t Clk,int32_t 
 
 sprite::~sprite()
 {
-	#ifdef IS_PLAYER
-	if(auto scrty = get_scrtype())
-	{
-		FFCore.clear_script_engine_data(*scrty, getUID());
-	}
-	#endif
+	// A sprite's script engine data is cleared by the destructor of the derived class (see
+	// FFScript::destroySprite). It can't be done here: get_scrtype() is virtual, and in this
+	// destructor it would resolve to sprite's own version, which has no script type.
 }
 
 static int32_t nextid = 0;
