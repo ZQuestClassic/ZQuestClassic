@@ -13037,6 +13037,7 @@ int32_t read_one_ffscript(PACKFILE *f, zquestheader *, int32_t script_index, wor
 				return qe_invalid;
 			}
 			
+			zasm_literal literal;
 			if(s_version >= 21)
 			{
 				uint32_t sz = 0;
@@ -13046,7 +13047,7 @@ int32_t read_one_ffscript(PACKFILE *f, zquestheader *, int32_t script_index, wor
 				}
 				if(sz) //string found
 				{
-					temp_script.strptr = new std::string();
+					auto& str = literal.str.emplace();
 					char dummy;
 					for(size_t q = 0; q < sz; ++q)
 					{
@@ -13054,7 +13055,7 @@ int32_t read_one_ffscript(PACKFILE *f, zquestheader *, int32_t script_index, wor
 						{
 							return qe_invalid;
 						}
-						temp_script.strptr->push_back(dummy);
+						str.push_back(dummy);
 					}
 				}
 				if(!p_igetl(&sz,f))
@@ -13063,7 +13064,7 @@ int32_t read_one_ffscript(PACKFILE *f, zquestheader *, int32_t script_index, wor
 				}
 				if(sz) //vector found
 				{
-					temp_script.vecptr = new std::vector<int32_t>();
+					auto& vec = literal.vec.emplace();
 					int32_t dummy;
 					for(size_t q = 0; q < sz; ++q)
 					{
@@ -13071,12 +13072,18 @@ int32_t read_one_ffscript(PACKFILE *f, zquestheader *, int32_t script_index, wor
 						{
 							return qe_invalid;
 						}
-						temp_script.vecptr->push_back(dummy);
+						vec.push_back(dummy);
 					}
 				}
 			}
 			
-			temp_script.give((*script)->zasm[j]);
+			if(!(*script)->literals.set(temp_script, std::move(literal)))
+			{
+				zprint2("Error: script %s %d has more than %zu string and array literals, which is the most a script can have\n",
+					ScriptTypeToString((*script)->id.type), (*script)->id.index, zasm_literals::max_size);
+				return qe_invalid;
+			}
+			(*script)->zasm[j] = temp_script;
 		}
 		temp_script.clear();
 	}
