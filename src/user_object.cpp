@@ -172,12 +172,14 @@ bool script_array::internal_array_id::matches(ScriptType script_type) const
 
 	switch (script_type)
 	{
-		case ScriptType::Ewpn: return zasm_var_ref == REFEWPN;
+		// A weapon can switch between lweapon and eweapon (ex. reflecting off a mirror), and
+		// keeps its arrays from both types until it dies.
+		case ScriptType::Ewpn:
+		case ScriptType::Lwpn: return zasm_var_ref == REFEWPN || zasm_var_ref == REFLWPN;
 		case ScriptType::FFC: return zasm_var_ref == REFFFC;
 		case ScriptType::Generic: return zasm_var_ref == REFGENERICDATA;
 		case ScriptType::GenericFrozen: return zasm_var_ref == REFGENERICDATA;
 		case ScriptType::ItemSprite: return zasm_var_ref == REFITEM;
-		case ScriptType::Lwpn: return zasm_var_ref == REFLWPN;
 		case ScriptType::NPC: return zasm_var_ref == REFNPC;
 		case ScriptType::Screen: return zasm_var_ref == REFSCREEN;
 	}

@@ -706,8 +706,25 @@ void weapon::convertType(bool toLW)
 		if(XOR(isLWeapon, toLW)) return; // buggy check.
 	}
 
-	isLWeapon = toLW;
+	setIsLWeapon(toLW);
 	scrconfig.clear();
+}
+
+// Switches a weapon between lweapon and eweapon. The script engine keys a
+// weapon's script state (and everything that script owns) by its current type,
+// and after the switch the weapon runs a script from the other type's table, so
+// the state of the script it was running is released first. It would otherwise
+// be stranded under the old key until the game restarts, as would its owned
+// objects and arrays. Nothing is released when the type does not change: that
+// would wipe the state of a script that keeps running, restarting it from
+// scratch. The weapon's internal arrays (ex. Misc[]) belong to the weapon, not
+// the script, so they are kept, along with any objects stored in them.
+void weapon::setIsLWeapon(bool toLW)
+{
+	if((bool)isLWeapon == toLW)
+		return;
+	FFCore.clear_script_state(*get_scrtype(), getUID());
+	isLWeapon = toLW;
 }
 
 weapon::weapon(weapon const & other):
@@ -6733,7 +6750,7 @@ void weapon::onhit(bool clipped, int32_t special, int32_t linkdir, enemy* e, int
 
 			if(Ewpns.remove(this))
 				Lwpns.add(this);
-			isLWeapon = true;
+			setIsLWeapon(true);
 
 			if(angular)
 			{

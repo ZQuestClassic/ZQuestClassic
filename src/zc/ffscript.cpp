@@ -1345,6 +1345,15 @@ void FFScript::clear_script_engine_data(ScriptType type, int index)
 	scriptEngineDatas.erase({type, index});
 }
 
+// Ends the script running on an object that lives on: releases what that script owned
+// and drops its state, but unlike clear_script_engine_data leaves the object's internal
+// arrays (ex. sprite::Misc[]) alone, since the object can still be reached through them.
+void FFScript::clear_script_state(ScriptType type, int index)
+{
+	FFScript::deallocateAllScriptOwned(type, index);
+	scriptEngineDatas.erase({type, index});
+}
+
 void FFScript::clear_script_engine_data_of_type(ScriptType type)
 {
 	deallocateAllScriptOwnedOfType(type);

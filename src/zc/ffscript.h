@@ -757,6 +757,7 @@ void clear_script_engine_data();
 void clear_script_engine_data_for_continue();
 void reset_script_engine_data(ScriptType type, int index = 0);
 void clear_script_engine_data(ScriptType type, int index = 0);
+void clear_script_state(ScriptType type, int index);
 void clear_script_engine_data_of_type(ScriptType type);
 refInfo& ref(ScriptType type, int index);
 void clear_ref(ScriptType type, int index);
