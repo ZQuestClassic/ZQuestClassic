@@ -1,3 +1,5 @@
+// See docs/jit.md for an overview of the JIT (Just-in-time) compiler for ZScript.
+
 #ifndef ZC_JIT_H_
 #define ZC_JIT_H_
 
