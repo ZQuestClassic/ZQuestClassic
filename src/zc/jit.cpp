@@ -275,12 +275,12 @@ static void hash_scripts(XXH3_state_t* state, std::vector<int32_t>& buffer, scri
 			buffer.push_back(instr.command);
 			buffer.push_back(instr.arg1);
 			buffer.push_back(instr.arg2);
-			if (instr.vecptr)
-				buffer.insert(buffer.end(), instr.vecptr->begin(), instr.vecptr->end());
-			if (instr.strptr)
+			if (auto vec = script->literals.vec(instr))
+				buffer.insert(buffer.end(), vec->begin(), vec->end());
+			if (auto str = script->literals.str(instr))
 			{
 				hash_flush(state, buffer);
-				XXH3_64bits_update(state, instr.strptr->data(), instr.strptr->size());
+				XXH3_64bits_update(state, str->data(), str->size());
 			}
 			if (buffer.size() >= hash_batch_length)
 				hash_flush(state, buffer);
