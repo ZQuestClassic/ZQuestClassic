@@ -764,6 +764,8 @@ void load_genscript(const gamedata& gd);
 void load_genscript(const zinitdata& gd);
 void save_genscript(gamedata& gd);
 
+class sprite;
+
 class FFScript
 {
 	
@@ -1877,6 +1879,7 @@ enum __Error
     };
     
 	static void deallocateAllScriptOwned(ScriptType scriptType, const int32_t UID);
+	static void destroySprite(sprite* sprite);
 	static void deallocateAllScriptOwnedOfType(ScriptType scriptType);
 	static void deallocateAllScriptOwned();
 	static void deallocateAllScriptOwnedCont();
