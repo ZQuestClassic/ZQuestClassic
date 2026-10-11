@@ -52,9 +52,10 @@ def decompress_gzip_bounded(data: bytes, max_size: int) -> bytes:
 
 
 def is_valid_uuid(val):
+    # Only the canonical form (what ZC writes), else the same replay could be uploaded under
+    # many keys (uuid.UUID also accepts braces, "urn:uuid:", no hyphens, upper case...).
     try:
-        uuid.UUID(str(val))
-        return True
+        return str(uuid.UUID(str(val))) == val
     except ValueError:
         return False
 
@@ -70,33 +71,25 @@ def connect_s3():
     )
 
 
-def parse_meta(replay_text: str) -> dict[str, str]:
-    meta = {}
-
-    for line in replay_text.splitlines():
-        if not line.startswith('M'):
-            break
-
-        _, key, value = line.strip().split(' ', 2)
-        meta[key] = value
-
-    return meta
-
-
 def parse_replay(replay_text: str) -> tuple[dict[str, str], list[str]]:
-    """Returns tuple: meta, steps"""
+    """Returns tuple: meta, steps. Raises ValueError if malformed."""
     meta = {}
     steps = []
     done_with_meta = False
 
     for line in replay_text.splitlines():
+        if not line:
+            continue
         if not line.startswith('M'):
             done_with_meta = True
-        if done_with_meta and line:
+        if done_with_meta:
             steps.append(line)
         else:
-            _, key, value = line.strip().split(' ', 2)
-            meta[key] = value
+            # Not stripped: a meta line may have an empty value ("M qst_title ").
+            parts = line.split(' ', 2)
+            if len(parts) != 3:
+                raise ValueError(f'invalid meta line: {line[:100]}')
+            meta[parts[1]] = parts[2]
 
     return meta, steps
 
@@ -174,11 +167,15 @@ def replays(uuid):
             'error': 'too large, max is 300 MB'
         }, HTTPStatus.REQUEST_ENTITY_TOO_LARGE
 
-    meta, steps = parse_replay(data)
+    try:
+        meta, steps = parse_replay(data)
+    except ValueError as e:
+        return {'error': f'invalid replay: {e}'}, HTTPStatus.BAD_REQUEST
+
     qst_hash = meta.get('qst_hash')
     uuid_from_replay = meta.get('uuid')
 
-    if not qst_hash or not uuid:
+    if not qst_hash or not uuid_from_replay or 'length' not in meta:
         return {'error': 'replay is too old'}, HTTPStatus.BAD_REQUEST
 
     if uuid_from_replay != uuid:
@@ -200,7 +197,11 @@ def replays(uuid):
             'error': 'replay requires a save file to run (split replay segment)'
         }, HTTPStatus.BAD_REQUEST
 
-    if int(meta.get('length')) != len(steps):
+    try:
+        length = int(meta['length'])
+    except ValueError:
+        return {'error': 'invalid length'}, HTTPStatus.BAD_REQUEST
+    if length != len(steps):
         return {'error': 'invalid length'}, HTTPStatus.BAD_REQUEST
 
     if qst_hash not in qst_keys_by_hash:
@@ -212,7 +213,7 @@ def replays(uuid):
     if path.exists():
         status = HTTPStatus.OK
         existing_meta, existing_steps = parse_replay(path.read_text('utf-8'))
-        if int(existing_meta['length']) > int(meta['length']):
+        if int(existing_meta['length']) > length:
             return {'error': 'replay is older than current'}, HTTPStatus.CONFLICT
         # Replays are append-only.
         if steps[: len(existing_steps)] != existing_steps:
