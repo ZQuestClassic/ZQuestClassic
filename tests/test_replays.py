@@ -392,6 +392,13 @@ class TestReplays(unittest.TestCase):
         local_replay_path = replays_folder / 'test.zplay'
         local_replay_path.write_text(replay_text(len(steps) // 2), newline='\n')
 
+        # A copied save's replay has no uuid until the copy is played.
+        copy_replay_path = replays_folder / 'copy.zplay'
+        copy_replay_path.write_text(
+            replay_text(len(steps)).replace('M uuid ', 'M parent_uuid '), newline='\n'
+        )
+        copy_uuid = '6f3c8f0e-2b1a-4c7e-9d2f-5a6b7c8d9e0f'
+
         api_server_data_folder = tmp_dir / 'api_server'
         if api_server_data_folder.exists():
             shutil.rmtree(api_server_data_folder)
@@ -453,6 +460,8 @@ class TestReplays(unittest.TestCase):
             self.assertEqual(
                 server_replay_path.read_text(), replay_text(len(steps) // 2)
             )
+            state = json.loads(state_path.read_text())
+            self.assertEqual(state['entries']['copy.zplay']['state'], 'tracked')
 
             # Continue playing: the rest of the steps are appended to the same replay.
             # A replay is only re-uploaded if modified after the last upload, which is
@@ -461,7 +470,19 @@ class TestReplays(unittest.TestCase):
             future_time = time.time() + 10
             os.utime(local_replay_path, (future_time, future_time))
 
+            # Play the copied save, which gives its replay a new uuid.
+            copy_replay_path.write_text(
+                f'M uuid {copy_uuid}\n' + copy_replay_path.read_text(), newline='\n'
+            )
+            os.utime(copy_replay_path, (future_time, future_time))
+
             upload_replays()
+
+            copy_server_replay_path = (
+                api_server_data_folder
+                / f'replays/5833FF169985B186D58058417E918408/{copy_uuid}.zplay'
+            )
+            self.assertTrue(copy_server_replay_path.exists())
 
             self.assertEqual(server_replay_path.read_text(), replay_text(len(steps)))
             self.assertIn(
