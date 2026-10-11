@@ -50,13 +50,40 @@ sys.stderr.write(Path(stderr_f).read_text())
 os.unlink(stdout_f)
 os.unlink(stderr_f)
 
+
+def print_thread(thread):
+    print(thread, file=sys.stderr)
+    for frame in thread.frames:
+        print('   ', frame, file=sys.stderr)
+    print(file=sys.stderr)
+
+
 if process.exit_state < 0:
-    print(f'\nprocess crashed with exit state: {process.exit_state}', file=sys.stderr)
+    state = lldb.SBDebugger.StateAsCString(process.GetState())
+    print(
+        f'\nprocess crashed with exit state: {process.exit_state} (process state: {state})',
+        file=sys.stderr,
+    )
+
+    # Threads with a stop reason (signal, exception, ...) are the interesting ones, so
+    # print them before the rest.
+    stopped_threads = [
+        t
+        for t in process.threads
+        if t.GetStopReason() not in (lldb.eStopReasonNone, lldb.eStopReasonInvalid)
+    ]
+    stopped_ids = {t.GetThreadID() for t in stopped_threads}
+    other_threads = [t for t in process.threads if t.GetThreadID() not in stopped_ids]
+
     print('printing backtrace\n', file=sys.stderr)
-    for thread in process.threads:
-        print(thread, file=sys.stderr)
-        for frame in thread.frames:
-            print('   ', frame, file=sys.stderr)
-        print(file=sys.stderr)
+    for thread in stopped_threads + other_threads:
+        print_thread(thread)
+
+    # The replay test runner only shows the tail of stderr, so repeat the stopped
+    # threads at the end.
+    if stopped_threads:
+        print('==== stopped threads (repeated) ====\n', file=sys.stderr)
+        for thread in stopped_threads:
+            print_thread(thread)
 
 sys.exit(process.exit_state)
