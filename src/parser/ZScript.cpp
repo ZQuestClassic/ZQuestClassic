@@ -193,12 +193,13 @@ DataTypeCustom* UserClass::getTemplateInstance(DataType const* arg)
 	owned_bound_types.emplace_back(bound);
 
 	std::string name = fmt::format("{}<{}>", getName(), bound->getName());
+	auto base = static_cast<DataTypeCustom*>(classType);
 	DataTypeCustomConst* constType = new DataTypeCustomConst("const " + name, this);
+	// Before constructing the mutable type, since it keeps a copy of its const type.
+	constType->setTemplateInstance(base, bound);
 	DataTypeCustom* type = new DataTypeCustom(name, constType, this, constType->getCustomId());
 	DataType::addCustom(type);
-	auto base = static_cast<DataTypeCustom*>(classType);
 	type->setTemplateInstance(base, bound);
-	constType->setTemplateInstance(base, bound);
 	templ_instantiations[bound] = type;
 	return type;
 }

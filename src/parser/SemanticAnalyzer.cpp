@@ -1255,6 +1255,12 @@ void SemanticAnalyzer::caseExprArrow(ASTExprArrow& host, void* param)
 		handleError(CompileError::ArrowNotPointer(&host));
 		return;
 	}
+
+	// Accessors of a class template take the plain class (ex: `stack<int>` uses
+	// the `stack` getters).
+	DataTypeCustom const* receiverType = leftType;
+	if (auto base = leftType->getBaseTemplate())
+		receiverType = leftType->isConstant() ? static_cast<DataTypeCustom const*>(base->getConstType()) : base;
 	
 	// Find read function.
 	if (!param || param == paramRead || param == paramReadWrite)
@@ -1262,7 +1268,7 @@ void SemanticAnalyzer::caseExprArrow(ASTExprArrow& host, void* param)
 		Function* reader;
 		if (host.index)
 		{
-			auto fns = lookupFunctions(host.leftClass->getScope(), host.right->getValue(), {leftType, &DataType::FLOAT}, true, true, false, scope);
+			auto fns = lookupFunctions(host.leftClass->getScope(), host.right->getValue(), {receiverType, &DataType::FLOAT}, true, true, false, scope);
 			reader = fns.size() ? fns[0] : nullptr;
 		}
 		else
@@ -1282,7 +1288,7 @@ void SemanticAnalyzer::caseExprArrow(ASTExprArrow& host, void* param)
 		}
 		
 		vector<DataType const*>& paramTypes = host.readFunction->paramTypes;
-		if (paramTypes.size() != (host.index ? 2 : 1) || !leftType->canCastTo(*paramTypes[0]))
+		if (paramTypes.size() != (host.index ? 2 : 1) || !receiverType->canCastTo(*paramTypes[0]))
 		{
 			handleError(
 					CompileError::ArrowNoVar(
@@ -1301,7 +1307,7 @@ void SemanticAnalyzer::caseExprArrow(ASTExprArrow& host, void* param)
 		Function* writer;
 		if (host.index)
 		{
-			auto fns = lookupFunctions(host.leftClass->getScope(), host.right->getValue(), {leftType, &DataType::FLOAT, &DataType::UNTYPED}, true, true, false, scope);
+			auto fns = lookupFunctions(host.leftClass->getScope(), host.right->getValue(), {receiverType, &DataType::FLOAT, &DataType::UNTYPED}, true, true, false, scope);
 			writer = fns.size() ? fns[0] : nullptr;
 		}
 		else
@@ -1321,7 +1327,7 @@ void SemanticAnalyzer::caseExprArrow(ASTExprArrow& host, void* param)
 		}
 
 		vector<DataType const*>& paramTypes = host.writeFunction->paramTypes;
-		if (paramTypes.size() != (host.index ? 3 : 2) || !leftType->canCastTo(*paramTypes[0]))
+		if (paramTypes.size() != (host.index ? 3 : 2) || !receiverType->canCastTo(*paramTypes[0]))
 		{
 			handleError(
 					CompileError::ArrowNoVar(

@@ -50,6 +50,11 @@ generic script stack_typed
 			int y = si->Get(0L);
 			Test::AssertEqual(y, 3, "int Get");
 			Test::AssertEqual(si->PeekBack(), 3, "int PeekBack");
+			// The variables of a typed stack used to be inaccessible.
+			Test::AssertEqual(si->Size, 1L, "int Size");
+			Test::Assert(!si->Full, "int Full");
+			const stack<int> csi = si;
+			Test::AssertEqual(csi->Size, 1L, "const int Size");
 		}
 
 		// stack<STNode>: typed object round trip, no casts.
