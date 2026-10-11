@@ -719,12 +719,16 @@ void weapon::convertType(bool toLW)
 // would wipe the state of a script that keeps running, restarting it from
 // scratch. The weapon's internal arrays (ex. Misc[]) belong to the weapon, not
 // the script, so they are kept, along with any objects stored in them.
+//
+// The script number is dropped too: it refers to the old type's script table,
+// and would otherwise start whichever script has that number in the new one.
 void weapon::setIsLWeapon(bool toLW)
 {
 	if((bool)isLWeapon == toLW)
 		return;
 	FFCore.clear_script_state(*get_scrtype(), getUID());
 	isLWeapon = toLW;
+	scrconfig.script = 0;
 }
 
 weapon::weapon(weapon const & other):
