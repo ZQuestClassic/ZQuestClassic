@@ -812,7 +812,8 @@ void RegistrationVisitor::caseFuncDecl(ASTFuncDecl& host, void* param)
 	for(auto it = host.optparams.begin(); it != host.optparams.end() && parcnt < paramTypes.size(); ++it, ++parcnt)
 	{
 		DataType const* getType = (*it)->getReadType(scope, this);
-		if(getType)
+		// A template-typed default is checked against the bound type at each call.
+		if(getType && !paramTypes[parcnt]->isTemplate())
 			checkCast(*getType, *paramTypes[parcnt], *it);
 		if(breakRecursion(host)) return;
 	}

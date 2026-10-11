@@ -34,6 +34,11 @@ class TemplateMember
 	}
 }
 
+T tmpl_add<T>(T x, T amount = 2)
+{
+	return x + amount;
+}
+
 // Copies `arr[0]` into a local of type T, then reassigns it to `arr[1]`.
 T tmpl_first<T>(T[] arr)
 {
@@ -80,6 +85,12 @@ generic script templates
 			m->set(42);
 			Test::AssertEqual(m->value, 42, "member template writes a member");
 			Test::AssertEqual(m->self(1)->value, 42, "member template returns this");
+		}
+
+		{
+			// A default value for a parameter of type T used to be rejected.
+			Test::AssertEqual(tmpl_add(1), 3, "T-typed default parameter");
+			Test::AssertEqual(tmpl_add(1, 5), 6, "T-typed default parameter, given");
 		}
 
 		Test::End();
