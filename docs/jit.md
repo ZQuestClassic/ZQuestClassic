@@ -14,7 +14,7 @@
 
 ### Enabling
 
-JIT compilation is on by default on desktop; the shipped web config still disables it (`jit = 1 #? web = 0` in `base_config/zc.cfg`), so browser builds only use it when opted in. It can be toggled with the `[ZSCRIPT] jit` config option, found in the launcher. There is also the `-jit` / `-no-jit` command line switch, or `--(no-)jit` for `run_replay_tests.py`.
+JIT compilation is on by default on desktop; the shipped web config still disables it (`jit = 1 #? web = 0` in `resources/base_config/zc.cfg`), so browser builds only use it when opted in. It can be toggled with the `[ZSCRIPT] jit` config option, found in the launcher. There is also the `-jit` / `-no-jit` command line switch, or `--(no-)jit` for `run_replay_tests.py`.
 
 ### Configuration
 
@@ -27,7 +27,7 @@ jit = 1
 # Number of background threads for compiling scripts.
 # -1 to set to number of available CPU threads
 # -x to set to (number of available CPU threads) / x
-# 0 to only compile on the main thread
+# 0 to only compile on the main thread (which means precompiling, see below)
 jit_threads = -2
 # When a function is called this many times, it is deemed "hot" and will be compiled by the JIT.
 jit_hot_function_call_count = 10
@@ -36,7 +36,11 @@ jit_hot_function_loop_count = 1000
 # Compile all scripts on quest load, and wait for it to finish before starting the game.
 # Note that this totally ignores the above two "hot" thresholds.
 jit_precompile = 0
+# Cache D registers in host registers (see "D-register cache" below).
+jit_cache_registers = 1
 ```
+
+With `jit_threads = 0` there is no worker pool to compile hot functions in the background, so the native backends precompile every script on quest load, as if `jit_precompile` were on. The browser build always precompiles.
 
 ## How the interpreter runs ZASM
 
@@ -58,7 +62,7 @@ Each ZASM instruction in a script is translated to an assembly representation (u
 
 Only a fraction of the ZASM command types are compiled into more efficient machine code. The rest call out to the normal interpreter loop to execute. This is both because there are far too many command types, and that for many of them the overhead of the interpreter is a fraction of the time spent processing the command. Examples of commands that benefit greatly from being optimized are ones that just do math operations, set some z-register, or modify the stack.
 
-Of the commands that _are_ compiled, if it involves reading / writing to a z-register it again will simply call out to the normal `get_register` / `set_register` functions. The big exception here is that the general-purpose z-registers (`D` and `G`) will simply address the memory directly. An example:
+Of the commands that _are_ compiled, if it involves reading / writing to a z-register it again will simply call out to the normal `get_register` / `set_register` functions. The big exception here is that the general-purpose z-registers (`D` and `G`) will simply address the memory directly.
 
 ### Example: `ADDR D2 D3`
 
@@ -106,6 +110,8 @@ Using a JIT compiler to compile ZASM like this can result in ~20x better perform
 
 The native backends also cache `D0`..`D7` in host registers between flush points (see `jit_codegen_shared.h`), so runs of instructions like the above usually don't touch memory. Dirty values are written back at waits, branches, function calls and returns, and calls into the engine. A liveness analysis skips writes that no later instruction can observe; it is summarized per function so that a value kept in a register across a `CALLFUNC`, or left for the caller after a `RETURNFUNC`, counts as live (see `zasm_analyze_function_liveness`).
 
+The cache can be turned off with `-no-jit-cache-registers` (config: `jit_cache_registers`), which is a quick way to tell whether a miscompile involves it. It is also off under `-script-runtime-debug 2`.
+
 ### Other compiled commands
 
 `SWITCHKEY` (the value a `switch` compares against) is also kept in a register by the JIT instead of going through `get_register` / `set_register`.
@@ -117,13 +123,11 @@ The native backends also cache `D0`..`D7` in host registers between flush points
 The backends differ in what unit they compile and when:
 
 - **Native (`jit_x64.cpp` / `jit_a64.cpp`):** scripts are compiled **per-function**. Once a function is run enough (lots of calls to it, or it loops a lot internally), it will be compiled. Compilation happens in a worker pool – the main thread does not wait for it to be compiled. Once the worker pool compiles a function, the main thread can then run it when executing that function. Until then, the interpreter handles executing that function. If precompiling is enabled, all functions are compiled on quest load, before the game starts. Very large functions are compiled in pieces (see [Large functions are compiled in pieces](#large-functions-are-compiled-in-pieces)).
-- **wasm (`jit_wasm.cpp`, browser build):** the **entire script chunk** (e.g. `@single`, which contains all of a quest's generic/ffc scripts and their functions) is compiled to a single wasm module at once. Only precompiling is supported - there is no hot-threshold path (so the `jit_hot_function_*` settings below don't apply to the browser build). See the [WASM backend](#wasm-backend) section for how it works.
+- **wasm (`jit_wasm.cpp`, browser build):** the **entire script chunk** (e.g. `@single`, which contains all of a quest's generic/ffc scripts and their functions) is compiled to a single wasm module at once. Only precompiling is supported - there is no hot-threshold path (so the `jit_hot_function_*` settings above don't apply to the browser build). See the [WASM backend](#wasm-backend) section for how it works.
 
 ### Yielding and resuming
 
-When a `WaitX` command is hit, the compiled function saves where to resume and returns; the next time it is called it picks up at the instruction after that `WaitX`.
-
-On the wasm backend the resume point is a saved block index (`wait_index`) that the function's loop-switch dispatches on when re-entered.
+When a `WaitX` command is hit, the compiled function saves where to resume and returns; the next time it is called it picks up at the instruction after that `WaitX`. The native backends resume from `ri->pc` (see [Resume dispatch](#resume-dispatch)); the wasm backend resumes from its own saved block index (see [WASM backend: Yielding and resuming](#yielding-and-resuming-1)).
 
 ## Native backends (x64, a64)
 
@@ -254,7 +258,7 @@ It can also be useful to compile only the script you're debugging in `jit_create
 
 - A **native build with `-DJIT_BACKEND=wasm`** generates (but can't run) the same modules - fast, execution-free codegen validation. With `-jit-save-wasm` it writes `wasm/<qst>/<module>.wasm` next to the exe; check structure with `wasm2wat <f> --enable-threads`. This is also how to verify a codegen refactor is byte-identical.
 - Each codegen strategy has an escape-hatch flag for A/B and bisection: `-jit-wasm-structured`, `-jit-wasm-structured-yielder`, `-jit-wasm-sp-local`, `-jit-wasm-pointer-locals`, `-jit-wasm-inline-regs`, `-jit-wasm-bail-on-frozen-generic` (all default on except the bail).
-- `-jit-run-lo N` / `-jit-run-hi N` force `run_script` calls outside `[lo, hi)` to the interpreter, for bisecting which invocation must be jitted to reproduce a divergence. The gate is only active when `-jit-run-hi` is set (its default of -1 disables it), so `-jit-run-lo` alone has no effect. `scripts/jit_runtime_debug.py` automates this against a native no-jit baseline and works on web replays (pass `--baseline_build_folder build/Release` to speed up baseline collection).
+- `-jit-run-lo N` / `-jit-run-hi N` force `run_script` calls outside `[lo, hi)` to the interpreter, for bisecting which invocation must be jitted to reproduce a divergence. The gate is only active when `-jit-run-hi` is set (its default of -1 disables it), so `-jit-run-lo` alone has no effect. Once the failing call is found, `-jit-run-log-call N` logs the replay frame and script that `run_script` call N runs on. `scripts/jit_runtime_debug.py` automates this against a native no-jit baseline and works on web replays (pass `--baseline_build_folder build/Release` to speed up baseline collection).
 
 ## Flags reference
 
@@ -264,18 +268,20 @@ Boolean flags can be negated with a `-no` prefix (e.g. `-no-jit-wasm-structured`
 |---|---|---|---|
 | `-jit` | all | on (off on web) | Enable the JIT. Config: `[ZSCRIPT] jit` |
 | `-jit-precompile` | all | off | Compile every script on quest load. Config: `jit_precompile` |
-| `-jit-threads N` | all | -2 | Compile threads. Config: `jit_threads` |
+| `-jit-threads N` | all | -2 | Compile threads; 0 implies `-jit-precompile`. Config: `jit_threads` |
 | `-jit-hot-function-call-count N` | native | 10 | Config: `jit_hot_function_call_count` |
 | `-jit-hot-function-loop-count N` | native | 1000 | Config: `jit_hot_function_loop_count` |
 | `-jit-log` | all | off (on in CI) | Log compilation to `allegro.log`. Config: `jit_log` |
 | `-jit-print-asm` | native | off | Config: `jit_print_asm` |
 | `-jit-fatal-compile-errors` | all | off | Config: `jit_fatal_compile_errors` |
+| `-jit-cache-registers` | native | on | [D-register cache](#d-register-cache-native-backends). Config: `jit_cache_registers` |
 | `-jit-direct-calls` | native | on | [Direct calls between compiled functions](#direct-calls-between-compiled-functions) |
 | `-jit-max-piece-size N` | native | 10000 | [Split larger functions into pieces](#large-functions-are-compiled-in-pieces) of at most this many instructions (at most 15000 on a64) |
 | `-jit-save-wasm` | wasm | off | Write modules to `wasm/<qst>/` |
 | `-jit-wasm-structured`, `-jit-wasm-structured-yielder`, `-jit-wasm-sp-local`, `-jit-wasm-pointer-locals`, `-jit-wasm-inline-regs` | wasm | on | Codegen escape hatches |
 | `-jit-wasm-bail-on-frozen-generic` | wasm | off | Codegen escape hatch |
 | `-jit-run-lo N` / `-jit-run-hi N` | all | off | Bisect which `run_script` call must be jitted |
+| `-jit-run-log-call N` | all | off | Log the frame and script of `run_script` call N |
 | `-script-runtime-debug 1\|2` | all | off | Register/stack dumps per script (1) or per instruction (2) |
 
 ## Learning materials
