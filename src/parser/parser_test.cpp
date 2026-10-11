@@ -361,7 +361,7 @@ TestResults test_parser([[maybe_unused]] bool verbose)
 		assertEqual(symbolsToString(debugData, do_fn_symbols), "int i @ Stack[1], int j @ Stack[0]"s);
 
 		auto range_loop_fn_symbols = getAllSymbolsWithin(debugData, resolveScope(debugData, "range_loop_fn", file_scope));
-		assertEqual(symbolsToString(debugData, range_loop_fn_symbols), "int[] arr @ Stack[4], int z @ Stack[3], int __LOOP_ITER @ Stack[3] <HIDDEN>, int[] __LOOP_ARR @ Stack[2] <HIDDEN>, int x @ Stack[1], int y @ Stack[0]"s);
+		assertEqual(symbolsToString(debugData, range_loop_fn_symbols), "int[] arr @ Stack[4], int z @ Stack[0], int __LOOP_ITER @ Stack[3] <HIDDEN>, int[] __LOOP_ARR @ Stack[2] <HIDDEN>, int x @ Stack[1], int y @ Stack[0]"s);
 
 		auto template_fns = debugData.resolveFunctions("template_fn", file_scope);
 		assertSize(template_fns, 2);

@@ -1404,6 +1404,40 @@ generic script garbage_collection
 			check("SizeOfArray(ownedArrayPtr)", SizeOfArray(<int[]>ownedArrayPtr), 3);
 		}
 
+		printf("=== Test %d - for-each else block exited by return/break === \n", ++tests);
+		{
+			Person[] arr = {new Person()};
+			yield(); // Drain the autorelease pool.
+			check("RefCount(arr[0]) (1)", RefCount(arr[0]), 1L);
+			// A return or break in the else block used to skip releasing the loop
+			// variables, leaking the last element (and the array).
+			forEachElseReturn(arr);
+			check("RefCount(arr[0]) (2)", RefCount(arr[0]), 1L);
+			forEachElseBreak(arr);
+			check("RefCount(arr[0]) (3)", RefCount(arr[0]), 1L);
+			check("RefCount(arr)", RefCount(arr), 1L);
+		}
+		checkCountWithGC(0);
+
+		printf("=== Test %d - else block declaring variables === \n", ++tests);
+		{
+			Person[] arr = {new Person()};
+			yield(); // Drain the autorelease pool.
+			// The else block's variables used to share stack slots with the loop's
+			// variables, so writing them clobbered the array and element before they
+			// were released ("Invalid object pointer" errors, and both leaked).
+			forEachElseLocals(arr);
+			check("RefCount(arr[0]) (1)", RefCount(arr[0]), 1L);
+			check("RefCount(arr) (1)", RefCount(arr), 1L);
+			forEachElseLocalsReturn(arr);
+			check("RefCount(arr[0]) (2)", RefCount(arr[0]), 1L);
+			check("RefCount(arr) (2)", RefCount(arr), 1L);
+			// Same for the variable declared by an if/unless.
+			ifDeclElseLocals(arr[0]);
+			check("RefCount(arr[0]) (3)", RefCount(arr[0]), 1L);
+		}
+		checkCountWithGC(0);
+
 		// Global objects are never collected by the GC. It's up to the programmer
 		// to not "lose" them. For example, the following test does not
 		// save `a` anywhere recoverable from a new session, so this is
@@ -1417,6 +1451,75 @@ generic script garbage_collection
 		checkCountWithGC(1);
 
 		Test::End();
+	}
+
+	void forEachElseReturn(Person[] arr)
+	{
+		for (p : arr)
+			check("RefCount(p)", RefCount(p), 2L);
+		else
+			return;
+	}
+
+	void forEachElseBreak(Person[] arr)
+	{
+		for (int i = 0; i < 2; ++i)
+		{
+			for (p : arr)
+				check("RefCount(p)", RefCount(p), 2L);
+			else
+				break;
+		}
+	}
+
+	void forEachElseLocals(Person[] arr)
+	{
+		for (p : arr)
+			check("RefCount(p)", RefCount(p), 2L);
+		else
+		{
+			int x = 12345;
+			int y = 2;
+			int z = 3;
+			Person q = arr[0];
+			check("x + y + z", x + y + z, 12350);
+			// Held by the array, q, and the loop variable (until the loop's end).
+			check("RefCount(q)", RefCount(q), 3L);
+		}
+	}
+
+	void forEachElseLocalsReturn(Person[] arr)
+	{
+		for (p : arr)
+			check("RefCount(p)", RefCount(p), 2L);
+		else
+		{
+			int x = 12345;
+			int y = 2;
+			int z = 3;
+			check("x + y + z", x + y + z, 12350);
+			return;
+		}
+	}
+
+	void ifDeclElseLocals(Person person)
+	{
+		Person[] none = {NULL};
+		if (Person p = none[0])
+			check("unreachable", 0, 1);
+		else
+		{
+			int x = 12345;
+			check("x", x, 12345);
+		}
+
+		unless (Person p = person)
+			check("unreachable", 0, 1);
+		else
+		{
+			int x = 12345;
+			check("x", x, 12345);
+		}
 	}
 
 	void usePerson1(Person person)

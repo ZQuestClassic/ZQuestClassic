@@ -1385,12 +1385,12 @@ COMPAREV D2 0                                                                   
 GOTOCMP 1367 !=; Test 'if' AND break 1; AND if() #315 Body                      | 1356 tests/scripts/playground/auto/scopes.zs:237
 NOP; for(each) #1 Body End                                                      | 1357 tests/scripts/playground/auto/scopes.zs:237
 GOTO 1339; for(each) #1 End                                                     | 1358 tests/scripts/playground/auto/scopes.zs:233
-STOREV 1 0.0003; for(each) #1 Else Start                                        | 1359 tests/scripts/playground/auto/scopes.zs:241
+STOREV 1 0; for(each) #1 Else Start                                             | 1359 tests/scripts/playground/auto/scopes.zs:241
 ALLOCATEMEMV D2 9 0; InlineFunc[void Trace(char32[])] Params Start              | 1360 tests/scripts/playground/auto/scopes.zs:242
 WRITEPODSTRING D2 "for else"; InlineFunc[void Trace(char32[])] Params End       | 1361 tests/scripts/playground/auto/scopes.zs:242
 TRACE6 D2; InlineFunc[void Trace(char32[])] Body Start                          | 1362 tests/scripts/playground/auto/scopes.zs:242
 TRACE3; InlineFunc[void Trace(char32[])] Body End                               | 1363 tests/scripts/playground/auto/scopes.zs:242
-LOAD D2 0.0003; InlineFunc[void Trace(untyped)] Params                          | 1364 tests/scripts/playground/auto/scopes.zs:243
+LOAD D2 0; InlineFunc[void Trace(untyped)] Params                               | 1364 tests/scripts/playground/auto/scopes.zs:243
 TRACER D2; InlineFunc[void Trace(untyped)] Body AND for(each) #1 Else End       | 1365 tests/scripts/playground/auto/scopes.zs:243
 REF_REMOVE 0.0002                                                               | 1366 tests/scripts/playground/auto/scopes.zs:233
 REF_REMOVE 0.0004                                                               | 1367 tests/scripts/playground/auto/scopes.zs:231
@@ -13362,14 +13362,14 @@ debug data:
     [FUNCTION] range_loop_fn <PC:1327-1369 IDX:1092>
       [BLOCK] <PC:1329-1366 IDX:1093>
         - int[] arr @ Stack[4]
-        [BLOCK] <PC:1334-1358 IDX:1094>
+        [BLOCK] <PC:1334-1366 IDX:1094>
           - int __LOOP_ITER @ Stack[3] <HIDDEN>
           - int[] __LOOP_ARR @ Stack[2] <HIDDEN>
           - int x @ Stack[1]
           [BLOCK] <PC:1347-1357 IDX:1095>
             - int y @ Stack[0]
         [BLOCK] <PC:1359-1365 IDX:1096>
-          - int z @ Stack[3]
+          - int z @ Stack[0]
     [FUNCTION] int returnOne <PC:1784-1789 IDX:1097>
     [FUNCTION] template_fn <PC:1220-1250 IDX:1098>
       - char32[] val1 @ Stack[2]

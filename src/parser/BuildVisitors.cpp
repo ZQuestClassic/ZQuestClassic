@@ -1291,10 +1291,10 @@ void BuildOpcodes::caseStmtForEach(ASTStmtForEach &host, void *param)
 		addOpcode(new OGotoImmediate(new LabelArgument(loopstart)));
 	commentBack(fmt::format("for(each) #{} End",forid));
 
-	finalizeScope();
-	
 	scope = scope->getParent();
-	
+
+	// The loop's scope stays open through the else block, so that a return/break
+	// there releases the loop variables' object references.
 	if(host.hasElse())
 	{
 		addOpcode(new ONoOp(elselabel));
@@ -1302,9 +1302,10 @@ void BuildOpcodes::caseStmtForEach(ASTStmtForEach &host, void *param)
 		visit(host.elseBlock.get(), param);
 		commentStartEnd(targ_sz, fmt::format("for(each) #{} Else",forid));
 	}
-	
+
 	addOpcode(new ONoOp(loopend));
 	mark_ref_remove_if_needed_for_scope(host.getScope());
+	finalizeScope();
 }
 
 void BuildOpcodes::caseStmtRangeLoop(ASTStmtRangeLoop &host, void *param)

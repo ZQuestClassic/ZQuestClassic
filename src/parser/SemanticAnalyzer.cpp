@@ -177,9 +177,31 @@ void SemanticAnalyzer::caseStmtIf(ASTStmtIf& host, void*)
 	checkCast(*host.condition->getReadType(scope, this), DataType::UNTYPED, &host);
 }
 
-void SemanticAnalyzer::caseStmtIfElse(ASTStmtIfElse& host, void*)
+// A statement's else block is analyzed after leaving the statement's scope, so it can't
+// see the statement's variables (ex: `if (Foo f = ...)`). But its object variables are
+// only released after the else block runs, so the else block's own variables must not
+// reuse their stack slots.
+static void scopeElseBlockAfter(ASTStmt* else_stmt, Scope* parent, Scope* stmt_scope)
 {
-    RecursiveVisitor::caseStmtIfElse(host);
+	auto else_block = dynamic_cast<ASTBlock*>(else_stmt);
+	if (!else_block || else_block->getScope())
+		return;
+
+	auto data = stmt_scope->getLocalData();
+	if (std::none_of(data.begin(), data.end(), [](Datum* datum) { return datum->type.isObject(); }))
+		return;
+
+	auto else_scope = static_cast<BasicScope*>(parent->makeChild());
+	else_scope->stackDepth_ = stmt_scope->getLocalStackDepth();
+	else_block->setScope(else_scope);
+}
+
+void SemanticAnalyzer::caseStmtIfElse(ASTStmtIfElse& host, void* param)
+{
+	caseStmtIf(host, param);
+	if (breakRecursion(host)) return;
+	scopeElseBlockAfter(host.elseStatement.get(), scope, host.getScope());
+	visit(host.elseStatement.get(), param);
 }
 
 void SemanticAnalyzer::caseStmtSwitch(ASTStmtSwitch& host, void* param)
@@ -307,7 +329,10 @@ void SemanticAnalyzer::caseStmtForEach(ASTStmtForEach& host, void* param)
 	}
 
 	if(host.hasElse())
+	{
+		scopeElseBlockAfter(host.elseBlock.get(), scope, host.getScope());
 		visit(host.elseBlock.get(), param);
+	}
 }
 
 void SemanticAnalyzer::caseStmtRangeLoop(ASTStmtRangeLoop& host, void* param)
