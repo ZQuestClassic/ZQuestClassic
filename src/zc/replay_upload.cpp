@@ -99,11 +99,14 @@ struct replay_upload_state
 };
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(replay_upload_state, version, entries, time_last_run)
 
+// Returns unix time, like the times stored in the upload state. The epoch of the file clock
+// itself varies by platform (1601 on Windows, 2174 with libstdc++), so it must be converted.
 static int64_t get_last_write_time(fs::path path)
 {
 	auto file_time = fs::last_write_time(path);
+	auto sys_time = file_time - fs::file_time_type::clock::now() + std::chrono::system_clock::now();
 	return std::chrono::duration_cast<std::chrono::seconds>(
-		file_time.time_since_epoch()).count();
+		sys_time.time_since_epoch()).count();
 }
 
 namespace api_client
@@ -254,7 +257,7 @@ static bool should_process_replay(status_entry_t& status_entry, fs::path path, i
 
 		case state::tracked:
 		{
-			int last_write_time = get_last_write_time(path);
+			int64_t last_write_time = get_last_write_time(path);
 			return last_write_time > status_entry.time;
 		}
 		break;
