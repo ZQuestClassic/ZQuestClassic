@@ -783,7 +783,8 @@ SimulationValue evaluate_binary_op(int cmp, SimulationValue a, SimulationValue b
 	bool seti = cmp & CMP_SETI;
 	bool boolcast = cmp & CMP_BOOL;
 
-	if (cmp == 0)
+	// check_cmp only defines == and != for bool-cast comparisons; any other is always false.
+	if (flags == 0 || (boolcast && flags != CMP_EQ && flags != CMP_NE))
 		return num_zero;
 	if (flags == CMP_FLAGS)
 		return seti ? num(10000) : num_one;
@@ -797,10 +798,9 @@ SimulationValue evaluate_binary_op(int cmp, SimulationValue a, SimulationValue b
 	{
 		if (boolcast)
 		{
-			ASSERT(flags == CMP_EQ || flags == CMP_NE);
 			bool v = !!a.data == !!b.data;
 			if (flags == CMP_NE) v = !v;
-			return num(v ? 1 : 0);
+			return num(v ? (seti ? 10000 : 1) : 0);
 		}
 
 		bool b_val = false;
