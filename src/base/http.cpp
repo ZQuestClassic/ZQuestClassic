@@ -5,6 +5,7 @@
 #include <fmt/format.h>
 #include <string>
 #include <sys/stat.h>
+#include <utility>
 #include <zlib.h>
 
 namespace http {
@@ -25,11 +26,33 @@ static size_t _write_callback(char *contents, size_t size, size_t nmemb, void *u
 	return total_size;
 }
 
+// Cleans up the curl handle, and sets the response's status code.
+static expected<http_response, std::string> finish_request(CURL* curl_handle, CURLcode res, http_response response)
+{
+	// CURLINFO_RESPONSE_CODE writes a long.
+	long status_code = 0;
+	if (res == CURLE_OK)
+		curl_easy_getinfo(curl_handle, CURLINFO_RESPONSE_CODE, &status_code);
+	curl_easy_cleanup(curl_handle);
+
+	if (res != CURLE_OK)
+	{
+		std::string error = fmt::format("curl: {}", curl_easy_strerror(res));
+		fmt::println(stderr, "{}", error);
+		return make_unexpected(error);
+	}
+
+	response.status_code = status_code;
+	return std::move(response);
+}
+
 expected<http_response, std::string> get(std::string url)
 {
 	http_response response{};
 
 	CURL *curl_handle = curl_easy_init();
+	if (!curl_handle)
+		return make_unexpected("curl: failed to initialize");
 
 	struct curl_slist* headers = NULL;
 	headers = curl_slist_append(headers, VERSION_HEADER.c_str());
@@ -43,17 +66,7 @@ expected<http_response, std::string> get(std::string url)
 
 	curl_slist_free_all(headers);
 
-	if (res != CURLE_OK)
-	{
-		std::string error = fmt::format("curl: {}", curl_easy_strerror(res));
-		fmt::println(stderr, "{}", error);
-		return make_unexpected(error);
-	}
-
-	curl_easy_getinfo(curl_handle, CURLINFO_RESPONSE_CODE, &response.status_code);
-	curl_easy_cleanup(curl_handle);
-
-	return response;
+	return finish_request(curl_handle, res, std::move(response));
 }
 
 static bool compress_file_to_gzip(const fs::path& input_path, const fs::path& output_path)
@@ -71,13 +84,23 @@ static bool compress_file_to_gzip(const fs::path& input_path, const fs::path& ou
 
 	char buffer[8192];
 	int bytes_read;
+	bool success = true;
 	while ((bytes_read = fread(buffer, 1, sizeof(buffer), in)) > 0)
-		gzwrite(out, buffer, bytes_read);
+	{
+		if (gzwrite(out, buffer, bytes_read) != bytes_read)
+		{
+			success = false;
+			break;
+		}
+	}
+	if (ferror(in))
+		success = false;
 
 	fclose(in);
-	gzclose(out);
+	if (gzclose(out) != Z_OK)
+		success = false;
 
-	return true;
+	return success;
 }
 
 expected<http_response, std::string> upload(std::string url, fs::path path)
@@ -85,21 +108,35 @@ expected<http_response, std::string> upload(std::string url, fs::path path)
 	http_response response{};
 
 	fs::path compressed_path = path.string() + ".gz";
+	std::error_code ec;
 	if (!compress_file_to_gzip(path, compressed_path))
+	{
+		fs::remove(compressed_path, ec);
 		return make_unexpected("failed to compress file");
+	}
 
 	FILE* fd = fopen(compressed_path.string().c_str(), "rb");
 	if (!fd)
+	{
+		fs::remove(compressed_path, ec);
 		return make_unexpected("can't read compressed file");
+	}
 
 	struct stat file_info;
 	if (fstat(fileno(fd), &file_info) != 0)
 	{
 		fclose(fd);
+		fs::remove(compressed_path, ec);
 		return make_unexpected("can't stat file");
 	}
 
 	CURL *curl_handle = curl_easy_init();
+	if (!curl_handle)
+	{
+		fclose(fd);
+		fs::remove(compressed_path, ec);
+		return make_unexpected("curl: failed to initialize");
+	}
 
 	struct curl_slist* headers = NULL;
 	headers = curl_slist_append(headers, "Content-Encoding: gzip");
@@ -118,19 +155,9 @@ expected<http_response, std::string> upload(std::string url, fs::path path)
 
 	fclose(fd);
 	curl_slist_free_all(headers);
-	fs::remove(compressed_path);
+	fs::remove(compressed_path, ec);
 
-	if (res != CURLE_OK)
-	{
-		std::string error = fmt::format("curl: {}", curl_easy_strerror(res));
-		fmt::println(stderr, "{}", error);
-		return make_unexpected(error);
-	}
-
-	curl_easy_getinfo(curl_handle, CURLINFO_RESPONSE_CODE, &response.status_code);
-	curl_easy_cleanup(curl_handle);
-
-	return response;
+	return finish_request(curl_handle, res, std::move(response));
 }
 
 }
