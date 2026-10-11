@@ -139,6 +139,7 @@ jobs:
           --repo ${{ github.repository }}
           --runs-on ${{ inputs.runs-on }}
           --arch ${{ inputs.arch }}
+          --compiler ${{ inputs.compiler }}
           --config ${{ inputs.config }}
           --run-id ${{ github.run_id }}
           --shard ${{ matrix.shard_index }}/${{ matrix.num_shards }}
@@ -156,6 +157,7 @@ jobs:
           --repo ${{ github.repository }}
           --runs-on ${{ inputs.runs-on }}
           --arch ${{ inputs.arch }}
+          --compiler ${{ inputs.compiler }}
           --config ${{ inputs.config }}
           --run-id ${{ github.run_id }}
           --no-jit
@@ -173,6 +175,7 @@ jobs:
           --repo ${{ github.repository }}
           --runs-on ${{ inputs.runs-on }}
           --arch ${{ inputs.arch }}
+          --compiler ${{ inputs.compiler }}
           --config ${{ inputs.config }}
           --run-id ${{ github.run_id }}
           --no-optimize-zasm
