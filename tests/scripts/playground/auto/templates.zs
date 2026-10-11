@@ -39,6 +39,33 @@ T tmpl_add<T>(T x, T amount = 2)
 	return x + amount;
 }
 
+T tmpl_peek<T>(stack<T> s)
+{
+	return s->PeekBack();
+}
+
+T tmpl_peek_const<T>(const stack<T> s)
+{
+	return s->PeekBack();
+}
+
+void tmpl_push<T>(stack<T> s, T value)
+{
+	s->PushBack(value);
+}
+
+stack<T> tmpl_make_stack<T>(T value)
+{
+	stack<T> s = new stack<T>();
+	s->PushBack(value);
+	return s;
+}
+
+T tmpl_peek_first<T>(stack<T>[] stacks)
+{
+	return stacks[0]->PeekBack();
+}
+
 // Copies `arr[0]` into a local of type T, then reassigns it to `arr[1]`.
 T tmpl_first<T>(T[] arr)
 {
@@ -91,6 +118,25 @@ generic script templates
 			// A default value for a parameter of type T used to be rejected.
 			Test::AssertEqual(tmpl_add(1), 3, "T-typed default parameter");
 			Test::AssertEqual(tmpl_add(1, 5), 6, "T-typed default parameter, given");
+		}
+
+		{
+			// Template functions taking a class template of T (ex: `stack<T>`)
+			// could never be called.
+			stack<int> si = new stack<int>();
+			tmpl_push(si, 5);
+			Test::AssertEqual(tmpl_peek(si), 5, "stack<T> parameter");
+			Test::AssertEqual(tmpl_peek_const(si), 5, "const stack<T> parameter");
+			const stack<int> csi = si;
+			Test::AssertEqual(tmpl_peek_const(csi), 5, "const stack<T> parameter, const argument");
+			stack<int> made = tmpl_make_stack(7);
+			Test::AssertEqual(made->PeekBack(), 7, "stack<T> return type");
+			stack<int> stacks[1];
+			stacks[0] = si;
+			Test::AssertEqual(tmpl_peek_first(stacks), 5, "stack<T>[] parameter");
+			stack plain = new stack();
+			plain->PushBack(3);
+			Test::AssertEqual(<int>(tmpl_peek(plain)), 3, "plain stack binds T to untyped");
 		}
 
 		Test::End();

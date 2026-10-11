@@ -846,6 +846,50 @@ static bool match_tmpl_type(DataTypeTemplate const& tmpl_ty, DataType const& che
 	}
 	return false;
 }
+// If `param` is a class template bound to `tmpl_ty` (ex: `stack<T>`), possibly
+// inside arrays, returns how many array layers wrap it.
+static std::optional<int> match_class_tmpl_type(DataTypeTemplate const& tmpl_ty, DataType const& param)
+{
+	int depth = 0;
+	DataType const* ty = &param;
+	while (auto arr = dynamic_cast<DataTypeArray const*>(ty))
+	{
+		ty = &arr->getElementType();
+		++depth;
+	}
+	auto custom = dynamic_cast<DataTypeCustom const*>(ty);
+	if (custom && custom->getBoundType() && *custom->getBoundType() == tmpl_ty)
+		return depth;
+	return std::nullopt;
+}
+
+// The type a class template parameter (ex: `stack<T>`) binds T to for the argument
+// type `arg`, or nullptr if the argument is not that class.
+static DataType const* bind_class_tmpl_type(DataType const& param, int depth, DataType const& arg)
+{
+	if (arg.isUntyped())
+		return &DataType::UNTYPED;
+
+	DataType const* ty = &arg;
+	for (int q = 0; q < depth; ++q)
+	{
+		auto arr = dynamic_cast<DataTypeArray const*>(ty);
+		if (!arr)
+			return nullptr;
+		ty = &arr->getElementType();
+	}
+	if (ty->isConstant())
+		ty = ty->getMutType();
+
+	auto custom = dynamic_cast<DataTypeCustom const*>(ty);
+	if (!custom || !custom->getUsrClass() || custom->getUsrClass() != param.getUsrClass())
+		return nullptr;
+	// The plain class (ex: `stack`) is the same as binding `untyped`.
+	if (auto bound = custom->getBoundType())
+		return bound;
+	return &DataType::UNTYPED;
+}
+
 // Applies a function's template types to the provided parameter types, and sets
 // the out-param `out_resolved_function` to the derived result if a match is successful.
 // Returns APPLY_TEMPLATE_RET_UNSATISFIABLE if the template types could not be satisfied.
@@ -876,11 +920,18 @@ static int applyTemplateTypes(
 		for (size_t i = 0; i < num_params; ++i)
 		{
 			auto ty = function->paramTypes[i];
-			if(!match_tmpl_type(tmpl_ty, *ty))
-				continue;
-			
 			DataType const* el_type = parameter_types[i];
-			if (ty->isArray())
+			if(!match_tmpl_type(tmpl_ty, *ty))
+			{
+				auto class_depth = match_class_tmpl_type(tmpl_ty, *ty);
+				if (!class_depth)
+					continue;
+
+				el_type = bind_class_tmpl_type(*ty, *class_depth, *el_type);
+				if (!el_type)
+					return APPLY_TEMPLATE_RET_UNSATISFIABLE;
+			}
+			else if (ty->isArray())
 			{
 				if(el_type->isUntyped())
 					el_type = &DataType::UNTYPED;

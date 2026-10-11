@@ -896,6 +896,15 @@ static void type_replace(DataType const** ptr, DataType const& to_repl, DataType
 				*ptr = DataTypeArray::create_depth(*new_const_ty, depth);
 			else *ptr = DataTypeArray::create_depth(*new_mut_ty, depth);
 		}
+		// A class template bound to the template type (ex: `stack<T>`).
+		else if (auto custom = dynamic_cast<DataTypeCustom const*>(ty);
+			custom && custom->getBoundType() && *custom->getBoundType() == to_repl)
+		{
+			DataType const* inst = custom->getUsrClass()->getTemplateInstance(new_mut_ty);
+			if (ty->isConstant())
+				inst = inst->getConstType();
+			*ptr = depth ? DataTypeArray::create_depth(*inst, depth) : inst;
+		}
 	}
 }
 std::optional<Function::InstantiationRefusal> Function::instantiation_refused;

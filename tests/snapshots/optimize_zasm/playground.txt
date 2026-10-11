@@ -1,6 +1,6 @@
 Finished optimizing scripts:
 	[goto_next_instruction] saved 2 instr (0.0%)
-	[unreachable_blocks] saved 125 instr (0.2%)
+	[unreachable_blocks] saved 126 instr (0.2%)
 	[conseq_additive] saved 3 instr (0.0%)
 	[load_store] saved 0 instr (0.0%)
 	[setv_pushr] saved 1369 instr (2.0%)
@@ -8,9 +8,9 @@ Finished optimizing scripts:
 	[stack] saved 370 instr (0.6%)
 	[spurious_branches] saved 0 instr (0.0%)
 	[reduce_comparisons] saved 1910 instr (2.8%)
-	[propagate_values] saved 1184 instr (1.8%)
+	[propagate_values] saved 1185 instr (1.8%)
 	[collapse_podarray] saved 0 instr (0.0%)
 	[strength_reduce] improved 82 instances
 	[unreachable_blocks_2] saved 122 instr (0.2%)
 	[dead_code] saved 843 instr (1.3%)
-	[total] saved 6997 instr (10.4%)
+	[total] saved 6999 instr (10.4%)

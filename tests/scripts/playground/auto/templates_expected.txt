@@ -17,9 +17,9 @@ stdout:
   "success": true,
   "diagnostics": [],
   "metadata": {
-    "currentFileSymbols": 19,
-    "symbols": 39,
-    "identifiers": 81,
+    "currentFileSymbols": 31,
+    "symbols": 70,
+    "identifiers": 148,
     "elided": true
   }
 }
@@ -78,113 +78,113 @@ COMPAREV D2 0
 GOTOCMP 53 ==; Test 'while'
 WAITFRAME; InlineFunc[void Waitframe()] Body AND while() #2 Body
 GOTO 45; while() #2 End
-CALLFUNC 0.0218; UsrFunc[void End()] Call AND [Opt:NeverRet]
+CALLFUNC 0.0323; UsrFunc[void End()] Call AND [Opt:NeverRet]
 REF_REMOVE 0.0002; [Opt:NeverRet] AND void run() Body End
-PUSHV 0; void run() Body Start
+PUSHARGSV 0 0.0005; void run() Body Start
 SETR D4 SP2
 PUSHR D4
 PUSHV 0; UsrFunc[void Init(int)] Params
-CALLFUNC 0.0196; UsrFunc[void Init(int)] Call
+CALLFUNC 0.0301; UsrFunc[void Init(int)] Call
 POP D4
 PUSHARGSR D4 0.0002; UsrFunc[void AssertEqual(int, int, char32[])] Params Start
 PUSHV 5; UsrFunc[int tmpl_copy(int)] Params
-CALLFUNC 0.0253; UsrFunc[int tmpl_copy(int)] Call
+CALLFUNC 0.0358; UsrFunc[int tmpl_copy(int)] Call
 POP D4
 PUSHR D2
 PUSHV 5
 ALLOCATEMEMV D2 24 0
 WRITEPODSTRING D2 "T bound from a constant"
 PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
-CALLFUNC 0.0225; UsrFunc[void AssertEqual(int, int, char32[])] Call
+CALLFUNC 0.0330; UsrFunc[void AssertEqual(int, int, char32[])] Call
 PEEK D4
 PUSHR D4; UsrFunc[void AssertEqual(int, int, char32[])] Params Start
 PUSHV 7; UsrFunc[int tmpl_copy(int)] Params
-CALLFUNC 0.0253; UsrFunc[int tmpl_copy(int)] Call
+CALLFUNC 0.0358; UsrFunc[int tmpl_copy(int)] Call
 POP D4
 PUSHR D2
 PUSHV 7
 ALLOCATEMEMV D2 23 0
 WRITEPODSTRING D2 "T bound from a literal"
 PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
-CALLFUNC 0.0225; UsrFunc[void AssertEqual(int, int, char32[])] Call
+CALLFUNC 0.0330; UsrFunc[void AssertEqual(int, int, char32[])] Call
 PEEK D4
 PUSHR D4; UsrFunc[void AssertEqual(int, int, char32[])] Params Start
 PUSHVARGV 5; UsrFunc[int tmpl_copy_first(...int[])] Params Start
 PUSHVARGV 6
 MAKEVARGARRAY 0; Allocate Vargs array
 PUSHR D2; Push the Vargs array pointer AND UsrFunc[int tmpl_copy_first(...int[])] Params End
-CALLFUNC 0.0262; UsrFunc[int tmpl_copy_first(...int[])] Call
+CALLFUNC 0.0367; UsrFunc[int tmpl_copy_first(...int[])] Call
 POP D4
 PUSHR D2
 PUSHV 5
 ALLOCATEMEMV D2 31 0
 WRITEPODSTRING D2 "T bound from a constant vararg"
 PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
-CALLFUNC 0.0225; UsrFunc[void AssertEqual(int, int, char32[])] Call
+CALLFUNC 0.0330; UsrFunc[void AssertEqual(int, int, char32[])] Call
 POP D4
 ALLOCATEMEMV D2 2 0
 PUSHR D2
 WRITEPODARRAY D2 {3,4}
 POP D2
-STORE_OBJECT D2 0
+STORE_OBJECT D2 0.0004
 PUSHARGSR D4 0.0002; UsrFunc[void AssertEqual(int, int, char32[])] Params Start
-LOAD D2 0; UsrFunc[int tmpl_first(int[])] Params Start
+LOAD D2 0.0004; UsrFunc[int tmpl_first(int[])] Params Start
 PUSHR D2; UsrFunc[int tmpl_first(int[])] Params End
-CALLFUNC 0.0314; UsrFunc[int tmpl_first(int[])] Call
+CALLFUNC 0.0485; UsrFunc[int tmpl_first(int[])] Call
 POP D4
 PUSHR D2
 PUSHV 4
 ALLOCATEMEMV D2 30 0
 WRITEPODSTRING D2 "T bound from a constant array"
 PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
-CALLFUNC 0.0225; UsrFunc[void AssertEqual(int, int, char32[])] Call
+CALLFUNC 0.0330; UsrFunc[void AssertEqual(int, int, char32[])] Call
 PEEK D4
 PUSHR D4; UsrFunc[void AssertEqual(int, int, char32[])] Params Start
-LOAD D2 0; UsrFunc[int tmpl_first_of_first(...int[][])] Params Start
+LOAD D2 0.0004; UsrFunc[int tmpl_first_of_first(...int[][])] Params Start
 PUSHVARGR D2
 MARK_TYPE_VARG 0.0009
 MAKEVARGARRAY 0.0009; Allocate Vargs array
 PUSHR D2; Push the Vargs array pointer AND UsrFunc[int tmpl_first_of_first(...int[][])] Params End
-CALLFUNC 0.0332; UsrFunc[int tmpl_first_of_first(...int[][])] Call
+CALLFUNC 0.0503; UsrFunc[int tmpl_first_of_first(...int[][])] Call
 POP D4
 PUSHR D2
 PUSHV 4
 ALLOCATEMEMV D2 37 0
 WRITEPODSTRING D2 "T bound from a constant vararg array"
 PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
-CALLFUNC 0.0225; UsrFunc[void AssertEqual(int, int, char32[])] Call
+CALLFUNC 0.0330; UsrFunc[void AssertEqual(int, int, char32[])] Call
 POP D4
-REF_REMOVE 0
+REF_REMOVE 0.0004
 PUSHR CLASS_THISKEY
 PUSHR D4
-CALLFUNC 0.0280; ClassFunc[TemplateMember TemplateMember::TemplateMember()] Constructor Call
+CALLFUNC 0.0385; ClassFunc[TemplateMember TemplateMember::TemplateMember()] Constructor Call
 POP D4
 POP CLASS_THISKEY
-STORE_OBJECT D2 0
+STORE_OBJECT D2 0.0004
 PUSHR CLASS_THISKEY
 PUSHR D4
 PUSHV 42; ClassFunc[void TemplateMember::set(int)] Params Start
-LOAD D2 0
+LOAD D2 0.0004
 SETR CLASS_THISKEY D2; ClassFunc[void TemplateMember::set(int)] Params End
-CALLFUNC 0.0292; ClassFunc[void TemplateMember::set(int)] Call
+CALLFUNC 0.0397; ClassFunc[void TemplateMember::set(int)] Call
 POP D4
 POP CLASS_THISKEY
 PUSHR D4
-LOAD D2 0; UsrFunc[void AssertEqual(int, int, char32[])] Params Start
+LOAD D2 0.0004; UsrFunc[void AssertEqual(int, int, char32[])] Params Start
 ZCLASS_READ D2 0
 PUSHR D2
 PUSHV 42
 ALLOCATEMEMV D2 32 0
 WRITEPODSTRING D2 "member template writes a member"
 PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
-CALLFUNC 0.0225; UsrFunc[void AssertEqual(int, int, char32[])] Call
+CALLFUNC 0.0330; UsrFunc[void AssertEqual(int, int, char32[])] Call
 PEEK D4
 PUSHR CLASS_THISKEY; UsrFunc[void AssertEqual(int, int, char32[])] Params Start
 PUSHR D4
 PUSHV 1; ClassFunc[TemplateMember TemplateMember::self(int)] Params Start
-LOAD D2 0
+LOAD D2 0.0004
 SETR CLASS_THISKEY D2; ClassFunc[TemplateMember TemplateMember::self(int)] Params End
-CALLFUNC 0.0299; ClassFunc[TemplateMember TemplateMember::self(int)] Call
+CALLFUNC 0.0404; ClassFunc[TemplateMember TemplateMember::self(int)] Call
 POP D4
 POP CLASS_THISKEY
 ZCLASS_READ D2 0
@@ -193,34 +193,139 @@ PUSHV 42
 ALLOCATEMEMV D2 29 0
 WRITEPODSTRING D2 "member template returns this"
 PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
-CALLFUNC 0.0225; UsrFunc[void AssertEqual(int, int, char32[])] Call
+CALLFUNC 0.0330; UsrFunc[void AssertEqual(int, int, char32[])] Call
 POP D4
-REF_REMOVE 0
+REF_REMOVE 0.0004
 PUSHARGSR D4 0.0002; UsrFunc[void AssertEqual(int, int, char32[])] Params Start
 PUSHV 1; UsrFunc[int tmpl_add(int, int)] Params Start
 PUSHV 2; UsrFunc[int tmpl_add(int, int)] Params End
-CALLFUNC 0.0306; UsrFunc[int tmpl_add(int, int)] Call
+CALLFUNC 0.0411; UsrFunc[int tmpl_add(int, int)] Call
 POP D4
 PUSHR D2
 PUSHV 3
 ALLOCATEMEMV D2 26 0
 WRITEPODSTRING D2 "T-typed default parameter"
 PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
-CALLFUNC 0.0225; UsrFunc[void AssertEqual(int, int, char32[])] Call
+CALLFUNC 0.0330; UsrFunc[void AssertEqual(int, int, char32[])] Call
 PEEK D4
 PUSHR D4; UsrFunc[void AssertEqual(int, int, char32[])] Params Start
 PUSHV 1; UsrFunc[int tmpl_add(int, int)] Params Start
 PUSHV 5; UsrFunc[int tmpl_add(int, int)] Params End
-CALLFUNC 0.0306; UsrFunc[int tmpl_add(int, int)] Call
+CALLFUNC 0.0411; UsrFunc[int tmpl_add(int, int)] Call
 POP D4
 PUSHR D2
 PUSHV 6
 ALLOCATEMEMV D2 33 0
 WRITEPODSTRING D2 "T-typed default parameter, given"
 PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
-CALLFUNC 0.0225; UsrFunc[void AssertEqual(int, int, char32[])] Call
+CALLFUNC 0.0330; UsrFunc[void AssertEqual(int, int, char32[])] Call
 POP D4
-CALLFUNC 0.0218; UsrFunc[void End()] Call AND [Opt:NeverRet] AND [Opt:NeverRet] AND void run() Body End
+LOADSTACK; InlineFunc[stack<int> stack::stack()] Body
+STORE_OBJECT D2 0.0004
+PUSHR D4
+LOAD D2 0.0004; UsrFunc[void tmpl_push(stack<int>, int)] Params Start
+PUSHR D2
+PUSHV 5; UsrFunc[void tmpl_push(stack<int>, int)] Params End
+CALLFUNC 0.0446; UsrFunc[void tmpl_push(stack<int>, int)] Call
+PEEK D4
+PUSHR D4; UsrFunc[void AssertEqual(int, int, char32[])] Params Start
+LOAD D2 0.0004; UsrFunc[int tmpl_peek(stack<int>)] Params Start
+PUSHR D2; UsrFunc[int tmpl_peek(stack<int>)] Params End
+CALLFUNC 0.0419; UsrFunc[int tmpl_peek(stack<int>)] Call
+POP D4
+PUSHR D2
+PUSHV 5
+ALLOCATEMEMV D2 19 0
+WRITEPODSTRING D2 "stack<T> parameter"
+PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
+CALLFUNC 0.0330; UsrFunc[void AssertEqual(int, int, char32[])] Call
+PEEK D4
+PUSHR D4; UsrFunc[void AssertEqual(int, int, char32[])] Params Start
+LOAD D2 0.0004; UsrFunc[int tmpl_peek_const(const stack<int>)] Params Start
+PUSHR D2; UsrFunc[int tmpl_peek_const(const stack<int>)] Params End
+CALLFUNC 0.0437; UsrFunc[int tmpl_peek_const(const stack<int>)] Call
+POP D4
+PUSHR D2
+PUSHV 5
+ALLOCATEMEMV D2 25 0
+WRITEPODSTRING D2 "const stack<T> parameter"
+PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
+CALLFUNC 0.0330; UsrFunc[void AssertEqual(int, int, char32[])] Call
+POP D4
+LOAD D2 0.0004
+STORE_OBJECT D2 0.0003
+PUSHARGSR D4 0.0002; UsrFunc[void AssertEqual(int, int, char32[])] Params Start
+LOAD D2 0.0003; UsrFunc[int tmpl_peek_const(const stack<int>)] Params Start
+PUSHR D2; UsrFunc[int tmpl_peek_const(const stack<int>)] Params End
+CALLFUNC 0.0437; UsrFunc[int tmpl_peek_const(const stack<int>)] Call
+POP D4
+PUSHR D2
+PUSHV 5
+ALLOCATEMEMV D2 41 0
+WRITEPODSTRING D2 "const stack<T> parameter, const argument"
+PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
+CALLFUNC 0.0330; UsrFunc[void AssertEqual(int, int, char32[])] Call
+PEEK D4
+PUSHV 7; UsrFunc[stack<int> tmpl_make_stack(int)] Params
+CALLFUNC 0.0457; UsrFunc[stack<int> tmpl_make_stack(int)] Call
+POP D4
+STORE_OBJECT D2 0.0002
+PUSHR D4
+LOAD D2 0.0002; InlineFunc[int stack::PeekBack()] Params Start AND UsrFunc[void AssertEqual(int, int, char32[])] Params Start
+SETR REFSTACK D2; InlineFunc[int stack::PeekBack()] Params End
+STACKPEEKBACK D2; InlineFunc[int stack::PeekBack()] Body
+PUSHR D2
+PUSHV 7
+ALLOCATEMEMV D2 21 0
+WRITEPODSTRING D2 "stack<T> return type"
+PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
+CALLFUNC 0.0330; UsrFunc[void AssertEqual(int, int, char32[])] Call
+POP D4
+ALLOCATEMEMV D2 1 0.0006
+STORE_OBJECT D2 0.0001
+LOAD D2 0.0004
+PUSHR D2
+LOAD D2 0.0001
+SETR D0 D2
+POP D2
+WRITEPODARRAYVR 0 D2 0.0006
+PUSHARGSR D4 0.0002; UsrFunc[void AssertEqual(int, int, char32[])] Params Start
+LOAD D2 0.0001; UsrFunc[int tmpl_peek_first(stack<int>[])] Params Start
+PUSHR D2; UsrFunc[int tmpl_peek_first(stack<int>[])] Params End
+CALLFUNC 0.0473; UsrFunc[int tmpl_peek_first(stack<int>[])] Call
+POP D4
+PUSHR D2
+PUSHV 5
+ALLOCATEMEMV D2 21 0
+WRITEPODSTRING D2 "stack<T>[] parameter"
+PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
+CALLFUNC 0.0330; UsrFunc[void AssertEqual(int, int, char32[])] Call
+POP D4
+LOADSTACK; InlineFunc[stack stack::stack()] Body
+STORE_OBJECT D2 0
+LOAD D2 0; InlineFunc[void stack::PushBack(untyped)] Params Start
+PUSHR D2
+SETV D2 3; InlineFunc[void stack::PushBack(untyped)] Params End
+POP REFSTACK; InlineFunc[void stack::PushBack(untyped)] Body Start
+STACKPUSHBACK D2 0; InlineFunc[void stack::PushBack(untyped)] Body End
+PUSHARGSR D4 0.0002; UsrFunc[void AssertEqual(int, int, char32[])] Params Start
+LOAD D2 0; UsrFunc[untyped tmpl_peek(stack)] Params Start
+PUSHR D2; UsrFunc[untyped tmpl_peek(stack)] Params End
+CALLFUNC 0.0428; UsrFunc[untyped tmpl_peek(stack)] Call
+POP D4
+PUSHR D2
+PUSHV 3
+ALLOCATEMEMV D2 31 0
+WRITEPODSTRING D2 "plain stack binds T to untyped"
+PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
+CALLFUNC 0.0330; UsrFunc[void AssertEqual(int, int, char32[])] Call
+POP D4
+REF_REMOVE 0.0003
+REF_REMOVE 0.0002
+REF_REMOVE 0
+REF_REMOVE 0.0004
+REF_REMOVE 0.0001
+CALLFUNC 0.0323; UsrFunc[void End()] Call AND [Opt:NeverRet] AND [Opt:NeverRet] AND void run() Body End
 SETR D4 SP2; Func[void Init(int)] Body Start
 ALLOCATEMEMV D2 35 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
 WRITEPODSTRING D2 "[Test] started: dmap %d screen %d\n"
@@ -234,7 +339,7 @@ LOAD D2 0; if() #388 Test
 COMPAREV D2 0
 SETCMP D2 I!=
 COMPAREV D2 0
-GOTOCMP 215 ==; Test 'if'
+GOTOCMP 320 ==; Test 'if'
 PUSHV 5; InlineFunc[void hero::Warp(int, int)] Params Start AND if() #388 Body Start
 LOAD D2 0; InlineFunc[void hero::Warp(int, int)] Params End
 POP D3; InlineFunc[void hero::Warp(int, int)] Body Start
@@ -260,7 +365,7 @@ POP D3
 COMPARER D3 D2
 SETCMP D2 I!=
 COMPAREV D2 0
-GOTOCMP 249 ==; Test 'if'
+GOTOCMP 354 ==; Test 'if'
 ALLOCATEMEMV D2 53 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start AND if() #390 Body Start
 WRITEPODSTRING D2 "[Test] failed assertion: expected %d but got %d. %s\n"
 PUSHR D2
@@ -339,6 +444,72 @@ POP D3
 ADDR D2 D3
 POPARGS D5 0.0002; return End
 RETURNFUNC; Func[int tmpl_add(int, int)] Body End
+SETR D4 SP2; Func[int tmpl_peek(stack<int>)] Body Start
+MARK_TYPE_STACK 0.0006 0
+REF_INC 0
+LOAD D2 0; InlineFunc[int stack::PeekBack()] Params Start AND return Start
+SETR REFSTACK D2; InlineFunc[int stack::PeekBack()] Params End
+STACKPEEKBACK D2; InlineFunc[int stack::PeekBack()] Body
+REF_REMOVE 0; return End
+POP D5
+RETURNFUNC; Func[int tmpl_peek(stack<int>)] Body End
+SETR D4 SP2; Func[untyped tmpl_peek(stack)] Body Start
+MARK_TYPE_STACK 0.0006 0
+REF_INC 0
+LOAD D2 0; InlineFunc[untyped stack::PeekBack()] Params Start AND return Start
+SETR REFSTACK D2; InlineFunc[untyped stack::PeekBack()] Params End
+STACKPEEKBACK D2; InlineFunc[untyped stack::PeekBack()] Body
+REF_REMOVE 0; return End
+POP D5
+RETURNFUNC; Func[untyped tmpl_peek(stack)] Body End
+SETR D4 SP2; Func[int tmpl_peek_const(const stack<int>)] Body Start
+MARK_TYPE_STACK 0.0006 0
+REF_INC 0
+LOAD D2 0; InlineFunc[int stack::PeekBack()] Params Start AND return Start
+SETR REFSTACK D2; InlineFunc[int stack::PeekBack()] Params End
+STACKPEEKBACK D2; InlineFunc[int stack::PeekBack()] Body
+REF_REMOVE 0; return End
+POP D5
+RETURNFUNC; Func[int tmpl_peek_const(const stack<int>)] Body End
+SETR D4 SP2; Func[void tmpl_push(stack<int>, int)] Body Start
+MARK_TYPE_STACK 0.0006 0.0001
+REF_INC 0.0001
+LOAD D2 0.0001; InlineFunc[void stack::PushBack(int)] Params Start
+PUSHR D2
+LOAD D2 0; InlineFunc[void stack::PushBack(int)] Params End
+POP REFSTACK; InlineFunc[void stack::PushBack(int)] Body Start
+STACKPUSHBACK D2 0; InlineFunc[void stack::PushBack(int)] Body End
+REF_REMOVE 0.0001
+POPARGS D5 0.0002
+RETURNFUNC; Func[void tmpl_push(stack<int>, int)] Body End
+PUSHV 0; Func[stack<int> tmpl_make_stack(int)] Body Start
+SETR D4 SP2
+LOADSTACK; InlineFunc[stack<int> stack::stack()] Body
+STORE_OBJECT D2 0
+LOAD D2 0; InlineFunc[void stack::PushBack(int)] Params Start
+PUSHR D2
+LOAD D2 0.0001; InlineFunc[void stack::PushBack(int)] Params End
+POP REFSTACK; InlineFunc[void stack::PushBack(int)] Body Start
+STACKPUSHBACK D2 0; InlineFunc[void stack::PushBack(int)] Body End
+LOAD D2 0; return Start
+REF_AUTORELEASE D2
+REF_REMOVE 0
+GOTO 471; return End
+REF_REMOVE 0
+POPARGS D5 0.0002
+RETURNFUNC; Func[stack<int> tmpl_make_stack(int)] Body End
+SETR D4 SP2; Func[int tmpl_peek_first(stack<int>[])] Body Start
+MARK_TYPE_STACK 0.0009 0
+REF_INC 0
+LOAD D2 0; InlineFunc[int stack::PeekBack()] Params Start AND return Start
+PUSHR D2
+POP D0
+READPODARRAYV D2 0
+SETR REFSTACK D2; InlineFunc[int stack::PeekBack()] Params End
+STACKPEEKBACK D2; InlineFunc[int stack::PeekBack()] Body
+REF_REMOVE 0; return End
+POP D5
+RETURNFUNC; Func[int tmpl_peek_first(stack<int>[])] Body End
 PUSHV 0; Func[int tmpl_first(int[])] Body Start
 SETR D4 SP2
 MARK_TYPE_STACK 0.0009 0.0001

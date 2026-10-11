@@ -433,6 +433,8 @@ namespace ZScript
 		virtual bool isBitflagsEnum() const;
 		virtual bool isLong() const;
 		virtual bool isClass() const {return user_class != nullptr;}
+		// A class template bound to a template type (ex: `stack<T>` in `void f<T>(stack<T> s)`).
+		virtual bool isTemplate() const {return bound_type && bound_type->isTemplate();}
 		virtual bool canHoldObject() const;
 		virtual script_object_type getScriptObjectTypeId() const {
 			if (isUntyped()) return script_object_type::untyped;
