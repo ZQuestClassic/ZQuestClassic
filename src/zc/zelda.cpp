@@ -4519,8 +4519,8 @@ reload_for_replay_file:
 	
 	DEBUG_PRINT_TO_FILE = zc_get_config("ZSCRIPT", "print_zasm_to_file", true);
 	DEBUG_PRINT_TO_CONSOLE = zc_get_config("ZSCRIPT", "print_zasm_to_console", false);
-	DEBUG_JIT_PRINT_ASM = zc_get_config("ZSCRIPT", "jit_print_asm", false) || used_switch(argc, argv, "-jit-print-asm");
-	DEBUG_JIT_EXIT_ON_COMPILE_FAIL = zc_get_config("ZSCRIPT", "jit_fatal_compile_errors", false) || used_switch(argc, argv, "-jit-fatal-compile-errors");
+	DEBUG_JIT_PRINT_ASM = is_feature_enabled("-jit-print-asm", "ZSCRIPT", "jit_print_asm", false);
+	DEBUG_JIT_EXIT_ON_COMPILE_FAIL = is_feature_enabled("-jit-fatal-compile-errors", "ZSCRIPT", "jit_fatal_compile_errors", false);
 	disable_script_error_logs = used_switch(argc, argv, "-experimental-disable-script-error-logs") > 0;
 	FFCore.log_stack_trace_on_trace = is_feature_enabled("-log-stack-trace-on-trace", "ZSCRIPT", "log_stack_trace_on_trace", false);
 	hangcount = zc_get_config("ZSCRIPT","ZASM_Hangcount",100000);
