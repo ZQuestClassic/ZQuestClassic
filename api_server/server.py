@@ -18,7 +18,12 @@ root_dir = script_dir.parent
 sys.path.append(str((root_dir / 'scripts').absolute()))
 import database
 
+# An uploaded replay may not exceed this size as sent (before decompression).
+MAX_UPLOAD_BYTES = 30_000_000
+
 app = Flask(__name__)
+# Rejects larger requests before reading them, rather than buffering them all in memory.
+app.config['MAX_CONTENT_LENGTH'] = MAX_UPLOAD_BYTES
 app.config.from_prefixed_env()
 
 data_dir = Path(app.config['DATA_DIR'])
@@ -135,12 +140,7 @@ def replays(uuid):
         flush=True,
     )
 
-    # Limit the raw / uncompressed incoming payload size.
-    if len(request.data) > 30e6:
-        return {
-            'error': 'Uncompressed payload too large, max is 30 MB'
-        }, HTTPStatus.REQUEST_ENTITY_TOO_LARGE
-
+    # Larger payloads are rejected by MAX_CONTENT_LENGTH.
     raw_data = request.data
 
     if content_encoding == 'gzip':
@@ -235,6 +235,8 @@ def handle_exception(e):
             'code': e.code,
             'name': e.name,
             'description': e.description,
+            # What the client logs.
+            'error': e.description,
         }
     )
     response.content_type = 'application/json'
