@@ -23,10 +23,16 @@
 # For example:
 #
 #   You have a change you want more validation for. Go to the commit just
-#   before, build, and run `python scripts/replay_uploads.py --update --update_known_good`
-#   (some will fail to update, that is ok). Then, with your new change, run
+#   before, build, and run `python scripts/replay_uploads.py --update --only_known_good`.
+#   Then, with your new change, run
 #   `python scripts/replay_uploads.py --assert --only_known_good`. If
 #   anything fails, generate a compare report and investigate.
+#
+# The known good replays (scripts/replay_uploads_known_good_replays.json) are pinned
+# to how much of each replay was validated, so everyone runs the same replays even
+# as players upload longer versions of them. To refresh that list (picking up new
+# and re-uploaded replays), run `python scripts/replay_uploads.py --update --update_known_good`
+# (some will fail to update, that is ok) and commit the result.
 #
 # To debug why a replay can't be updated, run:
 #
@@ -111,17 +117,21 @@ def prepare_and_get_replay_keys():
 
     db = database.Database()
     get_qst_keys_by_hash = db.get_qst_keys_by_hash()
-    all_keys = list(_.key for _ in bucket.objects.all())
+    sizes_by_key = {obj.key: obj.size for obj in bucket.objects.all()}
     # Note: currently no plans to actual upload updated replays back to bucket.
-    original_keys = [key for key in all_keys if updated_suffx not in key]
+    original_keys = [key for key in sizes_by_key if updated_suffx not in key]
 
     print('All replays downloaded from the upload bucket\n')
     print(f'Directory: {replays_dir}')
     print(f'Total: {len(original_keys)}')
 
-    # Download everything.
-    for key in all_keys:
-        download_replay(key)
+    # Download everything. A replay can be re-uploaded with more frames appended
+    # (same key), so also re-download any local copy whose size doesn't match.
+    for key, size in sizes_by_key.items():
+        # Don't clobber local update results with whatever is in the bucket.
+        if updated_suffx in key:
+            size = None
+        download_replay(key, size)
 
     # Group replays by qst_hash.
     keys_by_qst_hash = {}
@@ -145,22 +155,70 @@ def prepare_and_get_replay_keys():
     original_keys = [key for key in original_keys if is_replay_valid_for_channel(key)]
     print(f'Total ({channel}): {len(original_keys)}')
 
+    known_good = get_known_good_replays() if args.only_known_good else {}
     for key in original_keys:
-        init_updated_replay(key)
+        init_updated_replay(key, known_good.get(key))
 
     return original_keys
 
 
-def download_replay(key: str) -> Path:
-    path = replays_dir / key
-    if path.exists():
-        return path
+def get_replay_path(key: str) -> Path:
+    return replays_dir / key
 
-    print(f'downloading: {key}')
+
+def download_replay(key: str, size: int | None):
+    path = get_replay_path(key)
+    if path.exists():
+        local_size = path.stat().st_size
+        if size is None or local_size == size:
+            return
+
+        print(f'updating: {key} (re-uploaded, {local_size} -> {size} bytes)')
+    else:
+        print(f'downloading: {key}')
+
     path.parent.mkdir(exist_ok=True, parents=True)
     bucket.download_file(key, path)
 
-    return path
+
+def parse_meta_line(line: str) -> tuple[str, str]:
+    # Not stripped: a meta line may have an empty value ("M qst_title ").
+    _, meta_key, value = line.split(' ', 2)
+    return meta_key, value
+
+
+# Note: these avoid replay_helpers.read_replay_meta, which caches by path - but the
+# files here change during a run.
+def read_replay_meta(path: Path) -> dict[str, str]:
+    """Reads just the leading meta lines, without loading the rest of the replay."""
+    meta = {}
+    with path.open(encoding='utf-8') as f:
+        for line in f:
+            if not line.startswith('M'):
+                break
+            meta_key, value = parse_meta_line(line.rstrip('\n'))
+            meta[meta_key] = value
+    return meta
+
+
+def read_replay(path: Path) -> tuple[dict[str, str], list[str]]:
+    """Returns tuple: meta, steps"""
+    lines = path.read_text('utf-8').splitlines()
+    meta = {}
+    num_meta = 0
+    while num_meta < len(lines) and lines[num_meta].startswith('M'):
+        meta_key, value = parse_meta_line(lines[num_meta])
+        meta[meta_key] = value
+        num_meta += 1
+    return meta, [l for l in lines[num_meta:] if l]
+
+
+def get_replay_pin(key: str) -> dict:
+    """The length (number of steps) and frames of the local copy of an uploaded replay."""
+    # The api server only accepts a replay whose length meta matches its steps, so the
+    # whole replay need not be read.
+    meta = read_replay_meta(get_replay_path(key))
+    return {'length': int(meta['length']), 'frames': int(meta['frames'])}
 
 
 def get_updated_key(key: str):
@@ -168,7 +226,7 @@ def get_updated_key(key: str):
 
 
 def is_replay_valid_for_channel(key: str):
-    original_replay_path = download_replay(key)
+    original_replay_path = get_replay_path(key)
     meta = replay_helpers.read_replay_meta(original_replay_path)
     version = meta.get('zc_version_updated') or meta.get('zc_version_created')
     if not version:
@@ -177,44 +235,76 @@ def is_replay_valid_for_channel(key: str):
     return version.startswith('2.55') or version.startswith('nightly')
 
 
-def init_updated_replay(key: str):
-    original_replay_path = download_replay(key)
+def read_updated_replay_pin(path: Path) -> dict | None:
+    meta = read_replay_meta(path)
+    if 'replay_upload_length' not in meta:
+        return None
+    return {
+        'length': int(meta['replay_upload_length']),
+        'frames': int(meta['replay_upload_frames']),
+    }
+
+
+# Creates the local copy of an uploaded replay that gets updated / asserted.
+#
+# If `pin` is given, only that much of the uploaded replay is used. Replays are
+# append-only (the api server rejects any re-upload that changes existing steps),
+# so a pin always recreates exactly the replay that was previously validated, no
+# matter how much has been uploaded since. Without a pin, the whole replay is used.
+#
+# The copy is only recreated (discarding local update results) when what it was
+# made from changes, and only in --update mode. Recreating it otherwise would make
+# --assert fail for reasons unrelated to the build being tested.
+def init_updated_replay(key: str, pin: dict | None):
+    original_replay_path = get_replay_path(key)
     updated_replay_path = original_replay_path.with_name(
         original_replay_path.name.replace('.zplay', updated_suffx)
     )
+
+    if not pin:
+        pin = get_replay_pin(key)
+
     if updated_replay_path.exists():
-        return
+        current_pin = read_updated_replay_pin(updated_replay_path)
+        if current_pin == pin:
+            return
 
-    lines = original_replay_path.read_text().splitlines()
-    new_lines = []
+        rel_path = updated_replay_path.relative_to(replays_dir)
+        if not args.update:
+            if args.assertmode:
+                print(
+                    f'warning: {rel_path} was made from {current_pin}, not {pin} (run with --update to recreate)'
+                )
+            return
+
+        print(f'recreating: {rel_path} ({current_pin} -> {pin})')
+
+    meta, steps = read_replay(original_replay_path)
+    if len(steps) < pin['length']:
+        raise Exception(f'{key} has fewer steps than its pin: {pin}')
+
     qst_hash = key.split('/')[0]
-
-    meta = replay_helpers.read_replay_meta(original_replay_path)
     meta['debug'] = 'true'  # Not all uploaded replays are in debug mode.
     meta['qst'] = f'{qst_hash}.qst'
     meta['replay_upload_key'] = key
+    meta['replay_upload_length'] = pin['length']
+    meta['replay_upload_frames'] = pin['frames']
+    meta['length'] = pin['length']
+    meta['frames'] = pin['frames']
 
-    for key, value in meta.items():
-        new_lines.append(f'M {key} {value}')
+    new_lines = []
+    for meta_key, value in meta.items():
+        new_lines.append(f'M {meta_key} {value}')
 
-    reading_meta = True
-    for line in lines:
-        if reading_meta:
-            if line.startswith('M'):
-                continue
-            else:
-                reading_meta = False
+    # TODO: if we make these replays viewable publicly, should first remove key
+    # events. It's rare that a quest needs them.
+    # if line.startswith('D') or line.startswith('U'):
+    #     parts = line.split(' ')
+    #     if len(parts) == 4 and parts[2] == 'k':
+    #         continue
+    new_lines.extend(steps[: pin['length']])
 
-        # TODO: if we make these replays viewable publicly, should first remove key
-        # events. It's rare that a quest needs them.
-        # if line.startswith('D') or line.startswith('U'):
-        #     parts = line.split(' ')
-        #     if len(parts) == 4 and parts[2] == 'k':
-        #         continue
-
-        new_lines.append(line)
-
-    updated_replay_path.write_text('\n'.join(new_lines))
+    updated_replay_path.write_text('\n'.join(new_lines), 'utf-8')
 
 
 def run_replays_process(args):
@@ -253,6 +343,13 @@ def run_replays_process_with_version(zc_version, args):
     return run_replays_process([*args, '--build_folder', build_folder])
 
 
+# Maps each known good replay to its pin: how much of the replay was validated
+# (see init_updated_replay).
+def get_known_good_replays() -> dict[str, dict]:
+    known_good_path = Path(script_dir / 'replay_uploads_known_good_replays.json')
+    return json.loads(known_good_path.read_text())
+
+
 def run_replays():
     if args.update:
         mode = 'update'
@@ -267,22 +364,21 @@ def run_replays():
     ]
     original_keys = [key for key in original_keys if key not in exclude_keys]
     if args.only_known_good:
-        known_good_path = Path(script_dir / 'replay_uploads_known_good_replays.json')
-        known_good = json.loads(known_good_path.read_text())
+        known_good = get_known_good_replays()
         original_keys = [k for k in original_keys if k in known_good]
     updated_keys = [get_updated_key(key) for key in original_keys]
-    # Note: shouldn't actually download anything b/c updated replays are all local.
-    updated_paths = [download_replay(key) for key in updated_keys]
+    updated_paths = [get_replay_path(key) for key in updated_keys]
 
     test_results = run_replays_process([f'--{mode}', *updated_paths])
 
     if args.update_known_good:
-        known_good = []
+        known_good = {}
         for run in test_results.runs[0]:
             if run.success:
                 index = updated_paths.index(Path(run.path))
-                known_good.append(original_keys[index])
-        known_good.sort()
+                pin = read_updated_replay_pin(updated_paths[index])
+                known_good[original_keys[index]] = pin
+        known_good = dict(sorted(known_good.items()))
         known_good_path = Path(script_dir / 'replay_uploads_known_good_replays.json')
         known_good_path.write_text(json.dumps(known_good, indent=2))
 
@@ -310,7 +406,7 @@ def print_info():
     replays_by_qst_hash = {}
     frames = 0
     for key in original_keys:
-        path = download_replay(key)
+        path = get_replay_path(key)
         meta = replay_helpers.read_replay_meta(path)
         frames += meta['frames']
 
