@@ -963,6 +963,8 @@ static int applyTemplateTypes(
 
 	//Returns an existing matching function, or creates a new one, memory managed -Em
 	*out_resolved_function = function->apply_templ_func(bound_ts);
+	if (!*out_resolved_function)
+		return APPLY_TEMPLATE_RET_UNSATISFIABLE;
 
 	return APPLY_TEMPLATE_RET_APPLIED;
 }

@@ -897,6 +897,19 @@ static void type_replace(DataType const** ptr, DataType const& to_repl, DataType
 		}
 	}
 }
+std::optional<Function::InstantiationRefusal> Function::instantiation_refused;
+
+// How many array / class template layers wrap a type (ex: `stack<int[]>[]` is 3).
+static int typeNestingDepth(DataType const& type)
+{
+	if (auto arr = dynamic_cast<DataTypeArray const*>(&type))
+		return 1 + typeNestingDepth(arr->getElementType());
+	if (auto custom = dynamic_cast<DataTypeCustom const*>(&type))
+		if (auto bound = custom->getBoundType())
+			return 1 + typeNestingDepth(*bound);
+	return 0;
+}
+
 Function* Function::apply_templ_func(vector<DataType const*> const& bound_ts)
 {
 	for(shared_ptr<Function> func : applied_funcs)
@@ -912,6 +925,22 @@ Function* Function::apply_templ_func(vector<DataType const*> const& bound_ts)
 			}
 		if(!mismatch)
 			return func.get();
+	}
+	if (node && !node->templates.empty())
+	{
+		for (auto type : bound_ts)
+		{
+			if (typeNestingDepth(*type) > MAX_TEMPLATE_TYPE_NESTING)
+			{
+				instantiation_refused = {this, type};
+				return nullptr;
+			}
+		}
+		if (applied_funcs.size() >= MAX_TEMPLATE_INSTANTIATIONS)
+		{
+			instantiation_refused = {this, nullptr};
+			return nullptr;
+		}
 	}
 	Scope *outside, *external;
 	Function* templ = new Function(*this);
@@ -937,6 +966,7 @@ Function* Function::apply_templ_func(vector<DataType const*> const& bound_ts)
 			type_replace(&templ->paramTypes[q], *tmp_type, *new_type);
 	}
 	templ->isFromTypeTemplate = true;
+	templ->instantiated_from = this;
 	templ->templ_bound_ts = bound_ts;
 	if(!skip)
 	{

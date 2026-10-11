@@ -151,7 +151,7 @@ void RecursiveVisitor::_visit_internals(Function& func)
 		if(sz >= vec.size())
 			return;
 		for(size_t q = sz; q < vec.size(); ++q)
-			template_function_queue.insert(vec[q].get());
+			template_function_queue.emplace(vec[q]->id, vec[q].get());
 		sz = vec.size();
 	}
 	else
@@ -236,9 +236,13 @@ void RecursiveVisitor::visitFunctionInternals(ZScript::Program& program)
 	{
 		while(!template_function_queue.empty())
 		{
-			Function* func = *template_function_queue.begin();
-			_visit_internals(*func);
+			Function* func = template_function_queue.begin()->second;
 			template_function_queue.erase(template_function_queue.begin());
+			// Once a template function's refusal to be instantiated has been reported the
+			// compile has failed, and each of its remaining instantiations would just
+			// report it again.
+			if (!(func->instantiated_from && func->instantiated_from->instantiation_refusal_reported))
+				_visit_internals(*func);
 		}
 		for (auto& pair : template_function_data)
 			_visit_internals(*pair.first);

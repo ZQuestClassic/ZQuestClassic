@@ -1,0 +1,112 @@
+stderr:
+
+Compiling 'errors_template_instantiations.zs'
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+Pass 4: Analyzing Code
+errors_template_instantiations.zs Line 10 @ Columns 3-11 - Error S109: Template function 'growEach' has too many instantiations (over 1024) - is it calling itself with ever-changing types?
+
+ 8    growEach({x}, y, z, w, n - 1);
+ 9    growEach(x, {y}, z, w, n - 1);
+10    growEach(x, y, {z}, w, n - 1);
+      ^~~~~~~~
+
+
+errors_template_instantiations.zs Line 11 @ Columns 3-11 - Error S109: Template function 'growEach' has too many instantiations (over 1024) - is it calling itself with ever-changing types?
+
+ 9    growEach(x, {y}, z, w, n - 1);
+10    growEach(x, y, {z}, w, n - 1);
+11    growEach(x, y, z, {w}, n - 1);
+      ^~~~~~~~
+
+
+errors_template_instantiations.zs Line 22 @ Columns 2-22 - Error S109: Template function 'growEachWithFallback' has too many instantiations (over 1024) - is it calling itself with ever-changing types?
+
+20    growEachWithFallback({x}, y, z, w);
+21    growEachWithFallback(x, {y}, z, w);
+22    growEachWithFallback(x, y, {z}, w);
+      ^~~~~~~~~~~~~~~~~~~~
+
+
+errors_template_instantiations.zs Line 23 @ Columns 2-22 - Error S109: Template function 'growEachWithFallback' has too many instantiations (over 1024) - is it calling itself with ever-changing types?
+
+21    growEachWithFallback(x, {y}, z, w);
+22    growEachWithFallback(x, y, {z}, w);
+23    growEachWithFallback(x, y, z, {w});
+      ^~~~~~~~~~~~~~~~~~~~
+
+
+Failure!
+Compile finished with exit code '109' (compiled with errors)
+
+stdout:
+
+{
+  "success": false,
+  "code": 109,
+  "diagnostics": [
+    {
+      "range": {
+        "start": {
+          "line": 9,
+          "character": 2
+        },
+        "end": {
+          "line": 9,
+          "character": 10
+        }
+      },
+      "severity": 1,
+      "message": "S109: Template function 'growEach' has too many instantiations (over 1024) - is it calling itself with ever-changing types?"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 10,
+          "character": 2
+        },
+        "end": {
+          "line": 10,
+          "character": 10
+        }
+      },
+      "severity": 1,
+      "message": "S109: Template function 'growEach' has too many instantiations (over 1024) - is it calling itself with ever-changing types?"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 21,
+          "character": 1
+        },
+        "end": {
+          "line": 21,
+          "character": 21
+        }
+      },
+      "severity": 1,
+      "message": "S109: Template function 'growEachWithFallback' has too many instantiations (over 1024) - is it calling itself with ever-changing types?"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 22,
+          "character": 1
+        },
+        "end": {
+          "line": 22,
+          "character": 21
+        }
+      },
+      "severity": 1,
+      "message": "S109: Template function 'growEachWithFallback' has too many instantiations (over 1024) - is it calling itself with ever-changing types?"
+    }
+  ],
+  "metadata": {
+    "currentFileSymbols": 2051,
+    "symbols": 8596,
+    "identifiers": 34766,
+    "elided": true
+  }
+}

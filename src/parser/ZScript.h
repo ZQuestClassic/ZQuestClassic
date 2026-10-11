@@ -689,6 +689,30 @@ namespace ZScript
 			return !isBinding() && isTemplate();
 		}
 		
+		// A template function is instantiated at most this many times, and never with a type
+		// nested deeper than this (arrays / class template arguments, ex: `stack<int[]>[]` is
+		// 3). Together these stop a template function calling itself with ever-changing types
+		// (ex: `f<T>(T x) { f({x}); }`): the first bounds how many instantiations there are,
+		// the second how deep (and so how slow to analyze) each one's types get - a single
+		// growing type takes minutes to reach the instantiation limit.
+		static constexpr size_t MAX_TEMPLATE_INSTANTIATIONS = 1024;
+		static constexpr int MAX_TEMPLATE_TYPE_NESTING = 16;
+		// Why apply_templ_func last refused to instantiate a template function (for the
+		// caller to report): the function, and the type nested too deeply (or null if it
+		// has too many instantiations).
+		struct InstantiationRefusal
+		{
+			Function* function;
+			DataType const* type;
+		};
+		static std::optional<InstantiationRefusal> instantiation_refused;
+		// Set once a refusal to instantiate this template function has been reported.
+		bool instantiation_refusal_reported = false;
+		// For a template instantiation, the template function it was made from.
+		Function* instantiated_from = nullptr;
+
+		// Returns null (and sets instantiation_refused) if the instantiation would exceed
+		// MAX_TEMPLATE_INSTANTIATIONS or MAX_TEMPLATE_TYPE_NESTING.
 		Function* apply_templ_func(std::vector<DataType const*> const& bound_ts);
 		
 		std::vector<std::shared_ptr<Function>>& get_applied_funcs() {return applied_funcs;}

@@ -407,7 +407,10 @@ namespace ZScript
 	private:
 		void _visit_internals(Function& func);
 		map<Function*,size_t> template_function_data;
-		std::set<Function*> template_function_queue;
+		// Keyed by function id (creation order) rather than address, so that template
+		// instantiations are analyzed in the same order (and report the same errors)
+		// on every run.
+		std::map<int32_t, Function*> template_function_queue;
 	};
 	
 	struct ScopeReverter

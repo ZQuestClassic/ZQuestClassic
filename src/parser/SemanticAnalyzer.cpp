@@ -1424,6 +1424,7 @@ void SemanticAnalyzer::caseExprCall(ASTExprCall& host, void* param)
 		parameterTypes.push_back((*it)->getReadType(scope, this));
 
 	bool static_trimmed = false;
+	Function::instantiation_refused = std::nullopt;
 	// Grab functions with the proper name, and matching parameter types
 	vector<Function*> functions;
 	if(identifier)
@@ -1474,6 +1475,23 @@ void SemanticAnalyzer::caseExprCall(ASTExprCall& host, void* param)
 		functions = lookupClassFuncs(*user_class, arrow->right->getValue(), parameterTypes, scope, false, receiver_type);
 	}
 	else functions = lookupFunctions(arrow->leftClass->getScope(), arrow->right->getValue(), parameterTypes, true, false, false, scope, &static_trimmed); //Never `using` arrow functions
+
+	// A template function that refused to be instantiated for this call (see
+	// Function::apply_templ_func) is an error even if another function matched, since
+	// without the instantiation the call may not resolve to the right function.
+	if (auto refused = Function::instantiation_refused)
+	{
+		refused->function->instantiation_refusal_reported = true;
+		if (refused->type)
+			handleError(CompileError::Error(&host, fmt::format(
+				"Template function '{}' would be instantiated with type '{}', which is nested too deeply (over {} levels) - is it calling itself with ever-growing types?",
+				refused->function->name, refused->type->getName(), Function::MAX_TEMPLATE_TYPE_NESTING)));
+		else
+			handleError(CompileError::Error(&host, fmt::format(
+				"Template function '{}' has too many instantiations (over {}) - is it calling itself with ever-changing types?",
+				refused->function->name, Function::MAX_TEMPLATE_INSTANTIATIONS)));
+		return;
+	}
 
 	// Find function with least number of casts.
 	vector<Function*> bestFunctions;
