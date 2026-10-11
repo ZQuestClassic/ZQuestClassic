@@ -54,6 +54,14 @@ jobs:
             arch: aarch64
             compiler: clang
             config: RelWithDebInfo
+            # There is no AArch64 JIT on 2.55, so these replays run under the
+            # interpreter, which diverges from the expected (x64 JIT) output
+            # at these frames. Same on any platform with --no-jit; see also the
+            # win32 entry. Stop just before.
+            extra-args: >-
+              --frame=crucible_quest.zplay=1490
+              --frame=enigma_of_basilischi_island_basilse_1_of_2.zplay=135200
+              --frame=enigma_of_basilischi_island_basilse_2_of_2.zplay=31800
       fail-fast: false
     uses: ./.github/workflows/test.yml
     with:
