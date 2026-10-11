@@ -11,8 +11,6 @@
 // - Resume after a call/wait is a pc-comparison dispatch at entry for
 //   functions with few resume points, and x64's indirect branch otherwise
 //   (see the comment at the dispatch).
-// - Conditional branches in very large functions go through emit_cond_branch,
-//   since b.cond only reaches +/-1 MB.
 // - The constant 10000 is kept in a function-wide register (vTenK).
 
 #include "zc/scripting/jit/jit_a64.h"
@@ -56,10 +54,6 @@ struct CompilationState
 	// Unlike L_End it must not store vSp (ctx->sp holds the value saved by the function that
 	// actually exited).
 	Label L_PropagateEnd;
-	// In functions with far branches, a `b L_PropagateEnd` placed among the direct call sites, so
-	// those within b.cond range of it branch there in one instruction (see CALLFUNC).
-	Label L_NearPropagate;
-	pc_t near_propagate_pc;
 	bool direct_calls;
 	// This function can be the target of direct calls (non-yielding), so its entry pushes the ZASM
 	// return pc and its RETURNFUNC pops it when entered directly (vMode holds ctx->entry_mode as
@@ -94,9 +88,6 @@ struct CompilationState
 	pc_t num_push_commands_in_row_end_pc;
 	bool modified_stack;
 	bool runtime_debugging;
-	// AArch64 conditional branches only reach +/-1 MB, which very large
-	// functions exceed; see emit_cond_branch.
-	bool far_branches;
 };
 
 extern ScriptDebugHandle* runtime_script_debug_handle;
@@ -118,10 +109,11 @@ public:
 	// the function must be discarded (it runs in the interpreter instead, which
 	// is always correct - just slower for that one function).
 	bool had_error = false;
-	// A function whose spill frame outgrows the range a scaled load/store can
-	// address fails with InvalidDisplacement. That is an expected capacity
-	// limit for very register-heavy functions, not a codegen bug, so it is
-	// tracked separately and doesn't trip -jit-fatal-compile-errors.
+	// A piece with more code than a conditional branch can reach across
+	// (b.cond reaches +/-1 MB) fails with InvalidDisplacement when the label is
+	// bound. That is an expected capacity limit, not a codegen bug - though the
+	// piece size cap (see jit_max_piece_size) keeps every piece well within it -
+	// so it is tracked separately and doesn't trip -jit-fatal-compile-errors.
 	bool only_capacity_errors = true;
 
 	void handleError(Error err, const char *message, BaseEmitter*) override
@@ -556,48 +548,6 @@ static a64::Gp immutable_cast_bool(a64::Compiler& cc, a64::Gp reg)
 	return out;
 }
 
-// Emits a conditional branch that can reach any label in the function. A bare
-// b.cond only reaches +/-1 MB of code, which the largest functions exceed
-// (the failure shows up as InvalidDisplacement when the label is bound), so
-// far branches go over an unconditional b, which reaches +/-128 MB. Only used
-// for branches whose target can be arbitrarily far away (script GOTOs, the
-// resume dispatch, waits); short local branches stay bare.
-//
-// pc_distance is how many ZASM instructions sit between the branch and its
-// target; the far form is only needed when that distance could plausibly
-// exceed b.cond's reach. Emitted code averages well under 100 bytes per ZASM
-// instruction (including register-allocator spill code), so 4000 instructions
-// leaves a 250 bytes/instruction margin against the +/-1 MB limit.
-//
-// Distance-based selection is only sound because third_party/asmjit.patch
-// places register-state fixup trampolines inline (right after the branch)
-// on AArch64. With upstream asmjit's end-of-function trampoline placement,
-// a b.cond retargeted to a fixup trampoline goes out of range in a multi-MB
-// function no matter how near its original target was - that variant was
-// measured to compile fewer functions (16 discarded vs 11 on Yuurand).
-static void emit_cond_branch(CompilationState& state, a64::Compiler& cc, a64::CondCode cond, const Label& target, pc_t pc_distance)
-{
-	if (!state.far_branches || pc_distance <= 4000)
-	{
-		cc.b(cond, target);
-		return;
-	}
-
-	Label skip = cc.newLabel();
-	cc.b(a64::negateCond(cond), skip);
-	cc.b(target);
-	cc.bind(skip);
-}
-
-// pc distance from the current command to a GOTO target.
-static pc_t goto_distance(CompilationState& state, int target_pc)
-{
-	// Exit stubs are bound after the end of the piece.
-	if (target_pc < (int)state.start_pc || target_pc > (int)state.final_pc)
-		return state.final_pc - state.pc;
-	return (pc_t)(target_pc > (int)state.pc ? target_pc - (int)state.pc : (int)state.pc - target_pc);
-}
-
 // Where a conditional jump to `target_pc` branches to: the target's label, or for a target outside
 // this piece, an exit stub.
 static Label goto_target(CompilationState& state, a64::Compiler& cc, int target_pc)
@@ -620,22 +570,22 @@ static void compile_compare_goto(CompilationState& state, a64::Compiler& cc, int
 			default:
 				break;
 			case CMP_GT:
-				emit_cond_branch(state, cc, a64::CondCode::kGT, lbl, goto_distance(state, arg1));
+				cc.b(a64::CondCode::kGT, lbl);
 				break;
 			case CMP_GT|CMP_EQ:
-				emit_cond_branch(state, cc, a64::CondCode::kGE, lbl, goto_distance(state, arg1));
+				cc.b(a64::CondCode::kGE, lbl);
 				break;
 			case CMP_LT:
-				emit_cond_branch(state, cc, a64::CondCode::kLT, lbl, goto_distance(state, arg1));
+				cc.b(a64::CondCode::kLT, lbl);
 				break;
 			case CMP_LT|CMP_EQ:
-				emit_cond_branch(state, cc, a64::CondCode::kLE, lbl, goto_distance(state, arg1));
+				cc.b(a64::CondCode::kLE, lbl);
 				break;
 			case CMP_EQ:
-				emit_cond_branch(state, cc, a64::CondCode::kEQ, lbl, goto_distance(state, arg1));
+				cc.b(a64::CondCode::kEQ, lbl);
 				break;
 			case CMP_GT|CMP_LT:
-				emit_cond_branch(state, cc, a64::CondCode::kNE, lbl, goto_distance(state, arg1));
+				cc.b(a64::CondCode::kNE, lbl);
 				break;
 			case CMP_GT|CMP_LT|CMP_EQ:
 				cc.b(lbl);
@@ -644,22 +594,22 @@ static void compile_compare_goto(CompilationState& state, a64::Compiler& cc, int
 	}
 	else if (command == GOTOTRUE)
 	{
-		emit_cond_branch(state, cc, a64::CondCode::kEQ, goto_target(state, cc, arg1), goto_distance(state, arg1));
+		cc.b(a64::CondCode::kEQ, goto_target(state, cc, arg1));
 	}
 	else if (command == GOTOFALSE)
 	{
-		emit_cond_branch(state, cc, a64::CondCode::kNE, goto_target(state, cc, arg1), goto_distance(state, arg1));
+		cc.b(a64::CondCode::kNE, goto_target(state, cc, arg1));
 	}
 	else if (command == GOTOMORE)
 	{
-		emit_cond_branch(state, cc, a64::CondCode::kGE, goto_target(state, cc, arg1), goto_distance(state, arg1));
+		cc.b(a64::CondCode::kGE, goto_target(state, cc, arg1));
 	}
 	else if (command == GOTOLESS)
 	{
 		if (get_qr(qr_GOTOLESSNOTEQUAL))
-			emit_cond_branch(state, cc, a64::CondCode::kLT, goto_target(state, cc, arg1), goto_distance(state, arg1));
+			cc.b(a64::CondCode::kLT, goto_target(state, cc, arg1));
 		else
-			emit_cond_branch(state, cc, a64::CondCode::kLE, goto_target(state, cc, arg1), goto_distance(state, arg1));
+			cc.b(a64::CondCode::kLE, goto_target(state, cc, arg1));
 	}
 	else
 	{
@@ -889,7 +839,7 @@ static void compile_command_interpreter(CompilationState& state, a64::Compiler& 
 		cmp_constant(cc, retVal, RUNSCRIPT_STOPPED);
 		// If actually waiting, the return value will be RUNSCRIPT_OK. set_ctx_ret_code isn't called
 		// here because RUNSCRIPT_OK is the default value.
-		emit_cond_branch(state, cc, a64::CondCode::kEQ, state.L_End, state.final_pc - state.pc);
+		cc.b(a64::CondCode::kEQ, state.L_End);
 
 		cc.bind(state.resume_labels[state.pc]);
 		return;
@@ -1104,37 +1054,8 @@ static void compile_single_command(CompilationState& state, a64::Compiler& cc, c
 				// EXEC_RESULT_RETURN is a normal return; anything else unwinds
 				// through this frame untouched (vResult already holds it, and
 				// L_PropagateEnd returns it as-is).
-				//
-				// L_PropagateEnd is bound once, after L_End at the end of the function. A b.cond
-				// reaches +-1 MB, which in very large functions (far_branches) only the sites within
-				// ~4000 ZASM instructions of the end can rely on - the same distance rule as
-				// emit_cond_branch. The rest branch to L_NearPropagate: a `b L_PropagateEnd`
-				// trampoline placed inline at the first out-of-range site, then shared by every
-				// later site within ~4000 instructions of it, after which the next out-of-range
-				// site places a new one. The alternative, emit_cond_branch's per-site inverted
-				// branch over a `b`, would add a second block per site (see the comment above
-				// the entry slot load for why that matters).
 				cmp_constant(cc, state.vResult, EXEC_RESULT_RETURN);
-				if (!state.far_branches || state.final_pc - state.pc <= 4000)
-				{
-					cc.b_ne(state.L_PropagateEnd);
-				}
-				else if (state.L_NearPropagate.isValid() && state.pc - state.near_propagate_pc <= 4000)
-				{
-					cc.b_ne(state.L_NearPropagate);
-				}
-				else
-				{
-					// Out of b.cond range of L_PropagateEnd and of the current trampoline (if
-					// any): place a new trampoline here for the nearby sites to share.
-					Label L_returned = cc.newLabel();
-					state.L_NearPropagate = cc.newLabel();
-					state.near_propagate_pc = state.pc;
-					cc.b_eq(L_returned);
-					cc.bind(state.L_NearPropagate);
-					cc.b(state.L_PropagateEnd);
-					cc.bind(L_returned);
-				}
+				cc.b_ne(state.L_PropagateEnd);
 				// The callee consumed its arguments from the ZASM stack.
 				cc.ldr(state.vSp, a64::ptr(state.ptrCtx, offsetof(JittedExecutionContext, sp)));
 				// Mirror the driver, which sets ctx->pc to the popped return pc
@@ -1893,9 +1814,9 @@ static void compile_single_command(CompilationState& state, a64::Compiler& cc, c
 					{
 						auto range = gotoranges_at(table, lo);
 						cmp_constant(cc, key, range.start);
-						emit_cond_branch(state, cc, a64::CondCode::kLT, default_label, goto_distance(state, table[0]));
+						cc.b(a64::CondCode::kLT, default_label);
 						cmp_constant(cc, key, range.end);
-						emit_cond_branch(state, cc, a64::CondCode::kGT, default_label, goto_distance(state, table[0]));
+						cc.b(a64::CondCode::kGT, default_label);
 						cc.b(target_label(range.target));
 						return;
 					}
@@ -1957,14 +1878,14 @@ static void compile_single_command(CompilationState& state, a64::Compiler& cc, c
 				a64::Gp rem = cc.newInt32();
 				cc.msub(rem, q, state.vTenK.w(), idx);
 				cc.cmp(rem, 0);
-				emit_cond_branch(state, cc, a64::CondCode::kNE, default_label, goto_distance(state, table[1]));
+				cc.b(a64::CondCode::kNE, default_label);
 				cc.cmp(q, 0);
-				emit_cond_branch(state, cc, a64::CondCode::kLT, default_label, goto_distance(state, table[1]));
+				cc.b(a64::CondCode::kLT, default_label);
 				if (num_targets <= 4095)
 					cc.cmp(q, num_targets);
 				else
 					cc.cmp(q, imm_to_reg(cc, (int32_t)num_targets));
-				emit_cond_branch(state, cc, a64::CondCode::kGE, default_label, goto_distance(state, table[1]));
+				cc.b(a64::CondCode::kGE, default_label);
 
 				// Binary search over runs of equal targets. The tree is emitted
 				// contiguously, so internal branches are always near; only the
@@ -2187,11 +2108,6 @@ std::optional<JittedFunction> jit_backend_compile_function(zasm_script* script, 
 		// Direct calls enter a function at its start, so only its first piece.
 		.direct_entry = direct_calls && !fn.may_yield && start_pc == fn.start_pc,
 		.runtime_debugging = runtime_debugging,
-		// Emitted code averages well under 100 bytes per ZASM instruction, so
-		// this keeps every possibly-far branch comfortably within b.cond's
-		// +/-1 MB reach; bigger functions pay one extra unconditional branch
-		// per taken-away conditional (see emit_cond_branch).
-		.far_branches = size_no_nops > 8000,
 	};
 
 	CodeHolder code;
@@ -2337,7 +2253,7 @@ std::optional<JittedFunction> jit_backend_compile_function(zasm_script* script, 
 		for (auto& [k, label] : state.resume_labels)
 		{
 			cmp_constant(cc, pc_reg, k + 1);
-			emit_cond_branch(state, cc, a64::CondCode::kEQ, label, k + 1 - start_pc);
+			cc.b(a64::CondCode::kEQ, label);
 		}
 	}
 	cc.bind(L_after_entry);
@@ -2409,13 +2325,8 @@ std::optional<JittedFunction> jit_backend_compile_function(zasm_script* script, 
 	}
 
 	// Optional gate on the virtual register count, bailing to the interpreter
-	// before finalize. Off by default: the failure modes that once made
-	// register-heavy functions unsafe or uncompilable are handled (emit errors
-	// discard the function; spill slots and far branches encode at any size),
-	// and functions up to ~155k registers compile and run correctly. A few
-	// giants still fail at label-bind time when asmjit places a branch fixup
-	// trampoline out of b.cond range - that is not predictable from the
-	// register count, and the discard below handles it. The flag remains as a
+	// before finalize. Off by default: register-heavy functions compile and run
+	// correctly (spill slots encode at any frame size). The flag remains as a
 	// bisection/debugging knob.
 	static size_t max_virt_regs = get_flag_int("-jit-a64-max-vregs").value_or(SIZE_MAX);
 	if (cc.virtRegs().size() > max_virt_regs)
@@ -2430,11 +2341,11 @@ std::optional<JittedFunction> jit_backend_compile_function(zasm_script* script, 
 	if (myErrorHandler.had_error)
 	{
 		// Emission hit an error; the generated code is unusable, so fall back
-		// to the interpreter. A spill frame too large to encode is an expected
+		// to the interpreter. A piece too large to encode is an expected
 		// capacity limit and stays quiet; anything else is a codegen bug, and
 		// jit_error makes it abort under -jit-fatal-compile-errors (CI).
 		if (myErrorHandler.only_capacity_errors)
-			jit_printf("[jit] not compiling function, spill frame too large (name: %s, start: %d, len: %zu)\n", fn.name().c_str(), start_pc, size_no_nops);
+			jit_printf("[jit] not compiling function, too large to encode (name: %s, start: %d, len: %zu)\n", fn.name().c_str(), start_pc, size_no_nops);
 		else
 			jit_error("[jit ERROR] discarding function due to emit error (name: %s, start: %d, len: %zu)\n", fn.name().c_str(), start_pc, size_no_nops);
 		return std::nullopt;

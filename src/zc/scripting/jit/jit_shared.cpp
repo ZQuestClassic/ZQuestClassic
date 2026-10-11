@@ -247,7 +247,16 @@ static bool control_enters_functions_only_at_start(const zasm_script* script, co
 // bigger functions into pieces bounds every compile.
 static size_t jit_max_piece_size()
 {
-	static size_t max_piece_size = std::max<int64_t>(1, get_flag_int("-jit-max-piece-size").value_or(10000));
+	static size_t max_piece_size = []{
+		size_t size = std::max<int64_t>(1, get_flag_int("-jit-max-piece-size").value_or(10000));
+#if ZC_JIT_BACKEND == JIT_A64
+		// An AArch64 conditional branch reaches +/-1 MB, and a branch can span a whole piece. The
+		// densest code over every script of ~1000 quests is ~57 bytes per instruction, so this
+		// keeps every piece within reach (one that wasn't would be left to the interpreter).
+		size = std::min<size_t>(size, 15000);
+#endif
+		return size;
+	}();
 	return max_piece_size;
 }
 

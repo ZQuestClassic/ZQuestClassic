@@ -158,7 +158,7 @@ Everything unusual is handled by one rule: a direct call site treats any result 
 
 #### Cost
 
-This removes the dominant cost for call-dense scripts - std.zh-heavy quests make thousands of tiny helper calls per frame, sometimes averaging only a dozen ZASM instructions of real work per call. Across the `measure_performance.py` benchmark set, total script time dropped ~30%, with the most call-heavy replays down 60%+. The tradeoff is compile time and memory: asmjit's register allocator tracks liveness per basic block for every register live across blocks, so its cost grows with blocks x those registers, and every call site adds blocks. Call sites are kept to one extra block each (no branch on an uncompiled callee, and the non-RETURN unwinds share one exit - on a64, one per ~4000 ZASM instructions, to stay in `b.cond` range) and keep no register of their own live across a block. Disable with `-no-jit-direct-calls`.
+This removes the dominant cost for call-dense scripts - std.zh-heavy quests make thousands of tiny helper calls per frame, sometimes averaging only a dozen ZASM instructions of real work per call. Across the `measure_performance.py` benchmark set, total script time dropped ~30%, with the most call-heavy replays down 60%+. The tradeoff is compile time and memory: asmjit's register allocator tracks liveness per basic block for every register live across blocks, so its cost grows with blocks x those registers, and every call site adds blocks. Call sites are kept to one extra block each (no branch on an uncompiled callee, and the non-RETURN unwinds share one exit) and keep no register of their own live across a block. Disable with `-no-jit-direct-calls`.
 
 The worst case seen is the 149k-instruction decompiled 2.50-era global script of "The Adventure of Link and Zelda: Panoply of Calatia" (replay upload `69162522CA4C5DAD4DA0CAEDA505FBFB.qst`), with ~12.7k direct call sites. It is the quest's hot global script:
 
@@ -188,8 +188,8 @@ For testing, `-jit-max-piece-size 50` splits nearly every function at nearly eve
 
 A few AArch64-specific notes (`jit_a64.cpp`):
 
-- If emitting a function reports an asmjit error, the function is discarded and stays interpreted (always correct, just slower for that one function). A spill frame too large for AArch64's load/store offsets (InvalidDisplacement) is treated as an expected capacity limit; any other emit error is a codegen bug and aborts under `jit_fatal_compile_errors` (which CI runs with). `-jit-a64-max-vregs N` (off by default) additionally skips compiling functions with more than N virtual registers; it is a bisection/debugging knob.
-- Conditional branches (`b.cond`) only reach ±1 MB, which the largest functions exceed; branches that may reach far are emitted via `emit_cond_branch`, and register-allocator fixup trampolines are placed inline by commits in our asmjit fork (which also extends spill addressing past the ~16 KB encodable range via a reserved scratch register).
+- If emitting a function reports an asmjit error, the function is discarded and stays interpreted (always correct, just slower for that one function). A piece too large to encode (InvalidDisplacement - see below) is treated as an expected capacity limit; any other emit error is a codegen bug and aborts under `jit_fatal_compile_errors` (which CI runs with). `-jit-a64-max-vregs N` (off by default) additionally skips compiling functions with more than N virtual registers; it is a bisection/debugging knob.
+- Conditional branches (`b.cond`) only reach ±1 MB, so on a64 `-jit-max-piece-size` is capped at 15000: the densest code over every script of ~1000 quests is ~57 bytes per instruction, which keeps any branch in a piece within reach. Register-allocator fixup trampolines are placed inline by commits in our asmjit fork, which also extends spill addressing past the ~16 KB encodable range via a reserved scratch register (spill frames reach ~190 KB).
 
 ## WASM backend
 
@@ -271,7 +271,7 @@ Boolean flags can be negated with a `-no` prefix (e.g. `-no-jit-wasm-structured`
 | `-jit-print-asm` | native | off | Config: `jit_print_asm` |
 | `-jit-fatal-compile-errors` | all | off | Config: `jit_fatal_compile_errors` |
 | `-jit-direct-calls` | native | on | [Direct calls between compiled functions](#direct-calls-between-compiled-functions) |
-| `-jit-max-piece-size N` | native | 10000 | [Split larger functions into pieces](#large-functions-are-compiled-in-pieces) of about this many instructions |
+| `-jit-max-piece-size N` | native | 10000 | [Split larger functions into pieces](#large-functions-are-compiled-in-pieces) of at most this many instructions (at most 15000 on a64) |
 | `-jit-a64-annotated-resume` | a64 | off | Always use the indirect-branch [resume dispatch](#resume-dispatch) |
 | `-jit-a64-max-vregs N` | a64 | off | Skip compiling functions with more than N virtual registers |
 | `-jit-save-wasm` | wasm | off | Write modules to `wasm/<qst>/` |
