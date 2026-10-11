@@ -8,9 +8,6 @@
 // - Division by constants uses sdiv: AArch64 sdiv rounds toward zero, exactly
 //   matching C semantics and the x64 backend's magic-multiply sequences.
 // - No SSE4.1 gate for CEILING/FLOOR: frintp/frintm are baseline.
-// - Resume after a call/wait is a pc-comparison dispatch at entry for
-//   functions with few resume points, and x64's indirect branch otherwise
-//   (see the comment at the dispatch).
 // - The constant 10000 is kept in a function-wide register (vTenK).
 
 #include "zc/scripting/jit/jit_a64.h"
@@ -264,8 +261,7 @@ static void check_sp(CompilationState& state, a64::Compiler& cc, a64::Gp vStackI
 	// ret: every exit shares one ret (and L_End's set_ctx_sp write-back), and
 	// asmjit would otherwise expand a full epilog at each overflow check. An
 	// early version of this backend also miscompiled a mid-function cc.ret()
-	// here (branch-to-self); like the annotated-resume miscompile documented
-	// in compile_function, that was an artifact of two since-removed
+	// here (branch-to-self); that was an artifact of two since-removed
 	// conditions and no longer reproduces (full replay suites pass with a
 	// mid-function ret emitted here - though measured no faster, so the
 	// single epilog stays).
@@ -2150,10 +2146,7 @@ std::optional<JittedFunction> jit_backend_compile_function(zasm_script* script, 
 	fnNode->setArg(0, state.ptrCtx);
 
 	// These are plain virtual registers; asmjit's allocator handles them across
-	// the whole function. (An earlier version pinned physical callee-saved
-	// registers to survive an indirect-branch resume edge, but the resume
-	// dispatch is now ordinary pc-comparison branches, so the allocator can
-	// reconcile virtual registers across it normally.)
+	// the whole function, including the annotated indirect-branch resume edges.
 	state.ptrRegisters = cc.newIntPtr("registers");
 	cc.ldr(state.ptrRegisters, a64::ptr(state.ptrCtx, offsetof(JittedExecutionContext, registers)));
 
@@ -2178,38 +2171,12 @@ std::optional<JittedFunction> jit_backend_compile_function(zasm_script* script, 
 	state.vResult = cc.newUInt32("result");
 	state.L_End = cc.newLabel();
 
-	// If resuming after a call or wait, dispatch to the resume label by
-	// comparing ctx->pc against each resume point. A resume label bound at
-	// the command with pc K is entered when execution resumes at K+1 (the
-	// interpreter sets ctx->pc there after the call/wait completes). These
-	// direct branches also keep the resume blocks reachable, so no
-	// annotation is needed.
-	//
-	// Resume after a call/wait either via an annotated indirect branch like
-	// the x64 backend (ctx->resume_address holds the resume label's native
-	// address), or via pc-comparison branches.
-	//
-	// The comparison dispatch lets every resume edge carry its own register
-	// fixup moves, while an indirect edge cannot, forcing the allocator to
-	// keep the register state consistent at every resume label at once and
-	// pessimizing the function body. But it costs one compare per resume
-	// point on every entry, so for a function with many call sites it is
-	// quadratic-feeling in practice: every return from a callee re-walks the
-	// chain. Decompiled 2.50-era quests have global scripts with thousands of
-	// call sites in one function, where the chain made scripts ~30x slower
-	// than the interpreter (and the cost grows the deeper into the function
-	// the game's hot call sites sit). So: comparison dispatch for functions
-	// with few resume points, indirect branch for the rest.
-	static bool annotated_resume = get_flag_bool("-jit-a64-annotated-resume").value_or(false);
-	constexpr size_t max_linear_resume_points = 32;
-	bool use_annotated_resume = annotated_resume || state.resume_labels.size() > max_linear_resume_points;
-
 	// Direct-entry preamble. A direct native call always enters at the
 	// function start with the ZASM return pc in ctx->call_pc: push it (via
 	// the helper, which also enforces the native depth cap - past it the ctx
 	// is rewritten into a driver-path call for this callee and we propagate
 	// EXEC_RESULT_CALL without executing), and skip the resume dispatch,
-	// whose ctx->pc / ctx->resume_address are stale for this entry mode.
+	// whose ctx->resume_address is stale for this entry mode.
 	Label L_after_entry = cc.newLabel();
 	if (state.direct_entry)
 	{
@@ -2235,7 +2202,16 @@ std::optional<JittedFunction> jit_backend_compile_function(zasm_script* script, 
 		cc.bind(L_driver_entry);
 	}
 
-	if (use_annotated_resume && !state.resume_labels.empty())
+	// If resuming after a call or wait, or entering a piece mid-way (see JitPiece), jump to the
+	// resume label at ctx->resume_address through an annotated indirect branch, like the x64
+	// backend. A resume label bound at the command with pc K is where execution resumes at K+1.
+	//
+	// Comparing ctx->pc against each resume point instead would let every resume edge carry its own
+	// register fixup moves, but costs a compare per resume point on every entry - including every
+	// return from a callee, so decompiled 2.50-era global scripts with thousands of call sites in
+	// one function ran ~30x slower than the interpreter - and measured no faster even for functions
+	// with few resume points.
+	if (!state.resume_labels.empty())
 	{
 		JumpAnnotation* annotation = cc.newJumpAnnotation();
 		for (auto& [k, label] : state.resume_labels)
@@ -2245,16 +2221,6 @@ std::optional<JittedFunction> jit_backend_compile_function(zasm_script* script, 
 		cc.ldr(resume_addr_reg, a64::ptr(state.ptrCtx, offsetof(JittedExecutionContext, resume_address)));
 		cc.cbz(resume_addr_reg, L_after_entry); // If it's zero, this is a normal function start.
 		cc.br(resume_addr_reg, annotation);
-	}
-	else if (!state.resume_labels.empty())
-	{
-		a64::Gp pc_reg = cc.newInt32("resume_pc");
-		cc.ldr(pc_reg, a64::ptr(state.ptrCtx, offsetof(JittedExecutionContext, pc)));
-		for (auto& [k, label] : state.resume_labels)
-		{
-			cmp_constant(cc, pc_reg, k + 1);
-			cc.b(a64::CondCode::kEQ, label);
-		}
 	}
 	cc.bind(L_after_entry);
 

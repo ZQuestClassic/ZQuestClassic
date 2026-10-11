@@ -133,7 +133,7 @@ The two native backends share everything except instruction selection: `jit_shar
 
 ### Resume dispatch
 
-The native backends track resume points via `JittedScript::pc_to_resume_address`. x64 jumps straight to the saved native address through an annotated indirect branch. a64 picks per function: with <= 32 resume points it compares `ctx->pc` against each one on entry (direct branches, so the register allocator can put fixup moves on each edge); past that it uses the same indirect branch as x64. The limit is low because the chain runs on every entry, including every return from a callee. Decompiled 2.50-era global scripts with thousands of call sites ran up to 30x slower than the interpreter without it. `-jit-a64-annotated-resume` forces the indirect form everywhere.
+The native backends track resume points via `JittedScript::pc_to_resume_address`, and jump straight to the saved native address through an annotated indirect branch. a64 once compared `ctx->pc` against each resume point on entry instead (direct branches, so the register allocator could put fixup moves on each edge), but that chain runs on every entry, including every return from a callee: decompiled 2.50-era global scripts with thousands of call sites ran up to 30x slower than the interpreter with it, and it measured no faster even for functions with few resume points.
 
 ### Direct calls between compiled functions
 
@@ -272,7 +272,6 @@ Boolean flags can be negated with a `-no` prefix (e.g. `-no-jit-wasm-structured`
 | `-jit-fatal-compile-errors` | all | off | Config: `jit_fatal_compile_errors` |
 | `-jit-direct-calls` | native | on | [Direct calls between compiled functions](#direct-calls-between-compiled-functions) |
 | `-jit-max-piece-size N` | native | 10000 | [Split larger functions into pieces](#large-functions-are-compiled-in-pieces) of at most this many instructions (at most 15000 on a64) |
-| `-jit-a64-annotated-resume` | a64 | off | Always use the indirect-branch [resume dispatch](#resume-dispatch) |
 | `-jit-a64-max-vregs N` | a64 | off | Skip compiling functions with more than N virtual registers |
 | `-jit-save-wasm` | wasm | off | Write modules to `wasm/<qst>/` |
 | `-jit-wasm-structured`, `-jit-wasm-structured-yielder`, `-jit-wasm-sp-local`, `-jit-wasm-pointer-locals`, `-jit-wasm-inline-regs` | wasm | on | Codegen escape hatches |
