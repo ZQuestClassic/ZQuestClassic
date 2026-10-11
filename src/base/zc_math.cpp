@@ -193,7 +193,13 @@ float Round(float x)
 
 float Lerp(float a, float b, float t)
 {
-    return (a + (b - a) * t);
+    // The volatile temp pins the product's rounding, keeping this identical
+    // on every architecture under -ffp-model=fast: x86 has always rounded
+    // the product before the add, while arm64 fused them into an fma, which
+    // made script palette mixing (and slope collision) differ by one and
+    // broke cross-platform replays. See also scale_by_percent() in drawing.cpp.
+    volatile float d = (b - a) * t;
+    return a + d;
 }
 
 #define Q15 (1.0/(double)((1<<15)-1))
