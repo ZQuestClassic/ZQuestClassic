@@ -36,6 +36,8 @@ void main()
 	fnNewStyleArray(arr);
 	fnNewStyleArray(arr2);
 	fnNewStyleArray({1});
+	// OK, the same as fnNewStyleArray(arr2).
+	fnTemplateNewStyleArray(1, arr2);
 
 	int[] arr_multi[] = {arr, arr};
 	arr_multi[2] = arr_multi;
@@ -97,6 +99,11 @@ void fnOldStyleArray(int arr)
 void fnNewStyleArray(int[] arr)
 {
 	printf("fnNewStyleArray(int[] arr)", arr[0]);
+}
+
+T fnTemplateNewStyleArray<T>(T x, int[] arr)
+{
+	return x;
 }
 
 void fnNewStyleArrayObjects(bitmap[] arr)

@@ -1116,46 +1116,22 @@ static inline void trimBadFunctions(std::vector<Function*>& functions,
 		}
 		else
 		{
-			bool allowDeprecatedArrayCast = false;
-			Function* resolved_function = nullptr;
-			int apply_ret = applyTemplateTypes(function, parameterTypes, lowsize, &resolved_function, allowDeprecatedArrayCast);
-			if (apply_ret == APPLY_TEMPLATE_RET_NA)
-			{
-				parametersMatch = trimBadFunctionsCheck(parameterTypes, function, allowDeprecatedArrayCast, lowsize, user_vargs);
-			}
-			else if (apply_ret == APPLY_TEMPLATE_RET_UNSATISFIABLE)
-			{
-				parametersMatch = false;
-			}
-			else
-			{
-				assert(apply_ret == APPLY_TEMPLATE_RET_APPLIED);
-				assert(resolved_function);
-				function = resolved_function;
-				parametersMatch = trimBadFunctionsCheck(parameterTypes, function, allowDeprecatedArrayCast, lowsize, user_vargs);
-			}
-
-			if (!parametersMatch && legacy_arrays_opt)
-			{
-				allowDeprecatedArrayCast = true;
-				Function* resolved_function = nullptr;
+			// Returns the function (or the template instantiation) if the parameters
+			// match. Each attempt binds templates from the original function.
+			auto try_match = [&](bool allowDeprecatedArrayCast) -> Function* {
+				Function* resolved_function = function;
 				int apply_ret = applyTemplateTypes(function, parameterTypes, lowsize, &resolved_function, allowDeprecatedArrayCast);
-				if (apply_ret == APPLY_TEMPLATE_RET_NA)
-				{
-					parametersMatch = trimBadFunctionsCheck(parameterTypes, function, allowDeprecatedArrayCast, lowsize, user_vargs);
-				}
-				else if (apply_ret == APPLY_TEMPLATE_RET_UNSATISFIABLE)
-				{
-					parametersMatch = false;
-				}
-				else
-				{
-					assert(apply_ret == APPLY_TEMPLATE_RET_APPLIED);
-					assert(resolved_function);
-					function = resolved_function;
-					parametersMatch = trimBadFunctionsCheck(parameterTypes, function, allowDeprecatedArrayCast, lowsize, user_vargs);
-				}
-			}
+				if (apply_ret == APPLY_TEMPLATE_RET_UNSATISFIABLE)
+					return nullptr;
+				assert(resolved_function);
+				return trimBadFunctionsCheck(parameterTypes, resolved_function, allowDeprecatedArrayCast, lowsize, user_vargs) ? resolved_function : nullptr;
+			};
+			Function* matched = try_match(false);
+			if (!matched && legacy_arrays_opt)
+				matched = try_match(true);
+			parametersMatch = matched != nullptr;
+			if (matched)
+				function = matched;
 		}
 		if (!parametersMatch)
 			continue;

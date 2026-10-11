@@ -5,19 +5,19 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 Pass 3: Registration
 Pass 4: Analyzing Code
-arrays.zs Line 82 @ Columns 37-43 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+arrays.zs Line 84 @ Columns 37-43 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
 
-80    void fnOldStyleArray(int arr)
-81    {
-82        printf("fnOldStyleArray(int arr)", arr[0]);
+82    void fnOldStyleArray(int arr)
+83    {
+84        printf("fnOldStyleArray(int arr)", arr[0]);
                                              ^~~~~~
 
 
-arrays.zs Line 93 @ Columns 3-9 - Error S109: Arrays should be explicitly typed - change `int` to `int[]`
+arrays.zs Line 95 @ Columns 3-9 - Error S109: Arrays should be explicitly typed - change `int` to `int[]`
 
-91            #option LEGACY_ARRAYS off
-92    
-93            arr[0];
+93            #option LEGACY_ARRAYS off
+94    
+95            arr[0];
               ^~~~~~
 
 
@@ -53,35 +53,35 @@ arrays.zs Line 14 @ Columns 9-13 - Error S109: Array mismatch for types int and 
                     ^~~~
 
 
-arrays.zs Line 41 @ Columns 2-26 - Warning S108: Array mismatch for types int[][] and int[]
+arrays.zs Line 43 @ Columns 2-26 - Warning S108: Array mismatch for types int[][] and int[]
 
-39    
-40        int[] arr_multi[] = {arr, arr};
-41        arr_multi[2] = arr_multi;
+41    
+42        int[] arr_multi[] = {arr, arr};
+43        arr_multi[2] = arr_multi;
           ^~~~~~~~~~~~~~~~~~~~~~~~
 
 
-arrays.zs Line 44 @ Columns 9-24 - Error T017: Cannot cast from bitmap[] to bitmap.
+arrays.zs Line 46 @ Columns 9-24 - Error T017: Cannot cast from bitmap[] to bitmap.
 
-42    
-43        // Legacy arrays for reference counted objects is always an error, regardless of LEGACY_ARRAYS.
-44        bitmap bitmaps_bad_arr = {new bitmap()};
+44    
+45        // Legacy arrays for reference counted objects is always an error, regardless of LEGACY_ARRAYS.
+46        bitmap bitmaps_bad_arr = {new bitmap()};
                  ^~~~~~~~~~~~~~~
 
 
-arrays.zs Line 46 @ Columns 2-24 - Error T021: Function fnNewStyleArrayObjects(bitmap) has not been declared.
+arrays.zs Line 48 @ Columns 2-24 - Error T021: Function fnNewStyleArrayObjects(bitmap) has not been declared.
 
-44    bitmap bitmaps_bad_arr = {new bitmap()};
-45    bitmap[] bitmaps_good_arr = {new bitmap()};
-46    fnNewStyleArrayObjects(bitmaps_bad_arr);
+46    bitmap bitmaps_bad_arr = {new bitmap()};
+47    bitmap[] bitmaps_good_arr = {new bitmap()};
+48    fnNewStyleArrayObjects(bitmaps_bad_arr);
       ^~~~~~~~~~~~~~~~~~~~~~
 
 
-arrays.zs Line 51 @ Columns 10-28 - Warning S108: Array mismatch for types lweapon[] and lweapon
+arrays.zs Line 53 @ Columns 10-28 - Warning S108: Array mismatch for types lweapon[] and lweapon
 
-49    
-50        // lweapon is not a reference counted object, so this type mismatch defaults to a warning.
-51        lweapon weapons_legacy_arr = {<lweapon>NULL};
+51    
+52        // lweapon is not a reference counted object, so this type mismatch defaults to a warning.
+53        lweapon weapons_legacy_arr = {<lweapon>NULL};
                   ^~~~~~~~~~~~~~~~~~
 
 
@@ -97,11 +97,11 @@ stdout:
     {
       "range": {
         "start": {
-          "line": 81,
+          "line": 83,
           "character": 36
         },
         "end": {
-          "line": 81,
+          "line": 83,
           "character": 42
         }
       },
@@ -111,11 +111,11 @@ stdout:
     {
       "range": {
         "start": {
-          "line": 92,
+          "line": 94,
           "character": 2
         },
         "end": {
-          "line": 92,
+          "line": 94,
           "character": 8
         }
       },
@@ -181,11 +181,11 @@ stdout:
     {
       "range": {
         "start": {
-          "line": 40,
+          "line": 42,
           "character": 1
         },
         "end": {
-          "line": 40,
+          "line": 42,
           "character": 25
         }
       },
@@ -195,11 +195,11 @@ stdout:
     {
       "range": {
         "start": {
-          "line": 43,
+          "line": 45,
           "character": 8
         },
         "end": {
-          "line": 43,
+          "line": 45,
           "character": 23
         }
       },
@@ -209,11 +209,11 @@ stdout:
     {
       "range": {
         "start": {
-          "line": 45,
+          "line": 47,
           "character": 1
         },
         "end": {
-          "line": 45,
+          "line": 47,
           "character": 23
         }
       },
@@ -223,11 +223,11 @@ stdout:
     {
       "range": {
         "start": {
-          "line": 50,
+          "line": 52,
           "character": 9
         },
         "end": {
-          "line": 50,
+          "line": 52,
           "character": 27
         }
       },
@@ -236,9 +236,9 @@ stdout:
     }
   ],
   "metadata": {
-    "currentFileSymbols": 22,
-    "symbols": 37,
-    "identifiers": 74,
+    "currentFileSymbols": 23,
+    "symbols": 40,
+    "identifiers": 79,
     "elided": true
   }
 }
