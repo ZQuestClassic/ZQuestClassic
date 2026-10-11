@@ -312,6 +312,14 @@ static bool process_replay(status_entry_t& status_entry, fs::path path, [[maybe_
 		return false;
 	}
 
+	// A copied save's replay drops its uuid, and gets a new one when the copy is first played.
+	if (!meta_map.contains("uuid") && meta_map.contains("parent_uuid"))
+	{
+		status_entry.state = state::tracked;
+		status_entry.error = "copied save file has not been played yet";
+		return false;
+	}
+
 	std::string uuid = meta_map["uuid"];
 	std::string qst_hash = meta_map["qst_hash"];
 	if (uuid.empty() || qst_hash.empty() || !meta_map.contains("length"))
