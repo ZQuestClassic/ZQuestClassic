@@ -77,6 +77,7 @@
 #include "auto/subscreen_owned_clear.zs"
 #include "auto/switches.zs"
 #include "auto/tango.zs"
+#include "auto/templates.zs"
 #include "auto/varargs.zs"
 #include "auto/viewport.zs"
 #include "auto/weapon_data.zs"

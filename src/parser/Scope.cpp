@@ -896,6 +896,10 @@ static int applyTemplateTypes(
 						el_type = &static_cast<const DataTypeArray*>(el_type)->getElementType();
 				}
 			}
+			// The argument's const-ness belongs to the caller's variable, not to T
+			// (ex: passing a constant shouldn't make T's locals constant).
+			if (el_type->isConstant())
+				el_type = el_type->getMutType();
 
 			if (!bound_t)
 			{
@@ -930,6 +934,9 @@ static int applyTemplateTypes(
 								el_type = &static_cast<const DataTypeArray*>(el_type)->getElementType();
 						}
 					}
+					// As above, the argument's const-ness says nothing about T.
+					if (el_type->isConstant())
+						el_type = el_type->getMutType();
 
 					if (!bound_t)
 					{

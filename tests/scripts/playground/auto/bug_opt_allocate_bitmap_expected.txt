@@ -88,7 +88,7 @@ stdout:
   ],
   "metadata": {
     "currentFileSymbols": 9,
-    "symbols": 23,
+    "symbols": 22,
     "identifiers": 57,
     "elided": true
   }
@@ -235,7 +235,7 @@ PUSHR LWPNCOUNT; UsrFunc[void AssertEqual(int, int)] Params Start
 LOAD D2 0
 ADDV D2 1
 PUSHR D2; UsrFunc[void AssertEqual(int, int)] Params End
-CALLFUNC 0.0199; UsrFunc[void AssertEqual(int, int)] Call
+CALLFUNC 0.0177; UsrFunc[void AssertEqual(int, int)] Call
 POP D4
 CALLFUNC 0.0170; UsrFunc[void End()] Call AND [Opt:NeverRet]
 REF_REMOVE 0.0005
@@ -291,28 +291,6 @@ PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
 PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
 POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
 GAMEEXIT; InlineFunc[void Game::Exit()] Body AND if() #10 Body End
-NOP
-POPARGS D5 0.0002
-RETURNFUNC; Func[void AssertEqual(int, int)] Body End
-SETR D4 SP2; Func[void AssertEqual(int, int)] Body Start
-LOAD D2 0; if() #11 Test
-PUSHR D2
-LOAD D2 0.0001
-POP D3
-COMPARER D3 D2
-SETCMP D2 I!=
-COMPAREV D2 0
-GOTOCMP 218 ==; Test 'if'
-ALLOCATEMEMV D2 49 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start AND if() #11 Body Start
-WRITEPODSTRING D2 "[Test] failed assertion: expected %d but got %d\n"
-PUSHR D2
-LOAD D2 0
-PUSHVARGR D2
-LOAD D2 0.0001
-PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
-PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
-POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
-GAMEEXIT; InlineFunc[void Game::Exit()] Body AND if() #11 Body End
 NOP
 POPARGS D5 0.0002
 RETURNFUNC; Func[void AssertEqual(int, int)] Body End
