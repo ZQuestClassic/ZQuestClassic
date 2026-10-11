@@ -232,13 +232,18 @@ void jit_reg_cache_flush_policy(Ops& ops, DRegCache<Reg>& cache, JittedScript* j
 }
 
 // Flushes the register cache before falling off the end of a piece into the function's next piece
-// (see JitPiece). The next piece starts a block, so what may still be read there is the live-out of
-// this piece's last block.
+// (see JitPiece). What may still be read there is what is live just before the next piece's first
+// command: the live-out of the block the piece ends in, less what the rest of that block writes
+// first (when the next piece starts in the middle of the block).
 template <typename Ops, typename Reg>
-void jit_reg_cache_flush_at_piece_end(Ops& ops, DRegCache<Reg>& cache, const JitFunctionAnalysis& analysis, pc_t final_pc)
+void jit_reg_cache_flush_at_piece_end(Ops& ops, DRegCache<Reg>& cache, JittedScript* j_script,
+	const JitFunctionAnalysis& analysis, zasm_script* script, pc_t final_pc)
 {
-	pc_t next_block_id = analysis.cfg.block_id_from_start_pc(final_pc + 1);
-	cache.drop_dead(analysis.liveness[next_block_id - 1].out);
+	pc_t block_id = analysis.cfg.block_id_containing(final_pc);
+	uint8_t live = analysis.liveness[block_id].out;
+	for (pc_t i = analysis.cfg.get_block_final(block_id); i > final_pc; i--)
+		live = zasm_live_before(script->zasm[i], live, j_script->structured_zasm, j_script->function_liveness, true);
+	cache.drop_dead(live);
 	ops.flush_cache();
 }
 
@@ -469,7 +474,8 @@ void jit_emit_function_body(Backend& b, zasm_script* script, JittedScript* j_scr
 	const JitFunctionAnalysis& analysis, pc_t start_pc, pc_t final_pc, bool runtime_debugging,
 	std::string& comment, std::map<int, int>& uncompiled_command_counts)
 {
-	pc_t current_block_id = analysis.cfg.block_id_from_start_pc(start_pc);
+	// A piece of a function may start in the middle of a block (see jit_split_function).
+	pc_t current_block_id = analysis.cfg.block_id_containing(start_pc);
 
 	for (pc_t i = start_pc; i <= final_pc; i++)
 	{

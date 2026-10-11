@@ -394,6 +394,12 @@ pc_t ZasmCFG::block_id_from_start_pc(pc_t pc) const
 	return std::distance(block_starts.begin(), it);
 }
 
+pc_t ZasmCFG::block_id_containing(pc_t pc) const
+{
+	auto it = std::upper_bound(block_starts.begin(), block_starts.end(), pc);
+	return std::distance(block_starts.begin(), it) - 1;
+}
+
 pc_t ZasmCFG::get_block_final(int block) const
 {
 	return block == block_starts.size() - 1 ?

@@ -256,7 +256,7 @@ struct LivenessResult
 	// The D registers live just before the instruction at `pc`.
 	uint8_t live_before(const zasm_script* script, pc_t pc) const
 	{
-		pc_t block = std::upper_bound(cfg.block_starts.begin(), cfg.block_starts.end(), pc) - cfg.block_starts.begin() - 1;
+		pc_t block = cfg.block_id_containing(pc);
 		uint8_t live = liveness.at(block).out;
 		for (pc_t i = cfg.get_block_final(block); i >= pc; i--)
 		{

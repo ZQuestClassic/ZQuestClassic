@@ -66,10 +66,11 @@ struct JittedExecutionContext
 using JittedFunctionImpl = int (*)(JittedExecutionContext* ctx);
 
 // The unit of native compilation: a whole function, or one piece of a function too large to
-// compile at once (see jit_split_function). Pieces split a function at the start of a block, and
-// control moves between them through the driver: a piece exits to a pc in another piece like a
-// GOTO out of the function, and the driver enters a piece at a pc in its middle the same way it
-// resumes after a call or wait. Nothing about the function changes for the script.
+// compile at once (see jit_split_function). Pieces split a function at the start of a block (or
+// inside one too long for a piece), and control moves between them through the driver: a piece
+// exits to a pc in another piece like a GOTO out of the function, and the driver enters a piece at
+// a pc in its middle the same way it resumes after a call or wait. Nothing about the function
+// changes for the script.
 struct JitPiece
 {
 	pc_t fn_id;

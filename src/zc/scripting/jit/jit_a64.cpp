@@ -2364,7 +2364,7 @@ std::optional<JittedFunction> jit_backend_compile_function(zasm_script* script, 
 	{
 		// Continue in the function's next piece.
 		CacheOps ops{state, cc};
-		jit_reg_cache_flush_at_piece_end(ops, state.dreg_cache, analysis, final_pc);
+		jit_reg_cache_flush_at_piece_end(ops, state.dreg_cache, j_script, analysis, script, final_pc);
 		set_ctx_pc(state, cc, final_pc + 1);
 		cc.mov(state.vResult, EXEC_RESULT_CONTINUE);
 	}

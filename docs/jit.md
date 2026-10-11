@@ -180,7 +180,7 @@ So functions over `-jit-max-piece-size` (non-NOP) instructions, default 10000, a
 - **Leaving a piece** works like a GOTO out of the function: flush the D-register cache, store `ctx->pc`, and return `EXEC_RESULT_CONTINUE`.
 - **Entering a piece mid-way** works like resuming after a wait: jump targets reached from other pieces are registered as resume points.
 
-A piece can only start at the start of a block, and not where a comparison's flags are still to be read (by the next non-NOP instruction, or by the target of a jump - only hand-written ZASM jumps to a flag reader, and then the jump and its target stay in one piece) or while `SWITCHKEY` is live, since neither survives leaving compiled code. Only a function's first piece can be entered by a direct call.
+A piece starts at the start of a block where it can. A block longer than a piece (straight-line code, like a script initializing a huge array) is cut once the piece is full, so no piece is much bigger than `-jit-max-piece-size`. A piece never starts where a comparison's flags are still to be read (by the next non-NOP instruction, or by the target of a jump - only hand-written ZASM jumps to a flag reader, and then the jump and its target stay in one piece) or while `SWITCHKEY` is live, since neither survives leaving compiled code. Only a function's first piece can be entered by a direct call.
 
 For testing, `-jit-max-piece-size 50` splits nearly every function at nearly every allowed point.
 

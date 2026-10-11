@@ -83,6 +83,7 @@ struct ZasmCFG
 
 	bool contains_block_start(pc_t pc) const;
 	pc_t block_id_from_start_pc(pc_t pc) const;
+	pc_t block_id_containing(pc_t pc) const;
 	pc_t get_block_final(int block) const;
 	std::pair<pc_t, pc_t> get_block_bounds(int block) const;
 };

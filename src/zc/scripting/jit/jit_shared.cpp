@@ -252,8 +252,11 @@ static size_t jit_max_piece_size()
 }
 
 // Splits a function into pieces of at most about jit_max_piece_size instructions each, of similar
-// size. Pieces start at a block start (so the register cache is in a known state there). Two things
-// do not survive leaving a piece, so a piece can't start where either is still needed: the flags of
+// size. Pieces start at a block start where they can, which leaves the most in the register cache;
+// but a block too long for one piece (straight-line code, like a script initializing a huge array)
+// is cut where the piece fills up, so the piece size is a real bound. Leaving a piece flushes the
+// cache either way, so the next piece starts with it empty. Two things do not survive leaving a
+// piece, so a piece can't start where either is still needed: the flags of
 // a comparison, read by the next non-NOP command after it (and, in hand-written ZASM, by the target
 // of a jump - the compiler only ever jumps to a comparison - so such a jump stays in one piece with
 // its target); and SWITCHKEY, which the backends keep only in a host register, between a write to it
@@ -352,7 +355,8 @@ static void jit_split_function(const zasm_script* script, const ZasmFunction& fn
 	size_t piece_size = 0;
 	for (pc_t i = fn.start_pc; i <= fn.final_pc; i++)
 	{
-		if (piece_size >= target_size && cfg.contains_block_start(i) && !no_split[i - fn.start_pc])
+		bool full = piece_size >= max_piece_size || (piece_size >= target_size && cfg.contains_block_start(i));
+		if (full && !no_split[i - fn.start_pc])
 		{
 			pieces.push_back({fn.id, piece_start_pc, i - 1});
 			piece_start_pc = i;
