@@ -806,8 +806,11 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 				if (!object_indices.empty())
 					addOpcode2(funccode, new OMarkTypeClass(new VectorArgument(object_indices)));
 
-				addOpcode2(funccode, new ORefInc(new LiteralArgument(-1))); // retain this
+				// A constructor delegating to another constructor of the same class calls
+				// it at this label, skipping the construction above. The retain must come
+				// after it, since the epilogue always releases 'this'.
 				addOpcode2(funccode, new ONoOp(function.getAltLabel()));
+				addOpcode2(funccode, new ORefInc(new LiteralArgument(-1))); // retain this
 			}
 			else if(puc == puc_destruct)
 			{

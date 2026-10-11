@@ -157,6 +157,21 @@ class StackClearer
 
 stack reentrant_clear_stack;
 
+class DelegatingCtor
+{
+	Person person;
+
+	DelegatingCtor()
+	{
+		DelegatingCtor(new Person());
+	}
+
+	DelegatingCtor(Person person)
+	{
+		this->person = person;
+	}
+}
+
 generic script garbage_collection
 {
 	Person people[10];
@@ -1435,6 +1450,20 @@ generic script garbage_collection
 			// Same for the variable declared by an if/unless.
 			ifDeclElseLocals(arr[0]);
 			check("RefCount(arr[0]) (3)", RefCount(arr[0]), 1L);
+		}
+		checkCountWithGC(0);
+
+		printf("=== Test %d - constructor delegating to another constructor === \n", ++tests);
+		{
+			// The delegated-to constructor used to release `this` without retaining
+			// it, deleting the object before `new` returned it.
+			DelegatingCtor d = new DelegatingCtor();
+			check("count (1)", count, 1);
+			check("RefCount(d)", RefCount(d), 1L);
+			check("RefCount(d->person)", RefCount(d->person), 1L);
+			yield();
+			check("count (2)", count, 1);
+			check("RefCount(d) after yield", RefCount(d), 1L);
 		}
 		checkCountWithGC(0);
 
