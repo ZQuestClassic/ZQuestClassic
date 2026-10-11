@@ -11,6 +11,10 @@ enum
 };
 namespace ZScript
 {
+	class Function;
+	// The class context (puc_*) a function's body is analyzed and compiled in.
+	int getUserClassContext(Function const& func);
+
 	////////////////////////////////////////////////////////////////
 	// Standard AST Visitor.
 	class ASTVisitor

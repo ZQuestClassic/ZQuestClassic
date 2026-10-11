@@ -19,6 +19,21 @@ T tmpl_copy_first<T>(...T[] args)
 	return copy;
 }
 
+class TemplateMember
+{
+	int value;
+
+	void set<T>(T x)
+	{
+		value = <int>x;
+	}
+
+	TemplateMember self<T>(T unused)
+	{
+		return this;
+	}
+}
+
 // Copies `arr[0]` into a local of type T, then reassigns it to `arr[1]`.
 T tmpl_first<T>(T[] arr)
 {
@@ -56,6 +71,15 @@ generic script templates
 			// The array's elements being constant used to bind T to `const int`.
 			Test::AssertEqual(tmpl_first(CONST_ARR), 4, "T bound from a constant array");
 			Test::AssertEqual(tmpl_first_of_first(CONST_ARR), 4, "T bound from a constant vararg array");
+		}
+
+		{
+			// Member template functions used to be analyzed outside of their class,
+			// so they could not use its members (or `this`).
+			TemplateMember m = new TemplateMember();
+			m->set(42);
+			Test::AssertEqual(m->value, 42, "member template writes a member");
+			Test::AssertEqual(m->self(1)->value, 42, "member template returns this");
 		}
 
 		Test::End();

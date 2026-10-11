@@ -25,6 +25,17 @@ uint32_t zscript_failcode = 0;
 std::vector<Diagnostic>* current_diagnostics;
 bool zscript_error_out = false;
 
+int ZScript::getUserClassContext(Function const& func)
+{
+	if (!func.getFlag(FUNCFLAG_CLASSFUNC) || func.getFlag(FUNCFLAG_STATIC))
+		return puc_none;
+	if (func.getFlag(FUNCFLAG_CONSTRUCTOR))
+		return puc_construct;
+	if (func.getFlag(FUNCFLAG_DESTRUCTOR))
+		return puc_destruct;
+	return puc_funcs;
+}
+
 ////////////////////////////////////////////////////////////////
 // RecursiveVisitor
 
@@ -147,7 +158,13 @@ void RecursiveVisitor::_visit_internals(Function& func)
 	{
 		ScopeReverter sr(&scope);
 		scope = func.getInternalScope();
+		// Template instantiations are visited from a queue after everything else, so
+		// restore the class context a member function's body is analyzed in.
+		auto old_puc = parsing_user_class;
+		if (func.isFromTypeTemplate)
+			parsing_user_class = getUserClassContext(func);
 		analyzeFunctionInternals(func);
+		parsing_user_class = old_puc;
 	}
 }
 void RecursiveVisitor::visitFunctionInternals(ZScript::Program& program)

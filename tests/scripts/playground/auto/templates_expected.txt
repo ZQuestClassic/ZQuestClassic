@@ -17,9 +17,9 @@ stdout:
   "success": true,
   "diagnostics": [],
   "metadata": {
-    "currentFileSymbols": 12,
-    "symbols": 25,
-    "identifiers": 50,
+    "currentFileSymbols": 18,
+    "symbols": 35,
+    "identifiers": 73,
     "elided": true
   }
 }
@@ -78,49 +78,49 @@ COMPAREV D2 0
 GOTOCMP 53 ==; Test 'while'
 WAITFRAME; InlineFunc[void Waitframe()] Body AND while() #2 Body
 GOTO 45; while() #2 End
-CALLFUNC 0.0153; UsrFunc[void End()] Call AND [Opt:NeverRet]
+CALLFUNC 0.0194; UsrFunc[void End()] Call AND [Opt:NeverRet]
 REF_REMOVE 0.0002; [Opt:NeverRet] AND void run() Body End
 PUSHV 0; void run() Body Start
 SETR D4 SP2
 PUSHR D4
 PUSHV 0; UsrFunc[void Init(int)] Params
-CALLFUNC 0.0131; UsrFunc[void Init(int)] Call
+CALLFUNC 0.0172; UsrFunc[void Init(int)] Call
 POP D4
 PUSHARGSR D4 0.0002; UsrFunc[void AssertEqual(int, int, char32[])] Params Start
 PUSHV 5; UsrFunc[int tmpl_copy(int)] Params
-CALLFUNC 0.0188; UsrFunc[int tmpl_copy(int)] Call
+CALLFUNC 0.0229; UsrFunc[int tmpl_copy(int)] Call
 POP D4
 PUSHR D2
 PUSHV 5
 ALLOCATEMEMV D2 24 0
 WRITEPODSTRING D2 "T bound from a constant"
 PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
-CALLFUNC 0.0160; UsrFunc[void AssertEqual(int, int, char32[])] Call
+CALLFUNC 0.0201; UsrFunc[void AssertEqual(int, int, char32[])] Call
 PEEK D4
 PUSHR D4; UsrFunc[void AssertEqual(int, int, char32[])] Params Start
 PUSHV 7; UsrFunc[int tmpl_copy(int)] Params
-CALLFUNC 0.0188; UsrFunc[int tmpl_copy(int)] Call
+CALLFUNC 0.0229; UsrFunc[int tmpl_copy(int)] Call
 POP D4
 PUSHR D2
 PUSHV 7
 ALLOCATEMEMV D2 23 0
 WRITEPODSTRING D2 "T bound from a literal"
 PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
-CALLFUNC 0.0160; UsrFunc[void AssertEqual(int, int, char32[])] Call
+CALLFUNC 0.0201; UsrFunc[void AssertEqual(int, int, char32[])] Call
 PEEK D4
 PUSHR D4; UsrFunc[void AssertEqual(int, int, char32[])] Params Start
 PUSHVARGV 5; UsrFunc[int tmpl_copy_first(...int[])] Params Start
 PUSHVARGV 6
 MAKEVARGARRAY 0; Allocate Vargs array
 PUSHR D2; Push the Vargs array pointer AND UsrFunc[int tmpl_copy_first(...int[])] Params End
-CALLFUNC 0.0197; UsrFunc[int tmpl_copy_first(...int[])] Call
+CALLFUNC 0.0238; UsrFunc[int tmpl_copy_first(...int[])] Call
 POP D4
 PUSHR D2
 PUSHV 5
 ALLOCATEMEMV D2 31 0
 WRITEPODSTRING D2 "T bound from a constant vararg"
 PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
-CALLFUNC 0.0160; UsrFunc[void AssertEqual(int, int, char32[])] Call
+CALLFUNC 0.0201; UsrFunc[void AssertEqual(int, int, char32[])] Call
 POP D4
 ALLOCATEMEMV D2 2 0
 PUSHR D2
@@ -130,14 +130,14 @@ STORE_OBJECT D2 0
 PUSHARGSR D4 0.0002; UsrFunc[void AssertEqual(int, int, char32[])] Params Start
 LOAD D2 0; UsrFunc[int tmpl_first(int[])] Params Start
 PUSHR D2; UsrFunc[int tmpl_first(int[])] Params End
-CALLFUNC 0.0215; UsrFunc[int tmpl_first(int[])] Call
+CALLFUNC 0.0282; UsrFunc[int tmpl_first(int[])] Call
 POP D4
 PUSHR D2
 PUSHV 4
 ALLOCATEMEMV D2 30 0
 WRITEPODSTRING D2 "T bound from a constant array"
 PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
-CALLFUNC 0.0160; UsrFunc[void AssertEqual(int, int, char32[])] Call
+CALLFUNC 0.0201; UsrFunc[void AssertEqual(int, int, char32[])] Call
 PEEK D4
 PUSHR D4; UsrFunc[void AssertEqual(int, int, char32[])] Params Start
 LOAD D2 0; UsrFunc[int tmpl_first_of_first(...int[][])] Params Start
@@ -145,17 +145,58 @@ PUSHVARGR D2
 MARK_TYPE_VARG 0.0009
 MAKEVARGARRAY 0.0009; Allocate Vargs array
 PUSHR D2; Push the Vargs array pointer AND UsrFunc[int tmpl_first_of_first(...int[][])] Params End
-CALLFUNC 0.0233; UsrFunc[int tmpl_first_of_first(...int[][])] Call
+CALLFUNC 0.0300; UsrFunc[int tmpl_first_of_first(...int[][])] Call
 POP D4
 PUSHR D2
 PUSHV 4
 ALLOCATEMEMV D2 37 0
 WRITEPODSTRING D2 "T bound from a constant vararg array"
 PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
-CALLFUNC 0.0160; UsrFunc[void AssertEqual(int, int, char32[])] Call
+CALLFUNC 0.0201; UsrFunc[void AssertEqual(int, int, char32[])] Call
 POP D4
 REF_REMOVE 0
-CALLFUNC 0.0153; UsrFunc[void End()] Call AND [Opt:NeverRet] AND [Opt:NeverRet] AND void run() Body End
+PUSHR CLASS_THISKEY
+PUSHR D4
+CALLFUNC 0.0256; ClassFunc[TemplateMember TemplateMember::TemplateMember()] Constructor Call
+POP D4
+POP CLASS_THISKEY
+STORE_OBJECT D2 0
+PUSHR CLASS_THISKEY
+PUSHR D4
+PUSHV 42; ClassFunc[void TemplateMember::set(int)] Params Start
+LOAD D2 0
+SETR CLASS_THISKEY D2; ClassFunc[void TemplateMember::set(int)] Params End
+CALLFUNC 0.0268; ClassFunc[void TemplateMember::set(int)] Call
+POP D4
+POP CLASS_THISKEY
+PUSHR D4
+LOAD D2 0; UsrFunc[void AssertEqual(int, int, char32[])] Params Start
+ZCLASS_READ D2 0
+PUSHR D2
+PUSHV 42
+ALLOCATEMEMV D2 32 0
+WRITEPODSTRING D2 "member template writes a member"
+PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
+CALLFUNC 0.0201; UsrFunc[void AssertEqual(int, int, char32[])] Call
+PEEK D4
+PUSHR CLASS_THISKEY; UsrFunc[void AssertEqual(int, int, char32[])] Params Start
+PUSHR D4
+PUSHV 1; ClassFunc[TemplateMember TemplateMember::self(int)] Params Start
+LOAD D2 0
+SETR CLASS_THISKEY D2; ClassFunc[TemplateMember TemplateMember::self(int)] Params End
+CALLFUNC 0.0275; ClassFunc[TemplateMember TemplateMember::self(int)] Call
+POP D4
+POP CLASS_THISKEY
+ZCLASS_READ D2 0
+PUSHR D2
+PUSHV 42
+ALLOCATEMEMV D2 29 0
+WRITEPODSTRING D2 "member template returns this"
+PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
+CALLFUNC 0.0201; UsrFunc[void AssertEqual(int, int, char32[])] Call
+POP D4
+REF_REMOVE 0
+CALLFUNC 0.0194; UsrFunc[void End()] Call AND [Opt:NeverRet] AND [Opt:NeverRet] AND void run() Body End
 SETR D4 SP2; Func[void Init(int)] Body Start
 ALLOCATEMEMV D2 35 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
 WRITEPODSTRING D2 "[Test] started: dmap %d screen %d\n"
@@ -169,7 +210,7 @@ LOAD D2 0; if() #388 Test
 COMPAREV D2 0
 SETCMP D2 I!=
 COMPAREV D2 0
-GOTOCMP 150 ==; Test 'if'
+GOTOCMP 191 ==; Test 'if'
 PUSHV 5; InlineFunc[void hero::Warp(int, int)] Params Start AND if() #388 Body Start
 LOAD D2 0; InlineFunc[void hero::Warp(int, int)] Params End
 POP D3; InlineFunc[void hero::Warp(int, int)] Body Start
@@ -195,7 +236,7 @@ POP D3
 COMPARER D3 D2
 SETCMP D2 I!=
 COMPAREV D2 0
-GOTOCMP 184 ==; Test 'if'
+GOTOCMP 225 ==; Test 'if'
 ALLOCATEMEMV D2 53 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start AND if() #390 Body Start
 WRITEPODSTRING D2 "[Test] failed assertion: expected %d but got %d. %s\n"
 PUSHR D2
@@ -240,6 +281,32 @@ LOAD D2 0; return Start
 REF_REMOVE 0.0001; return End
 POPARGS D5 0.0002
 RETURNFUNC; Func[int tmpl_copy_first(...int[])] Body End
+SETV D2 0; Func[TemplateMember TemplateMember::TemplateMember()] Body Start
+SETR CLASS_THISKEY2 CLASS_THISKEY
+ZCLASS_CONSTRUCT CLASS_THISKEY {0.0001}
+REF_INC -0.0001
+SETR D4 SP2
+PUSHR CLASS_THISKEY2
+NOP
+REF_AUTORELEASE CLASS_THISKEY
+REF_DEC -0.0001
+SETR D2 CLASS_THISKEY
+POP CLASS_THISKEY
+RETURNFUNC; Func[TemplateMember TemplateMember::TemplateMember()] Body End
+REF_INC -0.0001; Func[void TemplateMember::set(int)] Body Start
+SETR D4 SP2
+LOAD D2 0
+ZCLASS_WRITE CLASS_THISKEY 0
+POP D5
+REF_DEC -0.0001
+RETURNFUNC; Func[void TemplateMember::set(int)] Body End
+REF_INC -0.0001; Func[TemplateMember TemplateMember::self(int)] Body Start
+SETR D4 SP2
+SETR D2 CLASS_THISKEY; return Start
+REF_AUTORELEASE D2
+POP D5; return End
+REF_DEC -0.0001
+RETURNFUNC; Func[TemplateMember TemplateMember::self(int)] Body End
 PUSHV 0; Func[int tmpl_first(int[])] Body Start
 SETR D4 SP2
 MARK_TYPE_STACK 0.0009 0.0001
