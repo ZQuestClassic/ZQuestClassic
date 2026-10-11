@@ -851,12 +851,16 @@ void weapon::convertType(bool toLW)
 // objects and arrays. Nothing is released when the type does not change: that
 // would wipe the state of a script that keeps running, restarting it from
 // scratch.
+//
+// The script number is dropped too: it refers to the old type's script table,
+// and would otherwise start whichever script has that number in the new one.
 void weapon::setIsLWeapon(bool toLW)
 {
 	if((bool)isLWeapon == toLW)
 		return;
 	FFCore.clear_script_engine_data(*get_scrtype(), getUID());
 	isLWeapon = toLW;
+	weaponscript = 0;
 }
 
 weapon::weapon(weapon const & other):
