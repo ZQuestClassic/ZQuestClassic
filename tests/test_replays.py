@@ -365,7 +365,24 @@ class TestReplays(unittest.TestCase):
         state_path = replays_folder / 'state.json'
         if state_path.exists():
             state_path.unlink()
-        shutil.copy(replay_path, replays_folder / 'test.zplay')
+
+        # Start with just the first half of the replay, to later simulate the player
+        # continuing to play the same save.
+        # Only the leading lines are meta: a meta step may also appear mid-replay.
+        lines = [l for l in replay_path.read_text().splitlines() if l]
+        num_meta = next(i for i, l in enumerate(lines) if not l.startswith('M '))
+        meta_lines, steps = lines[:num_meta], lines[num_meta:]
+
+        def replay_text(num_steps: int):
+            meta = [
+                f'M length {num_steps}' if l.startswith('M length ') else l
+                for l in meta_lines
+            ]
+            return '\n'.join(meta + steps[:num_steps]) + '\n'
+
+        # Written like ZC does, with \n line endings: the upload is sent byte for byte.
+        local_replay_path = replays_folder / 'test.zplay'
+        local_replay_path.write_text(replay_text(len(steps) // 2), newline='\n')
 
         api_server_data_folder = tmp_dir / 'api_server'
         if api_server_data_folder.exists():
@@ -375,6 +392,11 @@ class TestReplays(unittest.TestCase):
             root_dir / 'api_server/test_fixtures/manifest.json',
             api_server_data_folder / 'manifest.json',
         )
+        server_replay_path = (
+            api_server_data_folder
+            / 'replays/5833FF169985B186D58058417E918408/c990976a-f5cf-4d2f-994d-c06ab841bc96.zplay'
+        )
+
         with open(tmp_dir / 'api_server.log', 'w') as f:
             p = subprocess.Popen(
                 ['flask', '--app', 'server', 'run', '-p', '5000'],
@@ -383,33 +405,64 @@ class TestReplays(unittest.TestCase):
                 stdout=f,
                 stderr=subprocess.STDOUT,
             )
-        # Give the server enough time to start up.
-        time.sleep(5)
 
-        run_target.check_run(
-            'zplayer',
-            [
-                '-headless',
-                '-upload-replays',
-            ],
-            env={**os.environ, 'TEST_ZC_API_SERVER': 'http://localhost:5000'},
-        )
-        p.kill()
-        p.wait()
+        def upload_replays():
+            run_target.check_run(
+                'zplayer',
+                [
+                    '-headless',
+                    '-upload-replays',
+                ],
+                env={**os.environ, 'TEST_ZC_API_SERVER': 'http://localhost:5000'},
+            )
+            state = json.loads(state_path.read_text())
+            self.assertEqual(state['entries']['test.zplay']['state'], 'tracked')
 
-        state = json.loads(state_path.read_text())
-        self.assertEqual(state['entries']['test.zplay']['state'], 'tracked')
+        try:
+            attempts = 0
+            while True:
+                text = (tmp_dir / 'api_server.log').read_text()
+                if 'Running on' in text:
+                    break
 
-        replays = [
-            str(p.relative_to(api_server_data_folder).as_posix())
-            for p in api_server_data_folder.rglob('*.zplay')
-        ]
-        self.assertEqual(
-            replays,
-            [
-                'replays/5833FF169985B186D58058417E918408/c990976a-f5cf-4d2f-994d-c06ab841bc96.zplay'
-            ],
-        )
+                time.sleep(1)
+                attempts += 1
+                if attempts == 30:
+                    raise Exception(f'server did not start:\n{text}')
+
+            upload_replays()
+
+            replays = [
+                str(p.relative_to(api_server_data_folder).as_posix())
+                for p in api_server_data_folder.rglob('*.zplay')
+            ]
+            self.assertEqual(
+                replays,
+                [
+                    'replays/5833FF169985B186D58058417E918408/c990976a-f5cf-4d2f-994d-c06ab841bc96.zplay'
+                ],
+            )
+            self.assertEqual(
+                server_replay_path.read_text(), replay_text(len(steps) // 2)
+            )
+
+            # Continue playing: the rest of the steps are appended to the same replay.
+            # A replay is only re-uploaded if modified after the last upload, which is
+            # tracked in seconds, so push the modified time forward.
+            local_replay_path.write_text(replay_text(len(steps)), newline='\n')
+            future_time = time.time() + 10
+            os.utime(local_replay_path, (future_time, future_time))
+
+            upload_replays()
+
+            self.assertEqual(server_replay_path.read_text(), replay_text(len(steps)))
+            self.assertIn(
+                '"PUT /api/v1/replays/c990976a-f5cf-4d2f-994d-c06ab841bc96 HTTP/1.1" 200',
+                (tmp_dir / 'api_server.log').read_text(),
+            )
+        finally:
+            p.kill()
+            p.wait()
 
 
 if __name__ == '__main__':
