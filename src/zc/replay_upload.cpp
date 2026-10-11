@@ -31,9 +31,12 @@ struct api_error
 	int status_code;
 	std::string message;
 
-	bool server_error() const
+	// True if the server rejected the replay itself, so retrying will never work. Anything else
+	// (network errors, server errors, or a 403/404/429 from some proxy or a bad deploy) may be
+	// temporary.
+	bool rejected() const
 	{
-		return status_code >= 500 && status_code < 600;
+		return status_code == 400 || status_code == 409 || status_code == 413;
 	}
 };
 
@@ -342,10 +345,10 @@ static bool process_replay(status_entry_t& status_entry, fs::path path, [[maybe_
 	{
 		auto& error = r.error();
 		status_entry.error = error.message;
-		if (error.server_error() || error.status_code == 0)
-			status_entry.try_later(now_time + TIME_ONE_DAY);
-		else
+		if (error.rejected())
 			status_entry.ignore();
+		else
+			status_entry.try_later(now_time + TIME_ONE_DAY);
 		return false;
 	}
 

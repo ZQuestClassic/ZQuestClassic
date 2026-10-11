@@ -1,9 +1,11 @@
+import http.server
 import json
 import os
 import re
 import shutil
 import subprocess
 import sys
+import threading
 import time
 import unittest
 
@@ -424,7 +426,8 @@ class TestReplays(unittest.TestCase):
         self.assertEqual(meta['qst_title'], 'Original NES 1st Quest')
         self.assertEqual(meta['qst_hash'], '5833FF169985B186D58058417E918408')
 
-    def test_upload(self):
+    def prepare_upload_test(self) -> tuple[Path, Path]:
+        """Returns tuple: replays folder, upload state path"""
         if 'CI' in os.environ and os.environ.get('CXX') == 'gcc':
             raise unittest.SkipTest('skipping test because gcc')
 
@@ -432,12 +435,17 @@ class TestReplays(unittest.TestCase):
         if resources_folder.name == 'bin':
             resources_folder = resources_folder / '../share/zquestclassic'
 
-        replay_path = root_dir / 'tests/replays/classic_1st/classic_1st_lvl1.zplay'
         replays_folder = resources_folder / 'replays'
         replays_folder.mkdir(exist_ok=True)
         state_path = replays_folder / 'state.json'
         if state_path.exists():
             state_path.unlink()
+
+        return replays_folder, state_path
+
+    def test_upload(self):
+        replays_folder, state_path = self.prepare_upload_test()
+        replay_path = root_dir / 'tests/replays/classic_1st/classic_1st_lvl1.zplay'
 
         # Start with just the first half of the replay, to later simulate the player
         # continuing to play the same save.
@@ -536,6 +544,53 @@ class TestReplays(unittest.TestCase):
         finally:
             p.kill()
             p.wait()
+
+    def test_upload_unexpected_error(self):
+        replays_folder, state_path = self.prepare_upload_test()
+        shutil.copy(
+            root_dir / 'tests/replays/classic_1st/classic_1st_lvl1.zplay',
+            replays_folder / 'test.zplay',
+        )
+
+        # Errors that aren't the server rejecting the replay (ex: a 404 from a proxy, or a bad
+        # deploy) should not make the client give up on the replay forever.
+        class Handler(http.server.BaseHTTPRequestHandler):
+            def do_GET(self):
+                body = json.dumps([{'hash': '5833FF169985B186D58058417E918408'}])
+                self.send_response(200)
+                self.send_header('Content-Type', 'application/json')
+                self.end_headers()
+                self.wfile.write(body.encode())
+
+            def do_PUT(self):
+                self.rfile.read(int(self.headers['Content-Length']))
+                self.send_response(404)
+                self.end_headers()
+
+            def log_message(self, format, *args):
+                pass
+
+        server = http.server.ThreadingHTTPServer(('127.0.0.1', 0), Handler)
+        threading.Thread(target=server.serve_forever, daemon=True).start()
+        try:
+            run_target.check_run(
+                'zplayer',
+                [
+                    '-headless',
+                    '-upload-replays',
+                ],
+                env={
+                    **os.environ,
+                    'TEST_ZC_API_SERVER': f'http://127.0.0.1:{server.server_port}',
+                },
+            )
+        finally:
+            server.shutdown()
+            server.server_close()
+
+        state = json.loads(state_path.read_text())
+        self.assertEqual(state['entries']['test.zplay']['state'], 'try_later')
+
 
 if __name__ == '__main__':
     unittest.main()
