@@ -639,6 +639,9 @@ static bool optimize_setv_pushr(OptContext& ctx)
 		{
 			if (C(j).command != SETV) continue;
 			if (C(j + 1).command != PUSHR) continue;
+			// Only a D-register: the SETV is removed, and writing to any other register
+			// (like a global variable) has an effect beyond the PUSHR.
+			if (!(C(j).arg1 >= D(0) && C(j).arg1 < D(INITIAL_D))) continue;
 			if (C(j).arg1 != C(j + 1).arg1) continue;
 			if (bisect_tool_should_skip()) continue;
 
@@ -667,6 +670,9 @@ static bool optimize_setr_pushr(OptContext& ctx)
 		{
 			if (C(j).command != SETR) continue;
 			if (C(j + 1).command != PUSHR) continue;
+			// Only a D-register: the SETR is removed, and writing to any other register
+			// (like a global variable) has an effect beyond the PUSHR.
+			if (!(C(j).arg1 >= D(0) && C(j).arg1 < D(INITIAL_D))) continue;
 			if (C(j).arg1 == rSFRAME) continue;
 			if (C(j).arg1 != C(j + 1).arg1) continue;
 			if (j + 2 <= final_pc)

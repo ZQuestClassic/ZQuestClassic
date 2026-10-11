@@ -31,6 +31,7 @@
 #include "auto/bug_npcdata_arrays_wrong_ref.zs"
 #include "auto/bug_object_deleted_during_constructor.zs"
 #include "auto/bug_opt_bool_compare_folding.zs"
+#include "auto/bug_opt_push_global_write.zs"
 #include "auto/bug_opt_var_across_waitframe.zs"
 #include "auto/bug_reflected_eweapon_kept_script.zs"
 #include "auto/bug_reflected_eweapon_owned_leak.zs"
