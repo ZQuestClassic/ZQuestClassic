@@ -109,10 +109,6 @@ generic script bug_reflected_eweapon_owned_leak
 		shield->Attributes[0] |= SHIELD_FLAG_ARROW;
 		shield->Attributes[1] |= SHIELD_FLAG_ARROW;
 
-		// The reflected fireballs above kept their script slot, so as lweapons they
-		// ran whatever lweapon script is in that slot - possibly this one. Only
-		// count the arrow's own starts.
-		int starts_before = lweapon_script_starts;
 		lweapon arrow = Screen->CreateLWeapon(LW_REFARROW);
 		arrow->X = 160;
 		arrow->Y = 80;
@@ -130,7 +126,7 @@ generic script bug_reflected_eweapon_owned_leak
 		}
 		Waitframes(2);
 		Test::Assert(arrow->isValid(), "shield-reflected lweapon still exists");
-		Test::AssertEqual(lweapon_script_starts - starts_before, 1, "lweapon script kept its state through a shield reflection");
+		Test::AssertEqual(lweapon_script_starts, 1, "lweapon script kept its state through a shield reflection");
 		arrow->Remove();
 
 		Test::End();
