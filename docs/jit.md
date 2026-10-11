@@ -188,7 +188,7 @@ For testing, `-jit-max-piece-size 50` splits nearly every function at nearly eve
 
 A few AArch64-specific notes (`jit_a64.cpp`):
 
-- If emitting a function reports an asmjit error, the function is discarded and stays interpreted (always correct, just slower for that one function). A piece too large to encode (InvalidDisplacement - see below) is treated as an expected capacity limit; any other emit error is a codegen bug and aborts under `jit_fatal_compile_errors` (which CI runs with). `-jit-a64-max-vregs N` (off by default) additionally skips compiling functions with more than N virtual registers; it is a bisection/debugging knob.
+- If emitting a function reports an asmjit error, the function is discarded and stays interpreted (always correct, just slower for that one function). A piece too large to encode (InvalidDisplacement - see below) is treated as an expected capacity limit; any other emit error is a codegen bug and aborts under `jit_fatal_compile_errors` (which CI runs with).
 - Conditional branches (`b.cond`) only reach ±1 MB, so on a64 `-jit-max-piece-size` is capped at 15000: the densest code over every script of ~1000 quests is ~57 bytes per instruction, which keeps any branch in a piece within reach. Register-allocator fixup trampolines are placed inline by commits in our asmjit fork, which also extends spill addressing past the ~16 KB encodable range via a reserved scratch register (spill frames reach ~190 KB).
 
 ## WASM backend
@@ -272,7 +272,6 @@ Boolean flags can be negated with a `-no` prefix (e.g. `-no-jit-wasm-structured`
 | `-jit-fatal-compile-errors` | all | off | Config: `jit_fatal_compile_errors` |
 | `-jit-direct-calls` | native | on | [Direct calls between compiled functions](#direct-calls-between-compiled-functions) |
 | `-jit-max-piece-size N` | native | 10000 | [Split larger functions into pieces](#large-functions-are-compiled-in-pieces) of at most this many instructions (at most 15000 on a64) |
-| `-jit-a64-max-vregs N` | a64 | off | Skip compiling functions with more than N virtual registers |
 | `-jit-save-wasm` | wasm | off | Write modules to `wasm/<qst>/` |
 | `-jit-wasm-structured`, `-jit-wasm-structured-yielder`, `-jit-wasm-sp-local`, `-jit-wasm-pointer-locals`, `-jit-wasm-inline-regs` | wasm | on | Codegen escape hatches |
 | `-jit-wasm-bail-on-frozen-generic` | wasm | off | Codegen escape hatch |

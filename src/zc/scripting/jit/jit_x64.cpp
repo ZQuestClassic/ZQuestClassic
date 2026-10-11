@@ -2274,10 +2274,7 @@ std::optional<JittedFunction> jit_backend_compile_function(zasm_script* script, 
 	pc_t start_pc = piece.start_pc;
 	pc_t final_pc = piece.final_pc;
 
-	auto size_no_nops_opt = jit_function_size_within_cap(script, fn, start_pc, final_pc);
-	if (!size_no_nops_opt)
-		return std::nullopt;
-	size_t size_no_nops = *size_no_nops_opt;
+	size_t size_no_nops = jit_piece_size_no_nops(script, start_pc, final_pc);
 
 	std::chrono::steady_clock::time_point start_time, end_time;
 	start_time = std::chrono::steady_clock::now();

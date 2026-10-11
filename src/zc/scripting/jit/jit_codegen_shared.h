@@ -247,9 +247,8 @@ void jit_reg_cache_flush_at_piece_end(Ops& ops, DRegCache<Reg>& cache, JittedScr
 	ops.flush_cache();
 }
 
-// Counts a piece's non-NOP instructions and rejects pieces too large to be
-// worth compiling. Returns std::nullopt if the piece should stay interpreted.
-inline std::optional<size_t> jit_function_size_within_cap(zasm_script* script, const ZasmFunction& fn, pc_t start_pc, pc_t final_pc)
+// Counts a piece's non-NOP instructions.
+inline size_t jit_piece_size_no_nops(zasm_script* script, pc_t start_pc, pc_t final_pc)
 {
 	size_t size_no_nops = 0;
 	for (pc_t i = start_pc; i <= final_pc; i++)
@@ -257,15 +256,6 @@ inline std::optional<size_t> jit_function_size_within_cap(zasm_script* script, c
 		if (script->zasm[i].command != NOP)
 			size_no_nops += 1;
 	}
-
-	// Functions are split into pieces far smaller than this (see jit_max_piece_size), unless the
-	// piece size is raised to compile them whole.
-	if (size_no_nops > 150000)
-	{
-		al_trace("[jit] not compiling function because it is too big (name: %s, start: %d, len: %zu)\n", fn.name().c_str(), start_pc, size_no_nops);
-		return std::nullopt;
-	}
-
 	return size_no_nops;
 }
 

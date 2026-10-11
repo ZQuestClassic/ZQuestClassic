@@ -2083,10 +2083,7 @@ std::optional<JittedFunction> jit_backend_compile_function(zasm_script* script, 
 	pc_t start_pc = piece.start_pc;
 	pc_t final_pc = piece.final_pc;
 
-	auto size_no_nops_opt = jit_function_size_within_cap(script, fn, start_pc, final_pc);
-	if (!size_no_nops_opt)
-		return std::nullopt;
-	size_t size_no_nops = *size_no_nops_opt;
+	size_t size_no_nops = jit_piece_size_no_nops(script, start_pc, final_pc);
 
 	std::chrono::steady_clock::time_point start_time, end_time;
 	start_time = std::chrono::steady_clock::now();
@@ -2288,17 +2285,6 @@ std::optional<JittedFunction> jit_backend_compile_function(zasm_script* script, 
 	{
 		cc.bind(state.L_PropagateEnd);
 		cc.ret(state.vResult);
-	}
-
-	// Optional gate on the virtual register count, bailing to the interpreter
-	// before finalize. Off by default: register-heavy functions compile and run
-	// correctly (spill slots encode at any frame size). The flag remains as a
-	// bisection/debugging knob.
-	static size_t max_virt_regs = get_flag_int("-jit-a64-max-vregs").value_or(SIZE_MAX);
-	if (cc.virtRegs().size() > max_virt_regs)
-	{
-		jit_printf("[jit] not compiling function, too many registers (name: %s, start: %d, regs: %u)\n", fn.name().c_str(), start_pc, cc.virtRegs().size());
-		return std::nullopt;
 	}
 
 	cc.endFunc();
