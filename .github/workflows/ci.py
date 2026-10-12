@@ -804,12 +804,6 @@ def replay_tests(ctx: CiContext, args):
             ]
         )
 
-    # These replays don't play back exactly under gcc yet. See "TODO: GCC w/
-    # these flags" in CMakeLists.txt.
-    if ctx.compiler == 'gcc' and (args.no_jit or args.no_optimize_zasm):
-        base_cmd = [arg for arg in base_cmd if arg != "--filter=yuurand_riviere.zplay"]
-        base_cmd = [arg for arg in base_cmd if arg != "--filter=crucible_quest_short"]
-
     if args.extra_args:
         logger.info(f"Applying extra arguments: {args.extra_args}")
         extra_args = shlex.split(args.extra_args)
