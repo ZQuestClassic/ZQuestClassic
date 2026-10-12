@@ -93,8 +93,8 @@ enum //PGGOTO modes
 
 struct SubscrColorInfo
 {
-	byte type;
-	int16_t color;
+	byte type = 0;
+	int16_t color = 0;
 	int32_t get_cset() const;
 	int32_t get_color() const;
 	int32_t get_int_cset() const;
@@ -111,8 +111,8 @@ struct SubscrColorInfo
 
 struct SubscrMTInfo
 {
-	int32_t mt_tile;
-	byte cset, mt_crn;
+	int32_t mt_tile = 0;
+	byte cset = 0, mt_crn = 0;
 	
 	int32_t tile() const;
 	byte crn() const;
@@ -128,9 +128,9 @@ struct SubscrMTInfo
 
 struct SubscrSelectorTileInfo
 {
-	word sw, sh;
-	int32_t tile;
-	byte cset, frames, speed, delay;
+	word sw = 0, sh = 0;
+	int32_t tile = 0;
+	byte cset = 0, frames = 0, speed = 0, delay = 0;
 	
 	void clear();
 	int32_t read(PACKFILE *f, word s_version);
@@ -139,7 +139,7 @@ struct SubscrSelectorTileInfo
 #define SUBSCR_SELECTOR_NUMTILEINFO 2
 struct SubscrSelectorInfo
 {
-	int16_t x,y,w,h;
+	int16_t x = 0, y = 0, w = 0, h = 0;
 	SubscrSelectorTileInfo tileinfo[2];
 	
 	void clear();
@@ -152,10 +152,10 @@ struct SubscrSelectorInfo
 #define SUBSCR_TRANS_NUMFLAGS 1
 struct SubscrTransition
 {
-	byte type;
-	word tr_sfx;
-	word flags;
-	int32_t arg[SUBSCR_TRANSITION_MAXARG];
+	byte type = 0;
+	word tr_sfx = 0;
+	word flags = 0;
+	int32_t arg[SUBSCR_TRANSITION_MAXARG] = {};
 	
 	void clear();
 	bool draw(BITMAP* dest, BITMAP* p1, BITMAP* p2, int dx, int dy);
@@ -331,12 +331,12 @@ enum // custom negative counters
 #define SUBSCRCOMPAT_FONT_RAND        0x01
 struct SubscrWidget
 {
-	byte posflags;
-	int16_t x;
-	int16_t y;
-	word w;
-	word h;
-	dword flags, genflags;
+	byte posflags = 0;
+	int16_t x = 0;
+	int16_t y = 0;
+	word w = 0;
+	word h = 0;
+	dword flags = 0, genflags = 0;
 	
 	std::string label;
 	
@@ -350,22 +350,22 @@ struct SubscrWidget
 	dword req_scrstate = 0, req_exstate = 0;
 	
 	int16_t req_counter = crNONE;
-	word req_counter_val;
+	word req_counter_val = 0;
 	byte req_counter_cond_type = CONDTY_NONE;
 	
-	word req_litems;
+	word req_litems = 0;
 	int16_t req_litem_level = -1;
 	
 	int16_t req_lstate_level = -1;
 	dword req_lvlstate = 0;
 	
-	bool is_disabled;
+	bool is_disabled = false;
 	
 	//if SUBSCRFLAG_SELECTABLE...
 	
 	//Selector position, and directionals
-	int32_t pos;
-	int32_t pos_up, pos_down, pos_left, pos_right;
+	int32_t pos = 0;
+	int32_t pos_up = 0, pos_down = 0, pos_left = 0, pos_right = 0;
 	
 	//Selector draw overrides
 	SubscrSelectorInfo selector_override;
@@ -374,10 +374,10 @@ struct SubscrWidget
 	
 	//Script to run on pressing a button ..plus info
 	script_config generic_scrconfig;
-	byte gen_script_btns;
+	byte gen_script_btns = 0;
 	
 	//Page transition on pressing a button ..plus info
-	byte pg_btns, pg_mode, pg_targ;
+	byte pg_btns = 0, pg_mode = 0, pg_targ = 0;
 	SubscrTransition pg_trans;
 	
 	SubscrWidget() = default;
@@ -409,9 +409,9 @@ struct SubscrWidget
 	SubscrPage const* getParentPage() const;
 	ZCSubscreen const* getParentSub() const;
 protected:
-	byte type;
-	byte compat_flags;
-	SubscrPage const* parentPage;
+	byte type = 0;
+	byte compat_flags = 0;
+	SubscrPage const* parentPage = nullptr;
 	
 	virtual int32_t read(PACKFILE *f, word s_version);
 	
