@@ -20,6 +20,9 @@ struct zinfo
 	void clear_li_abbr();
 	void clear();
 	zinfo();
+	~zinfo();
+	zinfo(const zinfo&) = delete;
+	zinfo& operator=(const zinfo&) = delete;
 
 	//ZQ Only
 	char *ic_help_string[itype_max];

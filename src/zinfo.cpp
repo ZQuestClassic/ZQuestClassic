@@ -419,6 +419,10 @@ zinfo::zinfo()
 	memset(litem_help_string, 0, sizeof(litem_help_string));
 	memset(litem_abbr, 0, sizeof(litem_abbr));
 }
+zinfo::~zinfo()
+{
+	clear();
+}
 
 void zinfo::clear_ic_help()
 {
