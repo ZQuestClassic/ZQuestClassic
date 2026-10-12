@@ -11,6 +11,7 @@
 #include "parser/parserDefs.h"
 #include "components/zasm/debug_data.h"
 #include "components/zasm/defines.h"
+#include "components/zasm/table.h"
 #include "zsyssimple.h"
 #include "ByteCode.h"
 #include "CompileError.h"
@@ -1319,6 +1320,12 @@ void ScriptAssembler::optimize_function(Function* fn)
 	fn->giveCode(code);
 }
 
+static bool argument_read_has_side_effects(Argument const* arg)
+{
+	auto var = dynamic_cast<VarArgument const*>(arg);
+	return var && register_read_has_side_effects(var->ID);
+}
+
 template <typename T>
 static int trash_op(T* op, LabelUsageIndex* label_index, std::set<int>& scope_labels, std::list<shared_ptr<Opcode>>& code, std::list<shared_ptr<Opcode>>::iterator& it, std::function<bool(T*)> condfunc, std::vector<std::unique_ptr<Argument>>* trash_bin)
 {
@@ -1532,7 +1539,10 @@ void ScriptAssembler::optimize_code(vector<shared_ptr<Opcode>>& code_vec, bool o
 						? (single_op->getArgument()) \
 						: (multi_op->getFirstArgument()); \
 					size_t addcount = 0; \
-					while(it2 != code.end()) \
+					/* A merged push reads its register once, so each push of a register */ \
+					/* that gives a new value per read (like Game->AllocateBitmap()) must stay. */ \
+					bool can_merge = !argument_read_has_side_effects(target_arg); \
+					while(can_merge && it2 != code.end()) \
 					{ \
 						Opcode* nextcode = it2->get(); \
 						if(nextcode->getLabel() != -1) \

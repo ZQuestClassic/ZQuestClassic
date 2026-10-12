@@ -349,6 +349,10 @@ static bool optimize_conseq_additive(OptContext& ctx)
 				default:        continue; // Not an instruction we can combine
 			}
 
+			// The combined push reads its register once.
+			if ((command == PUSHR || command == PUSHVARGR) && register_read_has_side_effects(arg1))
+				continue;
+
 			if ((command == PUSHV || command == PUSHR) && ctx.structured_zasm->function_calls.contains(j + 1))
 			{
 				// Don't break the thing that function calls are derived from in older ZASM.

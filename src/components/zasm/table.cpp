@@ -5005,6 +5005,20 @@ bool has_register_dependency(int reg)
 	return register_dependencies[reg].size() || get_register_ref_dependency(reg).has_value();
 }
 
+bool register_read_has_side_effects(int reg)
+{
+	switch (reg)
+	{
+		case ALLOCATEBITMAPR: // Game->AllocateBitmap() allocates a bitmap.
+		case CREATEBITMAP: // Game->CreateBitmap() and `new bitmap()` allocate a bitmap.
+		case CREATELWPNDX: // Screen->CreateLWeaponDx() creates an lweapon.
+		case INCQST: // Game->IncrementQuest() ends the quest.
+			return true;
+	}
+
+	return false;
+}
+
 std::vector<GotoTableRun> gototable_compress(const std::vector<int32_t>& table)
 {
 	// table is {min_key, default_pc, target_for_slot_0, ...}; see GOTOTABLE.

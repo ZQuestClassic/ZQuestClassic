@@ -73,6 +73,10 @@ bool does_register_use_stack(int reg);
 
 bool has_register_dependency(int reg);
 
+// Returns true if every read of a register gives a new value. Such a read can't be repeated,
+// merged with another, or stand in for a value read earlier.
+bool register_read_has_side_effects(int reg);
+
 // A GOTOTABLE's target table compressed into runs of consecutive slots that
 // share a target: {first slot index, target pc}, ascending by index. Ranged
 // cases make long runs, so the JIT backends binary-search these instead of
