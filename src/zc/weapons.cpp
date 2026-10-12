@@ -990,6 +990,11 @@ weapon::weapon(weapon const & other):
 	//	}
 		
 	//}
+	useweapondummy = other.useweapondummy;
+	usedefencedummy = other.usedefencedummy;
+	rundeath = other.rundeath;
+	shd_aclk = other.shd_aclk;
+	shd_aframe = other.shd_aframe;
 	for ( int32_t q = 0; q < 22; q++ ) wscreengrid[q] = 0;
 	memset(wscreengrid_layer, 0, sizeof(wscreengrid_layer));
 	memset(wscreengrid_ffc, 0, sizeof(wscreengrid_ffc));
