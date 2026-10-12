@@ -286,6 +286,16 @@ static void for_every_side_effect_all_args(ffscript& instr, T fn)
 	}
 }
 
+static bool reads_register_with_side_effects(const ffscript& instr)
+{
+	bool result = false;
+	for_every_register_side_effect_args_only(instr, [&](bool read, bool, int reg, int){
+		if (read && register_read_has_side_effects(reg))
+			result = true;
+	});
+	return result;
+}
+
 template<typename T>
 static void optimize_by_block(OptContext& ctx, T cb)
 {
@@ -1104,6 +1114,8 @@ static void simulate(OptContext& ctx, SimulationState& state)
 		case PUSHR:
 		{
 			auto value = IS_GENERIC_REG(arg1) ? state.d[arg1] : reg(arg1);
+			if (register_read_has_side_effects(arg1))
+				value = {ValueType::Unknown};
 			// Registers whose value depends on the value of other registers (like indexing into an array
 			// based on D0/D1) should be represented as unknown on the stack, because their dependant
 			// registers are assumed to be invalidated soon. Theoretically they could be tracked too, as they often
@@ -1117,6 +1129,8 @@ static void simulate(OptContext& ctx, SimulationState& state)
 		case PUSHARGSR:
 		{
 			auto value = IS_GENERIC_REG(arg1) ? state.d[arg1] : reg(arg1);
+			if (register_read_has_side_effects(arg1))
+				value = {ValueType::Unknown};
 			if (value.is_register() && has_register_dependency(value.data))
 				value = {ValueType::Unknown};
 			for (int i = 0; i < arg2; i++)
@@ -1183,6 +1197,9 @@ static void simulate(OptContext& ctx, SimulationState& state)
 		case SETR:
 		{
 			auto value = IS_GENERIC_REG(arg2) ? state.d[arg2] : reg(arg2);
+			// A later read would not give the same value, so don't let it stand in for this one.
+			if (register_read_has_side_effects(arg2))
+				value = {ValueType::Unknown};
 			simulate_set_value(ctx, state, arg1, value);
 			break;
 		}
@@ -2357,8 +2374,9 @@ static bool optimize_dead_code(OptContext& ctx)
 						// which takes it as the base of the current function's locals (see do_set).
 						if (!(live & (1 << reg)) && reg != rSFRAME)
 						{
-							// Don't remove writes that have other side effects (like modifying the stack).
-							if (command_is_pure(C(i).command) && !bisect_tool_should_skip())
+							// Don't remove writes that have other side effects (like modifying the stack,
+							// or reading a register that allocates).
+							if (command_is_pure(C(i).command) && !reads_register_with_side_effects(C(i)) && !bisect_tool_should_skip())
 								remove(ctx, i);
 						}
 						live &= ~(1 << reg);

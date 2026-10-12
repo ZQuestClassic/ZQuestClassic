@@ -30,6 +30,7 @@
 #include "auto/bug_npc_flags_high_bits.zs"
 #include "auto/bug_npcdata_arrays_wrong_ref.zs"
 #include "auto/bug_object_deleted_during_constructor.zs"
+#include "auto/bug_opt_allocate_bitmap.zs"
 #include "auto/bug_opt_bool_compare_folding.zs"
 #include "auto/bug_opt_bool_compare_seti.zs"
 #include "auto/bug_opt_push_global_write.zs"

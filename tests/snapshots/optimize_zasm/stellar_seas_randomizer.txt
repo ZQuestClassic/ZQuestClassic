@@ -9,9 +9,9 @@ Finished optimizing scripts:
 	[stack] saved 19538 instr (0.7%)
 	[spurious_branches] saved 0 instr (0.0%)
 	[reduce_comparisons] saved 120067 instr (4.2%)
-	[propagate_values] saved 34373 instr (1.2%)
+	[propagate_values] saved 34273 instr (1.2%)
 	[collapse_podarray] saved 318939 instr (11.3%)
 	[strength_reduce] improved 0 instances
 	[unreachable_blocks_2] saved 33 instr (0.0%)
-	[dead_code] saved 59496 instr (2.1%)
-	[total] saved 1325363 instr (46.9%)
+	[dead_code] saved 59396 instr (2.1%)
+	[total] saved 1325163 instr (46.9%)
