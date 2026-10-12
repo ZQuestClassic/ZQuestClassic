@@ -1,4 +1,5 @@
 #include <cstring>
+#include <memory>
 
 #include "core/qrs.h"
 #include "core/dmap.h"
@@ -110,7 +111,8 @@ void dosubscr()
 	set_clip_rect(framebuf, 0, 0, framebuf->w, framebuf->h);
 
 	int h = is_extended_height_mode() ? 240 : 176;
-	BITMAP* subscr_scrolling_bitmap = create_bitmap(256, h);
+	std::unique_ptr<BITMAP, decltype(&destroy_bitmap)> subscr_scrolling_bitmap_owner(create_bitmap(256, h), destroy_bitmap);
+	BITMAP* subscr_scrolling_bitmap = subscr_scrolling_bitmap_owner.get();
 
 	// Copy the complete frame.
 	// Go see the long comment in game_loop about drawPassiveSubscreenSeparate.
