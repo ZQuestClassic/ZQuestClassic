@@ -824,6 +824,12 @@ weapon::weapon(weapon const & other):
 
 {
 	scrconfig = other.scrconfig;
+	useweapondummy = other.useweapondummy;
+	usedefensedummy = other.usedefensedummy;
+	specialsfx = other.specialsfx;
+	rundeath = other.rundeath;
+	shd_aclk = other.shd_aclk;
+	shd_aframe = other.shd_aframe;
 	for ( int32_t q = 0; q < 22; q++ ) wscreengrid[q] = 0;
 	memset(wscreengrid_layer, 0, sizeof(wscreengrid_layer));
 	for( int32_t q = 0; q < WPNSPR_MAX; q++ )
