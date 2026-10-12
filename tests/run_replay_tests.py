@@ -398,7 +398,18 @@ is_asan = args.build_folder.name == 'Asan' or args.build_type == 'Asan'
 if args.test_results_folder:
     test_results_dir = args.test_results_folder.absolute()
 else:
-    test_results_dir = root_dir / f'.tmp/test_results/{int(time.time())}'
+    # Claim the folder with mkdir, so runs started in the same second don't share one.
+    timestamp = int(time.time())
+    (root_dir / '.tmp/test_results').mkdir(parents=True, exist_ok=True)
+    suffix = 0
+    while True:
+        name = f'{timestamp}-{suffix}' if suffix else str(timestamp)
+        test_results_dir = root_dir / '.tmp/test_results' / name
+        try:
+            test_results_dir.mkdir()
+            break
+        except FileExistsError:
+            suffix += 1
 test_results_path = test_results_dir / 'test_results.json'
 grouped_max_duration_arg = group_arg(args.max_duration, tests, replays_dir)
 grouped_snapshot_arg = group_arg(args.snapshot, tests, replays_dir, allow_concat=True)
