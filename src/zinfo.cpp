@@ -376,6 +376,10 @@ zinfo::zinfo()
 	memset(ctr_name, 0, sizeof(ctr_name));
 	memset(weap_name, 0, sizeof(weap_name));
 }
+zinfo::~zinfo()
+{
+	clear();
+}
 
 void zinfo::clear_ic_help()
 {
