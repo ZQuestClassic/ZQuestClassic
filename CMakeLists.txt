@@ -112,9 +112,12 @@ if(MSVC)
 	set(CMAKE_SHARED_LINKER_FLAGS_ASAN "${CMAKE_SHARED_LINKER_FLAGS_DEBUG} /fsanitize=address /DEBUG" CACHE STRING "" FORCE)
 	set(CMAKE_MODULE_LINKER_FLAGS_ASAN "${CMAKE_MODULE_LINKER_FLAGS_DEBUG} /fsanitize=address /DEBUG" CACHE STRING "" FORCE)
 else()
-	set(CMAKE_CXX_FLAGS_ASAN "${CMAKE_CXX_FLAGS_DEBUG} -fsanitize=address -fno-omit-frame-pointer" CACHE STRING "" FORCE)
-	set(CMAKE_C_FLAGS_ASAN "${CMAKE_C_FLAGS_DEBUG} -fsanitize=address -fno-omit-frame-pointer" CACHE STRING "" FORCE)
-	set(CMAKE_EXE_LINKER_FLAGS_ASAN "${CMAKE_EXE_LINKER_FLAGS_DEBUG} -fsanitize=address" CACHE STRING "" FORCE)
+	# -fsanitize=bool aborts on loading a bool that isn't 0 or 1. ASan fills new heap memory with
+	# 0xbe, so this catches reads of uninitialized bool members (unless the object was
+	# value-initialized, which zero-fills it).
+	set(CMAKE_CXX_FLAGS_ASAN "${CMAKE_CXX_FLAGS_DEBUG} -fsanitize=address,bool -fno-sanitize-recover=bool -fno-omit-frame-pointer" CACHE STRING "" FORCE)
+	set(CMAKE_C_FLAGS_ASAN "${CMAKE_C_FLAGS_DEBUG} -fsanitize=address,bool -fno-sanitize-recover=bool -fno-omit-frame-pointer" CACHE STRING "" FORCE)
+	set(CMAKE_EXE_LINKER_FLAGS_ASAN "${CMAKE_EXE_LINKER_FLAGS_DEBUG} -fsanitize=address,bool" CACHE STRING "" FORCE)
 endif()
 
 if(WANT_GIT_HOOKS)
