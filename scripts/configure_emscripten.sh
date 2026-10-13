@@ -55,6 +55,10 @@ LINKER_FLAGS=(
   # Necessary to avoid a deadlock. Bisected to here:
   # https://chromium.googlesource.com/external/github.com/emscripten-core/emscripten.git/+log/1a0b77c572ad..c48f73a5c763
   -s EXIT_RUNTIME=1
+  # Give uncaught C++ exceptions their type, message and stack. Without this (it is
+  # otherwise only on with ASSERTIONS) one thrown on a worker thread is logged as just
+  # "Uncaught [object Object]".
+  -s EXCEPTION_STACK_TRACES=1
   -s MINIFY_HTML=0
   -s ENVIRONMENT=web,worker
   -lidbfs.js

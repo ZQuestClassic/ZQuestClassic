@@ -3447,7 +3447,7 @@ struct WasmCodegenResult
 	std::map<pc_t, uint32_t> resume_dispatch;
 };
 
-static bool wasm_codegen(zasm_script* script, WasmCodegenResult& out)
+static bool wasm_codegen_impl(zasm_script* script, WasmCodegenResult& out)
 {
 	if (script->size <= 1)
 		return false;
@@ -3775,6 +3775,23 @@ static bool wasm_codegen(zasm_script* script, WasmCodegenResult& out)
 	out.wm = std::move(wm);
 	out.resume_dispatch = std::move(resume_dispatch);
 	return true;
+}
+
+// Codegen often runs on a worker thread (see jit_precompile_scripts_impl), where an
+// uncaught exception kills the worker and the browser logs only "Uncaught [object Object]".
+// Report it as a compile failure instead, so the message is logged and the script runs in
+// the interpreter.
+static bool wasm_codegen(zasm_script* script, WasmCodegenResult& out)
+{
+	try
+	{
+		return wasm_codegen_impl(script, out);
+	}
+	catch (const std::exception& e)
+	{
+		error(script, fmt::format("exception: {}", e.what()));
+		return false;
+	}
 }
 
 // Wraps a browser-compiled module id (0 = the browser failed to compile).
