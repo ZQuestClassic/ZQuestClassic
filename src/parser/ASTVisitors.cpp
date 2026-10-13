@@ -158,11 +158,10 @@ void RecursiveVisitor::_visit_internals(Function& func)
 	{
 		ScopeReverter sr(&scope);
 		scope = func.getInternalScope();
-		// Template instantiations are visited from a queue after everything else, so
-		// restore the class context a member function's body is analyzed in.
+		// From the function itself, since template instantiations are visited from a
+		// queue after everything else.
 		auto old_puc = parsing_user_class;
-		if (func.isFromTypeTemplate)
-			parsing_user_class = getUserClassContext(func);
+		parsing_user_class = getUserClassContext(func);
 		analyzeFunctionInternals(func);
 		parsing_user_class = old_puc;
 	}
@@ -203,30 +202,18 @@ void RecursiveVisitor::visitFunctionInternals(ZScript::Program& program)
 		UserClass& user_class = **it;
 		ClassScope* cscope = &user_class.getScope();
 		scope = cscope;
-		
-		DataType const* thisType = &cscope->user_class.getNode()->type->resolve(*cscope,this);
-		DataType const* constType = thisType->getConstType();
 
 		functions = cscope->getConstructors();
-		parsing_user_class = puc_construct;
 		for (auto& func : functions)
 			_visit_internals(*func);
 		
 		functions = scope->getLocalFunctions();
 		for (auto& func : functions)
-		{
-			if(func->getFlag(FUNCFLAG_STATIC))
-				parsing_user_class = puc_none;
-			else
-				parsing_user_class = puc_funcs;
 			_visit_internals(*func);
-		}
 		
 		functions = cscope->getDestructor();
-		parsing_user_class = puc_destruct;
 		for (auto& func : functions)
 			_visit_internals(*func);
-		parsing_user_class = puc_none;
 	}
 
 

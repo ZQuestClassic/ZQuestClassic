@@ -722,16 +722,7 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 		if(function.isTemplateSkip())
 			continue;
 
-		bool classfunc = function.getFlag(FUNCFLAG_CLASSFUNC) && !function.getFlag(FUNCFLAG_STATIC);
-		int puc = 0;
-		if(classfunc)
-		{
-			if(function.getFlag(FUNCFLAG_CONSTRUCTOR))
-				puc = puc_construct;
-			else if(function.getFlag(FUNCFLAG_DESTRUCTOR))
-				puc = puc_destruct;
-			else puc = puc_funcs;
-		}
+		int puc = getUserClassContext(function);
 
 		if(function.getFlag(FUNCFLAG_INLINE) && !debug_data_should_emit_inlined_functions()) continue; //Skip inline func decls, they are handled at call location -V
 		if(puc != puc_construct && function.prototype) continue; //Skip prototype func decls, they are ALSO handled at the call location -V
@@ -761,7 +752,7 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 			addOpcode2(code, new OReturnFunc());
 			function.giveCode(code);
 		}
-		else if (classfunc)
+		else if (puc != puc_none)
 		{
 			UserClass& user_class = scope->getClassScope()->user_class;
 			
