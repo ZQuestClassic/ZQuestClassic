@@ -772,7 +772,8 @@ void do_eweapon_delete();
 
 static void deallocateArray(int32_t ptrval);
 static int32_t get_screen_d(int32_t index1, int32_t index2);
-static void set_screen_d(int32_t index1, int32_t index2, int32_t val);
+// Returns false (and logs an error) if the screen or register is invalid.
+static bool set_screen_d(int32_t index1, int32_t index2, int32_t val);
 
 static void do_zapout();
 static void do_zapin();

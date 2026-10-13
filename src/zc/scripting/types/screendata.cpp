@@ -1294,8 +1294,7 @@ static ArrayRegistrar SDD_registrar(SDD, []{
 		},
 		[](int, int index, int value){
 			int32_t di2 = ((get_currdmap())<<7) + get_currscr()-(DMaps[get_currdmap()].type==dmOVERW ? 0 : DMaps[get_currdmap()].xoff);
-			FFScript::set_screen_d(di2, index, value);
-			return true;
+			return FFScript::set_screen_d(di2, index, value);
 		}
 	);
 	impl.setMul10000(false);

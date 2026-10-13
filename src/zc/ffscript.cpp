@@ -14511,32 +14511,33 @@ int32_t FFScript::get_screen_d(int32_t index1, int32_t index2)
 {
 	if(index2 < 0 || index2 > 7)
 	{
-		scripting_log_error_with_context("You were trying to reference an out-of-bounds array index for a screen's D[] array ({}); valid indices are from 0 to 7.", index1);
+		scripting_log_error_with_context("You were trying to reference an out-of-bounds array index for a screen's D[] array ({}); valid indices are from 0 to 7.", index2);
 		return 0;
 	}
 	if (index1 < 0 || index1 >= game->screen_d.size())
 	{
-		scripting_log_error_with_context("You were trying to reference an out-of-bounds screen for a D[] array ({}); valid indices are from 0 to %u.", index1, game->screen_d.size() - 1);
+		scripting_log_error_with_context("You were trying to reference an out-of-bounds screen for a D[] array ({}); valid indices are from 0 to {}.", index1, game->screen_d.size() - 1);
 		return 0;
 	}
 	
 	return game->screen_d.get(index1).get(index2);
 }
 
-void FFScript::set_screen_d(int32_t index1, int32_t index2, int32_t val)
+bool FFScript::set_screen_d(int32_t index1, int32_t index2, int32_t val)
 {
 	if(index2 < 0 || index2 > 7)
 	{
-		scripting_log_error_with_context("You were trying to reference an out-of-bounds array index for a screen's D[] array ({}); valid indices are from 0 to 7.", index1);
-		return;
+		scripting_log_error_with_context("You were trying to reference an out-of-bounds array index for a screen's D[] array ({}); valid indices are from 0 to 7.", index2);
+		return false;
 	}
 	if (index1 < 0 || index1 >= game->screen_d.size())
 	{
-		scripting_log_error_with_context("You were trying to reference an out-of-bounds screen for a D[] array ({}); valid indices are from 0 to %u.", index1, game->screen_d.size() - 1);
-		return;
+		scripting_log_error_with_context("You were trying to reference an out-of-bounds screen for a D[] array ({}); valid indices are from 0 to {}.", index1, game->screen_d.size() - 1);
+		return false;
 	}
 	
 	game->screen_d[index1][index2] = val;
+	return true;
 }
 
 void FFScript::do_zapout()
