@@ -4,6 +4,7 @@
 #include "components/zasm/defines.h"
 #include "zc/ffscript.h"
 #include "zc/scripting/arrays.h"
+#include "zc/scripting/script_object.h"
 
 #include <cstdint>
 
@@ -119,7 +120,7 @@ void genericdata_set_register(int32_t reg, int32_t value)
 		}
 		case GENDATASIZE:
 		{
-			genscr->dataResize(value/10000);
+			engine_object_storage_resize(engine_object_storage::generic_data, genscr->scrconfig.script, value/10000);
 			break;
 		}
 
@@ -157,5 +158,10 @@ static ArrayRegistrar GENDATAINITD_registrar(GENDATAINITD, []{
 static ArrayRegistrar GENDATADATA_registrar(GENDATADATA, []{
 	static ScriptingArray_ObjectMemberContainer<user_genscript, &user_genscript::data> impl;
 	impl.setMul10000(false);
+	impl.setObjectSlots([](int ref) -> std::optional<IScriptingArray::ObjectSlots> {
+		if (ref < 1 || ref >= NUMSCRIPTSGENERIC) return std::nullopt;
+
+		return IScriptingArray::ObjectSlots{engine_object_storage::generic_data, (uint32_t)ref, user_genscript::get(ref).data.size()};
+	});
 	return &impl;
 }());

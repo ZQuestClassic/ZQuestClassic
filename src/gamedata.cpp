@@ -45,6 +45,7 @@ void gamedata::save_objects(bool gc_array)
 	script_objects.clear();
 	script_arrays.clear();
 	script_stacks.clear();
+	engine_object_slots.clear();
 
 	if (gc_array) save_script_objects();
 	else save_user_objects();
@@ -123,6 +124,8 @@ void gamedata::save_script_objects()
 			script_stacks.push_back(std::move(saved_obj));
 		}
 	}
+
+	engine_object_slots = get_engine_object_slots();
 #endif
 }
 

@@ -57,6 +57,11 @@ TestResults test_saves([[maybe_unused]] bool verbose)
 	game->pos_states[5][10] = 3;
 	game->pos_states[163][175] = 0x80;
 	game->ffcpos_states[200][2] = 0xFF;
+	game->engine_object_slots = {
+		{{engine_object_storage::screen_d, 640, 4}, script_object_type::object},
+		{{engine_object_storage::screen_data, 272, 1000}, script_object_type::array},
+		{{engine_object_storage::generic_data, 48, 0}, script_object_type::stack},
+	};
 	// Does not persist.
 	// game->header.did_cheat = true;
 
@@ -265,6 +270,16 @@ TestResults test_saves([[maybe_unused]] bool verbose)
 	SAVE_TEST_VECTOR_NOFMT(compat_saved_user_objects);
 	SAVE_TEST_VECTOR_NOFMT(user_portals);
 	SAVE_TEST_VECTOR(OverrideItems);
+	tr.total++;
+	if (game->engine_object_slots.size() != save.game->engine_object_slots.size())
+	{
+		printf("game->engine_object_slots.size() != save.game->engine_object_slots.size()\n");
+		tr.failed++;
+	}
+	else
+	{
+		SAVE_TEST_VECTOR_NOFMT(engine_object_slots);
+	}
 
 	// Now do the header.
 	tr.total++;

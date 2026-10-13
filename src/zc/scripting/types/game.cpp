@@ -17,6 +17,7 @@
 #include "zc/scripting/types/musicdata.h"
 #include "advanced_music.h"
 #include "zc/zelda.h"
+#include "zc/scripting/script_object.h"
 
 #include <optional>
 
@@ -909,11 +910,23 @@ void game_set_register(int32_t reg, int32_t value)
 			ArrayH::setElement(GET_D(rINDEX), 0, value);
 			break;
 		case SDDD:
-			FFScript::set_screen_d((GET_D(rINDEX))/10000 + ((get_currdmap())<<7), GET_D(rINDEX2)/10000, value);
+		{
+			int32_t di = (GET_D(rINDEX))/10000 + ((get_currdmap())<<7);
+			int32_t reg = GET_D(rINDEX2)/10000;
+			engine_object_slot_overwrite({engine_object_storage::screen_d, (uint32_t)di, (uint32_t)reg}, [&]{
+				FFScript::set_screen_d(di, reg, value);
+			});
 			break;
+		}
 		case SDDDD:
-			FFScript::set_screen_d(GET_D(rINDEX2)/10000 + ((GET_D(rINDEX)/10000)<<7), GET_D(rEXP1)/10000, value);
+		{
+			int32_t di = GET_D(rINDEX2)/10000 + ((GET_D(rINDEX)/10000)<<7);
+			int32_t reg = GET_D(rEXP1)/10000;
+			engine_object_slot_overwrite({engine_object_storage::screen_d, (uint32_t)di, (uint32_t)reg}, [&]{
+				FFScript::set_screen_d(di, reg, value);
+			});
 			break;
+		}
 		case SPRITEMAXLWPN:
 		{
 			//No bounds check, as this is a universal function and works from NULL pointers!

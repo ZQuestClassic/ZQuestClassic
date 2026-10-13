@@ -61,6 +61,9 @@ int zasm_array_get(int zasm_var, int ref, int index);
 std::vector<int> zasm_array_get_all(int zasm_var, int ref);
 bool zasm_array_set(int zasm_var, int ref, int index, int value, script_object_type type);
 bool zasm_array_supports(int zasm_var);
+// The type of object an element of an array backed by engine storage holds (see
+// IScriptingArray::setObjectSlots), or none.
+script_object_type zasm_array_get_object_type(int zasm_var, int ref, int index);
 
 template <typename T, size_t N>
 constexpr size_t comptime_array_size(T (&)[N])
@@ -323,6 +326,20 @@ public:
 	void setReadOnly() { m_readOnly = true; }
 	bool readOnly() { return m_readOnly; }
 
+	// For arrays backed by engine storage that outlives scripts (see engine_object_slot):
+	// which storage (and key) a ref's elements are slots of, and how many there are - or
+	// nullopt if the ref is invalid. Must not log errors (the array access does).
+	struct ObjectSlots
+	{
+		engine_object_storage storage;
+		uint32_t key;
+		size_t size;
+	};
+	using ObjectSlotsFunc = std::function<std::optional<ObjectSlots>(int ref)>;
+	void setObjectSlots(ObjectSlotsFunc objectSlots) { m_objectSlots = std::move(objectSlots); }
+	bool hasObjectSlots() const { return (bool)m_objectSlots; }
+	std::optional<ObjectSlots> getObjectSlots(int ref) const { return m_objectSlots(ref); }
+
 	// Note: Do not use for new arrays.
 	void compatBoundIndex() { m_boundGetterIndex = m_boundSetterIndex = true; }
 	// Note: Do not use for new arrays.
@@ -341,6 +358,7 @@ protected:
 	bool m_boundGetterIndex;
 	bool m_boundSetterIndex;
 	std::function<std::optional<int>(int)> m_valueTransform;
+	ObjectSlotsFunc m_objectSlots;
 
 	template <typename T_Element>
 	std::optional<int> transformValue(int value) const

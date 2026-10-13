@@ -2386,6 +2386,7 @@ void FFScript::deallocateAllScriptOwned()
 {
 	clear_script_object_ids_by_type();
 	script_objects.clear();
+	engine_object_slots_reset();
 	script_array_cache_clear();
 	script_object_lookup_cache_clear();
 	next_script_object_id_freelist.clear();

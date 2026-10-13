@@ -9,6 +9,7 @@
 #include "zc/scripting/types/musicdata.h"
 #include "zc/zc_sys.h"
 #include "zc/zscriptversion.h"
+#include "zc/scripting/script_object.h"
 
 extern refInfo *ri;
 extern int32_t sarg1;
@@ -576,7 +577,7 @@ void screendata_set_register(int32_t reg, int32_t value)
 			int index = map_screen_index(cur_map, GET_REF(screenref));
 			if (index < 0) break;
 
-			game->scriptDataResize(index, value/10000);
+			engine_object_storage_resize(engine_object_storage::screen_data, index, value/10000);
 			break;
 		}
 		case SCREENSCRIPT:
@@ -1276,6 +1277,12 @@ static ArrayRegistrar SCREENSCRDATA_registrar(SCREENSCRDATA, []{
 		}
 	);
 	impl.setMul10000(false);
+	impl.setObjectSlots([](int ref) -> std::optional<IScriptingArray::ObjectSlots> {
+		int mapindex = map_screen_index(cur_map, ref);
+		if (mapindex < 0) return std::nullopt;
+
+		return IScriptingArray::ObjectSlots{engine_object_storage::screen_data, (uint32_t)mapindex, game->scriptDataSize(mapindex)};
+	});
 	return &impl;
 }());
 
@@ -1303,6 +1310,13 @@ static ArrayRegistrar SDD_registrar(SDD, []{
 		}
 	);
 	impl.setMul10000(false);
+	impl.setObjectSlots([](int ref) -> std::optional<IScriptingArray::ObjectSlots> {
+		int32_t di = screen_d_index(ref);
+		if (di < 0 || di >= game->screen_d.size())
+			return std::nullopt;
+
+		return IScriptingArray::ObjectSlots{engine_object_storage::screen_d, (uint32_t)di, 8};
+	});
 	return &impl;
 }());
 

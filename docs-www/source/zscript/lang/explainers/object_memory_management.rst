@@ -147,6 +147,11 @@ On save, an object persists to the save file (including all its variables and ar
 been globalized via |GlobalObject|, or if it is reachable from a global variable or array (note:
 int arrays do not retain objects, but untyped arrays do).
 
+The engine's untyped arrays that are themselves saved - :ref:`Screen->D[]<globals_screen_var_d>`,
+``Screen->Data[]`` / ``mapdata->Data[]``, and ``genericdata->Data[]`` - work like global variables:
+an object stored in one is kept alive (for example, each screen's ``D[]`` keeps its objects while
+the player is elsewhere) and persists to the save file.
+
 .. versionchanged:: 3.0
 	Prior to this version, only globalized objects persist to the save file.
 

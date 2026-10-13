@@ -125,6 +125,8 @@ struct gamedata
 	std::vector<user_object> script_objects;
 	std::vector<script_array> script_arrays;
 	std::vector<user_stack> script_stacks;
+	// The engine storage slots holding objects, and the objects' types.
+	std::vector<std::pair<engine_object_slot, script_object_type>> engine_object_slots;
 	std::vector<savedportal> user_portals;
 
 	// Replaced by script_arrays for newer saves.

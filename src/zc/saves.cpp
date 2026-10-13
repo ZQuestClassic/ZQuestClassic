@@ -1278,6 +1278,28 @@ static int32_t read_saves(ReadMode read_mode, PACKFILE* f, std::vector<save_t>& 
 				return 129;
 		}
 
+		if (section_version > 53)
+		{
+			if(!p_igetl(&tempdword, f))
+				return 130;
+
+			game.engine_object_slots.resize(tempdword);
+			for (auto& [slot, type] : game.engine_object_slots)
+			{
+				byte storage, object_type;
+				if (!p_getc(&storage, f))
+					return 131;
+				if (!p_igetl(&slot.key, f))
+					return 132;
+				if (!p_igetl(&slot.index, f))
+					return 133;
+				if (!p_getc(&object_type, f))
+					return 134;
+				slot.storage = (engine_object_storage)storage;
+				type = (script_object_type)object_type;
+			}
+		}
+
 		game.normalize();
 	}
 	
@@ -1742,6 +1764,20 @@ static int32_t write_save(PACKFILE* f, save_t* save, bool is_active_game)
 	}
 	if(!p_putbmap(game.gen_inst_init,f))
 		return 128;
+
+	if(!p_iputl(game.engine_object_slots.size(), f))
+		return 129;
+	for (auto [slot, type] : game.engine_object_slots)
+	{
+		if(!p_putc((byte)slot.storage, f))
+			return 130;
+		if(!p_iputl(slot.key, f))
+			return 131;
+		if(!p_iputl(slot.index, f))
+			return 132;
+		if(!p_putc((byte)type, f))
+			return 133;
+	}
 
 	return 0;
 }

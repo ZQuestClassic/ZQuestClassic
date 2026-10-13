@@ -8,6 +8,7 @@
 #include "zc/scripting/arrays.h"
 #include "zc/scripting/types/musicdata.h"
 #include "zc/zc_sys.h"
+#include "zc/scripting/script_object.h"
 
 extern refInfo *ri;
 extern int32_t sarg1;
@@ -845,7 +846,7 @@ void mapdata_set_register(int32_t reg, int32_t value)
 				int index = get_ref_map_index(GET_REF(mapdataref));
 				if (index < 0) break;
 
-				game->scriptDataResize(index, value/10000);
+				engine_object_storage_resize(engine_object_storage::screen_data, index, value/10000);
 			}
 			break;
 		}
@@ -1401,6 +1402,12 @@ static ArrayRegistrar MAPDATASCRDATA_registrar(MAPDATASCRDATA, []{
 		}
 	);
 	impl.setMul10000(false);
+	impl.setObjectSlots([](int ref) -> std::optional<IScriptingArray::ObjectSlots> {
+		int mapindex = get_ref_map_index(ref);
+		if (mapindex < 0) return std::nullopt;
+
+		return IScriptingArray::ObjectSlots{engine_object_storage::screen_data, (uint32_t)mapindex, game->scriptDataSize(mapindex)};
+	});
 	return &impl;
 }());
 
@@ -1570,7 +1577,11 @@ static ArrayRegistrar MAPDATAMISCD_registrar(MAPDATAMISCD, []{
 			if (mi < 0)
 				return;
 
-			game->screen_d[mi][index] = value;
+			// This can't hold an object (it stores value/10000), but it shares storage with
+			// Screen->D[] (map M here is dmap M there), so it can overwrite one.
+			engine_object_slot_overwrite({engine_object_storage::screen_d, (uint32_t)mi, (uint32_t)index}, [&]{
+				game->screen_d[mi][index] = value;
+			});
 		}
 	);
 	impl.compatSetDefaultValue(-10000);

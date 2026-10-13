@@ -4,8 +4,9 @@
 // Tests that saving and reloading (Game->Save + Game->Reload) correctly
 // restores script objects: identity, cycles, untyped-array object tracking,
 // stacks (values and object elements), reconstructed reference counts,
-// global-flagged objects with zero references, and the zeroing of
-// non-restorable object types (bitmap, randgen, etc).
+// global-flagged objects with zero references, objects held only by saved
+// engine storage (Screen->D[] etc), and the zeroing of non-restorable object
+// types (bitmap, randgen, etc).
 
 class GCSLNode
 {
@@ -70,6 +71,18 @@ generic script garbage_collection_save_load
 			gcsl_stack->PushBack(stackOnly);
 			gcsl_stack->PushBack(123);
 
+			// Objects held only by engine storage that is saved: the screen's D[] and
+			// Data[]. (A generic script's Data[] is too, but saves in test mode don't
+			// include generic script state.)
+			GCSLNode screenD = new GCSLNode();
+			screenD->tag = 21;
+			Screen->D[4] = screenD;
+			GCSLNode screenData = new GCSLNode();
+			screenData->tag = 22;
+			Screen->DataSize = 1;
+			Screen->Data[0] = screenData;
+			Screen->D[5] = new bitmap(); // non-restorable object in engine storage
+
 			gcsl_phase = 1;
 			Game->Save();
 			Game->Reload();
@@ -122,12 +135,23 @@ generic script garbage_collection_save_load
 			Test::AssertEqual(RefCount(gcsl_launder), 0L, "floater RefCount");
 			Test::AssertEqual((<GCSLNode>gcsl_launder)->tag, 9, "floater tag");
 
+			// Objects held only by saved engine storage. They used to be lost, leaving the
+			// storage with ids that new objects would reuse.
+			GCSLNode screenD = Screen->D[4];
+			Test::AssertEqual(screenD->tag, 21, "Screen->D object tag");
+			Test::AssertEqual(RefCount(screenD), 2L, "RefCount(Screen->D object)"); // slot + local
+			GCSLNode screenData = Screen->Data[0];
+			Test::AssertEqual(screenData->tag, 22, "Screen->Data object tag");
+			Test::AssertEqual(RefCount(screenData), 2L, "RefCount(Screen->Data object)");
+			Test::AssertEqual(<int>(Screen->D[5]), 0, "bitmap in Screen->D zeroed");
+
 			// A full GC does not delete anything restored.
 			GC();
 			Test::AssertEqual(gcsl_a->tag, 7, "post-GC gcsl_a->tag");
 			Test::AssertEqual(gcsl_a->next->tag, 8, "post-GC b tag");
 			Test::AssertEqual((<GCSLNode>gcsl_launder)->tag, 9, "post-GC floater tag");
 			Test::AssertEqual((<GCSLNode>(gcsl_stack->Get(1L)))->tag, 11, "post-GC stack-held node tag");
+			Test::AssertEqual((<GCSLNode>(Screen->D[4]))->tag, 21, "post-GC Screen->D object tag");
 
 			Test::End();
 		}

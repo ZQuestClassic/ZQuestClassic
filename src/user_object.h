@@ -6,6 +6,7 @@
 #include "base/zc_array.h"
 #include "base/general.h"
 #include "components/zasm/pc.h"
+#include <compare>
 #include <deque>
 #include <map>
 #include <memory>
@@ -28,6 +29,28 @@ extern std::vector<NamedScriptEngineData*> active_object_dtor_script_datas;
 // Only script arrays and custom user objects can be restored right now.
 // All other object types are set to NULL.
 bool can_restore_object_type(script_object_type type);
+
+// Engine storage that scripts write to through untyped arrays, and that outlives any
+// one script (and is saved to the save file).
+enum class engine_object_storage : uint8_t
+{
+	screen_d,     // gamedata::screen_d: Screen->D[], Game->SetScreenD()
+	screen_data,  // gamedata::screen_data: Screen->Data[], mapdata->Data[]
+	generic_data, // user_genscript::data: genericdata->Data[]
+};
+
+// A slot of engine_object_storage. Like a global variable, a slot holding an object
+// retains it, is a GC root, and is saved along with the object.
+// See engine_object_slot_write.
+struct engine_object_slot
+{
+	engine_object_storage storage;
+	// Which screen (the index into screen_d or screen_data), or generic script.
+	uint32_t key;
+	uint32_t index;
+
+	auto operator<=>(const engine_object_slot&) const = default;
+};
 
 struct script_object_base
 {

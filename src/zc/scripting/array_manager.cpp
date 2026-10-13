@@ -536,6 +536,14 @@ script_object_type ArrayManager::get_object_type(int indx) const
 	if (aptr && script_array_object && aptr->MaybeHoldsObjects())
 		return script_array_object->get_type_in_untyped_array(indx);
 
+	// Internal arrays backed by engine storage (ex. Screen->D).
+	if (!aptr && script_array_object && script_array_object->internal_id.has_value())
+	{
+		auto& id = *script_array_object->internal_id;
+		if (auto type = zasm_array_get_object_type(id.zasm_var, id.ref, indx); type != script_object_type::none)
+			return type;
+	}
+
 	// Internal untyped arrays (ex. npc->Misc).
 	if (!aptr && script_array_object && script_array_object->internal_id.has_value() && script_array_object->arr.MaybeHoldsObjects())
 		return script_array_object->get_type_in_untyped_array(indx);

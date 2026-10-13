@@ -141,6 +141,15 @@ public:
 				return false;
 			}
 
+			if (impl->hasObjectSlots())
+			{
+				auto write = [&]{ return impl->setElement(ref, index, value); };
+				if (auto slot = resolveObjectSlot(impl, ref, index))
+					return engine_object_slot_write(*slot, value, type, write);
+				// Invalid ref or index - the write fails (and logs why).
+				return write();
+			}
+
 			bool is_object = type != script_object_type::none;
 			if (!is_object && !IS_UNTYPED_ARRAY[zasm_var])
 				return impl->setElement(ref, index, value);
@@ -174,6 +183,17 @@ public:
 		return false;
 	}
 
+	script_object_type getObjectType(int zasm_var, int ref, int index) const
+	{
+		auto impl = m_arrays[zasm_var];
+		if (!impl || !impl->hasObjectSlots())
+			return script_object_type::none;
+
+		if (auto slot = resolveObjectSlot(impl, ref, index))
+			return engine_object_slot_type(*slot);
+		return script_object_type::none;
+	}
+
 	const IScriptingArray* getArray(int zasm_var) const
 	{
 		return m_arrays[zasm_var];
@@ -190,6 +210,23 @@ public:
 	}
 
 private:
+	// Resolves a (possibly negative) index without logging errors - the caller's access
+	// logs them.
+	static std::optional<engine_object_slot> resolveObjectSlot(IScriptingArray* impl, int ref, int index)
+	{
+		auto slots = impl->getObjectSlots(ref);
+		if (!slots)
+			return std::nullopt;
+
+		int size = slots->size;
+		if (index < 0 && !get_qr(qr_OLD_SCRIPTS_INTERNAL_ARRAYS_BOUND_INDEX))
+			index += size;
+		if (index < 0 || index >= size)
+			return std::nullopt;
+
+		return engine_object_slot{slots->storage, slots->key, (uint32_t)index};
+	}
+
 	IScriptingArray* m_arrays[NUMVARIABLES];
 	std::optional<int> m_refOverrides[NUMVARIABLES];
 };
@@ -229,6 +266,11 @@ std::vector<int> zasm_array_get_all(int zasm_var, int ref)
 bool zasm_array_set(int zasm_var, int ref, int index, int value, script_object_type type)
 {
 	return g_arrayManager.setElement(zasm_var, ref, index, value, type);
+}
+
+script_object_type zasm_array_get_object_type(int zasm_var, int ref, int index)
+{
+	return g_arrayManager.getObjectType(zasm_var, ref, index);
 }
 
 bool zasm_array_supports(int zasm_var)
