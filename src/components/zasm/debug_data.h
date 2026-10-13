@@ -38,6 +38,11 @@ enum DebugScopeFlags : uint8_t
 	// A function with no instance context (`static`) - class instance
 	// variables must not resolve from inside it.
 	SCOPE_FLAG_STATIC_FN = 8,
+	// A function that must not be found by name (ex: calling it from the debugger),
+	// though it may still be shown. Used for a constructor's delegation entry: a copy of
+	// it that only another constructor of the class calls, and that doesn't construct the
+	// object, so `new` must not resolve to it.
+	SCOPE_FLAG_NO_NAME_LOOKUP = 16,
 };
 
 struct DebugScope

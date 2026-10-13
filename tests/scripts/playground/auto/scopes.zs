@@ -127,6 +127,22 @@ namespace A
 		}
 	}
 
+	// A constructor delegating to another constructor of its class (see parser_test.cpp).
+	class Deleg
+	{
+		int v;
+
+		Deleg()
+		{
+			Deleg(5);
+		}
+
+		Deleg(int v)
+		{
+			this->v = v;
+		}
+	}
+
 	void trace()
 	{
 		Test::AssertEqual(A_var, 9);
@@ -448,6 +464,8 @@ generic script scopes
 		using_namespace_statement();
 		A::trace();
 		new A::CL()->trace();
+		Test::AssertEqual(new A::Deleg()->v, 5);
+		Test::AssertEqual(new A::Deleg(7)->v, 7);
 		template_fn(1337, 1337);
 		template_fn("hello", 1337);
 		Above(Hero);

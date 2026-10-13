@@ -96,6 +96,9 @@ namespace ZScript
 		//internals
 		virtual void analyzeFunctionInternals(ZScript::Function& function);
 	private:
+		// Unanalyzed copies of the user constructors' declarations, for
+		// Function::make_delegation_entry. Taken before any function body is analyzed.
+		std::map<Function*, std::unique_ptr<ASTFuncDecl>> pristine_ctor_nodes;
 		// Current function return type.
 		ZScript::DataType const* returnType;
 

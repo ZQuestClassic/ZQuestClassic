@@ -5,6 +5,7 @@
 #include "Scope.h"
 #include "Types.h"
 #include "CompileError.h"
+#include "base/check.h"
 #include "base/headers.h"
 #include "parser/AST.h"
 #include "parser/ASTVisitors.h"
@@ -26,6 +27,20 @@ SemanticAnalyzer::SemanticAnalyzer(Program& program)
 	scope = &program.getScope();
 	caseFile(program.getRoot());
 	assert(dynamic_cast<RootScope*>(scope));
+
+	// A constructor delegating to another needs a second, separately analyzed copy of the
+	// other one (see Function::make_delegation_entry), so keep each constructor's
+	// declaration from before its body is analyzed. Only a constructor of the same class
+	// can be delegated to, so binding classes' constructors never are. A template
+	// constructor isn't either (only its instantiations, see caseExprCall).
+	for (UserClass* user_class : program.classes)
+	{
+		for (Function* ctor : user_class->getScope().getConstructors())
+		{
+			if (ctor->node && !ctor->isBinding() && !ctor->isTemplateSkip())
+				pristine_ctor_nodes[ctor].reset(ctor->node->clone());
+		}
+	}
 
 	// Analyze function internals.
 	visitFunctionInternals(program);
@@ -1732,6 +1747,23 @@ void SemanticAnalyzer::caseExprCall(ASTExprCall& host, void* param)
 	
 	host.binding = bestFunctions.front();
 	Function::use_instantiation(host.binding);
+	// A constructor delegating to another constructor calls its delegation entry (see
+	// BuildOpcodes::caseExprCall), which is analyzed after the class's constructors.
+	if (parsing_user_class == puc_construct && host.binding->getFlag(FUNCFLAG_CONSTRUCTOR) && !host.isConstructor()
+		&& !host.binding->delegation_entry)
+	{
+		// An instantiation of a template constructor is analyzed from its own copy of the
+		// template's declaration, so its entry can be too.
+		if (host.binding->instantiated_from)
+			host.binding->make_delegation_entry(host.binding->clone_instantiation_decl());
+		else
+		{
+			auto it = pristine_ctor_nodes.find(host.binding);
+			CHECK(it != pristine_ctor_nodes.end());
+			host.binding->make_delegation_entry(std::move(it->second));
+			pristine_ctor_nodes.erase(it);
+		}
+	}
 	// `new stack<int>()` yields the instantiated type, not the base class type.
 	if (host.isConstructor() && host.ctor_type_arg && receiver_type)
 		host.binding->returnType = receiver_type;

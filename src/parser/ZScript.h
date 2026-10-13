@@ -540,7 +540,6 @@ namespace ZScript
 		int32_t getLabel() const;
 		int32_t getPrologueEndLabel() const;
 		void setPrologueEndLabel(int label);
-		int32_t getAltLabel() const;
 		void setFlag(int32_t flag, bool state = true)
 		{
 			if(node) state ? node->flags |= flag : node->flags &= ~flag;
@@ -723,6 +722,23 @@ namespace ZScript
 		// template function, it joins the applied functions.
 		static void use_instantiation(Function* func);
 		
+		// A copy of this constructor that does not allocate the object, for another
+		// constructor of the same class to delegate to (`Foo() { Foo(5); }`). It is its own
+		// function so that the delegating call lands on a function's start, which the JITs
+		// need. Made by the first delegating call (make_delegation_entry).
+		std::shared_ptr<Function> delegation_entry;
+		// For a delegation entry, the constructor it is a copy of.
+		Function* delegation_entry_of = nullptr;
+		// For a delegation entry, its own declaration (`node`).
+		std::shared_ptr<ASTFuncDecl> owned_node;
+		// `node` must be an unanalyzed copy of this constructor's declaration (analyzed
+		// AST nodes keep their scopes and bindings), which the entry takes over.
+		void make_delegation_entry(std::shared_ptr<ASTFuncDecl> node);
+		// For an instantiation of a template function: an unanalyzed copy of the template's
+		// declaration, with this instantiation's types. (The template's own declaration is
+		// never analyzed.)
+		std::unique_ptr<ASTFuncDecl> clone_instantiation_decl() const;
+
 		// The instantiations whose bodies are analyzed and compiled.
 		std::vector<std::shared_ptr<Function>>& get_applied_funcs() {return applied_funcs;}
 		std::vector<std::shared_ptr<Function>> const& get_applied_funcs() const {return applied_funcs;}
@@ -733,7 +749,6 @@ namespace ZScript
 		CONSTEXPR_CBACK_TY constexpr_callback;
 		
 		mutable std::optional<int32_t> label;
-		mutable std::optional<int32_t> altlabel;
 		int32_t flags, internal_flags;
 		FunctionScope* internalScope;
 		Scope* externalScope; //used by template functions

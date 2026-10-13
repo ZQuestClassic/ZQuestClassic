@@ -760,7 +760,10 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 			
 			int32_t stackSize = getStackSize(function);
 			// Start of the function.
-			if (puc == puc_construct)
+			// A constructor's delegation entry skips constructing the object (the delegating
+			// constructor already has - see Function::make_delegation_entry), so it starts
+			// like a method.
+			if (puc == puc_construct && !function.delegation_entry_of)
 			{
 				vector<Function*> destr = user_class.getScope().getDestructor();
 				Opcode* first = nullptr;
@@ -797,10 +800,6 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 				if (!object_indices.empty())
 					addOpcode2(funccode, new OMarkTypeClass(new VectorArgument(object_indices)));
 
-				// A constructor delegating to another constructor of the same class calls
-				// it at this label, skipping the construction above. The retain must come
-				// after it, since the epilogue always releases 'this'.
-				addOpcode2(funccode, new ONoOp(function.getAltLabel()));
 				addOpcode2(funccode, new ORefInc(new LiteralArgument(-1))); // retain this
 			}
 			else if(puc == puc_destruct)
@@ -1099,8 +1098,6 @@ void ScriptAssembler::assemble_init()
 			continue;
 		}
 		functionsByLabel[function.getLabel()] = &function;
-		if(function.getFlag(FUNCFLAG_CONSTRUCTOR))
-			functionsByLabel[function.getAltLabel()] = &function;
 	}
 
 	gather_scope_labels();
@@ -2475,6 +2472,8 @@ void ScriptAssembler::fill_debug_scopes()
 				{
 					stack.push_back({applied->getInternalScope(), myIdx, isWithinFunction});
 					seen_children.push_back(applied->getInternalScope());
+					if (applied->delegation_entry)
+						stack.push_back({applied->delegation_entry->getInternalScope(), myIdx, isWithinFunction});
 				}
 			}
 			else
@@ -2482,6 +2481,10 @@ void ScriptAssembler::fill_debug_scopes()
 				stack.push_back({fn->getInternalScope(), myIdx, isWithinFunction});
 				seen_children.push_back(fn->getInternalScope());
 			}
+			// Like the function's own scope, a delegation entry's scope is under a scope
+			// that isn't emitted, so add it directly.
+			if (fn->delegation_entry)
+				stack.push_back({fn->delegation_entry->getInternalScope(), myIdx, isWithinFunction});
 		}
 
 		auto children = scope->getChildren();
@@ -2548,6 +2551,8 @@ bool ScriptAssembler::init_debug_scope(Scope* scope, DebugScope& dScope, const f
 			dScope.flags |= SCOPE_FLAG_INTERNAL;
 		if (fs->function.getFlag(FUNCFLAG_STATIC))
 			dScope.flags |= SCOPE_FLAG_STATIC_FN;
+		if (fs->function.delegation_entry_of)
+			dScope.flags |= SCOPE_FLAG_NO_NAME_LOOKUP;
 	}
 	else if (scope->isClass())
 	{

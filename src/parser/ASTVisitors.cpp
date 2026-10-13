@@ -7,6 +7,7 @@
 #include "parserDefs.h"
 #include <assert.h>
 #include <cstdarg>
+#include <set>
 #include "ZScript.h"
 
 using std::list;
@@ -52,6 +53,10 @@ bool RecursiveVisitor::breakRecursion(void*) const
 void RecursiveVisitor::handleError(CompileError const& error, std::string const* inf)
 {
 	bool hard_error = (scope && *ZScript::lookupOption(*scope, CompileOption::OPT_NO_ERROR_HALT) == 0);
+	// A suppressed error is still shown if nothing else has failed the compile: the
+	// function it duplicates was analyzed first and didn't report it, so otherwise the
+	// compile would fail without saying why.
+	bool show = !suppress_diagnostics || (error.isStrict() && !failure);
 
 	// Actually handle the error.
 	std::string err_str = error.toString();
@@ -67,7 +72,8 @@ void RecursiveVisitor::handleError(CompileError const& error, std::string const*
 			zscript_failcode = *error.getId();
 	}
 
-	program.errorHandler->handleError(error, inf);
+	if (show)
+		program.errorHandler->handleError(error, inf);
 }
 
 void RecursiveVisitor::deprecWarn(Function* func, AST* host, std::string const& s1, std::string const& s2)
@@ -162,7 +168,12 @@ void RecursiveVisitor::_visit_internals(Function& func)
 		// queue after everything else.
 		auto old_puc = parsing_user_class;
 		parsing_user_class = getUserClassContext(func);
+		// A delegation entry is a copy of a constructor that is analyzed too, so it
+		// would only repeat the constructor's diagnostics.
+		bool old_suppress = suppress_diagnostics;
+		suppress_diagnostics = func.delegation_entry_of != nullptr;
 		analyzeFunctionInternals(func);
+		suppress_diagnostics = old_suppress;
 		parsing_user_class = old_puc;
 	}
 }
@@ -217,22 +228,40 @@ void RecursiveVisitor::visitFunctionInternals(ZScript::Program& program)
 	}
 
 
-	for (auto& pair : template_function_data)
-		_visit_internals(*pair.first);
-	while(!template_function_queue.empty())
+	// Analyzing a constructor (including a template instantiation, or another delegation
+	// entry) can make a delegation entry (see Function::make_delegation_entry), and
+	// analyzing an entry can queue template instantiations, so repeat until neither
+	// has anything left.
+	std::set<Function*> visited_entries;
+	for (bool found = true; found;)
 	{
-		while(!template_function_queue.empty())
-		{
-			Function* func = template_function_queue.begin()->second;
-			template_function_queue.erase(template_function_queue.begin());
-			// Once a template function's refusal to be instantiated has been reported the
-			// compile has failed, and each of its remaining instantiations would just
-			// report it again.
-			if (!(func->instantiated_from && func->instantiated_from->instantiation_refusal_reported))
-				_visit_internals(*func);
-		}
 		for (auto& pair : template_function_data)
 			_visit_internals(*pair.first);
+		while(!template_function_queue.empty())
+		{
+			while(!template_function_queue.empty())
+			{
+				Function* func = template_function_queue.begin()->second;
+				template_function_queue.erase(template_function_queue.begin());
+				// Once a template function's refusal to be instantiated has been reported the
+				// compile has failed, and each of its remaining instantiations would just
+				// report it again.
+				if (!(func->instantiated_from && func->instantiated_from->instantiation_refusal_reported))
+					_visit_internals(*func);
+			}
+			for (auto& pair : template_function_data)
+				_visit_internals(*pair.first);
+		}
+
+		found = false;
+		for (Function* func : program.getUserClassConstructors())
+		{
+			if (func->delegation_entry_of && visited_entries.insert(func).second)
+			{
+				_visit_internals(*func);
+				found = true;
+			}
+		}
 	}
 }
 

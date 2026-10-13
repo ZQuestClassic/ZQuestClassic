@@ -1013,7 +1013,7 @@ std::vector<const DebugScope*> DebugData::resolveFunctions(const std::string& id
 					const auto& child = scopes[child_idx];
 					
 					// We only care about matching names that are FUNCTION scopes
-					if (child.name == name && child.tag == TAG_FUNCTION) {
+					if (child.name == name && child.tag == TAG_FUNCTION && !(child.flags & SCOPE_FLAG_NO_NAME_LOOKUP)) {
 						candidates.push_back(&child);
 					}
 				}
@@ -1412,6 +1412,8 @@ std::string DebugData::internalToStringForDebugging() const
 			parts.push_back("<INTERNAL>");
 		if (scope.flags & SCOPE_FLAG_DEPRECATED)
 			parts.push_back("<DEPRECATED>");
+		if (scope.flags & SCOPE_FLAG_NO_NAME_LOOKUP)
+			parts.push_back("<NO_NAME_LOOKUP>");
 
 		std::erase_if(parts, [](auto& v){
 			return v.empty();

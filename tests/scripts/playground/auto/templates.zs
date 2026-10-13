@@ -105,6 +105,32 @@ int tmpl_overload_mismatch<T>(T x, TemplateMember y)
 	return x->value;
 }
 
+// Constructors calling another constructor of the class, where one of them is a template.
+class TemplateCtor
+{
+	int value;
+
+	TemplateCtor()
+	{
+		TemplateCtor(5);
+	}
+
+	TemplateCtor<T>(T x)
+	{
+		value = <int>x;
+	}
+
+	TemplateCtor<T>(T x, T y)
+	{
+		TemplateCtor(<int>x, <int>y, 0);
+	}
+
+	TemplateCtor(int a, int b, int c)
+	{
+		value = a + b + c;
+	}
+}
+
 generic script templates
 {
 	void run()
@@ -171,6 +197,13 @@ generic script templates
 			Test::AssertEqual(tmpl_overload(m), 9, "template overload");
 			Test::AssertEqual(tmpl_overload_mismatch(1, 2), 2, "template overload doesn't match");
 			Test::AssertEqual(tmpl_overload_mismatch(m, m), 9, "template overload matches");
+		}
+
+		{
+			// Calling a template constructor from another constructor used to fail to
+			// compile.
+			Test::AssertEqual(new TemplateCtor()->value, 5, "constructor calls template constructor");
+			Test::AssertEqual(new TemplateCtor(2, 3)->value, 5, "template constructor calls constructor");
 		}
 
 		Test::End();

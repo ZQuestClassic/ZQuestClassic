@@ -411,6 +411,10 @@ namespace ZScript
 		
 		// Set to true if a hard error occurs (Halting)
 		bool failure_halt;
+
+		// Set while analyzing a function whose diagnostics would duplicate another's (which
+		// is analyzed first). See handleError for the exception.
+		bool suppress_diagnostics = false;
 	private:
 		void _visit_internals(Function& func);
 		map<Function*,size_t> template_function_data;

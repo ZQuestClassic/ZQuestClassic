@@ -126,13 +126,25 @@ vector<Function*> Program::getUserFunctions() const
 	return functions;
 }
 
+// Includes delegation entries (see Function::make_delegation_entry), including those of
+// template constructors' instantiations (but not the instantiations themselves).
 vector<Function*> Program::getUserClassConstructors() const
 {
 	vector<Function*> functions;
 	for(auto it = classes.begin(); it != classes.end(); ++it)
 	{
 		UserClass* user_class = *it;
-		appendElements(functions, user_class->getScope().getConstructors());
+		for (Function* ctor : user_class->getScope().getConstructors())
+		{
+			functions.push_back(ctor);
+			if (ctor->delegation_entry)
+				functions.push_back(ctor->delegation_entry.get());
+			for (auto& applied : ctor->get_applied_funcs())
+			{
+				if (applied->delegation_entry)
+					functions.push_back(applied->delegation_entry.get());
+			}
+		}
 	}
 	return functions;
 }
@@ -802,13 +814,6 @@ void Function::setPrologueEndLabel(int label)
 		return aliased_func->setPrologueEndLabel(label);
 	prologue_end_label = label;
 }
-int32_t Function::getAltLabel() const
-{
-	if(aliased_func)
-		return aliased_func->getAltLabel();
-	if (!altlabel) altlabel = ScriptParser::getUniqueLabelID();
-	return *altlabel;
-}
 
 bool Function::isTracing() const
 {
@@ -851,7 +856,6 @@ void Function::alias(Function* func, bool force)
 		ownedCode.clear();
 		label.reset();
 		prologue_end_label.reset();
-		altlabel.reset();
 	}
 	else
 	{
@@ -865,7 +869,7 @@ void Function::alias(Function* func, bool force)
 		assert(returnType->canCastTo(*func->returnType, func->internalScope));
 		//Ensure the function had no owned info of its' own
 		assert(ownedCode.empty());
-		assert(!(label || altlabel));
+		assert(!label);
 	}
 }
 
@@ -990,18 +994,43 @@ Function* Function::apply_templ_func(vector<DataType const*> const& bound_ts)
 	else
 	{
 		templ->setInternalScope(external->makeFunctionChild(*templ));
-		templ->node = templ->node->clone();
-		templ->node->parentScope = external;
+		templ->node = templ->clone_instantiation_decl().release();
 		templ->node->func = templ;
-		templ->node->parameters = templ->node->param_template;
-		for(size_t q = 0; q < paramTypes.size(); ++q)
-			templ->node->parameters[q]->resolvedType = templ->paramTypes[q];
 	}
 	if (is_template_function)
 		candidate_funcs.emplace_back(templ);
 	else
 		applied_funcs.emplace_back(templ);
 	return templ;
+}
+
+std::unique_ptr<ASTFuncDecl> Function::clone_instantiation_decl() const
+{
+	CHECK(instantiated_from && instantiated_from->node);
+	std::unique_ptr<ASTFuncDecl> decl(instantiated_from->node->clone());
+	decl->parentScope = externalScope;
+	decl->parameters = decl->param_template;
+	for (size_t q = 0; q < paramTypes.size(); ++q)
+		decl->parameters[q]->resolvedType = paramTypes[q];
+	return decl;
+}
+
+void Function::make_delegation_entry(std::shared_ptr<ASTFuncDecl> node)
+{
+	assert(!delegation_entry);
+	auto entry = std::make_shared<Function>(*this);
+	entry->id = ScriptParser::getUniqueFuncID();
+	entry->label.reset();
+	entry->prologue_end_label.reset();
+	entry->paramDatum.clear();
+	entry->aliases.clear();
+	entry->ownedCode.clear();
+	entry->delegation_entry_of = this;
+	entry->owned_node = std::move(node);
+	entry->node = entry->owned_node.get();
+	entry->node->func = entry.get();
+	entry->setInternalScope(externalScope->makeFunctionChild(*entry));
+	delegation_entry = entry;
 }
 
 void Function::use_instantiation(Function* func)

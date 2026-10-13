@@ -5,6 +5,7 @@
 #include "CompileError.h"
 #include "Types.h"
 #include "ZScript.h"
+#include "base/check.h"
 #include "base/general.h"
 #include "parser/AST.h"
 #include "parser/ASTVisitors.h"
@@ -2887,10 +2888,12 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 		if(parsing_user_class == puc_construct && func.getFlag(FUNCFLAG_CONSTRUCTOR)
 			&& !host.isConstructor())
 		{
-			//A constructor calling another constructor to inherit its code
-			//Use the alt label of the constructor, which is after the constructy bits
+			// A constructor delegating to another constructor of its class calls a copy of it
+			// that doesn't construct the object again (see Function::make_delegation_entry).
+			Function* entry = func.delegation_entry.get();
+			CHECK(entry);
 			addOpcode(new OSetRegister(new VarArgument(CLASS_THISKEY2), new VarArgument(CLASS_THISKEY)));
-			addOpcode(new OCallFunc(new LabelArgument(func.getAltLabel(), true)));
+			addOpcode(new OCallFunc(new LabelArgument(entry->getLabel(), true)));
 			func_call_comment = fmt::format("Class{} Constructor Inheritance Call",func_comment);
 		}
 		else

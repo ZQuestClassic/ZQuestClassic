@@ -978,6 +978,20 @@ TestResults test_parser([[maybe_unused]] bool verbose)
 			// Get type index of CL from the ctor.
 			uint32_t cl_type_id = resolveScope(debugData, "A::CL::CL", root_scope)->type_id;
 			assertEqual(debugData.getTypeID(val.type), cl_type_id);
+
+			// A constructor delegated to has a copy that skips constructing the object, which
+			// must not be found by name - `new` would call it.
+			int num_delegation_entries = 0;
+			for (auto& scope : debugData.scopes)
+			{
+				if (scope.name == "Deleg" && (scope.flags & SCOPE_FLAG_NO_NAME_LOOKUP))
+					num_delegation_entries++;
+			}
+			assertEqual(num_delegation_entries, 1);
+			auto deleg_ctors = debugData.resolveFunctions("A::Deleg::Deleg", root_scope);
+			assertSize(deleg_ctors, 2);
+			for (auto ctor : deleg_ctors)
+				assertTrue(!(ctor->flags & SCOPE_FLAG_NO_NAME_LOOKUP));
 		}
 
 		// Functions.
