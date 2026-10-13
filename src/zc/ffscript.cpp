@@ -41922,7 +41922,7 @@ int32_t FFScript::get_screen_d(int32_t index1, int32_t index2)
 {
 	if(index2 < 0 || index2 > 7)
 	{
-		Z_scripterrlog("You were trying to reference an out-of-bounds array index for a screen's D[] array (%ld); valid indices are from 0 to 7.\n", index1);
+		Z_scripterrlog("You were trying to reference an out-of-bounds array index for a screen's D[] array (%ld); valid indices are from 0 to 7.\n", index2);
 		return 0;
 	}
 	if (index1 < 0 || index1 >= game->screen_d.size())
@@ -41938,7 +41938,7 @@ void FFScript::set_screen_d(int32_t index1, int32_t index2, int32_t val)
 {
 	if(index2 < 0 || index2 > 7)
 	{
-		Z_scripterrlog("You were trying to reference an out-of-bounds array index for a screen's D[] array (%ld); valid indices are from 0 to 7.\n", index1);
+		Z_scripterrlog("You were trying to reference an out-of-bounds array index for a screen's D[] array (%ld); valid indices are from 0 to 7.\n", index2);
 		return;
 	}
 	if (index1 < 0 || index1 >= game->screen_d.size())
