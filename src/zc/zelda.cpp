@@ -4269,6 +4269,8 @@ int main(int argc, char **argv)
 		success &= run_tests(test_process_management, "test_process_management", verbose);
 		extern TestResults test_control_scheme(bool);
 		success &= run_tests(test_control_scheme, "test_control_scheme", verbose);
+		extern TestResults test_user_objects(bool);
+		success &= run_tests(test_user_objects, "test_user_objects", verbose);
 		if (success)
 			printf("all tests passed\n");
 		exit(success ? 0 : 1);

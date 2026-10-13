@@ -2,10 +2,13 @@
 #define ZC_USER_OBJECT
 
 #include <map>
+#include <optional>
+#include <string>
 #include "base/zc_array.h"
 #include "base/general.h"
 
 enum class ScriptType;
+struct script_data;
 
 struct user_abstract_obj
 {
@@ -65,6 +68,12 @@ struct scr_func_exec
 	void execute();
 	bool validate();
 };
+// Finds the destructor of class `name`, returning the pc to run it from. `pc` is where it
+// was found before, but may be stale (ex. an object loaded from a save file, after the
+// quest's scripts were recompiled), so it can point anywhere - even past the end of the
+// script.
+std::optional<dword> find_destructor_pc(const script_data* sc_data, const std::string& name, dword pc);
+
 struct user_object : public user_abstract_obj
 {
 	bool reserved;
