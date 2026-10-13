@@ -2412,9 +2412,6 @@ static std::optional<WasmAssembler> compile_function_structured(CompilationState
 		// A non-yielding function can't contain these; bail defensively.
 		if (command_is_suspend(command))
 			return std::nullopt;
-		// compile_callfunc_native requires a known function entry.
-		if (command == CALLFUNC && !structured_zasm.start_pc_to_function.contains(script->zasm[i].arg1))
-			return std::nullopt;
 	}
 
 	auto cfg = zasm_construct_cfg(script, {{start_pc, final_pc}});
@@ -3547,6 +3544,22 @@ static bool wasm_codegen(zasm_script* script, WasmCodegenResult& out)
 	comp.builder.exportFunction(fn_run_idx, "run");
 
 	auto yielding_fns = zasm_find_yielding_functions(script, structured_zasm);
+
+	// Each function compiles to its own WASM function (or the yielder's loop-switch), so a
+	// call can only land on a function's start. Scripts from older compilers call into the
+	// middle of a constructor when it delegates to another constructor of its class
+	// (`Foo() { Foo(5); }`); run those in the interpreter.
+	for (pc_t i = 0; i < (pc_t)script->size; i++)
+	{
+		if (script->zasm[i].command != CALLFUNC)
+			continue;
+		pc_t tgt = script->zasm[i].arg1;
+		if (!structured_zasm.start_pc_to_function.contains(tgt))
+		{
+			error(script, fmt::format("unsupported call into the middle of a function at pc {} -> {}", (int)i, (int)tgt), true);
+			return false;
+		}
+	}
 
 	// A GOTO whose target is outside its own function is lowered as a tail-call into
 	// the target function (see compile_function). This is only expected for the "~Init"
