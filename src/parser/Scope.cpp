@@ -890,6 +890,41 @@ static DataType const* bind_class_tmpl_type(DataType const& param, int depth, Da
 	return &DataType::UNTYPED;
 }
 
+// Binds a template type to an argument's type `el_type`, or checks the argument against
+// the type already bound (`bound_t`). For an array parameter, it's the argument's element
+// type `target_depth` arrays deep that binds (or its base type with legacy array casts;
+// an untyped argument binds `untyped`). Returns false if the argument can't bind.
+static bool bind_tmpl_arg(DataType const*& bound_t, DataType const* el_type,
+	bool param_is_array, int target_depth, bool allowDeprecatedArrayCast)
+{
+	if (param_is_array)
+	{
+		if(el_type->isUntyped())
+			el_type = &DataType::UNTYPED;
+		else if (allowDeprecatedArrayCast)
+			el_type = &el_type->getBaseType();
+		else
+		{
+			if(target_depth > el_type->getArrayDepth())
+				return false;
+
+			for(int q = 0; q < target_depth; ++q)
+				el_type = &static_cast<const DataTypeArray*>(el_type)->getElementType();
+		}
+	}
+	// The argument's const-ness belongs to the caller's variable, not to T
+	// (ex: passing a constant shouldn't make T's locals constant).
+	if (el_type->isConstant())
+		el_type = el_type->getMutType();
+
+	if (!bound_t)
+	{
+		bound_t = el_type;
+		return true;
+	}
+	return el_type->canCastTo(*bound_t, false);
+}
+
 // Applies a function's template types to the provided parameter types, and sets
 // the out-param `out_resolved_function` to the derived result if a match is successful.
 // Returns APPLY_TEMPLATE_RET_UNSATISFIABLE if the template types could not be satisfied.
@@ -921,6 +956,7 @@ static int applyTemplateTypes(
 		{
 			auto ty = function->paramTypes[i];
 			DataType const* el_type = parameter_types[i];
+			bool param_is_array = false;
 			if(!match_tmpl_type(tmpl_ty, *ty))
 			{
 				auto class_depth = match_class_tmpl_type(tmpl_ty, *ty);
@@ -931,34 +967,10 @@ static int applyTemplateTypes(
 				if (!el_type)
 					return APPLY_TEMPLATE_RET_UNSATISFIABLE;
 			}
-			else if (ty->isArray())
-			{
-				if(el_type->isUntyped())
-					el_type = &DataType::UNTYPED;
-				else if (allowDeprecatedArrayCast)
-					el_type = &el_type->getBaseType();
-				else
-				{
-					auto target_depth = ty->getArrayDepth();
-					if(target_depth > el_type->getArrayDepth())
-						return APPLY_TEMPLATE_RET_UNSATISFIABLE;
-					
-					for(int q = 0; q < target_depth; ++q)
-						el_type = &static_cast<const DataTypeArray*>(el_type)->getElementType();
-				}
-			}
-			// The argument's const-ness belongs to the caller's variable, not to T
-			// (ex: passing a constant shouldn't make T's locals constant).
-			if (el_type->isConstant())
-				el_type = el_type->getMutType();
+			else
+				param_is_array = ty->isArray();
 
-			if (!bound_t)
-			{
-				bound_t = el_type;
-				continue;
-			}
-
-			if (!el_type->canCastTo(*bound_t, false))
+			if (!bind_tmpl_arg(bound_t, el_type, param_is_array, ty->getArrayDepth(), allowDeprecatedArrayCast))
 				return APPLY_TEMPLATE_RET_UNSATISFIABLE;
 		}
 		
@@ -968,42 +980,12 @@ static int applyTemplateTypes(
 			if(match_tmpl_type(tmpl_ty, *last_param_type))
 			{
 				auto target_depth = last_param_type->getArrayDepth()-1; //-1 because vargs adds a layer of array around the params
-				DataType const* varg_basety = bound_t;
+				// Legacy array arguments are not accepted for the variadic parameters.
 				for (size_t i = num_params; i < parameter_types.size(); ++i)
 				{
-					DataType const* el_type = parameter_types[i];
-					if(last_param_type->isArray())
-					{
-						if(el_type->isUntyped())
-							el_type = &DataType::UNTYPED;
-						else
-						{
-							if(target_depth > el_type->getArrayDepth())
-								return APPLY_TEMPLATE_RET_UNSATISFIABLE;
-							
-							for(int q = 0; q < target_depth; ++q)
-								el_type = &static_cast<const DataTypeArray*>(el_type)->getElementType();
-						}
-					}
-					// As above, the argument's const-ness says nothing about T.
-					if (el_type->isConstant())
-						el_type = el_type->getMutType();
-
-					if (!bound_t)
-					{
-						varg_basety = bound_t = el_type;
-						continue;
-					}
-
-					if (!el_type->canCastTo(*bound_t, false))
+					if (!bind_tmpl_arg(bound_t, parameter_types[i], last_param_type->isArray(), target_depth, false))
 						return APPLY_TEMPLATE_RET_UNSATISFIABLE;
-
-					varg_basety = parameter_types[i];
 				}
-				if(!varg_basety)
-					return APPLY_TEMPLATE_RET_UNSATISFIABLE;
-				for(int q = 0; q < target_depth+1; ++q) //+1 because vargs adds a layer of array around the params
-					varg_basety = DataTypeArray::create(*varg_basety);
 			}
 		}
 		
