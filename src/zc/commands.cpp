@@ -89,6 +89,9 @@ void zplayer_handle_commands()
 		extern TestResults test_register_routing(bool);
 		if (!run_tests(test_register_routing, "test_register_routing", verbose)) success = false;
 
+		extern TestResults test_user_objects(bool);
+		if (!run_tests(test_user_objects, "test_user_objects", verbose)) success = false;
+
 		extern TestResults test_parse_user_path(bool);
 		if (!run_tests(test_parse_user_path, "test_parse_user_path", verbose)) success = false;
 

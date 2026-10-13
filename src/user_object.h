@@ -220,6 +220,12 @@ struct scr_func_exec
 	void execute();
 	bool validate(const zasm_script* zasm_script);
 };
+// Finds the destructor of class `name`, returning the pc to run it from. `pc` is where it
+// was found before, but may be stale (ex. an object loaded from a save file, after the
+// quest's scripts were recompiled), so it can point anywhere - even past the end of the
+// script.
+std::optional<pc_t> find_destructor_pc(const zasm_script* zasm_script, const std::string& name, pc_t pc);
+
 struct user_object : public script_object_base
 {
 	std::vector<int32_t> data;

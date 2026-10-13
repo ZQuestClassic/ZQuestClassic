@@ -114,6 +114,7 @@ src/zc/zconfig_test.cpp
 src/zc/scripting/arrays_test.cpp
 src/zc/scripting/common_test.cpp
 src/zc/scripting/types_test.cpp
+src/zc/scripting/user_object_test.cpp
 src/zc/zasm_optimize_test.cpp
 
 ## End of Zelda Core module
