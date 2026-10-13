@@ -28,6 +28,7 @@ src/zconfig.cpp
 src/zc/cheats.cpp
 src/zc/control_scheme.cpp
 src/zc/control_scheme_test.cpp
+src/zc/user_object_test.cpp
 src/zc/script_path.cpp
 src/zc/script_path_test.cpp
 src/zc/replay.cpp
