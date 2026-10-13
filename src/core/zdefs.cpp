@@ -10,6 +10,7 @@
 #include "zalleg/pal_tables.h"
 #include <fmt/format.h>
 #include "core/qrs.h"
+#include "components/zasm/table.h"
 #include "core/qst.h"
 #include "gamedata.h"
 
@@ -1679,3 +1680,40 @@ void zctune::reset()
 	*this = zctune();
 }
 
+
+std::optional<pc_t> zasm_find_invalid_jump(const std::vector<ffscript>& zasm, const zasm_literals& literals)
+{
+	auto is_invalid = [&](int pc) {
+		return pc < 0 || pc >= (int)zasm.size();
+	};
+
+	for (pc_t i = 0; i < zasm.size(); i++)
+	{
+		const auto& op = zasm[i];
+		switch (op.command)
+		{
+			case GOTO:
+			case GOTOTRUE:
+			case GOTOFALSE:
+			case GOTOLESS:
+			case GOTOMORE:
+			case GOTOCMP:
+			case CALLFUNC:
+			case LOOP:
+				if (is_invalid(op.arg1))
+					return i;
+				break;
+
+			case GOTOTABLE:
+			case GOTORANGES:
+				for (int pc : zasm_jump_targets(op.command, literals.vec(op)))
+				{
+					if (is_invalid(pc))
+						return i;
+				}
+				break;
+		}
+	}
+
+	return std::nullopt;
+}

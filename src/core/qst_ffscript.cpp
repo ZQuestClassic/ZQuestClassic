@@ -86,6 +86,14 @@ int32_t read_quest_zasm(PACKFILE *f, word s_version)
 		zasm.push_back(temp_script);
 	}
 
+	// Modern versions of ZC never emit invalid jumps, so this must be a corrupt file. See
+	// zasm_find_invalid_jump.
+	if (auto pc = zasm_find_invalid_jump(zasm, literals))
+	{
+		al_trace("Error: found a jump to a pc outside of the script (pc %u)\n", *pc);
+		return qe_invalid;
+	}
+
 	assert(zasm_scripts.empty());
 	zasm_script_id id = zasm_scripts.size();
 	zasm_scripts.emplace_back(std::make_shared<zasm_script>(id, "@single", std::move(zasm), std::move(literals)));
@@ -367,6 +375,13 @@ int32_t read_old_ffscript(PACKFILE *f, word s_version, script_data *script, word
 	if (!zasm.empty() && zasm[0].command >= NUMCOMMANDS && zasm[0].command != 0xFFFF)
 	{
 		al_trace("Warning: found script with bad instruction, disabling script: %s %d\n", ScriptTypeToString(script->id.type), script->id.index);
+		zasm.clear();
+	}
+
+	// See zasm_find_invalid_jump. The script would have ended at the jump anyway, with an error.
+	if (auto pc = zasm_find_invalid_jump(zasm, literals))
+	{
+		al_trace("Warning: found script with a jump to a pc outside of the script (pc %u), disabling script: %s %d\n", *pc, ScriptTypeToString(script->id.type), script->id.index);
 		zasm.clear();
 	}
 

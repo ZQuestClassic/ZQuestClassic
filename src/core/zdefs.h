@@ -36,6 +36,7 @@
 #include <cstring>
 #include <memory>
 #include <optional>
+#include "components/zasm/pc.h"
 #include <set>
 #include <assert.h>
 #include <algorithm>
@@ -1587,6 +1588,14 @@ struct zasm_script
 		return !zasm.empty() && zasm[0].command != 0xFFFF;
 	}
 };
+
+// The pc of the first jump or call to a pc that is not in the script, if there is one.
+//
+// The compiler never emits this, but some old quests have them: the 2.55 alphas of 2020 wrote a
+// jump's target as a decimal in "Export ZASM", which "Import ZASM" then read as -1. Such a script
+// is refused on load, so the actual script runtime can assume all jumps are valid. An example of a
+// published quest with bad jumps is https://www.purezc.net/index.php?page=quests&id=787.
+std::optional<pc_t> zasm_find_invalid_jump(const std::vector<ffscript>& zasm, const zasm_literals& literals);
 
 // The default (zeroed) metadata of an unused script slot.
 extern const zasm_meta empty_zasm_meta;
