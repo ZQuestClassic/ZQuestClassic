@@ -1279,22 +1279,27 @@ static ArrayRegistrar SCREENSCRDATA_registrar(SCREENSCRDATA, []{
 	return &impl;
 }());
 
+// The index into game->screen_d of a screen's D[] (`screen` being the screen ref, which is
+// the script's screen - not necessarily the current screen, in a scrolling region).
+static int32_t screen_d_index(int screen)
+{
+	return ((get_currdmap())<<7) + screen-(DMaps[get_currdmap()].type==dmOVERW ? 0 : DMaps[get_currdmap()].xoff);
+}
+
 static ArrayRegistrar SDD_registrar(SDD, []{
 	static ScriptingArray_GlobalComputed<int> impl(
-		[](int){
-			int32_t di = ((get_currdmap())<<7) + get_currscr()-(DMaps[get_currdmap()].type==dmOVERW ? 0 : DMaps[get_currdmap()].xoff);
+		[](int ref){
+			int32_t di = screen_d_index(ref);
 			if (di < 0 || di >= game->screen_d.size())
 				return 0;
 
 			return 8;
 		},
-		[](int, int index){
-			int32_t di = ((get_currdmap())<<7) + get_currscr()-(DMaps[get_currdmap()].type==dmOVERW ? 0 : DMaps[get_currdmap()].xoff);
-			return FFScript::get_screen_d(di, index);
+		[](int ref, int index){
+			return FFScript::get_screen_d(screen_d_index(ref), index);
 		},
-		[](int, int index, int value){
-			int32_t di2 = ((get_currdmap())<<7) + get_currscr()-(DMaps[get_currdmap()].type==dmOVERW ? 0 : DMaps[get_currdmap()].xoff);
-			return FFScript::set_screen_d(di2, index, value);
+		[](int ref, int index, int value){
+			return FFScript::set_screen_d(screen_d_index(ref), index, value);
 		}
 	);
 	impl.setMul10000(false);
