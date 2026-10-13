@@ -40,7 +40,7 @@ Function run_none-0
 
 Function Function #1
    37: POP             D3                           [Block 0 -> ]
-   38: SETR            D5               D3
+   38: NOP
    39: SETR            D2               LINKX
    40: NOP
    41: RETURNFUNC
@@ -62,8 +62,8 @@ Function Function #2
    54: NOP
    55: LSHIFTR         D3               D2
    56: SETR            D2               D3
-   57: GOTO            1784
-   58: SETV            D3               0
+   57: NOP
+   58: NOP
    59: POP             D3
    60: NOP
    61: RETURNFUNC

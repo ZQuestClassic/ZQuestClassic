@@ -1,0 +1,10 @@
+; A conditional jump to a pc outside of the script (every jump in Rites of Lineage's scripts is to
+; -1), where the next instruction is also a block start. The CFG builder must not create an edge for
+; the invalid target - the interpreter ends the script at such a jump.
+Function run_none-0
+    0: COMPAREV        D2               0           [Block 0 -> 1]
+    1: GOTOTRUE        -1
+    2: SETV            D2               1           [Block 1 -> 2, 1]
+    3: COMPAREV        D2               0
+    4: GOTOTRUE        2
+    5: QUIT                                         [Block 2 -> ]

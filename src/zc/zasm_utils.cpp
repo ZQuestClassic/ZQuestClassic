@@ -413,8 +413,7 @@ std::pair<pc_t, pc_t> ZasmCFG::get_block_bounds(int block) const
 }
 
 // Splits `pc_ranges` into blocks. A jump or call to a pc outside of `target_range` (when given;
-// otherwise outside of pc_ranges) is ignored: it neither ends its block nor gets an edge (except
-// a conditional jump, whose edge goes to whichever block id that pc sorts to). With a
+// otherwise outside of pc_ranges) is ignored: it neither ends its block nor gets an edge. With a
 // target_range, a target outside of pc_ranges still gets a block, with no edges of its own, and so
 // does the instruction after a range (fallen through to) when target_range has it.
 static ZasmCFG construct_cfg(const zasm_script* script, const std::vector<std::pair<pc_t, pc_t>>& pc_ranges, std::optional<std::pair<pc_t, pc_t>> target_range)
@@ -518,10 +517,17 @@ static ZasmCFG construct_cfg(const zasm_script* script, const std::vector<std::p
 		}
 		else if (prev_command == GOTOCMP || prev_command == GOTOTRUE || prev_command == GOTOFALSE || prev_command == GOTOLESS || prev_command == GOTOMORE)
 		{
-			// Previous block conditionally continues to this one, or some other block.
-			edges.push_back(j);
-			auto other_block = cfg.block_id_from_start_pc(prev_arg1);
-			edges.push_back(other_block);
+			// Previous block conditionally continues to this one, or some other block. Like a
+			// GOTO, a jump to a pc that is not a target gets no edge - that is either somewhere
+			// outside of this CFG, or (in malformed ZASM) outside of the script, which ends it
+			// (see goto_err).
+			if (j != num_blocks)
+				edges.push_back(j);
+			if (is_target(prev_arg1))
+			{
+				auto other_block = cfg.block_id_from_start_pc(prev_arg1);
+				edges.push_back(other_block);
+			}
 		}
 		else if (prev_command == GOTOTABLE || prev_command == GOTORANGES)
 		{

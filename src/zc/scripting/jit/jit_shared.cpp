@@ -194,24 +194,12 @@ static std::vector<std::vector<pc_t>> find_block_predecessors(const ZasmCFG& cfg
 // True if the functions cover the script without gaps, and control enters each one only at its
 // start (by a call, or falling through from the function before it). Then the analysis of each
 // function on its own (see zasm_construct_function_cfg) matches its part of the script's.
-static bool control_enters_functions_only_at_start(const zasm_script* script, const StructuredZasm& structured_zasm, const ZasmCFG& cfg)
+static bool control_enters_functions_only_at_start(const StructuredZasm& structured_zasm, const ZasmCFG& cfg)
 {
 	const auto& functions = structured_zasm.functions;
 	for (size_t i = 1; i < functions.size(); i++)
 	{
 		if (functions[i].start_pc != functions[i - 1].final_pc + 1)
-			return false;
-	}
-
-	// A conditional jump outside of the script has an edge to an arbitrary block.
-	pc_t script_start_pc = functions.front().start_pc;
-	pc_t script_final_pc = functions.back().final_pc;
-	for (pc_t i = script_start_pc; i <= script_final_pc; i++)
-	{
-		int command = script->zasm[i].command;
-		int arg1 = script->zasm[i].arg1;
-		if ((command == GOTOCMP || command == GOTOTRUE || command == GOTOFALSE || command == GOTOLESS || command == GOTOMORE) &&
-			(arg1 < (int)script_start_pc || arg1 > (int)script_final_pc))
 			return false;
 	}
 
@@ -228,9 +216,6 @@ static bool control_enters_functions_only_at_start(const zasm_script* script, co
 	{
 		for (pc_t edge : cfg.block_edges[block])
 		{
-			if (edge >= cfg.block_starts.size())
-				return false;
-
 			pc_t edge_fn_id = block_function_ids[edge];
 			if (edge_fn_id != block_function_ids[block] && cfg.block_starts[edge] != functions[edge_fn_id].start_pc)
 				return false;
@@ -421,7 +406,7 @@ static JittedScript* init_jitted_script(zasm_script* script)
 		jit_split_function(script, fn, analysis.cfg, j_script->pieces);
 	}
 
-	if (!control_enters_functions_only_at_start(script, j_script->structured_zasm, analysis.cfg))
+	if (!control_enters_functions_only_at_start(j_script->structured_zasm, analysis.cfg))
 	{
 		jit_printf("[jit] keeping the analysis of the whole script, since control enters a function somewhere other than its start: %s\n", script->name.c_str());
 		analysis.block_predecessors = find_block_predecessors(analysis.cfg);

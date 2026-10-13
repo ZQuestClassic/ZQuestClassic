@@ -47,7 +47,7 @@ Function Function #1
 
 
 Function Function #2
-   42: SETV            D2               0           [Block 0 -> ]
+   42: SETV            D2               0           [Block 0 -> 1]
    43: SETR            D4               SP
    44: SETR            D6               D4
    45: ADDV            D6               0
@@ -62,8 +62,8 @@ Function Function #2
    54: POP             D3
    55: LSHIFTR         D3               D2
    56: SETR            D2               D3
-   57: GOTO            1784
-   58: SETV            D3               0
+   57: GOTO            58
+   58: SETV            D3               0           [Block 1 -> ]
    59: POP             D3
    60: POP             D3
    61: GOTOR           D3

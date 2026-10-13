@@ -197,6 +197,8 @@ void zasm_optimize_run_for_file(std::string path)
 	}
 
 	fmt::println("\noutput:");
+	if (auto pc = zasm_find_invalid_jump(script.zasm, script.literals))
+		fmt::println("warning: jump to a pc outside of the script at pc {} (the quest loader would disable this script)", *pc);
 	zasm_optimize_verbose = true;
 	zasm_init_meta_cache();
 	zasm_optimize_script(&script);
