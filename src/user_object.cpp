@@ -146,32 +146,43 @@ void scr_func_exec::execute()
 		pop_ri(); //restore the prior script state
 	}
 }
+
+std::optional<dword> find_destructor_pc(const script_data* sc_data, const std::string& name, dword pc)
+{
+	auto is_destructor_start = [&](const ffscript& zas) {
+		auto zas_name = sc_data->literals.str(zas);
+		return zas.command == STARTDESTRUCTOR && zas_name && name == *zas_name;
+	};
+
+	if (pc && pc - 1 < sc_data->size && is_destructor_start(sc_data->zasm[pc - 1]))
+		return pc;
+
+	for (dword q = 0; q < sc_data->size; q++)
+	{
+		const ffscript& zas = sc_data->zasm[q];
+		if (zas.command == 0xFFFF) // Ran out of script to check
+			break;
+		if (is_destructor_start(zas))
+			return q + 1;
+	}
+
+	return std::nullopt;
+}
+
 bool scr_func_exec::validate()
 {
 	script_data* sc_data = load_scrdata(type,script,i);
 	if(!pc || !sc_data || !sc_data->valid()) // Destructor is null or points to bad script
 		return false;
-	
-	ffscript &zas = sc_data->zasm[pc-1];
-	auto zas_name = sc_data->literals.str(zas);
-	if(zas.command == STARTDESTRUCTOR && zas_name && name == *zas_name)
-		return true; //validated! Destructor already points to correct line
-	dword q = 0;
-	while(true)
+
+	if (auto found = find_destructor_pc(sc_data, name, pc))
 	{
-		ffscript& zas = sc_data->zasm[q];
-		auto zas_name = sc_data->literals.str(zas);
-		if(zas.command == 0xFFFF) //Ran out of script to check
-		{
-			zprint2("Destructor for class '%s' expected, but not found!\n", name.c_str());
-			return false;
-		}
-		else if(zas.command == STARTDESTRUCTOR && zas_name && name == *zas_name)
-		{ //Found the correct destructor
-			pc = q+1;
-			return true; //validated!
-		}
+		pc = *found;
+		return true;
 	}
+
+	zprint2("Destructor for class '%s' expected, but not found!\n", name.c_str());
+	return false;
 }
 
 //Prepare the object's destructor
