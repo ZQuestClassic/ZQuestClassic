@@ -213,7 +213,14 @@ namespace ZScript
 			caseDefault(host, param);}
 		virtual void caseDataType(ASTDataType& host, void* param = NULL) {
 			caseDefault(host, param);}
-		
+
+		// Which part of a user class is being visited (puc_*). puc_vars makes
+		// non-static variable declarations class fields; anything above puc_vars
+		// (a method, constructor or destructor body) gives access to `this` and
+		// bare class member names. Constructors also treat a call to their own class
+		// name as delegating to another constructor. Set by hand around each part of
+		// a class, and from the function's flags (getUserClassContext) when analyzing
+		// a function body.
 		int parsing_user_class;
 		bool sidefx_only;
 		Function* in_func;
