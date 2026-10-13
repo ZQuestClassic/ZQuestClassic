@@ -408,12 +408,25 @@ void delete_script_object(uint32_t id, bool remove_refs)
 	if (util::contains(objects_being_destructed, id))
 		return;
 
+	// Deleting because the last reference was released (rather than, say, the
+	// engine resetting all objects).
+	bool unreferenced = object->ref_count == 0;
+
 	// Artificially bump the reference count to prevent re-entrant deletion.
 	// When the ZScript destructor runs, temporary engine stack references
 	// will increment/decrement this safely without hitting 0 again.
 	object->ref_count++;
 
-	run_destructor(object);
+	// A destructor can store `this` somewhere (ex. a global variable), resurrecting
+	// the object. It must stay alive then - deleting it would leave that reference
+	// dangling, and its id would soon be reused by an unrelated object. The
+	// destructor never runs again, so the object is deleted normally the next time
+	// its reference count reaches zero.
+	if (run_destructor(object) && unreferenced && object->ref_count > 1)
+	{
+		object->ref_count--;
+		return;
+	}
 
 	if (remove_refs)
 	{

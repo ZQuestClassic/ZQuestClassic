@@ -172,6 +172,21 @@ class DelegatingCtor
 	}
 }
 
+// A destructor that stores `this` somewhere, keeping the object alive.
+class Resurrector
+{
+	int value;
+
+	~Resurrector()
+	{
+		resurrector_dtor_runs++;
+		resurrected = this;
+	}
+}
+
+Resurrector resurrected;
+int resurrector_dtor_runs;
+
 generic script garbage_collection
 {
 	Person people[10];
@@ -1464,6 +1479,26 @@ generic script garbage_collection
 			yield();
 			check("count (2)", count, 1);
 			check("RefCount(d) after yield", RefCount(d), 1L);
+		}
+		checkCountWithGC(0);
+
+		printf("=== Test %d - destructor resurrecting its object === \n", ++tests);
+		{
+			{
+				Resurrector r = new Resurrector();
+				r->value = 7;
+			}
+			// The object used to be deleted anyway, leaving `resurrected` dangling - and
+			// the next new object reused its id, so the two aliased each other.
+			check("resurrector_dtor_runs (1)", resurrector_dtor_runs, 1);
+			check("RefCount(resurrected)", RefCount(resurrected), 1L);
+			check("resurrected->value", resurrected->value, 7);
+			Person p = new Person();
+			Test::Assert(<long><untyped>p != <long><untyped>resurrected, "new object reused the id");
+			// Releasing it again deletes it, without running the destructor again.
+			resurrected = NULL;
+			check("resurrector_dtor_runs (2)", resurrector_dtor_runs, 1);
+			check("RefCount(p)", RefCount(p), 1L);
 		}
 		checkCountWithGC(0);
 
