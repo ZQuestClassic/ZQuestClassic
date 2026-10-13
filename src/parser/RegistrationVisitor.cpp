@@ -1245,6 +1245,7 @@ void RegistrationVisitor::caseExprCall(ASTExprCall& host, void*)
 	}
 	
 	host.binding = bestFunctions.front();
+	Function::use_instantiation(host.binding);
 	// `new stack<int>()` yields the instantiated type, not the base class type.
 	if (host.isConstructor() && host.ctor_type_arg && receiver_type)
 		host.binding->returnType = receiver_type;

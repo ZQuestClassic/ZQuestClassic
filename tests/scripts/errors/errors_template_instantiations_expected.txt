@@ -21,20 +21,12 @@ errors_template_instantiations.zs Line 11 @ Columns 3-11 - Error S109: Template 
       ^~~~~~~~
 
 
-errors_template_instantiations.zs Line 22 @ Columns 2-22 - Error S109: Template function 'growEachWithFallback' has too many instantiations (over 1024) - is it calling itself with ever-changing types?
+errors_template_instantiations.zs Line 22 @ Columns 2-18 - Error S109: Template function 'growWithFallback' would be instantiated with type 'bitmap[][][][][][][][][][][][][][][][][]', which is nested too deeply (over 16 levels) - is it calling itself with ever-growing types?
 
-20    growEachWithFallback({x}, y, z, w);
-21    growEachWithFallback(x, {y}, z, w);
-22    growEachWithFallback(x, y, {z}, w);
-      ^~~~~~~~~~~~~~~~~~~~
-
-
-errors_template_instantiations.zs Line 23 @ Columns 2-22 - Error S109: Template function 'growEachWithFallback' has too many instantiations (over 1024) - is it calling itself with ever-changing types?
-
-21    growEachWithFallback(x, {y}, z, w);
-22    growEachWithFallback(x, y, {z}, w);
-23    growEachWithFallback(x, y, z, {w});
-      ^~~~~~~~~~~~~~~~~~~~
+20    void growWithFallback<T>(T x)
+21    {
+22        growWithFallback({x});
+          ^~~~~~~~~~~~~~~~
 
 
 Failure!
@@ -82,31 +74,17 @@ stdout:
         },
         "end": {
           "line": 21,
-          "character": 21
+          "character": 17
         }
       },
       "severity": 1,
-      "message": "S109: Template function 'growEachWithFallback' has too many instantiations (over 1024) - is it calling itself with ever-changing types?"
-    },
-    {
-      "range": {
-        "start": {
-          "line": 22,
-          "character": 1
-        },
-        "end": {
-          "line": 22,
-          "character": 21
-        }
-      },
-      "severity": 1,
-      "message": "S109: Template function 'growEachWithFallback' has too many instantiations (over 1024) - is it calling itself with ever-changing types?"
+      "message": "S109: Template function 'growWithFallback' would be instantiated with type 'bitmap[][][][][][][][][][][][][][][][][]', which is nested too deeply (over 16 levels) - is it calling itself with ever-growing types?"
     }
   ],
   "metadata": {
-    "currentFileSymbols": 2051,
-    "symbols": 8596,
-    "identifiers": 34766,
+    "currentFileSymbols": 1045,
+    "symbols": 4700,
+    "identifiers": 19257,
     "elided": true
   }
 }

@@ -713,8 +713,17 @@ namespace ZScript
 
 		// Returns null (and sets instantiation_refused) if the instantiation would exceed
 		// MAX_TEMPLATE_INSTANTIATIONS or MAX_TEMPLATE_TYPE_NESTING.
+		//
+		// A template function's new instantiation starts out as a candidate: overload
+		// resolution makes one for every template that might match a call, and only the
+		// one the call resolves to should have its body analyzed and compiled (see
+		// use_instantiation).
 		Function* apply_templ_func(std::vector<DataType const*> const& bound_ts);
+		// Called when a call resolves to `func`. If it is a candidate instantiation of a
+		// template function, it joins the applied functions.
+		static void use_instantiation(Function* func);
 		
+		// The instantiations whose bodies are analyzed and compiled.
 		std::vector<std::shared_ptr<Function>>& get_applied_funcs() {return applied_funcs;}
 		std::vector<std::shared_ptr<Function>> const& get_applied_funcs() const {return applied_funcs;}
 
@@ -731,6 +740,8 @@ namespace ZScript
 		string info;
 		
 		std::vector<std::shared_ptr<Function>> applied_funcs;
+		// Instantiations made for overload resolution that no call has resolved to yet.
+		std::vector<std::shared_ptr<Function>> candidate_funcs;
 		std::vector<Function*> aliases;
 
 		// Code implementing this function.

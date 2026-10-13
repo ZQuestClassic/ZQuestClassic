@@ -12,15 +12,14 @@ void growEach<T, U, V, W>(T x, U y, V z, W w, int n)
 	}
 }
 
-// Same, but with a non-template overload that matches some of the calls once the
-// template can't be instantiated any more. This used to crash the compiler.
-void growEachWithFallback(int[][] x, untyped y, untyped z, untyped w) {}
-void growEachWithFallback<T, U, V, W>(T x, U y, V z, W w)
+// Same as growing one type too deep (see errors_templates.zs), but with a
+// non-template overload that matches the call once the template can't be
+// instantiated any more. This used to crash the compiler. (An object type, since
+// LEGACY_ARRAYS would let the overload take an `int` right away.)
+void growWithFallback(bitmap[][][][][][][][][][][][][][][][][] x) {}
+void growWithFallback<T>(T x)
 {
-	growEachWithFallback({x}, y, z, w);
-	growEachWithFallback(x, {y}, z, w);
-	growEachWithFallback(x, y, {z}, w);
-	growEachWithFallback(x, y, z, {w});
+	growWithFallback({x});
 }
 
 generic script errors_template_instantiations
@@ -28,6 +27,7 @@ generic script errors_template_instantiations
 	void run()
 	{
 		growEach(1, 2, 3, 4, 3);
-		growEachWithFallback(1, 2, 3, 4);
+		bitmap b;
+		growWithFallback(b);
 	}
 }

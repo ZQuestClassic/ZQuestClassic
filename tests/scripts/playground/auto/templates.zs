@@ -83,6 +83,28 @@ T tmpl_first_of_first<T>(...T[][] args)
 	return copy;
 }
 
+// Overloads where the template's body only compiles for class types, so calls that
+// resolve to the plain function must not instantiate the template.
+int tmpl_overload(int x)
+{
+	return 1;
+}
+
+int tmpl_overload<T>(T x)
+{
+	return x->value;
+}
+
+int tmpl_overload_mismatch(float x, int y)
+{
+	return 2;
+}
+
+int tmpl_overload_mismatch<T>(T x, TemplateMember y)
+{
+	return x->value;
+}
+
 generic script templates
 {
 	void run()
@@ -137,6 +159,18 @@ generic script templates
 			stack plain = new stack();
 			plain->PushBack(3);
 			Test::AssertEqual(<int>(tmpl_peek(plain)), 3, "plain stack binds T to untyped");
+		}
+
+		{
+			// A template overload losing to another function (or not matching the call
+			// at all) used to have its body compiled anyway, which failed here since
+			// `int` has no `value`.
+			TemplateMember m = new TemplateMember();
+			m->set(9);
+			Test::AssertEqual(tmpl_overload(5), 1, "plain overload beats template");
+			Test::AssertEqual(tmpl_overload(m), 9, "template overload");
+			Test::AssertEqual(tmpl_overload_mismatch(1, 2), 2, "template overload doesn't match");
+			Test::AssertEqual(tmpl_overload_mismatch(m, m), 9, "template overload matches");
 		}
 
 		Test::End();

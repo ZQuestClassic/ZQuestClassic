@@ -922,21 +922,26 @@ static int typeNestingDepth(DataType const& type)
 
 Function* Function::apply_templ_func(vector<DataType const*> const& bound_ts)
 {
-	for(shared_ptr<Function> func : applied_funcs)
+	for (auto* funcs : {&applied_funcs, &candidate_funcs})
 	{
-		bool mismatch = false;
-		if(bound_ts.size() != func->templ_bound_ts.size())
-			continue;
-		for(size_t q = 0; q < bound_ts.size(); ++q)
-			if(*bound_ts[q] != *func->templ_bound_ts[q])
-			{
-				mismatch = true;
-				break;
-			}
-		if(!mismatch)
-			return func.get();
+		for(shared_ptr<Function> const& func : *funcs)
+		{
+			bool mismatch = false;
+			if(bound_ts.size() != func->templ_bound_ts.size())
+				continue;
+			for(size_t q = 0; q < bound_ts.size(); ++q)
+				if(*bound_ts[q] != *func->templ_bound_ts[q])
+				{
+					mismatch = true;
+					break;
+				}
+			if(!mismatch)
+				return func.get();
+		}
 	}
-	if (node && !node->templates.empty())
+	// A template function (as opposed to a member of a class template, ex: `stack<T>`).
+	bool is_template_function = node && !node->templates.empty();
+	if (is_template_function)
 	{
 		for (auto type : bound_ts)
 		{
@@ -946,7 +951,7 @@ Function* Function::apply_templ_func(vector<DataType const*> const& bound_ts)
 				return nullptr;
 			}
 		}
-		if (applied_funcs.size() >= MAX_TEMPLATE_INSTANTIATIONS)
+		if (applied_funcs.size() + candidate_funcs.size() >= MAX_TEMPLATE_INSTANTIATIONS)
 		{
 			instantiation_refused = {this, nullptr};
 			return nullptr;
@@ -992,8 +997,27 @@ Function* Function::apply_templ_func(vector<DataType const*> const& bound_ts)
 		for(size_t q = 0; q < paramTypes.size(); ++q)
 			templ->node->parameters[q]->resolvedType = templ->paramTypes[q];
 	}
-	applied_funcs.emplace_back(templ);
+	if (is_template_function)
+		candidate_funcs.emplace_back(templ);
+	else
+		applied_funcs.emplace_back(templ);
 	return templ;
+}
+
+void Function::use_instantiation(Function* func)
+{
+	Function* templ = func->instantiated_from;
+	if (!templ)
+		return;
+
+	auto& candidates = templ->candidate_funcs;
+	auto it = std::find_if(candidates.begin(), candidates.end(),
+		[&](auto const& candidate) { return candidate.get() == func; });
+	if (it == candidates.end())
+		return;
+
+	templ->applied_funcs.push_back(std::move(*it));
+	candidates.erase(it);
 }
 
 bool ZScript::isRun(Function const& function)
