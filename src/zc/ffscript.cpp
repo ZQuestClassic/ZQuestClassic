@@ -1678,7 +1678,10 @@ static void set_current_script_engine_data(ScriptEngineData& data, ScriptType ty
 				if (get_qr(qr_OLD_INIT_SCRIPT_TIMING) && ZScriptVersion::gc() && script == GLOBAL_SCRIPT_INIT)
 				{
 					for (int i = 0; i < MAX_GLOBAL_VARIABLES; i++)
-						script_object_ref_dec(game->global_d[i]);
+					{
+						if (game->global_d_types[i] != script_object_type::none)
+							script_object_ref_dec(game->global_d[i]);
+					}
 				}
 				
 				reset_script_variables(zinit.global_scrconfig[script]);
