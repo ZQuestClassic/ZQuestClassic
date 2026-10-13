@@ -9587,6 +9587,14 @@ static void script_exit_cleanup(bool no_dealloc)
 		}
 }
 
+// Compiled code never sets current_zasm_command, so clear it whenever compiled code starts or resumes.
+// Otherwise it holds whatever the interpreter last ran (like a Waitframe, possibly from another
+// script), and an error raised from compiled code would name that command in its context.
+static void clear_zasm_command_for_compiled_code()
+{
+	current_zasm_command = (ASM_DEFINE)0;
+}
+
 int32_t run_script(ScriptType type, word script, int32_t i)
 {
 	if(Quit==qRESET || Quit==qEXIT) // In case an earlier script hung
@@ -9595,6 +9603,14 @@ int32_t run_script(ScriptType type, word script, int32_t i)
 	if(type != ScriptType::Global && !script) return RUNSCRIPT_OK; //Safeguard against running null scripts
 
 	ScriptTimingScope _script_timing_scope; // -script-timings: measure scripting-engine time
+
+	// Restore the caller's command context on return, so a nested run (like a frozen generic script
+	// run from compiled code) doesn't leave its own last command behind for the caller.
+	struct RestoreZasmCommand
+	{
+		ASM_DEFINE prev = current_zasm_command;
+		~RestoreZasmCommand() { current_zasm_command = prev; }
+	} _restore_zasm_command;
 
 	combopos_modified = -1;
 	curScriptType=type;
@@ -9718,6 +9734,7 @@ int32_t run_script(ScriptType type, word script, int32_t i)
 			// but scripts can run nested, so lets capture a temporary retaining reference as part of the
 			// call stack.
 			auto retainer = data.j_instance;
+			clear_zasm_command_for_compiled_code();
 			result = jit_run_script(j_instance);
 
 			// The wasm JIT can't run a nested frozen generic script itself (its frame
@@ -9740,17 +9757,13 @@ int32_t run_script(ScriptType type, word script, int32_t i)
 				j_instance->frozen_dest_reg = -1;
 				bool r = FFCore.runGenericFrozenEngine(word(GET_REF(genericdataref)));
 				set_register(dest_reg, r ? 10000L : 0L);
+				clear_zasm_command_for_compiled_code();
 				result = jit_run_script(j_instance);
 			}
 
 			if (result == RUNSCRIPT_JIT_STACK_OVERFLOW || result == RUNSCRIPT_JIT_CALL_LIMIT)
 			{
 				ri->overflow = true;
-				// The overflow was detected by compiled code, so current_zasm_command
-				// holds whatever the interpreter last ran (e.g. a stale Waitframe).
-				// Clear it so the error logs without a misleading context prefix,
-				// matching the interpreter's own overflow checks.
-				current_zasm_command = (ASM_DEFINE)0;
 				if (result == RUNSCRIPT_JIT_STACK_OVERFLOW)
 					log_stack_overflow_error();
 				else
@@ -9815,6 +9828,7 @@ int32_t run_script_jit_sequence(JittedScriptInstance* j_instance, pc_t pc, uint3
 	j_instance->sequence_mode = true;
 	j_instance->should_wait = false;
 	int r = run_script_int(j_instance);
+	clear_zasm_command_for_compiled_code();
 	if (r != RUNSCRIPT_OK)
 		return r;
 
@@ -9830,6 +9844,7 @@ int32_t run_script_jit_one(JittedScriptInstance* j_instance, pc_t pc, uint32_t s
 	j_instance->sequence_mode = true;
 	j_instance->should_wait = false;
 	int r = run_script_int(j_instance);
+	clear_zasm_command_for_compiled_code();
 	if (r != RUNSCRIPT_OK)
 		return r;
 
@@ -9845,6 +9860,7 @@ int32_t run_script_jit_until_call_or_return(JittedScriptInstance* j_instance, pc
 	j_instance->sequence_mode = false;
 	j_instance->should_wait = false;
 	int r = run_script_int(j_instance);
+	clear_zasm_command_for_compiled_code();
 	if (r != RUNSCRIPT_OK)
 		return r;
 

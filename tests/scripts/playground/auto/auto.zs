@@ -22,6 +22,7 @@
 #include "auto/bug_jit_mod_pow2_negative.zs"
 #include "auto/bug_jit_range_loop.zs"
 #include "auto/bug_jit_stack_overflow.zs"
+#include "auto/bug_jit_stale_error_context.zs"
 #include "auto/bug_jit_string_switch.zs"
 #include "auto/bug_merged_allocate_bitmap_pushes.zs"
 #include "auto/bug_mod_int_min.zs"
