@@ -308,13 +308,16 @@ async function loadFiles() {
         // Relative file urls are relative to the manifest, not to the playground.
         const fileResponse = await fetch(new URL(fileUrl, response.url || url));
         const content = await fileResponse.text();
-        if (!fileResponse.ok) throw new Error(`error loading ${fileUrl}: ${content}`);
+        if (!fileResponse.ok) {
+          logger.warn(`error loading file listed in manifest: ${fileUrl}`);
+          return null;
+        }
         return { content, path };
       }));
 
       const files = new Map<string, string>();
-      for (const {content, path} of resolvedEntries) {
-        files.set(path, content);
+      for (const entry of resolvedEntries) {
+        if (entry) files.set(entry.path, entry.content);
       }
       contentUrl = url;
       return files;
