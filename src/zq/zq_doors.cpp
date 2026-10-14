@@ -9,7 +9,7 @@
 #include "gui/jwin.h"
 #include "zalleg/zsys.h"
 #include "core/misctypes.h"
-#include "zc/zc_sys.h"
+#include "zq/zq_custom.h"
 #include "zq/zq_misc.h"
 #include "tiles.h"
 #include "zq/zq_class.h"

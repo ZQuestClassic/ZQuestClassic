@@ -230,7 +230,6 @@ zq/zq_class.cpp -> zc/ffscript.h
 zq/zq_class.cpp -> zc/zc_sys.h
 zq/zq_class.cpp -> zc/zelda.h
 zq/zq_custom.cpp -> zc/ffscript.h
-zq/zq_doors.cpp -> zc/zc_sys.h
 zq/zquest.cpp -> parser/Compiler.h
 zq/zquest.cpp -> zc/ffscript.h
 zscrdata.h -> parser/Compiler.h
