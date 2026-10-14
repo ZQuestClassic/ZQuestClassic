@@ -6,7 +6,6 @@
 #include <sstream>
 #include "zc_list_data.h"
 #include "gui/use_size.h"
-#include "zq/zq_tiles.h"
 #include "zinfo.h"
 #include "core/misctypes.h"
 #include "core/initdata.h"

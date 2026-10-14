@@ -3,7 +3,6 @@
 #include "core/mapscr.h"
 #include "gui/jwin.h"
 #include "zq/zquest.h"
-#include "zq/zq_class.h"
 #include "zc_list_data.h"
 #include <fmt/format.h>
 #include <sstream>

@@ -1,7 +1,6 @@
 #include "rotatetile.h"
 #include "gui/builder.h"
 #include "gui/jwin.h"
-#include "zq/zquest.h"
 #include <fmt/format.h>
 
 RotateTileDialog::RotateTileDialog(int32_t* w, int32_t* h, zfix* r) :

@@ -6,7 +6,6 @@
 #include "zalleg/zsys.h"
 #include "zinfo.h"
 #include "gui/use_size.h"
-#include "zc/cheats.h"
 #include "dialog/control_binding.h"
 #include <fmt/format.h>
 

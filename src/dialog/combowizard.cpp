@@ -8,7 +8,6 @@
 #include "zc/maps.h"
 #include "zc_list_data.h"
 #include "items.h"
-#include "zc/weapons.h"
 #include "sfx.h"
 #include "core/qrs.h"
 #include "zinfo.h"

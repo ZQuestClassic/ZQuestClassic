@@ -14,8 +14,6 @@
 #include "zc_list_data.h"
 #include "zq/zquest.h"
 #include "zq/zq_misc.h"
-#include "zq/zq_class.h"
-#include "zq/zq_custom.h"
 #include "core/qst.h"
 #include "core/dmap.h"
 #include <fmt/format.h>

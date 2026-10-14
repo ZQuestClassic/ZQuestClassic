@@ -29,8 +29,6 @@
 #include "subscr.h"
 #include "sfx.h"
 #include "base/md5.h"
-#include "zc/replay.h"
-#include "zc/zelda.h"
 #include "zinfo.h"
 #include "zc/ffscript.h"
 #include "particles.h"

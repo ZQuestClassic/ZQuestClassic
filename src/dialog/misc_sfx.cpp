@@ -2,7 +2,6 @@
 #include "info.h"
 #include "gui/builder.h"
 #include "gui/jwin.h"
-#include "zq/zquest.h"
 #include "zalleg/zsys.h"
 #include "gui/use_size.h"
 #include "zc_list_data.h"

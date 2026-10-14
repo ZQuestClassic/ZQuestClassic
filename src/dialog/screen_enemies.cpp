@@ -7,7 +7,6 @@
 #include "zalleg/zsys.h"
 #include "gui/builder.h"
 #include "zc_list_data.h"
-#include "zq/zq_class.h"
 #include <fmt/format.h>
 #include "zq/zquest.h"
 

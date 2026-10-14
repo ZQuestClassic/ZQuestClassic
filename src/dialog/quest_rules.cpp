@@ -10,7 +10,6 @@
 #include "zalleg/zsys.h"
 #include "zalleg/gui.h"
 #include "gui/use_size.h"
-#include "zq/zq_files.h"
 #include "core/qrs.h"
 #include "core/mapscr.h"
 #include "zc_list_data.h"

@@ -25,7 +25,6 @@
 #include "core/combo.h"
 #include "tiles.h"
 #include "zalleg/pal_tables.h"
-#include "zc/combos.h"
 #include "zc/maps.h"
 #include "items.h"
 

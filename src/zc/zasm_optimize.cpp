@@ -26,7 +26,6 @@
 #include "base/util.h"
 #include "base/zapp.h"
 #include "core/zdefs.h"
-#include "parser/parserDefs.h"
 #include "components/zasm/pc.h"
 #include "zc/ffscript.h"
 #include "zc/scripting/jit/jit.h"

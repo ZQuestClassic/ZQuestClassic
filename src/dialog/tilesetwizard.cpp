@@ -5,10 +5,7 @@
 #include "pickruletemplate.h"
 #include "info.h"
 #include "core/qst.h"
-#include "zq/zq_class.h"
-#include "zq/zq_files.h"
 #include "zq/zquest.h"
-#include "zq/zq_misc.h"
 #include "gui/builder.h"
 #include <optional>
 

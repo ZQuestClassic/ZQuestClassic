@@ -1,5 +1,4 @@
 #include "cheat_dialog.h"
-#include "zc/zc_sys.h"
 #include "zalleg/zsys.h"
 #include "gui/builder.h"
 

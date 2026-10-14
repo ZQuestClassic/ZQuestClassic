@@ -5,7 +5,6 @@
 #include "zalleg/zsys.h"
 #include "gui/use_size.h"
 #include <fmt/format.h>
-#include "zq/zq_hotkey.h"
 #include "base/util.h"
 using namespace util;
 

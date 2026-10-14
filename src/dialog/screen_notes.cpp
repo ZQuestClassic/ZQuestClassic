@@ -4,7 +4,6 @@
 #include "zc_list_data.h"
 #include "core/mapscr.h"
 #include "zq/zquest.h"
-#include "zq/zq_class.h"
 #include "gui/editbox.h"
 #include "core/qst.h"
 #include <fmt/format.h>

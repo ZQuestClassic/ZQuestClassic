@@ -5,7 +5,6 @@
 #include "zalleg/zsys.h"
 #include "zinfo.h"
 #include "gui/use_size.h"
-#include "zc/cheats.h"
 #include <fmt/format.h>
 
 static size_t tab_pos1 = 0;

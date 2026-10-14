@@ -2,7 +2,6 @@
 #include "gui/builder.h"
 #include "gui/jwin.h"
 #include "zq/zquest.h"
-#include "zq/zq_class.h"
 #include "zc_list_data.h"
 #include "info.h"
 #include "script_data_editor.h"

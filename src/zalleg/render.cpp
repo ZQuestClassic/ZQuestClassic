@@ -3,8 +3,6 @@
 #include "allegro5/bitmap.h"
 #include "allegro5/display.h"
 #include "base/zapp.h"
-#include "core/zdefs.h"
-#include "core/fonts.h"
 #include <fmt/format.h>
 #include "gui/jwin_a5.h"
 #include <chrono>

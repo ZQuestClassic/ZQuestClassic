@@ -7,7 +7,6 @@
 #include "pal.h"
 #include "base/util.h"
 #include "user_object.h"
-#include "zc/ffscript.h"
 #include "core/qrs.h"
 #include "core/dmap.h"
 #include "core/initdata.h"

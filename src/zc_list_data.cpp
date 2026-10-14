@@ -3,8 +3,6 @@
 #include "core/qst.h"
 #include "subscr.h"
 #include "zc/zelda.h"
-#include "zq/zquest.h"
-#include "zq/zq_misc.h"
 #include "zinfo.h"
 #include "advanced_music.h"
 #include "core/misctypes.h"

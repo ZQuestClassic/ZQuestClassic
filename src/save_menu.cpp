@@ -6,8 +6,6 @@
 #include "drawing.h"
 
 #ifdef IS_PLAYER
-#include "zc/zelda.h"
-#include "zc/replay.h"
 #include "zc/title.h"
 #include "zc/ffscript.h"
 #else

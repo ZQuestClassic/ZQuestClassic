@@ -1,13 +1,10 @@
 #include "items.h"
 #include "zc/guys.h"
-#include "zc/maps.h"
 #include "core/zdefs.h"
 #include "core/qrs.h"
 #include "core/combo.h"
-#include "zc/ffscript.h"
 #include <fmt/format.h>
 #include "core/misctypes.h"
-#include "zc/zelda.h"
 #include "zc/zscriptversion.h"
 
 void mark_save_dirty();

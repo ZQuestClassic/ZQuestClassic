@@ -3,7 +3,6 @@
 #include "gui/builder.h"
 #include "zc_list_data.h"
 #include "zc/zelda.h"
-#include "zc/render.h"
 #include "zc/matrix.h"
 
 extern char cfg_sect[];

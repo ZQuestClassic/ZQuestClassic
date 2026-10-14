@@ -2,7 +2,6 @@
 #include "core/zdefs.h"
 #include "user_object.h"
 #include "components/zasm/table.h"
-#include "zc/ffscript.h"
 #include "zc/scripting/arrays.h"
 #include "zc/scripting/script_object.h"
 #include "zc/zscriptversion.h"

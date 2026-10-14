@@ -5,14 +5,11 @@
 #include "sprite.h"
 #include "core/qrs.h"
 #include "core/combo.h"
-#include "zc/zc_ffc.h"
 
 extern sprite_list Lwpns;
 
 #ifdef IS_PLAYER
-#include "zc/maps.h"
 #include "zc/hero.h"
-#include "zc/combos.h"
 #include "core/mapscr.h"
 #include "iter.h"
 

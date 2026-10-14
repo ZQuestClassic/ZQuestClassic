@@ -2,7 +2,6 @@
 #include "dialog/quest_browser.h"
 #include "base/version.h"
 #include "base/zapp.h"
-#include "zc/ffscript.h"
 #include "core/misctypes.h"
 #include "core/qst.h"
 #include "tiles.h"

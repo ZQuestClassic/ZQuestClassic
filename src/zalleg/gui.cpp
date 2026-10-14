@@ -4,13 +4,8 @@
 #include <math.h>
 #include <ctype.h>
 #include "zalleg/zalleg.h"
-#include "core/zdefs.h"
-#include "tiles.h"
 #include "zalleg/colors.h"
-#include "pal.h"
 #include "zalleg/zsys.h"
-#include "gui/jwin.h"
-#include "core/jwinfsel.h"
 #include "zalleg/gui.h"
 
 extern int32_t zq_screen_w, zq_screen_h;

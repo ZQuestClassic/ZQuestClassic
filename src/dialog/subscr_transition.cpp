@@ -5,7 +5,6 @@
 #include <sstream>
 #include <fmt/format.h>
 #include "new_subscr.h"
-#include "zq/zq_subscr.h"
 #include "zc_list_data.h"
 #include "gui/use_size.h"
 #include "gui/common.h"

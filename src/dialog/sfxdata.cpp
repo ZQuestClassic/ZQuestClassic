@@ -5,9 +5,6 @@
 #include "zalleg/files.h"
 #include "sfx.h"
 #include "play_midi.h"
-#include "zq/zquest.h"
-#include "zq/zq_misc.h"
-#include "zc/zelda.h"
 #include "zalleg/zalleg.h"
 #include <fmt/format.h>
 

@@ -13,7 +13,6 @@ extern ZCMIXER* zcmixer;
 #ifdef IS_PLAYER
 
 #include "zc/zelda.h"
-#include "zc/zc_sys.h"
 
 #define QST_PATH qstpath
 

@@ -17,13 +17,10 @@
 #include "sprite.h"
 #include <set>
 #include <fmt/format.h>
-#include "zc/maps.h"
 #include "zc/ffscript.h"
-#include "zc/zelda.h"
 #include "zc_list_data.h"
 
 #ifdef IS_PLAYER
-#include "zc/hero.h"
 extern sprite_list Lwpns;
 void verifyBothWeapons();
 bool zq_ignore_item_ownership = true, zq_view_fullctr = false, zq_view_maxctr = false,

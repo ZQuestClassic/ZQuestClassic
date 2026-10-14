@@ -7,7 +7,6 @@
 #include <allegro/alcompat.h>
 
 #include "base/util.h"
-#include "gui/jwin.h"
 #include "core/jwinfsel.h"
 #include "zalleg/zsys.h"
 #include "core/fonts.h"

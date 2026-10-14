@@ -3,7 +3,6 @@
 #include "zalleg/zsys.h"
 #include "core/msgstr.h"
 #include "dialog/stringcontrolcode.h"
-#include "zq/zquest.h"
 #include "info.h"
 #include "subscr.h"
 #include "gui/editbox.h"

@@ -5,7 +5,6 @@
 #include "tiles.h"
 #include "zalleg/zsys.h"
 #include "zc/ffscript.h"
-#include "zc/hero.h"
 #include "gamedata.h"
 #include "items.h"
 #include <stdio.h>

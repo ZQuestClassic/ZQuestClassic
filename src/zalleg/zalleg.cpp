@@ -9,10 +9,8 @@
 #include "zalleg/render.h"
 #include "base/version.h"
 #include "base/zapp.h"
-#include "core/zdefs.h"
 #include "zalleg/zsys.h"
 #include "sfx.h"
-#include "zsyssimple.h"
 #include <al5_img.h>
 #include <cstdint>
 #include <ctime>

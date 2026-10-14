@@ -17,8 +17,6 @@
 #include <memory>
 #include <vector>
 #include "base/util.h"
-#include "zsyssimple.h"
-#include "core/zdefs.h"
 #include "zconsole/ConsoleLogger.h"
 
 using namespace util;

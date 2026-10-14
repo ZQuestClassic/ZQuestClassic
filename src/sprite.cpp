@@ -14,18 +14,14 @@
 #include "drawing.h"
 
 #ifdef IS_PLAYER
-#include "zc/hero.h"
 #include "zc/decorations.h"
 #include "items.h"
 #include "zc/render.h"
-#include "zc/maps.h"
-#include "zc/replay.h"
 #include "zc/guys.h"
 #include "gui/jwin_a5.h"
 #endif
 
 #ifdef IS_PLAYER
-#include "zq/zquest.h"
 #endif
 
 static std::map<int32_t, sprite*> all_sprites;

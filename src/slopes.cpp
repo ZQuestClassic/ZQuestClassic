@@ -4,7 +4,6 @@
 #include "core/mapscr.h"
 #include "ffc.h"
 #include "sprite.h"
-#include "zc/maps.h"
 
 std::map<slope_id_t, slope_object> slopes;
 

@@ -7,8 +7,6 @@
 #include "gui/jwin.h"
 #include "dialog/info.h"
 #include <fmt/format.h>
-#include "zq/zq_class.h"
-#include "zq/zq_misc.h"
 #include "zq/zquest.h"
 
 void mark_save_dirty();
