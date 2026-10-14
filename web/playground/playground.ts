@@ -489,8 +489,12 @@ export async function main() {
       const name = window.prompt('File name: (ex: script.zs)');
       if (name === null) return;
 
-      const model = createModel('', monaco.Uri.file(name || 'script.zs'));
-      getState(model).readOnly = false;
+      const uri = monaco.Uri.file(name.trim() || 'script.zs');
+      let model = monaco.editor.getModel(uri);
+      if (!model) {
+        model = createModel('', uri);
+        getState(model).readOnly = false;
+      }
       openModel(model);
       return;
     }
