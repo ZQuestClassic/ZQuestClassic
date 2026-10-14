@@ -16,6 +16,8 @@ enum App {
 };
 
 void common_main_setup(App id, int argc, char **argv);
+// Each app defines this, printing to its log/console.
+void zprint2(const char * const format,...);
 int32_t used_switch(int32_t argc,char *argv[],const char *s);
 int32_t zapp_check_switch(const char *s, std::vector<const char*> arg_names = {});
 int zapp_get_argc();

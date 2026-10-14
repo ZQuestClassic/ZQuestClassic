@@ -436,6 +436,10 @@ public:
 	zfix& doRound();
 };
 
+// If set and returns true, zfix_round ignores `rt` and always rounds to nearest. The
+// player sets this for replays recorded before rounding types were honored.
+extern bool(*zfix_round_force_nearest)();
+
 //Implement fmt::format parsing for zfix type
 template <> struct fmt::formatter<zfix>
 {

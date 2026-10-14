@@ -710,6 +710,11 @@ void zalleg_update_bmp_size(BITMAP** bmp_ptr, int w, int h)
 	*bmp_ptr = create_bitmap_ex(8, w, h);
 }
 
+void clear_clip_rect(BITMAP* bitmap)
+{
+	set_clip_rect(bitmap, 0, 0, bitmap->w-1, bitmap->h-1);
+}
+
 /* zalleg_save_midi:
 *  Saves a standard MIDI file, returning 0 on success,
 *  or non-zero on error.

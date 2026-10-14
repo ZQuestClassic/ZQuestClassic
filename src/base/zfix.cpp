@@ -1,6 +1,7 @@
 #include "base/zfix.h"
 #include <fmt/format.h>
-#include "zc/replay.h"
+
+bool(*zfix_round_force_nearest)();
 
 zfix_round zfix::rnd(roundType rt) const
 {
@@ -26,13 +27,13 @@ zfix& zfix::do_round(roundType rt)
 
 int32_t zfix_round::getRound() const
 {
-	if(replay_version_check(0,23))
+	if(zfix_round_force_nearest && zfix_round_force_nearest())
 		return round(ROUND_NEAREST);
 	return round(rt);
 }
 zfix& zfix_round::doRound()
 {
-	if(replay_version_check(0,23))
+	if(zfix_round_force_nearest && zfix_round_force_nearest())
 		return do_round(ROUND_NEAREST);
 	return do_round(rt);
 }

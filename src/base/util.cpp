@@ -2,7 +2,6 @@
 #include "base/general.h"
 #include "base/md5.h"
 #include "base/process_management.h"
-#include "core/zdefs.h"
 #include <climits>
 #include <cstdlib>
 #include <fstream>
@@ -14,6 +13,11 @@
 #include <sys/stat.h>
 #include <regex>
 #include <system_error>
+
+#ifdef _WIN32
+#include <direct.h>
+#include <io.h>
+#endif
 
 #ifdef __EMSCRIPTEN__
 #include "base/emscripten_utils.h"
@@ -1131,11 +1135,6 @@ char const* get_snap_str()
 	if(checkPath("snapshots",true))
 		return snap;
 	return nil;
-}
-
-void clear_clip_rect(BITMAP* bitmap)
-{
-	set_clip_rect(bitmap, 0, 0, bitmap->w-1, bitmap->h-1);
 }
 
 static std::string HINT_TY(std::vector<int> vals, dword ty)

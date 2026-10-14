@@ -47,9 +47,6 @@ LOW_LEVEL = {
 EXCEPTIONS = """
 advanced_music.cpp -> zc/zelda.h
 advanced_music.cpp -> zq/zquest.h
-base/process_management.cpp -> core/zdefs.h
-base/util.cpp -> core/zdefs.h
-base/zfix.cpp -> zc/replay.h
 components/scc/scc.cpp -> core/flags.h
 components/zasm/serialize.cpp -> core/zdefs.h
 components/zasm/serialize.h -> core/zdefs.h

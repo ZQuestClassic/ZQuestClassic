@@ -96,14 +96,6 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define strnicmp strncasecmp
 #endif
 
-#ifdef _WIN32
-#define PATH_SLASH '\\'
-#define WRONG_PATH_SLASH '/'
-#else
-#define PATH_SLASH '/'
-#define WRONG_PATH_SLASH '\\'
-#endif
-
 #define ZC_ID(a,b,c,d)  (((a)<<24) | ((b)<<16) | ((c)<<8) | (d))
 
 //ID values of the different section types

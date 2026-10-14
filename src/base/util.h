@@ -26,9 +26,15 @@
 typedef int32_t mode_t;
 #endif
 
-namespace fs = std::filesystem;
+#ifdef _WIN32
+#define PATH_SLASH '\\'
+#define WRONG_PATH_SLASH '/'
+#else
+#define PATH_SLASH '/'
+#define WRONG_PATH_SLASH '\\'
+#endif
 
-struct BITMAP;
+namespace fs = std::filesystem;
 
 namespace util
 {
@@ -178,8 +184,6 @@ bool fileexists(const char *filename);
 int32_t compare(int32_t a, int32_t b);
 
 char const* get_snap_str();
-
-void clear_clip_rect(BITMAP* bitmap);
 
 struct InfoTextHintData
 {

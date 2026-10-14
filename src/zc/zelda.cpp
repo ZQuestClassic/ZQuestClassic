@@ -3937,6 +3937,7 @@ int main(int argc, char **argv)
 	qstdir[0] = 0;
 	qstpath[0] = 0;
 	reset_scripts_hook = zasm_pipeline_shutdown;
+	zfix_round_force_nearest = []{ return replay_version_check(0, 23); };
 
 #ifdef _WIN32
 	// For purposes of packaging a standalone app.
