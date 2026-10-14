@@ -535,10 +535,10 @@ export async function main() {
 
       return {
         range: new monaco.Range(
-          identifier.loc.line,
-          identifier.loc.character,
-          identifier.loc.line,
-          identifier.loc.character + identifier.loc.length,
+          identifier.loc.line + 1,
+          identifier.loc.character + 1,
+          identifier.loc.line + 1,
+          identifier.loc.character + 1 + identifier.loc.length,
         ),
         contents: [
           { value: `**${model.getWordAtPosition(position)?.word}**` },
