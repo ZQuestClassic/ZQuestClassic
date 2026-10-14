@@ -607,10 +607,13 @@ export async function main() {
 
       openModel(model);
       if (monaco.Range.isIRange(selectionOrPosition)) {
+        editor.setSelection(selectionOrPosition);
         editor.revealRangeNearTop(selectionOrPosition);
       } else if (monaco.Position.isIPosition(selectionOrPosition)) {
+        editor.setPosition(selectionOrPosition);
         editor.revealPositionNearTop(selectionOrPosition);
       }
+      editor.focus();
       return true;
     }
   });
