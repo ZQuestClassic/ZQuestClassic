@@ -224,7 +224,6 @@ extern int32_t msg_strings_size;
 extern ZCHEATS zcheats;
 extern byte use_cheats;
 extern byte use_tiles;
-extern char palnames[MAXLEVELS][17];
 
 extern char fontsdat_sig[52];
 

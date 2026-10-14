@@ -2,12 +2,13 @@
 #include "core/dmap.h"
 #include "core/qst.h"
 #include "subscr.h"
-#include "zc/zelda.h"
 #include "zinfo.h"
 #include "advanced_music.h"
 #include "core/misctypes.h"
 #include "core/autocombo.h"
 #include "core/qrs.h"
+#include "core/fonts.h"
+#include "zcsfx.h"
 #include <fmt/format.h>
 #include "sprite_data.h"
 

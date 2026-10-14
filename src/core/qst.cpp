@@ -76,7 +76,6 @@ extern tiledata            *newtilebuf;
 extern byte                *trashbuf;
 extern comboclass          *combo_class_buf;
 extern ZCHEATS             zcheats;
-extern char                palnames[MAXLEVELS][17];
 string				             zScript;
 std::map<int32_t, script_slot_data > ffcmap;
 std::map<int32_t, script_slot_data > globalmap;

@@ -728,8 +728,6 @@ int32_t					msg_strings_size;
 ZCHEATS             zcheats;
 byte                use_cheats;
 byte                use_tiles;
-// Note: may not be null-terminated (must refactor writecolordata to fix).
-char                palnames[MAXLEVELS][17];
 char                zquestdat_sig[52];
 char		    qstdat_str[2048];
 

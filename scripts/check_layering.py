@@ -223,7 +223,6 @@ zalleg/zqdialog.cpp -> core/zdefs.h
 zalleg/zsys.cpp -> zconsole/ConsoleLogger.h
 zalleg/zsys.h -> core/zdefs.h
 zalleg/zsys.h -> gui/jwin.h
-zc_list_data.cpp -> zc/zelda.h
 zcsfx.cpp -> zc/ffscript.h
 zq/commands.cpp -> zc/ffscript.h
 zq/ffasmexport.h -> parser/Compiler.h

@@ -123,6 +123,7 @@ enum
 
 extern const char *qst_error[];
 extern word msg_count;
+extern char palnames[MAXLEVELS][PALNAMESIZE];
 extern word door_combo_set_count;
 extern int32_t favorite_combos[MAXFAVORITECOMBOS];
 extern byte favorite_combo_modes[MAXFAVORITECOMBOS];

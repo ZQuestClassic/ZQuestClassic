@@ -233,7 +233,6 @@ extern item_drop_object    item_drop_sets[MAXITEMDROPSETS];
 extern ZCHEATS  zcheats;
 extern byte     use_cheats;
 extern byte     use_tiles;
-extern char     palnames[MAXLEVELS][17];
 
 extern bool standalone_mode;
 extern fs::path standalone_quest;

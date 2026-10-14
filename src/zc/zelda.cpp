@@ -235,7 +235,6 @@ item_drop_object    item_drop_sets[MAXITEMDROPSETS];
 ZCHEATS    zcheats;
 byte       use_cheats;
 byte       use_tiles;
-char       palnames[MAXLEVELS][PALNAMESIZE];
 
 bool ewind_restart=false;
 

@@ -5,6 +5,9 @@
 
 extern const byte* legacy_skip_flags;
 
+// Note: may not be null-terminated (must refactor writecolordata to fix).
+char palnames[MAXLEVELS][PALNAMESIZE];
+
 namespace {
 
 bool init_palnames()

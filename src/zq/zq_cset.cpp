@@ -7,6 +7,7 @@
 #include "zalleg/zalleg.h"
 #include "core/zdefs.h"
 #include "core/qrs.h"
+#include "core/qst.h"
 #include "zalleg/colors.h"
 #include "pal.h"
 #include "zq/zquest.h"

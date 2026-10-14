@@ -9,6 +9,7 @@
 #include "gui/use_size.h"
 #include "zq/zq_misc.h"
 #include "core/qrs.h"
+#include "core/qst.h"
 
 extern int32_t cset_count, cset_first;
 extern RGB** gUndoPal;
