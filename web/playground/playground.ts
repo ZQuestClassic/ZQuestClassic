@@ -511,6 +511,8 @@ async function share() {
     let name = model.uri.path;
     if (name.startsWith('/')) name = name.substring(1);
     name = name.replaceAll('/', '_');
+    // Flattening can collide (ex: "a/b.zs" and "a_b.zs"); the manifest has the real path.
+    while (name in files || name === 'manifest.json') name = `_${name}`;
     manifest.files[name] = model.uri.path;
 
     files[name] = {
