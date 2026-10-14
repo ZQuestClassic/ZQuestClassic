@@ -1,10 +1,10 @@
 #include "common.h"
 #include "dialog/externs.h"
-#include <gui/builder.h>
+#include "gui/builder.h"
 #include "subscr_grid_dlg.h"
 #include "core/initdata.h"
 #include "subscr.h"
-#include <dialog/info.h>
+#include "dialog/info.h"
 
 void mark_save_dirty();
 

@@ -1,5 +1,5 @@
 #include "compilezscript.h"
-#include <gui/builder.h>
+#include "gui/builder.h"
 #include "zalleg/files.h"
 #include "parser/Compiler.h"
 #include "zalleg/zalleg.h"

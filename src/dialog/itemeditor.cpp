@@ -2,7 +2,7 @@
 #include "itemwizard.h"
 #include "info.h"
 #include "zalleg/zsys.h"
-#include <gui/builder.h>
+#include "gui/builder.h"
 #include "zc_list_data.h"
 #include "zinfo.h"
 #include <fmt/format.h>

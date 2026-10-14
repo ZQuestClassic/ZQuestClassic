@@ -1,8 +1,8 @@
 #ifndef SUBSCR_GRID_DLG_H_
 #define SUBSCR_GRID_DLG_H_
 
-#include <gui/dialog.h>
-#include <gui/window.h>
+#include "gui/dialog.h"
+#include "gui/window.h"
 #include <functional>
 
 class SubscrGridDialog: public GUI::Dialog<SubscrGridDialog>

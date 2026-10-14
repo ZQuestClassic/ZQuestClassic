@@ -1,7 +1,7 @@
 #ifndef ZC_DIALOG_PICKRULESET_H_
 #define ZC_DIALOG_PICKRULESET_H_
 
-#include <gui/dialog.h>
+#include "gui/dialog.h"
 #include "gui/radioset.h"
 #include "gui/label.h"
 #include <functional>

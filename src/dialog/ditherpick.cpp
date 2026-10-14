@@ -1,7 +1,7 @@
 #include "ditherpick.h"
 #include "common.h"
 #include "info.h"
-#include <gui/builder.h>
+#include "gui/builder.h"
 #include "gui/use_size.h"
 
 void call_edit_dither(byte& ditherTy, byte& ditherArg, byte& ditherCol, bool editcol)

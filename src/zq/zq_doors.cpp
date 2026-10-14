@@ -17,7 +17,7 @@
 #include "zq/zquest.h"
 #include "zq/render.h"
 #include "dialog/door_sel.h"
-#include <dialog/info.h>
+#include "dialog/info.h"
 
 extern void restore_mouse();
 extern zquestheader header;

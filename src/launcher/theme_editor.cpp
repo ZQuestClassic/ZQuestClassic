@@ -4,7 +4,7 @@
 #include "dialog/alert.h"
 #include "core/jwinfsel.h"
 #include "gui/jwin_a5.h"
-#include <gui/builder.h>
+#include "gui/builder.h"
 #include "launcher/launcher.h"
 
 extern int32_t zq_screen_w, zq_screen_h;

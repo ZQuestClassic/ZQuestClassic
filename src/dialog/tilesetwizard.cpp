@@ -9,7 +9,7 @@
 #include "zq/zq_files.h"
 #include "zq/zquest.h"
 #include "zq/zq_misc.h"
-#include <gui/builder.h>
+#include "gui/builder.h"
 #include <optional>
 
 extern BITMAP* zqdialog_bg_bmp;

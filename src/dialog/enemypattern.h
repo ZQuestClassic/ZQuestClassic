@@ -1,12 +1,12 @@
 #ifndef ZC_DIALOG_ENEMY_PATTERN_H_
 #define ZC_DIALOG_ENEMY_PATTERN_H_
 
-#include <gui/dialog.h>
-#include <gui/button.h>
-#include <gui/label.h>
-#include <gui/window.h>
-#include <gui/list_data.h>
-#include <gui/list.h>
+#include "gui/dialog.h"
+#include "gui/button.h"
+#include "gui/label.h"
+#include "gui/window.h"
+#include "gui/list_data.h"
+#include "gui/list.h"
 
 void call_enemypattern_dialog();
 

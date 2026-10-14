@@ -1,15 +1,15 @@
 #ifndef ZC_DIALOG_ITEMEDITOR_H_
 #define ZC_DIALOG_ITEMEDITOR_H_
 
-#include <gui/dialog.h>
-#include <gui/checkbox.h>
-#include <gui/button.h>
-#include <gui/label.h>
-#include <gui/text_field.h>
-#include <gui/window.h>
-#include <gui/list_data.h>
-#include <gui/switcher.h>
-#include <zq/gui/tileanim_frame.h>
+#include "gui/dialog.h"
+#include "gui/checkbox.h"
+#include "gui/button.h"
+#include "gui/label.h"
+#include "gui/text_field.h"
+#include "gui/window.h"
+#include "gui/list_data.h"
+#include "gui/switcher.h"
+#include "zq/gui/tileanim_frame.h"
 #include <functional>
 #include <string_view>
 #include <map>

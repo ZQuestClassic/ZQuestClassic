@@ -2,13 +2,13 @@
 #define ZC_DIALOG_STRINGEDIT_H_
 
 #include "gui/button.h"
-#include <gui/dialog.h>
-#include <gui/label.h>
-#include <gui/text_field.h>
-#include <gui/radio.h>
-#include <gui/drop_down_list.h>
-#include <zq/gui/msgstr_preview.h>
-#include <gui/window.h>
+#include "gui/dialog.h"
+#include "gui/label.h"
+#include "gui/text_field.h"
+#include "gui/radio.h"
+#include "gui/drop_down_list.h"
+#include "zq/gui/msgstr_preview.h"
+#include "gui/window.h"
 #include <functional>
 #include <string_view>
 

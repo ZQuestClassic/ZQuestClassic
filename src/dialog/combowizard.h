@@ -2,11 +2,11 @@
 #define ZC_DIALOG_COMBOWIZARD_H_
 
 #include "comboeditor.h"
-#include <gui/switcher.h>
-#include <gui/frame.h>
-#include <gui/tabpanel.h>
-#include <gui/drop_down_list.h>
-#include <gui/radioset.h>
+#include "gui/switcher.h"
+#include "gui/frame.h"
+#include "gui/tabpanel.h"
+#include "gui/drop_down_list.h"
+#include "gui/radioset.h"
 bool hasComboWizard(int32_t type);
 void call_combo_wizard(ComboEditorDialog& dlg);
 void combo_default(newcombo& ref, bool typeonly = true);

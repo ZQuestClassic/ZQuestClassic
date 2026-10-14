@@ -2,8 +2,8 @@
 #define ZC_DIALOG_ALERTFUNC_H_
 
 #include "info.h"
-#include <gui/button.h>
-#include <gui/grid.h>
+#include "gui/button.h"
+#include "gui/grid.h"
 
 // A basic dialog that just shows some lines of text and a set of function buttons
 class AlertFuncDialog: public InfoDialog

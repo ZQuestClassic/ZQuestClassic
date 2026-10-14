@@ -1,16 +1,16 @@
 #ifndef ZC_DIALOG_ENEMYEDITOR_H_
 #define ZC_DIALOG_ENEMYEDITOR_H_
 
-#include <gui/dialog.h>
-#include <gui/button.h>
-#include <gui/checkbox.h>
-#include <gui/label.h>
-#include <gui/text_field.h>
-#include <gui/drop_down_list.h>
-#include <gui/switcher.h>
-#include <gui/window.h>
-#include <gui/list_data.h>
-#include <zq/gui/seltile_swatch.h>
+#include "gui/dialog.h"
+#include "gui/button.h"
+#include "gui/checkbox.h"
+#include "gui/label.h"
+#include "gui/text_field.h"
+#include "gui/drop_down_list.h"
+#include "gui/switcher.h"
+#include "gui/window.h"
+#include "gui/list_data.h"
+#include "zq/gui/seltile_swatch.h"
 #include <functional>
 #include <string_view>
 #include <map>

@@ -1,17 +1,17 @@
 #ifndef ZC_DIALOG_INITDLG_H_
 #define ZC_DIALOG_INITDLG_H_
 
-#include <gui/dialog.h>
-#include <gui/checkbox.h>
-#include <gui/label.h>
-#include <gui/button.h>
-#include <gui/window.h>
-#include <gui/text_field.h>
-#include <gui/list_data.h>
+#include "gui/dialog.h"
+#include "gui/checkbox.h"
+#include "gui/label.h"
+#include "gui/button.h"
+#include "gui/window.h"
+#include "gui/text_field.h"
+#include "gui/list_data.h"
 #include <functional>
 #include <string_view>
 #include <map>
-#include <gui/switcher.h>
+#include "gui/switcher.h"
 #include "core/initdata.h"
 
 void call_init_dlg(zinitdata& sourcezinit, bool zc);

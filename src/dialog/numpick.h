@@ -1,9 +1,9 @@
 #ifndef ZC_DIALOG_VECTORPICK_H_
 #define ZC_DIALOG_VECTORPICK_H_
 
-#include <gui/dialog.h>
-#include <gui/button.h>
-#include <gui/window.h>
+#include "gui/dialog.h"
+#include "gui/button.h"
+#include "gui/window.h"
 #include <functional>
 #include "base/containers.h"
 #include "dialog/externs.h"

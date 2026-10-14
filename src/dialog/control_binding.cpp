@@ -1,6 +1,6 @@
 #include "control_binding.h"
 #include "info.h"
-#include <gui/builder.h>
+#include "gui/builder.h"
 #include "gui/jwin.h"
 #include "zalleg/zsys.h"
 #include "zinfo.h"

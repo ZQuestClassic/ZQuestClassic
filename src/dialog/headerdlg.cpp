@@ -1,7 +1,7 @@
 #include "headerdlg.h"
 #include "info.h"
 #include "set_password.h"
-#include <gui/builder.h>
+#include "gui/builder.h"
 
 extern zquestheader header;
 void mark_save_dirty();

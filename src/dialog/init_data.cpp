@@ -1,7 +1,7 @@
 #include "init_data.h"
 #include "info.h"
 #include "gui/use_size.h"
-#include <gui/builder.h>
+#include "gui/builder.h"
 #include "zalleg/zsys.h"
 #include "zc_list_data.h"
 #include "zc/ffscript.h"

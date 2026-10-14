@@ -1,11 +1,11 @@
 #ifndef ZC_DIALOG_VIEWSCRIPTSLOTS_H_
 #define ZC_DIALOG_VIEWSCRIPTSLOTS_H_
 
-#include <gui/dialog.h>
-#include <gui/text_field.h>
-#include <gui/checkbox.h>
-#include <gui/list.h>
-#include <gui/list_data.h>
+#include "gui/dialog.h"
+#include "gui/text_field.h"
+#include "gui/checkbox.h"
+#include "gui/list.h"
+#include "gui/list_data.h"
 #include <functional>
 #include <string_view>
 

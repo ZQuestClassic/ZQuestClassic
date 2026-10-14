@@ -1,12 +1,12 @@
 #ifndef ZC_THEME_EDIT_DIALOG_H_
 #define ZC_THEME_EDIT_DIALOG_H_
 
-#include <gui/dialog.h>
-#include <gui/text_field.h>
-#include <gui/label.h>
-#include <gui/drop_down_list.h>
-#include <gui/button.h>
-#include <gui/window.h>
+#include "gui/dialog.h"
+#include "gui/text_field.h"
+#include "gui/label.h"
+#include "gui/drop_down_list.h"
+#include "gui/button.h"
+#include "gui/window.h"
 #include <functional>
 
 class ThemeEditor: public GUI::Dialog<ThemeEditor>

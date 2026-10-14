@@ -2,9 +2,9 @@
 #include "base/util.h"
 #include "dialog/info.h"
 #include "zq/zquest.h"
-#include <gui/builder.h>
+#include "gui/builder.h"
 #include <fmt/format.h>
-#include <core/qrs.h>
+#include "core/qrs.h"
 #include "zq/zq_misc.h"
 #include "zq/render.h"
 #include "zc_list_data.h"

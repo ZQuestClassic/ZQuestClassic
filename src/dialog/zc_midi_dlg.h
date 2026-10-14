@@ -1,9 +1,9 @@
 #pragma once
 
-#include <gui/dialog.h>
-#include <gui/window.h>
-#include <gui/label.h>
-#include <gui/button.h>
+#include "gui/dialog.h"
+#include "gui/window.h"
+#include "gui/label.h"
+#include "gui/button.h"
 #include <memory>
 
 class ZCMidiDlg: public GUI::Dialog<ZCMidiDlg>

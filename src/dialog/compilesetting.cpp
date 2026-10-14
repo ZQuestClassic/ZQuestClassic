@@ -1,5 +1,5 @@
 #include "compilesetting.h"
-#include <gui/builder.h>
+#include "gui/builder.h"
 #include "gui/jwin.h"
 #include "info.h"
 #include "zq/zquest.h"

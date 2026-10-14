@@ -1,8 +1,8 @@
 #include "alertfunc.h"
-#include <gui/builder.h>
+#include "gui/builder.h"
 #include <utility>
 #include <cstdarg>
-#include <gui/size.h>
+#include "gui/size.h"
 
 AlertFuncDialog::AlertFuncDialog(string const& title, string const& text, string info)
 	: InfoDialog(title,text), didend(false), helptxt(info), chosen_ptr(nullptr)

@@ -3,14 +3,14 @@
 
 #include "core/msgstr.h"
 #include "components/scc/scc.h"
-#include <gui/dialog.h>
-#include <gui/drop_down_list.h>
-#include <gui/checkbox.h>
-#include <zq/gui/selcombo_swatch.h>
-#include <gui/label.h>
-#include <gui/button.h>
-#include <gui/text_field.h>
-#include <gui/window.h>
+#include "gui/dialog.h"
+#include "gui/drop_down_list.h"
+#include "gui/checkbox.h"
+#include "zq/gui/selcombo_swatch.h"
+#include "gui/label.h"
+#include "gui/button.h"
+#include "gui/text_field.h"
+#include "gui/window.h"
 #include <functional>
 
 std::string run_scc_dlg(MsgStr const* ref, int current_scc_index);

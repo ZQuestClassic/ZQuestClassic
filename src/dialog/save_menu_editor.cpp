@@ -1,8 +1,8 @@
 #include "save_menu_editor.h"
 #include "dialog/externs.h"
-#include <gui/builder.h>
+#include "gui/builder.h"
 #include "gui/jwin.h"
-#include <dialog/info.h>
+#include "dialog/info.h"
 #include "zq/zquest.h"
 #include "core/misctypes.h"
 #include "zc_list_data.h"

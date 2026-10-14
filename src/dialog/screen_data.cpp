@@ -1,5 +1,5 @@
 #include "screen_data.h"
-#include <gui/builder.h>
+#include "gui/builder.h"
 #include "core/mapscr.h"
 #include "gui/jwin.h"
 #include "zq/zquest.h"

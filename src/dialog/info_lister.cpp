@@ -1,5 +1,5 @@
 #include "info_lister.h"
-#include <gui/builder.h>
+#include "gui/builder.h"
 #include "zalleg/new_menu.h"
 #include "zalleg/files.h"
 #include "itemeditor.h"

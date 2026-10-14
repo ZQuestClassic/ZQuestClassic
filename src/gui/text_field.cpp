@@ -5,7 +5,7 @@
 #include "gui/jwin.h"
 #include "core/zdefs.h"
 #include "zalleg/zsys.h"
-#include <gui/builder.h>
+#include "gui/builder.h"
 #include <algorithm>
 #include <cassert>
 #include <cstring>

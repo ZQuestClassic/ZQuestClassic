@@ -1,12 +1,12 @@
 #ifndef ZC_DIALOG_DOOR_SEL_H_
 #define ZC_DIALOG_DOOR_SEL_H_
 
-#include <gui/dialog.h>
-#include <gui/button.h>
-#include <gui/label.h>
-#include <gui/drop_down_list.h>
-#include <gui/window.h>
-#include <gui/list_data.h>
+#include "gui/dialog.h"
+#include "gui/button.h"
+#include "gui/label.h"
+#include "gui/drop_down_list.h"
+#include "gui/window.h"
+#include "gui/list_data.h"
 
 bool call_doorseldialog();
 

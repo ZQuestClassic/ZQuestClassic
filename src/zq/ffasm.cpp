@@ -14,7 +14,7 @@
 #include "base/util.h"
 
 #include <sstream>
-#include <dialog/info.h>
+#include "dialog/info.h"
 
 using namespace util;
 using std::string;

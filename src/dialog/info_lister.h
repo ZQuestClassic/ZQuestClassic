@@ -1,15 +1,15 @@
 #ifndef ZC_DIALOG_INFOLISTER_H_
 #define ZC_DIALOG_INFOLISTER_H_
 
-#include <gui/dialog.h>
-#include <gui/label.h>
-#include <gui/list.h>
-#include <gui/grid.h>
-#include <gui/button.h>
-#include <gui/checkbox.h>
-#include <gui/window.h>
-#include <zq/gui/tileanim_frame.h>
-#include <zq/gui/dmap_frame.h>
+#include "gui/dialog.h"
+#include "gui/label.h"
+#include "gui/list.h"
+#include "gui/grid.h"
+#include "gui/button.h"
+#include "gui/checkbox.h"
+#include "gui/window.h"
+#include "zq/gui/tileanim_frame.h"
+#include "zq/gui/dmap_frame.h"
 #include <initializer_list>
 #include <string>
 #include <set>

@@ -1,7 +1,7 @@
 #pragma once
 
-#include <gui/dialog.h>
-#include <gui/window.h>
+#include "gui/dialog.h"
+#include "gui/window.h"
 #include <functional>
 
 class ScreenSaverDialog: public GUI::Dialog<ScreenSaverDialog>

@@ -1,7 +1,7 @@
 #include "dialog/zc_midi_dlg.h"
 #include "allegro/midi.h"
 #include "common.h"
-#include <gui/builder.h>
+#include "gui/builder.h"
 #include "zc_list_data.h"
 #include "zc/zelda.h"
 #include "components/sound/midi.h"

@@ -1,11 +1,11 @@
 #ifndef ZC_DIALOG_ZINFODLG_H_
 #define ZC_DIALOG_ZINFODLG_H_
 
-#include <gui/dialog.h>
-#include <gui/checkbox.h>
-#include <gui/text_field.h>
-#include <gui/label.h>
-#include <gui/list_data.h>
+#include "gui/dialog.h"
+#include "gui/checkbox.h"
+#include "gui/text_field.h"
+#include "gui/label.h"
+#include "gui/list_data.h"
 #include <functional>
 #include <string_view>
 #include "zinfo.h"

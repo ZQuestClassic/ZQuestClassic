@@ -1,8 +1,8 @@
 #pragma once
 
-#include <gui/dialog.h>
-#include <gui/window.h>
-#include <gui/label.h>
+#include "gui/dialog.h"
+#include "gui/window.h"
+#include "gui/label.h"
 #include <functional>
 
 class VolumeDialog: public GUI::Dialog<VolumeDialog>

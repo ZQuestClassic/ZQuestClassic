@@ -4,7 +4,7 @@
 #include "gui/jwin.h"
 #include "zalleg/zalleg.h"
 #include <utility>
-#include <dialog/info.h>
+#include "dialog/info.h"
 #include "dialog/externs.h"
 
 namespace GUI

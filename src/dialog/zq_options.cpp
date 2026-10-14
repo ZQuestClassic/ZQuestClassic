@@ -1,5 +1,5 @@
 #include "zq_options.h"
-#include <gui/builder.h>
+#include "gui/builder.h"
 #include "gui/jwin.h"
 #include "zq/zquest.h"
 #include "tiles.h"

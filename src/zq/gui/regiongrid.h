@@ -4,7 +4,7 @@
 #include "core/mapscr.h"
 #include "gui/widget.h"
 #include "gui/dialog_ref.h"
-#include <zq/zq_class.h>
+#include "zq/zq_class.h"
 
 class RenderTreeItem;
 

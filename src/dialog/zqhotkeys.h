@@ -1,10 +1,10 @@
 #ifndef ZQ_DIALOG_HOTKEYS_H_
 #define ZQ_DIALOG_HOTKEYS_H_
 
-#include <gui/dialog.h>
-#include <gui/label.h>
-#include <gui/scrolling_pane.h>
-#include <gui/list_data.h>
+#include "gui/dialog.h"
+#include "gui/label.h"
+#include "gui/scrolling_pane.h"
+#include "gui/list_data.h"
 #include <functional>
 #include <string_view>
 #include "zq/zq_hotkey.h"

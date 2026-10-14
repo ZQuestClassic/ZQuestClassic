@@ -1,8 +1,8 @@
 #ifndef ZC_DIALOG_LAYERDLG_H_
 #define ZC_DIALOG_LAYERDLG_H_
 
-#include <gui/dialog.h>
-#include <gui/text_field.h>
+#include "gui/dialog.h"
+#include "gui/text_field.h"
 #include <functional>
 #include <string_view>
 #include "core/mapscr.h"

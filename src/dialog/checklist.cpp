@@ -1,8 +1,8 @@
 #include "checklist.h"
 #include "base/containers.h"
-#include <gui/builder.h>
+#include "gui/builder.h"
 #include <utility>
-#include <dialog/info.h>
+#include "dialog/info.h"
 
 bool call_checklist_dialog(string const& title,
 	CheckList const& flagnames,

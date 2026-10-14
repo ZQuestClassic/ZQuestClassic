@@ -1,10 +1,10 @@
 #ifndef ZC_DIALOG_TILESETWIZARD_H_
 #define ZC_DIALOG_TILESETWIZARD_H_
 
-#include <gui/dialog.h>
-#include <gui/checkbox.h>
-#include <gui/label.h>
-#include <gui/window.h>
+#include "gui/dialog.h"
+#include "gui/checkbox.h"
+#include "gui/label.h"
+#include "gui/window.h"
 #include "gui/radioset.h"
 #include "gui/label.h"
 #include <functional>

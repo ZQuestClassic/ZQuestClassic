@@ -1,13 +1,13 @@
 #ifndef ZC_DIALOG_MAPSTYLES_H_
 #define ZC_DIALOG_MAPSTYLES_H_
 
-#include <gui/dialog.h>
-#include <gui/label.h>
-#include <zq/gui/seltile_swatch.h>
-#include <gui/window.h>
+#include "gui/dialog.h"
+#include "gui/label.h"
+#include "zq/gui/seltile_swatch.h"
+#include "gui/window.h"
 #include <functional>
 #include <string_view>
-#include <core/misctypes.h>
+#include "core/misctypes.h"
 
 bool call_mapstyles_dialog ();
 

@@ -23,7 +23,7 @@
 #include "core/qst.h"
 #include "zc_list_data.h"
 #include <fmt/ranges.h>
-#include <dialog/info.h>
+#include "dialog/info.h"
 
 extern int32_t bie_cnt;
 

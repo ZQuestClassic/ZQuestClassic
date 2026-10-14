@@ -1,9 +1,9 @@
 #ifndef ZC_DIALOG_COMPILESETTING_H_
 #define ZC_DIALOG_COMPILESETTING_H_
 
-#include <gui/dialog.h>
-#include <gui/window.h>
-#include <gui/label.h>
+#include "gui/dialog.h"
+#include "gui/window.h"
+#include "gui/label.h"
 #include <functional>
 #include <string_view>
 #include <array>

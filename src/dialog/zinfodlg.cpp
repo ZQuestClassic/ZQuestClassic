@@ -1,5 +1,5 @@
 #include "zinfodlg.h"
-#include <gui/builder.h>
+#include "gui/builder.h"
 #include "zalleg/gui.h"
 #include "zalleg/files.h"
 #include "dialog/externs.h"

@@ -1,12 +1,12 @@
 #ifndef ZC_DIALOG_SCREEN_NOTES_H_
 #define ZC_DIALOG_SCREEN_NOTES_H_
 
-#include <gui/dialog.h>
-#include <gui/label.h>
-#include <gui/button.h>
-#include <gui/list.h>
-#include <gui/window.h>
-#include <zq/gui/tileanim_frame.h>
+#include "gui/dialog.h"
+#include "gui/label.h"
+#include "gui/button.h"
+#include "gui/list.h"
+#include "gui/window.h"
+#include "zq/gui/tileanim_frame.h"
 #include <initializer_list>
 #include <string>
 #include <set>

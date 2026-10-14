@@ -2,11 +2,11 @@
 #define ZC_DIALOG_ITEMWIZARD_H_
 
 #include "itemeditor.h"
-#include <gui/switcher.h>
-#include <gui/frame.h>
-#include <gui/tabpanel.h>
-#include <gui/drop_down_list.h>
-#include <gui/radioset.h>
+#include "gui/switcher.h"
+#include "gui/frame.h"
+#include "gui/tabpanel.h"
+#include "gui/drop_down_list.h"
+#include "gui/radioset.h"
 bool hasItemWizard(int32_t type);
 void call_item_wizard(ItemEditorDialog& dlg);
 void item_default(itemdata& ref);

@@ -1,5 +1,5 @@
 #include "info.h"
-#include <gui/builder.h>
+#include "gui/builder.h"
 #include <utility>
 #include "core/qrs.h"
 #include <fmt/ranges.h>

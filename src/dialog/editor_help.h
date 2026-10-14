@@ -1,8 +1,8 @@
 #pragma once
 
-#include <gui/dialog.h>
-#include <gui/button.h>
-#include <gui/window.h>
+#include "gui/dialog.h"
+#include "gui/button.h"
+#include "gui/window.h"
 #include <functional>
 
 class EditorHelpDialog: public GUI::Dialog<EditorHelpDialog>

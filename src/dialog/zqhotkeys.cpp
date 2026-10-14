@@ -1,6 +1,6 @@
 #include "zqhotkeys.h"
 #include "info.h"
-#include <gui/builder.h>
+#include "gui/builder.h"
 #include "gui/jwin.h"
 #include "zalleg/zsys.h"
 #include "gui/use_size.h"

@@ -1,14 +1,14 @@
 #ifndef ZC_DIALOG_SPRITEDATA_H_
 #define ZC_DIALOG_SPRITEDATA_H_
 
-#include <gui/dialog.h>
-#include <gui/drop_down_list.h>
-#include <gui/checkbox.h>
-#include <gui/label.h>
-#include <gui/text_field.h>
-#include <zq/gui/tileanim_frame.h>
-#include <zq/gui/seltile_swatch.h>
-#include <gui/window.h>
+#include "gui/dialog.h"
+#include "gui/drop_down_list.h"
+#include "gui/checkbox.h"
+#include "gui/label.h"
+#include "gui/text_field.h"
+#include "zq/gui/tileanim_frame.h"
+#include "zq/gui/seltile_swatch.h"
+#include "gui/window.h"
 #include <functional>
 #include "sprite_data.h"
 

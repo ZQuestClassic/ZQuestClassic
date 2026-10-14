@@ -1,7 +1,7 @@
 #ifndef ZC_DIALOG_PITCONVERT_H_
 #define ZC_DIALOG_PITCONVERT_H_
 
-#include <gui/dialog.h>
+#include "gui/dialog.h"
 #include "gui/radioset.h"
 #include "gui/label.h"
 #include <functional>

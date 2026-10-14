@@ -2,9 +2,9 @@
 #define ZC_DIALOG_SCRIPTRULES_H_
 
 #include "core/qrs.h"
-#include <gui/dialog.h>
-#include <gui/text_field.h>
-#include <gui/list_data.h>
+#include "gui/dialog.h"
+#include "gui/text_field.h"
+#include "gui/list_data.h"
 #include <functional>
 #include <string_view>
 

@@ -1,12 +1,12 @@
 #ifndef ZC_DIALOG_MIDI_EDITOR_H_
 #define ZC_DIALOG_MIDI_EDITOR_H_
 
-#include <gui/dialog.h>
-#include <gui/button.h>
-#include <gui/checkbox.h>
-#include <gui/label.h>
-#include <gui/window.h>
-#include <gui/text_field.h>
+#include "gui/dialog.h"
+#include "gui/button.h"
+#include "gui/checkbox.h"
+#include "gui/label.h"
+#include "gui/window.h"
+#include "gui/text_field.h"
 #include <string_view>
 
 bool call_midi_editor(int32_t index);

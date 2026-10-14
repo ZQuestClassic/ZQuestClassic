@@ -2,7 +2,7 @@
 #include "cpool.h"
 #include "base/random.h"
 #include <assert.h>
-#include <core/combo.h>
+#include "core/combo.h"
 
 combo_auto combo_autos[MAXAUTOCOMBOS];
 

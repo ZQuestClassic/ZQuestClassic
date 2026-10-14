@@ -1,10 +1,10 @@
 #ifndef ZC_DIALOG_DITHERPICK_H_
 #define ZC_DIALOG_DITHERPICK_H_
 
-#include <gui/dialog.h>
-#include <gui/button.h>
-#include <gui/ditherprev.h>
-#include <gui/window.h>
+#include "gui/dialog.h"
+#include "gui/button.h"
+#include "gui/ditherprev.h"
+#include "gui/window.h"
 #include <functional>
 
 void call_edit_dither(byte& ditherTy, byte& ditherArg, byte& ditherCol, bool editcol);

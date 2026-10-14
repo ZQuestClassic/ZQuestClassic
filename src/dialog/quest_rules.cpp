@@ -4,7 +4,7 @@
 #include "cheat_codes.h"
 #include "headerdlg.h"
 #include "info.h"
-#include <gui/builder.h>
+#include "gui/builder.h"
 #include "gui/jwin.h"
 #include "zq/zquest.h"
 #include "zalleg/zsys.h"

@@ -1,9 +1,9 @@
 #include "subscr_lists_edit.h"
-#include <gui/builder.h>
+#include "gui/builder.h"
 #include <utility>
 #include <sstream>
 #include <fmt/format.h>
-#include <dialog/info.h>
+#include "dialog/info.h"
 #include "zalleg/files.h"
 #include "dialog/externs.h"
 #include "new_subscr.h"

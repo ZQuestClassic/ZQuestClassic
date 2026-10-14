@@ -1,12 +1,12 @@
 #ifndef ZC_DIALOG_SUBSCR_SETTINGS_H_
 #define ZC_DIALOG_SUBSCR_SETTINGS_H_
 
-#include <gui/dialog.h>
-#include <gui/window.h>
-#include <gui/text_field.h>
-#include <gui/button.h>
-#include <gui/label.h>
-#include <gui/grid.h>
+#include "gui/dialog.h"
+#include "gui/window.h"
+#include "gui/text_field.h"
+#include "gui/button.h"
+#include "gui/label.h"
+#include "gui/grid.h"
 #include <initializer_list>
 #include <string>
 #include <string_view>

@@ -18,7 +18,7 @@
 #include "zsyssimple.h"
 #include <map>
 #include <string>
-#include <dialog/info.h>
+#include "dialog/info.h"
 
 static bool strlist_numerical_sort = false;
 void editmsg(int32_t index, int32_t addAfter);

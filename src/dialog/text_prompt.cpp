@@ -1,5 +1,5 @@
 #include "text_prompt.h"
-#include <gui/builder.h>
+#include "gui/builder.h"
 #include <utility>
 
 static bool ret = false;

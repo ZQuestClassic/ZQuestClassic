@@ -2,10 +2,10 @@
 #define ZC_DIALOG_QRS_H_
 
 #include "core/qrs.h"
-#include <gui/dialog.h>
-#include <gui/text_field.h>
-#include <gui/list_data.h>
-#include <gui/window.h>
+#include "gui/dialog.h"
+#include "gui/text_field.h"
+#include "gui/list_data.h"
+#include "gui/window.h"
 #include <functional>
 #include <string_view>
 

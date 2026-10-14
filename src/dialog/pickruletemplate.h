@@ -1,7 +1,7 @@
 #ifndef ZC_DIALOG_PICKRULETMP_H_
 #define ZC_DIALOG_PICKRULETMP_H_
 
-#include <gui/dialog.h>
+#include "gui/dialog.h"
 #include "gui/checkbox.h"
 #include "gui/label.h"
 #include "core/qrs.h"

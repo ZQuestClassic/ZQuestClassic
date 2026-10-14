@@ -1,5 +1,5 @@
 #include "script_rules.h"
-#include <gui/builder.h>
+#include "gui/builder.h"
 #include "gui/jwin.h"
 #include "zq/zquest.h"
 #include "zalleg/zsys.h"

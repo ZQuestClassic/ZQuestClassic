@@ -44,7 +44,7 @@ using std::set;
 #include "zc/render.h"
 #include "iter.h"
 #include <ranges>
-#include <dialog/info.h>
+#include "dialog/info.h"
 
 // All the temporary screens (and their layers) for the currently loaded map.
 static mapscr* temporary_screens[136*7];

@@ -1,11 +1,11 @@
 #ifndef ZC_DIALOG_QUEST_BROWSER_H_
 #define ZC_DIALOG_QUEST_BROWSER_H_
 
-#include <gui/dialog.h>
-#include <gui/button.h>
-#include <gui/label.h>
-#include <gui/window.h>
-#include <zq/gui/quest_list_view.h>
+#include "gui/dialog.h"
+#include "gui/button.h"
+#include "gui/label.h"
+#include "gui/window.h"
+#include "zq/gui/quest_list_view.h"
 #include <memory>
 #include <string>
 

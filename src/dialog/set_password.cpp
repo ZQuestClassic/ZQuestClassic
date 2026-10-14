@@ -1,5 +1,5 @@
 #include "set_password.h"
-#include <gui/builder.h>
+#include "gui/builder.h"
 
 extern zquestheader header;
 void set_questpwd(std::string_view pwd, bool use_keyfile);

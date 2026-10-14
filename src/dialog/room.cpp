@@ -1,7 +1,7 @@
 #include "room.h"
 #include "common.h"
 #include "info.h"
-#include <gui/builder.h>
+#include "gui/builder.h"
 #include "core/qrs.h"
 void mark_save_dirty();
 

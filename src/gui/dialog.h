@@ -6,7 +6,7 @@
 #include "gui/dialog_runner.h"
 #include "gui/widget.h"
 #include "zalleg/gui.h"
-#include <dialog/common.h>
+#include "dialog/common.h"
 #include "zalleg/render.h"
 #include <memory>
 

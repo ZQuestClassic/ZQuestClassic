@@ -8,7 +8,7 @@
 #include "core/fonts.h"
 #include "zalleg/packfile.h"
 #include "core/qst.h"
-#include <dialog/info.h>
+#include "dialog/info.h"
 
 
 std::string getComboTypeHelpText(int32_t id);
