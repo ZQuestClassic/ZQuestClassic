@@ -35,7 +35,7 @@ SHARED = {'core', 'dialog', 'src'}
 # Modules each low-level module may include, besides itself.
 LOW_LEVEL = {
     'base': set(),
-    'zalleg': {'base'},
+    'zalleg': {'base', 'zconsole'},
     'zconsole': {'base'},
     'metadata': {'base'},
     'al5_img': {'base'},
@@ -220,7 +220,6 @@ zalleg/render_tree.cpp -> core/fonts.h
 zalleg/zalleg.cpp -> core/fonts.h
 zalleg/zalleg.cpp -> sfx.h
 zalleg/zqdialog.cpp -> core/zdefs.h
-zalleg/zsys.cpp -> zconsole/ConsoleLogger.h
 zalleg/zsys.h -> core/zdefs.h
 zalleg/zsys.h -> gui/jwin.h
 zcsfx.cpp -> zc/ffscript.h
