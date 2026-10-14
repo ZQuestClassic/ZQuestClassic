@@ -225,10 +225,12 @@ namespace ZScript
 		}
 		bool reachable(AST& node) const;
 	private:
-		bool extra_pass, marked_never_ret, missing_ret;
+		bool extra_pass, marked_never_ret;
+		// Set for the final analysis pass, the only one that diagnoses missing returns.
+		bool report_missing_ret = false;
 		
 		map<Function*,map<Variable*, bool>> var_map;
-		
+
 		enum ReturnVisitorMode
 		{
 			MODE_START,

@@ -35,7 +35,7 @@ public:
 // ReturnVisitor
 
 ReturnVisitor::ReturnVisitor(Program& program)
-	: RecursiveVisitor(program), marked_never_ret(false), missing_ret(false),
+	: RecursiveVisitor(program), marked_never_ret(false),
 	var_map()
 {
 	mode = MODE_START;
@@ -43,11 +43,15 @@ ReturnVisitor::ReturnVisitor(Program& program)
 	mode = MODE_EXPASS;
 	while(marked_never_ret)
 	{
-		if(missing_ret)
-			break;
 		marked_never_ret = false;
 		visitFunctionInternals(program);
 	}
+	// Only now is every function that never returns known, so only now can a
+	// function be correctly found to be missing a return. (An earlier pass can
+	// find a function missing a return that a later pass finds never returns
+	// after a `return`.)
+	report_missing_ret = true;
+	visitFunctionInternals(program);
 	mode = MODE_FINISH;
 	visitFunctionInternals(program);
 }
@@ -208,7 +212,7 @@ void ReturnVisitor::analyzeFunctionInternals(Function& function)
 			}
 		}
 		//Void functions && constructors can miss out on returns
-		if(!(function.returnType->isVoid() || function.getFlag(FUNCFLAG_CONSTRUCTOR)) && no_ret)
+		if(report_missing_ret && !(function.returnType->isVoid() || function.getFlag(FUNCFLAG_CONSTRUCTOR)) && no_ret)
 		{
 			switch(*ZScript::lookupOption(*scope, CompileOption::OPT_ON_MISSING_RETURN)/10000)
 			{
@@ -220,7 +224,6 @@ void ReturnVisitor::analyzeFunctionInternals(Function& function)
 				default: //Error
 					handleError(CompileError::MissingReturnError(node, node->getName()));
 					node->disable();
-					missing_ret = true;
 					break;
 			}
 		}

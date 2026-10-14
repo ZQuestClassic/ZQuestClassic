@@ -122,22 +122,6 @@ BossHealthBar.z Line 565 @ Columns 6-22 - Warning S101: Function 'HealthBar_GetN
            ^~~~~~~~~~~~~~~~
 
 
-BossHealthBar.z Line 155 @ Columns 6-22 - Warning S101: Function 'HealthBar_GetNPC' is not void, and should return a value!
-
-153    }
-154    //Returns the nth enemy with a certain ID on the screen
-155    npc HealthBar_GetNPC(int id, int extra){
-           ^~~~~~~~~~~~~~~~
-
-
-BossHealthBar.z Line 565 @ Columns 6-22 - Warning S101: Function 'HealthBar_GetNPC' is not void, and should return a value!
-
-563    }
-564    //Returns the nth enemy with a certain ID on the screen
-565    npc HealthBar_GetNPC(int id, int extra){
-           ^~~~~~~~~~~~~~~~
-
-
 Pass 6: Generating object code
 Pass 7: Assembling
 Success!
@@ -315,34 +299,6 @@ stdout:
       },
       "severity": 2,
       "message": "S094: Function 'screendata::NumNPCs()' is deprecated, and should not be used.\nUse NumNPCs instead!"
-    },
-    {
-      "range": {
-        "start": {
-          "line": 154,
-          "character": 5
-        },
-        "end": {
-          "line": 154,
-          "character": 21
-        }
-      },
-      "severity": 2,
-      "message": "S101: Function 'HealthBar_GetNPC' is not void, and should return a value!"
-    },
-    {
-      "range": {
-        "start": {
-          "line": 564,
-          "character": 5
-        },
-        "end": {
-          "line": 564,
-          "character": 21
-        }
-      },
-      "severity": 2,
-      "message": "S101: Function 'HealthBar_GetNPC' is not void, and should return a value!"
     },
     {
       "range": {

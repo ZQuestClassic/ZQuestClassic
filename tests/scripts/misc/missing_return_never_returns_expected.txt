@@ -1,0 +1,76 @@
+stderr:
+
+Compiling 'missing_return_never_returns.zs'
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+Pass 4: Analyzing Code
+Pass 5: Checking code paths
+missing_return_never_returns.zs Line 29 @ Columns 6-23 - Warning S101: Function 'NoReturnStatement' is not void, and should return a value!
+
+27    
+28        // Has no return statement at all, so this still warns (once).
+29        int NoReturnStatement()
+              ^~~~~~~~~~~~~~~~~
+
+
+Pass 6: Generating object code
+Pass 7: Assembling
+Success!
+Compile finished with exit code '0' (success)
+
+stdout:
+
+{
+  "success": true,
+  "diagnostics": [
+    {
+      "range": {
+        "start": {
+          "line": 28,
+          "character": 5
+        },
+        "end": {
+          "line": 28,
+          "character": 22
+        }
+      },
+      "severity": 2,
+      "message": "S101: Function 'NoReturnStatement' is not void, and should return a value!"
+    }
+  ],
+  "metadata": {
+    "currentFileSymbols": 7,
+    "symbols": 8,
+    "identifiers": 13,
+    "elided": true
+  }
+}
+
+zasm:
+
+QUIT; void run() Body
+SETR D4 SP2; void run() Body Start
+PUSHR D4
+PUSHV 1; UsrFunc[int Caller(int)] Params
+CALLFUNC 0.0008; UsrFunc[int Caller(int)] Call
+POP D4
+CALLFUNC 0.0024; UsrFunc[int NoReturnStatement()] Call AND [Opt:NeverRet] AND [Opt:NeverRet] AND void run() Body End
+SETR D4 SP2; Func[int Caller(int)] Body Start
+LOAD D2 0; if() #1 Test
+COMPAREV D2 0
+GOTOCMP 14 ==; Test 'if'
+SETV D2 1; return Start AND if() #1 Body Start
+GOTO 16; return End AND if() #1 Body End
+NOP
+CALLFUNC 0.0018; UsrFunc[void Middle()] Call AND [Opt:NeverRet]
+POP D5
+RETURNFUNC; Func[int Caller(int)] Body End
+SETR D4 SP2; Func[void Middle()] Body Start
+CALLFUNC 0.0020; UsrFunc[void NeverReturns()] Call AND [Opt:NeverRet] AND [Opt:NeverRet] AND Func[void Middle()] Body End
+SETR D4 SP2; Func[void NeverReturns()] Body Start
+NOP
+WAITFRAME; InlineFunc[void Waitframe()] Body AND while(true) #1 Body [Opt:AlwaysOn]
+GOTO 21; while() #1 End AND [Opt:NeverRet] AND Func[void NeverReturns()] Body End
+SETR D4 SP2; Func[int NoReturnStatement()] Body Start
+CALLFUNC 0.0018; UsrFunc[void Middle()] Call AND [Opt:NeverRet] AND [Opt:NeverRet] AND Func[int NoReturnStatement()] Body End
