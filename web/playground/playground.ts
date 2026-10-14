@@ -186,6 +186,9 @@ function findElement(selector: string) {
 
 async function recompileModel(model: monaco.editor.ITextModel) {
   const result = await ZScriptWorker.compile(model.uri.path);
+  // The tab may have been closed while the compile was in flight.
+  if (model.isDisposed()) return;
+
   const state = getState(model);
   state.metadata = result.metadata;
   state.zasm = result.zasm;
@@ -205,8 +208,17 @@ async function recompileModel(model: monaco.editor.ITextModel) {
 }
 
 async function onContentUpdated(model: monaco.editor.ITextModel) {
-  await ZScriptWorker.writeFile(model.uri.path, model.getValue());
-  await recompileModel(model);
+  // A debounced content change can fire after the tab was closed.
+  if (model.isDisposed()) return;
+
+  try {
+    await ZScriptWorker.writeFile(model.uri.path, model.getValue());
+    await recompileModel(model);
+  } catch (err: any) {
+    console.error(err);
+    logger.warn(`failed to compile ${basename(model.uri)}: ${err.message ?? err}`);
+    return;
+  }
   updateZasm(model);
 }
 
