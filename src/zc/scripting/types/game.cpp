@@ -307,7 +307,7 @@ int32_t game_get_register(int32_t reg)
 		
 		case ZSCRIPTVERSION: 
 		{
-			ret = (FFCore.quest_format[vLastCompile]) * 10000;
+			ret = (quest_format[vLastCompile]) * 10000;
 			break;
 		}
 		

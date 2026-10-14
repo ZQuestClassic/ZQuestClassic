@@ -5,7 +5,8 @@
 #include "core/qst.h"
 #include "dialog/externs.h"
 #include "zalleg/packfile.h"
-#include "zc/ffscript.h"
+#include "core/quest_format.h"
+#include "core/mapscr.h"
 
 extern const byte* legacy_skip_flags;
 extern bool loadquest_report;
@@ -26,7 +27,7 @@ int32_t readheader(PACKFILE *f, zquestheader *Header, byte printmetadata)
 	char temp_pwd[30], temp_pwd2[30];
 	int16_t temp_pwdkey;
 	cvs_MD5Context ctx;
-	memset(FFCore.quest_format, 0, sizeof(FFCore.quest_format));
+	memset(quest_format, 0, sizeof(quest_format));
 	
 
 	
@@ -64,14 +65,14 @@ int32_t readheader(PACKFILE *f, zquestheader *Header, byte printmetadata)
 			return qe_invalid;
 		}
 		
-		FFCore.quest_format[vZelda] = tempheader.zelda_version;
+		quest_format[vZelda] = tempheader.zelda_version;
 		
 		if(tempheader.zelda_version > ZELDA_VERSION)
 		{
 			return qe_version;
 		}
 		
-		FFCore.quest_format[vZelda] = tempheader.zelda_version;
+		quest_format[vZelda] = tempheader.zelda_version;
 		
 		if(strcmp(tempheader.id_str,QH_IDSTR))
 		{
@@ -93,7 +94,7 @@ int32_t readheader(PACKFILE *f, zquestheader *Header, byte printmetadata)
 			return qe_invalid;
 		}
 		
-		FFCore.quest_format[qQuestNumber] = tempheader.quest_number;
+		quest_format[qQuestNumber] = tempheader.quest_number;
 		
 		if(!pfread(&quest_rules[0],2,f))
 		{
@@ -105,7 +106,7 @@ int32_t readheader(PACKFILE *f, zquestheader *Header, byte printmetadata)
 			return qe_invalid;
 		}
 		
-		FFCore.quest_format[qMapCount] = temp_map_count;
+		quest_format[qMapCount] = temp_map_count;
 		
 		if(!p_getc(&tempheader.old_str_count,f))
 		{
@@ -201,7 +202,7 @@ int32_t readheader(PACKFILE *f, zquestheader *Header, byte printmetadata)
 				return qe_invalid;
 			}
 			
-			FFCore.quest_format[vBuild] = tempheader.build;
+			quest_format[vBuild] = tempheader.build;
 			
 			if(!p_getc(&tempheader.use_keyfile,f))
 			{
@@ -296,7 +297,7 @@ int32_t readheader(PACKFILE *f, zquestheader *Header, byte printmetadata)
 		if (version > V_HEADER)
 			return qe_version;
 		
-		FFCore.quest_format[vHeader] = version;
+		quest_format[vHeader] = version;
 		
 		if(!p_igetw(&dummy,f))
 		{
@@ -315,7 +316,7 @@ int32_t readheader(PACKFILE *f, zquestheader *Header, byte printmetadata)
 			return qe_invalid;
 		}
 		
-		FFCore.quest_format[vZelda] = tempheader.zelda_version;
+		quest_format[vZelda] = tempheader.zelda_version;
 	
 		//do some quick checking...
 		if(tempheader.zelda_version > ZELDA_VERSION)
@@ -338,7 +339,7 @@ int32_t readheader(PACKFILE *f, zquestheader *Header, byte printmetadata)
 			return qe_invalid;
 		}
 	
-		FFCore.quest_format[vBuild] = tempheader.build;
+		quest_format[vBuild] = tempheader.build;
 	
 		if(version<3)
 		{
@@ -375,7 +376,7 @@ int32_t readheader(PACKFILE *f, zquestheader *Header, byte printmetadata)
 			return qe_invalid;
 		}
 		
-		FFCore.quest_format[qQuestNumber] = tempheader.quest_number;
+		quest_format[qQuestNumber] = tempheader.quest_number;
 		
 		size_t versz = version < 8 ? 9 : 16;
 		if(!pfread(tempheader.version,versz,f))
@@ -383,14 +384,14 @@ int32_t readheader(PACKFILE *f, zquestheader *Header, byte printmetadata)
 			return qe_invalid;
 		}
 	
-		//FFCore.quest_format[qQuestVersion] = tempheader.version;
+		//quest_format[qQuestVersion] = tempheader.version;
 		//needs to be copied as char[9] or stored as a s.str
 		if(!pfread(tempheader.minver,versz,f))
 		{
 			return qe_invalid;
 		}
 	
-		//FFCore.quest_format[qMinQuestVersion] = tempheader.minver;
+		//quest_format[qMinQuestVersion] = tempheader.minver;
 		if(!pfread(tempheader.title,sizeof(tempheader.title),f))
 		{
 			return qe_invalid;

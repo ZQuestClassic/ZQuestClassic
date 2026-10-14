@@ -14031,7 +14031,7 @@ int32_t ffscript_engine(const bool preload)
 		handle_region_load_trigger();
 	}
 
-	if (!FFCore.system_suspend[susptSCREENSCRIPTS] && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 && !get_qr(qr_ZS_OLD_SUSPEND_FFC))
+	if (!FFCore.system_suspend[susptSCREENSCRIPTS] && quest_format[vZelda] >= 0x255 && !get_qr(qr_ZS_OLD_SUSPEND_FFC))
 	{
 		for_every_base_screen_in_region([&](mapscr* scr, unsigned int, unsigned int) {
 			if ((preload && scr->preloadscript) || !preload)
@@ -14047,7 +14047,7 @@ int32_t ffscript_engine(const bool preload)
 	if (!FFCore.system_suspend[susptFFCSCRIPTS])
 	{
 		//intentional it's for compatability
-		if (FFCore.getQuestHeaderInfo(vZelda) >= 0x255 && get_qr(qr_ZS_OLD_SUSPEND_FFC))
+		if (quest_format[vZelda] >= 0x255 && get_qr(qr_ZS_OLD_SUSPEND_FFC))
 		{
 			for_every_base_screen_in_region([&](mapscr* scr, unsigned int, unsigned int) {
 				if ((preload && scr->preloadscript) || !preload)
@@ -14743,7 +14743,6 @@ void FFScript::init(bool for_continue)
 	skip_ending_credits = 0;
 	music_update_cond = 0;
 	music_update_flags = 0;
-	//quest_format : is this properly initialised?
 	for ( int32_t q = 0; q < susptLAST; q++ ) { system_suspend[q] = 0; }
 
 	usr_midi_volume = midi_volume;
@@ -14896,11 +14895,6 @@ void FFScript::do_fx_wavy(const bool v)
 	else FFScript::do_wavyin();
 }
 
-int32_t FFScript::getQuestHeaderInfo(int32_t type)
-{
-	return quest_format[type];
-}
-
 string get_filestr(const bool relative, bool is_file) //Used for 'FileSystem' functions.
 {
 	int32_t strptr = get_register(sarg1);
@@ -15044,23 +15038,23 @@ void FFScript::runWarpScripts(bool waitdraw)
 		{
 			FFCore.itemScriptEngineOnWaitdraw();
 		}
-		if ( (!( FFCore.system_suspend[susptHEROACTIVE] )) && FFCore.waitdraw(ScriptType::Hero) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
+		if ( (!( FFCore.system_suspend[susptHEROACTIVE] )) && FFCore.waitdraw(ScriptType::Hero) && quest_format[vZelda] >= 0x255 )
 		{
 			ZScriptVersion::RunScript(ScriptType::Hero, SCRIPT_HERO_ACTIVE);
 			FFCore.waitdraw(ScriptType::Hero) = false;
 		}
-		if ( (!( FFCore.system_suspend[susptDMAPSCRIPT] )) && FFCore.waitdraw(ScriptType::DMap) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
+		if ( (!( FFCore.system_suspend[susptDMAPSCRIPT] )) && FFCore.waitdraw(ScriptType::DMap) && quest_format[vZelda] >= 0x255 )
 		{
 			ZScriptVersion::RunScript(ScriptType::DMap, DMaps[cur_dmap].active_scrconfig.script,cur_dmap);
 			FFCore.waitdraw(ScriptType::DMap) = false;
 		}
-		if ( (!( FFCore.system_suspend[susptDMAPSCRIPT] )) && FFCore.waitdraw(ScriptType::ScriptedPassiveSubscreen) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
+		if ( (!( FFCore.system_suspend[susptDMAPSCRIPT] )) && FFCore.waitdraw(ScriptType::ScriptedPassiveSubscreen) && quest_format[vZelda] >= 0x255 )
 		{
 			ZScriptVersion::RunScript(ScriptType::ScriptedPassiveSubscreen, DMaps[cur_dmap].passive_sub_scrconfig.script,cur_dmap);
 			FFCore.waitdraw(ScriptType::ScriptedPassiveSubscreen) = false;
 		}
 		//no doscript check here, becauseb of preload? Do we want to write doscript here? -Z 13th July, 2019
-		if (FFCore.getQuestHeaderInfo(vZelda) >= 0x255 && !FFCore.system_suspend[susptSCREENSCRIPTS])
+		if (quest_format[vZelda] >= 0x255 && !FFCore.system_suspend[susptSCREENSCRIPTS])
 		{
 			for_every_base_screen_in_region([&](mapscr* scr, unsigned int, unsigned int) {
 				if (scr->scrconfig.script != 0 && FFCore.waitdraw(ScriptType::Screen, scr->screen) && scr->preloadscript)
@@ -15081,19 +15075,19 @@ void FFScript::runWarpScripts(bool waitdraw)
 		{
 			FFCore.itemScriptEngine();
 		}
-		if ((!( FFCore.system_suspend[susptHEROACTIVE] )) && doscript(ScriptType::Hero) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255)
+		if ((!( FFCore.system_suspend[susptHEROACTIVE] )) && doscript(ScriptType::Hero) && quest_format[vZelda] >= 0x255)
 		{
 			ZScriptVersion::RunScript(ScriptType::Hero, SCRIPT_HERO_ACTIVE);
 		}
-		if ( (!( FFCore.system_suspend[susptDMAPSCRIPT] )) && doscript(ScriptType::DMap) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) 
+		if ( (!( FFCore.system_suspend[susptDMAPSCRIPT] )) && doscript(ScriptType::DMap) && quest_format[vZelda] >= 0x255 ) 
 		{
 			ZScriptVersion::RunScript(ScriptType::DMap, DMaps[cur_dmap].active_scrconfig.script,cur_dmap);
 		}
-		if ( (!( FFCore.system_suspend[susptDMAPSCRIPT] )) && FFCore.doscript(ScriptType::ScriptedPassiveSubscreen) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) 
+		if ( (!( FFCore.system_suspend[susptDMAPSCRIPT] )) && FFCore.doscript(ScriptType::ScriptedPassiveSubscreen) && quest_format[vZelda] >= 0x255 ) 
 		{
 			ZScriptVersion::RunScript(ScriptType::ScriptedPassiveSubscreen, DMaps[cur_dmap].passive_sub_scrconfig.script,cur_dmap);
 		}
-		if (FFCore.getQuestHeaderInfo(vZelda) >= 0x255 && !FFCore.system_suspend[susptSCREENSCRIPTS])
+		if (quest_format[vZelda] >= 0x255 && !FFCore.system_suspend[susptSCREENSCRIPTS])
 		{
 			for_every_base_screen_in_region([&](mapscr* scr, unsigned int, unsigned int) {
 				if (scr->scrconfig.script != 0 && scr->preloadscript)
@@ -16387,7 +16381,7 @@ void clearConsole()
 	
 	zscript_coloured_console.cprintf( CConsoleLoggerEx::COLOR_BLUE |CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY |
 		CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"Running: %s\n", getVersionString());
-	if ( FFCore.getQuestHeaderInfo(vZelda) > 0 )
+	if ( quest_format[vZelda] > 0 )
 	{
 		char const* verstr = QHeader.getVerStr();
 		if(verstr[0])

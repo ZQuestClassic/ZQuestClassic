@@ -1,6 +1,7 @@
 #include "core/qrs.h"
 #include "core/qst.h"
 #include "zalleg/packfile.h"
+#include "core/quest_format.h"
 #include "zc/ffscript.h"
 
 extern const byte* legacy_skip_flags;
@@ -162,7 +163,7 @@ int32_t readstrings(PACKFILE *f, zquestheader *Header)
 		if (s_version > V_STRINGS)
 			return qe_version;
 	
-		FFCore.quest_format[vStrings] = s_version;
+		quest_format[vStrings] = s_version;
 		
 		if(!read_deprecated_section_cversion(f))
 			return qe_invalid;

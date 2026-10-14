@@ -1,7 +1,7 @@
 #include "core/qrs.h"
 #include "core/qst.h"
 #include "zalleg/packfile.h"
-#include "zc/ffscript.h"
+#include "core/quest_format.h"
 
 extern const byte* legacy_skip_flags;
 extern dword loading_tileset_flags;
@@ -3105,7 +3105,7 @@ int32_t readitems(PACKFILE *f, word version, word build)
 	if (s_version > V_ITEMS)
 		return qe_version;
 	
-	FFCore.quest_format[vItems] = s_version;
+	quest_format[vItems] = s_version;
 		
 	if(!read_deprecated_section_cversion(f))
 		return qe_invalid;

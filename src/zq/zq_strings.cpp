@@ -9,7 +9,7 @@
 #include "zalleg/zalleg.h"
 #include "core/zdefs.h"
 #include "core/msgstr.h"
-#include "zc/ffscript.h"
+#include "core/quest_format.h"
 #include "zq/zq_custom.h"
 #include "zq/zq_misc.h"
 #include "zq/zq_tiles.h"
@@ -876,7 +876,7 @@ void fix_string_list()
 			MsgStrings[i].listpos = i;
 		}
 		
-		if(FFCore.getQuestHeaderInfo(vZelda) >= 0x250) //not an error before this, don't pop up
+		if(quest_format[vZelda] >= 0x250) //not an error before this, don't pop up
 		{
 			InfoDialog("Notice","Your quest's string ordering was corrupted."
 				"\nIt has been reverted to the default order.").show();

@@ -17,6 +17,7 @@
 #include "sprite.h"
 #include <set>
 #include <fmt/format.h>
+#include "core/quest_format.h"
 #include "zc/ffscript.h"
 #include "zc_list_data.h"
 
@@ -2781,8 +2782,8 @@ void SW_Counter::draw(BITMAP* dest, int32_t xofs, int32_t yofs, [[maybe_unused]]
 		if(draw)
 		{
 			int maxty = 1;
-			if (( FFCore.getQuestHeaderInfo(vZelda) == 0x250 && FFCore.getQuestHeaderInfo(vBuild) >= 33 )
-					|| ( FFCore.getQuestHeaderInfo(vZelda) > 0x250  ) )
+			if (( quest_format[vZelda] == 0x250 && quest_format[vBuild] >= 33 )
+					|| ( quest_format[vZelda] > 0x250  ) )
 				maxty = 3;
 			
 			bool is_full = true;

@@ -1,6 +1,7 @@
 #include "core/qst.h"
 #include "zalleg/packfile.h"
-#include "zc/ffscript.h"
+#include "core/quest_format.h"
+#include "core/misctypes.h"
 
 extern const byte* legacy_skip_flags;
 
@@ -22,7 +23,7 @@ int32_t readgameicons(PACKFILE *f, zquestheader *, miscQdata *Misc)
 	if (s_version > V_ICONS)
 		return qe_version;
     
-    FFCore.quest_format[vIcons] = s_version;
+    quest_format[vIcons] = s_version;
     
     if(!read_deprecated_section_cversion(f))
     {

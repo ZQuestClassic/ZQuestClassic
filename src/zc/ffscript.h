@@ -2,6 +2,7 @@
 #define FFSCRIPT_H_
 
 #include "core/dmap.h"
+#include "core/quest_format.h"
 #include "base/general.h"
 #include "ffc.h"
 #include "core/mapscr.h"
@@ -167,19 +168,6 @@ enum { wexType, wexDMap, wexScreen, wexX, wexY, wexEffect, wexSound, wexFlags, w
 enum{
 	scdrDRAW_WHILE_SCROLLING, scdrDRAW_DURING_SCREEN_TRANSITION, scdrDRAW_DURING_WARP,
 	scdrDRAW_DURING_WIPES, scdrLAST
-};
-
-//Quest Version Information Categories
-//These reflect the version details from when the quest was last saved.
-enum 
-{
-	vZelda, qQuestNumber, vBuild, vBeta, vHeader, vRules, vStrings, vMisc,
-	vTiles, vCombos, vCSets, vMaps, vDMaps, vDoors, vItems, vWeaponSprites,
-	vColours, vIcons, vGfxPack, vInitData, vGuys, vMIDIs, vCheats, vSaveformat,
-	vComboAliases, vHeroSprites, vSubscreen, vItemDropsets, vFFScript, vSFX, vFavourites,
-	qMapCount, vLastCompile, vCompatRule, vCompileSetting,
-	versiontypesLAST
-	
 };
 
 //Quest Header 'User Set Version' categories. Not in use at present.
@@ -459,7 +447,6 @@ void setHeroAction(int32_t a);
 int32_t getHeroAction();
 int32_t getTime(int32_t type); //get system RTC Information.
 void getRTC();
-int32_t getQuestHeaderInfo(int32_t type);
 void do_graphics_getpixel();
 
 void set_mapscreenflag_state(mapscr *m, int32_t flagid, bool state);
@@ -598,14 +585,6 @@ void ZScriptConsole(int32_t attributes,const char *format, Params&&... params);
 std::string GetScriptName(ScriptType script_type, int script_num);
 std::string GetScriptDataName(ScriptType script_type, int script_num);
 void PrintTracePrefix(bool force_show_context = false, bool is_error = false);
-/*
-int32_t getQuestHeaderInfo(int32_t type)
-{
-    return quest_format[type];
-}
-
-
-*/
 
 //Script-only Warp, Hero->WarpEx(int32_t type, int32_t dmap, int32_t screen, int32_t x, int32_t y, int32_t effect, int32_t sound, int32_t flags, int32_t dir)
 //Script-only Warp, Hero->WarpEx(int32_t array[])
@@ -692,7 +671,6 @@ void do_warp_ex_array();
 //FFScript();
 //static void init();
 
-int32_t quest_format[versiontypesLAST];
 byte skip_ending_credits; //checked in ending.cpp. If > 0, then we skip the game credits, but not Hero's Win script. -Z
 
 bool system_suspend[susptLAST];

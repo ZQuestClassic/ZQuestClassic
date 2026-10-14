@@ -2215,7 +2215,7 @@ static ArrayRegistrar NPCMISCD_registrar(NPCMISCD, []{
 
 static ArrayRegistrar NPCDD_registrar(NPCDD, []{
 	static ScriptingArray_ObjectComputed<enemy, int32_t> impl(
-		[](enemy*){ return FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ? 32 : 16; },
+		[](enemy*){ return quest_format[vZelda] >= 0x255 ? 32 : 16; },
 		[](enemy* enemy, int index){ return enemy->get_dmisc(index); },
 		[](enemy* enemy, int index, int value){ enemy->set_dmisc(index, value); }
 	);

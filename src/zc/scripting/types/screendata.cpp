@@ -370,7 +370,7 @@ void screendata_set_register(int32_t reg, int32_t value)
 	{ \
 		int32_t indx = GET_D(rINDEX) / 10000; \
 		int32_t scrn_id = value/10000; \
-		if ( FFCore.quest_format[vFFScript] < 11 ) ++indx; \
+		if ( quest_format[vFFScript] < 11 ) ++indx; \
 		if (BC::checkIndex(indx, 1, indexbound) != SH::_NoError) \
 		{ \
 		} \
@@ -964,7 +964,7 @@ static ArrayRegistrar SCREENDATALAYERMAP_registrar(SCREENDATALAYERMAP, []{
 		[](int ref, int index, int value){
 			if (auto scr = checkScreen(ref))
 			{
-				if (FFCore.quest_format[vFFScript] < 11)
+				if (quest_format[vFFScript] < 11)
 					index++;
 
 				scr->layermap[index - 1] = value;
@@ -997,7 +997,7 @@ static ArrayRegistrar SCREENDATALAYERSCREEN_registrar(SCREENDATALAYERSCREEN, []{
 		[](int ref, int index, int value){
 			if (auto scr = checkScreen(ref))
 			{
-				if (FFCore.quest_format[vFFScript] < 11)
+				if (quest_format[vFFScript] < 11)
 					index++;
 
 				scr->layerscreen[index - 1] = value;
@@ -1030,7 +1030,7 @@ static ArrayRegistrar SCREENDATALAYEROPACITY_registrar(SCREENDATALAYEROPACITY, [
 		[](int ref, int index, int value){
 			if (auto scr = checkScreen(ref))
 			{
-				if (FFCore.quest_format[vFFScript] < 11)
+				if (quest_format[vFFScript] < 11)
 					index++;
 
 				scr->layeropacity[index - 1] = value;

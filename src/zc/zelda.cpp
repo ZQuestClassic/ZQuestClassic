@@ -1816,7 +1816,7 @@ int32_t init_game()
 		if (!use_testingst_start)
 			game->set_continue_dmap(zinit.start_dmap);
 		resetItems(game,&zinit,true);
-		if ( FFCore.getQuestHeaderInfo(vZelda) < 0x190 )
+		if ( quest_format[vZelda] < 0x190 )
 		{
 			game->set_maxbombs(8);
 		}
@@ -1938,7 +1938,7 @@ int32_t init_game()
 			ZScriptVersion::RunScript(ScriptType::Global, GLOBAL_SCRIPT_INIT, GLOBAL_SCRIPT_INIT);
 			FFCore.deallocateAllScriptOwned(ScriptType::Global, GLOBAL_SCRIPT_INIT); //Deallocate LOCAL arrays declared in the init script. This function does NOT deallocate global arrays.
 		}
-		if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
+		if ( quest_format[vZelda] >= 0x255 )
 		{
 			ZScriptVersion::RunScript(ScriptType::Hero, SCRIPT_HERO_INIT); //We run this here so that the user can set up custom
 									//positional data, sprites, tiles, csets, invisibility states, and the like.
@@ -3102,22 +3102,22 @@ void game_loop()
 			ZScriptVersion::RunScript(ScriptType::Global, GLOBAL_SCRIPT_GAME, GLOBAL_SCRIPT_GAME);
 		}
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_GLOBAL_ACTIVE);
-		if(!FFCore.system_suspend[susptHEROACTIVE] && !freeze_message && FFCore.doscript(ScriptType::Hero) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255)
+		if(!FFCore.system_suspend[susptHEROACTIVE] && !freeze_message && FFCore.doscript(ScriptType::Hero) && quest_format[vZelda] >= 0x255)
 		{
 			ZScriptVersion::RunScript(ScriptType::Hero, SCRIPT_HERO_ACTIVE);
 		}
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_PLAYER_ACTIVE);
-		if(!FFCore.system_suspend[susptDMAPSCRIPT] && !freeze_message && FFCore.doscript(ScriptType::DMap) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255)
+		if(!FFCore.system_suspend[susptDMAPSCRIPT] && !freeze_message && FFCore.doscript(ScriptType::DMap) && quest_format[vZelda] >= 0x255)
 		{
 			ZScriptVersion::RunScript(ScriptType::DMap, DMaps[cur_dmap].active_scrconfig.script,cur_dmap);
 		}
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_DMAPDATA_ACTIVE);
-		if(!FFCore.system_suspend[susptDMAPSCRIPT] && !freeze_message && FFCore.doscript(ScriptType::ScriptedPassiveSubscreen) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255)
+		if(!FFCore.system_suspend[susptDMAPSCRIPT] && !freeze_message && FFCore.doscript(ScriptType::ScriptedPassiveSubscreen) && quest_format[vZelda] >= 0x255)
 		{
 			ZScriptVersion::RunScript(ScriptType::ScriptedPassiveSubscreen, DMaps[cur_dmap].passive_sub_scrconfig.script,cur_dmap);
 		}
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_DMAPDATA_PASSIVESUBSCREEN);
-		if ( !FFCore.system_suspend[susptCOMBOSCRIPTS] && !freeze_message && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
+		if ( !FFCore.system_suspend[susptCOMBOSCRIPTS] && !freeze_message && quest_format[vZelda] >= 0x255 )
 		{
 			FFCore.combo_script_engine(false);    
 		}
@@ -3236,26 +3236,26 @@ void game_loop()
 			FFCore.waitdraw(ScriptType::Global, GLOBAL_SCRIPT_GAME) = false;
 		}
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_GLOBAL_WAITDRAW);
-		if ( !FFCore.system_suspend[susptHEROACTIVE] && FFCore.waitdraw(ScriptType::Hero) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
+		if ( !FFCore.system_suspend[susptHEROACTIVE] && FFCore.waitdraw(ScriptType::Hero) && quest_format[vZelda] >= 0x255 )
 		{
 			ZScriptVersion::RunScript(ScriptType::Hero, SCRIPT_HERO_ACTIVE);
 			FFCore.waitdraw(ScriptType::Hero) = false;
 		}
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_PLAYER_WAITDRAW);
-		if ( !FFCore.system_suspend[susptDMAPSCRIPT] && FFCore.waitdraw(ScriptType::DMap) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
+		if ( !FFCore.system_suspend[susptDMAPSCRIPT] && FFCore.waitdraw(ScriptType::DMap) && quest_format[vZelda] >= 0x255 )
 		{
 			ZScriptVersion::RunScript(ScriptType::DMap, DMaps[cur_dmap].active_scrconfig.script,cur_dmap);
 			FFCore.waitdraw(ScriptType::DMap) = false;
 		}
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_DMAPDATA_ACTIVE_WAITDRAW);
-		if ( (!( FFCore.system_suspend[susptDMAPSCRIPT] )) && FFCore.waitdraw(ScriptType::ScriptedPassiveSubscreen) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
+		if ( (!( FFCore.system_suspend[susptDMAPSCRIPT] )) && FFCore.waitdraw(ScriptType::ScriptedPassiveSubscreen) && quest_format[vZelda] >= 0x255 )
 		{
 			ZScriptVersion::RunScript(ScriptType::ScriptedPassiveSubscreen, DMaps[cur_dmap].passive_sub_scrconfig.script,cur_dmap);
 			FFCore.waitdraw(ScriptType::ScriptedPassiveSubscreen) = false;
 		}
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_DMAPDATA_PASSIVESUBSCREEN_WAITDRAW);
 		
-		if (FFCore.getQuestHeaderInfo(vZelda) >= 0x255 && !FFCore.system_suspend[susptSCREENSCRIPTS])
+		if (quest_format[vZelda] >= 0x255 && !FFCore.system_suspend[susptSCREENSCRIPTS])
 		{
 			for_every_base_screen_in_region([&](mapscr* scr, unsigned int, unsigned int) {
 				if (scr->scrconfig.script != 0 && FFCore.doscript(ScriptType::Screen, scr->screen) && FFCore.waitdraw(ScriptType::Screen, scr->screen))
@@ -3279,7 +3279,7 @@ void game_loop()
 		});
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_FFC_WAITDRAW);
 		
-		if ( !FFCore.system_suspend[susptCOMBOSCRIPTS] && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
+		if ( !FFCore.system_suspend[susptCOMBOSCRIPTS] && quest_format[vZelda] >= 0x255 )
 		{
 			FFCore.combo_script_engine(false, true);    
 		}

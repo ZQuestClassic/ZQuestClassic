@@ -1,7 +1,10 @@
 #include "core/qrs.h"
 #include "core/qst.h"
 #include "zalleg/packfile.h"
-#include "zc/ffscript.h"
+#include "core/quest_format.h"
+#include "core/dmap.h"
+#include "core/mapscr.h"
+#include "advanced_music.h"
 
 extern const byte* legacy_skip_flags;
 extern dword loading_tileset_flags;
@@ -593,7 +596,7 @@ int32_t readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap
 			return qe_version;
 
 		Header->is_z3 = s_version >= 22;
-		FFCore.quest_format[vDMaps] = s_version;
+		quest_format[vDMaps] = s_version;
 		
 		
 		if(!read_deprecated_section_cversion(f))

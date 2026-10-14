@@ -41,6 +41,7 @@
 #include "subscr.h"
 #include "zq/zq_strings.h"
 #include "zq/zq_subscr.h"
+#include "core/quest_format.h"
 #include "zc/ffscript.h"
 #include "base/util.h"
 #include "zq/zq_files.h"
@@ -10338,7 +10339,7 @@ int32_t writeguy_single(PACKFILE *f, guydata& guy)
 		}
 	}
 	
-	if ( FFCore.getQuestHeaderInfo(vZelda) < 0x250 || (( FFCore.getQuestHeaderInfo(vZelda) == 0x250 ) && FFCore.getQuestHeaderInfo(vBuild) < 32 ) )
+	if ( quest_format[vZelda] < 0x250 || (( quest_format[vZelda] == 0x250 ) && quest_format[vBuild] < 32 ) )
 	{
 		//If no user-set hit sound was in place, and the quest was made in a version before 2.53.0 Gamma 2:
 		if ( guy.hitsfx == 0 ) guy.hitsfx = WAV_EHIT; //Fix quests using the wrong hit sound when loading this. 

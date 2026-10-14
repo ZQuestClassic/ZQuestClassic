@@ -21797,11 +21797,6 @@ extern const char *itemclass_help_string_defaults[itype_max];
 
 /* end */
 
-int32_t FFScript::getQuestHeaderInfo(int32_t type)
-{
-    return quest_format[type];
-}
-
 bool isSideViewGravity(mapscr* scr)
 {
 	return (scr->flags7&fSIDEVIEW) != 0;

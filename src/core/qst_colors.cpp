@@ -1,7 +1,7 @@
 #include "core/misctypes.h"
 #include "core/qst.h"
 #include "zalleg/packfile.h"
-#include "zc/ffscript.h"
+#include "core/quest_format.h"
 
 extern const byte* legacy_skip_flags;
 
@@ -26,7 +26,7 @@ int32_t readmisccolors(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
 	if (s_version > V_COLORS)
 		return qe_version;
 	
-	FFCore.quest_format[vColours] = s_version;
+	quest_format[vColours] = s_version;
 	
 	al_trace("Misc Colours section version: %d\n", s_version);
 	

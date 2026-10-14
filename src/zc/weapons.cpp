@@ -7021,7 +7021,7 @@ void weapon::onhit(bool clipped, int32_t special, int32_t linkdir, enemy* e, int
 				(book_itm.flags & item_flag1))) && Lwpns.idCount(wFire) < 2)
 			{
 				Lwpns.add(new weapon(x, y - fakez, z, wFire, 2, zc_max(1, book_itm.misc4) * game->get_hero_dmgmult(), 0, book_id, -1, false, 0, 1));
-				if (FFCore.getQuestHeaderInfo(vZelda) < 0x255)
+				if (quest_format[vZelda] < 0x255)
 					sfx(WAV_FIRE, pan(x));
 				else
 					sfx(linked_itm.usesound > 0 ? linked_itm.usesound : WAV_FIRE, pan(x));
@@ -7033,7 +7033,7 @@ void weapon::onhit(bool clipped, int32_t special, int32_t linkdir, enemy* e, int
 				(linked_itm.flags & item_flag1))) && Lwpns.idCount(wFire) < 2)
 			{
 				Lwpns.add(new weapon(x, y - fakez, z, wFire, 2, zc_max(1, linked_itm.misc4) * game->get_hero_dmgmult(), 0, linkedItem, -1, false, 0, 1));
-				if (FFCore.getQuestHeaderInfo(vZelda) < 0x255)
+				if (quest_format[vZelda] < 0x255)
 				{
 					sfx(WAV_FIRE, pan(x));
 				}
@@ -7689,7 +7689,7 @@ void weapon::findcombotriggers()
 int32_t weapon::run_script(int32_t mode)
 {
 	if(switch_hooked && !get_qr(qr_SWITCHOBJ_RUN_SCRIPT)) return RUNSCRIPT_OK;
-	if (scrconfig.script <= 0 || scrconfig.script > NUMSCRIPTWEAPONS || FFCore.getQuestHeaderInfo(vZelda) < 0x255 || FFCore.system_suspend[isLWeapon ? susptLWEAPONSCRIPTS : susptEWEAPONSCRIPTS])
+	if (scrconfig.script <= 0 || scrconfig.script > NUMSCRIPTWEAPONS || quest_format[vZelda] < 0x255 || FFCore.system_suspend[isLWeapon ? susptLWEAPONSCRIPTS : susptEWEAPONSCRIPTS])
 		return RUNSCRIPT_OK;
 	auto scrty = *get_scrtype();
 	auto uid = getUID();

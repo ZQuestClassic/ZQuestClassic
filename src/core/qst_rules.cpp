@@ -1,7 +1,7 @@
 #include "core/qrs.h"
 #include "core/qst.h"
 #include "zalleg/packfile.h"
-#include "zc/ffscript.h"
+#include "core/quest_format.h"
 
 extern const byte* legacy_skip_flags;
 extern byte deprecated_rules[QUESTRULES_NEW_SIZE];
@@ -31,7 +31,7 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 		if (s_version > V_RULES)
 			return qe_version;
 	
-		FFCore.quest_format[vRules] = s_version;
+		quest_format[vRules] = s_version;
 		
 		if(!p_igetw(&dummy,f))
 		{
@@ -45,7 +45,7 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 				return qe_invalid;
 			}
 		}
-		FFCore.quest_format[vCompatRule] = compatrule_version;
+		quest_format[vCompatRule] = compatrule_version;
 		
 		//section size
 		if(!p_igetl(&dummy,f))
@@ -74,7 +74,7 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 		if (s_version > 17)
 			if (!p_igetl(&compile_setting_version, f))
 				return qe_invalid;
-		FFCore.quest_format[vCompileSetting] = compile_setting_version;
+		quest_format[vCompileSetting] = compile_setting_version;
 		
 		if (compile_setting_version > 0)
 		{

@@ -1,5 +1,6 @@
 #include "core/qst.h"
 #include "zalleg/packfile.h"
+#include "core/quest_format.h"
 #include "zc/ffscript.h"
 
 extern const byte* legacy_skip_flags;
@@ -69,7 +70,7 @@ int32_t readcolordata(PACKFILE *f, miscQdata *Misc, word version, word build, wo
 		if (s_version > V_CSETS)
 			return qe_version;
 	
-		FFCore.quest_format[vCSets] = s_version;
+		quest_format[vCSets] = s_version;
 		
 		if(!p_igetw(&dummy,f))
 		{

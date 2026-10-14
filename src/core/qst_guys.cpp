@@ -2,6 +2,7 @@
 #include "core/qst.h"
 #include "defdata.h"
 #include "zalleg/packfile.h"
+#include "core/quest_format.h"
 #include "zc/ffscript.h"
 
 extern const byte* legacy_skip_flags;
@@ -1973,7 +1974,7 @@ int32_t readguys(PACKFILE *f, zquestheader *Header)
 		if (guyversion > V_GUYS)
 			return qe_version;
         
-	FFCore.quest_format[vGuys] = guyversion;
+	quest_format[vGuys] = guyversion;
 
 		// Note: this is the only instance where "cversion" is ever used.
         if(!p_igetw(&guy_cversion,f))

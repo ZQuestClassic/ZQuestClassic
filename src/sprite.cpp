@@ -1024,7 +1024,7 @@ void sprite::draw(BITMAP* dest)
 		}
 	}
 #endif
-	if (FFCore.getQuestHeaderInfo(0) < 0x255 || ( FFCore.getQuestHeaderInfo(0) == 0x255 && FFCore.getQuestHeaderInfo(2) < 42 ) || get_qr(qr_OLDSPRITEDRAWS) || (drawflags & sprdrawflagALWAYSOLDDRAWS))
+	if (quest_format[vZelda] < 0x255 || ( quest_format[vZelda] == 0x255 && quest_format[vBuild] < 42 ) || get_qr(qr_OLDSPRITEDRAWS) || (drawflags & sprdrawflagALWAYSOLDDRAWS))
 	{
 		drawzcboss(dest);
 		yofs = tyoffs;
@@ -1540,7 +1540,7 @@ void sprite::drawzcboss(BITMAP* dest)
 	if(id<0)
 		return;
         
-	if (!(FFCore.getQuestHeaderInfo(0) < 0x255 || (FFCore.getQuestHeaderInfo(0) == 0x255 && FFCore.getQuestHeaderInfo(2) < 42) || get_qr(qr_OLDSPRITEDRAWS) || (drawflags & sprdrawflagALWAYSOLDDRAWS)))
+	if (!(quest_format[vZelda] < 0x255 || (quest_format[vZelda] == 0x255 && quest_format[vBuild] < 42) || get_qr(qr_OLDSPRITEDRAWS) || (drawflags & sprdrawflagALWAYSOLDDRAWS)))
 	{
 		sprite::draw(dest);
 		return; //don't run the rest, use the old code

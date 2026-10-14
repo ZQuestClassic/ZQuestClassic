@@ -2,7 +2,7 @@
 #include "core/cpool.h"
 #include "core/qst.h"
 #include "zalleg/packfile.h"
-#include "zc/ffscript.h"
+#include "core/quest_format.h"
 
 extern const byte* legacy_skip_flags;
 
@@ -25,7 +25,7 @@ int32_t readcomboaliases(PACKFILE *f, zquestheader *Header, word version, word b
 	if (sversion > V_COMBOALIASES)
 			return qe_version;
     
-    FFCore.quest_format[vComboAliases] = sversion;
+    quest_format[vComboAliases] = sversion;
     
     if(!p_igetw(&c_sversion,f))
     {

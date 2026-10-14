@@ -4,6 +4,7 @@
 #include "zalleg/zalleg.h"
 #include "alertfunc.h"
 #include "headerdlg.h"
+#include "core/quest_format.h"
 #include "zc/ffscript.h"
 #include "core/qst.h"
 #include "zscrdata.h"
@@ -366,7 +367,7 @@ bool do_compile_and_slots(int assign_mode, bool delay)
 	
 	//scripts are compiled without error, so store the zscript version here: -Z, 25th July 2019, A29
 	QMisc.zscript_last_compiled_version = V_FFSCRIPT;
-	FFCore.quest_format[vLastCompile] = V_FFSCRIPT;
+	quest_format[vLastCompile] = V_FFSCRIPT;
 	zprint2("Compiled scripts in version: %d\n", QMisc.zscript_last_compiled_version);
 	
 	//assign scripts to slots
@@ -382,7 +383,7 @@ CompileZScriptDialog::CompileZScriptDialog()
 void CompileZScriptDialog::updateLabels()
 {
 	char buf[64];
-	snprintf(buf, sizeof(buf), "Last Compiled Using ZScript: v.%d",(FFCore.quest_format[vLastCompile]));
+	snprintf(buf, sizeof(buf), "Last Compiled Using ZScript: v.%d",(quest_format[vLastCompile]));
 	labels[0]->setText(buf);
 	snprintf(buf, sizeof(buf), "%d Bytes in Buffer", (int32_t)(zScript.size()));
 	labels[1]->setText(buf);

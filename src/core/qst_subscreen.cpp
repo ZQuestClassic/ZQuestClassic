@@ -2,7 +2,8 @@
 #include "core/qrs.h"
 #include "core/qst.h"
 #include "zalleg/packfile.h"
-#include "zc/ffscript.h"
+#include "core/quest_format.h"
+#include "subscr.h"
 
 extern byte deprecated_rules[QUESTRULES_NEW_SIZE];
 
@@ -603,7 +604,7 @@ int32_t readsubscreens(PACKFILE *f)
 		return qe_invalid;
 	if (s_version > V_SUBSCREEN)
 		return qe_version;
-	FFCore.quest_format[vSubscreen] = s_version;
+	quest_format[vSubscreen] = s_version;
 	if(!read_deprecated_section_cversion(f))
 		return qe_invalid;
 	if(!p_igetl(&dummy,f)) //section size

@@ -8,6 +8,7 @@
 #include "dialog/quest_browser_data.h"
 #include "dialog/quest_rules.h"
 #include "zc_list_data.h"
+#include "core/quest_format.h"
 #include "zc/ffscript.h"
 #include "zq/package.h"
 #include "zq/zq_class.h"
@@ -393,7 +394,7 @@ static bool partial_load_test(std::string test_dir)
 	// Quest > Defaults reads a section out of the default template while a
 	// quest is open; its header must not stick either.
 	int32_t prev_format[versiontypesLAST];
-	memcpy(prev_format, FFCore.quest_format, sizeof(prev_format));
+	memcpy(prev_format, quest_format, sizeof(prev_format));
 	if (!init_combos(true, &header))
 	{
 		printf("failed to reset combos from the template\n");
@@ -409,7 +410,7 @@ static bool partial_load_test(std::string test_dir)
 		printf("unexpected modification after default combos: quest rules changed\n");
 		return false;
 	}
-	if (memcmp(FFCore.quest_format, prev_format, sizeof(prev_format)) != 0)
+	if (memcmp(quest_format, prev_format, sizeof(prev_format)) != 0)
 	{
 		printf("unexpected modification after default combos: quest format changed\n");
 		return false;

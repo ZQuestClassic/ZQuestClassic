@@ -162,7 +162,7 @@ int32_t loadquest(const char *filename, zquestheader *Header, miscQdata *Misc,
 	bool stream_decode = false);
 
 // Snapshots the globals readheader writes straight into - quest rules,
-// map_count, FFCore.quest_format, the midi flags, and the zinfo flags - and
+// map_count, quest_format, the midi flags, and the zinfo flags - and
 // restores them when it leaves scope. Wrap any header read of a quest file
 // other than the loaded one in this; nothing else puts those back. (A
 // skip_flags loadquest restores the rules and map_count itself, but not

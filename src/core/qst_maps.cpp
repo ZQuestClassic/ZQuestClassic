@@ -1,7 +1,10 @@
 #include "core/qrs.h"
 #include "core/qst.h"
 #include "zalleg/packfile.h"
-#include "zc/ffscript.h"
+#include "core/quest_format.h"
+#include "core/mapscr.h"
+#include "core/misctypes.h"
+#include "advanced_music.h"
 
 extern const byte* legacy_skip_flags;
 extern dword loading_tileset_flags;
@@ -2205,7 +2208,7 @@ int32_t readmaps(PACKFILE *f, zquestheader *Header)
 		if (version > V_MAPS)
 			return qe_version;
 	
-		FFCore.quest_format[vMaps] = version;
+		quest_format[vMaps] = version;
 		
 		if(!p_igetw(&dummy,f))
 		{

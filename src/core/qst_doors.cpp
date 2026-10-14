@@ -1,6 +1,7 @@
 #include "core/qst.h"
 #include "zalleg/packfile.h"
-#include "zc/ffscript.h"
+#include "core/quest_format.h"
+#include "core/misctypes.h"
 
 extern const byte* legacy_skip_flags;
 
@@ -163,7 +164,7 @@ int32_t readdoorcombosets(PACKFILE *f, zquestheader *Header)
 		if (s_version > V_DOORS)
 			return qe_version;
 	
-        FFCore.quest_format[vDoors] = s_version;
+        quest_format[vDoors] = s_version;
 	
         if(!p_igetw(&dummy_word,f))
         {

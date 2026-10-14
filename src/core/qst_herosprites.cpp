@@ -1,6 +1,7 @@
 #include "core/qst.h"
 #include "zalleg/packfile.h"
-#include "zc/ffscript.h"
+#include "core/quest_format.h"
+#include "hero_tiles.h"
 
 extern const byte* legacy_skip_flags;
 
@@ -879,7 +880,7 @@ int32_t readherosprites3(PACKFILE *f, int32_t v_herosprites)
 		}
 	}
 	
-	if(FFCore.quest_format[vInitData] < 34)
+	if(quest_format[vInitData] < 34)
 	{
 		bool fastswim = zinit.hero_swim_speed > 60;
 		// '2/3' or '1/2'
@@ -1246,7 +1247,7 @@ int32_t readherosprites2(PACKFILE *f, int32_t v_herosprites)
 		memset(sidedrowningspr, 0, sizeof(sidedrowningspr));
     }
     
-	if(FFCore.quest_format[vInitData] < 34)
+	if(quest_format[vInitData] < 34)
 	{
 		bool fastswim = zinit.hero_swim_speed > 60;
 		// '2/3' or '1/2'
@@ -1273,7 +1274,7 @@ int32_t readherosprites(PACKFILE *f, zquestheader *Header)
 	if (s_version > V_HEROSPRITES)
 			return qe_version;
     
-    FFCore.quest_format[vHeroSprites] = s_version;
+    quest_format[vHeroSprites] = s_version;
     
     if(!read_deprecated_section_cversion(f))
     {

@@ -1,7 +1,8 @@
 #include "core/misctypes.h"
 #include "core/qst.h"
 #include "zalleg/packfile.h"
-#include "zc/ffscript.h"
+#include "core/quest_format.h"
+#include "advanced_music.h"
 
 extern const byte* legacy_skip_flags;
 
@@ -80,7 +81,7 @@ int32_t readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
 		if (s_version > V_MISC)
 			return qe_version;
 		
-		FFCore.quest_format[vMisc] = s_version;
+		quest_format[vMisc] = s_version;
 		
 		if(!read_deprecated_section_cversion(f))
 		{
@@ -764,7 +765,7 @@ int32_t readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
 		temp_misc.zscript_last_compiled_version = -1;
 	}
 	
-	FFCore.quest_format[vLastCompile] = temp_misc.zscript_last_compiled_version;
+	quest_format[vLastCompile] = temp_misc.zscript_last_compiled_version;
 	
 	if(s_version >= 21)
 	{

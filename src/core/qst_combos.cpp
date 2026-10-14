@@ -3,6 +3,7 @@
 #include "core/qst.h"
 #include "defdata.h"
 #include "zalleg/packfile.h"
+#include "core/quest_format.h"
 #include "zc/ffscript.h"
 #include "zinfo.h"
 
@@ -1407,7 +1408,7 @@ int32_t readcombos(PACKFILE *f, zquestheader *Header, word version, word build, 
 		{
 			return qe_invalid;
 		}
-		FFCore.quest_format[vCombos] = section_version;
+		quest_format[vCombos] = section_version;
 		if(!read_deprecated_section_cversion(f))
 		{
 			return qe_invalid;

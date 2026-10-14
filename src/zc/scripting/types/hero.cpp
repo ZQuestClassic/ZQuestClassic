@@ -1001,7 +1001,7 @@ void hero_set_register(int32_t reg, int32_t value)
 			break;
 		case LINKEQUIP:
 		{
-			if ( FFCore.getQuestHeaderInfo(vZelda) == 0x250 && FFCore.getQuestHeaderInfo(vBuild) < 33 )
+			if ( quest_format[vZelda] == 0x250 && quest_format[vBuild] < 33 )
 			{
 				break;
 			}

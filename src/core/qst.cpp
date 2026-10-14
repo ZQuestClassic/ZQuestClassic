@@ -36,6 +36,7 @@
 #include "core/initdata.h"
 #include "advanced_music.h"
 #include "zsyssimple.h"
+#include "core/quest_format.h"
 
 extern sprite_list  guys, items, Ewpns, Lwpns, chainlinks, decorations;
 extern void setZScriptVersion(int32_t s_version);
@@ -51,6 +52,8 @@ byte subscr_mode = ssdtMAX;
 std::vector<byte> old_combo_pages;
 
 dword loading_tileset_flags = 0;
+
+int32_t quest_format[versiontypesLAST];
 
 int32_t First[MAX_COMBO_COLS]={0},combo_alistpos[MAX_COMBO_COLS]={0},combo_pool_listpos[MAX_COMBO_COLS]={0},combo_auto_listpos[MAX_COMBO_COLS]={0};
 map_and_screen map_page[MAX_MAPPAGE_BTNS]= {{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0}};
@@ -823,7 +826,7 @@ bool init_colordata(bool validate, zquestheader *Header, miscQdata *Misc)
 
 void init_spritelists()
 {
-	if(FFCore.quest_format[vZelda] < 0x255)
+	if(quest_format[vZelda] < 0x255)
 	{
 		guys.setMax(255);
 		items.setMax(255);
@@ -1837,7 +1840,7 @@ static void store_prev_qstload_global_state()
 {
 	memcpy(prev_quest_rules, quest_rules, QUESTRULES_NEW_SIZE);
 	memcpy(prev_extra_rules, extra_rules, EXTRARULES_SIZE);
-	memcpy(prev_quest_format, FFCore.quest_format, sizeof(prev_quest_format));
+	memcpy(prev_quest_format, quest_format, sizeof(prev_quest_format));
 	prev_map_count = map_count;
 }
 
@@ -1846,14 +1849,14 @@ static void restore_prev_qstload_global_state()
 	memcpy(quest_rules, prev_quest_rules, QUESTRULES_NEW_SIZE);
 	memcpy(extra_rules, prev_extra_rules, EXTRARULES_SIZE);
 	unpack_qrs();
-	memcpy(FFCore.quest_format, prev_quest_format, sizeof(prev_quest_format));
+	memcpy(quest_format, prev_quest_format, sizeof(prev_quest_format));
 	map_count = prev_map_count;
 }
 
 ScopedQuestHeaderGlobals::ScopedQuestHeaderGlobals()
 	: held_quest_rules(quest_rules, quest_rules + QUESTRULES_NEW_SIZE)
 	, held_extra_rules(extra_rules, extra_rules + EXTRARULES_SIZE)
-	, held_format(FFCore.quest_format, FFCore.quest_format + versiontypesLAST)
+	, held_format(quest_format, quest_format + versiontypesLAST)
 	, held_map_count(map_count)
 	, held_midi_bitstr(midi_bitstr)
 	, held_read_zinfo(read_zinfo)
@@ -1866,7 +1869,7 @@ ScopedQuestHeaderGlobals::~ScopedQuestHeaderGlobals()
 	memcpy(quest_rules, held_quest_rules.data(), held_quest_rules.size());
 	memcpy(extra_rules, held_extra_rules.data(), held_extra_rules.size());
 	unpack_qrs();
-	std::copy(held_format.begin(), held_format.end(), FFCore.quest_format);
+	std::copy(held_format.begin(), held_format.end(), quest_format);
 	map_count = held_map_count;
 	midi_bitstr = held_midi_bitstr;
 	read_zinfo = held_read_zinfo;
@@ -1917,8 +1920,8 @@ static int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Mi
 	{
 		set_bit(skip_flags, skip_ffscript, 1);
 		setZScriptVersion(V_FFSCRIPT);
-		FFCore.quest_format[vFFScript] = V_FFSCRIPT;
-		FFCore.quest_format[vLastCompile] = V_FFSCRIPT;
+		quest_format[vFFScript] = V_FFSCRIPT;
+		quest_format[vLastCompile] = V_FFSCRIPT;
 		do_clear_scripts = true;
 	}
 	if(loading_tileset_flags & TILESET_CLEARMAPS)
@@ -2751,7 +2754,7 @@ static int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Mi
 		if (should_hide)
 			set_qr(qr_HIDE_BOTTOM_8_PIXELS, 1);
 
-		if (FFCore.quest_format[vCompatRule] < 77 && Header->is_z3)
+		if (quest_format[vCompatRule] < 77 && Header->is_z3)
 			set_qr(qr_LAYER6_STRINGS_OVER_SUBSCREEN, 1);
 	}
 

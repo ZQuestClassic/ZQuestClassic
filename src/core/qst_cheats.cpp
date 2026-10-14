@@ -1,5 +1,6 @@
 #include "core/qst.h"
 #include "zalleg/packfile.h"
+#include "core/quest_format.h"
 #include "zc/ffscript.h"
 
 extern const byte* legacy_skip_flags;
@@ -25,7 +26,7 @@ int32_t readcheatcodes(PACKFILE *f, zquestheader *Header)
 		if (s_version > V_CHEATS)
 			return qe_version;
         
-	FFCore.quest_format[vCheats] = s_version;
+	quest_format[vCheats] = s_version;
         if(!p_igetw(&dummy,f))
         {
             return qe_invalid;

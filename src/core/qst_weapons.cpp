@@ -1,6 +1,7 @@
 #include "core/qst.h"
 #include "zalleg/packfile.h"
-#include "zc/ffscript.h"
+#include "core/quest_format.h"
+#include "sprite_data.h"
 
 extern const byte* legacy_skip_flags;
 extern const char *old_weapon_string[wLast];
@@ -106,7 +107,7 @@ int32_t readweapons(PACKFILE *f, zquestheader *Header)
 		if (s_version > V_WEAPONS)
 			return qe_version;
 	
-	FFCore.quest_format[vWeaponSprites] = s_version;
+	quest_format[vWeaponSprites] = s_version;
         
         if(!read_deprecated_section_cversion(f))
         {

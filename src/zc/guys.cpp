@@ -567,7 +567,7 @@ enemy::enemy(zfix X,zfix Y,int32_t Id,int32_t Clk) : sprite()
 		wpn = 0;
 	
 	//tile should never be 0 after init --Z (failsafe)
-	if (tile <= 0 && FFCore.getQuestHeaderInfo(vZelda) >= 0x255) {tile = o_tile;}
+	if (tile <= 0 && quest_format[vZelda] >= 0x255) {tile = o_tile;}
 	
 	//Moveflags; for gravity and pit interaction
 	moveflags = d->moveflags;
@@ -4058,7 +4058,7 @@ hitclock:
 		fading=fade_blue_poof;
 	}
 	
-	if ( FFCore.getQuestHeaderInfo(vZelda) > 0x250 || ( FFCore.getQuestHeaderInfo(vZelda) == 0x250 && FFCore.getQuestHeaderInfo(vBuild) > 31 )) //2.53 Gamma 2 and later
+	if ( quest_format[vZelda] > 0x250 || ( quest_format[vZelda] == 0x250 && quest_format[vBuild] > 31 )) //2.53 Gamma 2 and later
 	{
 		if( hitsfx > 0 ) //user-set hit sound. 
 		{
@@ -7894,7 +7894,7 @@ int32_t enemy::run_script(int32_t mode)
 	void pop_ri();
 
 	if(switch_hooked && !get_qr(qr_SWITCHOBJ_RUN_SCRIPT)) return RUNSCRIPT_OK;
-	if (scrconfig.script <= 0 || scrconfig.script >= NUMSCRIPTGUYS || FFCore.getQuestHeaderInfo(vZelda) < 0x255 || FFCore.system_suspend[susptNPCSCRIPTS])
+	if (scrconfig.script <= 0 || scrconfig.script >= NUMSCRIPTGUYS || quest_format[vZelda] < 0x255 || FFCore.system_suspend[susptNPCSCRIPTS])
 		return RUNSCRIPT_OK;
 	auto scrty = *get_scrtype();
 	auto uid = getUID();
@@ -8829,7 +8829,7 @@ bool ePeahat::animate(int32_t index)
 	else
 	superman=(movestatus && !get_qr(qr_ENEMIESZAXIS)) ? 1 : 0;
 	//stunclk=0; //Not sure what was going on here, or what was intended. Why was this set to 0? -Z
-	if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x250 )
+	if ( quest_format[vZelda] >= 0x250 )
 	{
 	if ( stunclk ) --stunclk;
 	}
@@ -11801,7 +11801,7 @@ bool eWizzrobe::animate(int32_t index)
 				{
 					// Wizzrobe Misc4 controls whether wizzrobes can teleport on top of solid combos,
 					// but should not appear on dungeon walls.	
-					if ( FFCore.getQuestHeaderInfo(vZelda) <= 0x190 ) place_on_axis(true, false); //1.84, and probably 1.90 wizzrobes should NEVER appear in dungeon walls.-Z (1.84 confirmed, 15th January, 2019 by Chris Miller).
+					if ( quest_format[vZelda] <= 0x190 ) place_on_axis(true, false); //1.84, and probably 1.90 wizzrobes should NEVER appear in dungeon walls.-Z (1.84 confirmed, 15th January, 2019 by Chris Miller).
 					else if (editorflags&ENEMY_FLAG5) 
 					{
 						//2.10 Windrobe
@@ -11995,7 +11995,7 @@ void eWizzrobe::wizzrobe_attack_for_real()
 		((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~move_can_pitfall; //No falling in pits
 		//this block of code was buggy and flat out doesn't match the default wpnsfx for these weapons.
 		//i've compromised by making all old quest use this code chunk by default.
-		if (FFCore.quest_format[vGuys] < 51)
+		if (quest_format[vGuys] < 51)
 		{
 			sfx(WAV_FIRE, pan(x));
 			if (get_qr(qr_8WAY_SHOT_SFX_DEP)) sfx(WAV_FIRE,pan(x));

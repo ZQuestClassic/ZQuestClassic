@@ -1,6 +1,6 @@
 #include "core/qst.h"
 #include "zalleg/packfile.h"
-#include "zc/ffscript.h"
+#include "core/quest_format.h"
 
 extern const byte* legacy_skip_flags;
 
@@ -24,7 +24,7 @@ int32_t readfavorites(PACKFILE *f, int32_t)
 		return qe_version;
 	
 	if (!should_skip)
-		FFCore.quest_format[vFavourites] = s_version;
+		quest_format[vFavourites] = s_version;
 	
 	if(!read_deprecated_section_cversion(f))
 	{

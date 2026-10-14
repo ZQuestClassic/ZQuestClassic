@@ -3,7 +3,8 @@
 #include "tiles.h"
 #include <algorithm>
 #include "zalleg/packfile.h"
-#include "zc/ffscript.h"
+#include "core/quest_format.h"
+#include "sprite_data.h"
 
 extern const byte* legacy_skip_flags;
 
@@ -100,7 +101,7 @@ int32_t readtiles(PACKFILE *f, tiledata *buf, zquestheader *Header, word version
 			if (section_version > V_TILES)
 				return qe_version;
             
-			FFCore.quest_format[vTiles] = section_version;
+			quest_format[vTiles] = section_version;
 			
             if(!read_deprecated_section_cversion(f))
             {

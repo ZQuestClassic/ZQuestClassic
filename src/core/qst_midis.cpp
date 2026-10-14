@@ -1,6 +1,6 @@
 #include "core/qst.h"
 #include "zalleg/packfile.h"
-#include "zc/ffscript.h"
+#include "core/quest_format.h"
 
 extern const byte* legacy_skip_flags;
 extern bitstring midi_bitstr;
@@ -126,7 +126,7 @@ int32_t readmidis(PACKFILE *f, zquestheader *Header, zctune *tunes /*zcmidi_ *mi
 			return qe_version;
 	
 		if (!should_skip)
-			FFCore.quest_format[vMIDIs] = section_version;
+			quest_format[vMIDIs] = section_version;
 		
 		if(!p_igetw(&dummy2,f))
 		{

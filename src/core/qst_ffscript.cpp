@@ -2,6 +2,7 @@
 #include "core/qrs.h"
 #include "core/qst.h"
 #include "zalleg/packfile.h"
+#include "core/quest_format.h"
 #include "zc/ffscript.h"
 
 extern const byte* legacy_skip_flags;
@@ -474,7 +475,7 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header)
 	if (s_version > V_FFSCRIPT)
 			return qe_version;
 	
-	FFCore.quest_format[vFFScript] = s_version;
+	quest_format[vFFScript] = s_version;
 	
 	if(!read_deprecated_section_cversion(f))
 	{
@@ -495,8 +496,8 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header)
 		return qe_invalid;
 	}
 
-	if ( FFCore.quest_format[vLastCompile] < 13 ) FFCore.quest_format[vLastCompile] = s_version;
-	al_trace("Loaded scripts last compiled in ZScript version: %d\n", (FFCore.quest_format[vLastCompile]));
+	if ( quest_format[vLastCompile] < 13 ) quest_format[vLastCompile] = s_version;
+	al_trace("Loaded scripts last compiled in ZScript version: %d\n", (quest_format[vLastCompile]));
 	
 	if(s_version >= 27)
 	{

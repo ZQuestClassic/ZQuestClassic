@@ -3,6 +3,7 @@
 #include "core/qst.h"
 #include "defdata.h"
 #include "zalleg/packfile.h"
+#include "core/quest_format.h"
 #include "zc/ffscript.h"
 
 extern const byte* legacy_skip_flags;
@@ -75,7 +76,7 @@ int32_t readitemdropsets(PACKFILE *f, int32_t version)
 		if (s_version > V_ITEMDROPSETS)
 			return qe_version;
 	
-	FFCore.quest_format[vItemDropsets] = s_version;
+	quest_format[vItemDropsets] = s_version;
         
         if(!read_deprecated_section_cversion(f))
         {

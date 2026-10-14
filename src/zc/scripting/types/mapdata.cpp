@@ -650,7 +650,7 @@ void mapdata_set_register(int32_t reg, int32_t value)
 	#define SET_MAPDATA_LAYER_INDEX(member, indexbound) \
 	{ \
 		int32_t indx = GET_D(rINDEX) / 10000; \
-		if ( FFCore.quest_format[vFFScript] < 11 ) ++indx; \
+		if ( quest_format[vFFScript] < 11 ) ++indx; \
 		if (BC::checkIndex(indx, 1, indexbound) != SH::_NoError) \
 		{ \
 		} \
@@ -664,7 +664,7 @@ void mapdata_set_register(int32_t reg, int32_t value)
 	#define SET_MAPDATA_LAYERSCREEN_INDEX(member, indexbound) \
 	{ \
 		int32_t indx = GET_D(rINDEX) / 10000; \
-		if ( FFCore.quest_format[vFFScript] < 11 ) ++indx; \
+		if ( quest_format[vFFScript] < 11 ) ++indx; \
 		int32_t scrn_id = value/10000; \
 		if (BC::checkIndex(indx, 1, indexbound) != SH::_NoError) \
 		{ \
@@ -1583,7 +1583,7 @@ static ArrayRegistrar MAPDATALAYERMAP_registrar(MAPDATALAYERMAP, []{
 		[](int ref, int index) -> int {
 			if (auto scr = checkMapDataScr(ref))
 			{
-				if (FFCore.quest_format[vFFScript] < 11)
+				if (quest_format[vFFScript] < 11)
 					index++;
 
 				return scr->layermap[index - 1];
@@ -1594,7 +1594,7 @@ static ArrayRegistrar MAPDATALAYERMAP_registrar(MAPDATALAYERMAP, []{
 		[](int ref, int index, int value){
 			if (auto mapdata = checkMapData(ref))
 			{
-				if (FFCore.quest_format[vFFScript] < 11)
+				if (quest_format[vFFScript] < 11)
 					index++;
 
 				mapdata->scr->layermap[index - 1] = value;
@@ -1622,7 +1622,7 @@ static ArrayRegistrar MAPDATALAYERSCREEN_registrar(MAPDATALAYERSCREEN, []{
 		[](int ref, int index) -> int {
 			if (auto scr = checkMapDataScr(ref))
 			{
-				if (FFCore.quest_format[vFFScript] < 11)
+				if (quest_format[vFFScript] < 11)
 					index++;
 
 				return scr->layerscreen[index - 1];
@@ -1633,7 +1633,7 @@ static ArrayRegistrar MAPDATALAYERSCREEN_registrar(MAPDATALAYERSCREEN, []{
 		[](int ref, int index, int value){
 			if (auto mapdata = checkMapData(ref))
 			{
-				if (FFCore.quest_format[vFFScript] < 11)
+				if (quest_format[vFFScript] < 11)
 					index++;
 
 				mapdata->scr->layerscreen[index - 1] = value;
@@ -1661,7 +1661,7 @@ static ArrayRegistrar MAPDATALAYEROPACITY_registrar(MAPDATALAYEROPACITY, []{
 		[](int ref, int index) -> int {
 			if (auto scr = checkMapDataScr(ref))
 			{
-				if (FFCore.quest_format[vFFScript] < 11)
+				if (quest_format[vFFScript] < 11)
 					index++;
 
 				return scr->layeropacity[index - 1];
@@ -1672,7 +1672,7 @@ static ArrayRegistrar MAPDATALAYEROPACITY_registrar(MAPDATALAYEROPACITY, []{
 		[](int ref, int index, int value){
 			if (auto mapdata = checkMapData(ref))
 			{
-				if (FFCore.quest_format[vFFScript] < 11)
+				if (quest_format[vFFScript] < 11)
 					index++;
 
 				mapdata->scr->layeropacity[index - 1] = value;

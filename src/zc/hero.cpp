@@ -2114,7 +2114,7 @@ void HeroClass::init()
 	script_ice_combo = 0;
 	FFCore.nostepforward = 0;
 	//Run script!
-	if (( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) && (game->get_hasplayed()) && hero_scr ) //if (!hasplayed) runs in game_loop()
+	if (( quest_format[vZelda] >= 0x255 ) && (game->get_hasplayed()) && hero_scr ) //if (!hasplayed) runs in game_loop()
 	{
 		ZScriptVersion::RunScript(ScriptType::Hero, SCRIPT_HERO_INIT);
 		FFCore.initZScriptHeroScripts(); //Clear the stack and the refinfo data to be ready for Hero's active script.
@@ -9714,7 +9714,7 @@ heroanimate_skip_liftwpn:;
 				}
 			}
 		
-		if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
+		if ( quest_format[vZelda] >= 0x255 )
 		{
 			if(forcedeath || (game->get_life()<=0 && !immortal)) //Not saved by fairy
 			{
@@ -12299,7 +12299,7 @@ bool HeroClass::startwpn(int32_t itemid)
 					while(Lwpns.idCount(lit_ty) && ew->misc == 0)
 					{
 						//If this ever needs a version check, in the future. -z
-						if (boom_ty == wBomb && (FFCore.getQuestHeaderInfo(vZelda) > 0x250 || ( FFCore.getQuestHeaderInfo(vZelda) == 0x250 && FFCore.getQuestHeaderInfo(vBuild) > 31)))
+						if (boom_ty == wBomb && (quest_format[vZelda] > 0x250 || ( quest_format[vZelda] == 0x250 && quest_format[vBuild] > 31)))
 						{
 							if ( ew->power > 1 ) //Don't reduce 1 to 0. -Z
 								ew->power *= 0.5; //Remote bombs were dealing double damage. -Z
@@ -13548,7 +13548,7 @@ void handle_lens_triggers(int32_t l_id)
 
 void do_lens()
 {
-	if ( FFCore.getQuestHeaderInfo(vZelda) < 0x250 ) //2.10 or earlier
+	if ( quest_format[vZelda] < 0x250 ) //2.10 or earlier
 	{
 		do_210_lens();
 		return;
@@ -27912,26 +27912,26 @@ void HeroClass::run_scrolling_script_int(bool waitdraw)
 			FFCore.waitdraw(ScriptType::Global, GLOBAL_SCRIPT_GAME) = false;
 		}
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_GLOBAL_WAITDRAW);
-		if ( (!( FFCore.system_suspend[susptHEROACTIVE] )) && FFCore.waitdraw(ScriptType::Hero) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
+		if ( (!( FFCore.system_suspend[susptHEROACTIVE] )) && FFCore.waitdraw(ScriptType::Hero) && quest_format[vZelda] >= 0x255 )
 		{
 			ZScriptVersion::RunScript(ScriptType::Hero, SCRIPT_HERO_ACTIVE);
 			FFCore.waitdraw(ScriptType::Hero) = false;
 		}
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_PLAYER_WAITDRAW);
-		if ( (!( FFCore.system_suspend[susptDMAPSCRIPT] )) && FFCore.waitdraw(ScriptType::DMap) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
+		if ( (!( FFCore.system_suspend[susptDMAPSCRIPT] )) && FFCore.waitdraw(ScriptType::DMap) && quest_format[vZelda] >= 0x255 )
 		{
 			ZScriptVersion::RunScript(ScriptType::DMap, DMaps[cur_dmap].active_scrconfig.script,cur_dmap);
 			FFCore.waitdraw(ScriptType::DMap) = false;
 		}
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_DMAPDATA_ACTIVE_WAITDRAW);
-		if ( (!( FFCore.system_suspend[susptDMAPSCRIPT] )) && FFCore.waitdraw(ScriptType::ScriptedPassiveSubscreen) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
+		if ( (!( FFCore.system_suspend[susptDMAPSCRIPT] )) && FFCore.waitdraw(ScriptType::ScriptedPassiveSubscreen) && quest_format[vZelda] >= 0x255 )
 		{
 			ZScriptVersion::RunScript(ScriptType::ScriptedPassiveSubscreen, DMaps[cur_dmap].passive_sub_scrconfig.script,cur_dmap);
 			FFCore.waitdraw(ScriptType::ScriptedPassiveSubscreen) = false;
 		}
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_DMAPDATA_PASSIVESUBSCREEN_WAITDRAW);
 
-		if (FFCore.getQuestHeaderInfo(vZelda) >= 0x255 && !FFCore.system_suspend[susptSCREENSCRIPTS])
+		if (quest_format[vZelda] >= 0x255 && !FFCore.system_suspend[susptSCREENSCRIPTS])
 		{
 			for_every_base_screen_in_region([&](mapscr* scr, unsigned int, unsigned int) {
 				if (scr->scrconfig.script != 0 && FFCore.waitdraw(ScriptType::Screen, scr->screen) && scr->preloadscript)
@@ -27950,7 +27950,7 @@ void HeroClass::run_scrolling_script_int(bool waitdraw)
 	}
 	else
 	{
-		if (FFCore.getQuestHeaderInfo(vZelda) >= 0x255 && !FFCore.system_suspend[susptSCREENSCRIPTS])
+		if (quest_format[vZelda] >= 0x255 && !FFCore.system_suspend[susptSCREENSCRIPTS])
 		{
 			for_every_base_screen_in_region([&](mapscr* scr, unsigned int, unsigned int) {
 				if (scr->scrconfig.script != 0 && scr->preloadscript)
@@ -27965,17 +27965,17 @@ void HeroClass::run_scrolling_script_int(bool waitdraw)
 			ZScriptVersion::RunScript(ScriptType::Global, GLOBAL_SCRIPT_GAME, GLOBAL_SCRIPT_GAME);
 		}
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_GLOBAL_ACTIVE);
-		if ((!( FFCore.system_suspend[susptHEROACTIVE] )) && FFCore.doscript(ScriptType::Hero) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255)
+		if ((!( FFCore.system_suspend[susptHEROACTIVE] )) && FFCore.doscript(ScriptType::Hero) && quest_format[vZelda] >= 0x255)
 		{
 			ZScriptVersion::RunScript(ScriptType::Hero, SCRIPT_HERO_ACTIVE);
 		}
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_PLAYER_ACTIVE);
-		if ( (!( FFCore.system_suspend[susptDMAPSCRIPT] )) && FFCore.doscript(ScriptType::DMap) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) 
+		if ( (!( FFCore.system_suspend[susptDMAPSCRIPT] )) && FFCore.doscript(ScriptType::DMap) && quest_format[vZelda] >= 0x255 ) 
 		{
 			ZScriptVersion::RunScript(ScriptType::DMap, DMaps[cur_dmap].active_scrconfig.script,cur_dmap);
 		}
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_DMAPDATA_ACTIVE);
-		if ( (!( FFCore.system_suspend[susptDMAPSCRIPT] )) && FFCore.doscript(ScriptType::ScriptedPassiveSubscreen) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) 
+		if ( (!( FFCore.system_suspend[susptDMAPSCRIPT] )) && FFCore.doscript(ScriptType::ScriptedPassiveSubscreen) && quest_format[vZelda] >= 0x255 ) 
 		{
 			ZScriptVersion::RunScript(ScriptType::ScriptedPassiveSubscreen, DMaps[cur_dmap].passive_sub_scrconfig.script,cur_dmap);
 		}
@@ -28991,26 +28991,26 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 			FFCore.waitdraw(ScriptType::Global, GLOBAL_SCRIPT_GAME) = false;
 		}
 		run_generic_scrolling(SCR_TIMING_POST_GLOBAL_WAITDRAW);
-		if ( (!( FFCore.system_suspend[susptHEROACTIVE] )) && FFCore.waitdraw(ScriptType::Hero) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
+		if ( (!( FFCore.system_suspend[susptHEROACTIVE] )) && FFCore.waitdraw(ScriptType::Hero) && quest_format[vZelda] >= 0x255 )
 		{
 			ZScriptVersion::RunScript(ScriptType::Hero, SCRIPT_HERO_ACTIVE);
 			FFCore.waitdraw(ScriptType::Hero) = false;
 		}
 		run_generic_scrolling(SCR_TIMING_POST_PLAYER_WAITDRAW);
-		if ( (!( FFCore.system_suspend[susptDMAPSCRIPT] )) && FFCore.waitdraw(ScriptType::DMap) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
+		if ( (!( FFCore.system_suspend[susptDMAPSCRIPT] )) && FFCore.waitdraw(ScriptType::DMap) && quest_format[vZelda] >= 0x255 )
 		{
 			ZScriptVersion::RunScript(ScriptType::DMap, DMaps[cur_dmap].active_scrconfig.script,cur_dmap);
 			FFCore.waitdraw(ScriptType::DMap) = false;
 		}
 		run_generic_scrolling(SCR_TIMING_POST_DMAPDATA_ACTIVE_WAITDRAW);
-		if ( (!( FFCore.system_suspend[susptDMAPSCRIPT] )) && FFCore.waitdraw(ScriptType::ScriptedPassiveSubscreen) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
+		if ( (!( FFCore.system_suspend[susptDMAPSCRIPT] )) && FFCore.waitdraw(ScriptType::ScriptedPassiveSubscreen) && quest_format[vZelda] >= 0x255 )
 		{
 			ZScriptVersion::RunScript(ScriptType::ScriptedPassiveSubscreen, DMaps[cur_dmap].passive_sub_scrconfig.script,cur_dmap);
 			FFCore.waitdraw(ScriptType::ScriptedPassiveSubscreen) = false;
 		}
 		run_generic_scrolling(SCR_TIMING_POST_DMAPDATA_PASSIVESUBSCREEN_WAITDRAW);
 
-		if (FFCore.getQuestHeaderInfo(vZelda) >= 0x255 && !FFCore.system_suspend[susptSCREENSCRIPTS])
+		if (quest_format[vZelda] >= 0x255 && !FFCore.system_suspend[susptSCREENSCRIPTS])
 		{
 			for_every_base_screen_in_region([&](mapscr* scr, unsigned int, unsigned int) {
 				if (scr->scrconfig.script != 0 && FFCore.waitdraw(ScriptType::Screen, scr->screen))
@@ -31654,7 +31654,7 @@ bool HeroClass::checkitems(int32_t index)
 
 void HeroClass::StartRefill(int32_t refillWhat)
 {
-	if(FFCore.quest_format[vZelda] < 0x255) 
+	if(quest_format[vZelda] < 0x255) 
 	{
 		//Yes, this isn't a QR check. This was implemented before the QRs got bumped up.
 		//I attempted to change this check to a quest rule, but here's the issue: this affects
