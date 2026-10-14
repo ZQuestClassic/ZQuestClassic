@@ -1,7 +1,7 @@
 #include "dialog/externs.h"
 #include "undercombo_dlg.h"
 #include "dialog/common.h"
-#include "gui/builder.h"
+#include "zq/gui/builder_zq.h"
 #include "dialog/info.h"
 #include "zc_list_data.h"
 #include "core/combo.h"

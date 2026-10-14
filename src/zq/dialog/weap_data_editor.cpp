@@ -5,7 +5,7 @@
 #include "zc_list_data.h"
 #include "zinfo.h"
 #include <fmt/format.h>
-#include "dialog/script_data_editor.h"
+#include "zq/dialog/script_data_editor.h"
 
 extern script_data *lwpnscripts[NUMSCRIPTWEAPONS];
 extern script_data *ewpnscripts[NUMSCRIPTWEAPONS];

@@ -6,7 +6,7 @@
 #include "dialog/info.h"
 #include "subscr.h"
 #include "gui/editbox.h"
-#include "gui/builder.h"
+#include "zq/gui/builder_zq.h"
 #include "zc_list_data.h"
 #include <fmt/ranges.h>
 

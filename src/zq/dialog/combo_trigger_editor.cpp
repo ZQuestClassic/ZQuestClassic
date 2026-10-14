@@ -4,7 +4,7 @@
 #include "dialog/info.h"
 #include "zalleg/zsys.h"
 #include "tiles.h"
-#include "gui/builder.h"
+#include "zq/gui/builder_zq.h"
 #include "zc_list_data.h"
 #include "items.h"
 #include "core/qrs.h"

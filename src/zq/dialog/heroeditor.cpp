@@ -1,5 +1,5 @@
 #include "heroeditor.h"
-#include "gui/builder.h"
+#include "zq/gui/builder_zq.h"
 #include "gui/key.h"
 #include "dialog/info.h"
 #include "zalleg/zsys.h"

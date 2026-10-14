@@ -1,5 +1,5 @@
 #include "subscr_props.h"
-#include "gui/builder.h"
+#include "zq/gui/builder_zq.h"
 #include "gui/buildutil.h"
 #include "dialog/info.h"
 #include <utility>
@@ -15,7 +15,7 @@
 #include "items.h"
 #include "zinfo.h"
 #include "sprite_data.h"
-#include "dialog/script_data_editor.h"
+#include "zq/dialog/script_data_editor.h"
 
 extern script_data *genericscripts[NUMSCRIPTSGENERIC];
 extern ZCSubscreen subscr_edit;

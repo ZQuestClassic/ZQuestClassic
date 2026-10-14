@@ -5,7 +5,7 @@
 #include "gui/key.h"
 #include "dialog/info.h"
 #include "zalleg/zsys.h"
-#include "gui/builder.h"
+#include "zq/gui/builder_zq.h"
 #include "zc_list_data.h"
 #include <fmt/format.h>
 #include "zq/zquest.h"

@@ -1,9 +1,9 @@
 #include "script_data_editor.h"
-#include "gui/builder.h"
+#include "zq/gui/builder_zq.h"
 #include "gui/jwin.h"
 #include "zq/zquest.h"
 #include "zc_list_data.h"
-#include "info.h"
+#include "dialog/info.h"
 
 extern int32_t numericalFlags;
 

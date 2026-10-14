@@ -3,7 +3,7 @@
 #include "zc_list_data.h"
 #include "global_initd.h"
 #include "core/initdata.h"
-#include "dialog/script_data_editor.h"
+#include "zq/dialog/script_data_editor.h"
 
 extern script_data *globalscripts[NUMSCRIPTGLOBAL];
 extern script_data *playerscripts[NUMSCRIPTHERO];

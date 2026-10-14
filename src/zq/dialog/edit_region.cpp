@@ -2,7 +2,7 @@
 #include "base/util.h"
 #include "dialog/info.h"
 #include "zq/zquest.h"
-#include "gui/builder.h"
+#include "zq/gui/builder_zq.h"
 #include <fmt/format.h>
 #include "core/qrs.h"
 #include "zq/zq_misc.h"

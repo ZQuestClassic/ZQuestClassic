@@ -9,7 +9,7 @@
 #include "core/initdata.h"
 #include "dialog/numpick.h"
 #include "dialog/info.h"
-#include "dialog/script_data_editor.h"
+#include "zq/dialog/script_data_editor.h"
 
 extern word map_count;
 extern script_data *screenscripts[NUMSCRIPTSCREEN];

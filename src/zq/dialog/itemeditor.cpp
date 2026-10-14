@@ -2,12 +2,12 @@
 #include "itemwizard.h"
 #include "dialog/info.h"
 #include "zalleg/zsys.h"
-#include "gui/builder.h"
+#include "zq/gui/builder_zq.h"
 #include "zc_list_data.h"
 #include "zinfo.h"
 #include <fmt/format.h>
 #include "weap_data_editor.h"
-#include "dialog/script_data_editor.h"
+#include "zq/dialog/script_data_editor.h"
 
 void reset_itembuf(itemdata *item, int32_t id);
 char *ordinal(int32_t num);

@@ -4,7 +4,7 @@
 #include "base/util.h"
 #include "base/version.h"
 #include "core/qst.h"
-#include "gui/builder.h"
+#include "zq/gui/builder_zq.h"
 #include "zalleg/files.h"
 #include "zconfig.h"
 #include "zq/zquest.h"

@@ -1,6 +1,6 @@
 #include "tilepicker.h"
 #include "base/containers.h"
-#include "gui/builder.h"
+#include "zq/gui/builder_zq.h"
 #include <utility>
 #include "zq/zq_tiles.h"
 

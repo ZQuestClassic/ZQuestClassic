@@ -114,7 +114,7 @@ src/zq/dialog/undercombo_dlg.cpp
 src/zq/dialog/subscr_grid_dlg.cpp
 src/zq/dialog/edit_music.cpp
 src/zq/dialog/editor_help.cpp
-src/dialog/script_data_editor.cpp
+src/zq/dialog/script_data_editor.cpp
 src/zq/dialog/global_initd.cpp
 
 ## End of ZQuest GUI module

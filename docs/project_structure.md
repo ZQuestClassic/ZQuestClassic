@@ -13,7 +13,7 @@ The foundation of ZC is built on these libraries, each depending on the previous
 - `base`: Low-level utilities, helpers. No dependency on Allegro.
 - `zalleg`: Allegro-related functionality. Depends on base.
 - `core`: All ZC-related data structures and logic needed by multiple apps. Depends on zalleg.
-- `gui`: GUI components needed by multiple apps. Depends on core.
+- `gui`: GUI components needed by multiple apps. Depends on core. (Widgets only the editor uses are in `src/zq/gui`.)
 
 ## Components
 

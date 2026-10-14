@@ -2,7 +2,7 @@
 #include "gui/key.h"
 #include "dialog/info.h"
 #include "tiles.h"
-#include "gui/builder.h"
+#include "zq/gui/builder_zq.h"
 #include "core/misctypes.h"
 
 extern miscQdata QMisc;

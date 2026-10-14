@@ -1,7 +1,7 @@
 #include "spritedata.h"
 #include "dialog/common.h"
 #include "dialog/info.h"
-#include "gui/builder.h"
+#include "zq/gui/builder_zq.h"
 #include "zc_list_data.h"
 
 void mark_save_dirty();

@@ -89,7 +89,7 @@ This sets the *actual* size of the widget and positions it in its parent. Non-co
 
 ## Adding a widget to the GUI builder system
 
-In `builder.h`, add a maker function at the top of the file.
+In `builder.h`, add a maker function at the top of the file. (Widgets that only the editor uses live in `zq/gui/` and are added the same way, but in `zq/gui/builder_zq.h` - editor code includes that instead of `gui/builder.h`.)
 ```
 inline std::shared_ptr<Button> makeButton()
 {

@@ -1,10 +1,10 @@
 #include "ffc_editor.h"
-#include "gui/builder.h"
+#include "zq/gui/builder_zq.h"
 #include "gui/jwin.h"
 #include "zq/zquest.h"
 #include "zc_list_data.h"
 #include "dialog/info.h"
-#include "dialog/script_data_editor.h"
+#include "zq/dialog/script_data_editor.h"
 
 extern script_data *ffscripts[NUMSCRIPTFFC];
 extern int32_t Combo, CSet;

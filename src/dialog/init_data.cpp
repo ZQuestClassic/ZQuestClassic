@@ -817,7 +817,7 @@ bool InitDataDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 }
 
 #ifndef IS_PLAYER
-#include "script_data_editor.h"
+#include "zq/dialog/script_data_editor.h"
 
 InitGenscriptWizard::InitGenscriptWizard(zinitdata& start, size_t index):
 	local_zinit(start), dest_zinit(start), index(index)

@@ -1,5 +1,5 @@
 #include "edit_dmap.h"
-#include "gui/builder.h"
+#include "zq/gui/builder_zq.h"
 #include "base/process_management.h"
 #include "zalleg/files.h"
 #include "gui/jwin.h"
@@ -10,7 +10,7 @@
 #include "subscr.h"
 #include <fmt/format.h>
 #include "core/qrs.h"
-#include "dialog/script_data_editor.h"
+#include "zq/dialog/script_data_editor.h"
 
 static size_t editdmap_tab = 0;
 static size_t editdmap_tab2 = 0;

@@ -4,6 +4,7 @@
 #include "zalleg/zsys.h"
 #include "gui/builder.h"
 #include "zc_list_data.h"
+#include "zq/zq_class.h"
 
 void mark_save_dirty();
 

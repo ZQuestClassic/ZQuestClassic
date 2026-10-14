@@ -5,7 +5,7 @@
 #include "dialog/info.h"
 #include "zalleg/zsys.h"
 #include "tiles.h"
-#include "gui/builder.h"
+#include "zq/gui/builder_zq.h"
 #include "zc_list_data.h"
 #include "items.h"
 #include "core/qrs.h"
@@ -14,7 +14,7 @@
 #include "zinfo.h"
 #include "core/combo.h"
 #include "weap_data_editor.h"
-#include "dialog/script_data_editor.h"
+#include "zq/dialog/script_data_editor.h"
 
 void mark_save_dirty();
 extern int32_t CSet;
