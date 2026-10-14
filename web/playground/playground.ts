@@ -277,17 +277,26 @@ async function loadFiles() {
     const response = await fetch(url);
 
     if (url.endsWith('.json')) {
+      if (!response.ok) {
+        logger.error(`error loading manifest: ${await response.text()}`);
+        return null;
+      }
+
       const manifest = await response.json();
       const entries = [...Object.entries(manifest.files as Record<string, string>)];
-      const resolvedEntries = await Promise.all(entries.map(async entry => ({
-        content: await (await fetch(entry[0])).text(),
-        path: entry[1],
-      })));
+      const resolvedEntries = await Promise.all(entries.map(async ([fileUrl, path]) => {
+        // Relative file urls are relative to the manifest, not to the playground.
+        const fileResponse = await fetch(new URL(fileUrl, response.url || url));
+        const content = await fileResponse.text();
+        if (!fileResponse.ok) throw new Error(`error loading ${fileUrl}: ${content}`);
+        return { content, path };
+      }));
 
       const files = new Map<string, string>();
       for (const {content, path} of resolvedEntries) {
         files.set(path, content);
       }
+      contentUrl = url;
       return files;
     } else {
       const content = await response.text();
@@ -639,7 +648,7 @@ export async function main() {
       createTab(model);
       await ZScriptWorker.writeFile(model.uri.path, model.getValue());
     }
-    openModel(models[0]);
+    if (models.length) openModel(models[0]);
   }
 }
 
