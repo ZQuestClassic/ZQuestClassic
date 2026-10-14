@@ -9,7 +9,7 @@
 #include "base/headers.h"
 #include <fmt/format.h>
 #include "components/zasm/debug_data.h"
-#include "zq/ffasm.h"
+#include "core/zdefs.h"
 #include <nlohmann/json.hpp>
 
 #include <cstdio>

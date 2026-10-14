@@ -194,7 +194,6 @@ iter.h -> zc/zelda.h
 music_playback.cpp -> zc/zc_sys.h
 new_subscr.cpp -> zc/ffscript.h
 pal.cpp -> zc/hero.h
-parser/Compiler.h -> zq/ffasm.h
 save_menu.cpp -> zc/ffscript.h
 save_menu.cpp -> zc/title.h
 save_menu.cpp -> zc/zc_sys.h
