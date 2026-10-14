@@ -368,10 +368,13 @@ function createTab(model: monaco.editor.ITextModel) {
 function closeTab(model: monaco.editor.ITextModel, tabEl: HTMLElement) {
   if (editor.getModel() == model) {
     editor.setModel(null);
-    const nextTabEl = (tabEl.previousElementSibling ?? tabEl.nextElementSibling) as HTMLElement;
-    const nextModel = nextTabEl && monaco.editor.getModel(monaco.Uri.parse(nextTabEl.dataset.uri ?? ''));
+    // The only sibling that isn't a tab is the "+" button, which has no uri.
+    const nextTabEl = (tabEl.previousElementSibling ?? tabEl.nextElementSibling) as HTMLElement | null;
+    const nextModel = nextTabEl?.dataset.uri && monaco.editor.getModel(monaco.Uri.parse(nextTabEl.dataset.uri));
     if (nextModel) {
       openModel(nextModel);
+    } else {
+      zasmPaneEl.textContent = '';
     }
   }
 
@@ -402,10 +405,15 @@ function openModel(model: monaco.editor.ITextModel) {
   tabsEl.querySelector('.tab--selected')?.classList.remove('tab--selected');
   tabEl.classList.add('tab--selected');
 
+  updateZasm(model);
   onContentUpdated(model);
 }
 
 function updateZasm(model: monaco.editor.ITextModel) {
+  // Compiles finish asynchronously, so this may be called for a tab that is no
+  // longer the active one.
+  if (editor.getModel() !== model) return;
+
   const zasm = getState(model).zasm ?? 'Loading...';
   zasmPaneEl.textContent = `ZASM for ${basename(model.uri)}:\n\n${zasm}`;
 }
