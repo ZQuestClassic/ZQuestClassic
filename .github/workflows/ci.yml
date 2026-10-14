@@ -106,6 +106,9 @@ jobs:
           fetch-depth: 0
           enableCrossOsArchive: true
 
+      - name: Check module layering
+        run: python3 scripts/check_layering.py
+
       - uses: mymindstorm/setup-emsdk@v14
         with:
           version: "6.0.6"

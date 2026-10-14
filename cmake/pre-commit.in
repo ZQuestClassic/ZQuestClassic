@@ -1,0 +1,7 @@
+#!/bin/sh
+
+# Hooks are shared by every worktree, including checkouts of older branches without the script.
+[ -f scripts/check_layering.py ] || exit 0
+# Only src/ changes can affect the module layering.
+git diff --cached --quiet -- src && exit 0
+python scripts/check_layering.py

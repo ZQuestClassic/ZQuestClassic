@@ -125,6 +125,7 @@ if(WANT_GIT_HOOKS)
 		if(UNIX)
 			configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/commit-msg.in" "${CMAKE_SOURCE_DIR}/.git/commit-msg")
 			configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/prepare-commit-msg.in" "${CMAKE_SOURCE_DIR}/.git/prepare-commit-msg")
+			configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/pre-commit.in" "${CMAKE_SOURCE_DIR}/.git/pre-commit")
 			file(
 				COPY "${CMAKE_SOURCE_DIR}/.git/commit-msg"
 				DESTINATION "${CMAKE_SOURCE_DIR}/.git/hooks"
@@ -135,9 +136,15 @@ if(WANT_GIT_HOOKS)
 				DESTINATION "${CMAKE_SOURCE_DIR}/.git/hooks"
 				FILE_PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
 			)
+			file(
+				COPY "${CMAKE_SOURCE_DIR}/.git/pre-commit"
+				DESTINATION "${CMAKE_SOURCE_DIR}/.git/hooks"
+				FILE_PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
+			)
 		else()
 			configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/commit-msg.in" "${CMAKE_SOURCE_DIR}/.git/hooks/commit-msg")
 			configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/prepare-commit-msg.in" "${CMAKE_SOURCE_DIR}/.git/hooks/prepare-commit-msg")
+			configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/pre-commit.in" "${CMAKE_SOURCE_DIR}/.git/hooks/pre-commit")
 		endif()
 	endif()
 endif()
