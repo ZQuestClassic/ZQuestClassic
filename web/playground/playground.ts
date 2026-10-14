@@ -360,6 +360,18 @@ function createModel(content: string, uri: monaco.Uri) {
   return model;
 }
 
+// Returns the open model for a uri, or a read-only one loaded from the compiler's
+// file system (ex: a bundled header), or null if neither exists.
+async function getOrLoadModel(uri: monaco.Uri) {
+  const existing = monaco.editor.getModel(uri);
+  if (existing) return existing;
+
+  const content = await ZScriptWorker.readFile(uri.path).catch(() => null);
+  if (content === null) return null;
+  // The model may have been created while the read was in flight.
+  return monaco.editor.getModel(uri) ?? createModel(content, uri);
+}
+
 const tabsEl = findElement('.tabs');
 const activeTabs = new Map<monaco.Uri, HTMLElement>();
 
@@ -553,7 +565,7 @@ export async function main() {
   findElement('.loading').classList.add('hidden');
   findElement('.split-pane-container').classList.remove('hidden');
 
-  tabsEl.addEventListener('click', (e) => {
+  tabsEl.addEventListener('click', async (e) => {
     if (!(e.target instanceof HTMLElement)) return;
 
     if (e.target.closest('.tabs__add')) {
@@ -561,7 +573,9 @@ export async function main() {
       if (name === null) return;
 
       const uri = monaco.Uri.file(name.trim() || 'script.zs');
-      let model = monaco.editor.getModel(uri);
+      // Opening a bundled header (ex: include/std.zh) must not replace it with
+      // an empty file, so it is shown read-only like go to definition does.
+      let model = await getOrLoadModel(uri);
       if (!model) {
         model = createModel('', uri);
         getState(model).readOnly = false;
@@ -639,10 +653,7 @@ export async function main() {
       if (!identifier || !symbol) return;
 
       const uri = monaco.Uri.file(symbol.loc.uri.replace('file://', ''));
-      if (!monaco.editor.getModel(uri)) {
-        const content = await ZScriptWorker.readFile(uri.path);
-        createModel(content, uri);
-      }
+      if (!await getOrLoadModel(uri)) return;
 
       return {
         uri,
