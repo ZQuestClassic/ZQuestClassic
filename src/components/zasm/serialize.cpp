@@ -2,7 +2,7 @@
 #include "base/ints.h"
 #include "base/util.h"
 #include "core/zdefs.h"
-#include "parser/parserDefs.h"
+#include "components/zasm/cmp.h"
 #include "components/zasm/table.h"
 #include <optional>
 #include <sstream>

@@ -7,7 +7,7 @@
 #include "ffc.h"
 #include "core/mapscr.h"
 #include "core/misctypes.h"
-#include "parser/parserDefs.h"
+#include "components/zasm/cmp.h"
 #include <utility>
 #include <string>
 #include <deque>

@@ -7,7 +7,7 @@
 #include <functional>
 #include <string_view>
 #include <array>
-#include "parser/parserDefs.h"
+#include "core/zdefs.h"
 #include "core/qrs.h"
 
 void call_compile_settings();

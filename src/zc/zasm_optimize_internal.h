@@ -6,7 +6,7 @@
 
 #include "zc/zasm_utils.h"
 #include "components/zasm/serialize.h"
-#include "parser/parserDefs.h"
+#include "components/zasm/cmp.h"
 #include <fmt/format.h>
 #include <memory>
 #include <set>

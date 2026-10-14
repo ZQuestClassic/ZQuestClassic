@@ -12,7 +12,6 @@
 #include "components/sound/zcmixer.h"
 #include "sprite.h"
 #include "gamedata.h"
-#include "parser/parserDefs.h"
 #include "base/zfix.h"
 #include "core/fonts.h"
 #include "core/cpool.h"

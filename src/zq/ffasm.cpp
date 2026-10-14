@@ -5,6 +5,7 @@
 #include <ctype.h>
 
 #include "dialog/externs.h"
+#include "components/zasm/cmp.h"
 #include "components/zasm/table.h"
 #include "zq/ffasm.h"
 

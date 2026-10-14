@@ -52,7 +52,6 @@ base/util.cpp -> core/zdefs.h
 base/zfix.cpp -> zc/replay.h
 components/scc/scc.cpp -> core/flags.h
 components/zasm/serialize.cpp -> core/zdefs.h
-components/zasm/serialize.cpp -> parser/parserDefs.h
 components/zasm/serialize.h -> core/zdefs.h
 core/handles.cpp -> zc/combos.h
 core/handles.cpp -> zc/maps.h
@@ -86,7 +85,6 @@ dialog/combowizard.cpp -> zc/maps.h
 dialog/common.cpp -> zq/zquest.h
 dialog/compilesetting.cpp -> zc/ffscript.h
 dialog/compilesetting.cpp -> zq/zquest.h
-dialog/compilesetting.h -> parser/parserDefs.h
 dialog/compilezscript.cpp -> zc/ffscript.h
 dialog/control_binding.h -> zc/cheats.h
 dialog/control_binding.h -> zc/control_scheme.h
@@ -230,8 +228,6 @@ zalleg/zqdialog.cpp -> core/zdefs.h
 zalleg/zsys.cpp -> zconsole/ConsoleLogger.h
 zalleg/zsys.h -> core/zdefs.h
 zalleg/zsys.h -> gui/jwin.h
-zc/ffscript.h -> parser/parserDefs.h
-zc/zasm_optimize_internal.h -> parser/parserDefs.h
 zc_list_data.cpp -> zc/zelda.h
 zconsole/ConsoleLogger.h -> core/zdefs.h
 zcsfx.cpp -> zc/ffscript.h
@@ -244,7 +240,6 @@ zq/zq_custom.cpp -> zc/ffscript.h
 zq/zq_doors.cpp -> zc/zc_sys.h
 zq/zquest.cpp -> parser/Compiler.h
 zq/zquest.cpp -> zc/ffscript.h
-zq/zquest.h -> parser/parserDefs.h
 zscrdata.h -> parser/Compiler.h
 zscrdata.h -> zq/zquest.h
 """.split('\n')
