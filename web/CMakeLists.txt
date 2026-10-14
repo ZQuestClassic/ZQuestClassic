@@ -52,6 +52,10 @@ add_custom_command(
 )
 add_custom_target(main_bundle DEPENDS npm_install_web zscript ${BUILD_FOLDER}/main.js)
 
+file(GLOB playground_inputs LIST_DIRECTORIES false CONFIGURE_DEPENDS
+    ${CMAKE_CURRENT_SOURCE_DIR}/playground/*
+    ${CMAKE_CURRENT_SOURCE_DIR}/playground/themes/*.json
+)
 set(playground_bundle_command
     node build.js --build_folder ${BUILD_FOLDER}
     $<$<NOT:$<CONFIG:Debug>>:--minify>
@@ -63,11 +67,8 @@ add_custom_command(
     COMMAND_EXPAND_LISTS
     DEPENDS
         "${CMAKE_BINARY_DIR}/npm_install.stamp"
-        playground/build.js
-        playground/index.html
-        playground/logger.ts
-        playground/playground.ts
-        playground/playground.worker.ts
+        ${playground_inputs}
+        ../vscode-extension/syntaxes/zscript.tmLanguage.json
         package-lock.json
         package.json
     VERBATIM
