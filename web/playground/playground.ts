@@ -90,6 +90,10 @@ const ZScriptWorker = {
     return ZScriptWorker.sendCommand('write', { path, code });
   },
 
+  deleteFile(path: string): Promise<void> {
+    return ZScriptWorker.sendCommand('delete', { path });
+  },
+
   readFile(path: string): Promise<string> {
     return ZScriptWorker.sendCommand('read', { path });
   },
@@ -216,6 +220,8 @@ async function onContentUpdated(model: monaco.editor.ITextModel) {
 
   try {
     await ZScriptWorker.writeFile(model.uri.path, model.getValue());
+    // Closing the tab meanwhile deletes the file, so there is nothing to compile.
+    if (model.isDisposed()) return;
     await recompileModel(model);
   } catch (err: any) {
     console.error(err);
@@ -389,6 +395,12 @@ function createTab(model: monaco.editor.ITextModel) {
 }
 
 function closeTab(model: monaco.editor.ITextModel, tabEl: HTMLElement) {
+  // A closed file is gone (it won't be shared), so it shouldn't stay includable
+  // either. Read-only models are bundled headers, which must stay.
+  if (!getState(model).readOnly) {
+    ZScriptWorker.deleteFile(model.uri.path).catch(err => console.error(err));
+  }
+
   if (editor.getModel() == model) {
     editor.setModel(null);
     // The only sibling that isn't a tab is the "+" button, which has no uri.
@@ -399,6 +411,9 @@ function closeTab(model: monaco.editor.ITextModel, tabEl: HTMLElement) {
     } else {
       zasmPaneEl.textContent = '';
     }
+  } else if (!getState(model).readOnly && editor.getModel()) {
+    // The open file may have included the closed one.
+    onContentUpdated(editor.getModel()!);
   }
 
   tabEl.remove();

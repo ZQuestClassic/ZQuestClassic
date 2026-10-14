@@ -37,6 +37,10 @@ async function setup() {
         Module.FS.mkdirTree(path.split('/').slice(0, -1).join('/'));
         Module.FS.writeFile(path, code);
         self.postMessage({ id });
+      } else if (type === 'delete') {
+        const { path } = data;
+        if (Module.FS.analyzePath(path).exists) Module.FS.unlink(path);
+        self.postMessage({ id });
       } else if (type === 'read') {
         const { path } = data;
         const content = new TextDecoder().decode(Module.FS.readFile(path));
