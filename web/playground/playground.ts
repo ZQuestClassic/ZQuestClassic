@@ -43,6 +43,9 @@ let editor: monaco.editor.IStandaloneCodeEditor;
 let contentGistId: string;
 let contentUrl: string;
 let ownsGist = false;
+// File names (as stored in the gist) of the editor's files in the gist currently
+// loaded or last uploaded.
+let gistFileNames = new Set<string>();
 
 const openBtnEl = findElement('.open-btn') as HTMLAnchorElement;
 const shareBtnEl = findElement('.share-btn');
@@ -242,22 +245,33 @@ async function loadFromGist(gist: string) {
   }
   const contents = await Promise.all(contentPromises);
   let keys = Object.keys(data.files);
+  // Only the files loaded into the editor are managed by it; anything else in
+  // the gist (ex: a readme) is left alone when updating it.
+  const loadedNames = new Set<string>();
   if (data.files['manifest.json']) {
+    loadedNames.add('manifest.json');
     const manifest = JSON.parse(contents[keys.indexOf('manifest.json')]);
     for (const [name, path] of Object.entries(manifest.files as Record<string, string>)) {
-      const content = contents[keys.indexOf(name)];
-      files.set(path, content);
+      const index = keys.indexOf(name);
+      if (index === -1) {
+        logger.warn(`gist is missing file listed in manifest: ${name}`);
+        continue;
+      }
+      files.set(path, contents[index]);
+      loadedNames.add(name);
     }
   } else {
     for (let i = 0; i < keys.length; i++) {
       const key = keys[i];
       if (key.endsWith('.zs') || key.endsWith('.zh') || key.endsWith('.z')) {
         files.set(keys[i], contents[i]);
+        loadedNames.add(key);
       }
     }
   }
 
   contentGistId = gist;
+  gistFileNames = loadedNames;
   await checkUserOwnsGist(gist, data);
   return files;
 }
@@ -348,7 +362,7 @@ async function checkUserOwnsGist(gist: string, data?: any) {
   if (!user) return false;
 
   if (!data) data = await fetch(`https://api.github.com/gists/${gist}`).then(r => r.json());
-  ownsGist = String(data.owner.id) === user.uid;
+  ownsGist = String(data.owner?.id) === user.uid;
   findElement('.share-btn').textContent = ownsGist ? 'Update Gist' : 'Share';
   return ownsGist;
 }
@@ -427,8 +441,23 @@ function updateZasm(model: monaco.editor.ITextModel) {
   zasmPaneEl.textContent = `ZASM for ${basename(model.uri)}:\n\n${zasm}`;
 }
 
+async function gistRequest(method: string, url: string, body: object) {
+  const send = (token: string) => fetch(url, {
+    method,
+    headers: new Headers({ Authorization: `token ${token}` }),
+    body: JSON.stringify(body),
+  });
+
+  let response = await send(await auth.getAccessToken());
+  if (response.status === 401) {
+    // The stored token was revoked or expired, so sign in again.
+    await auth.signOut();
+    response = await send(await auth.getAccessToken());
+  }
+  return response;
+}
+
 async function share() {
-  const token = await auth.getAccessToken();
   const models = [...modelStates.keys()].filter(m => !getState(m).readOnly && m.getValue());
   const files = {} as Record<string, { content: string }>;
 
@@ -450,15 +479,16 @@ async function share() {
   const body = {
     description: 'ZScript',
     public: false,
-    files,
+    files: files as Record<string, { content: string } | null>,
   };
 
   if (contentGistId && (ownsGist || await checkUserOwnsGist(contentGistId))) {
-    const response = await fetch(`https://api.github.com/gists/${contentGistId}`, {
-      method: 'PATCH',
-      headers: new Headers({ Authorization: `token ${token}` }),
-      body: JSON.stringify(body),
-    });
+    // Files closed since the gist was loaded should be removed from it too.
+    for (const name of gistFileNames) {
+      if (!(name in files)) body.files[name] = null;
+    }
+
+    const response = await gistRequest('PATCH', `https://api.github.com/gists/${contentGistId}`, body);
     const json = await response.json();
     if (response.ok) {
       navigator.clipboard.writeText(location.href);
@@ -468,11 +498,7 @@ async function share() {
       return;
     }
   } else {
-    const response = await fetch('https://api.github.com/gists', {
-      method: 'POST',
-      headers: new Headers({ Authorization: `token ${token}` }),
-      body: JSON.stringify(body),
-    });
+    const response = await gistRequest('POST', 'https://api.github.com/gists', body);
     const json = await response.json();
     if (response.ok) {
       contentGistId = json.id;
@@ -485,6 +511,7 @@ async function share() {
     }
   }
 
+  gistFileNames = new Set(Object.keys(files));
   embedBtnEl.classList.remove('hidden');
   ownsGist = true;
   findElement('.share-btn').textContent = 'Update Gist';
@@ -545,7 +572,12 @@ export async function main() {
     openBtnEl.href = location.href;
     openBtnEl.classList.remove('hidden');
   } else {
-    shareBtnEl.addEventListener('click', share);
+    shareBtnEl.addEventListener('click', () => {
+      share().catch(err => {
+        console.error(err);
+        logger.warn(`failed to share: ${err.message ?? err}`);
+      });
+    });
     shareBtnEl.classList.remove('hidden');
   }
 

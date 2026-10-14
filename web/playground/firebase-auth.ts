@@ -72,6 +72,17 @@ export class FirebaseAuth {
   }
 
   /**
+   * Forgets the stored GitHub access token, so the next request signs in again.
+   * Used when GitHub rejects the token (revoked or expired).
+   */
+  async signOut() {
+    this._accessToken = null;
+    this._githubUser = null;
+    await kv.del('accessToken');
+    await kv.del('githubUser');
+  }
+
+  /**
    * Signs in the user to GitHub using the Firebase API.
    * @return {Promise<string>} accessToken
    */
