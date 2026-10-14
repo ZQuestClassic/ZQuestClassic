@@ -677,11 +677,12 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 	appendElements(funs, program.getUserClassConstructors());
 	appendElements(funs, program.getUserClassDestructors());
 
-	for (auto fn : funs)
+	// By index, since this appends to the vector.
+	for (size_t i = 0; i < funs.size(); i++)
 	{
-		if (fn->isTemplateSkip())
+		if (funs[i]->isTemplateSkip())
 		{
-			for (auto& fun : fn->get_applied_funcs())
+			for (auto& fun : funs[i]->get_applied_funcs())
 				funs.push_back(fun.get());
 		}
 	}
