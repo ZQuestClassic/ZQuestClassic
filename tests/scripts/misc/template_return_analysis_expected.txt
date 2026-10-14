@@ -1,0 +1,52 @@
+stderr:
+
+Compiling 'template_return_analysis.zs'
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+Pass 4: Analyzing Code
+Pass 5: Checking code paths
+Pass 6: Generating object code
+Pass 7: Assembling
+Success!
+Compile finished with exit code '0' (success)
+
+stdout:
+
+{
+  "success": true,
+  "diagnostics": [],
+  "metadata": {
+    "currentFileSymbols": 8,
+    "symbols": 11,
+    "identifiers": 16,
+    "elided": true
+  }
+}
+
+zasm:
+
+QUIT; void run() Body
+PUSHR D0; void run(int) Params
+SETR D4 SP2; void run(int) Body Start
+LOAD D2 0; if() #1 Test
+COMPAREV D2 0
+GOTOCMP 10 ==; Test 'if'
+PUSHV 1; UsrFunc[void Tmpl(int)] Params AND if() #1 Body Start
+CALLFUNC 0.0019; UsrFunc[void Tmpl(int)] Call AND [Opt:NeverRet]
+GOTO 12; if() #1 Body End
+PUSHV 1; UsrFunc[void Plain(int)] Params AND if() #1 Else Start
+CALLFUNC 0.0022; UsrFunc[void Plain(int)] Call AND [Opt:NeverRet] AND if() #1 Else End
+NOP; [Opt:NeverRet] AND void run(int) Body End
+SETR D4 SP2; Func[void A()] Body Start
+CALLFUNC 0.0015; UsrFunc[void B()] Call AND [Opt:NeverRet] AND [Opt:NeverRet] AND Func[void A()] Body End
+SETR D4 SP2; Func[void B()] Body Start
+NOP
+WAITFRAME; InlineFunc[void Waitframe()] Body AND while(true) #1 Body [Opt:AlwaysOn]
+GOTO 16; while() #1 End AND [Opt:NeverRet] AND Func[void B()] Body End
+PUSHV 0; Func[void Tmpl(int)] Body Start
+SETR D4 SP2
+CALLFUNC 0.0013; UsrFunc[void A()] Call AND [Opt:NeverRet] AND [Opt:NeverRet] AND Func[void Tmpl(int)] Body End
+PUSHV 0; Func[void Plain(int)] Body Start
+SETR D4 SP2
+CALLFUNC 0.0013; UsrFunc[void A()] Call AND [Opt:NeverRet] AND [Opt:NeverRet] AND Func[void Plain(int)] Body End

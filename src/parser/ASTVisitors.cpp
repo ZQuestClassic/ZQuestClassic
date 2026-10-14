@@ -179,6 +179,10 @@ void RecursiveVisitor::_visit_internals(Function& func)
 }
 void RecursiveVisitor::visitFunctionInternals(ZScript::Program& program)
 {
+	// A visitor may visit every function more than once (ReturnVisitor), and each time must
+	// include every template instantiation, not just those made since the last time.
+	template_function_data.clear();
+
 	vector<Function*> functions = program.getUserGlobalFunctions();
 	
 	for (auto& func : functions)
