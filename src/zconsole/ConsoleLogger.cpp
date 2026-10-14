@@ -1,4 +1,5 @@
 #include "zconsole/ConsoleLogger.h"
+#include "base/general.h"
 #include <allegro.h>
 
 byte monochrome_console;

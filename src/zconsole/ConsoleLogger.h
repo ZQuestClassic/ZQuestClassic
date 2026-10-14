@@ -1,8 +1,9 @@
 #ifndef ZC_CONSOLE_LOGGER_H_
 #define ZC_CONSOLE_LOGGER_H_
 
-#include "core/zdefs.h"
+#include "base/ints.h"
 #include "base/process_management.h"
+#include <string>
 
 #ifndef __EMSCRIPTEN__
 #include <allegro5/allegro_native_dialog.h>
