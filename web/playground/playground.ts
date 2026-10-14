@@ -341,6 +341,22 @@ async function loadFiles() {
   return files;
 }
 
+const includePaths = new Set<string>(['include', 'headers', 'scripts']);
+
+// Every folder holding a file is an include path.
+async function addIncludePaths(filePaths: string[]) {
+  for (const path of filePaths) {
+    const parts = path.split('/');
+    for (let i = 0; i < parts.length; i++) {
+      const dir = parts.slice(0, i).join('/');
+      if (dir) {
+        includePaths.add(dir);
+      }
+    }
+  }
+  await ZScriptWorker.setIncludepaths([...includePaths].join(';'));
+}
+
 function findIdentifierAndSymbol(metadata: DocumentMetadata, position: monaco.Position) {
   const identifier = metadata.identifiers.find(({ loc }) => {
     if (loc.line + 1 !== position.lineNumber) return false;
@@ -579,6 +595,7 @@ export async function main() {
       if (!model) {
         model = createModel('', uri);
         getState(model).readOnly = false;
+        await addIncludePaths([uri.path]);
       }
       openModel(model);
       return;
@@ -686,17 +703,7 @@ export async function main() {
   });
 
   if (files) {
-    const includePathsSet = new Set<string>(['include', 'headers', 'scripts']);
-    for (const path of files.keys()) {
-      const parts = path.split('/');
-      for (let i = 0; i < parts.length; i++) {
-        const dir = parts.slice(0, i).join('/');
-        if (dir) {
-          includePathsSet.add(dir);
-        }
-      }
-    }
-    await ZScriptWorker.setIncludepaths([...includePathsSet].join(';'));
+    await addIncludePaths([...files.keys()]);
 
     const models = [...files.entries()].map(([name, content]) => {
       return createModel(content, monaco.Uri.file(name));
