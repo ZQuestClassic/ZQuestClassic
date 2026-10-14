@@ -2,7 +2,7 @@
 #include "base/check.h"
 #include "zalleg/files.h"
 #include "core/mapscr.h"
-#include "dialog/edit_region.h"
+#include "zq/dialog/edit_region.h"
 
 #include <memory>
 #include <optional>
@@ -17,7 +17,7 @@
 #include <filesystem>
 #include "zalleg/new_menu.h"
 
-#include "dialog/info_lister.h"
+#include "zq/dialog/info_lister.h"
 #include "zalleg/pal_tables.h"
 #include "zq/commands.h"
 #include "zq/render_map_view.h"
@@ -56,7 +56,7 @@
 #include "core/misctypes.h"
 #include "parser/Compiler.h"
 #include "particles.h"
-#include "dialog/combopool.h"
+#include "zq/dialog/combopool.h"
 #include "dialog/alertfunc.h"
 #include "zq/gui/edit_autocombo.h"
 
@@ -65,19 +65,19 @@
 #include <fmt/format.h>
 
 #include "dialog/cheat_codes.h"
-#include "dialog/quest_browser.h"
+#include "zq/dialog/quest_browser.h"
 #include "dialog/set_password.h"
 #include "dialog/quest_rules.h"
-#include "dialog/script_rules.h"
+#include "zq/dialog/script_rules.h"
 #include "dialog/headerdlg.h"
-#include "dialog/ffc_editor.h"
-#include "dialog/screen_data.h"
-#include "dialog/edit_dmap.h"
-#include "dialog/compilezscript.h"
-#include "dialog/screen_enemies.h"
-#include "dialog/enemypattern.h"
-#include "dialog/sfxdata.h"
-#include "dialog/mapstyles.h"
+#include "zq/dialog/ffc_editor.h"
+#include "zq/dialog/screen_data.h"
+#include "zq/dialog/edit_dmap.h"
+#include "zq/dialog/compilezscript.h"
+#include "zq/dialog/screen_enemies.h"
+#include "zq/dialog/enemypattern.h"
+#include "zq/dialog/sfxdata.h"
+#include "zq/dialog/mapstyles.h"
 #include "dialog/externs.h"
 
 #include "zalleg/gui.h"

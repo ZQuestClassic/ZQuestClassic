@@ -16,20 +16,20 @@ src/zc_list_data.cpp
 src/dialog/checklist.cpp
 
 src/dialog/init_data.cpp
-src/dialog/cheat_dialog.cpp
-src/dialog/control_binding.cpp
-src/dialog/control_schemes.cpp
-src/dialog/volume_dlg.cpp
+src/zc/dialog/cheat_dialog.cpp
+src/zc/dialog/control_binding.cpp
+src/zc/dialog/control_schemes.cpp
+src/zc/dialog/volume_dlg.cpp
 src/dialog/info.cpp
 src/dialog/alert.cpp
 src/dialog/vidmode.cpp
 src/dialog/numpick.cpp
 src/dialog/text_prompt.cpp
 src/dialog/ditherpick.cpp
-src/dialog/zc_options.cpp
-src/dialog/zc_midi_dlg.cpp
-src/dialog/warp_cheat_picker.cpp
-src/dialog/zc_screen_saver.cpp
+src/zc/dialog/zc_options.cpp
+src/zc/dialog/zc_midi_dlg.cpp
+src/zc/dialog/warp_cheat_picker.cpp
+src/zc/dialog/zc_screen_saver.cpp
 
 ## End of Zelda GUI module
 )

@@ -17,7 +17,7 @@
 #include "zq/zq_misc.h"
 #include "zq/zq_cset.h"
 #include "zq/zq_class.h"
-#include "dialog/paledit.h"
+#include "zq/dialog/paledit.h"
 #include "dialog/alertfunc.h"
 #include "zq/render.h"
 #include "gfxpal.h"

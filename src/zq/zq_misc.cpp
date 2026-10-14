@@ -14,7 +14,7 @@
 #include "zq/package.h"
 #include "zq/render_minimap.h"
 #include "dialog/info.h"
-#include "dialog/about.h"
+#include "zq/dialog/about.h"
 #include "dialog/alertfunc.h"
 #include "drawing.h"
 #include "gui/jwin_a5.h"

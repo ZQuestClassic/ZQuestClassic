@@ -6,7 +6,7 @@
 #include "zq/zq_misc.h"
 #include "zq/zq_hotkey.h"
 #include "zq/zq_class.h"
-#include "dialog/zqhotkeys.h"
+#include "zq/dialog/zqhotkeys.h"
 #include "dialog/info.h"
 #include "dialog/externs.h"
 #include <fmt/format.h>

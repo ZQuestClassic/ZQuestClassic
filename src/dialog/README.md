@@ -1,3 +1,8 @@
+## Where dialogs live
+
+Put a dialog in the app that uses it: `zq/dialog/` for the editor, `zc/dialog/` for the player.
+Only dialogs used by more than one app belong here in `dialog/`.
+
 ## Implementing a dialog
 
 Every dialog should be a subclass of `gui::Dialog` (from `gui/dialog.h`) with itself as the template parameter. It needs an inner type called `message` that can safely be cast to an int32_t and back. Generally, this is an enum. It must not use negative values; these are used to represent no value internally. An extremely simple dialog that needs no messages can simply typedef `int32_t`.

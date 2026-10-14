@@ -13,9 +13,9 @@
 #include <assert.h>
 #include <fmt/format.h>
 #include "dialog/info.h"
-#include "dialog/subscr_props.h"
-#include "dialog/info_lister.h"
-#include "dialog/subscreenwizard.h"
+#include "zq/dialog/subscr_props.h"
+#include "zq/dialog/info_lister.h"
+#include "zq/dialog/subscreenwizard.h"
 #include "zinfo.h"
 
 #ifndef _MSC_VER

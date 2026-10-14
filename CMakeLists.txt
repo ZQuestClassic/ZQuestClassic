@@ -1160,11 +1160,11 @@ target_compile_definitions(zeditor PRIVATE IS_EDITOR)
 
 if(WIN32)
 	set_source_files_properties(
-		src/dialog/itemeditor.cpp
+		src/zq/dialog/itemeditor.cpp
 		src/dialog/init_data.cpp
-		src/dialog/comboeditor.cpp
-		src/dialog/combowizard.cpp
-		src/dialog/subscr_props.cpp
+		src/zq/dialog/comboeditor.cpp
+		src/zq/dialog/combowizard.cpp
+		src/zq/dialog/subscr_props.cpp
 		PROPERTIES COMPILE_FLAGS "/bigobj"
 	)
 endif()
@@ -1180,7 +1180,7 @@ if(MSVC)
 else()
 	set(zc_dialog_opt_flag -O1)
 endif()
-file(GLOB zc_dialog_sources CONFIGURE_DEPENDS src/dialog/*.cpp)
+file(GLOB zc_dialog_sources CONFIGURE_DEPENDS src/dialog/*.cpp src/zc/dialog/*.cpp src/zq/dialog/*.cpp)
 # The Xcode generator rejects per-config per-source COMPILE_OPTIONS; that
 # build is only used for profiling, so just let it compile dialog/ slower.
 if(NOT CMAKE_GENERATOR STREQUAL "Xcode")

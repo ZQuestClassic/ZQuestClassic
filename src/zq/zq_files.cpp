@@ -15,9 +15,9 @@
 #include "zq/zq_files.h"
 #include "core/zdefs.h"
 #include "dialog/alertfunc.h"
-#include "dialog/tilesetwizard.h"
+#include "zq/dialog/tilesetwizard.h"
 #include "dialog/pickruleset.h"
-#include "dialog/quest_browser.h"
+#include "zq/dialog/quest_browser.h"
 #include "dialog/pickruletemplate.h"
 #include "zq/zq_misc.h"
 #include "zq/zquest.h"
@@ -28,7 +28,7 @@
 #include "zq/zq_tiles.h"
 #include "zq/zq_custom.h"
 #include "dialog/info.h"
-#include "dialog/compilezscript.h"
+#include "zq/dialog/compilezscript.h"
 
 #ifdef __EMSCRIPTEN__
 #include "base/emscripten_utils.h"

@@ -37,7 +37,7 @@
 #include "zc/render.h"
 #include "base/zc_math.h"
 #include "base/zapp.h"
-#include "dialog/control_binding.h"
+#include "zc/dialog/control_binding.h"
 #include "metadata/metadata.h"
 #include "zc/zelda.h"
 #include "zc/saves.h"
@@ -5205,7 +5205,7 @@ int32_t onQstPath()
 	return D_O_K;
 }
 
-#include "dialog/cheat_dialog.h"
+#include "zc/dialog/cheat_dialog.h"
 int32_t onCheat()
 {
 	call_setcheat_dialog();

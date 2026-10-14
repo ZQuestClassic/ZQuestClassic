@@ -13,15 +13,17 @@ src/
 ├── zc/            Game runtime (zplayer): zelda.cpp main game loop, hero.cpp, guys.cpp
 │                  (enemy AI), ffscript.cpp (script integration), scripting/jit/ (script JIT;
 │                  per-platform backends jit_x64/a64/wasm/none), zasm_* (bytecode optimization
-│                  pipeline), saves.cpp, replay.cpp, script_debug.cpp, debugger/ (VM debugger)
+│                  pipeline), saves.cpp, replay.cpp, script_debug.cpp, debugger/ (VM debugger),
+│                  dialog/ (player-only dialogs)
 ├── zq/            Quest editor (zeditor): zq_class.cpp main editor class, render*.cpp,
-│                  autocombo/ pattern generators, package.cpp quest packaging
+│                  autocombo/ pattern generators, package.cpp quest packaging, dialog/
+│                  (editor-only dialogs)
 ├── parser/        ZScript compiler (zscript): ffscript.lpp/.ypp flex/bison grammar, AST +
 │                  visitors, SemanticAnalyzer, BuildVisitors (codegen), LibrarySymbols
 │                  (built-in declarations), DocVisitor/MetadataVisitor (docs/metadata)
 ├── components/    Reusable subsystems: zasm/ (bytecode VM: eval.cpp interpreter, table.cpp
 │                  opcode table), sound/ (midi, zcmusic, zcmixer), worker_pool/
-├── dialog/        ~167 dialog boxes for editor and game, built with gui/ — see dialog/README.md
+├── dialog/        Dialog boxes used by more than one app, built with gui/ — see dialog/README.md
 ├── gui/           Low-level widget system + declarative builder API — see gui/README.md
 ├── base/          General utilities (util, containers, version, http, ints.h, expected.h)
 ├── zalleg/        Thin Allegro 5 wrapper (rendering, colors, menus, packfile I/O)
@@ -33,7 +35,8 @@ src/
 Dependencies flow roughly as:
 
 - `zc/` and `zq/` both depend on `core/` for shared quest data structures.
-- `dialog/` provides UI for both `zc/` and `zq/`, built on top of `gui/`.
+- `dialog/` provides UI shared by the apps, built on top of `gui/`. A dialog only one app
+  uses lives in that app instead (`zq/dialog/`, `zc/dialog/`).
 - `parser/` compiles ZScript source → bytecode fed into `components/zasm/` and `zc/`'s VM/JIT.
 - `base/` and `zalleg/` are low-level helpers used everywhere.
 

@@ -1,0 +1,559 @@
+#include "compilezscript.h"
+#include "gui/builder.h"
+#include "zalleg/files.h"
+#include "zalleg/zalleg.h"
+#include "dialog/alertfunc.h"
+#include "dialog/headerdlg.h"
+#include "core/quest_format.h"
+#include "zc/ffscript.h"
+#include "core/qst.h"
+#include "zscrdata.h"
+#include "dialog/info.h"
+#include <fmt/format.h>
+#include <fmt/ranges.h>
+#include "core/misctypes.h"
+#include "zq/dialog/view_script_slots.h"
+#include <chrono>
+
+using std::string;
+
+#ifdef __EMSCRIPTEN__
+#include <emscripten/emscripten.h>
+#include "base/emscripten_utils.h"
+#endif
+
+void doEditZScript();
+void clear_map_states();
+bool do_slots(ZScript::ZasmCompilerResult& zasmCompilerResult, int assign_mode);
+int32_t onZScriptCompilerSettings();
+
+extern string zScript;
+extern std::vector<string> asffcscripts, asglobalscripts, asitemscripts,
+	asnpcscripts, aseweaponscripts, aslweaponscripts,
+	asplayerscripts, asdmapscripts, asscreenscripts,
+	asitemspritescripts, ascomboscripts, asgenericscripts,
+	assubscreenscripts;
+extern std::map<int32_t, script_slot_data > globalmap;
+
+static void compile_sfx(bool success)
+{
+	kill_sfx();
+	auto vol = vbound(zc_get_config("Compiler","compile_audio_volume",100),0,255);
+	if (vol <= 0) return;
+	int sfx_id = vbound(zc_get_config("Compiler",success ? "compile_success_sample" : "compile_error_sample",20),0,MAX_SFX);
+	if (sfx_id > 0)
+		sfx_ex(sfx_id, 128, false, true, vol / 1.28_zf);
+}
+
+int32_t onCompileScript()
+{
+	CompileZScriptDialog().show();
+	return D_O_K;
+}
+
+bool doCompileOpenHeaderDlg()
+{
+    call_header_dlg();
+    return false;
+}
+
+static bool compile_cancel;
+static int g_assign_mode;
+bool quickassign()
+{
+	g_assign_mode = 1;
+	return true;
+}
+bool smartassign()
+{
+	g_assign_mode = 2;
+	return true;
+}
+bool docancel()
+{
+	compile_cancel = true;
+	return true;
+}
+
+// If assign_mode is 0, will prompt user for assign_mode.
+bool do_compile_and_slots(int assign_mode, bool delay)
+{
+	bool noquick_compile = !assign_mode;
+
+	const char* tmpfilename = "ZQ_BUFFER";
+	FILE *tempfile = fopen(tmpfilename,"w");
+
+	std::string consolefilename = (fs::temp_directory_path() / "zq_console_tmp.txt").string();
+
+	if(!tempfile)
+	{
+		InfoDialog("Error","Unable to create a temporary file in current directory!").show();
+		return true;
+	}
+	
+	fwrite(zScript.c_str(), sizeof(char), zScript.size(), tempfile);
+	fclose(tempfile);
+
+	ZScript::ZasmCompilerResult zasmCompilerResult;
+	
+	std::string quest_rules_hex = get_qr_hexstr();
+	auto start_compile_time = std::chrono::steady_clock::now();
+	bool hasWarnErr = false;
+#ifdef __EMSCRIPTEN__
+	int32_t code = em_compile_zscript(tmpfilename, consolefilename.c_str(), quest_rules_hex.c_str());
+#else
+	int32_t code = -9999;
+	parser_console.kill();
+
+	auto include_paths = FFCore.includePaths;
+	include_paths.push_back((fs::path(header.filename).parent_path() / "scripts").string());
+
+	std::vector<std::string> args = {
+		"-input", tmpfilename,
+		"-console", consolefilename,
+		"-qr", quest_rules_hex.c_str(),
+		"-linked",
+		"-include", fmt::format("{}", fmt::join(include_paths, ";")),
+	};
+	if(noquick_compile && zc_get_config("Compiler","noclose_compile_console",0))
+		args.push_back("-noclose");
+	if(delay)
+		args.push_back("-delay");
+	for (auto [id, val] : qst_compiler_settings)
+	{
+		args.push_back(fmt::format("-{}", to_string(id)));
+		args.push_back(std::to_string(val));
+	}
+	process_manager* pm = launch_piped_process(locate_zapp_file(ZSCRIPT_FILE), "zq_parser_pipe", args);
+	dword compile_timeout = zc_get_config("Compiler","compiler_timeout",30,App::zscript);
+	if(!pm)
+	{
+		InfoDialog("Parser","Failed to launch " ZSCRIPT_FILE).show();
+		delete_file(tmpfilename);
+		return false;
+	}
+	
+	if (!DisableCompileConsole)
+	{
+		parser_console.Create("ZScript Parser Output", 600, 200, NULL, "zconsole.exe");
+		parser_console.cls(CConsoleLoggerEx::COLOR_BACKGROUND_BLACK);
+		parser_console.gotoxy(0,0);
+		_print_zconsole("External ZScript Parser\n","[INFO] ",INFO_COLOR);
+	}
+	else
+	{
+		box_start(1, "Compile Progress", get_zc_font(font_lfont), get_zc_font(font_sfont),true, 512, 280);
+	}
+	
+	int current = 0, last = 0;
+	int syncthing = 0;
+	FILE *console = nullptr;
+	try
+	{
+		pm->read(&syncthing, sizeof(int32_t));
+		console = fopen(consolefilename.c_str(), "r");
+		bool running = true;
+		if (console) 
+		{
+			char buf4[4096];
+			const dword def_idle = delay ? 60*60 : 0;
+			dword idle_seconds = def_idle;
+			while(running)
+			{
+				pm->timeout_seconds = compile_timeout ? compile_timeout+idle_seconds : 0;
+				idle_seconds = def_idle;
+				pm->read(&code, sizeof(int32_t));
+				switch(code)
+				{
+					case ZC_CONSOLE_IDLE_CODE:
+					{
+						pm->read(&idle_seconds, sizeof(dword));
+						idle_seconds += def_idle;
+						pm->write(&code, sizeof(int32_t));
+						break;
+					}
+					case ZC_CONSOLE_DB_CODE:
+					case ZC_CONSOLE_ERROR_CODE:
+					case ZC_CONSOLE_WARN_CODE:
+						hasWarnErr = true;
+						[[fallthrough]];
+					case ZC_CONSOLE_INFO_CODE:
+						fseek(console, 0, SEEK_END);
+						current = ftell(console);
+						if (current != last)
+						{
+							int amount = (current-last);
+							fseek(console, last, SEEK_SET);
+							last = current;
+							int end = fread(&buf4, sizeof(char), amount, console);
+							buf4[end] = 0;
+							ReadConsole(buf4, code);
+						}
+						pm->write(&code, sizeof(int32_t));
+						break;
+					default:
+						running = false;
+						break;
+				}
+			}
+		}
+		pm->read(&code, sizeof(int32_t));
+	}
+	catch(zc_io_exception& e)
+	{
+		zprint2("CAUGHT ZC_IO_EXCEPTION!\n");
+		if (DisableCompileConsole) box_end(true);
+		switch(e.getType())
+		{
+			case zc_io_exception::IO_TIMEOUT:
+				InfoDialog("Timeout",fmt::format("IO Timeout error: the parser timed out. {}",
+					pm->is_alive() ? "Unknown cause." : "Parser process died or crashed.")).show();
+				break;
+			case zc_io_exception::IO_DEAD:
+				InfoDialog("Dead Parser","The parser process died unexpectedly.").show();
+				break;
+			default:
+				InfoDialog("Error","An unknown error occurred while compiling").show();
+				break;
+		}
+		delete pm;
+		if(console) fclose(console);
+		delete_file(tmpfilename);
+		return false;
+	}
+	delete pm;
+	if(console) fclose(console);
+	delete_file(tmpfilename);
+	
+#endif
+	auto end_compile_time = std::chrono::steady_clock::now();
+	int compile_time_ms = std::chrono::duration_cast<std::chrono::milliseconds>(end_compile_time - start_compile_time).count();
+	
+	char buf[1024] = {0};
+	snprintf(buf, sizeof(buf), "ZScript compilation: Returned code '%d' (%s)\n"
+		"Compile took %d ms%s",
+		code, code ? "failure" : "success",
+		compile_time_ms,
+		code ? (!DisableCompileConsole?"\nCompilation failed. See console for details.":"\nCompilation failed.") : "");
+	
+	if(!code)
+	{
+		read_compile_data(zasmCompilerResult);
+		if (!(DisableCompileConsole || hasWarnErr)) 
+		{
+			parser_console.kill();
+		}
+	}
+	else if (DisableCompileConsole)
+	{
+		char buf3[256] = {0};
+		snprintf(buf3, sizeof(buf3), "Compile took %d ms", compile_time_ms);
+		box_out(buf3);
+		box_eol();
+		box_out("Compilation failed.");
+		box_eol();
+	}
+	compile_sfx(!code);
+	if (DisableCompileConsole) box_end(true);
+	
+	compile_cancel = code;
+
+	if (!DisableCompileConsole)
+	{
+		if(code)
+			InfoDialog("ZScript Parser", buf).show();
+		else if(!assign_mode)
+		{
+			g_assign_mode = 0;
+			AlertFuncDialog("ZScript Parser",
+				buf,
+				"Quick Assign:"
+				"\nUpdates all already-assigned scripts"
+				"\nSmart Assign:"
+				"\nUpdates all already-assigned scripts"
+				"\nAssigns global/hero scripts to empty slots of the same name"
+				"\nAssigns all other unassigned scripts to slots"
+			).add_buttons(2,
+				{ "Quick Assign", "Smart Assign", "OK", "Cancel" },
+				{ quickassign, smartassign, nullptr, docancel }
+			).show();
+			assign_mode = g_assign_mode;
+		}
+	}
+	kill_sfx();
+	//refresh(rALL);
+	
+	if(compile_cancel)
+		return false;
+	
+	asffcscripts.clear();
+	asffcscripts.push_back("<none>");
+	asglobalscripts.clear();
+	asglobalscripts.push_back("<none>");
+	asitemscripts.clear();
+	asitemscripts.push_back("<none>");
+	asnpcscripts.clear();
+	asnpcscripts.push_back("<none>");
+	aseweaponscripts.clear();
+	aseweaponscripts.push_back("<none>");
+	aslweaponscripts.clear();
+	aslweaponscripts.push_back("<none>");
+	asplayerscripts.clear();
+	asplayerscripts.push_back("<none>");
+	asdmapscripts.clear();
+	asdmapscripts.push_back("<none>");
+	asscreenscripts.clear();
+	asscreenscripts.push_back("<none>");
+	asitemspritescripts.clear();
+	asitemspritescripts.push_back("<none>");
+	ascomboscripts.clear();
+	ascomboscripts.push_back("<none>");
+	asgenericscripts.clear();
+	asgenericscripts.push_back("<none>");
+	assubscreenscripts.clear();
+	assubscreenscripts.push_back("<none>");
+	clear_map_states();
+	globalmap[0].updateName("~Init"); //force name to ~Init
+	
+	using namespace ZScript;
+	for (auto it = zasmCompilerResult.scriptTypes.begin(); it != zasmCompilerResult.scriptTypes.end(); ++it)
+	{
+		string const& name = it->first;
+		if(name.size() && name[0] == '~')
+			continue; //hidden script
+		switch(it->second)
+		{
+			case ZScript::ParserScriptType::idFfc:
+				asffcscripts.push_back(name);
+				break;
+			case ZScript::ParserScriptType::idItem:
+				asitemscripts.push_back(name);
+				break;
+			case ZScript::ParserScriptType::idNPC:
+				asnpcscripts.push_back(name);
+				break;
+			case ZScript::ParserScriptType::idEWeapon:
+				aseweaponscripts.push_back(name);
+				break;
+			case ZScript::ParserScriptType::idLWeapon:
+				aslweaponscripts.push_back(name);
+				break;
+			case ZScript::ParserScriptType::idPlayer:
+				asplayerscripts.push_back(name);
+				break;
+			case ZScript::ParserScriptType::idDMap:
+				asdmapscripts.push_back(name);
+				break;
+			case ZScript::ParserScriptType::idScreen:
+				asscreenscripts.push_back(name);
+				break;
+			case ZScript::ParserScriptType::idItemSprite:
+				asitemspritescripts.push_back(name);
+				break;
+			case ZScript::ParserScriptType::idComboData:
+				ascomboscripts.push_back(name);
+				break;
+			case ZScript::ParserScriptType::idGenericScript:
+				asgenericscripts.push_back(name);
+				break;
+			case ZScript::ParserScriptType::idGlobal:
+				asglobalscripts.push_back(name);
+				break;
+			case ZScript::ParserScriptType::idSubscreenData:
+				assubscreenscripts.push_back(name);
+				break;
+		}
+	}
+	
+	//scripts are compiled without error, so store the zscript version here: -Z, 25th July 2019, A29
+	QMisc.zscript_last_compiled_version = V_FFSCRIPT;
+	quest_format[vLastCompile] = V_FFSCRIPT;
+	zprint2("Compiled scripts in version: %d\n", QMisc.zscript_last_compiled_version);
+	
+	//assign scripts to slots
+	if (!do_slots(zasmCompilerResult, assign_mode))
+		return false;
+
+	return true;
+}
+
+CompileZScriptDialog::CompileZScriptDialog()
+{}
+
+void CompileZScriptDialog::updateLabels()
+{
+	char buf[64];
+	snprintf(buf, sizeof(buf), "Last Compiled Using ZScript: v.%d",(quest_format[vLastCompile]));
+	labels[0]->setText(buf);
+	snprintf(buf, sizeof(buf), "%d Bytes in Buffer", (int32_t)(zScript.size()));
+	labels[1]->setText(buf);
+}
+
+#define BTN(txt, msg, w) \
+Button( \
+	fitParent = true, \
+	padding = 0_px, \
+	text = (txt), \
+	width = (w), \
+	height = 3_em, \
+	onClick = message::msg \
+)
+#define BTNF(txt, msg, w) \
+Button( \
+	focused = true, \
+	fitParent = true, \
+	padding = 0_px, \
+	text = (txt), \
+	width = (w), \
+	height = 3_em, \
+	onClick = message::msg \
+)
+
+std::shared_ptr<GUI::Widget> CompileZScriptDialog::view()
+{
+	using namespace GUI::Builder;
+	using namespace GUI::Props;
+	const GUI::Size panel_width = 200_px;
+	const GUI::Size col_spacing = 4_px;
+	const GUI::Size row_spacing = 4_px;
+	
+	window = Window(
+		title = "Compile ZScript",
+		onClose = message::CANCEL,
+		Column(
+			labels[0] = Label(hAlign = 0.0),
+			labels[1] = Label(hAlign = 0.0),
+			Column(hPadding = 0_px, vPadding = DEFAULT_PADDING*2,
+				rowSpacing = row_spacing,
+				//
+				Row(padding = 0_px,
+					columnSpacing = col_spacing,
+					BTN("&Load",LOAD,panel_width/3+col_spacing/2),
+					BTN("E&xport",EXPORT,panel_width/3+col_spacing/2),
+					BTN("&Edit",EDIT,panel_width/3+col_spacing/2)
+				),
+				//
+				Row(padding = 0_px,
+					columnSpacing = col_spacing,
+					BTN("&Docs",DOCS,panel_width/3+col_spacing/2),
+					BTN("&std_zh",STD_ZH,panel_width/3+col_spacing/2),
+					BTN("Settings",SETTINGS,panel_width/3+col_spacing/2)
+				),
+				//
+				Row(padding = 0_px,
+					columnSpacing = col_spacing,
+					BTNF("&Compile",COMPILE,panel_width/3+col_spacing/2),
+					BTN("Slots",SLOTS,panel_width/3+col_spacing/2),
+					BTN("Cancel",CANCEL,panel_width/3+col_spacing/2)
+				)
+			)
+		)
+	);
+	updateLabels();
+	return window;
+}
+
+bool CompileZScriptDialog::handleMessage(const GUI::DialogMessage<message>& msg)
+{
+	bool ctrl = key_shifts & KB_CTRL_CMD_FLAG;
+	switch(msg.message)
+	{
+		case message::LOAD:
+		{
+			//Load from File
+			if(zScript.size() > 0)
+			{
+				if(!alert_confirm("Confirm Overwrite","Loading will erase the current buffer. Proceed anyway?"))
+					return false;
+					
+				zScript.clear();
+				updateLabels();
+				mark_save_dirty();
+			}
+			
+			if(!prompt_for_existing_file_compat("Load ZScript (.z, .zh, .zs, .zlib, etc.)", (char *)"z,zh,zs,zlib,zasm,zscript,squid" ,NULL,datapath,false))
+				return false;
+				
+			FILE *zscript = fopen(temppath,"r");
+			
+			if(zscript == NULL)
+			{
+				InfoDialog("Error","Cannot open specified file!").show();
+				return false;
+			}
+			
+			char c = fgetc(zscript);
+			
+			while(!feof(zscript))
+			{
+				zScript += c;
+				c = fgetc(zscript);
+			}
+			
+			fclose(zscript);
+			mark_save_dirty();
+			updateLabels();
+			return false;
+		}
+		
+		case message::EXPORT:
+		{
+			if(!prompt_for_new_file_compat("Save ZScript (.zs)", "zs", NULL,datapath,false))
+				break;
+				
+			if(exists(temppath))
+			{
+				if(!alert_confirm("Confirm Overwrite","File already exists. Overwrite?"))
+					break;
+			}
+			
+			FILE *zscript = fopen(temppath,"w");
+			
+			if(!zscript)
+			{
+				InfoDialog("Error","Unable to open file for writing!").show();
+				break;
+			}
+			
+			int32_t written = (int32_t)fwrite(zScript.c_str(), sizeof(char), zScript.size(), zscript);
+			
+			if(written != (int32_t)zScript.size())
+				InfoDialog("Error","IO error while writing script to file!").show();
+				
+			fclose(zscript);
+			return false;
+		}
+		
+		case message::EDIT:
+			doEditZScript();
+			updateLabels();
+			return false;
+		
+		case message::DOCS:
+			util::open_web_link("https://docs.zquestclassic.com/zscript/");
+			return false;
+		
+		case message::STD_ZH:
+			if(util::checkPath("include/std_zh",true))
+				launch_file("include/std_zh");
+			return false;
+		
+		case message::SETTINGS:
+			onZScriptCompilerSettings();
+			return false;
+
+		case message::SLOTS:
+			ViewScriptSlotsDialog().show();
+			return false;
+		
+		case message::COMPILE:
+		{
+			bool delay = ctrl && devpwd();
+			return do_compile_and_slots(0, delay);
+		}
+		
+		case message::CANCEL:
+			return true;
+	}
+	return false;
+}
