@@ -20,7 +20,6 @@
 #include "CompileError.h"
 
 #include "components/zasm/table.h"
-#include "zc/ffscript.h"
 
 using std::ostringstream;
 using namespace ZScript;

@@ -12,7 +12,6 @@
 #include "Scope.h"
 #include "CompileError.h"
 
-#include "zc/ffscript.h"
 
 using std::ostringstream;
 using namespace ZScript;

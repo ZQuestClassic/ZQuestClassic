@@ -11,7 +11,6 @@
 #include "test_runner/test_runner.h"
 #include "components/zasm/table.h"
 #include "components/zasm/serialize.h"
-#include "zc/ffscript.h"
 #include "parser/ZScript.h"
 #include "parser/config.h"
 #include "zconsole/ConsoleLogger.h"
@@ -22,8 +21,6 @@
 
 using namespace std::chrono_literals;
 using ordered_json = nlohmann::ordered_json;
-
-FFScript FFCore;
 
 std::vector<std::string> ZQincludePaths;
 std::string console_path;

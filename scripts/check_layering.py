@@ -290,10 +290,6 @@ pal.cpp -> zc/maps.h
 pal.cpp -> zc/zc_sys.h
 pal.cpp -> zc/zelda.h
 parser/Compiler.h -> zq/ffasm.h
-parser/RegBaseVisitor.cpp -> zc/ffscript.h
-parser/RegistrationVisitor.cpp -> zc/ffscript.h
-parser/ReturnVisitor.cpp -> zc/ffscript.h
-parser/parser.cpp -> zc/ffscript.h
 save_menu.cpp -> zc/ffscript.h
 save_menu.cpp -> zc/replay.h
 save_menu.cpp -> zc/title.h

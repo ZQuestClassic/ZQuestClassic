@@ -7,7 +7,6 @@
 #include "CompileError.h"
 
 #include "components/zasm/table.h"
-#include "zc/ffscript.h"
 #include <fmt/ranges.h>
 
 using namespace ZScript;
