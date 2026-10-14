@@ -219,7 +219,6 @@ zalleg/render.cpp -> gui/jwin_a5.h
 zalleg/render_tree.cpp -> core/fonts.h
 zalleg/zalleg.cpp -> core/fonts.h
 zalleg/zalleg.cpp -> sfx.h
-zalleg/zalleg.h -> zsyssimple.h
 zalleg/zqdialog.cpp -> core/zdefs.h
 zalleg/zsys.cpp -> zconsole/ConsoleLogger.h
 zalleg/zsys.h -> core/zdefs.h

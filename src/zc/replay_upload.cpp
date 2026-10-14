@@ -4,7 +4,7 @@
 #include "base/http.h"
 #include "zc/replay.h"
 #include "zconfig.h"
-#include "zsyssimple.h"
+#include "zalleg/zsyssimple.h"
 #include <nlohmann/json.hpp>
 #include <fmt/format.h>
 #include <fstream>

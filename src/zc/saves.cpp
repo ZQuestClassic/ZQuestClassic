@@ -19,7 +19,7 @@
 #include "pal.h"
 #include "tiles.h"
 #include "items.h"
-#include "zsyssimple.h"
+#include "zalleg/zsyssimple.h"
 #include <algorithm>
 #include <cstddef>
 #include <cstdio>

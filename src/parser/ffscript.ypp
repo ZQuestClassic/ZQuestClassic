@@ -15,7 +15,7 @@
 #include <sstream>
 #include "ASTVisitors.h"
 #include "CompileOption.h"
-#include "zsyssimple.h"
+#include "zalleg/zsyssimple.h"
 #include "parser/ParserHelper.h"
 #include "base/util.h"
 #include "base/headers.h"

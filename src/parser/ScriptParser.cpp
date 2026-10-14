@@ -12,7 +12,7 @@
 #include "components/zasm/debug_data.h"
 #include "components/zasm/defines.h"
 #include "components/zasm/table.h"
-#include "zsyssimple.h"
+#include "zalleg/zsyssimple.h"
 #include "ByteCode.h"
 #include "CompileError.h"
 #include "CompileOption.h"

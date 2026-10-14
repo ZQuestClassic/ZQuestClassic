@@ -1,6 +1,6 @@
 #include <assert.h>
 #include <iostream>
-#include "zsyssimple.h"
+#include "zalleg/zsyssimple.h"
 #include "CompileError.h"
 #include "DataStructs.h"
 #include "LibrarySymbols.h"

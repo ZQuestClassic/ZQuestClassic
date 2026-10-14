@@ -6,7 +6,7 @@
 #include "base/process_management.h"
 #include "base/zapp.h"
 #include "fontsdat.h"
-#include "zsyssimple.h"
+#include "zalleg/zsyssimple.h"
 
 #define QUIT_LAUNCHER() \
 do{ \

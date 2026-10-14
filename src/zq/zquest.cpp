@@ -21,7 +21,7 @@
 #include "zalleg/pal_tables.h"
 #include "zq/commands.h"
 #include "zq/render_map_view.h"
-#include "zsyssimple.h"
+#include "zalleg/zsyssimple.h"
 #if defined(__linux__) || defined(_WIN32)
 #include <malloc.h>
 #else

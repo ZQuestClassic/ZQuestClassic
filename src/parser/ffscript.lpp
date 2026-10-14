@@ -17,7 +17,7 @@
 #include <stdlib.h>
 #include <sstream>
 #include "AST.h"
-#include "zsyssimple.h"
+#include "zalleg/zsyssimple.h"
 #include "y.tab.hpp"
 YYLTYPE noloc = {0,0,0,0};
 int32_t yyrow, yycol;

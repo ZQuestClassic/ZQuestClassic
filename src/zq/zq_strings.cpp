@@ -15,7 +15,7 @@
 #include "zq/zq_tiles.h"
 #include "zq/zquest.h"
 #include "zalleg/zsys.h"
-#include "zsyssimple.h"
+#include "zalleg/zsyssimple.h"
 #include <map>
 #include <string>
 #include "dialog/info.h"

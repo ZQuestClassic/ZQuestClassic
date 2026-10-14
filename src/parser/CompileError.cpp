@@ -8,7 +8,7 @@
 #include <sstream>
 #include "base/zapp.h"
 #include "parser/ZScript.h"
-#include "zsyssimple.h"
+#include "zalleg/zsyssimple.h"
 #include "AST.h"
 #include "CompilerUtils.h"
 #include "parserDefs.h"

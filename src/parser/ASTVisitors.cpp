@@ -1,7 +1,7 @@
 #include "ASTVisitors.h"
 
 #include "parser/CompileOption.h"
-#include "zsyssimple.h"
+#include "zalleg/zsyssimple.h"
 #include "CompileError.h"
 #include "Scope.h"
 #include "parserDefs.h"

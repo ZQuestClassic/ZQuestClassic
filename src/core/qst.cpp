@@ -35,7 +35,7 @@
 #include "core/misctypes.h"
 #include "core/initdata.h"
 #include "advanced_music.h"
-#include "zsyssimple.h"
+#include "zalleg/zsyssimple.h"
 #include "core/quest_format.h"
 
 extern sprite_list  guys, items, Ewpns, Lwpns, chainlinks, decorations;

@@ -8,7 +8,7 @@
 #include "allegro5/display.h"
 #include "base/zapp.h"
 #include "zalleg/pal_tables.h"
-#include "zsyssimple.h"
+#include "zalleg/zsyssimple.h"
 #include <allegro.h>
 #include <allegro/internal/aintern.h>
 #include <a5alleg.h>
