@@ -12,7 +12,7 @@ env:
   PYTHONUNBUFFERED: '1'
   CCACHE_BASEDIR: ${{ github.workspace }}
   CCACHE_DIR: ${{ github.workspace }}/.ccache
-  CCACHE_MAXSIZE: 400M
+  CCACHE_MAXSIZE: 800M
   CCACHE_SLOPPINESS: time_macros
 
 jobs:
@@ -34,8 +34,7 @@ jobs:
           - runs-on: windows-2022
             arch: x64
             compiler: msvc
-            # RelWithDebInfo invalidates ccache, and we currently can't show backtraces on crash for windows in CI
-            # so no need for it yet.
+            # We currently can't show backtraces on crash for windows in CI, so no need for debug info yet.
             config: Release
           - runs-on: windows-2022
             arch: win32

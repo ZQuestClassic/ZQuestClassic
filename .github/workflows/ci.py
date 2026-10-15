@@ -491,7 +491,9 @@ def build(ctx: CiContext, args):
     if args.cache:
         env['CCACHE_BASEDIR'] = str(root_dir)
         env['CCACHE_DIR'] = str(root_dir / '.ccache')
-        env['CCACHE_MAXSIZE'] = '400M'
+        # One RelWithDebInfo build is ~400M of objects. Below that, the cache evicts
+        # entries the same build needs.
+        env['CCACHE_MAXSIZE'] = '800M'
         env['CCACHE_SLOPPINESS'] = 'time_macros'
     else:
         logger.info("Cache disabled.")
