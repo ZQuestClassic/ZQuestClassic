@@ -65,7 +65,9 @@ on:
 env:
   CCACHE_BASEDIR: ${{ github.workspace }}
   CCACHE_DIR: ${{ github.workspace }}/.ccache
-  CCACHE_MAXSIZE: 400M
+  # One RelWithDebInfo build is ~400M of objects. Below that, the cache evicts
+  # entries the same build needs.
+  CCACHE_MAXSIZE: 800M
   CCACHE_SLOPPINESS: time_macros
   TARGET: zplayer zeditor zscript zlauncher ${{ contains(inputs.runs-on, 'windows') && 'zupdater' || '' }}
 
