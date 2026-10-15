@@ -24,6 +24,12 @@ include(CodeCoverage)
 
 set(USE_PCH FALSE CACHE BOOL "Use precompiled headers")
 set(UNITY_BUILD FALSE CACHE BOOL "Unity build")
+# ccache can't cache MSVC's default /Zi, where every compile writes into one shared
+# .pdb. /Z7 keeps the debug info in each .obj instead; the linker still writes the
+# final .pdb.
+if(MSVC AND CMAKE_CXX_COMPILER_LAUNCHER MATCHES "ccache")
+	set(CMAKE_MSVC_DEBUG_INFORMATION_FORMAT "$<$<CONFIG:Debug,RelWithDebInfo>:Embedded>")
+endif()
 set(WANT_ZUPDATER TRUE CACHE BOOL "Build the zupdater target")
 set(WANT_SENTRY FALSE CACHE BOOL "Include Sentry for crash dump handling")
 set(WANT_FUZZ FALSE CACHE BOOL "Set FUZZ CXX definition")
