@@ -247,6 +247,9 @@ TestResults test_parser([[maybe_unused]] bool verbose)
 		// increment steps by one long unit rather than one int unit.
 		auto const& ldd = exports.at(11);
 		assertEqual((int)ldd.export_custom_type, (int)var_custom_export_type::custom_dropdown);
+		// Records that the values are 'long', for the editor.
+		assertEqual((int)ldd.btn_type, (int)nswapLDEC);
+		assertEqual((int)exports.at(1).btn_type, (int)nswapDEC);
 		assertEqual(ldd.custom_export_names.at(zslongToFix(0)), "Zero"s);
 		assertEqual(ldd.custom_export_names.at(zslongToFix(1)), "One"s);
 

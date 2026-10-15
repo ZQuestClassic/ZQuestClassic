@@ -4,8 +4,77 @@
 #include "zq/zquest.h"
 #include "zc_list_data.h"
 #include "dialog/info.h"
+#include <fmt/ranges.h>
+#include <optional>
 
 extern int32_t numericalFlags;
+
+static string format_export_value(int32_t val, bool is_long)
+{
+	return is_long ? std::to_string(val) : zslongToFix(val).str_trim();
+}
+
+static string not_an_option_problem(int32_t val, bool is_long)
+{
+	return fmt::format("{} isn't one of the options.\nIt's kept as is unless you choose an"
+		" option or reset it.", format_export_value(val, is_long));
+}
+// Makes a dropdown for an engine value or a custom list. These differ only in
+// how a stored value maps to a list key: key = value / scale. A stored value
+// that isn't one of the options is shown as is, as an extra entry.
+static std::shared_ptr<GUI::DropDownList> make_export_dropdown(ExportWidgetData& widget_data,
+	GUI::ListData& options, int32_t stored, bool is_long, int32_t scale, std::function<void(int)> set_arg)
+{
+	using namespace GUI::Builder;
+	using namespace GUI::Props;
+
+	auto is_option = [&options, scale](int val) {
+		return val % scale == 0 && options.hasKey(val / scale);
+	};
+
+	// The extra entry gets a key that isn't one of the options.
+	GUI::ListData* list = &options;
+	int32_t selected = stored / scale;
+	std::optional<int32_t> stored_key;
+	if (!is_option(stored))
+	{
+		stored_key = INT32_MIN;
+		while (options.hasKey(*stored_key))
+			++*stored_key;
+		// Don't add the entry to a list that other dropdowns share.
+		if (list != &widget_data.list)
+		{
+			widget_data.list = options;
+			list = &widget_data.list;
+		}
+		list->add(format_export_value(stored, is_long), *stored_key);
+		selected = *stored_key;
+	}
+
+	GUI::ListData const* opts = list;
+	widget_data.problem = [opts, is_long, scale, stored_key](int val) -> std::string
+	{
+		if (val % scale == 0 && val / scale != stored_key && opts->hasKey(val / scale))
+			return "";
+		return not_an_option_problem(val, is_long);
+	};
+
+	auto ddl = DropDownList(
+		fitParent = true, width = 200_px,
+		data = *list,
+		selectedValue = selected,
+		onSelectFunc = [set_arg, stored, scale, stored_key](int32_t key)
+		{
+			set_arg(key == stored_key ? stored : key * scale);
+		}
+	);
+	widget_data.main_widget = ddl;
+	widget_data.set_widg_val = [ddl, scale](int val)
+		{
+			ddl->setSelectedValue(val / scale);
+		};
+	return ddl;
+}
 
 static const string export_variable_url = "https://docs.zquestclassic.com/zscript/lang/scripts#exported-variables";
 
@@ -207,6 +276,7 @@ std::shared_ptr<GUI::Widget> ScriptDataDialog::view()
 				if (widget_data.set_widg_val)
 					widget_data.set_widg_val(args[idx]);
 				widget_data.reset_button->setVisible(false);
+				update_export_invalid(idx);
 			};
 			for (auto const& [idx, expdata] : scrdata->script_d_exports.inner())
 			{
@@ -238,12 +308,12 @@ std::shared_ptr<GUI::Widget> ScriptDataDialog::view()
 					}
 				);
 				widget_data.reset_button = reset_btn;
-				
 				auto set_arg = [&, idx, reset_btn](int val)
 				{
 					args[idx] = val;
 					reset_btn->setVisible(true);
 					specified_args[local_ref.script].set(idx, true);
+					update_export_invalid(idx);
 				};
 				widget_data.set_arg = set_arg;
 				instvar_grid->add(Label(text = expdata.name, hAlign = 1.0));
@@ -475,21 +545,7 @@ std::shared_ptr<GUI::Widget> ScriptDataDialog::view()
 								NOTREACHED();
 								break;
 							}
-							auto ddl = DropDownList(
-								fitParent = true, width = 200_px,
-								data = *ld,
-								selectedValue = args[idx] / 10000,
-								onSelectFunc = [&, set_arg](int32_t val)
-								{
-									set_arg(val * 10000);
-								}
-							);
-							widget_data.main_widget = ddl;
-							widget_data.set_widg_val = [&, ddl](int val)
-								{
-									ddl->setSelectedValue(val / 10000);
-								};
-							instvar_grid->add(ddl);
+							instvar_grid->add(make_export_dropdown(widget_data, *ld, args[idx], false, 10000, set_arg));
 							break;
 						}
 					}
@@ -531,22 +587,8 @@ std::shared_ptr<GUI::Widget> ScriptDataDialog::view()
 							
 							for(auto& [name, val] : vals)
 								ld.add(name, val.getZLong());
-							
-							auto ddl = DropDownList(
-								fitParent = true, width = 200_px,
-								data = ld,
-								selectedValue = args[idx],
-								onSelectFunc = [&, set_arg](int32_t val)
-								{
-									set_arg(val);
-								}
-							);
-							widget_data.main_widget = ddl;
-							widget_data.set_widg_val = [&, ddl](int val)
-								{
-									ddl->setSelectedValue(val);
-								};
-							instvar_grid->add(ddl);
+							bool values_long = expdata.btn_type == nswapLDEC || expdata.btn_type == nswapLHEX;
+							instvar_grid->add(make_export_dropdown(widget_data, ld, args[idx], values_long, 1, set_arg));
 							break;
 						}
 						
@@ -578,6 +620,26 @@ std::shared_ptr<GUI::Widget> ScriptDataDialog::view()
 							}
 							if (clist.empty())
 								clist.emplace_back(CheckListInfo::DISABLED, "No Flags Found");
+							
+							int known_flags = 0;
+							for (auto& [v, _] : expdata.custom_export_names)
+								known_flags |= is_long ? v.getZLong() : v.getInt();
+							widget_data.problem = [is_long, known_flags](int val) -> std::string
+							{
+								if (!is_long && val % 10000)
+									return fmt::format("{} isn't a valid set of flags.\nIt's kept as is unless"
+										" you change the flags or reset them.", format_export_value(val, false));
+								int unlisted = (is_long ? val : val / 10000) & ~known_flags;
+								if (!unlisted)
+									return "";
+								std::vector<string> bits;
+								for (int q = 0; q < 32; ++q)
+									if (unlisted & (1u << q))
+										bits.push_back(std::to_string(1u << q));
+								return fmt::format("Flags that aren't listed are set ({}).\nThey're kept as is,"
+									" even when changing the listed flags, unless you reset them.",
+									fmt::join(bits, ", "));
+							};
 							
 							auto btn = Button(text = "P",
 								hAlign = 0.0, padding = 0_px,
@@ -627,7 +689,32 @@ std::shared_ptr<GUI::Widget> ScriptDataDialog::view()
 						});
 					if (expdata.min < expdata.max && !(expdata.min == -214748.3648_zf && expdata.max == 214748.3647_zf))
 					{
-						tf->setBounds({expdata.min.getZLong(), expdata.max.getZLong()});
+						int min = expdata.min.getZLong(), max = expdata.max.getZLong();
+						// Show the stored value as is; a typed one is clamped.
+						tf->setBounds({min, max}, false);
+						bool is_long = swp == nswapLDEC || swp == nswapLHEX;
+						auto range = is_long ? fmt::format("{} to {}", min, max)
+							: fmt::format("{} to {}", expdata.min.str_trim(), expdata.max.str_trim());
+						widget_data.problem = [min, max, range, is_long](int val) -> std::string
+						{
+							if (val >= min && val <= max)
+								return "";
+							return fmt::format("{} is outside of the allowed range ({}).\nIt's kept as is"
+								" unless you change it or reset it.", format_export_value(val, is_long), range);
+						};
+						// A typed value is clamped when saved, and shown clamped once the
+						// field is left; until then, say so.
+						GUI::TextField* tf_ptr = tf.get();
+						tf->setOnValChanged([&, set_arg, tf_ptr, range, is_long](GUI::TextField::type, std::string_view, int32_t val)
+						{
+							set_arg(val);
+							int32_t typed = tf_ptr->getRawVal();
+							if (typed == val)
+								return;
+							tf_ptr->setInvalid(true);
+							tf_ptr->setTooltip(fmt::format("{} is outside of the allowed range ({}).\n{} will be used instead.",
+								format_export_value(typed, is_long), range, format_export_value(val, is_long)));
+						});
 					}
 					widget_data.main_widget = tf;
 					widget_data.set_widg_val = [&, tf](int val)
@@ -637,6 +724,7 @@ std::shared_ptr<GUI::Widget> ScriptDataDialog::view()
 					instvar_grid->add(tf);
 				}
 				instvar_grid->add(reset_btn);
+				update_export_invalid(idx);
 				DCHECK((instvar_grid->maxChildIndex()+1) % 4 == 0);
 			}
 		}
@@ -672,6 +760,16 @@ std::shared_ptr<GUI::Widget> ScriptDataDialog::view()
 	}
 	
 	return window;
+}
+
+void ScriptDataDialog::update_export_invalid(word idx)
+{
+	auto& widget_data = export_widgets[idx];
+	if (!widget_data.problem || !widget_data.main_widget)
+		return;
+	std::string problem = widget_data.problem(init_args[local_ref.script][idx]);
+	widget_data.main_widget->setInvalid(!problem.empty());
+	widget_data.main_widget->setTooltip(problem);
 }
 
 bool ScriptDataDialog::handleMessage(const GUI::DialogMessage<message>& msg)

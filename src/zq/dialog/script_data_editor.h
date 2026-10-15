@@ -19,6 +19,10 @@ struct ExportWidgetData
 	word index = 0;
 	std::shared_ptr<GUI::Widget> main_widget;
 	std::shared_ptr<GUI::Button> reset_button;
+	// Describes what's wrong with a stored value (ex. a dropdown value that
+	// isn't one of the options), or returns "" if it's fine. The main widget
+	// is marked invalid, with this as its tooltip.
+	std::function<std::string(int)> problem;
 	std::function<void(int)> set_widg_val;
 	std::function<void(int)> set_arg;
 	exported_variable const* expdata = nullptr;
@@ -37,6 +41,8 @@ public:
 	std::shared_ptr<GUI::Widget> view() override;
 	bool handleMessage(const GUI::DialogMessage<message>& msg);
 private:
+	void update_export_invalid(word idx);
+
 	script_config& dest_ref;
 	script_config local_ref;
 	

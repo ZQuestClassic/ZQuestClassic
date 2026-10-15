@@ -256,7 +256,16 @@ void RegBaseVisitor::handle_data_decl_registry(ASTDataDecl& host)
 		}
 		
 		if (special_export || custom_export)
-			list->export_data.btn_type = nswapDEC; // set to a valid value, although shouldn't matter
+		{
+			// Not shown as a text field, but the editor reads it to know whether
+			// the values are 'int' or 'long'. (Engine values are always 'int'.)
+			if (type_id == ZTID_LONG)
+				list->export_data.btn_type = nswapLDEC;
+			else if (type_id == ZTID_RGBDATA)
+				list->export_data.btn_type = nswapLHEX;
+			else
+				list->export_data.btn_type = nswapDEC;
+		}
 		else if (list->export_data.btn_type < 0)
 		{
 			// No explicit input field type - default from the variable's type.
