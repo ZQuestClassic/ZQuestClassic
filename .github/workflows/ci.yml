@@ -80,6 +80,11 @@ jobs:
   web:
     needs: warm-lfs-cache
     runs-on: ubuntu-22.04
+    env:
+      # Keep in sync with scripts/configure_emscripten.sh.
+      EMSDK_VERSION: 6.0.6
+      # emsdk is installed fresh each run, so check the version, not file mtimes.
+      CCACHE_COMPILERCHECK: string:emsdk-6.0.6
 
     steps:
       # The build (workspace, emscripten cache, LFS assets, node_modules, and
@@ -113,10 +118,20 @@ jobs:
       - name: Check module layering
         run: python3 scripts/check_layering.py
 
-      - uses: mymindstorm/setup-emsdk@v14
-        with:
-          version: "6.0.6"
-          actions-cache-folder: "emsdk-cache-${{ runner.os }}-${{ runner.arch }}"
+      # Install emsdk at a fixed path: the include paths are part of every ccache
+      # key, so a path that changes each run means no hits. (setup-emsdk used a
+      # new temp dir every run, since its cache restore always failed.)
+      - name: Install emsdk
+        run: |
+          git clone --depth 1 https://github.com/emscripten-core/emsdk.git ~/emsdk
+          ~/emsdk/emsdk install ${{ env.EMSDK_VERSION }}
+          ~/emsdk/emsdk activate ${{ env.EMSDK_VERSION }}
+          # Later steps need emsdk and emcc on PATH (web packaging runs emcc's tools).
+          source ~/emsdk/emsdk_env.sh
+          echo "$EMSDK" >> $GITHUB_PATH
+          echo "$EMSDK/upstream/emscripten" >> $GITHUB_PATH
+          echo "EMSDK=$EMSDK" >> $GITHUB_ENV
+          echo "EMSDK_NODE=$EMSDK_NODE" >> $GITHUB_ENV
 
       - name: Install Node.js 22.x
         uses: actions/setup-node@v3
