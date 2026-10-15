@@ -429,6 +429,8 @@ void zeditor_handle_commands()
 		std::string test_dir = zapp_get_arg_string(test_zc_arg + 1);
 
 		set_headless_mode();
+		// For tests that compile scripts.
+		FFCore.initIncludePaths();
 
 		bool verbose = zapp_check_switch("-verbose") || zapp_check_switch("-v");
 		bool success = true;

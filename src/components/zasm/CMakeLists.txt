@@ -1,6 +1,7 @@
 add_library(zasm STATIC
 	debug_data.cpp
 	eval.cpp
+	inst_var_remap.cpp
 	serialize.cpp
 	table.cpp
 )

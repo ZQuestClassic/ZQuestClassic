@@ -74,6 +74,8 @@
 #include "zq/dialog/screen_data.h"
 #include "zq/dialog/edit_dmap.h"
 #include "zq/dialog/compilezscript.h"
+#include "zq/dialog/inst_var_remap.h"
+#include "zq/script_slot_remap.h"
 #include "zq/dialog/screen_enemies.h"
 #include "zq/dialog/enemypattern.h"
 #include "zq/dialog/sfxdata.h"
@@ -18206,6 +18208,26 @@ auto_do_slots:
 			safe_al_trace(outstr);
 		}
 		auto start_assign_time = std::chrono::steady_clock::now();
+
+		// Must happen before anything is assigned, as it reads the slots' current scripts.
+		auto slot_remaps = plan_slot_remaps(zasm_debug_data, zasmCompilerResult.debugData,
+			[&](const std::string& name) -> const ScriptExports* {
+				auto it = scripts.find(name);
+				return it == scripts.end() ? nullptr : &it->second.script_d_exports;
+			});
+		bool needs_user_mapping = std::any_of(slot_remaps.begin(), slot_remaps.end(),
+			[](auto& r){ return r.needs_user_mapping(); });
+		// Dialogs don't show in CI either - like headless, discard instead of asking.
+		if (needs_user_mapping && !is_headless() && !is_ci())
+		{
+			auto dialog_start_time = std::chrono::steady_clock::now();
+			bool confirmed = call_inst_var_remap_dialog(slot_remaps);
+			// Don't count the time spent in the dialog.
+			start_assign_time += std::chrono::steady_clock::now() - dialog_start_time;
+			if (!confirmed)
+				goto exit_do_slots;
+		}
+
 		string zasm_str;
 		write_script(zasmCompilerResult, zasm_str, false, false);
 
@@ -18244,6 +18266,8 @@ auto_do_slots:
 			goto exit_do_slots;
 		if(!handle_slot_map(subscreenmap, 1, subscreenscripts))
 			goto exit_do_slots;
+
+		apply_slot_remaps(slot_remaps);
 
 		auto end_assign_time = std::chrono::steady_clock::now();
 		int compile_time_ms = std::chrono::duration_cast<std::chrono::milliseconds>(end_assign_time - start_assign_time).count();

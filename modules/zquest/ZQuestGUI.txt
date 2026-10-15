@@ -8,6 +8,7 @@ src/zq/zq_class.cpp
 src/zq/zq_cset.cpp
 src/zq/zq_custom.cpp
 src/zq/zq_doors.cpp
+src/zq/script_slot_remap.cpp
 src/zq/zq_files.cpp
 src/zq/zq_init.cpp
 src/zq/zq_misc.cpp
@@ -116,6 +117,7 @@ src/zq/dialog/edit_music.cpp
 src/zq/dialog/editor_help.cpp
 src/zq/dialog/script_data_editor.cpp
 src/zq/dialog/global_initd.cpp
+src/zq/dialog/inst_var_remap.cpp
 
 ## End of ZQuest GUI module
 )

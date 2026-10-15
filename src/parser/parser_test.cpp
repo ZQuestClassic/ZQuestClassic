@@ -7,7 +7,12 @@
 #include "zalleg/zsys.h"
 #include "components/zasm/debug_data.h"
 #include "components/zasm/eval.h"
+#include "components/zasm/inst_var_remap.h"
+#include <climits>
+#include <filesystem>
+#include <fstream>
 #include <functional>
+#include <map>
 #include <memory>
 #include <optional>
 #include <set>
@@ -252,6 +257,136 @@ TestResults test_parser([[maybe_unused]] bool verbose)
 		assertEqual(mld.custom_export_names.at(zslongToFix(0)), "Zero"s);
 		assertEqual(mld.custom_export_names.at(zslongToFix(1)), "One"s);
 		assertEqual(mld.custom_export_names.at(zslongToFix(5)), "Five"s);
+
+		return true;
+	});
+
+	TEST("instance variable remap", tr, [&]{
+		auto compile_source = [&](std::string name, std::string source) {
+			auto path = std::filesystem::temp_directory_path() / name;
+			std::ofstream(path) << source;
+			auto results = runCompiler(path.string());
+			std::filesystem::remove(path);
+			if (!results->success)
+				throw std::runtime_error(fmt::format("failed to compile {}", name));
+			return results;
+		};
+
+		// Another script declaring the same names must not be matched against.
+		std::string other_script = R"zs(
+			ffc script remap_other
+			{
+				@Export("Health")
+				nonstatic int health;
+				void run() { Trace(health); }
+			}
+		)zs";
+		auto before = compile_source("inst_var_remap_before.zs", other_script + R"zs(
+			ffc script remap_test
+			{
+				@Export("Speed")
+				nonstatic int speed = 1;
+				@Export("Health")
+				nonstatic int health = 2;
+				@Export("Old Name")
+				nonstatic int old_name = 3;
+				@Export("Removed")
+				nonstatic int removed = 4;
+				@Export("To Long")
+				nonstatic int to_long;
+				@Export("To Int")
+				nonstatic long to_int;
+				void run() { Trace(speed + health + old_name + removed + to_long + to_int); }
+			}
+		)zs");
+		// Inserts a variable at the top, swaps two, renames one, removes one, and
+		// switches two between int and long.
+		auto after = compile_source("inst_var_remap_after.zs", other_script + R"zs(
+			ffc script remap_test
+			{
+				nonstatic int counter;
+				@Export("Health (new label)")
+				nonstatic int health = 2;
+				@Export("Speed")
+				nonstatic int speed = 1;
+				@Export("New Name")
+				nonstatic int new_name = 3;
+				@Export("To Long")
+				nonstatic long to_long;
+				@Export("To Int")
+				nonstatic int to_int;
+				void run() { counter++; Trace(speed + health + new_name + counter + to_long + to_int); }
+			}
+		)zs");
+
+		auto& before_data = before->zasmCompilerResult.debugData;
+		auto& after_data = after->zasmCompilerResult.debugData;
+		auto remap = build_inst_var_remap(before_data, after_data, "remap_test");
+		assertTrue(remap.has_value());
+		assertTrue(!remap->is_identity());
+
+		// speed 1 -> 3, health 2 -> 2, to_long 5 -> 5, to_int 6 -> 6.
+		assertSize(remap->old_to_new, 4);
+		assertEqual((int)remap->old_to_new.at(1), 3);
+		assertEqual((int)remap->old_to_new.at(2), 2);
+		assertEqual((int)remap->old_to_new.at(5), 5);
+		assertEqual((int)remap->old_to_new.at(6), 6);
+		assertTrue(remap->old_vars.at(5).kind == InstVarKind::Int);
+		assertTrue(remap->new_vars.at(5).kind == InstVarKind::Long);
+
+		auto unmatched_old = remap->unmatched_old();
+		assertSize(unmatched_old, 2);
+		assertEqual(unmatched_old[0].name, "old_name"s);
+		assertEqual((int)unmatched_old[0].id, 3);
+		assertEqual(unmatched_old[0].type_name, "int"s);
+		assertEqual(unmatched_old[1].name, "removed"s);
+		auto unmatched_new = remap->unmatched_new();
+		assertSize(unmatched_new, 2);
+		assertEqual(unmatched_new[0].name, "counter"s);
+		assertEqual((int)unmatched_new[0].id, 1);
+		assertEqual(unmatched_new[1].name, "new_name"s);
+		assertEqual((int)unmatched_new[1].id, 4);
+		// counter isn't exported, so it can't take a renamed variable's values.
+		auto exported_only = *remap;
+		exported_only.new_candidates = std::set<word>{2, 3, 4};
+		assertSize(exported_only.unmatched_new(), 1);
+		assertEqual(exported_only.unmatched_new()[0].name, "new_name"s);
+
+		// As if the user mapped the renamed variable in the editor. Values keep
+		// their number when their variable switches between int (stored * 10000)
+		// and long.
+		auto user_remap = *remap;
+		user_remap.old_to_new[3] = 4;
+		std::map<word, int> inst_init = {{1, 10}, {2, 20}, {3, 30}, {4, 40}, {5, 25000}, {6, 3}};
+		auto result = apply_inst_var_remap(inst_init, user_remap);
+		// Health stays put, the rest move or are converted, and removed is dropped.
+		assertEqual(result.updated, 4);
+		assertEqual(result.dropped, 1);
+		assertTrue(user_remap.unmatched_old().size() == 1);
+		assertEqual(inst_init, (std::map<word, int>{{2, 20}, {3, 10}, {4, 30}, {5, 2}, {6, 30000}}));
+
+		// A long too big for an int clamps to the largest int.
+		inst_init = {{6, 300000}};
+		apply_inst_var_remap(inst_init, user_remap);
+		assertEqual(inst_init.at(6), INT_MAX);
+
+		// A variable that only switched between int and long still needs its
+		// values updated.
+		InstVarRemap kinds_only;
+		kinds_only.old_to_new = {{1, 1}};
+		kinds_only.old_vars[1] = {1, "x", "int", InstVarKind::Int};
+		kinds_only.new_vars[1] = {1, "x", "long", InstVarKind::Long};
+		assertTrue(!kinds_only.is_identity());
+
+		auto unchanged = build_inst_var_remap(before_data, before_data, "remap_test");
+		assertTrue(unchanged.has_value());
+		assertTrue(unchanged->is_identity());
+
+		auto other = build_inst_var_remap(before_data, after_data, "remap_other");
+		assertTrue(other.has_value());
+		assertTrue(other->is_identity());
+
+		assertTrue(!build_inst_var_remap(before_data, after_data, "no_such_script").has_value());
 
 		return true;
 	});

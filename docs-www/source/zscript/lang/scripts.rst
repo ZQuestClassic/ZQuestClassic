@@ -50,6 +50,12 @@ If an exported variable has an initializer, the initializer value will be used a
 value, used automatically if no value is specified in the editor. A button in the editor
 also allows "resetting to default" an exported variable's value.
 
+Values set in the editor are matched to their variables by name when the script is
+recompiled, so script-scope variables may be added, removed, or reordered freely. A
+variable changed between `int` and `long` keeps the same numbers: `3` becomes `3L`. If a
+variable with values set is renamed, the editor asks which variable it became when
+assigning slots.
+
 A value in [square brackets] indicates an 'optional' value.
 
 Many of these annotations conflict with one another, and cannot be used together. The notable exception
