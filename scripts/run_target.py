@@ -164,9 +164,43 @@ def _run(target_name: str, args: list, build_folder: Optional[str] = None):
     if not exe_file.exists():
         exe_file = build_folder / 'bin' / exe_name
     args = [exe_file] + args
+
+    # Set by run(). Launching under the debugger is slow (lldb loads every system
+    # library's symbols, ~30s per launch on CI's mac runners), so run the target
+    # plainly and only re-run it under the debugger if it crashed.
+    if 'ZC_RUN_TARGET_LAZY_DEBUGGER' in os.environ:
+        p = subprocess.Popen(
+            args,
+            cwd=build_folder,
+            encoding='utf-8',
+            stdout=sys.stdout,
+            stderr=sys.stderr,
+        )
+        p.wait()
+        if p.returncode >= 0:
+            return p
+
+        debug_method = get_debug_method()
+        if debug_method['method'] != DEBUG_METHOD_NONE:
+            print_run_target(
+                f'process crashed (exit code {p.returncode}), re-running for a backtrace\n'
+            )
+            # Callers may parse stdout, so keep the re-run's output out of it.
+            _run_with_debugger(
+                exe_name, args, build_folder, debug_method, stdout=sys.stderr
+            )
+        return p
+
+    return _run_with_debugger(exe_name, args, build_folder, get_debug_method())
+
+
+def _run_with_debugger(
+    exe_name: str, args: list, build_folder: Path, debug_method, stdout=None
+):
+    if stdout is None:
+        stdout = sys.stdout
     preexec_fn = None
 
-    debug_method = get_debug_method()
     if debug_method['method'] == DEBUG_METHOD_WRAP:
         # The reason why wrapping with a lldb Python script is preferred to just running `lldb exe` directly,
         # is that there is no way to retain the exit code of the executable with lldb commands.
@@ -209,7 +243,7 @@ def _run(target_name: str, args: list, build_folder: Optional[str] = None):
         cwd=build_folder,
         encoding='utf-8',
         preexec_fn=preexec_fn,
-        stdout=sys.stdout,
+        stdout=stdout,
         stderr=sys.stderr,
     )
     p.wait()
@@ -273,12 +307,18 @@ def run(target_name: str, args: list, build_folder: Optional[Path] = None, **kwa
 
     Returns subprocess.CompletedProcess[str], even if command fails.
 
-    If there is a crash, a backtrace is printed to stderr. Note, this is not supported for Windows.
+    If there is a crash, the target is run again under a debugger and a backtrace is printed to
+    stderr. Note, this is not supported for Windows.
     """
     if build_folder:
         if 'env' not in kwargs:
             kwargs['env'] = {**os.environ}
         kwargs['env']['BUILD_FOLDER'] = str(build_folder)
+
+    kwargs['env'] = {
+        **kwargs.get('env', os.environ),
+        'ZC_RUN_TARGET_LAZY_DEBUGGER': '1',
+    }
 
     # Spawn a new process because it makes it simpler to get colored output.
     return subprocess.run(

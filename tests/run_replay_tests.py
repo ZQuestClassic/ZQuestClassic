@@ -179,7 +179,7 @@ parser.add_argument(
     '--debugger',
     action=argparse.BooleanOptionalAction,
     default=is_ci,
-    help='Run in debugger (uses lldb)',
+    help='Run in debugger (uses lldb). With --retries, only the retries use it',
 )
 parser.add_argument(
     '--headless',

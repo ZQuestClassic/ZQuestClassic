@@ -1014,6 +1014,11 @@ def run_replays(
         if i != 0:
             print('\nretrying failures...\n')
 
+        # Launching under lldb is slow (~30s per replay on CI's mac runners), so when
+        # there are retries only use the debugger for them: a crash that reproduces
+        # still gets a backtrace.
+        use_debugger = debugger and (i > 0 or retries == 0)
+
         runs_dir = test_results_dir / str(i)
         results = _run_replays(
             RunReplayTestsContext(
@@ -1026,7 +1031,7 @@ def run_replays(
                 runs_dir,
                 concurrency,
                 timeout,
-                debugger,
+                use_debugger,
                 headless,
                 jit,
                 extra_args,
