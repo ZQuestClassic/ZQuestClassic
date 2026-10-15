@@ -103,8 +103,13 @@ jobs:
       - name: git clone
         uses: connorjclark/action-cached-lfs-checkout@3ea4dc59b06f3baa8c01ba891fbfc2dbfdce5bc8
         with:
-          fetch-depth: 0
           enableCrossOsArchive: true
+      # The version header comes from `git describe`, which needs the history and
+      # tags but no old file contents. Fetch them without those blobs (minutes faster),
+      # after the LFS checkout: its `git lfs prune` fails in a blobless clone.
+      - name: Fetch history
+        shell: bash
+        run: git fetch --filter=blob:none --unshallow --tags origin '+refs/heads/*:refs/remotes/origin/*'
 
       - name: Check module layering
         run: python3 scripts/check_layering.py

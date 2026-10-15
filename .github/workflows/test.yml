@@ -91,8 +91,9 @@ jobs:
         uses: connorjclark/action-cached-lfs-checkout@3ea4dc59b06f3baa8c01ba891fbfc2dbfdce5bc8
         with:
           enableCrossOsArchive: true
-      # For test_zscript_version_docs.
+      # For test_zscript_version_docs, which runs with the unit tests.
       - run: git fetch origin releases/2.55
+        if: ${{ matrix.shard_index == 1 && inputs.from-ci-workflow }}
 
       - name: Setup Python
         uses: actions/setup-python@v6

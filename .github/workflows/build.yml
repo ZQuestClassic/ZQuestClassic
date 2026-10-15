@@ -68,8 +68,13 @@ jobs:
         uses: connorjclark/action-cached-lfs-checkout@3ea4dc59b06f3baa8c01ba891fbfc2dbfdce5bc8
         with:
           include: 'resources/**/*'
-          fetch-depth: 0
           enableCrossOsArchive: true
+      # Packaging generates a changelog from the history, tags and branches, but
+      # needs no old file contents. Fetch them without those blobs (minutes faster),
+      # after the LFS checkout: its `git lfs prune` fails in a blobless clone.
+      - name: Fetch history
+        shell: bash
+        run: git fetch --filter=blob:none --unshallow --tags origin '+refs/heads/*:refs/remotes/origin/*'
 
       - name: Setup Python
         uses: actions/setup-python@v6
