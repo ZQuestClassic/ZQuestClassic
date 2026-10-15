@@ -770,7 +770,7 @@ if(APPLE)
 	set_source_files_properties(src/zalleg/zalleg_osx.mm
 		PROPERTIES COMPILE_OPTIONS "-x;objective-c++")
 endif()
-target_link_libraries(zalleg PUBLIC base allegro_with_legacy ${IMAGELIBS})
+target_link_libraries(zalleg PUBLIC base allegro_with_legacy zconsolelogger ${IMAGELIBS})
 if (USE_NFD)
 	target_link_libraries(zalleg PUBLIC nfd)
 	target_compile_definitions(zalleg PUBLIC HAS_NFD)
@@ -793,7 +793,7 @@ if(WANT_ZC_TESTS)
 		src/zc/wasm_structurer_test.cpp
 		src/zc/wasm_structurer.cpp
 	)
-	target_link_libraries(base_test_runner PRIVATE base scc)
+	target_link_libraries(base_test_runner PRIVATE base scc allegro_with_legacy)
 
 	if(DEFINED ENV{CI})
 		list(APPEND ZC_INSTALL_TARGETS base_test_runner)
@@ -953,8 +953,6 @@ endif()
 add_library(zconsolelogger STATIC src/zconsole/ConsoleLogger.cpp)
 target_link_libraries(zconsolelogger PUBLIC allegro_with_legacy base)
 target_include_directories(zconsolelogger PUBLIC src)
-
-target_link_libraries(base PUBLIC zconsolelogger)
 
 #############################################################
 # Networking

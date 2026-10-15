@@ -13,7 +13,7 @@
 #define WIN32_LEAN_AND_MEAN
 #define VC_EXTRALEAN
 #include <windows.h>
-#include <allegro5/allegro_windows.h>
+#include <direct.h>
 #else
 #include <unistd.h>
 #endif
