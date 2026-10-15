@@ -206,6 +206,24 @@ def normalize_oneline(text: str) -> str:
     return text
 
 
+def get_commit_subjects(hashes: list[str]) -> dict[str, str]:
+    """Map each commit hash to its subject, using a single git call."""
+    if not hashes:
+        return {}
+    try:
+        out = subprocess.check_output(
+            ['git', 'log', '--no-walk=unsorted', '--stdin', '-z', '--format=%H%x00%s'],
+            input='\n'.join(hashes),
+            stderr=subprocess.DEVNULL,
+            text=True,
+        )
+    except subprocess.CalledProcessError:
+        # Let the caller look up each commit, to report which one is bad.
+        return {}
+    fields = out.removesuffix('\0').split('\0')
+    return dict(zip(fields[0::2], fields[1::2]))
+
+
 def parse_override_file(file: Path):
     last_override = None
     current_squash_list = []
@@ -214,6 +232,17 @@ def parse_override_file(file: Path):
     original_lines = file.read_text().splitlines(keepends=True)
     new_lines = []
     file_modified = False
+
+    # There are thousands of drops, and a git call for each is slow.
+    drop_subjects = get_commit_subjects(
+        [
+            parts[1]
+            for parts in (line.split(' ', 2) for line in original_lines)
+            if parts[0] == 'drop'
+            and len(parts) > 1
+            and re.fullmatch(r'[0-9a-f]{40}', parts[1])
+        ]
+    )
 
     for original_line in original_lines:
         if original_line.startswith('# !'):
@@ -275,16 +304,20 @@ def parse_override_file(file: Path):
 
         # Normalize drop subjects to match the real commit subject.
         if type == 'drop':
-            try:
-                real_subject = subprocess.check_output(
-                    ['git', 'log', '-1', '--format=%s', hash],
-                    stderr=subprocess.STDOUT,
-                    text=True,
-                ).strip()
-            except subprocess.CalledProcessError as e:
-                raise Exception(
-                    f"Failed to fetch subject for '{hash}'.\nGit error: {e.output.strip()}"
-                )
+            real_subject = drop_subjects.get(hash)
+            if real_subject is not None:
+                real_subject = real_subject.strip()
+            else:
+                try:
+                    real_subject = subprocess.check_output(
+                        ['git', 'log', '-1', '--format=%s', hash],
+                        stderr=subprocess.STDOUT,
+                        text=True,
+                    ).strip()
+                except subprocess.CalledProcessError as e:
+                    raise Exception(
+                        f"Failed to fetch subject for '{hash}'.\nGit error: {e.output.strip()}"
+                    )
 
             if rest != real_subject:
                 # Capture the original trailing whitespace (like '\n') to keep formatting intact.
@@ -770,25 +803,31 @@ def generate_changelog(from_sha: str, to_sha: str, to_ref: str = None) -> str:
     # the actual git range endpoint, which may differ when the tag doesn't exist
     # yet (ex: during a release, where to_ref is the built commit).
     to_ref = to_ref or to_sha
-    commits_text = subprocess.check_output(
-        f'git log {from_sha}..{to_ref} --reverse --format="%h %H %s"',
-        shell=True,
+    # Read every commit in one call (NUL-separated fields, -z separates commits):
+    # a git process per commit took minutes for a few thousand commits on CI.
+    fields = subprocess.check_output(
+        [
+            'git',
+            'log',
+            f'{from_sha}..{to_ref}',
+            '--reverse',
+            '-z',
+            '--format=%h%x00%H%x00%s%x00%b',
+        ],
         encoding='utf-8',
-    ).strip()
+    ).removesuffix('\0')
+    fields = fields.split('\0') if fields else []
 
     commits: list[Commit] = []
-    for commit_text in commits_text.splitlines():
-        short_hash, hash, subject = commit_text.split(' ', 2)
+    for i in range(0, len(fields), 4):
+        short_hash, hash, subject, body = fields[i : i + 4]
         if hash in overrides and overrides[hash][0] == 'drop':
             continue
 
         # Remove GitHub PR number. The commit URL will link to this anyway.
         subject = re.sub(r' \(#\d+\)$', '', subject).strip()
 
-        body = subprocess.check_output(
-            f'git log -1 {hash} --format="%b"', shell=True, encoding='utf-8'
-        ).strip()
-        body, discord = parse_commit_body(body)
+        body, discord = parse_commit_body(body.strip())
 
         # Check if the subject is being overridden before testing for drops.
         subject_to_parse = subject
