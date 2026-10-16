@@ -39,6 +39,11 @@ on:
         type: string
       from-ci-workflow:
         type: boolean
+      # Size each platform's shards to its replay load: a shard costs a few minutes
+      # of setup, so a light load wants fewer shards.
+      num-shards:
+        type: number
+        default: 6
     secrets:
       # Repository secrets are never exposed to pull_request runs from forks, so
       # this arrives empty there and the steps that need it are skipped.
@@ -76,8 +81,9 @@ jobs:
     needs: build
     strategy:
       matrix:
-        num_shards: [6]
-        shard_index: [1, 2, 3, 4, 5, 6]
+        num_shards: ${{ fromJSON(format('[{0}]', inputs.num-shards || 6)) }}
+        # Expressions can't build a range, so look the shard list up.
+        shard_index: ${{ fromJSON('{"1":[1],"2":[1,2],"3":[1,2,3],"4":[1,2,3,4],"5":[1,2,3,4,5],"6":[1,2,3,4,5,6],"7":[1,2,3,4,5,6,7],"8":[1,2,3,4,5,6,7,8]}')[format('{0}', inputs.num-shards || 6)] }}
       fail-fast: false
     name: Replays ${{ matrix.shard_index }}/${{ matrix.num_shards }}
     runs-on: ${{ inputs.runs-on }}

@@ -30,20 +30,25 @@ jobs:
     needs: warm-lfs-cache
     strategy:
       matrix:
+        # num-shards follows each platform's replay load (measured 2026-10). Each shard
+        # spends 1-2 minutes on setup, so lighter loads get fewer shards.
         include:
           - runs-on: windows-2022
             arch: x64
             compiler: msvc
+            num-shards: 5
             # We currently can't show backtraces on crash for windows in CI, so no need for debug info yet.
             config: Release
           - runs-on: windows-2022
             arch: win32
             compiler: msvc
+            num-shards: 6
             config: RelWithDebInfo
             extra-args: --max_duration 60
           - runs-on: macos-15-intel
             arch: intel
             compiler: clang
+            num-shards: 3
             config: RelWithDebInfo
             # Mac runners are slower, and if we were paying for Actions are 10x more expensive than linux.
             # So let's test a subset of replays.
@@ -51,14 +56,17 @@ jobs:
           - runs-on: ubuntu-22.04
             arch: x64
             compiler: clang
+            num-shards: 4
             config: RelWithDebInfo
           - runs-on: ubuntu-22.04-arm
             arch: aarch64
             compiler: clang
+            num-shards: 4
             config: RelWithDebInfo
           - runs-on: ubuntu-22.04
             arch: x64
             compiler: gcc
+            num-shards: 1
             config: RelWithDebInfo
             # Can't run all the replays, because under gcc replays don't produce exactly the same pixel output yet.
             # See "TODO: GCC w/ these flags" in CMakeLists.txt
@@ -73,6 +81,7 @@ jobs:
       compiler: ${{ matrix.compiler }}
       config: ${{ matrix.config }}
       extra-args: ${{ matrix.extra-args }} --prune_test_results
+      num-shards: ${{ matrix.num-shards }}
       from-ci-workflow: true
     secrets:
       GH_PAT_ZSCRIPT_DATABASE: ${{ secrets.GH_PAT_ZSCRIPT_DATABASE }}
