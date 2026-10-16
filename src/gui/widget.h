@@ -236,6 +236,17 @@ public:
 	void setTooltip(std::string const& text) { tooltip = text; }
 	std::string const& getTooltip() const noexcept { return tooltip; }
 
+	/* Marks this widget's value as invalid: it gets a red border, and its
+	 * tooltip (which should say what's wrong) shows even with tooltips off.
+	 * To change it after the dialog is built, call it (with either value)
+	 * before then too.
+	 */
+	void setInvalid(bool invalid);
+	bool isInvalid() const noexcept { return invalid; }
+
+	/* Called when one of this widget's DIALOGs loses keyboard focus. */
+	virtual void handleLostFocus() {}
+
 	/* Returns true if this widget should be disabled initially. */
 	inline bool getDisabled() const noexcept
 	{
@@ -378,9 +389,12 @@ protected:
 	uint16_t leftPadding, rightPadding, topPadding, bottomPadding;
 	float hAlign, vAlign;
 	std::any userData;
-	DialogRef frameDialog, frameTextDialog;
+	DialogRef frameDialog, frameTextDialog, invalidBorderDialog;
 	std::string frameText;
 	std::string tooltip;
+	bool invalid = false, canBeInvalid = false;
+	// The visibility last applied to this widget's DIALOGs.
+	bool appliedVisible = true;
 
 	/* Returns a set of flags with which the DIALOG should be initialized.
 	 * The widget should add its own

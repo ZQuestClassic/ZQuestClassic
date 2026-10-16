@@ -67,6 +67,9 @@ public:
 	 * Attempts to read 'type::TEXT' as a decimal int32_t value.
 	 */
 	int32_t getVal();
+
+	/* Like getVal, but not clamped to the bounds - the value as typed. */
+	int32_t getRawVal();
 	
 	struct Bounds
 	{
@@ -74,8 +77,10 @@ public:
 	};
 
 	/* Set the range values are clamped to. A pair with high <= low means 'no bounds'.
+	 * Typed values are clamped to the bounds. Unless `clampShown` is false,
+	 * the value already set is too.
 	 */
-	void setBounds(Bounds bounds);
+	void setBounds(Bounds bounds, bool clampShown = true);
 
 	/* Set the maximum length of the text, not including the null terminator.
 	 */
@@ -132,13 +137,14 @@ private:
 	size_t maxLength;
 	bool forced_length;
 	bool msgStrPaste;
-	bool last_applied_vis;
 	bool last_applied_dis;
 	DialogRef alDialog;
 	DialogRef swapBtnDialog;
 	std::shared_ptr<GUI::Checkbox> swap_cb;
 	int32_t onEnterMsg, onValueChangedMsg;
 	bool valSet;
+	// Edited by the user since it last lost focus.
+	bool edited = false;
 	GUI::function<void(type,std::string_view,int32_t)> onValChanged;
 	GUI::function<void(type,int32_t,int32_t)> onCursorChanged;
 	
@@ -147,6 +153,8 @@ private:
 	void applyDisabled(bool dis) override;
 	void realize(DialogRunner& runner) override;
 	int32_t onEvent(int32_t event, MessageDispatcher& sendMessage) override;
+	// A typed value outside the bounds is replaced with the clamped one.
+	void handleLostFocus() override;
 	void applyFont(FONT* newFont) override;
 	void updateReadOnly(bool ro) override;
 	

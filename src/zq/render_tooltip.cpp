@@ -21,6 +21,8 @@ struct tooltip
 	int highlight_thickness;
 	// Higher = on top.
 	int z_index;
+	// Show even when the user has turned tooltips off.
+	bool force;
 };
 
 static std::map<int, tooltip> tooltips;
@@ -167,7 +169,7 @@ void ttip_uninstall(int id)
 // or area changes.
 static int gui_tooltip_id = 0;
 
-void gui_tooltip_show(std::string const& text, int32_t x, int32_t y, int32_t w, int32_t h)
+void gui_tooltip_show(std::string const& text, int32_t x, int32_t y, int32_t w, int32_t h, bool force)
 {
 	if (!gui_tooltip_id)
 		gui_tooltip_id = ttip_register_id();
@@ -185,6 +187,7 @@ void gui_tooltip_show(std::string const& text, int32_t x, int32_t y, int32_t w, 
 	ttip_install(gui_tooltip_id, text, x, y, w, h, x, tip_y - 16);
 	// Widgets already look hoverable; skip the highlight box.
 	ttip_set_highlight_thickness(gui_tooltip_id, 0);
+	tooltips[gui_tooltip_id].force = force;
 }
 
 void gui_tooltip_hide()
@@ -240,12 +243,6 @@ ToolTipRTI::ToolTipRTI(std::string name) : LegacyBitmapRTI(name) {}
 
 void ToolTipRTI::prepare()
 {
-	if (!EnableTooltips)
-	{
-		visible = false;
-		return;
-	}
-
 	// Find tooltip mouse is currently over.
 	auto [mx, my] = zc_get_mouse();
 
@@ -261,7 +258,7 @@ void ToolTipRTI::prepare()
 		}
 	}
 
-	if (!tooltip)
+	if (!tooltip || (!EnableTooltips && !tooltip->force))
 	{
 		visible = false;
 		return;

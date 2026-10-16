@@ -8,6 +8,21 @@
 namespace GUI
 {
 
+// A red outline drawn just outside a widget, marking its value invalid.
+static int32_t invalid_border_proc(int32_t msg, DIALOG* d, int32_t)
+{
+	switch (msg)
+	{
+		case MSG_WANTMOUSE:
+			return D_DONTWANTMOUSE;
+		case MSG_DRAW:
+			rect(screen, d->x, d->y, d->x+d->w-1, d->y+d->h-1, d->fg);
+			rect(screen, d->x+1, d->y+1, d->x+d->w-2, d->y+d->h-2, d->fg);
+			break;
+	}
+	return D_O_K;
+}
+
 Widget::Widget() noexcept:
 	x(0), y(0),
 	fgColor(vc(14)), bgColor(vc(1)),
@@ -132,9 +147,22 @@ void Widget::setPadding(Size size) noexcept
 
 void Widget::applyVisibility(bool visible)
 {
+	appliedVisible = visible;
 	if(frameDialog) frameDialog.applyVisibility(visible);
 	if(frameTextDialog) frameTextDialog.applyVisibility(visible);
+	if(invalidBorderDialog) invalidBorderDialog.applyVisibility(visible && invalid);
 	pendDraw();
+}
+
+void Widget::setInvalid(bool newInvalid)
+{
+	invalid = newInvalid;
+	canBeInvalid = true;
+	if(invalidBorderDialog)
+	{
+		invalidBorderDialog.applyVisibility(appliedVisible && invalid);
+		pendDraw();
+	}
 }
 
 void Widget::applyDisabled(bool dis)
@@ -274,6 +302,21 @@ void Widget::realize(DialogRunner& runner)
 			0, 0, // d1, d2,
 			frameText.data(), widgFont, nullptr // dp, dp2, dp3
 		});
+	}
+	// Pushed before the widget's own DIALOGs, so it never gets the mouse or
+	// focus ahead of them. It is drawn outside the widget, so isn't covered.
+	appliedVisible = !(getFlags() & D_HIDDEN);
+	if(canBeInvalid)
+	{
+		invalidBorderDialog = runner.push(shared_from_this(), DIALOG {
+			newGUIProc<invalid_border_proc>,
+			x-2, y-2, getWidth()+4, getHeight()+4,
+			vc(12), 0,
+			0,
+			getFlags() | (invalid ? 0 : D_HIDDEN),
+			0, 0, // d1, d2,
+			nullptr, nullptr, nullptr // dp, dp2, dp3
+		}, true);
 	}
 }
 

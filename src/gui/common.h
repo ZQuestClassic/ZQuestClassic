@@ -9,9 +9,10 @@ struct DIALOG;
 
 /* Shows a tooltip below the given screen rectangle once the mouse has rested
  * there. Implemented by the editor's tooltip system; the player and launcher
- * link no-op stubs. See Widget::setTooltip.
+ * link no-op stubs. See Widget::setTooltip. `force` shows it even when the
+ * user has turned tooltips off.
  */
-void gui_tooltip_show(std::string const& text, int32_t x, int32_t y, int32_t w, int32_t h);
+void gui_tooltip_show(std::string const& text, int32_t x, int32_t y, int32_t w, int32_t h, bool force = false);
 void gui_tooltip_hide();
 
 namespace GUI
