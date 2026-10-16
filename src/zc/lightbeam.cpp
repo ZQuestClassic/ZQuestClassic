@@ -209,6 +209,12 @@ static void handleFFBeam(lightbeam_world& world, std::map<lightbeam_xy,spot_t>& 
 		if (lightbeam_out_of_steps(world))
 			return;
 
+		// Stop if a beam already left this spot in this direction. Without this, a beam that
+		// loops back into a prism splits again every time around.
+		f = SP_GOFLAG(spotdir);
+		if((grid[curxy] & f) == f)
+			return;
+		grid[curxy] |= f;
 		f = SP_FLAG(spotdir);
 		if((grid[curxy] & f) != f)
 		{
