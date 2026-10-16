@@ -4,6 +4,7 @@
 #
 #   python tests/test_zeditor.py
 
+import concurrent.futures
 import json
 import os
 import platform
@@ -62,6 +63,13 @@ class TestZEditor(unittest.TestCase):
             raise e
 
     def run_replay(self, output_dir, args):
+        failures = self.replay_failures(output_dir, args)
+        if failures:
+            self.fail(failures)
+
+    # Runs replays and returns a description of any failures (empty if they all passed).
+    # Doesn't touch the test case, so it can run on a worker thread.
+    def replay_failures(self, output_dir, args) -> str:
         args = [
             sys.executable,
             root_dir / 'tests/run_replay_tests.py',
@@ -100,9 +108,11 @@ class TestZEditor(unittest.TestCase):
             failing_str += '\n\nDetails:\n\n' + results.failures_to_string(
                 test_results_path.parent
             )
-            self.fail(failing_str)
+            return failing_str
 
-        self.assertEqual(output.returncode, 0)
+        if output.returncode != 0:
+            return f'run_replay_tests.py exited with code {output.returncode}'
+        return ''
 
     # Simply open the editor with the new quest template.
     def test_file_new(self):
@@ -139,6 +149,8 @@ class TestZEditor(unittest.TestCase):
             ),
         ]
 
+        # Resave each quest, then replay them all at once.
+        replay_runs = []
         for zplay_path, qst_path, extra_args in test_cases:
             with self.subTest(msg=zplay_path):
                 load_qst_path = (
@@ -168,8 +180,19 @@ class TestZEditor(unittest.TestCase):
                 replay_path = tmp_qst_dir / 'tmp.zplay'
                 replay_path.write_text(replay_content)
 
-                output_dir = tmp_dir / 'output' / replay_path.name
-                self.run_replay(output_dir, [replay_path, *extra_args])
+                output_dir = tmp_dir / 'output' / Path(zplay_path).stem
+                replay_runs.append((zplay_path, output_dir, [replay_path, *extra_args]))
+
+        with concurrent.futures.ThreadPoolExecutor(len(replay_runs) or 1) as executor:
+            futures = {
+                zplay_path: executor.submit(self.replay_failures, output_dir, args)
+                for zplay_path, output_dir, args in replay_runs
+            }
+            for zplay_path, future in futures.items():
+                with self.subTest(msg=zplay_path):
+                    failures = future.result()
+                    if failures:
+                        self.fail(failures)
 
     def test_compile_and_quick_assign(self):
         if 'CI' in os.environ and os.environ.get('CXX') == 'gcc':
