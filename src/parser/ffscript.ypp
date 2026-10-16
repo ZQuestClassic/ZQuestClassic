@@ -2335,9 +2335,20 @@ namespace ZScript
 		yyin = NULL;
 		resetLexer();
 
+		// Flex echoes input that no rule matches to yyout, and nothing reads it. Open
+		// one sink for every parse: a temp file per parsed file was ~10% of a small
+		// compile.
+#ifdef _WIN32
+		static FILE* discard = fopen("NUL", "w");
+#else
+		static FILE* discard = fopen("/dev/null", "w");
+#endif
+		if (!discard)
+			discard = std::tmpfile();
+
 		// Read in the file.
 		yyin = fopen(filename.c_str(), "r");
-		yyout = std::tmpfile();
+		yyout = discard;
 		if (!yyin)
 		{
 			zconsole_error("Can't open input file");
@@ -2350,7 +2361,6 @@ namespace ZScript
 		{
 			result.reset();
 		}
-		fclose(yyout);
 		fclose(yyin);
 
 		return result;
