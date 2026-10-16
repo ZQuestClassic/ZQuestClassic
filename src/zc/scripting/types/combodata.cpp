@@ -1424,6 +1424,10 @@ static ArrayRegistrar COMBODLIFTFLAGS_registrar(COMBODLIFTFLAGS, []{
 static ArrayRegistrar COMBODUSRFLAGARR_registrar(COMBODUSRFLAGARR, []{
 	static ScriptingArray_ObjectMemberBitwiseFlags<newcombo, &newcombo::usrflags, 16> impl;
 	impl.setMul10000(true);
+	// Flags are cached (see combo_caches::gswitch).
+	impl.setSideEffect([](newcombo*, int, int){
+		combo_caches::refresh(GET_REF(combodataref));
+	});
 	return &impl;
 }());
 
