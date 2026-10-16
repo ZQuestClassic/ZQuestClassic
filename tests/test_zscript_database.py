@@ -29,7 +29,7 @@ import unittest
 
 from pathlib import Path
 
-from common import ZCTestCase
+from common import ZCTestCase, submit_all
 
 ZSCRIPT_DATABASE_COMMIT = '0972b841631b47d3b38ea625e234511c13ecfd76'
 
@@ -333,21 +333,7 @@ class TestZScriptDatabase(ZCTestCase):
         failures = []
         passed = 0
 
-        num_workers = max(1, (os.cpu_count() or 2) - 1)
-        workers = [None] * num_workers
-
-        result_dict = {}
-        next_worker_index = 0
-
-        for script_path in script_paths:
-            worker_index = next_worker_index
-            data = workers[worker_index]
-            if data is not None:
-                name, p = data
-                output = p.communicate()[0]
-                result_dict[name] = (p.returncode, output)
-
-            next_worker_index = (next_worker_index + 1) % num_workers
+        def compile_script(script_path: Path):
             rel_name = script_path.relative_to(database_dir).as_posix()
             tmp_script_path = tmp_script_dir / rel_name
             tmp_script_path.parent.mkdir(parents=True, exist_ok=True)
@@ -368,7 +354,7 @@ class TestZScriptDatabase(ZCTestCase):
             tmp_script_path.write_text('\n'.join(lines), 'utf-8')
 
             exe_name = run_target.get_exe_name('zscript')
-            p = subprocess.Popen(
+            p = subprocess.run(
                 [
                     run_target.get_build_folder() / exe_name,
                     '-input',
@@ -386,16 +372,11 @@ class TestZScriptDatabase(ZCTestCase):
                 encoding='utf-8',
                 errors='replace',
             )
-            workers[worker_index] = (script_path, p)
+            return p.returncode, p.stdout
 
-        for i, data in enumerate(workers):
-            if data == None:
-                continue
-
-            name, p = data
-            output = p.communicate()[0]
-            result_dict[name] = (p.returncode, output)
-            workers[i] = None
+        executor, futures = submit_all(compile_script, script_paths)
+        with executor:
+            result_dict = {path: future.result() for path, future in futures.items()}
 
         result_dict = dict(sorted(result_dict.items(), key=lambda x: x[0].as_posix()))
         for script_path, (returncode, output) in result_dict.items():
