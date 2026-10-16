@@ -42,7 +42,7 @@ jobs:
           - runs-on: windows-2022
             arch: win32
             compiler: msvc
-            num-shards: 6
+            num-shards: 4
             config: RelWithDebInfo
             extra-args: --max_duration 60
           - runs-on: macos-15-intel
