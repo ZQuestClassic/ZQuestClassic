@@ -81,19 +81,11 @@ jobs:
       fail-fast: false
     name: Replays ${{ matrix.shard_index }}/${{ matrix.num_shards }}
     runs-on: ${{ inputs.runs-on }}
-    env:
-      # The zscript database is a private repo. Without the token (pull requests
-      # from forks) its checkout is skipped and tests/test_zscript_database.py
-      # skips itself.
-      HAS_ZSCRIPT_DATABASE_TOKEN: ${{ secrets.GH_PAT_ZSCRIPT_DATABASE != '' }}
     steps:
       - name: git clone
         uses: connorjclark/action-cached-lfs-checkout@3ea4dc59b06f3baa8c01ba891fbfc2dbfdce5bc8
         with:
           enableCrossOsArchive: true
-      # For test_zscript_version_docs, which runs with the unit tests.
-      - run: git fetch origin releases/2.55
-        if: ${{ matrix.shard_index == 1 && inputs.from-ci-workflow }}
 
       - name: Setup Python
         uses: actions/setup-python@v6
@@ -109,12 +101,6 @@ jobs:
         run: sudo apt-get update && sudo apt-get install libopengl0 libglu1 lldb libpulse0 xvfb
 
       - run: mkdir -p .tmp
-
-      - name: Install Node.js 22.x
-        if: ${{ matrix.shard_index == 1 && inputs.from-ci-workflow }}
-        uses: actions/setup-node@v3
-        with:
-          node-version: 22.x
 
       - name: Download Artifacts
         uses: actions/download-artifact@v6
@@ -183,55 +169,6 @@ jobs:
           --extra-args "$EXTRA_ARGS"
           --build-folder zc-extracted
 
-      - name: Updater cache
-        if: ${{ matrix.shard_index == 1 && inputs.from-ci-workflow }}
-        uses: actions/cache@v5
-        with:
-          path: ${{ github.workspace }}/.tmp/test_updater/cache
-          key: updater-cache-${{ inputs.runs-on }}-${{ runner.arch }}
-
-      - name: Archives cache
-        if: ${{ matrix.shard_index == 1 && inputs.from-ci-workflow }}
-        uses: actions/cache@v5
-        with:
-          path: ${{ github.workspace }}/.tmp/archives
-          key: archives-cache-${{ inputs.runs-on }}-${{ runner.arch }}
-
-      # The vscode extension test downloads a pinned VS Code into this folder;
-      # the key follows the file that holds the pinned version.
-      - name: VS Code test cache
-        if: ${{ matrix.shard_index == 1 && inputs.from-ci-workflow }}
-        uses: actions/cache@v5
-        with:
-          path: ${{ github.workspace }}/vscode-extension/.vscode-test/vscode-*
-          key: vscode-test-cache-${{ inputs.runs-on }}-${{ runner.arch }}-${{ hashFiles('vscode-extension/client/src/test/runTest.ts') }}
-
-      - name: Checkout zscript database
-        if: ${{ matrix.shard_index == 1 && inputs.from-ci-workflow && env.HAS_ZSCRIPT_DATABASE_TOKEN == 'true' }}
-        uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.GH_PAT_ZSCRIPT_DATABASE }}
-          repository: ZQuestClassic/zscript-database
-          ref: 68f3d886d7fd929038deb729f38c440ed0250fc0
-          path: ${{ github.workspace }}/.tmp/zscript-database
-
-      - name: Run unit tests
-        if: ${{ matrix.shard_index == 1 && inputs.from-ci-workflow }}
-        shell: bash
-        # xvfb provides a real X display on Linux; some test binaries touch X
-        # (e.g. keyboard setup) and the runner images vary in DISPLAY setup.
-        run: |
-          CMD="bash .github/workflows/run_python.sh .github/workflows/ci.py unit-tests
-            --repo ${{ github.repository }}
-            --compiler ${{ inputs.compiler }}
-            --config ${{ inputs.config }}
-            --build-folder zc-extracted"
-          if [[ "$RUNNER_OS" == "Linux" ]]; then
-            xvfb-run --auto-servernum $CMD
-          else
-            $CMD
-          fi
-
       - name: Generate coverage json
         if: inputs.config == 'Coverage'
         run: >
@@ -276,3 +213,135 @@ jobs:
         with:
           name: replays-${{ inputs.runs-on }}-${{ inputs.arch }}-${{ inputs.compiler }}-${{ matrix.shard_index }}-of-${{ matrix.num_shards }}
           path: ${{ github.workspace }}/.tmp/test_results/**/updated
+
+  # Its own job, so the unit tests run alongside the replay shards.
+  unit-tests:
+    needs: build
+    if: inputs.from-ci-workflow
+    name: Unit tests
+    runs-on: ${{ inputs.runs-on }}
+    env:
+      # The zscript database is a private repo. Without the token (pull requests
+      # from forks) its checkout is skipped and tests/test_zscript_database.py
+      # skips itself.
+      HAS_ZSCRIPT_DATABASE_TOKEN: ${{ secrets.GH_PAT_ZSCRIPT_DATABASE != '' }}
+    steps:
+      - name: git clone
+        uses: connorjclark/action-cached-lfs-checkout@3ea4dc59b06f3baa8c01ba891fbfc2dbfdce5bc8
+        with:
+          enableCrossOsArchive: true
+      # For test_zscript_version_docs.
+      - run: git fetch origin releases/2.55
+
+      - name: Setup Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+          cache: pip
+
+      - name: Install Python dependencies
+        run: pip install -r requirements.txt
+
+      - name: Install Linux Test Dependencies
+        if: ${{ contains(inputs.runs-on, 'ubuntu') }}
+        run: sudo apt-get update && sudo apt-get install libopengl0 libglu1 lldb libpulse0 xvfb
+
+      - run: mkdir -p .tmp
+
+      - name: Install Node.js 22.x
+        uses: actions/setup-node@v3
+        with:
+          node-version: 22.x
+
+      - name: Download Artifacts
+        uses: actions/download-artifact@v6
+        with:
+          name: ${{ needs.build.outputs.artifact-name }}
+          path: ${{ needs.build.outputs.artifact-name }}
+
+      # Extract the build artifact to zc-extracted.
+      - name: Extract package
+        run: >
+          bash .github/workflows/run_python.sh .github/workflows/ci.py extract-package
+          --repo ${{ github.repository }}
+          --config ${{ inputs.config }}
+          --package "${{ needs.build.outputs.artifact-name }}/${{ needs.build.outputs.package-name }}"
+          --artifact-name "${{ needs.build.outputs.artifact-name }}"
+          --build-folder zc-extracted
+
+      - name: Updater cache
+        uses: actions/cache@v5
+        with:
+          path: ${{ github.workspace }}/.tmp/test_updater/cache
+          key: updater-cache-${{ inputs.runs-on }}-${{ runner.arch }}
+
+      - name: Archives cache
+        uses: actions/cache@v5
+        with:
+          path: ${{ github.workspace }}/.tmp/archives
+          key: archives-cache-${{ inputs.runs-on }}-${{ runner.arch }}
+
+      # The vscode extension test downloads a pinned VS Code into this folder;
+      # the key follows the file that holds the pinned version.
+      - name: VS Code test cache
+        uses: actions/cache@v5
+        with:
+          path: ${{ github.workspace }}/vscode-extension/.vscode-test/vscode-*
+          key: vscode-test-cache-${{ inputs.runs-on }}-${{ runner.arch }}-${{ hashFiles('vscode-extension/client/src/test/runTest.ts') }}
+
+      - name: Checkout zscript database
+        if: ${{ env.HAS_ZSCRIPT_DATABASE_TOKEN == 'true' }}
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GH_PAT_ZSCRIPT_DATABASE }}
+          repository: ZQuestClassic/zscript-database
+          ref: 68f3d886d7fd929038deb729f38c440ed0250fc0
+          path: ${{ github.workspace }}/.tmp/zscript-database
+
+      - name: Run unit tests
+        shell: bash
+        # xvfb provides a real X display on Linux; some test binaries touch X
+        # (e.g. keyboard setup) and the runner images vary in DISPLAY setup.
+        run: |
+          CMD="bash .github/workflows/run_python.sh .github/workflows/ci.py unit-tests
+            --repo ${{ github.repository }}
+            --compiler ${{ inputs.compiler }}
+            --config ${{ inputs.config }}
+            --build-folder zc-extracted"
+          if [[ "$RUNNER_OS" == "Linux" ]]; then
+            xvfb-run --auto-servernum $CMD
+          else
+            $CMD
+          fi
+
+      # Coverage merges every job's coverage.json, so the unit tests upload their own.
+      - name: Generate coverage json
+        if: inputs.config == 'Coverage'
+        run: >
+          bash .github/workflows/run_python.sh .github/workflows/ci.py coverage
+          --repo ${{ github.repository }}
+          --compiler ${{ inputs.compiler }}
+          --config ${{ inputs.config }}
+
+      - name: Upload Coverage JSON
+        uses: actions/upload-artifact@v7
+        if: inputs.config == 'Coverage'
+        with:
+          name: coverage-${{ inputs.runs-on }}-${{ inputs.arch }}-${{ inputs.compiler }}-unit-tests
+          path: ${{ github.workspace }}/tests/.coverage/coverage.json
+
+      - name: Archive test results
+        if: failure()
+        shell: bash
+        run: |
+          if [[ -d ".tmp/test_results" ]] ; then
+            cd .tmp/test_results
+            bash ../../.github/workflows/run_python.sh -m tarfile -c ../test_results.tar .
+          fi
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v7
+        if: failure()
+        with:
+          name: unit-tests-${{ inputs.runs-on }}-${{ inputs.arch }}-${{ inputs.compiler }}
+          path: ${{ github.workspace }}/.tmp/test_results.tar
