@@ -22966,10 +22966,16 @@ static void handleFFBeam(std::map<dword,spot_t>& grid, size_t age, byte spotdir,
 	if(spotdir > 3) return; //invalid dir
 	int32_t trigflag = set ? (1 << (set-1)) : ~0;
 	bool doAge = true;
-	byte f = 0;
+	spot_t f = 0;
 	while(curxy.valid())
 	{
 		bool block_light = false;
+		// Stop if a beam already left this spot in this direction. Without this, a beam that
+		// loops back into a prism splits again every time around.
+		f = SP_GOFLAG(spotdir);
+		if((grid[curxy.ffpos()] & f) == f)
+			return;
+		grid[curxy.ffpos()] |= f;
 		f = SP_FLAG(spotdir);
 		if((grid[curxy.ffpos()] & f) != f)
 		{
