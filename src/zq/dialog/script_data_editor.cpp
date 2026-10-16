@@ -167,7 +167,9 @@ std::shared_ptr<GUI::Widget> ScriptDataDialog::view()
 			" Modifying them will configure script-specific behaviors."
 			"\n\nUsing '@ExportInitD0()' through '@ExportInitD7()' in scripts allows specifying custom"
 			" help text for the '?' buttons of each option, as well as customizing the name and default"
-			" input state of the field.",
+			" input state of the field."
+			"\n\nNote: InitD is an older way to configure scripts. Prefer exported instance variables"
+			" for new scripts (the Exports tab).",
 			fitParent = true,
 			initd_grid
 		)
