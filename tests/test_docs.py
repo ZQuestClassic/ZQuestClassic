@@ -25,6 +25,11 @@ class TestDocs(unittest.TestCase):
     def test_generate_docs(self):
         if 'emscripten' in str(run_target.get_build_folder()):
             raise unittest.SkipTest('unsupported platform')
+        # The docs come out the same on every platform, and CI's mac runners are the
+        # slowest and costliest, so the other platforms cover this. (zscript itself is
+        # still tested on mac by test_zscript.)
+        if 'CI' in os.environ and platform.system() == 'Darwin':
+            raise unittest.SkipTest('covered by the other platforms in CI')
 
         if docs_generated_html_path.exists():
             shutil.rmtree(docs_generated_html_path)
