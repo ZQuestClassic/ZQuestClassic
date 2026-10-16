@@ -1418,7 +1418,7 @@ void ScriptAssembler::optimize_code(vector<shared_ptr<Opcode>>& code_vec, bool o
 			}
 			
 			#define TRASH_OP(ty, condfunc) \
-			if (auto op = dynamic_cast<ty*>(ocode)) \
+			if (auto op = opcode_cast<ty>(ocode)) \
 			{ \
 				if (auto r = trash_op<ty>(op, &label_index, scope_labels, code, it, condfunc, &argument_trash_bin); r == 0) \
 					continue; \
@@ -1426,13 +1426,13 @@ void ScriptAssembler::optimize_code(vector<shared_ptr<Opcode>>& code_vec, bool o
 			}
 
 			#define MERGE_CONSEC_1(ty) \
-			if(ty* op = dynamic_cast<ty*>(ocode)) \
+			if(ty* op = opcode_cast<ty>(ocode)) \
 			{ \
 				auto it2 = it; \
 				++it2; \
 				if(it2 == code.end()) \
 					break; \
-				if(ty* op2 = dynamic_cast<ty*>(it2->get())) \
+				if(ty* op2 = opcode_cast<ty>(it2->get())) \
 				{ \
 					if(*op->getArgument() == *op2->getArgument()) \
 					{ \
@@ -1458,7 +1458,7 @@ void ScriptAssembler::optimize_code(vector<shared_ptr<Opcode>>& code_vec, bool o
 				continue; \
 			}
 			#define CONV_GOTO_CMP(ty, cmp) \
-			if(ty* op = dynamic_cast<ty*>(ocode)) \
+			if(ty* op = opcode_cast<ty>(ocode)) \
 			{ \
 				LabelArgument* label_arg = static_cast<LabelArgument*>(op->takeArgument()); \
 				OGotoCompare* newop = new OGotoCompare(label_arg,new CompareArgument(cmp)); \
@@ -1470,7 +1470,7 @@ void ScriptAssembler::optimize_code(vector<shared_ptr<Opcode>>& code_vec, bool o
 				continue; \
 			}
 			#define MERGE_GOTO_NEXT(ty) \
-			if(ty* op = dynamic_cast<ty*>(ocode)) \
+			if(ty* op = opcode_cast<ty>(ocode)) \
 			{ \
 				auto it2 = it; \
 				++it2; \
@@ -1494,7 +1494,7 @@ void ScriptAssembler::optimize_code(vector<shared_ptr<Opcode>>& code_vec, bool o
 				continue; \
 			}
 			#define MERGE_GOTO_NEXT2(ty) \
-			if(ty* op = dynamic_cast<ty*>(ocode)) \
+			if(ty* op = opcode_cast<ty>(ocode)) \
 			{ \
 				auto it2 = it; \
 				++it2; \
@@ -1519,8 +1519,8 @@ void ScriptAssembler::optimize_code(vector<shared_ptr<Opcode>>& code_vec, bool o
 			}
 			#define MERGE_CONSEC_REPCOUNT_START(ty1,ty2) \
 			{ \
-				ty1* single_op = dynamic_cast<ty1*>(ocode); \
-				ty2* multi_op = dynamic_cast<ty2*>(ocode); \
+				ty1* single_op = opcode_cast<ty1>(ocode); \
+				ty2* multi_op = opcode_cast<ty2>(ocode); \
 				if(single_op || multi_op) \
 				{ \
 					auto it2 = it; \
@@ -1539,8 +1539,8 @@ void ScriptAssembler::optimize_code(vector<shared_ptr<Opcode>>& code_vec, bool o
 						Opcode* nextcode = it2->get(); \
 						if(nextcode->getLabel() != -1) \
 							break; /*can't combine*/ \
-						ty1* single_next = dynamic_cast<ty1*>(nextcode); \
-						ty2* multi_next = dynamic_cast<ty2*>(nextcode); \
+						ty1* single_next = opcode_cast<ty1>(nextcode); \
+						ty2* multi_next = opcode_cast<ty2>(nextcode); \
 						if(!(single_next || multi_next)) \
 							break; /*can't combine*/ \
 						if(*(Argument*)target_arg != *(Argument*)(single_next \
@@ -1611,7 +1611,7 @@ void ScriptAssembler::optimize_code(vector<shared_ptr<Opcode>>& code_vec, bool o
 
 		START_OPT_PASS()
 			// Change [PEEKAT reg,0] to [PEEK reg]
-			if(OPeekAtImmediate* peekop = dynamic_cast<OPeekAtImmediate*>(ocode))
+			if(OPeekAtImmediate* peekop = opcode_cast<OPeekAtImmediate>(ocode))
 			{
 				LiteralArgument* litarg = peekop->getSecondArgument();
 				if(!litarg->value)
@@ -1627,13 +1627,13 @@ void ScriptAssembler::optimize_code(vector<shared_ptr<Opcode>>& code_vec, bool o
 			}
 			// If [STORE reg,lit] is followed by [LOAD reg,lit], the LOAD
 			// can be deleted, as 'reg' already will contain the value to be loaded.
-			if(OStoreDirect* stored = dynamic_cast<OStoreDirect*>(ocode))
+			if(OStoreDirect* stored = opcode_cast<OStoreDirect>(ocode))
 			{
 				Argument const* regarg = stored->getFirstArgument();
 				Argument const* litarg = stored->getSecondArgument();
 				auto it2 = it;
 				++it2;
-				if(OLoad* loadd = dynamic_cast<OLoad*>(it2->get()))
+				if(OLoad* loadd = opcode_cast<OLoad>(it2->get()))
 				{
 					if(*regarg == *loadd->getFirstArgument()
 						&& *litarg == *loadd->getSecondArgument()
@@ -1663,7 +1663,7 @@ void ScriptAssembler::optimize_code(vector<shared_ptr<Opcode>>& code_vec, bool o
 					Opcode* nextcode = it2->get();
 					if(nextcode->getLabel() == -1)
 					{
-						if(OPushRegister* pusharg = dynamic_cast<OPushRegister*>(nextcode))
+						if(OPushRegister* pusharg = opcode_cast<OPushRegister>(nextcode))
 						{
 							if(*target_arg == *pusharg->getArgument())
 							{
@@ -1701,7 +1701,7 @@ void ScriptAssembler::optimize_code(vector<shared_ptr<Opcode>>& code_vec, bool o
 			MERGE_CONSEC_1(OGotoRegister)
 		END_OPT_PASS()
 		START_OPT_PASS()
-			if(OGotoCompare* op = dynamic_cast<OGotoCompare*>(ocode))
+			if(OGotoCompare* op = opcode_cast<OGotoCompare>(ocode))
 			{
 				auto it2 = it;
 				++it2;
@@ -1710,7 +1710,7 @@ void ScriptAssembler::optimize_code(vector<shared_ptr<Opcode>>& code_vec, bool o
 				CompareArgument* cmparg = static_cast<CompareArgument*>(op->getSecondArgument());
 				cmparg->value &= ~CMP_SETI;
 				auto cmp = cmparg->value;
-				if(OGotoCompare* op2 = dynamic_cast<OGotoCompare*>(it2->get()))
+				if(OGotoCompare* op2 = opcode_cast<OGotoCompare>(it2->get()))
 				{
 					if(!op->getFirstArgument()->toString().compare(
 						op2->getFirstArgument()->toString()))
@@ -1766,7 +1766,7 @@ void ScriptAssembler::optimize_code(vector<shared_ptr<Opcode>>& code_vec, bool o
 		// map<int,std::pair<int,int>> gotocmp_map;
 
 		// START_OPT_PASS()
-		// 	if(OGotoImmediate* op = dynamic_cast<OGotoImmediate*>(ocode))
+		// 	if(OGotoImmediate* op = opcode_cast<OGotoImmediate>(ocode))
 		// 	{
 		// 		if(lbl > -1) //redirect labels that jump to GOTOs
 		// 		{
@@ -1788,7 +1788,7 @@ void ScriptAssembler::optimize_code(vector<shared_ptr<Opcode>>& code_vec, bool o
 		// 		++it;
 		// 		continue;
 		// 	}
-		// 	if(OGotoCompare* op = dynamic_cast<OGotoCompare*>(ocode))
+		// 	if(OGotoCompare* op = opcode_cast<OGotoCompare>(ocode))
 		// 	{
 		// 		if(lbl > -1) //store labels in map, for optimization in next pass
 		// 		{
@@ -1808,7 +1808,7 @@ void ScriptAssembler::optimize_code(vector<shared_ptr<Opcode>>& code_vec, bool o
 		// END_OPT_PASS()
 		// START_OPT_PASS()
 		// 	//[X: GOTO N] [N: GOTOCMP x,cmp] -> [X: GOTOCMP x,cmp] [N: GOTOCMP x,cmp]
-		// 	if(OGotoImmediate* op = dynamic_cast<OGotoImmediate*>(ocode))
+		// 	if(OGotoImmediate* op = opcode_cast<OGotoImmediate>(ocode))
 		// 	{
 		// 		LabelArgument* lbl_arg = static_cast<LabelArgument*>(op->getArgument());
 		// 		auto it2 = gotocmp_map.find(lbl_arg->getID());
@@ -1829,7 +1829,7 @@ void ScriptAssembler::optimize_code(vector<shared_ptr<Opcode>>& code_vec, bool o
 		// END_OPT_PASS()
 		START_OPT_PASS()
 			//[N: GOTOCMP N+2,c] [N+1: GOTO x] -> [N: GOTOCMP x,INV(c)]
-			if(OGotoCompare* op = dynamic_cast<OGotoCompare*>(ocode))
+			if(OGotoCompare* op = opcode_cast<OGotoCompare>(ocode))
 			{
 				auto it2 = it;
 				++it2;
@@ -1847,7 +1847,7 @@ void ScriptAssembler::optimize_code(vector<shared_ptr<Opcode>>& code_vec, bool o
 
 				if(it3_lbl != -1 && it3_lbl == lblarg->getID())
         		{
-					if(OGotoImmediate* op2 = dynamic_cast<OGotoImmediate*>(it2->get()))
+					if(OGotoImmediate* op2 = opcode_cast<OGotoImmediate>(it2->get()))
 					{
 						LabelArgument* mid_lbl_arg = static_cast<LabelArgument*>(op2->getArgument());
 						int op2_lbl = op2->getLabel();
@@ -1899,7 +1899,7 @@ void ScriptAssembler::optimize_code(vector<shared_ptr<Opcode>>& code_vec, bool o
 		END_OPT_PASS()
 		// START_OPT_PASS()
 		// 	// Change [PEEKAT reg,0] to [PEEK reg]
-		// 	if(OPeekAtImmediate* peekop = dynamic_cast<OPeekAtImmediate*>(ocode))
+		// 	if(OPeekAtImmediate* peekop = opcode_cast<OPeekAtImmediate>(ocode))
 		// 	{
 		// 		LiteralArgument* litarg = peekop->getSecondArgument();
 		// 		if(!litarg->value)
@@ -1915,13 +1915,13 @@ void ScriptAssembler::optimize_code(vector<shared_ptr<Opcode>>& code_vec, bool o
 		// 	}
 		// 	// If [STORE reg,lit] is followed by [LOAD reg,lit], the LOAD
 		// 	// can be deleted, as 'reg' already will contain the value to be loaded.
-		// 	if(OStoreDirect* stored = dynamic_cast<OStoreDirect*>(ocode))
+		// 	if(OStoreDirect* stored = opcode_cast<OStoreDirect>(ocode))
 		// 	{
 		// 		Argument const* regarg = stored->getFirstArgument();
 		// 		Argument const* litarg = stored->getSecondArgument();
 		// 		auto it2 = it;
 		// 		++it2;
-		// 		if(OLoad* loadd = dynamic_cast<OLoad*>(it2->get()))
+		// 		if(OLoad* loadd = opcode_cast<OLoad>(it2->get()))
 		// 		{
 		// 			if(*regarg == *loadd->getFirstArgument()
 		// 				&& *litarg == *loadd->getSecondArgument()
@@ -1951,7 +1951,7 @@ void ScriptAssembler::optimize_code(vector<shared_ptr<Opcode>>& code_vec, bool o
 		// 			Opcode* nextcode = it2->get();
 		// 			if(nextcode->getLabel() == -1)
 		// 			{
-		// 				if(OPushRegister* pusharg = dynamic_cast<OPushRegister*>(nextcode))
+		// 				if(OPushRegister* pusharg = opcode_cast<OPushRegister>(nextcode))
 		// 				{
 		// 					if(*target_arg == *pusharg->getArgument())
 		// 					{
@@ -1989,7 +1989,7 @@ void ScriptAssembler::optimize_code(vector<shared_ptr<Opcode>>& code_vec, bool o
 		// 	MERGE_CONSEC_1(OGotoRegister)
 		// END_OPT_PASS()
 		// START_OPT_PASS()
-		// 	if(OGotoCompare* op = dynamic_cast<OGotoCompare*>(ocode))
+		// 	if(OGotoCompare* op = opcode_cast<OGotoCompare>(ocode))
 		// 	{
 		// 		auto it2 = it;
 		// 		++it2;
@@ -1998,7 +1998,7 @@ void ScriptAssembler::optimize_code(vector<shared_ptr<Opcode>>& code_vec, bool o
 		// 		CompareArgument* cmparg = static_cast<CompareArgument*>(op->getSecondArgument());
 		// 		cmparg->value &= ~CMP_SETI;
 		// 		auto cmp = cmparg->value;
-		// 		if(OGotoCompare* op2 = dynamic_cast<OGotoCompare*>(it2->get()))
+		// 		if(OGotoCompare* op2 = opcode_cast<OGotoCompare>(it2->get()))
 		// 		{
 		// 			if(!op->getFirstArgument()->toString().compare(
 		// 				op2->getFirstArgument()->toString()))
@@ -2046,7 +2046,7 @@ void ScriptAssembler::optimize_code(vector<shared_ptr<Opcode>>& code_vec, bool o
 		// END_OPT_PASS()
 		// START_OPT_PASS()
 		// 	//[X: GOTO N] [N: GOTOCMP x,cmp] -> [X: GOTOCMP x,cmp] [N: GOTOCMP x,cmp]
-		// 	if(OGotoImmediate* op = dynamic_cast<OGotoImmediate*>(ocode))
+		// 	if(OGotoImmediate* op = opcode_cast<OGotoImmediate>(ocode))
 		// 	{
 		// 		LabelArgument* lbl_arg = static_cast<LabelArgument*>(op->getArgument());
 		// 		auto it2 = gotocmp_map.find(lbl_arg->getID());
@@ -2069,13 +2069,13 @@ void ScriptAssembler::optimize_code(vector<shared_ptr<Opcode>>& code_vec, bool o
 			MERGE_GOTO_NEXT(OGotoImmediate) //Redo this here due to timing stuff -Em
 			MERGE_GOTO_NEXT2(OGotoCompare) //Redo this here due to timing stuff -Em
 			// OSetImmediate + OTraceRegister -> OTraceImmediate
-			if(OSetImmediate* setop = dynamic_cast<OSetImmediate*>(ocode))
+			if(OSetImmediate* setop = opcode_cast<OSetImmediate>(ocode))
 			{
 				Argument const* regarg = setop->getFirstArgument();
 				auto it2 = it;
 				++it2;
 				Opcode* nextcode = it2->get();
-				if(OTraceRegister* traceop = dynamic_cast<OTraceRegister*>(nextcode))
+				if(OTraceRegister* traceop = opcode_cast<OTraceRegister>(nextcode))
 				{
 					if(*regarg == *traceop->getArgument())
 					{

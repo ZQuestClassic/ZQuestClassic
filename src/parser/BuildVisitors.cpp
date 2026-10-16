@@ -2726,7 +2726,7 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 
 		std::vector<std::shared_ptr<Opcode>> const& funcCode = func.getCode();
 		auto it = funcCode.begin();
-		while(OPopRegister* ocode = dynamic_cast<OPopRegister*>(it->get()))
+		while(OPopRegister* ocode = opcode_cast<OPopRegister>(it->get()))
 		{
 			if (optarg->empty())
 				break;
@@ -2734,7 +2734,7 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 			VarArgument const* destreg = ocode->getArgument();
 			//Optimize
 			Opcode* lastop = optarg->back().get();
-			if(OPushRegister* tmp = dynamic_cast<OPushRegister*>(lastop))
+			if(OPushRegister* tmp = opcode_cast<OPushRegister>(lastop))
 			{
 				VarArgument const* arg = tmp->getArgument();
 				if(*arg == *destreg) //Same register!
@@ -2751,7 +2751,7 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 					break;
 				continue;
 			}
-			else if(OPushImmediate* tmp = dynamic_cast<OPushImmediate*>(lastop))
+			else if(OPushImmediate* tmp = opcode_cast<OPushImmediate>(lastop))
 			{
 				LiteralArgument* arg = tmp->getArgument()->clone();
 				optarg->pop_back();
@@ -4687,7 +4687,7 @@ void BuildOpcodes::push_param(bool varg)
 	//Try to optimize, instead of just blindly pushing EXP1
 	auto* optarg = opcodeTargets.back();
 	Opcode* lastop = optarg->back().get();
-	if(OSetRegister* tmp = dynamic_cast<OSetRegister*>(lastop))
+	if(OSetRegister* tmp = opcode_cast<OSetRegister>(lastop))
 	{
 		VarArgument* destreg = dynamic_cast<VarArgument*>(tmp->getFirstArgument());
 		if(destreg && destreg->ID == EXP1)
@@ -4696,7 +4696,7 @@ void BuildOpcodes::push_param(bool varg)
 			optarg->pop_back();
 		}
 	}
-	else if(OSetImmediate* tmp = dynamic_cast<OSetImmediate*>(lastop))
+	else if(OSetImmediate* tmp = opcode_cast<OSetImmediate>(lastop))
 	{
 		VarArgument* destreg = dynamic_cast<VarArgument*>(tmp->getFirstArgument());
 		if(destreg && destreg->ID == EXP1)
@@ -4705,7 +4705,7 @@ void BuildOpcodes::push_param(bool varg)
 			optarg->pop_back();
 		}
 	}
-	else if(OPopRegister* tmp = dynamic_cast<OPopRegister*>(lastop))
+	else if(OPopRegister* tmp = opcode_cast<OPopRegister>(lastop))
 	{
 		VarArgument* destreg = dynamic_cast<VarArgument*>(tmp->getArgument());
 		if(destreg && destreg->ID == EXP1)
@@ -4739,7 +4739,7 @@ void BuildOpcodes::push_param(bool varg)
 
 optional<int> BuildOpcodes::eatSetCompare()
 {
-	if(OSetCompare* setcmp = dynamic_cast<OSetCompare*>(backOpcode()))
+	if(OSetCompare* setcmp = opcode_cast<OSetCompare>(backOpcode()))
 	{
 		auto cmp = setcmp->getSecondArgument()->value;
 		backTarget().pop_back(); //erase the OSetCompare
@@ -4958,7 +4958,7 @@ void LValBOHelper::caseExprArrow(ASTExprArrow &host, void *param)
 		{
 			if (sets_object)
 			{
-				if (auto op = dynamic_cast<OSetRegister*>(it->get()))
+				if (auto op = opcode_cast<OSetRegister>(it->get()))
 				{
 					addOpcode(new OSetObject(op->getFirstArgument()->clone(), op->getSecondArgument()->clone(), new TypeArgument(setting_type)));
 					continue;

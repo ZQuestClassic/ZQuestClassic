@@ -11,6 +11,8 @@
 #include "components/zasm/debug_data.h"
 #include "core/zdefs.h"
 #include <nlohmann/json.hpp>
+#include <cassert>
+#include <typeinfo>
 
 #include <cstdio>
 #include <map>
@@ -164,6 +166,20 @@ namespace ZScript
 		int label;
 		string comment;
 	};
+
+	// Downcasts an opcode to an exact leaf type. Every opcode type the
+	// optimizer probes for is a leaf (a template instantiation or a final
+	// class), so comparing the dynamic type's type_info address is enough.
+	// dynamic_cast is far slower here: on libc++ a failed probe walks the
+	// hierarchy comparing mangled names with strcmp, and the optimizer probes
+	// each opcode against dozens of types per pass.
+	template<typename T>
+	inline T* opcode_cast(Opcode* op)
+	{
+		T* result = (op && &typeid(*op) == &typeid(T)) ? static_cast<T*>(op) : nullptr;
+		assert(result == dynamic_cast<T*>(op));
+		return result;
+	}
 
 	class ArbitraryOpcode : public Opcode
 	{
