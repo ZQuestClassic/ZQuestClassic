@@ -18678,20 +18678,43 @@ void screen_combo_modify_postroutine(const combined_handle_t& comb_handle)
 	}
 }
 
+// `screen_combo_modify_pre` and `_post` must be called as a pair around a change
+// to a combo's data: the cpos counts are subtracted from the old data in pre and
+// added back from the new data in post.
+static int32_t cpos_modify_pending_cid = -1;
+
 void screen_combo_modify_pre(int32_t cid)
 {
+	DCHECK(cpos_modify_pending_cid == -1);
+	cpos_modify_pending_cid = cid;
+
+	// The counts are keyed on `info().data`, which lags a position's combo
+	// until the next cpos_update().
 	for_every_rpos([&](const rpos_handle_t& rpos_handle) {
+		if (rpos_handle.info().data == cid)
+			cpos_count_instance(cid, -1);
 		if (rpos_handle.data() == cid)
 		{
 			screen_combo_modify_preroutine(rpos_handle);
 		}
 	});
+	for_every_ffc([&](const ffc_handle_t& ffc_handle) {
+		if (ffc_handle.ffc->info.data == cid)
+			cpos_count_instance(cid, -1);
+	});
+	if (cpos_moving_block_holds(cid))
+		cpos_count_instance(cid, -1);
 }
 void screen_combo_modify_post(int32_t cid)
 {
+	DCHECK(cpos_modify_pending_cid == cid);
+	cpos_modify_pending_cid = -1;
+
 	combo_caches::refresh(cid);
 
 	for_every_rpos([&](const rpos_handle_t& rpos_handle) {
+		if (rpos_handle.info().data == cid)
+			cpos_count_instance(cid, 1);
 		if (rpos_handle.data() == cid)
 		{
 			screen_combo_modify_postroutine(rpos_handle);
@@ -18699,11 +18722,15 @@ void screen_combo_modify_post(int32_t cid)
 	});
 
 	for_every_ffc([&](const ffc_handle_t& ffc_handle) {
+		if (ffc_handle.ffc->info.data == cid)
+			cpos_count_instance(cid, 1);
 		if (ffc_handle.data() == cid)
 		{
 			screen_combo_modify_postroutine(ffc_handle);
 		}
 	});
+	if (cpos_moving_block_holds(cid))
+		cpos_count_instance(cid, 1);
 }
 
 void awaken_spinning_tile(const combined_handle_t& comb_handle, bool natural)

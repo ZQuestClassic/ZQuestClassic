@@ -394,6 +394,7 @@ void save_genscript(gamedata& gd);
 
 struct mapdata;
 
+dword get_combo_from_trigger_ref(dword ref);
 newcombo* checkComboFromTriggerRef(dword ref);
 weapon* checkLWpn(int32_t uid);
 weapon* checkEWpn(int32_t uid);

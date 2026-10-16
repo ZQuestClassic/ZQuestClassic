@@ -791,6 +791,7 @@ void game_set_register(int32_t reg, int32_t value)
 			}
 			
 			int cid = TheMaps[screen].data[pos];
+			screen_combo_modify_pre(cid);
 			combobuf[cid].flag=value/10000;
 			screen_combo_modify_post(cid);
 		}
@@ -817,6 +818,7 @@ void game_set_register(int32_t reg, int32_t value)
 			}
 			auto cid = TheMaps[screen].data[pos];
 			auto& cmb = combobuf[cid];
+			screen_combo_modify_pre(cid);
 			cmb.walk &= ~0x0F;
 			cmb.walk |= (value/10000)&15;
 			screen_combo_modify_post(cid);

@@ -3,6 +3,7 @@
 #include "base/check.h"
 #include "components/zasm/defines.h"
 #include "zc/ffscript.h"
+#include "zc/guys.h"
 #include "zc/scripting/arrays.h"
 #include "zc/scripting/types/musicdata.h"
 
@@ -873,7 +874,10 @@ void combotrigger_set_register(int32_t reg, int32_t value)
 		
 		case CMBTRIGGROUP:
 		{
+			int cid = get_combo_from_trigger_ref(GET_REF(combotriggerref));
+			screen_combo_modify_pre(cid);
 			trig->trig_group = vbound(value/10000, 0, 255);
+			screen_combo_modify_post(cid);
 			break;
 		}
 		case CMBTRIGGROUPVAL:
@@ -984,7 +988,10 @@ void combotrigger_set_register(int32_t reg, int32_t value)
 		}
 		case CMBTRIGTIMER:
 		{
+			int cid = get_combo_from_trigger_ref(GET_REF(combotriggerref));
+			screen_combo_modify_pre(cid);
 			trig->trigtimer = vbound(value/10000, 0, 65535);
+			screen_combo_modify_post(cid);
 			break;
 		}
 		case CMBTRIGTINTB:
@@ -1142,12 +1149,15 @@ static ArrayRegistrar CMBTRIGFLAGS_registrar(CMBTRIGFLAGS, []{
 		[](int ref, int index, bool value){
 			if (auto* trig = checkComboTrigger(ref))
 			{
+				int cid = get_combo_from_trigger_ref(ref);
+				screen_combo_modify_pre(cid);
 				trig->trigger_flags.set(index, value);
 				if (index == TRIGFLAG_ONLYGENTRIG)
 				{
 					if (auto cmb = checkComboFromTriggerRef(ref))
 						cmb->only_gentrig = value;
 				}
+				screen_combo_modify_post(cid);
 				return true;
 			}
 

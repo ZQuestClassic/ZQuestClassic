@@ -21,6 +21,24 @@ void zc_ffc_set(ffcdata& ffc, word data)
 		{
 			uint16_t id = screen_index_offset * MAXFFCS + i;
 			screen_combo_modify_postroutine(ffc_handle_t({scr, ffc.screen_spawned, id, i, &ffc}));
+			// cpos_update() only visits ffcs up to the last one with a combo, so
+			// any past that which lost their combo would never get their cpos
+			// bookkeeping (trigger group counts etc.) released there. That
+			// includes ffcs cleared earlier this frame that were still in range
+			// at the time, so sweep every ffc the next cpos_update() will skip.
+			// Changers are tracked separately.
+			// TODO: reconcile eagerly instead (`ffc.info.updateData(data)`, -1 for
+			// a changer) and drop this sweep; that moves count changes past the
+			// freeze_ffc_cpos deferral, so it needs the full replay suite.
+			if (!data)
+			{
+				for (int j = scr->numFFC(); j < c; j++)
+				{
+					ffcdata& f = scr->ffcs[j];
+					if (!(f.flags & ffc_changer))
+						f.info.updateData(0);
+				}
+			}
 			return;
 		}
 	}

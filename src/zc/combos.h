@@ -78,6 +78,14 @@ int cpos_exists_spotlight();
 void cpos_clear_all();
 void cpos_force_update();
 void cpos_update();
+// The per-region cpos counts (trigger groups, spotlights, looping sfx) are built
+// from each instance's `cpos_info::data`. Before a combo's data changes,
+// screen_combo_modify_pre uncounts (add = -1) every instance of it, and after
+// the change screen_combo_modify_post counts (add = +1) them again, so the
+// counts follow the combo's old and new settings.
+void cpos_count_instance(int cid, int add);
+// Whether the moving pushblock currently holds the counts of an instance of `cid`.
+bool cpos_moving_block_holds(int cid);
 
 // These combo caches improve cache locality for hot functions.
 // Verify that any properties used here call `screen_combo_modify_post` when modified in

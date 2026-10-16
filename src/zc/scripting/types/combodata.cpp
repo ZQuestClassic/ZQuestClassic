@@ -936,7 +936,11 @@ void combodata_set_register(int32_t reg, int32_t value)
 		case COMBODNUMTRIGGERS:
 		{
 			if(checkComboRef())
+			{
+				screen_combo_modify_pre(GET_REF(combodataref));
 				combobuf[GET_REF(combodataref)].triggers.resize(vbound(value / 10000, 0, MAX_COMBO_TRIGGERS));
+				screen_combo_modify_post(GET_REF(combodataref));
+			}
 			break;
 		}
 		case COMBODONLYGEN:
@@ -1072,8 +1076,10 @@ void combodata_set_register(int32_t reg, int32_t value)
 		{
 			if (!checkComboRef()) break;
 
+			screen_combo_modify_pre(GET_REF(combodataref));
 			if(auto* trig = get_first_combo_trigger())
 				trig->trig_group = vbound(value/10000, 0, 255);
+			screen_combo_modify_post(GET_REF(combodataref));
 			break;
 		}
 		case COMBODTRIGGERGROUPVAL:
@@ -1476,9 +1482,11 @@ static ArrayRegistrar COMBODTRIGGERFLAGS2_registrar(COMBODTRIGGERFLAGS2, []{
 		[](newcombo* cmb, int index, bool value){
 			if (auto* trig = get_first_combo_trigger())
 			{
+				screen_combo_modify_pre(GET_REF(combodataref));
 				trig->trigger_flags.set(index, value);
 				if (index == TRIGFLAG_ONLYGENTRIG)
 					cmb->only_gentrig = value;
+				screen_combo_modify_post(GET_REF(combodataref));
 			}
 		}
 	);
