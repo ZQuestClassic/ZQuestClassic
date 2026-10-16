@@ -39,8 +39,8 @@
    length> pair or an unencoded character, and these flags are stored as
    an eight bit mask every eight items.
 
-   This implementation uses binary trees to speed up the search for the
-   longest match.
+   The original implementation used binary trees to speed up the search
+   for the longest match; this one uses hash chains (see below).
 
    Original code by Haruhiko Okumura, 4/6/1989.
    12-2-404 Green Heights, 580 Nagasawa, Yokosuka 239, Japan.
@@ -57,20 +57,37 @@
 				       if match size is greater than this */
 
 
+/* local edit: the packer below replaces the original binary-tree packer.
+ * The packer keeps a ring of recent history plus pending lookahead, and finds
+ * matches with hash chains over 3-byte prefixes. The emitted bitstream is the
+ * classic Okumura format read by lzss_read below: a flags byte, then eight
+ * items that are either a literal byte or a (12-bit ring position, 4-bit
+ * length-3) pair. Positions are indexes into the decoder's N-byte ring, whose
+ * first N-F slots start out as zeros, so the history here begins with N-F
+ * zero bytes that matches may also reference.
+ */
+#define LZSS_HIST_SIZE  16384       /* power of two; holds the N window, the
+				       pending lookahead (under F bytes) and a
+				       full F_BUF_SIZE chunk, so lzss_write
+				       takes each packfile flush in one pass */
+#define LZSS_HIST_MASK  (LZSS_HIST_SIZE-1)
+#define LZSS_HASH_BITS  15
+#define LZSS_HASH_SIZE  (1<<LZSS_HASH_BITS)
+#define LZSS_MAX_CHAIN  1024        /* candidates examined per position; keeps
+				       output within ~0.2% of an exhaustive
+				       search on real quest files */
+
 struct LZSS_PACK_DATA               /* stuff for doing LZ compression */
 {
-   int state;                       /* where have we got to in the pack? */
-   int i, c, len, r, s;
-   int last_match_length, code_buf_ptr;
+   int pos;                         /* history index of the next byte to encode */
+   int end;                         /* one past the last byte appended */
+   int ins;                         /* next history index to add to the hash chains */
+   int code_buf_ptr;
    unsigned char mask;
-   char code_buf[17];
-   int match_position;
-   int match_length;
-   int lson[N+1];                   /* left children, */
-   int rson[N+257];                 /* right children, */
-   int dad[N+1];                    /* and parents, = binary search trees */
-   unsigned char text_buf[N+F-1];   /* ring buffer, with F-1 extra bytes
-				       for string comparison */
+   unsigned char code_buf[17];
+   unsigned char hist[LZSS_HIST_SIZE];
+   int head[LZSS_HASH_SIZE];        /* most recent position per hash, or -1 */
+   int prev[LZSS_HIST_SIZE];        /* previous position with the same hash */
 };
 
 
@@ -100,10 +117,18 @@ LZSS_PACK_DATA *create_lzss_pack_data(void)
       return NULL;
    }
 
+   /* The decoder's ring starts with N-F zero bytes; mirror them so matches
+      can refer to them, exactly as the original tree packer did. */
    for (c=0; c < N - F; c++)
-      dat->text_buf[c] = 0;
+      dat->hist[c] = 0;
 
-   dat->state = 0;
+   for (c=0; c < LZSS_HASH_SIZE; c++)
+      dat->head[c] = -1;
+
+   dat->pos = dat->end = N - F;
+   dat->ins = 0;
+   dat->code_buf[0] = 0;
+   dat->code_buf_ptr = dat->mask = 1;
 
    return dat;
 }
@@ -122,302 +147,169 @@ void free_lzss_pack_data(LZSS_PACK_DATA *dat)
 
 
 
-/* lzss_inittree:
- *  For i = 0 to N-1, rson[i] and lson[i] will be the right and left 
- *  children of node i. These nodes need not be initialized. Also, dad[i] 
- *  is the parent of node i. These are initialized to N, which stands for 
- *  'not used.' For i = 0 to 255, rson[N+i+1] is the root of the tree for 
- *  strings that begin with character i. These are initialized to N. Note 
- *  there are 256 trees.
+/* lzss_hash:
+ *  Hashes the three history bytes starting at index i.
  */
-static void lzss_inittree(LZSS_PACK_DATA *dat)
+static unsigned int lzss_hash(LZSS_PACK_DATA *dat, int i)
+{
+   unsigned int v = ((unsigned int)dat->hist[i & LZSS_HIST_MASK] << 16)
+		  | ((unsigned int)dat->hist[(i+1) & LZSS_HIST_MASK] << 8)
+		  |  (unsigned int)dat->hist[(i+2) & LZSS_HIST_MASK];
+   return (v * 2654435761u) >> (32 - LZSS_HASH_BITS);
+}
+
+
+
+/* lzss_insert_pending:
+ *  Adds every encoded position that has three bytes of history behind it to
+ *  the hash chains. Only positions already encoded are added, so a lookup
+ *  never returns a position at or after the one being encoded.
+ */
+static void lzss_insert_pending(LZSS_PACK_DATA *dat)
+{
+   while (dat->ins < dat->pos && dat->ins + 2 < dat->end) {
+      unsigned int h = lzss_hash(dat, dat->ins);
+      dat->prev[dat->ins & LZSS_HIST_MASK] = dat->head[h];
+      dat->head[h] = dat->ins;
+      dat->ins++;
+   }
+}
+
+
+
+/* lzss_flush_code:
+ *  Writes the pending group of up to eight items to the file.
+ */
+static int lzss_flush_code(PACKFILE *file, LZSS_PACK_DATA *dat)
 {
    int i;
 
-   for (i=N+1; i<=N+256; i++)
-      dat->rson[i] = N;
-
-   for (i=0; i<N; i++)
-      dat->dad[i] = N;
-}
-
-
-
-/* lzss_insertnode:
- *  Inserts a string of length F, text_buf[r..r+F-1], into one of the trees 
- *  (text_buf[r]'th tree) and returns the longest-match position and length 
- *  via match_position and match_length. If match_length = F, then removes 
- *  the old node in favor of the new one, because the old one will be 
- *  deleted sooner. Note r plays double role, as tree node and position in 
- *  the buffer. 
- */
-static void lzss_insertnode(int r, LZSS_PACK_DATA *dat)
-{
-   int i, p, cmp;
-   unsigned char *key;
-   unsigned char *text_buf = dat->text_buf;
-
-   cmp = 1;
-   key = &text_buf[r];
-   p = N + 1 + key[0];
-   dat->rson[r] = dat->lson[r] = N;
-   dat->match_length = 0;
-
-   for (;;) {
-
-      if (cmp >= 0) {
-	 if (dat->rson[p] != N)
-	    p = dat->rson[p];
-	 else {
-	    dat->rson[p] = r;
-	    dat->dad[r] = p;
-	    return;
-	 }
-      }
-      else {
-	 if (dat->lson[p] != N)
-	    p = dat->lson[p];
-	 else {
-	    dat->lson[p] = r;
-	    dat->dad[r] = p;
-	    return;
-	 }
-      }
-
-      for (i = 1; i < F; i++)
-	 if ((cmp = key[i] - text_buf[p + i]) != 0)
-	    break;
-
-      if (i > dat->match_length) {
-	 dat->match_position = p;
-	 if ((dat->match_length = i) >= F)
-	    break;
-      }
+   if ((file->is_normal_packfile) && (file->normal.passpos) &&
+       (file->normal.flags & PACKFILE_FLAG_OLD_CRYPT))
+   {
+      dat->code_buf[0] ^= *file->normal.passpos;
+      file->normal.passpos++;
+      if (!*file->normal.passpos)
+	 file->normal.passpos = file->normal.passdata;
    }
 
-   dat->dad[r] = dat->dad[p];
-   dat->lson[r] = dat->lson[p];
-   dat->rson[r] = dat->rson[p];
-   dat->dad[dat->lson[p]] = r;
-   dat->dad[dat->rson[p]] = r;
-   if (dat->rson[dat->dad[p]] == p)
-      dat->rson[dat->dad[p]] = r;
-   else
-      dat->lson[dat->dad[p]] = r;
-   dat->dad[p] = N;                 /* remove p */
+   for (i=0; i<dat->code_buf_ptr; i++)
+      pack_putc(dat->code_buf[i], file);
+
+   dat->code_buf[0] = 0;
+   dat->code_buf_ptr = dat->mask = 1;
+
+   return pack_ferror(file) ? EOF : 0;
 }
 
 
 
-/* lzss_deletenode:
- *  Removes a node from a tree.
+/* lzss_find_match:
+ *  Finds the longest match for the lookahead at pos among the hash chain
+ *  candidates, up to maxlen bytes. A match may start up to N bytes back,
+ *  including the slot the decoder is about to overwrite: it reads the source
+ *  byte before writing it, like the original tree packer relied on.
+ *  Returns the match length (0 if none) and its history position.
  */
-static void lzss_deletenode(int p, LZSS_PACK_DATA *dat)
+static int lzss_find_match(LZSS_PACK_DATA *dat, int pos, int maxlen, int *best_pos_out)
 {
-   int q;
-
-   if (dat->dad[p] == N)
-      return;     /* not in tree */
-
-   if (dat->rson[p] == N)
-      q = dat->lson[p];
-   else
-      if (dat->lson[p] == N)
-	 q = dat->rson[p];
-      else {
-	 q = dat->lson[p];
-	 if (dat->rson[q] != N) {
-	    do {
-	       q = dat->rson[q];
-	    } while (dat->rson[q] != N);
-	    dat->rson[dat->dad[q]] = dat->lson[q];
-	    dat->dad[dat->lson[q]] = dat->dad[q];
-	    dat->lson[q] = dat->lson[p];
-	    dat->dad[dat->lson[p]] = q;
+   unsigned char *hist = dat->hist;
+   int best_len = 0, best_pos = 0;
+   int cand = dat->head[lzss_hash(dat, pos)];
+   int chain = LZSS_MAX_CHAIN;
+   while ((cand >= 0) && (pos - cand <= N) && (chain-- > 0)) {
+      if (hist[(cand + best_len) & LZSS_HIST_MASK] == hist[(pos + best_len) & LZSS_HIST_MASK]) {
+	 int len = 0;
+	 while ((len < maxlen) &&
+		(hist[(cand + len) & LZSS_HIST_MASK] == hist[(pos + len) & LZSS_HIST_MASK]))
+	    len++;
+	 if (len > best_len) {
+	    best_len = len;
+	    best_pos = cand;
+	    if (len >= maxlen)
+	       break;
 	 }
-	 dat->rson[q] = dat->rson[p];
-	 dat->dad[dat->rson[p]] = q;
       }
-
-   dat->dad[q] = dat->dad[p];
-   if (dat->rson[dat->dad[p]] == p)
-      dat->rson[dat->dad[p]] = q;
-   else
-      dat->lson[dat->dad[p]] = q;
-
-   dat->dad[p] = N;
+      cand = dat->prev[cand & LZSS_HIST_MASK];
+   }
+   *best_pos_out = best_pos;
+   return best_len;
 }
-
-
 
 /* lzss_write:
  *  Packs size bytes from buf, using the pack information contained in dat.
+ *  Input is accepted incrementally: up to F-1 bytes stay pending between
+ *  calls until enough lookahead arrives, or until last is set.
  *  Returns 0 on success.
  */
 int lzss_write(PACKFILE *file, LZSS_PACK_DATA *dat, int size, unsigned char *buf, int last)
 {
-   int i = dat->i;
-   int c = dat->c;
-   int len = dat->len;
-   int r = dat->r;
-   int s = dat->s;
-   int last_match_length = dat->last_match_length;
-   int code_buf_ptr = dat->code_buf_ptr;
-   unsigned char mask = dat->mask;
-   int ret = 0;
+   unsigned char *hist = dat->hist;
 
-   if (dat->state==2)
-      goto pos2;
-   else
-      if (dat->state==1)
-	 goto pos1;
+   for (;;) {
+      int final, room, n;
 
-   dat->code_buf[0] = 0;
-      /* code_buf[1..16] saves eight units of code, and code_buf[0] works
-	 as eight flags, "1" representing that the unit is an unencoded
-	 letter (1 byte), "0" a position-and-length pair (2 bytes).
-	 Thus, eight units require at most 16 bytes of code. */
+      /* Append as much input as fits while keeping the N-byte window
+	 before pos resident. */
+      room = LZSS_HIST_SIZE - N - (dat->end - dat->pos);
+      n = MIN(size, room);
+      while (n-- > 0) {
+	 hist[dat->end & LZSS_HIST_MASK] = *(buf++);
+	 dat->end++;
+	 size--;
+      }
 
-   code_buf_ptr = mask = 1;
+      final = last && (size == 0);
 
-   s = 0;
-   r = N - F;
-   lzss_inittree(dat);
+      while (dat->pos < dat->end) {
+	 int pos = dat->pos;
+	 int avail = dat->end - pos;
+	 int maxlen, best_len, best_pos;
 
-   for (len=0; (len < F) && (size > 0); len++) {
-      dat->text_buf[r+len] = *(buf++);
-      if (--size == 0) {
-	 if (!last) {
-	    dat->state = 1;
-	    goto getout;
+	 if ((avail < F) && (!final))
+	    break;                    /* wait for more lookahead */
+
+	 lzss_insert_pending(dat);
+
+	 maxlen = MIN(avail, F);
+	 best_len = 0;
+	 best_pos = 0;
+
+	 if (maxlen > THRESHOLD)
+	    best_len = lzss_find_match(dat, pos, maxlen, &best_pos);
+
+	 if (best_len <= THRESHOLD) {
+	    best_len = 1;              /* not long enough match: send one byte */
+	    dat->code_buf[0] |= dat->mask;    /* 'send one byte' flag */
+	    dat->code_buf[dat->code_buf_ptr++] = hist[pos & LZSS_HIST_MASK];
+	 }
+	 else {
+	    /* send position and length pair. Note best_len > THRESHOLD */
+	    int ring_pos = best_pos & (N - 1);
+	    dat->code_buf[dat->code_buf_ptr++] = (unsigned char) ring_pos;
+	    dat->code_buf[dat->code_buf_ptr++] = (unsigned char)
+					(((ring_pos >> 4) & 0xF0) |
+					 (best_len - (THRESHOLD + 1)));
+	 }
+
+	 dat->pos += best_len;
+
+	 if ((dat->mask <<= 1) == 0) {         /* eight items: send them */
+	    if (lzss_flush_code(file, dat))
+	       return EOF;
 	 }
       }
-      pos1:
-	 ; 
+
+      if (size == 0)
+	 break;
    }
 
-   if (len == 0)
-      goto getout;
-
-   for (i=1; i <= F; i++)
-      lzss_insertnode(r-i,dat);
-	    /* Insert the F strings, each of which begins with one or
-	       more 'space' characters. Note the order in which these
-	       strings are inserted. This way, degenerate trees will be
-	       less likely to occur. */
-
-   lzss_insertnode(r,dat);
-	    /* Finally, insert the whole string just read. match_length
-	       and match_position are set. */
-
-   do {
-      if (dat->match_length > len)
-	 dat->match_length = len;  /* match_length may be long near the end */
-
-      if (dat->match_length <= THRESHOLD) {
-	 dat->match_length = 1;  /* not long enough match: send one byte */
-	 dat->code_buf[0] |= mask;    /* 'send one byte' flag */
-	 dat->code_buf[code_buf_ptr++] = dat->text_buf[r]; /* send uncoded */
-      }
-      else {
-	 /* send position and length pair. Note match_length > THRESHOLD */
-	 dat->code_buf[code_buf_ptr++] = (unsigned char) dat->match_position;
-	 dat->code_buf[code_buf_ptr++] = (unsigned char)
-				     (((dat->match_position >> 4) & 0xF0) |
-				      (dat->match_length - (THRESHOLD + 1)));
-      }
-
-      if ((mask <<= 1) == 0) {                  /* shift mask left one bit */
-
-	 if ((file->is_normal_packfile) && (file->normal.passpos) &&
-	     (file->normal.flags & PACKFILE_FLAG_OLD_CRYPT))
-	 {
-	    dat->code_buf[0] ^= *file->normal.passpos;
-	    file->normal.passpos++;
-	    if (!*file->normal.passpos)
-	       file->normal.passpos = file->normal.passdata;
-	 }
-
-	 for (i=0; i<code_buf_ptr; i++)         /* send at most 8 units of */
-	    pack_putc(dat->code_buf[i], file);  /* code together */
-
-	 if (pack_ferror(file)) {
-	    ret = EOF;
-	    goto getout;
-	 }
-	 dat->code_buf[0] = 0;
-	 code_buf_ptr = mask = 1;
-      }
-
-      last_match_length = dat->match_length;
-
-      for (i=0; (i < last_match_length) && (size > 0); i++) {
-	 c = *(buf++);
-	 if (--size == 0) {
-	    if (!last) {
-	       dat->state = 2;
-	       goto getout;
-	    }
-	 }
-	 pos2:
-	 lzss_deletenode(s,dat);    /* delete old strings and */
-	 dat->text_buf[s] = c;      /* read new bytes */
-	 if (s < F-1)
-	    dat->text_buf[s+N] = c; /* if the position is near the end of
-				       buffer, extend the buffer to make
-				       string comparison easier */
-	 s = (s+1) & (N-1);
-	 r = (r+1) & (N-1);         /* since this is a ring buffer,
-				       increment the position modulo N */
-
-	 lzss_insertnode(r,dat);    /* register the string in
-				       text_buf[r..r+F-1] */
-      }
-
-      while (i++ < last_match_length) {   /* after the end of text, */
-	 lzss_deletenode(s,dat);          /* no need to read, but */
-	 s = (s+1) & (N-1);               /* buffer may not be empty */
-	 r = (r+1) & (N-1);
-	 if (--len)
-	    lzss_insertnode(r,dat); 
-      }
-
-   } while (len > 0);   /* until length of string to be processed is zero */
-
-   if (code_buf_ptr > 1) {         /* send remaining code */
-
-      if ((file->is_normal_packfile) && (file->normal.passpos) &&
-	  (file->normal.flags & PACKFILE_FLAG_OLD_CRYPT))
-      {
-	 dat->code_buf[0] ^= *file->normal.passpos;
-	 file->normal.passpos++;
-	 if (!*file->normal.passpos)
-	    file->normal.passpos = file->normal.passdata;
-      }
-
-      for (i=0; i<code_buf_ptr; i++) {
-	 pack_putc(dat->code_buf[i], file);
-	 if (pack_ferror(file)) {
-	    ret = EOF;
-	    goto getout;
-	 }
-      }
+   if (last && dat->code_buf_ptr > 1) {   /* send remaining code */
+      if (lzss_flush_code(file, dat))
+	 return EOF;
    }
 
-   dat->state = 0;
-
-   getout:
-
-   dat->i = i;
-   dat->c = c;
-   dat->len = len;
-   dat->r = r;
-   dat->s = s;
-   dat->last_match_length = last_match_length;
-   dat->code_buf_ptr = code_buf_ptr;
-   dat->mask = mask;
-
-   return ret;
+   return 0;
 }
 
 

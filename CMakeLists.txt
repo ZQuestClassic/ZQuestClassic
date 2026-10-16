@@ -795,6 +795,7 @@ if(WANT_ZC_TESTS)
 		src/base/zfix_test.cpp
 		src/base/containers_test.cpp
 		src/base/util_test.cpp
+		src/zalleg/lzss_test.cpp
 		src/core/msgstr_test.cpp
 		src/core/msgstr.cpp
 		src/zc/wasm_structurer_test.cpp
