@@ -299,9 +299,7 @@ public:
 	void go_respawn_point();
 	bool can_pitfall(bool ignore_hover = false);
 	
-	void check_slash_block(weapon *w);
 	void check_slash_block_layer2(int32_t bx, int32_t by, weapon *w, int32_t layer);
-	void check_wand_block(weapon *w);
 	void check_slash_block_layer(int32_t bx, int32_t by, int32_t layer);
 	
 	void SetSwim();
