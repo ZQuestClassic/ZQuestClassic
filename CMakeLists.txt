@@ -472,7 +472,8 @@ target_include_directories(allegro_headers INTERFACE
 target_link_libraries(allegro-legacy PRIVATE allegro_headers)
 
 add_library(allegro_with_legacy INTERFACE)
-target_link_libraries(allegro_with_legacy INTERFACE allegro_headers allegro-legacy allegro_primitives allegro_font allegro_image allegro_audio allegro_acodec allegro_memfile allegro_main)
+# allegro_main is left out: only apps that open windows link it (see "allegro_main" below).
+target_link_libraries(allegro_with_legacy INTERFACE allegro_headers allegro-legacy allegro_primitives allegro_font allegro_image allegro_audio allegro_acodec allegro_memfile)
 if (NOT EMSCRIPTEN)
 	target_link_libraries(allegro_with_legacy INTERFACE allegro_dialog)
 endif()
@@ -483,7 +484,7 @@ target_include_directories(allegro_with_legacy INTERFACE
 )
 
 get_target_property(ALLEGRO_LINK_LIBRARIES allegro_with_legacy INTERFACE_LINK_LIBRARIES)
-list(APPEND ZC_INSTALL_TARGETS allegro ${ALLEGRO_LINK_LIBRARIES})
+list(APPEND ZC_INSTALL_TARGETS allegro allegro_main ${ALLEGRO_LINK_LIBRARIES})
 
 if(DEFINED ENV{CI} OR ZC_OFFICIAL)
 	get_target_property(ALLEGRO_CODEC_SOURCES allegro_acodec SOURCES)
@@ -1202,6 +1203,10 @@ if(${BISON_FOUND} AND ${FLEX_FOUND})
 	# TODO: do not link allegro w/ zscript compiler.
 	target_link_libraries(zscript PRIVATE base allegro_with_legacy zconsolelogger zasm ${ZSCRIPTLIBSEXTRA})
 	target_compile_definitions(zscript PRIVATE IS_PARSER)
+	# zscript opens no window, so it skips Allegro's macOS "magic main", which starts
+	# a full NSApplication (menu bar and all) before every compile: about half of a
+	# small compile's time. It doesn't link allegro_main either (see below).
+	target_compile_definitions(zscript PRIVATE ALLEGRO_NO_MAGIC_MAIN)
 endif()
 
 #############################################################
@@ -1272,6 +1277,19 @@ if(BUILD_ZUPDATER)
 	set(BUILD_SHARED_LIBS ${BUILD_SHARED_LIBS_PREV} CACHE BOOL "" FORCE)
 	target_link_libraries(zupdater PRIVATE miniz)
 endif()
+
+#############################################################
+# allegro_main
+#############################################################
+
+# On macOS, Allegro's "magic main" renames each app's main() and runs it on a thread
+# under an NSApplication, which apps that open windows need. allegro_main supplies the
+# real main(). (Elsewhere ALLEGRO_NO_MAGIC_MAIN is set and this does nothing.)
+foreach(target zplayer zeditor zlauncher zupdater base_test_runner)
+	if(TARGET ${target})
+		target_link_libraries(${target} PRIVATE allegro_main)
+	endif()
+endforeach()
 
 #############################################################
 # Emscripten

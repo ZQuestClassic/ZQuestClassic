@@ -425,7 +425,11 @@ if(ALLEGRO_LEGACY_WINDOWS)
 endif(ALLEGRO_LEGACY_WINDOWS)
 list(APPEND PLATFORM_LIBS ${ALLEGRO_5_LIBRARY} ${ALLEGRO_5_AUDIO_LIBRARY})
 if(APPLE)
-	list(APPEND PLATFORM_LIBS ${ALLEGRO_5_MAIN_LIBRARY})
+	# local edit
+	# list(APPEND PLATFORM_LIBS ${ALLEGRO_5_MAIN_LIBRARY})
+	# This library uses nothing from allegro_main, and linking it would force every
+	# program to supply Allegro's macOS "magic main". Apps link it themselves (see
+	# "allegro_main" in the root CMakeLists.txt).
 	list(APPEND PLATFORM_LIBS "-framework OpenGL -framework OpenAL -framework AudioToolbox -framework Cocoa -framework IOKit -framework CoreVideo")
 endif()
 
