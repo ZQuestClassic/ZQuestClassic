@@ -15,6 +15,8 @@
 #include "subscr.h"
 #include "zq/zquest.h"
 
+#include <set>
+
 extern script_data *ffscripts[NUMSCRIPTFFC];
 extern script_data *itemscripts[NUMSCRIPTITEM];
 extern script_data *guyscripts[NUMSCRIPTGUYS];
@@ -63,6 +65,11 @@ const SlotType slot_types[] = {
 
 bool SlotRemap::needs_user_mapping() const
 {
+	// A conversion is confirmed by the user, as long as there's a variable
+	// the InitD values could go to.
+	if (!remap.old_params.empty() && !initd_value_counts.empty()
+		&& (!remap.unmatched_new().empty() || !remap.initd_moves.empty()))
+		return true;
 	if (remap.unmatched_new().empty())
 		return false;
 	for (auto& var : remap.unmatched_old())
@@ -71,11 +78,11 @@ bool SlotRemap::needs_user_mapping() const
 	return false;
 }
 
-void for_each_inst_init(std::function<void(script_data** scripts, int slot, std::map<word, int>& inst_init)> fn)
+void for_each_inst_init(InstInitVisitor fn)
 {
 	auto visit = [&](script_data** scripts, script_config& cfg) {
 		if (cfg.script)
-			fn(scripts, cfg.script, cfg.inst_init);
+			fn(scripts, cfg.script, cfg.inst_init, cfg.run_args);
 	};
 
 	for (auto& scr : TheMaps)
@@ -129,11 +136,27 @@ void for_each_inst_init(std::function<void(script_data** scripts, int slot, std:
 
 	// These configs don't store their slot - it's their index.
 	for (int i = 0; i < NUMSCRIPTGLOBAL; i++)
-		fn(globalscripts, i, zinit.global_scrconfig[i].inst_init);
+		fn(globalscripts, i, zinit.global_scrconfig[i].inst_init, zinit.global_scrconfig[i].run_args);
 	for (int i = 0; i < NUMSCRIPTHERO; i++)
-		fn(playerscripts, i, zinit.hero_scrconfig[i].inst_init);
-	for (auto& [slot, inst_init] : zinit.gen_inst_init.mut_inner())
-		fn(genericscripts, slot, inst_init);
+		fn(playerscripts, i, zinit.hero_scrconfig[i].inst_init, zinit.hero_scrconfig[i].run_args);
+	// Generic scripts' Init Data keeps their InitD and variable values apart.
+	std::set<word> generic_slots;
+	for (auto& [slot, _] : zinit.gen_inst_init.inner())
+		generic_slots.insert(slot);
+	for (auto& [slot, _] : zinit.gen_initd.inner())
+		generic_slots.insert(slot);
+	for (word slot : generic_slots)
+	{
+		std::array<int, 8> run_args;
+		auto const& initd = zinit.gen_initd.get(slot);
+		for (int q = 0; q < 8; ++q)
+			run_args[q] = initd.get(q);
+		// A copy, so slots with only InitD don't gain an empty entry.
+		auto inst_init = zinit.gen_inst_init.get(slot);
+		fn(genericscripts, slot, inst_init, run_args);
+		if (inst_init != zinit.gen_inst_init.get(slot))
+			zinit.gen_inst_init[slot] = inst_init;
+	}
 }
 
 std::vector<SlotRemap> plan_slot_remaps(const DebugData& old_debug_data, const DebugData& new_debug_data,
@@ -159,9 +182,17 @@ std::vector<SlotRemap> plan_slot_remaps(const DebugData& old_debug_data, const D
 				continue;
 
 			auto remap = build_inst_var_remap(old_debug_data, new_debug_data, name);
-			if (!remap || remap->is_identity())
+			if (!remap)
 				continue;
-			// Only exported variables have values set per config.
+			// Only exported variables have values set per config. And a variable
+			// taking an old variable's values (of the same name) can't also take InitD's.
+			std::erase_if(remap->initd_moves, [&](auto& move){
+				return !new_exports->inner().contains(move.new_id)
+					|| std::any_of(remap->old_to_new.begin(), remap->old_to_new.end(),
+						[&](auto& p){ return p.second == move.new_id; });
+			});
+			if (remap->is_identity())
+				continue;
 			remap->new_candidates.emplace();
 			for (auto& [id, _] : new_exports->inner())
 				remap->new_candidates->insert(id);
@@ -182,7 +213,7 @@ std::vector<SlotRemap> plan_slot_remaps(const DebugData& old_debug_data, const D
 	if (remaps.empty())
 		return remaps;
 
-	for_each_inst_init([&](script_data** scripts, int slot, std::map<word, int>& inst_init) {
+	for_each_inst_init([&](script_data** scripts, int slot, std::map<word, int>& inst_init, const std::array<int, 8>& run_args) {
 		for (auto& r : remaps)
 		{
 			if (r.scripts != scripts || r.slot != slot)
@@ -190,6 +221,9 @@ std::vector<SlotRemap> plan_slot_remaps(const DebugData& old_debug_data, const D
 			for (auto& var : r.remap.unmatched_old())
 				if (inst_init.contains(var.id))
 					r.unmatched_value_counts[var.id]++;
+			for (auto& param : r.remap.old_params)
+				if (run_args[param.id])
+					r.initd_value_counts[param.id]++;
 		}
 	});
 
@@ -202,7 +236,8 @@ InstVarRemapResult apply_slot_remaps(const std::vector<SlotRemap>& remaps)
 	if (remaps.empty())
 		return result;
 
-	for_each_inst_init([&](script_data** scripts, int slot, std::map<word, int>& inst_init) {
+	int initd_copied = 0;
+	for_each_inst_init([&](script_data** scripts, int slot, std::map<word, int>& inst_init, const std::array<int, 8>& run_args) {
 		for (auto& r : remaps)
 		{
 			if (r.scripts != scripts || r.slot != slot)
@@ -210,18 +245,31 @@ InstVarRemapResult apply_slot_remaps(const std::vector<SlotRemap>& remaps)
 			auto r_result = apply_inst_var_remap(inst_init, r.remap);
 			result.updated += r_result.updated;
 			result.dropped += r_result.dropped;
+			initd_copied += apply_initd_moves(inst_init, run_args, r.remap);
 			break;
 		}
 	});
 
 	for (auto& r : remaps)
+	{
 		for (auto& var : r.remap.unmatched_old())
 			if (r.unmatched_value_counts.contains(var.id))
 				zprint2("%s script '%s': discarded the values of variable '%s'\n",
 					r.slot_type_name.c_str(), r.script_name.c_str(), var.name.c_str());
+		for (auto& param : r.remap.old_params)
+		{
+			bool moved = std::any_of(r.remap.initd_moves.begin(), r.remap.initd_moves.end(),
+				[&](auto& move){ return move.initd == param.id; });
+			if (!moved && r.initd_value_counts.contains(param.id))
+				zprint2("%s script '%s': the InitD values of parameter '%s' weren't copied to a variable\n",
+					r.slot_type_name.c_str(), r.script_name.c_str(), param.name.c_str());
+		}
+	}
 	if (result.updated || result.dropped)
 		zprint2("Updated %d and discarded %d script variable values to match the recompiled scripts\n",
 			result.updated, result.dropped);
+	if (initd_copied)
+		zprint2("Copied %d InitD values to the script variables of the same name\n", initd_copied);
 
 	return result;
 }

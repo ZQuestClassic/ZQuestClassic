@@ -6,6 +6,7 @@
 #include "base/ints.h"
 #include "components/zasm/inst_var_remap.h"
 
+#include <array>
 #include <functional>
 #include <map>
 #include <string>
@@ -29,15 +30,21 @@ struct SlotRemap
 	std::map<word, std::string> old_labels, new_labels;
 	// For each id in `remap.unmatched_old()`, how many configs have a value set.
 	std::map<word, int> unmatched_value_counts;
+	// For each InitD index in `remap.old_params`, how many configs have a
+	// non-zero value.
+	std::map<int, int> initd_value_counts;
 
-	// True if some value can't be placed without asking the user: a variable
-	// with values set is gone, but a new variable could be what it was renamed to.
+	// True if the user should be asked: a variable with values set is gone,
+	// but a new variable could be what it was renamed to; or the script was
+	// converted from InitD, with variables InitD values could go to.
 	bool needs_user_mapping() const;
 };
 
 // Calls `fn` for every script config in the quest that uses a slot. `scripts`
 // is the slot array (ex. `ffscripts`), and `slot` the index into it.
-void for_each_inst_init(std::function<void(script_data** scripts, int slot, std::map<word, int>& inst_init)> fn);
+using InstInitVisitor = std::function<void(script_data** scripts, int slot,
+	std::map<word, int>& inst_init, const std::array<int, 8>& run_args)>;
+void for_each_inst_init(InstInitVisitor fn);
 
 using ScriptExports = bounded_map<word, exported_variable>;
 

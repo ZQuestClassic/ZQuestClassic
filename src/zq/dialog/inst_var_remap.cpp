@@ -15,6 +15,12 @@ static std::string describe_var(const InstVar& var, const std::map<word, std::st
 	return fmt::format("{} {} (\"{}\")", var.type_name, var.name, it->second);
 }
 
+std::string InstVarRemapDialog::old_name(const Choice& choice)
+{
+	auto& remap = choice.remap->remap;
+	return choice.initd ? remap.old_params[choice.old_id].name : remap.old_vars.at(choice.old_id).name;
+}
+
 bool call_inst_var_remap_dialog(std::vector<SlotRemap>& remaps)
 {
 	InstVarRemapDialog dlg(remaps);
@@ -31,10 +37,29 @@ InstVarRemapDialog::InstVarRemapDialog(std::vector<SlotRemap>& remaps)
 
 		auto unmatched_old = r.remap.unmatched_old();
 		auto unmatched_new = r.remap.unmatched_new();
+		// Any exported variable not taking an old variable of the same name.
 		auto& list = new_var_lists.emplace_back();
 		list.add("(Discard values)", -1);
-		for (auto& var : unmatched_new)
-			list.add(describe_var(var, r.new_labels), var.id);
+		for (auto& [id, var] : r.remap.new_vars)
+		{
+			bool matched = std::any_of(r.remap.old_to_new.begin(), r.remap.old_to_new.end(),
+				[&](auto& p){ return p.second == id; });
+			if (!matched && r.new_labels.contains(id))
+				list.add(describe_var(var, r.new_labels), id);
+		}
+
+		// A converted script's InitD parameters, each initially going to the
+		// variable of the same name.
+		for (auto& param : r.remap.old_params)
+		{
+			if (!r.initd_value_counts.contains(param.id))
+				continue;
+			int new_id = -1;
+			for (auto& move : r.remap.initd_moves)
+				if (move.initd == param.id)
+					new_id = move.new_id;
+			choices.push_back({&r, param.id, new_id, true, new_var_lists.size() - 1});
+		}
 
 		// A lone rename is unambiguous enough to pre-select. Otherwise make
 		// the user choose, rather than guess and carry values somewhere wrong.
@@ -45,7 +70,7 @@ InstVarRemapDialog::InstVarRemapDialog(std::vector<SlotRemap>& remaps)
 
 		for (auto& var : unmatched_old)
 			if (r.unmatched_value_counts.contains(var.id))
-				choices.push_back({&r, var.id, guess});
+				choices.push_back({&r, var.id, guess, false, new_var_lists.size() - 1});
 	}
 }
 
@@ -81,7 +106,7 @@ std::string InstVarRemapDialog::describe_conflict(const std::vector<const Choice
 	{
 		if (i > 0)
 			names += i + 1 == conflict.size() ? " and " : ", ";
-		names += remap.old_vars.at(conflict[i]->old_id).name;
+		names += old_name(*conflict[i]);
 	}
 	return fmt::format("'{}': {} {} map to {}.", conflict[0]->remap->script_name, names,
 		conflict.size() == 2 ? "both" : "all", remap.new_vars.at(conflict[0]->new_id).name);
@@ -102,7 +127,7 @@ void InstVarRemapDialog::update_conflicts()
 			std::vector<std::string> others;
 			for (auto* other : conflict)
 				if (other != &choice)
-					others.push_back(remap.old_vars.at(other->old_id).name);
+					others.push_back(old_name(*other));
 			problem = fmt::format("{} is also chosen for {}.\nOnly one of them can give it values.",
 				remap.new_vars.at(choice.new_id).name, fmt::join(others, ", "));
 		}
@@ -123,23 +148,30 @@ std::shared_ptr<GUI::Widget> InstVarRemapDialog::view()
 	);
 
 	dropdowns.clear();
-	size_t list_index = 0;
-	SlotRemap* prev_remap = nullptr;
 	for (auto& choice : choices)
 	{
 		auto& r = *choice.remap;
-		if (prev_remap && prev_remap != &r)
-			list_index++;
-		prev_remap = &r;
 
-		auto old_var_label = Label(text = describe_var(r.remap.old_vars.at(choice.old_id), r.old_labels), hAlign = 0.0);
-		int count = r.unmatched_value_counts.at(choice.old_id);
+		std::string old_text;
+		int count;
+		if (choice.initd)
+		{
+			auto& param = r.remap.old_params[choice.old_id];
+			old_text = fmt::format("InitD[{}] {} {}", param.id, param.type_name, param.name);
+			count = r.initd_value_counts.at(choice.old_id);
+		}
+		else
+		{
+			old_text = describe_var(r.remap.old_vars.at(choice.old_id), r.old_labels);
+			count = r.unmatched_value_counts.at(choice.old_id);
+		}
+		auto old_var_label = Label(text = old_text, hAlign = 0.0);
 		old_var_label->setTooltip(fmt::format("Has values set in {} place{}.", count, count == 1 ? "" : "s"));
 
 		grid->add(Label(text = fmt::format("{} '{}'", r.slot_type_name, r.script_name), hAlign = 0.0));
 		grid->add(old_var_label);
 		auto dropdown = DropDownList(
-			data = new_var_lists[list_index],
+			data = new_var_lists[choice.list_index],
 			selectedValue = choice.new_id,
 			fitParent = true,
 			onSelectFunc = [&](int32_t val)
@@ -153,13 +185,23 @@ std::shared_ptr<GUI::Widget> InstVarRemapDialog::view()
 	}
 	update_conflicts();
 
+	bool any_initd = std::any_of(choices.begin(), choices.end(), [](auto& c){ return c.initd; });
+	bool any_vars = std::any_of(choices.begin(), choices.end(), [](auto& c){ return !c.initd; });
+	std::string intro;
+	if (any_initd)
+		intro += "These scripts' run() parameters (InitD) were replaced with variables. Each"
+			" parameter's values (on FFCs, combos, items, etc.) are copied to the variable"
+			" chosen for it - initially the one of the same name. InitD itself is left as is.";
+	if (any_initd && any_vars)
+		intro += "\n\n";
+	if (any_vars)
+		intro += "These script variables have values set (on FFCs, combos, items, etc.),"
+			" but no longer exist after compiling. If a variable was renamed, choose its"
+			" new name to keep its values. Otherwise, its values will be discarded.";
 	auto column = Column(
 		Label(
 			maxwidth = 40_em,
-			text = "These script variables have values set (on FFCs, combos, items, etc.),"
-				" but no longer exist after compiling. If a variable was renamed, choose its"
-				" new name to keep its values. Otherwise, its values will be discarded."
-				"\n\nCancel to leave all scripts as they were."
+			text = intro + "\n\nCancel to leave all scripts as they were."
 		),
 		ScrollingPane(
 			fitParent = true,
@@ -183,7 +225,7 @@ std::shared_ptr<GUI::Widget> InstVarRemapDialog::view()
 	));
 
 	window = Window(
-		title = "Renamed Script Variables?",
+		title = any_initd ? "Move InitD Values?" : "Renamed Script Variables?",
 		onClose = message::CANCEL,
 		column
 	);
@@ -208,8 +250,17 @@ bool InstVarRemapDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			}
 
 			for (auto& choice : choices)
-				if (choice.new_id != -1)
-					choice.remap->remap.old_to_new[choice.old_id] = choice.new_id;
+			{
+				auto& remap = choice.remap->remap;
+				if (choice.initd)
+				{
+					std::erase_if(remap.initd_moves, [&](auto& move){ return move.initd == choice.old_id; });
+					if (choice.new_id != -1)
+						remap.initd_moves.push_back({choice.old_id, remap.old_params[choice.old_id].kind, (word)choice.new_id});
+				}
+				else if (choice.new_id != -1)
+					remap.old_to_new[choice.old_id] = choice.new_id;
+			}
 			confirmed = true;
 			return true;
 		}

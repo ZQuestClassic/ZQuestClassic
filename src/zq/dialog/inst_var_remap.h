@@ -30,10 +30,16 @@ private:
 	struct Choice
 	{
 		SlotRemap* remap;
+		// An old variable's id, or for an InitD parameter, its InitD index.
 		word old_id;
 		// -1 to discard the values.
 		int new_id;
+		bool initd;
+		// Index into `new_var_lists`.
+		size_t list_index;
 	};
+
+	static std::string old_name(const Choice& choice);
 
 	// Rows of one script mapped to the same new variable. Only one can be.
 	std::vector<std::vector<const Choice*>> find_conflicts() const;

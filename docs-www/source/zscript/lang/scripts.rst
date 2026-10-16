@@ -159,6 +159,55 @@ is `@Export()`, which is REQUIRED by the other annotations here.
 	|                       |                                                                       | for details.                                          |
 	+-----------------------+-----------------------------------------------------------------------+-------------------------------------------------------+
 
+Converting from `InitD[]`
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+A script that takes its setup values as `run()` parameters (`InitD[]`) can be converted
+to exported variables without setting every placement up again. Replace the parameters
+with exported variables of the same names, and remove all of `run()`'s parameters:
+
+.. zscript::
+
+	// Before
+	ffc script Spinner
+	{
+		void run(int speed, int radius)
+		{
+			// ...
+		}
+	}
+
+	// After
+	ffc script Spinner
+	{
+		@Export("Speed")
+		nonstatic int speed;
+		@Export("Radius")
+		nonstatic int radius;
+
+		void run()
+		{
+			// ...
+		}
+	}
+
+When the script is compiled, each placement's `InitD[]` values are copied to the exported
+variables of the same name.
+
+When assigning slots, the editor lists each parameter that has values set, with the
+variable it will be copied to - initially the one of the same name. Check it before
+pressing OK.
+
+- This only happens if the new `run()` has no parameters at all. Converting only some of
+  the parameters copies nothing.
+- Parameters are matched by name, not by order, so the new variables may be declared in any
+  order.
+- A variable that already has a value set for a placement keeps it.
+- If a parameter is `int` and its variable is `long` (or the other way round), values are
+  converted so the number stays the same: `3` becomes `3L`.
+- The `InitD[]` values themselves are left as they were, so a script that reads
+  `this->InitD[]` directly keeps working.
+
 Static Functions
 ----------------
 .. versionadded:: 3.0

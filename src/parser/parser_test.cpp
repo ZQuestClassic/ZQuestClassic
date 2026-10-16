@@ -394,6 +394,90 @@ TestResults test_parser([[maybe_unused]] bool verbose)
 		return true;
 	});
 
+	TEST("InitD to variables", tr, [&]{
+		auto compile_source = [&](std::string name, std::string source) {
+			auto path = std::filesystem::temp_directory_path() / name;
+			std::ofstream(path) << source;
+			auto results = runCompiler(path.string());
+			std::filesystem::remove(path);
+			if (!results->success)
+				throw std::runtime_error(fmt::format("failed to compile {}", name));
+			return results;
+		};
+
+		auto before = compile_source("initd_before.zs", R"zs(
+			ffc script initd_test
+			{
+				void run(int speed, long big, int dropped)
+				{
+					Trace(speed + dropped);
+					if (big > 0L) Trace(1);
+				}
+			}
+			ffc script initd_partial
+			{
+				void run(int speed) { Trace(speed); }
+			}
+		)zs");
+		// initd_test is converted entirely (big also becomes an int). initd_partial
+		// keeps a run() parameter, so nothing is copied for it.
+		auto after = compile_source("initd_after.zs", R"zs(
+			ffc script initd_test
+			{
+				@Export("Speed")
+				nonstatic int speed;
+				@Export("Big")
+				nonstatic int big;
+				void run() { Trace(speed + big); }
+			}
+			ffc script initd_partial
+			{
+				@Export("Speed")
+				nonstatic int speed;
+				void run(int other) { Trace(speed + other); }
+			}
+		)zs");
+
+		auto& before_data = before->zasmCompilerResult.debugData;
+		auto& after_data = after->zasmCompilerResult.debugData;
+		auto remap = build_inst_var_remap(before_data, after_data, "initd_test");
+		assertTrue(remap.has_value());
+		assertTrue(!remap->is_identity());
+		assertSize(remap->old_params, 3);
+		assertEqual(remap->old_params[2].name, "dropped"s);
+		assertSize(remap->initd_moves, 2);
+		assertEqual(remap->initd_moves[0].initd, 0);
+		assertEqual((int)remap->initd_moves[0].new_id, 1);
+		assertEqual(remap->initd_moves[1].initd, 1);
+		assertEqual((int)remap->initd_moves[1].new_id, 2);
+		assertTrue(remap->initd_moves[1].kind == InstVarKind::Long);
+		// Variables getting InitD values aren't offered as a renamed variable's new name.
+		assertTrue(remap->unmatched_new().empty());
+
+		std::array<int, 8> run_args = {30000, 7, 5};
+		std::map<word, int> inst_init;
+		assertEqual(apply_initd_moves(inst_init, run_args, *remap), 2);
+		// big's 7L becomes 7 as an int.
+		assertEqual(inst_init, (std::map<word, int>{{1, 30000}, {2, 70000}}));
+
+		// A value already set is kept.
+		inst_init = {{1, 990000}};
+		assertEqual(apply_initd_moves(inst_init, run_args, *remap), 1);
+		assertEqual(inst_init.at(1), 990000);
+
+		auto partial = build_inst_var_remap(before_data, after_data, "initd_partial");
+		assertTrue(partial.has_value());
+		assertTrue(partial->initd_moves.empty());
+		assertTrue(partial->old_params.empty());
+
+		// A conversion with no name matches still needs handling (the user is asked).
+		InstVarRemap no_matches;
+		no_matches.old_params = {{0, "speed", "int", InstVarKind::Int}};
+		assertTrue(!no_matches.is_identity());
+
+		return true;
+	});
+
 	TEST("debug data scopes", tr, [&]{
 		// Roundtrip.
 		auto encoded_debug_data = results->zasmCompilerResult.debugData.encode();
