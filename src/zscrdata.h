@@ -143,34 +143,53 @@ inline void write_str(string const& str, FILE* f)
 {
 	size_t sz = str.size();
 	write_var(sz, f);
-	for(size_t q = 0; q < sz; ++q)
-		fputc(str.at(q), f);
+	if (sz)
+		fwrite(str.data(), 1, sz, f);
 }
 inline void read_str(string& str, FILE* f)
 {
-	size_t sz;
+	size_t sz = 0;
 	read_var(sz, f);
-	str.clear();
-	for(size_t q = 0; q < sz; ++q)
-		str.push_back(fgetc(f));
+	str.resize(sz);
+	if (sz)
+		fread(str.data(), 1, sz, f);
 }
 
+// Vectors of integers or integral enums (like the encoded debug data) are
+// written as one block; anything else goes element by element.
 template<typename T>
 void write_vec(vector<T> const& vec, FILE* f)
 {
 	size_t sz = vec.size();
 	write_var(sz, f);
-	for(size_t q = 0; q < sz; ++q)
-		write_var(vec.at(q), f);
+	if constexpr (integral_type<T>)
+	{
+		if (sz)
+			fwrite(vec.data(), sizeof(T), sz, f);
+	}
+	else
+	{
+		for(size_t q = 0; q < sz; ++q)
+			write_var(vec.at(q), f);
+	}
 }
 template<typename T>
 void read_vec(vector<T>& vec, FILE* f)
 {
-	size_t sz;
+	size_t sz = 0;
 	read_var(sz, f);
 	vec.clear();
-	for(size_t q = 0; q < sz; ++q)
-		read_var(vec.emplace_back(), f);
+	if constexpr (integral_type<T>)
+	{
+		vec.resize(sz);
+		if (sz)
+			fread(vec.data(), sizeof(T), sz, f);
+	}
+	else
+	{
+		for(size_t q = 0; q < sz; ++q)
+			read_var(vec.emplace_back(), f);
+	}
 }
 
 template<typename Tkey, typename Tval>
