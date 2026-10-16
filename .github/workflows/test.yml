@@ -125,6 +125,8 @@ jobs:
           --build-folder zc-extracted
 
       - name: Run replay tests
+        # EXTRA_ARGS is read with bash syntax; Windows defaults to PowerShell.
+        shell: bash
         env:
           EXTRA_ARGS: ${{ inputs.extra-args }}
         run: >
@@ -143,6 +145,8 @@ jobs:
       # Also, without headless.
       - name: Test w/o JIT
         if: ${{ matrix.shard_index == 1 && inputs.from-ci-workflow && inputs.compiler != 'msvc' }}
+        # EXTRA_ARGS is read with bash syntax; Windows defaults to PowerShell.
+        shell: bash
         env:
           EXTRA_ARGS: ${{ inputs.extra-args }}
         run: >
@@ -161,6 +165,8 @@ jobs:
       # surface when the optimizer isn't rewriting the ZASM beforehand.
       - name: Test w/o ZASM optimizer
         if: ${{ matrix.shard_index == 1 && inputs.from-ci-workflow && inputs.compiler != 'msvc' }}
+        # EXTRA_ARGS is read with bash syntax; Windows defaults to PowerShell.
+        shell: bash
         env:
           EXTRA_ARGS: ${{ inputs.extra-args }}
         run: >
