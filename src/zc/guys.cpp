@@ -2411,7 +2411,6 @@ int32_t enemy::defendNew(int32_t wpnId, int32_t *power, int32_t edef, byte unblo
 						//((enemy*)guys.spr(guys.Count()-1))->stunclk = delay_timer;
 						new_id &= 0xFFF;
 						int32_t head_cnt = zc_max(1,zc_min(254,guysbuf[new_id&0xFFF].misc1));
-							Z_scripterrlog("Gleeok head count is %d\n",head_cnt);
 						for(int32_t i=0; i<head_cnt; i++)
 						{
 							//enemy *e = new esGleeok(x,y,new_id+0x1000,clk,gleeok);
@@ -2424,7 +2423,7 @@ int32_t enemy::defendNew(int32_t wpnId, int32_t *power, int32_t edef, byte unblo
 								guys.del(guys.Count()-1);
 							}
 							
-							break;
+							return 0;
 							}
 							else
 							{
@@ -2434,7 +2433,7 @@ int32_t enemy::defendNew(int32_t wpnId, int32_t *power, int32_t edef, byte unblo
 							
 							c-=guysbuf[new_id].misc4;
 						}
-						return 1;
+						break;
 					}
 					
 					case eeGHOMA:
@@ -2882,20 +2881,22 @@ int32_t enemy::defendNew(int32_t wpnId, int32_t *power, int32_t edef, byte unblo
 				
 				
 			// TODO(crash): check that the above .add succeeded.
-			((enemy*)guys.spr(guys.Count()-1))->count_enemy = true;
-			((enemy*)guys.spr(guys.Count()-1))->stunclk = delay_timer;
-			((enemy*)guys.spr(guys.Count()-1))->dir = this->dir;
-			((enemy*)guys.spr(guys.Count()-1))->scale = this->scale;
-			((enemy*)guys.spr(guys.Count()-1))->angular = this->angular;
-			((enemy*)guys.spr(guys.Count()-1))->angle = this->angle;
-			((enemy*)guys.spr(guys.Count()-1))->rotation = this->rotation;
-			//((enemy*)guys.spr(guys.Count()-1))->mainguy = this->mainguy; //This might mean that it is a core. 
-			((enemy*)guys.spr(guys.Count()-1))->itemguy = this->itemguy;
-			((enemy*)guys.spr(guys.Count()-1))->leader = this->leader;
-			((enemy*)guys.spr(guys.Count()-1))->hclk = delay_timer;
-			((enemy*)guys.spr(guys.Count()-1))->script_spawned = this->script_spawned;
-			((enemy*)guys.spr(guys.Count()-1))->script_UID = this->script_UID;
-			((enemy*)guys.spr(guys.Count()-1))->sclk = 0;
+			// A Gleeok's heads are added after its body, which is what takes over.
+			enemy* spawned = gleeok ? gleeok : (enemy*)guys.spr(guys.Count()-1);
+			spawned->count_enemy = true;
+			spawned->stunclk = delay_timer;
+			spawned->dir = this->dir;
+			spawned->scale = this->scale;
+			spawned->angular = this->angular;
+			spawned->angle = this->angle;
+			spawned->rotation = this->rotation;
+			//spawned->mainguy = this->mainguy; //This might mean that it is a core. 
+			spawned->itemguy = this->itemguy;
+			spawned->leader = this->leader;
+			spawned->hclk = delay_timer;
+			spawned->script_spawned = this->script_spawned;
+			spawned->script_UID = this->script_UID;
+			spawned->sclk = 0;
 			
 			
 			item_set = 0; //Do not make a drop. 
@@ -2947,10 +2948,9 @@ int32_t enemy::defendNew(int32_t wpnId, int32_t *power, int32_t edef, byte unblo
 			{
 				case eeGLEEOK:
 				{
-					Z_scripterrlog("Replacing a gleeok.\n");
 					enemy *tempenemy = (enemy *) guys.getByUID(parentCore);
 					hp = -999;
-					tempenemy->hp = -999; 
+					if (tempenemy) tempenemy->hp = -999; 
 					break;
 					
 				}
