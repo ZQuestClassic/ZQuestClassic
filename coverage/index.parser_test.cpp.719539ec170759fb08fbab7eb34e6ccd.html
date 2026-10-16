@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2026-10-08 07:59:03</td>
+      <td>2026-10-16 03:02:45</td>
     </tr>
   </table>
 </div>
@@ -41,9 +41,9 @@
     </tr>
     <tr>
       <th scope="row">Lines:</th>
-      <td>492</td>
-      <td>572</td>
-      <td class="coverage-medium">86.0%</td>
+      <td>505</td>
+      <td>585</td>
+      <td class="coverage-medium">86.3%</td>
     </tr>
     <tr>
       <th scope="row">Functions:</th>
@@ -53,9 +53,9 @@
     </tr>
     <tr>
       <th scope="row">Branches:</th>
-      <td>814</td>
-      <td>1696</td>
-      <td class="coverage-low">48.0%</td>
+      <td>833</td>
+      <td>1726</td>
+      <td class="coverage-low">48.3%</td>
     </tr>
   </table>
 </div>
@@ -88,8 +88,8 @@
     <tr><td><a href="#l259">test_parser(bool)::$_2::operator()() const (line 259)</a></td><td>called 1 time, returned 1 time</td><td>46.0%</td></tr>
     <tr><td><a href="#l638">test_parser(bool)::$_3::operator()() const (line 638)</a></td><td>called 1 time, returned 1 time</td><td>48.0%</td></tr>
     <tr><td><a href="#l643">test_parser(bool)::$_3::operator()() const::&#39;lambda&#39;(std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt; const&amp;)::operator()(std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt; const&amp;) const (line 643)</a></td><td>called 34 times, returned 34 times</td><td>42.0%</td></tr>
-    <tr><td><a href="#l772">test_parser(bool)::$_4::operator()() const (line 772)</a></td><td>called 1 time, returned 1 time</td><td>57.0%</td></tr>
-    <tr><td><a href="#l777">test_parser(bool)::$_4::operator()() const::&#39;lambda&#39;(std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt; const&amp;, DebugScope const*)::operator()(std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt; const&amp;, DebugScope const*) const (line 777)</a></td><td>called 61 times, returned 61 times</td><td>81.0%</td></tr>
+    <tr><td><a href="#l772">test_parser(bool)::$_4::operator()() const (line 772)</a></td><td>called 1 time, returned 1 time</td><td>58.0%</td></tr>
+    <tr><td><a href="#l777">test_parser(bool)::$_4::operator()() const::&#39;lambda&#39;(std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt; const&amp;, DebugScope const*)::operator()(std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt; const&amp;, DebugScope const*) const (line 777)</a></td><td>called 62 times, returned 62 times</td><td>81.0%</td></tr>
     <tr><td><a href="#l495">test_parser(bool)::MockVM::MockVM() (line 495)</a></td><td>called 2 times, returned 2 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l619">test_parser(bool)::MockVM::createArray(std::vector&lt;int, std::allocator&lt;int&gt; &gt;, DebugType const*) (line 619)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l624">test_parser(bool)::MockVM::createString(std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt; const&amp;) (line 624)</a></td><td>not called</td><td>0.0%</td></tr>
@@ -3553,7 +3553,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">1</td>
-      <td class="src partialCoveredLine"><span class="w">		</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">symbolsToString</span><span class="p">(</span><span class="n">debugData</span><span class="p">,</span><span class="w"> </span><span class="n">range_loop_fn_symbols</span><span class="p">),</span><span class="w"> </span><span class="s">&quot;int[] arr @ Stack[4], int z @ Stack[3], int __LOOP_ITER @ Stack[3] &lt;HIDDEN&gt;, int[] __LOOP_ARR @ Stack[2] &lt;HIDDEN&gt;, int x @ Stack[1], int y @ Stack[0]&quot;</span><span class="n">s</span><span class="p">);</span></td>
+      <td class="src partialCoveredLine"><span class="w">		</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">symbolsToString</span><span class="p">(</span><span class="n">debugData</span><span class="p">,</span><span class="w"> </span><span class="n">range_loop_fn_symbols</span><span class="p">),</span><span class="w"> </span><span class="s">&quot;int[] arr @ Stack[4], int z @ Stack[0], int __LOOP_ITER @ Stack[3] &lt;HIDDEN&gt;, int[] __LOOP_ARR @ Stack[2] &lt;HIDDEN&gt;, int x @ Stack[1], int y @ Stack[0]&quot;</span><span class="n">s</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l365" href="#l365">365</a></td>
@@ -7871,7 +7871,7 @@
       <td class="lineno"><a id="l777" href="#l777">777</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">62</td>
+      <td class="linecount coveredLine">63</td>
       <td class="src coveredLine"><span class="w">		</span><span class="k">auto</span><span class="w"> </span><span class="n">eval</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="o">&amp;</span><span class="p">](</span><span class="k">const</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&amp;</span><span class="w"> </span><span class="n">expr</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">DebugScope</span><span class="o">*</span><span class="w"> </span><span class="n">scope</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">nullptr</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">DebugValue</span><span class="w"> </span><span class="p">{</span></td>
     </tr>
     <tr class="source-line">
@@ -7881,11 +7881,11 @@
         <summary class="linebranchSummary">2/2</summary>
         <div class="linebranchContents">
           <div class="takenBranch">&check; Branch 0 taken 8 times.</div>
-          <div class="takenBranch">&check; Branch 1 taken 53 times.</div>
+          <div class="takenBranch">&check; Branch 1 taken 54 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount coveredLine">61</td>
+      <td class="linecount coveredLine">62</td>
       <td class="src coveredLine"><span class="w">			</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">scope</span><span class="p">)</span><span class="w"> </span><span class="n">scope</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">&amp;</span><span class="n">debugData</span><span class="p">.</span><span class="n">scopes</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span></td>
     </tr>
     <tr class="source-line">
@@ -7901,12 +7901,12 @@
         <details class="linebranchDetails">
         <summary class="linebranchSummary">1/2</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 61 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 62 times.</div>
           <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">75</td>
+      <td class="linecount partialCoveredLine">76</td>
       <td class="src partialCoveredLine"><span class="w">			</span><span class="n">ExpressionParser</span><span class="w"> </span><span class="nf">parser</span><span class="p">(</span><span class="n">expr</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
@@ -7915,14 +7915,14 @@
         <details class="linebranchDetails">
         <summary class="linebranchSummary">3/4</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 61 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 62 times.</div>
           <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
-          <div class="takenBranch">&check; Branch 2 taken 54 times.</div>
+          <div class="takenBranch">&check; Branch 2 taken 55 times.</div>
           <div class="takenBranch">&check; Branch 3 taken 7 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">61</td>
+      <td class="linecount partialCoveredLine">62</td>
       <td class="src partialCoveredLine"><span class="w">			</span><span class="k">auto</span><span class="w"> </span><span class="n">node</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">parser</span><span class="p">.</span><span class="n">parseExpression</span><span class="p">().</span><span class="n">value</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
@@ -7931,12 +7931,12 @@
         <details class="linebranchDetails">
         <summary class="linebranchSummary">1/2</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 54 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 55 times.</div>
           <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">54</td>
+      <td class="linecount partialCoveredLine">55</td>
       <td class="src partialCoveredLine"><span class="w">			</span><span class="n">ExpressionEvaluator</span><span class="w"> </span><span class="nf">eval</span><span class="p">(</span><span class="n">debugData</span><span class="p">,</span><span class="w"> </span><span class="n">scope</span><span class="p">,</span><span class="w"> </span><span class="n">vm</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
@@ -7945,19 +7945,19 @@
         <details class="linebranchDetails">
         <summary class="linebranchSummary">2/2</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 47 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 48 times.</div>
           <div class="takenBranch">&check; Branch 1 taken 7 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount coveredLine">54</td>
+      <td class="linecount coveredLine">55</td>
       <td class="src coveredLine"><span class="w">			</span><span class="k">return</span><span class="w"> </span><span class="n">eval</span><span class="p">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">node</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l784" href="#l784">784</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">61</td>
+      <td class="linecount coveredLine">62</td>
       <td class="src coveredLine"><span class="w">		</span><span class="p">};</span></td>
     </tr>
     <tr class="source-line">
@@ -8471,38 +8471,98 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="p">}</span></td>
+      <td class="src "></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l829" href="#l829">829</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="w">			</span><span class="c1">// INT_MIN / -1 doesn&#39;t fit, which crashes a 32-bit divide on x86. It wraps instead.</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l830" href="#l830">830</a></td>
+      <td class="linebranch">
+        <details class="linebranchDetails">
+        <summary class="linebranchSummary">2/4</summary>
+        <div class="linebranchContents">
+          <div class="takenBranch">&check; Branch 0 taken 1 times.</div>
+          <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
+          <div class="takenBranch">&check; Branch 2 taken 1 times.</div>
+          <div class="notTakenBranch">&cross; Branch 3 not taken.</div>
+        </div>
+        </details>
+      </td>
+      <td class="linecount partialCoveredLine">1</td>
+      <td class="src partialCoveredLine"><span class="w">			</span><span class="n">val</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">eval</span><span class="p">(</span><span class="s">&quot;(-2147483647L - 1L) / -1L&quot;</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l831" href="#l831">831</a></td>
+      <td class="linebranch">
+        <details class="linebranchDetails">
+        <summary class="linebranchSummary">1/2</summary>
+        <div class="linebranchContents">
+          <div class="takenBranch">&check; Branch 0 taken 1 times.</div>
+          <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
+        </div>
+        </details>
+      </td>
+      <td class="linecount partialCoveredLine">1</td>
+      <td class="src partialCoveredLine"><span class="w">			</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">val</span><span class="p">.</span><span class="n">raw_value</span><span class="p">,</span><span class="w"> </span><span class="n">INT32_MIN</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l832" href="#l832">832</a></td>
+      <td class="linebranch">
+        <details class="linebranchDetails">
+        <summary class="linebranchSummary">2/4</summary>
+        <div class="linebranchContents">
+          <div class="takenBranch">&check; Branch 0 taken 1 times.</div>
+          <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
+          <div class="takenBranch">&check; Branch 2 taken 1 times.</div>
+          <div class="notTakenBranch">&cross; Branch 3 not taken.</div>
+        </div>
+        </details>
+      </td>
+      <td class="linecount partialCoveredLine">1</td>
+      <td class="src partialCoveredLine"><span class="w">			</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">val</span><span class="p">.</span><span class="n">type</span><span class="o">-&gt;</span><span class="n">isLong</span><span class="p">(</span><span class="n">debugData</span><span class="p">));</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l833" href="#l833">833</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">		</span><span class="p">}</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l834" href="#l834">834</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l835" href="#l835">835</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">		</span><span class="c1">// Number literals.</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l831" href="#l831">831</a></td>
+      <td class="lineno"><a id="l836" href="#l836">836</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">		</span><span class="p">{</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l832" href="#l832">832</a></td>
+      <td class="lineno"><a id="l837" href="#l837">837</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">			</span><span class="c1">// Fixed-point decimals - up to 4 decimal places.</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l833" href="#l833">833</a></td>
+      <td class="lineno"><a id="l838" href="#l838">838</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">2/4</summary>
@@ -8518,7 +8578,7 @@
       <td class="src partialCoveredLine"><span class="w">			</span><span class="k">auto</span><span class="w"> </span><span class="n">val</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">eval</span><span class="p">(</span><span class="s">&quot;1.5&quot;</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l834" href="#l834">834</a></td>
+      <td class="lineno"><a id="l839" href="#l839">839</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">1/2</summary>
@@ -8532,7 +8592,7 @@
       <td class="src partialCoveredLine"><span class="w">			</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">val</span><span class="p">.</span><span class="n">raw_value</span><span class="p">,</span><span class="w"> </span><span class="mi">15000</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l835" href="#l835">835</a></td>
+      <td class="lineno"><a id="l840" href="#l840">840</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">2/4</summary>
@@ -8548,7 +8608,7 @@
       <td class="src partialCoveredLine"><span class="w">			</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">val</span><span class="p">.</span><span class="n">type</span><span class="o">-&gt;</span><span class="n">isFixed</span><span class="p">(</span><span class="n">debugData</span><span class="p">));</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l836" href="#l836">836</a></td>
+      <td class="lineno"><a id="l841" href="#l841">841</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">3/6</summary>
@@ -8566,7 +8626,7 @@
       <td class="src partialCoveredLine"><span class="w">			</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">eval</span><span class="p">(</span><span class="s">&quot;0.5&quot;</span><span class="p">).</span><span class="n">raw_value</span><span class="p">,</span><span class="w"> </span><span class="mi">5000</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l837" href="#l837">837</a></td>
+      <td class="lineno"><a id="l842" href="#l842">842</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">3/6</summary>
@@ -8584,7 +8644,7 @@
       <td class="src partialCoveredLine"><span class="w">			</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">eval</span><span class="p">(</span><span class="s">&quot;2.05&quot;</span><span class="p">).</span><span class="n">raw_value</span><span class="p">,</span><span class="w"> </span><span class="mi">20500</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l838" href="#l838">838</a></td>
+      <td class="lineno"><a id="l843" href="#l843">843</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">3/6</summary>
@@ -8602,7 +8662,7 @@
       <td class="src partialCoveredLine"><span class="w">			</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">eval</span><span class="p">(</span><span class="s">&quot;12.3456&quot;</span><span class="p">).</span><span class="n">raw_value</span><span class="p">,</span><span class="w"> </span><span class="mi">123456</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l839" href="#l839">839</a></td>
+      <td class="lineno"><a id="l844" href="#l844">844</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">3/6</summary>
@@ -8620,82 +8680,6 @@
       <td class="src partialCoveredLine"><span class="w">			</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">eval</span><span class="p">(</span><span class="s">&quot;-1.5&quot;</span><span class="p">).</span><span class="n">raw_value</span><span class="p">,</span><span class="w"> </span><span class="mi">-15000</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l840" href="#l840">840</a></td>
-      <td class="linebranch">
-        <details class="linebranchDetails">
-        <summary class="linebranchSummary">3/6</summary>
-        <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 1 times.</div>
-          <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
-          <div class="takenBranch">&check; Branch 2 taken 1 times.</div>
-          <div class="notTakenBranch">&cross; Branch 3 not taken.</div>
-          <div class="takenBranch">&check; Branch 4 taken 1 times.</div>
-          <div class="notTakenBranch">&cross; Branch 5 not taken.</div>
-        </div>
-        </details>
-      </td>
-      <td class="linecount partialCoveredLine">1</td>
-      <td class="src partialCoveredLine"><span class="w">			</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">eval</span><span class="p">(</span><span class="s">&quot;1.5 + 1&quot;</span><span class="p">).</span><span class="n">raw_value</span><span class="p">,</span><span class="w"> </span><span class="mi">25000</span><span class="p">);</span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l841" href="#l841">841</a></td>
-      <td class="linebranch">
-        <details class="linebranchDetails">
-        <summary class="linebranchSummary">4/10</summary>
-        <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 1 times.</div>
-          <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
-          <div class="notTakenBranch">&cross; Branch 2 not taken.</div>
-          <div class="takenBranch">&check; Branch 3 taken 1 times.</div>
-          <div class="takenBranch">&check; Branch 4 taken 1 times.</div>
-          <div class="notTakenBranch">&cross; Branch 5 not taken.</div>
-          <div class="notTakenBranch">&cross; Branch 6 not taken.</div>
-          <div class="takenBranch">&check; Branch 7 taken 1 times.</div>
-          <div class="notTakenBranch">&cross; Branch 8 not taken.</div>
-          <div class="notTakenBranch">&cross; Branch 9 not taken.</div>
-        </div>
-        </details>
-      </td>
-      <td class="linecount partialCoveredLine">1</td>
-      <td class="src partialCoveredLine"><span class="w">			</span><span class="n">assertThrows</span><span class="p">(</span><span class="n">eval</span><span class="p">(</span><span class="s">&quot;1.12345&quot;</span><span class="p">));</span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l842" href="#l842">842</a></td>
-      <td class="linebranch">
-        <details class="linebranchDetails">
-        <summary class="linebranchSummary">4/10</summary>
-        <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 1 times.</div>
-          <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
-          <div class="notTakenBranch">&cross; Branch 2 not taken.</div>
-          <div class="takenBranch">&check; Branch 3 taken 1 times.</div>
-          <div class="takenBranch">&check; Branch 4 taken 1 times.</div>
-          <div class="notTakenBranch">&cross; Branch 5 not taken.</div>
-          <div class="notTakenBranch">&cross; Branch 6 not taken.</div>
-          <div class="takenBranch">&check; Branch 7 taken 1 times.</div>
-          <div class="notTakenBranch">&cross; Branch 8 not taken.</div>
-          <div class="notTakenBranch">&cross; Branch 9 not taken.</div>
-        </div>
-        </details>
-      </td>
-      <td class="linecount partialCoveredLine">1</td>
-      <td class="src partialCoveredLine"><span class="w">			</span><span class="n">assertThrows</span><span class="p">(</span><span class="n">eval</span><span class="p">(</span><span class="s">&quot;1.&quot;</span><span class="p">));</span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l843" href="#l843">843</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount "></td>
-      <td class="src "></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l844" href="#l844">844</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="w">			</span><span class="c1">// Out of range.</span></td>
-    </tr>
-    <tr class="source-line">
       <td class="lineno"><a id="l845" href="#l845">845</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
@@ -8711,7 +8695,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">1</td>
-      <td class="src partialCoveredLine"><span class="w">			</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">eval</span><span class="p">(</span><span class="s">&quot;214748&quot;</span><span class="p">).</span><span class="n">raw_value</span><span class="p">,</span><span class="w"> </span><span class="mi">2147480000</span><span class="p">);</span></td>
+      <td class="src partialCoveredLine"><span class="w">			</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">eval</span><span class="p">(</span><span class="s">&quot;1.5 + 1&quot;</span><span class="p">).</span><span class="n">raw_value</span><span class="p">,</span><span class="w"> </span><span class="mi">25000</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l846" href="#l846">846</a></td>
@@ -8733,7 +8717,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">1</td>
-      <td class="src partialCoveredLine"><span class="w">			</span><span class="n">assertThrows</span><span class="p">(</span><span class="n">eval</span><span class="p">(</span><span class="s">&quot;999999999&quot;</span><span class="p">));</span></td>
+      <td class="src partialCoveredLine"><span class="w">			</span><span class="n">assertThrows</span><span class="p">(</span><span class="n">eval</span><span class="p">(</span><span class="s">&quot;1.12345&quot;</span><span class="p">));</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l847" href="#l847">847</a></td>
@@ -8755,7 +8739,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">1</td>
-      <td class="src partialCoveredLine"><span class="w">			</span><span class="n">assertThrows</span><span class="p">(</span><span class="n">eval</span><span class="p">(</span><span class="s">&quot;99999999999999999999&quot;</span><span class="p">));</span></td>
+      <td class="src partialCoveredLine"><span class="w">			</span><span class="n">assertThrows</span><span class="p">(</span><span class="n">eval</span><span class="p">(</span><span class="s">&quot;1.&quot;</span><span class="p">));</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l848" href="#l848">848</a></td>
@@ -8769,29 +8753,25 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">			</span><span class="c1">// Trailing input is an error, not silently ignored.</span></td>
+      <td class="src "><span class="w">			</span><span class="c1">// Out of range.</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l850" href="#l850">850</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
-        <summary class="linebranchSummary">4/10</summary>
+        <summary class="linebranchSummary">3/6</summary>
         <div class="linebranchContents">
           <div class="takenBranch">&check; Branch 0 taken 1 times.</div>
           <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
-          <div class="notTakenBranch">&cross; Branch 2 not taken.</div>
-          <div class="takenBranch">&check; Branch 3 taken 1 times.</div>
+          <div class="takenBranch">&check; Branch 2 taken 1 times.</div>
+          <div class="notTakenBranch">&cross; Branch 3 not taken.</div>
           <div class="takenBranch">&check; Branch 4 taken 1 times.</div>
           <div class="notTakenBranch">&cross; Branch 5 not taken.</div>
-          <div class="notTakenBranch">&cross; Branch 6 not taken.</div>
-          <div class="takenBranch">&check; Branch 7 taken 1 times.</div>
-          <div class="notTakenBranch">&cross; Branch 8 not taken.</div>
-          <div class="notTakenBranch">&cross; Branch 9 not taken.</div>
         </div>
         </details>
       </td>
       <td class="linecount partialCoveredLine">1</td>
-      <td class="src partialCoveredLine"><span class="w">			</span><span class="n">assertThrows</span><span class="p">(</span><span class="n">eval</span><span class="p">(</span><span class="s">&quot;1 2&quot;</span><span class="p">));</span></td>
+      <td class="src partialCoveredLine"><span class="w">			</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">eval</span><span class="p">(</span><span class="s">&quot;214748&quot;</span><span class="p">).</span><span class="n">raw_value</span><span class="p">,</span><span class="w"> </span><span class="mi">2147480000</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l851" href="#l851">851</a></td>
@@ -8813,7 +8793,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">1</td>
-      <td class="src partialCoveredLine"><span class="w">			</span><span class="n">assertThrows</span><span class="p">(</span><span class="n">eval</span><span class="p">(</span><span class="s">&quot;1;&quot;</span><span class="p">));</span></td>
+      <td class="src partialCoveredLine"><span class="w">			</span><span class="n">assertThrows</span><span class="p">(</span><span class="n">eval</span><span class="p">(</span><span class="s">&quot;999999999&quot;</span><span class="p">));</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l852" href="#l852">852</a></td>
@@ -8835,45 +8815,125 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">1</td>
-      <td class="src partialCoveredLine"><span class="w">			</span><span class="n">assertThrows</span><span class="p">(</span><span class="n">eval</span><span class="p">(</span><span class="s">&quot;1x&quot;</span><span class="p">));</span></td>
+      <td class="src partialCoveredLine"><span class="w">			</span><span class="n">assertThrows</span><span class="p">(</span><span class="n">eval</span><span class="p">(</span><span class="s">&quot;99999999999999999999&quot;</span><span class="p">));</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l853" href="#l853">853</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="p">}</span></td>
+      <td class="src "></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l854" href="#l854">854</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="w">			</span><span class="c1">// Trailing input is an error, not silently ignored.</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l855" href="#l855">855</a></td>
+      <td class="linebranch">
+        <details class="linebranchDetails">
+        <summary class="linebranchSummary">4/10</summary>
+        <div class="linebranchContents">
+          <div class="takenBranch">&check; Branch 0 taken 1 times.</div>
+          <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
+          <div class="notTakenBranch">&cross; Branch 2 not taken.</div>
+          <div class="takenBranch">&check; Branch 3 taken 1 times.</div>
+          <div class="takenBranch">&check; Branch 4 taken 1 times.</div>
+          <div class="notTakenBranch">&cross; Branch 5 not taken.</div>
+          <div class="notTakenBranch">&cross; Branch 6 not taken.</div>
+          <div class="takenBranch">&check; Branch 7 taken 1 times.</div>
+          <div class="notTakenBranch">&cross; Branch 8 not taken.</div>
+          <div class="notTakenBranch">&cross; Branch 9 not taken.</div>
+        </div>
+        </details>
+      </td>
+      <td class="linecount partialCoveredLine">1</td>
+      <td class="src partialCoveredLine"><span class="w">			</span><span class="n">assertThrows</span><span class="p">(</span><span class="n">eval</span><span class="p">(</span><span class="s">&quot;1 2&quot;</span><span class="p">));</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l856" href="#l856">856</a></td>
+      <td class="linebranch">
+        <details class="linebranchDetails">
+        <summary class="linebranchSummary">4/10</summary>
+        <div class="linebranchContents">
+          <div class="takenBranch">&check; Branch 0 taken 1 times.</div>
+          <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
+          <div class="notTakenBranch">&cross; Branch 2 not taken.</div>
+          <div class="takenBranch">&check; Branch 3 taken 1 times.</div>
+          <div class="takenBranch">&check; Branch 4 taken 1 times.</div>
+          <div class="notTakenBranch">&cross; Branch 5 not taken.</div>
+          <div class="notTakenBranch">&cross; Branch 6 not taken.</div>
+          <div class="takenBranch">&check; Branch 7 taken 1 times.</div>
+          <div class="notTakenBranch">&cross; Branch 8 not taken.</div>
+          <div class="notTakenBranch">&cross; Branch 9 not taken.</div>
+        </div>
+        </details>
+      </td>
+      <td class="linecount partialCoveredLine">1</td>
+      <td class="src partialCoveredLine"><span class="w">			</span><span class="n">assertThrows</span><span class="p">(</span><span class="n">eval</span><span class="p">(</span><span class="s">&quot;1;&quot;</span><span class="p">));</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l857" href="#l857">857</a></td>
+      <td class="linebranch">
+        <details class="linebranchDetails">
+        <summary class="linebranchSummary">4/10</summary>
+        <div class="linebranchContents">
+          <div class="takenBranch">&check; Branch 0 taken 1 times.</div>
+          <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
+          <div class="notTakenBranch">&cross; Branch 2 not taken.</div>
+          <div class="takenBranch">&check; Branch 3 taken 1 times.</div>
+          <div class="takenBranch">&check; Branch 4 taken 1 times.</div>
+          <div class="notTakenBranch">&cross; Branch 5 not taken.</div>
+          <div class="notTakenBranch">&cross; Branch 6 not taken.</div>
+          <div class="takenBranch">&check; Branch 7 taken 1 times.</div>
+          <div class="notTakenBranch">&cross; Branch 8 not taken.</div>
+          <div class="notTakenBranch">&cross; Branch 9 not taken.</div>
+        </div>
+        </details>
+      </td>
+      <td class="linecount partialCoveredLine">1</td>
+      <td class="src partialCoveredLine"><span class="w">			</span><span class="n">assertThrows</span><span class="p">(</span><span class="n">eval</span><span class="p">(</span><span class="s">&quot;1x&quot;</span><span class="p">));</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l858" href="#l858">858</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">		</span><span class="p">}</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l859" href="#l859">859</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l860" href="#l860">860</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">		</span><span class="c1">// Bitwise ops on plain (non-bitflags) values.</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l856" href="#l856">856</a></td>
+      <td class="lineno"><a id="l861" href="#l861">861</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">		</span><span class="p">{</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l857" href="#l857">857</a></td>
+      <td class="lineno"><a id="l862" href="#l862">862</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">			</span><span class="c1">// Fixed values operate on the integer part, matching the engine (do_and etc.).</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l858" href="#l858">858</a></td>
+      <td class="lineno"><a id="l863" href="#l863">863</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">2/4</summary>
@@ -8889,7 +8949,7 @@
       <td class="src partialCoveredLine"><span class="w">			</span><span class="k">auto</span><span class="w"> </span><span class="n">val</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">eval</span><span class="p">(</span><span class="s">&quot;6 &amp; 3&quot;</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l859" href="#l859">859</a></td>
+      <td class="lineno"><a id="l864" href="#l864">864</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">1/2</summary>
@@ -8903,7 +8963,7 @@
       <td class="src partialCoveredLine"><span class="w">			</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">val</span><span class="p">.</span><span class="n">raw_value</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">FIXED_ONE</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l860" href="#l860">860</a></td>
+      <td class="lineno"><a id="l865" href="#l865">865</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">2/4</summary>
@@ -8919,7 +8979,7 @@
       <td class="src partialCoveredLine"><span class="w">			</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">val</span><span class="p">.</span><span class="n">type</span><span class="o">-&gt;</span><span class="n">isFixed</span><span class="p">(</span><span class="n">debugData</span><span class="p">));</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l861" href="#l861">861</a></td>
+      <td class="lineno"><a id="l866" href="#l866">866</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">3/6</summary>
@@ -8937,7 +8997,7 @@
       <td class="src partialCoveredLine"><span class="w">			</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">eval</span><span class="p">(</span><span class="s">&quot;1 | 2&quot;</span><span class="p">).</span><span class="n">raw_value</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">FIXED_ONE</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l862" href="#l862">862</a></td>
+      <td class="lineno"><a id="l867" href="#l867">867</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">3/6</summary>
@@ -8955,21 +9015,21 @@
       <td class="src partialCoveredLine"><span class="w">			</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">eval</span><span class="p">(</span><span class="s">&quot;5 ^ 1&quot;</span><span class="p">).</span><span class="n">raw_value</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">FIXED_ONE</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l863" href="#l863">863</a></td>
+      <td class="lineno"><a id="l868" href="#l868">868</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l864" href="#l864">864</a></td>
+      <td class="lineno"><a id="l869" href="#l869">869</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">			</span><span class="c1">// Longs operate on the raw value (do_and32 etc.).</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l865" href="#l865">865</a></td>
+      <td class="lineno"><a id="l870" href="#l870">870</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">2/4</summary>
@@ -8985,7 +9045,7 @@
       <td class="src partialCoveredLine"><span class="w">			</span><span class="n">val</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">eval</span><span class="p">(</span><span class="s">&quot;6L &amp; 3L&quot;</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l866" href="#l866">866</a></td>
+      <td class="lineno"><a id="l871" href="#l871">871</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">1/2</summary>
@@ -8999,7 +9059,7 @@
       <td class="src partialCoveredLine"><span class="w">			</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">val</span><span class="p">.</span><span class="n">raw_value</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l867" href="#l867">867</a></td>
+      <td class="lineno"><a id="l872" href="#l872">872</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">2/4</summary>
@@ -9013,52 +9073,6 @@
       </td>
       <td class="linecount partialCoveredLine">1</td>
       <td class="src partialCoveredLine"><span class="w">			</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">val</span><span class="p">.</span><span class="n">type</span><span class="o">-&gt;</span><span class="n">isLong</span><span class="p">(</span><span class="n">debugData</span><span class="p">));</span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l868" href="#l868">868</a></td>
-      <td class="linebranch">
-        <details class="linebranchDetails">
-        <summary class="linebranchSummary">3/6</summary>
-        <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 1 times.</div>
-          <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
-          <div class="takenBranch">&check; Branch 2 taken 1 times.</div>
-          <div class="notTakenBranch">&cross; Branch 3 not taken.</div>
-          <div class="takenBranch">&check; Branch 4 taken 1 times.</div>
-          <div class="notTakenBranch">&cross; Branch 5 not taken.</div>
-        </div>
-        </details>
-      </td>
-      <td class="linecount partialCoveredLine">1</td>
-      <td class="src partialCoveredLine"><span class="w">			</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">eval</span><span class="p">(</span><span class="s">&quot;1L | 2L&quot;</span><span class="p">).</span><span class="n">raw_value</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">);</span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l869" href="#l869">869</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="p">}</span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l870" href="#l870">870</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount "></td>
-      <td class="src "></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l871" href="#l871">871</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="c1">// Modulo - works on the raw value for both fixed and long, matching the engine (do_mod).</span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l872" href="#l872">872</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="p">{</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l873" href="#l873">873</a></td>
@@ -9076,10 +9090,56 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">1</td>
-      <td class="src partialCoveredLine"><span class="w">			</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">eval</span><span class="p">(</span><span class="s">&quot;7 % 3&quot;</span><span class="p">).</span><span class="n">raw_value</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">FIXED_ONE</span><span class="p">);</span></td>
+      <td class="src partialCoveredLine"><span class="w">			</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">eval</span><span class="p">(</span><span class="s">&quot;1L | 2L&quot;</span><span class="p">).</span><span class="n">raw_value</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l874" href="#l874">874</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">		</span><span class="p">}</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l875" href="#l875">875</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l876" href="#l876">876</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">		</span><span class="c1">// Modulo - works on the raw value for both fixed and long, matching the engine (do_mod).</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l877" href="#l877">877</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">		</span><span class="p">{</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l878" href="#l878">878</a></td>
+      <td class="linebranch">
+        <details class="linebranchDetails">
+        <summary class="linebranchSummary">3/6</summary>
+        <div class="linebranchContents">
+          <div class="takenBranch">&check; Branch 0 taken 1 times.</div>
+          <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
+          <div class="takenBranch">&check; Branch 2 taken 1 times.</div>
+          <div class="notTakenBranch">&cross; Branch 3 not taken.</div>
+          <div class="takenBranch">&check; Branch 4 taken 1 times.</div>
+          <div class="notTakenBranch">&cross; Branch 5 not taken.</div>
+        </div>
+        </details>
+      </td>
+      <td class="linecount partialCoveredLine">1</td>
+      <td class="src partialCoveredLine"><span class="w">			</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">eval</span><span class="p">(</span><span class="s">&quot;7 % 3&quot;</span><span class="p">).</span><span class="n">raw_value</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">FIXED_ONE</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l879" href="#l879">879</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">3/6</summary>
@@ -9097,7 +9157,7 @@
       <td class="src partialCoveredLine"><span class="w">			</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">eval</span><span class="p">(</span><span class="s">&quot;7.5 % 2&quot;</span><span class="p">).</span><span class="n">raw_value</span><span class="p">,</span><span class="w"> </span><span class="mi">15000</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l875" href="#l875">875</a></td>
+      <td class="lineno"><a id="l880" href="#l880">880</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">3/6</summary>
@@ -9115,7 +9175,7 @@
       <td class="src partialCoveredLine"><span class="w">			</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">eval</span><span class="p">(</span><span class="s">&quot;7L % 3L&quot;</span><span class="p">).</span><span class="n">raw_value</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l876" href="#l876">876</a></td>
+      <td class="lineno"><a id="l881" href="#l881">881</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">4/10</summary>
@@ -9137,42 +9197,42 @@
       <td class="src partialCoveredLine"><span class="w">			</span><span class="n">assertThrows</span><span class="p">(</span><span class="n">eval</span><span class="p">(</span><span class="s">&quot;1 % 0&quot;</span><span class="p">));</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l877" href="#l877">877</a></td>
+      <td class="lineno"><a id="l882" href="#l882">882</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">		</span><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l878" href="#l878">878</a></td>
+      <td class="lineno"><a id="l883" href="#l883">883</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l879" href="#l879">879</a></td>
+      <td class="lineno"><a id="l884" href="#l884">884</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">		</span><span class="c1">// Unary ops.</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l880" href="#l880">880</a></td>
+      <td class="lineno"><a id="l885" href="#l885">885</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">		</span><span class="p">{</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l881" href="#l881">881</a></td>
+      <td class="lineno"><a id="l886" href="#l886">886</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">			</span><span class="c1">// &#39;!&#39; yields a bool.</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l882" href="#l882">882</a></td>
+      <td class="lineno"><a id="l887" href="#l887">887</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">2/4</summary>
@@ -9188,7 +9248,7 @@
       <td class="src partialCoveredLine"><span class="w">			</span><span class="k">auto</span><span class="w"> </span><span class="n">val</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">eval</span><span class="p">(</span><span class="s">&quot;!0&quot;</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l883" href="#l883">883</a></td>
+      <td class="lineno"><a id="l888" href="#l888">888</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">1/2</summary>
@@ -9202,7 +9262,7 @@
       <td class="src partialCoveredLine"><span class="w">			</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">val</span><span class="p">.</span><span class="n">raw_value</span><span class="p">,</span><span class="w"> </span><span class="n">FIXED_ONE</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l884" href="#l884">884</a></td>
+      <td class="lineno"><a id="l889" href="#l889">889</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">2/4</summary>
@@ -9218,7 +9278,7 @@
       <td class="src partialCoveredLine"><span class="w">			</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">val</span><span class="p">.</span><span class="n">type</span><span class="o">-&gt;</span><span class="n">isBool</span><span class="p">(</span><span class="n">debugData</span><span class="p">));</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l885" href="#l885">885</a></td>
+      <td class="lineno"><a id="l890" href="#l890">890</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">3/6</summary>
@@ -9236,21 +9296,21 @@
       <td class="src partialCoveredLine"><span class="w">			</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">eval</span><span class="p">(</span><span class="s">&quot;!3&quot;</span><span class="p">).</span><span class="n">raw_value</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l886" href="#l886">886</a></td>
+      <td class="lineno"><a id="l891" href="#l891">891</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l887" href="#l887">887</a></td>
+      <td class="lineno"><a id="l892" href="#l892">892</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">			</span><span class="c1">// &#39;~&#39; works on the integer part for fixed values; raw for longs.</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l888" href="#l888">888</a></td>
+      <td class="lineno"><a id="l893" href="#l893">893</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">2/4</summary>
@@ -9266,7 +9326,7 @@
       <td class="src partialCoveredLine"><span class="w">			</span><span class="n">val</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">eval</span><span class="p">(</span><span class="s">&quot;~0&quot;</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l889" href="#l889">889</a></td>
+      <td class="lineno"><a id="l894" href="#l894">894</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">1/2</summary>
@@ -9280,7 +9340,7 @@
       <td class="src partialCoveredLine"><span class="w">			</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">val</span><span class="p">.</span><span class="n">raw_value</span><span class="p">,</span><span class="w"> </span><span class="mi">-1</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">FIXED_ONE</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l890" href="#l890">890</a></td>
+      <td class="lineno"><a id="l895" href="#l895">895</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">2/4</summary>
@@ -9296,7 +9356,7 @@
       <td class="src partialCoveredLine"><span class="w">			</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">val</span><span class="p">.</span><span class="n">type</span><span class="o">-&gt;</span><span class="n">isFixed</span><span class="p">(</span><span class="n">debugData</span><span class="p">));</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l891" href="#l891">891</a></td>
+      <td class="lineno"><a id="l896" href="#l896">896</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">3/6</summary>
@@ -9314,35 +9374,35 @@
       <td class="src partialCoveredLine"><span class="w">			</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">eval</span><span class="p">(</span><span class="s">&quot;~5L&quot;</span><span class="p">).</span><span class="n">raw_value</span><span class="p">,</span><span class="w"> </span><span class="o">~</span><span class="mi">5</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l892" href="#l892">892</a></td>
+      <td class="lineno"><a id="l897" href="#l897">897</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">		</span><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l893" href="#l893">893</a></td>
+      <td class="lineno"><a id="l898" href="#l898">898</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l894" href="#l894">894</a></td>
+      <td class="lineno"><a id="l899" href="#l899">899</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">		</span><span class="c1">// Variables.</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l895" href="#l895">895</a></td>
+      <td class="lineno"><a id="l900" href="#l900">900</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">		</span><span class="p">{</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l896" href="#l896">896</a></td>
+      <td class="lineno"><a id="l901" href="#l901">901</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">2/4</summary>
@@ -9358,7 +9418,7 @@
       <td class="src partialCoveredLine"><span class="w">			</span><span class="k">const</span><span class="w"> </span><span class="n">DebugSymbol</span><span class="o">*</span><span class="w"> </span><span class="n">global_var</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">resolveSymbol</span><span class="p">(</span><span class="n">debugData</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;GLOBAL_VAR&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">root_scope</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l897" href="#l897">897</a></td>
+      <td class="lineno"><a id="l902" href="#l902">902</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">1/2</summary>
@@ -9372,14 +9432,14 @@
       <td class="src partialCoveredLine"><span class="w">			</span><span class="n">vm</span><span class="p">.</span><span class="n">setGlobal</span><span class="p">(</span><span class="n">global_var</span><span class="o">-&gt;</span><span class="n">offset</span><span class="p">,</span><span class="w"> </span><span class="mi">50</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">FIXED_ONE</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l898" href="#l898">898</a></td>
+      <td class="lineno"><a id="l903" href="#l903">903</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l899" href="#l899">899</a></td>
+      <td class="lineno"><a id="l904" href="#l904">904</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">2/4</summary>
@@ -9395,7 +9455,7 @@
       <td class="src partialCoveredLine"><span class="w">			</span><span class="k">auto</span><span class="w"> </span><span class="n">val</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">eval</span><span class="p">(</span><span class="s">&quot;GLOBAL_VAR&quot;</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l900" href="#l900">900</a></td>
+      <td class="lineno"><a id="l905" href="#l905">905</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">1/2</summary>
@@ -9409,14 +9469,14 @@
       <td class="src partialCoveredLine"><span class="w">			</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">val</span><span class="p">.</span><span class="n">raw_value</span><span class="p">,</span><span class="w"> </span><span class="mi">50</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">FIXED_ONE</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l901" href="#l901">901</a></td>
+      <td class="lineno"><a id="l906" href="#l906">906</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l902" href="#l902">902</a></td>
+      <td class="lineno"><a id="l907" href="#l907">907</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">2/4</summary>
@@ -9432,7 +9492,7 @@
       <td class="src partialCoveredLine"><span class="w">			</span><span class="n">val</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">eval</span><span class="p">(</span><span class="s">&quot;GLOBAL_VAR + 10&quot;</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l903" href="#l903">903</a></td>
+      <td class="lineno"><a id="l908" href="#l908">908</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">1/2</summary>
@@ -9446,99 +9506,32 @@
       <td class="src partialCoveredLine"><span class="w">			</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">val</span><span class="p">.</span><span class="n">raw_value</span><span class="p">,</span><span class="w"> </span><span class="mi">60</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">FIXED_ONE</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l904" href="#l904">904</a></td>
+      <td class="lineno"><a id="l909" href="#l909">909</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">		</span><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l905" href="#l905">905</a></td>
+      <td class="lineno"><a id="l910" href="#l910">910</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l906" href="#l906">906</a></td>
+      <td class="lineno"><a id="l911" href="#l911">911</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">		</span><span class="c1">// Script instance variables.</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l907" href="#l907">907</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="p">{</span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l908" href="#l908">908</a></td>
-      <td class="linebranch">
-        <details class="linebranchDetails">
-        <summary class="linebranchSummary">2/4</summary>
-        <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 1 times.</div>
-          <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
-          <div class="takenBranch">&check; Branch 2 taken 1 times.</div>
-          <div class="notTakenBranch">&cross; Branch 3 not taken.</div>
-        </div>
-        </details>
-      </td>
-      <td class="linecount partialCoveredLine">1</td>
-      <td class="src partialCoveredLine"><span class="w">			</span><span class="k">const</span><span class="w"> </span><span class="n">DebugScope</span><span class="o">*</span><span class="w"> </span><span class="n">run_fn_scope</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">resolveScope</span><span class="p">(</span><span class="n">debugData</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;scopes.run&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">root_scope</span><span class="p">);</span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l909" href="#l909">909</a></td>
-      <td class="linebranch">
-        <details class="linebranchDetails">
-        <summary class="linebranchSummary">2/4</summary>
-        <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 1 times.</div>
-          <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
-          <div class="takenBranch">&check; Branch 2 taken 1 times.</div>
-          <div class="notTakenBranch">&cross; Branch 3 not taken.</div>
-        </div>
-        </details>
-      </td>
-      <td class="linecount partialCoveredLine">1</td>
-      <td class="src partialCoveredLine"><span class="w">			</span><span class="k">const</span><span class="w"> </span><span class="n">DebugSymbol</span><span class="o">*</span><span class="w"> </span><span class="n">script_inst_var</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">resolveSymbol</span><span class="p">(</span><span class="n">debugData</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;script_scoped_local&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">run_fn_scope</span><span class="p">);</span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l910" href="#l910">910</a></td>
-      <td class="linebranch">
-        <details class="linebranchDetails">
-        <summary class="linebranchSummary">1/2</summary>
-        <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 1 times.</div>
-          <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
-        </div>
-        </details>
-      </td>
-      <td class="linecount partialCoveredLine">1</td>
-      <td class="src partialCoveredLine"><span class="w">			</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">script_inst_var</span><span class="o">-&gt;</span><span class="n">storage</span><span class="p">,</span><span class="w"> </span><span class="n">LOC_SCRIPT_INSTANCE</span><span class="p">);</span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l911" href="#l911">911</a></td>
-      <td class="linebranch">
-        <details class="linebranchDetails">
-        <summary class="linebranchSummary">1/2</summary>
-        <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 1 times.</div>
-          <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
-        </div>
-        </details>
-      </td>
-      <td class="linecount partialCoveredLine">1</td>
-      <td class="src partialCoveredLine"><span class="w">			</span><span class="n">vm</span><span class="p">.</span><span class="n">scriptvars</span><span class="p">[</span><span class="n">script_inst_var</span><span class="o">-&gt;</span><span class="n">offset</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">456</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">FIXED_ONE</span><span class="p">;</span></td>
-    </tr>
-    <tr class="source-line">
       <td class="lineno"><a id="l912" href="#l912">912</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="w">		</span><span class="p">{</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l913" href="#l913">913</a></td>
@@ -9554,10 +9547,77 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">1</td>
-      <td class="src partialCoveredLine"><span class="w">			</span><span class="k">auto</span><span class="w"> </span><span class="n">val</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">eval</span><span class="p">(</span><span class="s">&quot;script_scoped_local&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">run_fn_scope</span><span class="p">);</span></td>
+      <td class="src partialCoveredLine"><span class="w">			</span><span class="k">const</span><span class="w"> </span><span class="n">DebugScope</span><span class="o">*</span><span class="w"> </span><span class="n">run_fn_scope</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">resolveScope</span><span class="p">(</span><span class="n">debugData</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;scopes.run&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">root_scope</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l914" href="#l914">914</a></td>
+      <td class="linebranch">
+        <details class="linebranchDetails">
+        <summary class="linebranchSummary">2/4</summary>
+        <div class="linebranchContents">
+          <div class="takenBranch">&check; Branch 0 taken 1 times.</div>
+          <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
+          <div class="takenBranch">&check; Branch 2 taken 1 times.</div>
+          <div class="notTakenBranch">&cross; Branch 3 not taken.</div>
+        </div>
+        </details>
+      </td>
+      <td class="linecount partialCoveredLine">1</td>
+      <td class="src partialCoveredLine"><span class="w">			</span><span class="k">const</span><span class="w"> </span><span class="n">DebugSymbol</span><span class="o">*</span><span class="w"> </span><span class="n">script_inst_var</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">resolveSymbol</span><span class="p">(</span><span class="n">debugData</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;script_scoped_local&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">run_fn_scope</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l915" href="#l915">915</a></td>
+      <td class="linebranch">
+        <details class="linebranchDetails">
+        <summary class="linebranchSummary">1/2</summary>
+        <div class="linebranchContents">
+          <div class="takenBranch">&check; Branch 0 taken 1 times.</div>
+          <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
+        </div>
+        </details>
+      </td>
+      <td class="linecount partialCoveredLine">1</td>
+      <td class="src partialCoveredLine"><span class="w">			</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">script_inst_var</span><span class="o">-&gt;</span><span class="n">storage</span><span class="p">,</span><span class="w"> </span><span class="n">LOC_SCRIPT_INSTANCE</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l916" href="#l916">916</a></td>
+      <td class="linebranch">
+        <details class="linebranchDetails">
+        <summary class="linebranchSummary">1/2</summary>
+        <div class="linebranchContents">
+          <div class="takenBranch">&check; Branch 0 taken 1 times.</div>
+          <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
+        </div>
+        </details>
+      </td>
+      <td class="linecount partialCoveredLine">1</td>
+      <td class="src partialCoveredLine"><span class="w">			</span><span class="n">vm</span><span class="p">.</span><span class="n">scriptvars</span><span class="p">[</span><span class="n">script_inst_var</span><span class="o">-&gt;</span><span class="n">offset</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">456</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">FIXED_ONE</span><span class="p">;</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l917" href="#l917">917</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l918" href="#l918">918</a></td>
+      <td class="linebranch">
+        <details class="linebranchDetails">
+        <summary class="linebranchSummary">2/4</summary>
+        <div class="linebranchContents">
+          <div class="takenBranch">&check; Branch 0 taken 1 times.</div>
+          <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
+          <div class="takenBranch">&check; Branch 2 taken 1 times.</div>
+          <div class="notTakenBranch">&cross; Branch 3 not taken.</div>
+        </div>
+        </details>
+      </td>
+      <td class="linecount partialCoveredLine">1</td>
+      <td class="src partialCoveredLine"><span class="w">			</span><span class="k">auto</span><span class="w"> </span><span class="n">val</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">eval</span><span class="p">(</span><span class="s">&quot;script_scoped_local&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">run_fn_scope</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l919" href="#l919">919</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">1/2</summary>
@@ -9571,21 +9631,21 @@
       <td class="src partialCoveredLine"><span class="w">			</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">val</span><span class="p">.</span><span class="n">raw_value</span><span class="p">,</span><span class="w"> </span><span class="mi">456</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">FIXED_ONE</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l915" href="#l915">915</a></td>
+      <td class="lineno"><a id="l920" href="#l920">920</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l916" href="#l916">916</a></td>
+      <td class="lineno"><a id="l921" href="#l921">921</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">			</span><span class="c1">// No instance to read from inside a static script function.</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l917" href="#l917">917</a></td>
+      <td class="lineno"><a id="l922" href="#l922">922</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">2/4</summary>
@@ -9601,7 +9661,7 @@
       <td class="src partialCoveredLine"><span class="w">			</span><span class="k">const</span><span class="w"> </span><span class="n">DebugScope</span><span class="o">*</span><span class="w"> </span><span class="n">static_fn_scope</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">resolveScope</span><span class="p">(</span><span class="n">debugData</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;scopes.scriptFunction&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">root_scope</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l918" href="#l918">918</a></td>
+      <td class="lineno"><a id="l923" href="#l923">923</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">4/10</summary>
@@ -9623,35 +9683,35 @@
       <td class="src partialCoveredLine"><span class="w">			</span><span class="n">assertThrows</span><span class="p">(</span><span class="n">eval</span><span class="p">(</span><span class="s">&quot;script_scoped_local&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">static_fn_scope</span><span class="p">));</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l919" href="#l919">919</a></td>
+      <td class="lineno"><a id="l924" href="#l924">924</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">		</span><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l920" href="#l920">920</a></td>
+      <td class="lineno"><a id="l925" href="#l925">925</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l921" href="#l921">921</a></td>
+      <td class="lineno"><a id="l926" href="#l926">926</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">		</span><span class="c1">// Bitflags.</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l922" href="#l922">922</a></td>
+      <td class="lineno"><a id="l927" href="#l927">927</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">		</span><span class="p">{</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l923" href="#l923">923</a></td>
+      <td class="lineno"><a id="l928" href="#l928">928</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">2/4</summary>
@@ -9667,7 +9727,7 @@
       <td class="src partialCoveredLine"><span class="w">			</span><span class="k">auto</span><span class="w"> </span><span class="n">val</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">eval</span><span class="p">(</span><span class="s">&quot;BITDX_TRANS | BITDX_PIVOT&quot;</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l924" href="#l924">924</a></td>
+      <td class="lineno"><a id="l929" href="#l929">929</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">1/2</summary>
@@ -9681,7 +9741,7 @@
       <td class="src partialCoveredLine"><span class="w">			</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">val</span><span class="p">.</span><span class="n">raw_value</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">FIXED_ONE</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l925" href="#l925">925</a></td>
+      <td class="lineno"><a id="l930" href="#l930">930</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">4/8</summary>
@@ -9701,14 +9761,14 @@
       <td class="src partialCoveredLine"><span class="w">			</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">debugData</span><span class="p">.</span><span class="n">getTypeID</span><span class="p">(</span><span class="n">val</span><span class="p">.</span><span class="n">type</span><span class="p">),</span><span class="w"> </span><span class="n">resolveSymbol</span><span class="p">(</span><span class="n">debugData</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;BITDX_TRANS&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">root_scope</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">type_id</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l926" href="#l926">926</a></td>
+      <td class="lineno"><a id="l931" href="#l931">931</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l927" href="#l927">927</a></td>
+      <td class="lineno"><a id="l932" href="#l932">932</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">2/4</summary>
@@ -9724,7 +9784,7 @@
       <td class="src partialCoveredLine"><span class="w">			</span><span class="n">val</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">eval</span><span class="p">(</span><span class="s">&quot;(BITDX_TRANS | BITDX_PIVOT) ^ BITDX_TRANS&quot;</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l928" href="#l928">928</a></td>
+      <td class="lineno"><a id="l933" href="#l933">933</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">1/2</summary>
@@ -9738,7 +9798,7 @@
       <td class="src partialCoveredLine"><span class="w">			</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">val</span><span class="p">.</span><span class="n">raw_value</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">FIXED_ONE</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l929" href="#l929">929</a></td>
+      <td class="lineno"><a id="l934" href="#l934">934</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">4/8</summary>
@@ -9758,21 +9818,21 @@
       <td class="src partialCoveredLine"><span class="w">			</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">debugData</span><span class="p">.</span><span class="n">getTypeID</span><span class="p">(</span><span class="n">val</span><span class="p">.</span><span class="n">type</span><span class="p">),</span><span class="w"> </span><span class="n">resolveSymbol</span><span class="p">(</span><span class="n">debugData</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;BITDX_TRANS&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">root_scope</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">type_id</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l930" href="#l930">930</a></td>
+      <td class="lineno"><a id="l935" href="#l935">935</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l931" href="#l931">931</a></td>
+      <td class="lineno"><a id="l936" href="#l936">936</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">			</span><span class="c1">// Illegal op (should throw).</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l932" href="#l932">932</a></td>
+      <td class="lineno"><a id="l937" href="#l937">937</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">4/10</summary>
@@ -9794,7 +9854,7 @@
       <td class="src partialCoveredLine"><span class="w">			</span><span class="n">assertThrows</span><span class="p">(</span><span class="n">eval</span><span class="p">(</span><span class="s">&quot;BITDX_TRANS + 1&quot;</span><span class="p">));</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l933" href="#l933">933</a></td>
+      <td class="lineno"><a id="l938" href="#l938">938</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">4/10</summary>
@@ -9816,35 +9876,35 @@
       <td class="src partialCoveredLine"><span class="w">			</span><span class="n">assertThrows</span><span class="p">(</span><span class="n">eval</span><span class="p">(</span><span class="s">&quot;BITDX_TRANS | UNBLOCK_NORM&quot;</span><span class="p">));</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l934" href="#l934">934</a></td>
+      <td class="lineno"><a id="l939" href="#l939">939</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">		</span><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l935" href="#l935">935</a></td>
+      <td class="lineno"><a id="l940" href="#l940">940</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l936" href="#l936">936</a></td>
+      <td class="lineno"><a id="l941" href="#l941">941</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">		</span><span class="c1">// Objects.</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l937" href="#l937">937</a></td>
+      <td class="lineno"><a id="l942" href="#l942">942</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">		</span><span class="p">{</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l938" href="#l938">938</a></td>
+      <td class="lineno"><a id="l943" href="#l943">943</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">2/4</summary>
@@ -9860,7 +9920,7 @@
       <td class="src partialCoveredLine"><span class="w">			</span><span class="kt">int</span><span class="w"> </span><span class="n">a_var_idx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">resolveSymbol</span><span class="p">(</span><span class="n">debugData</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;A::CL::A_var&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">root_scope</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">offset</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l939" href="#l939">939</a></td>
+      <td class="lineno"><a id="l944" href="#l944">944</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">2/4</summary>
@@ -9876,35 +9936,35 @@
       <td class="src partialCoveredLine"><span class="w">			</span><span class="k">const</span><span class="w"> </span><span class="n">DebugScope</span><span class="o">*</span><span class="w"> </span><span class="n">cl_trace_function_scope</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">resolveScope</span><span class="p">(</span><span class="n">debugData</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;A::CL::trace&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">root_scope</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l940" href="#l940">940</a></td>
+      <td class="lineno"><a id="l945" href="#l945">945</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l941" href="#l941">941</a></td>
+      <td class="lineno"><a id="l946" href="#l946">946</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">			</span><span class="c1">// Setup an object manually.</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l942" href="#l942">942</a></td>
+      <td class="lineno"><a id="l947" href="#l947">947</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">1</td>
       <td class="src coveredLine"><span class="w">			</span><span class="kt">int</span><span class="w"> </span><span class="n">objPtr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">555</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l943" href="#l943">943</a></td>
+      <td class="lineno"><a id="l948" href="#l948">948</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">1</td>
       <td class="src coveredLine"><span class="w">			</span><span class="n">vm</span><span class="p">.</span><span class="n">current_this_ptr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">objPtr</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l944" href="#l944">944</a></td>
+      <td class="lineno"><a id="l949" href="#l949">949</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">1/2</summary>
@@ -9918,21 +9978,21 @@
       <td class="src partialCoveredLine"><span class="w">			</span><span class="n">vm</span><span class="p">.</span><span class="n">setObjectMember</span><span class="p">(</span><span class="n">objPtr</span><span class="p">,</span><span class="w"> </span><span class="n">a_var_idx</span><span class="p">,</span><span class="w"> </span><span class="mi">100</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">FIXED_ONE</span><span class="p">);</span><span class="w"> </span><span class="c1">// A_var = 100</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l945" href="#l945">945</a></td>
+      <td class="lineno"><a id="l950" href="#l950">950</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l946" href="#l946">946</a></td>
+      <td class="lineno"><a id="l951" href="#l951">951</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">			</span><span class="c1">// Implicit &#39;this&#39; access.</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l947" href="#l947">947</a></td>
+      <td class="lineno"><a id="l952" href="#l952">952</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">2/4</summary>
@@ -9948,7 +10008,7 @@
       <td class="src partialCoveredLine"><span class="w">			</span><span class="k">auto</span><span class="w"> </span><span class="n">val</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">eval</span><span class="p">(</span><span class="s">&quot;A_var&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">cl_trace_function_scope</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l948" href="#l948">948</a></td>
+      <td class="lineno"><a id="l953" href="#l953">953</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">1/2</summary>
@@ -9962,21 +10022,21 @@
       <td class="src partialCoveredLine"><span class="w">			</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">val</span><span class="p">.</span><span class="n">raw_value</span><span class="p">,</span><span class="w"> </span><span class="mi">100</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">FIXED_ONE</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l949" href="#l949">949</a></td>
+      <td class="lineno"><a id="l954" href="#l954">954</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l950" href="#l950">950</a></td>
+      <td class="lineno"><a id="l955" href="#l955">955</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">			</span><span class="c1">// A_var is not defined in global scope.</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l951" href="#l951">951</a></td>
+      <td class="lineno"><a id="l956" href="#l956">956</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">4/10</summary>
@@ -9998,35 +10058,35 @@
       <td class="src partialCoveredLine"><span class="w">			</span><span class="n">assertThrows</span><span class="p">(</span><span class="n">eval</span><span class="p">(</span><span class="s">&quot;A_var&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">root_scope</span><span class="p">));</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l952" href="#l952">952</a></td>
+      <td class="lineno"><a id="l957" href="#l957">957</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l953" href="#l953">953</a></td>
+      <td class="lineno"><a id="l958" href="#l958">958</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">			</span><span class="c1">// Explicit &#39;obj-&gt;member&#39; access.</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l954" href="#l954">954</a></td>
+      <td class="lineno"><a id="l959" href="#l959">959</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">			</span><span class="c1">// We need a variable &#39;hero&#39; that points to objPtr.</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l955" href="#l955">955</a></td>
+      <td class="lineno"><a id="l960" href="#l960">960</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">			</span><span class="c1">// Let&#39;s hack a global variable for this test.</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l956" href="#l956">956</a></td>
+      <td class="lineno"><a id="l961" href="#l961">961</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">3/6</summary>
@@ -10044,7 +10104,7 @@
       <td class="src partialCoveredLine"><span class="w">			</span><span class="n">vm</span><span class="p">.</span><span class="n">setGlobal</span><span class="p">(</span><span class="n">resolveSymbol</span><span class="p">(</span><span class="n">debugData</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;A::cl&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">root_scope</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">offset</span><span class="p">,</span><span class="w"> </span><span class="n">objPtr</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l957" href="#l957">957</a></td>
+      <td class="lineno"><a id="l962" href="#l962">962</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">2/4</summary>
@@ -10060,7 +10120,7 @@
       <td class="src partialCoveredLine"><span class="w">			</span><span class="n">val</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">eval</span><span class="p">(</span><span class="s">&quot;A::cl-&gt;A_var&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">root_scope</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l958" href="#l958">958</a></td>
+      <td class="lineno"><a id="l963" href="#l963">963</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">1/2</summary>
@@ -10074,14 +10134,14 @@
       <td class="src partialCoveredLine"><span class="w">			</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">val</span><span class="p">.</span><span class="n">raw_value</span><span class="p">,</span><span class="w"> </span><span class="mi">100</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">FIXED_ONE</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l959" href="#l959">959</a></td>
+      <td class="lineno"><a id="l964" href="#l964">964</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l960" href="#l960">960</a></td>
+      <td class="lineno"><a id="l965" href="#l965">965</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">2/4</summary>
@@ -10097,7 +10157,7 @@
       <td class="src partialCoveredLine"><span class="w">			</span><span class="k">const</span><span class="w"> </span><span class="n">DebugScope</span><span class="o">*</span><span class="w"> </span><span class="n">a_namespace_scope</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">resolveScope</span><span class="p">(</span><span class="n">debugData</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;A&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">root_scope</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l961" href="#l961">961</a></td>
+      <td class="lineno"><a id="l966" href="#l966">966</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">2/4</summary>
@@ -10113,7 +10173,7 @@
       <td class="src partialCoveredLine"><span class="w">			</span><span class="n">val</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">eval</span><span class="p">(</span><span class="s">&quot;cl-&gt;A_var&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">a_namespace_scope</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l962" href="#l962">962</a></td>
+      <td class="lineno"><a id="l967" href="#l967">967</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">1/2</summary>
@@ -10127,7 +10187,7 @@
       <td class="src partialCoveredLine"><span class="w">			</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">val</span><span class="p">.</span><span class="n">raw_value</span><span class="p">,</span><span class="w"> </span><span class="mi">100</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">FIXED_ONE</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l963" href="#l963">963</a></td>
+      <td class="lineno"><a id="l968" href="#l968">968</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">2/4</summary>
@@ -10143,7 +10203,7 @@
       <td class="src partialCoveredLine"><span class="w">			</span><span class="n">val</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">eval</span><span class="p">(</span><span class="s">&quot;A::cl-&gt;A_var&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">a_namespace_scope</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l964" href="#l964">964</a></td>
+      <td class="lineno"><a id="l969" href="#l969">969</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">1/2</summary>
@@ -10157,21 +10217,21 @@
       <td class="src partialCoveredLine"><span class="w">			</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">val</span><span class="p">.</span><span class="n">raw_value</span><span class="p">,</span><span class="w"> </span><span class="mi">100</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">FIXED_ONE</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l965" href="#l965">965</a></td>
+      <td class="lineno"><a id="l970" href="#l970">970</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l966" href="#l966">966</a></td>
+      <td class="lineno"><a id="l971" href="#l971">971</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">			</span><span class="c1">// cl is not defined in global scope.</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l967" href="#l967">967</a></td>
+      <td class="lineno"><a id="l972" href="#l972">972</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">4/10</summary>
@@ -10193,21 +10253,21 @@
       <td class="src partialCoveredLine"><span class="w">			</span><span class="n">assertThrows</span><span class="p">(</span><span class="n">eval</span><span class="p">(</span><span class="s">&quot;cl-&gt;A_var&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">root_scope</span><span class="p">));</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l968" href="#l968">968</a></td>
+      <td class="lineno"><a id="l973" href="#l973">973</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l969" href="#l969">969</a></td>
+      <td class="lineno"><a id="l974" href="#l974">974</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">			</span><span class="c1">// new object.</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l970" href="#l970">970</a></td>
+      <td class="lineno"><a id="l975" href="#l975">975</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">3/6</summary>
@@ -10225,7 +10285,7 @@
       <td class="src partialCoveredLine"><span class="w">			</span><span class="n">vm</span><span class="p">.</span><span class="n">cl_ctor_start_pc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">debugData</span><span class="p">.</span><span class="n">resolveFunctions</span><span class="p">(</span><span class="s">&quot;A::CL::CL&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">root_scope</span><span class="p">).</span><span class="n">at</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">start_pc</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l971" href="#l971">971</a></td>
+      <td class="lineno"><a id="l976" href="#l976">976</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">2/4</summary>
@@ -10241,7 +10301,7 @@
       <td class="src partialCoveredLine"><span class="w">			</span><span class="n">val</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">eval</span><span class="p">(</span><span class="s">&quot;new A::CL()&quot;</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l972" href="#l972">972</a></td>
+      <td class="lineno"><a id="l977" href="#l977">977</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">1/2</summary>
@@ -10255,14 +10315,14 @@
       <td class="src partialCoveredLine"><span class="w">			</span><span class="n">assertNotEqual</span><span class="p">(</span><span class="n">val</span><span class="p">.</span><span class="n">raw_value</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l973" href="#l973">973</a></td>
+      <td class="lineno"><a id="l978" href="#l978">978</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">			</span><span class="c1">// Get type index of CL from the ctor.</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l974" href="#l974">974</a></td>
+      <td class="lineno"><a id="l979" href="#l979">979</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">2/4</summary>
@@ -10278,7 +10338,7 @@
       <td class="src partialCoveredLine"><span class="w">			</span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">cl_type_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">resolveScope</span><span class="p">(</span><span class="n">debugData</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;A::CL::CL&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">root_scope</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">type_id</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l975" href="#l975">975</a></td>
+      <td class="lineno"><a id="l980" href="#l980">980</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">2/4</summary>
@@ -10294,35 +10354,188 @@
       <td class="src partialCoveredLine"><span class="w">			</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">debugData</span><span class="p">.</span><span class="n">getTypeID</span><span class="p">(</span><span class="n">val</span><span class="p">.</span><span class="n">type</span><span class="p">),</span><span class="w"> </span><span class="n">cl_type_id</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l976" href="#l976">976</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="p">}</span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l977" href="#l977">977</a></td>
+      <td class="lineno"><a id="l981" href="#l981">981</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l978" href="#l978">978</a></td>
+      <td class="lineno"><a id="l982" href="#l982">982</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">			</span><span class="c1">// A constructor delegated to has a copy that skips constructing the object, which</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l983" href="#l983">983</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">			</span><span class="c1">// must not be found by name - `new` would call it.</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l984" href="#l984">984</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount coveredLine">1</td>
+      <td class="src coveredLine"><span class="w">			</span><span class="kt">int</span><span class="w"> </span><span class="n">num_delegation_entries</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l985" href="#l985">985</a></td>
+      <td class="linebranch">
+        <details class="linebranchDetails">
+        <summary class="linebranchSummary">2/2</summary>
+        <div class="linebranchContents">
+          <div class="takenBranch">&check; Branch 0 taken 1 times.</div>
+          <div class="takenBranch">&check; Branch 1 taken 1112 times.</div>
+        </div>
+        </details>
+      </td>
+      <td class="linecount coveredLine">1113</td>
+      <td class="src coveredLine"><span class="w">			</span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="k">auto</span><span class="o">&amp;</span><span class="w"> </span><span class="n">scope</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">debugData</span><span class="p">.</span><span class="n">scopes</span><span class="p">)</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l986" href="#l986">986</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">			</span><span class="p">{</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l987" href="#l987">987</a></td>
+      <td class="linebranch">
+        <details class="linebranchDetails">
+        <summary class="linebranchSummary">5/6</summary>
+        <div class="linebranchContents">
+          <div class="takenBranch">&check; Branch 0 taken 1112 times.</div>
+          <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
+          <div class="takenBranch">&check; Branch 2 taken 4 times.</div>
+          <div class="takenBranch">&check; Branch 3 taken 1108 times.</div>
+          <div class="takenBranch">&check; Branch 4 taken 3 times.</div>
+          <div class="takenBranch">&check; Branch 5 taken 1 times.</div>
+        </div>
+        </details>
+      </td>
+      <td class="linecount partialCoveredLine">1112</td>
+      <td class="src partialCoveredLine"><span class="w">				</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">scope</span><span class="p">.</span><span class="n">name</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">&quot;Deleg&quot;</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="p">(</span><span class="n">scope</span><span class="p">.</span><span class="n">flags</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">SCOPE_FLAG_NO_NAME_LOOKUP</span><span class="p">))</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l988" href="#l988">988</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount coveredLine">1</td>
+      <td class="src coveredLine"><span class="w">					</span><span class="n">num_delegation_entries</span><span class="o">++</span><span class="p">;</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l989" href="#l989">989</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">			</span><span class="p">}</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l990" href="#l990">990</a></td>
+      <td class="linebranch">
+        <details class="linebranchDetails">
+        <summary class="linebranchSummary">1/2</summary>
+        <div class="linebranchContents">
+          <div class="takenBranch">&check; Branch 0 taken 1 times.</div>
+          <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
+        </div>
+        </details>
+      </td>
+      <td class="linecount partialCoveredLine">1</td>
+      <td class="src partialCoveredLine"><span class="w">			</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">num_delegation_entries</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l991" href="#l991">991</a></td>
+      <td class="linebranch">
+        <details class="linebranchDetails">
+        <summary class="linebranchSummary">2/4</summary>
+        <div class="linebranchContents">
+          <div class="takenBranch">&check; Branch 0 taken 1 times.</div>
+          <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
+          <div class="takenBranch">&check; Branch 2 taken 1 times.</div>
+          <div class="notTakenBranch">&cross; Branch 3 not taken.</div>
+        </div>
+        </details>
+      </td>
+      <td class="linecount partialCoveredLine">1</td>
+      <td class="src partialCoveredLine"><span class="w">			</span><span class="k">auto</span><span class="w"> </span><span class="n">deleg_ctors</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">debugData</span><span class="p">.</span><span class="n">resolveFunctions</span><span class="p">(</span><span class="s">&quot;A::Deleg::Deleg&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">root_scope</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l992" href="#l992">992</a></td>
+      <td class="linebranch">
+        <details class="linebranchDetails">
+        <summary class="linebranchSummary">1/2</summary>
+        <div class="linebranchContents">
+          <div class="takenBranch">&check; Branch 0 taken 1 times.</div>
+          <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
+        </div>
+        </details>
+      </td>
+      <td class="linecount partialCoveredLine">1</td>
+      <td class="src partialCoveredLine"><span class="w">			</span><span class="n">assertSize</span><span class="p">(</span><span class="n">deleg_ctors</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l993" href="#l993">993</a></td>
+      <td class="linebranch">
+        <details class="linebranchDetails">
+        <summary class="linebranchSummary">2/2</summary>
+        <div class="linebranchContents">
+          <div class="takenBranch">&check; Branch 0 taken 2 times.</div>
+          <div class="takenBranch">&check; Branch 1 taken 1 times.</div>
+        </div>
+        </details>
+      </td>
+      <td class="linecount coveredLine">3</td>
+      <td class="src coveredLine"><span class="w">			</span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="k">auto</span><span class="w"> </span><span class="n">ctor</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">deleg_ctors</span><span class="p">)</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l994" href="#l994">994</a></td>
+      <td class="linebranch">
+        <details class="linebranchDetails">
+        <summary class="linebranchSummary">1/2</summary>
+        <div class="linebranchContents">
+          <div class="takenBranch">&check; Branch 0 taken 2 times.</div>
+          <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
+        </div>
+        </details>
+      </td>
+      <td class="linecount partialCoveredLine">2</td>
+      <td class="src partialCoveredLine"><span class="w">				</span><span class="n">assertTrue</span><span class="p">(</span><span class="o">!</span><span class="p">(</span><span class="n">ctor</span><span class="o">-&gt;</span><span class="n">flags</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">SCOPE_FLAG_NO_NAME_LOOKUP</span><span class="p">));</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l995" href="#l995">995</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount coveredLine">1</td>
+      <td class="src coveredLine"><span class="w">		</span><span class="p">}</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l996" href="#l996">996</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l997" href="#l997">997</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">		</span><span class="c1">// Functions.</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l979" href="#l979">979</a></td>
+      <td class="lineno"><a id="l998" href="#l998">998</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">		</span><span class="p">{</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l980" href="#l980">980</a></td>
+      <td class="lineno"><a id="l999" href="#l999">999</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">2/4</summary>
@@ -10338,7 +10551,7 @@
       <td class="src partialCoveredLine"><span class="w">			</span><span class="k">auto</span><span class="w"> </span><span class="n">debug_add_fns</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">debugData</span><span class="p">.</span><span class="n">resolveFunctions</span><span class="p">(</span><span class="s">&quot;DebugAdd&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">root_scope</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l981" href="#l981">981</a></td>
+      <td class="lineno"><a id="l1000" href="#l1000">1000</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">3/6</summary>
@@ -10356,7 +10569,7 @@
       <td class="src partialCoveredLine"><span class="w">			</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">debugData</span><span class="p">.</span><span class="n">getFunctionSignature</span><span class="p">(</span><span class="n">debug_add_fns</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span><span class="w"> </span><span class="s">&quot;int DebugAdd(int a)&quot;</span><span class="n">s</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l982" href="#l982">982</a></td>
+      <td class="lineno"><a id="l1001" href="#l1001">1001</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">3/6</summary>
@@ -10374,7 +10587,7 @@
       <td class="src partialCoveredLine"><span class="w">			</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">debugData</span><span class="p">.</span><span class="n">getFunctionSignature</span><span class="p">(</span><span class="n">debug_add_fns</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span><span class="w"> </span><span class="s">&quot;int DebugAdd(int a, int b)&quot;</span><span class="n">s</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l983" href="#l983">983</a></td>
+      <td class="lineno"><a id="l1002" href="#l1002">1002</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">3/6</summary>
@@ -10392,35 +10605,35 @@
       <td class="src partialCoveredLine"><span class="w">			</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">debugData</span><span class="p">.</span><span class="n">getFunctionSignature</span><span class="p">(</span><span class="n">debug_add_fns</span><span class="p">[</span><span class="mi">2</span><span class="p">]),</span><span class="w"> </span><span class="s">&quot;int DebugAdd(int a, long b)&quot;</span><span class="n">s</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l984" href="#l984">984</a></td>
+      <td class="lineno"><a id="l1003" href="#l1003">1003</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">1</td>
       <td class="src coveredLine"><span class="w">			</span><span class="n">vm</span><span class="p">.</span><span class="n">debug_add_int_start_pc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">debug_add_fns</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">-&gt;</span><span class="n">start_pc</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l985" href="#l985">985</a></td>
+      <td class="lineno"><a id="l1004" href="#l1004">1004</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">1</td>
       <td class="src coveredLine"><span class="w">			</span><span class="n">vm</span><span class="p">.</span><span class="n">debug_add_int_int_start_pc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">debug_add_fns</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">-&gt;</span><span class="n">start_pc</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l986" href="#l986">986</a></td>
+      <td class="lineno"><a id="l1005" href="#l1005">1005</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">1</td>
       <td class="src coveredLine"><span class="w">			</span><span class="n">vm</span><span class="p">.</span><span class="n">debug_add_int_long_start_pc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">debug_add_fns</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">-&gt;</span><span class="n">start_pc</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l987" href="#l987">987</a></td>
+      <td class="lineno"><a id="l1006" href="#l1006">1006</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l988" href="#l988">988</a></td>
+      <td class="lineno"><a id="l1007" href="#l1007">1007</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">2/4</summary>
@@ -10436,7 +10649,7 @@
       <td class="src partialCoveredLine"><span class="w">			</span><span class="k">auto</span><span class="w"> </span><span class="n">val</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">eval</span><span class="p">(</span><span class="s">&quot;DebugAdd(1)&quot;</span><span class="p">);</span><span class="w"> </span><span class="c1">// a + 10</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l989" href="#l989">989</a></td>
+      <td class="lineno"><a id="l1008" href="#l1008">1008</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">1/2</summary>
@@ -10450,21 +10663,21 @@
       <td class="src partialCoveredLine"><span class="w">			</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">val</span><span class="p">.</span><span class="n">raw_value</span><span class="p">,</span><span class="w"> </span><span class="mi">11</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">FIXED_ONE</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l990" href="#l990">990</a></td>
+      <td class="lineno"><a id="l1009" href="#l1009">1009</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l991" href="#l991">991</a></td>
+      <td class="lineno"><a id="l1010" href="#l1010">1010</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">			</span><span class="c1">// There is no DebugAdd(long a), but type coercion kicks in.</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l992" href="#l992">992</a></td>
+      <td class="lineno"><a id="l1011" href="#l1011">1011</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">2/4</summary>
@@ -10480,7 +10693,7 @@
       <td class="src partialCoveredLine"><span class="w">			</span><span class="n">val</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">eval</span><span class="p">(</span><span class="s">&quot;DebugAdd(1L)&quot;</span><span class="p">);</span><span class="w"> </span><span class="c1">// a + 10</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l993" href="#l993">993</a></td>
+      <td class="lineno"><a id="l1012" href="#l1012">1012</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">1/2</summary>
@@ -10494,14 +10707,14 @@
       <td class="src partialCoveredLine"><span class="w">			</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">val</span><span class="p">.</span><span class="n">raw_value</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">10</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">FIXED_ONE</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l994" href="#l994">994</a></td>
+      <td class="lineno"><a id="l1013" href="#l1013">1013</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l995" href="#l995">995</a></td>
+      <td class="lineno"><a id="l1014" href="#l1014">1014</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">2/4</summary>
@@ -10517,7 +10730,7 @@
       <td class="src partialCoveredLine"><span class="w">			</span><span class="n">val</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">eval</span><span class="p">(</span><span class="s">&quot;DebugAdd(1, 2)&quot;</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l996" href="#l996">996</a></td>
+      <td class="lineno"><a id="l1015" href="#l1015">1015</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">1/2</summary>
@@ -10531,14 +10744,14 @@
       <td class="src partialCoveredLine"><span class="w">			</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">val</span><span class="p">.</span><span class="n">raw_value</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">FIXED_ONE</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l997" href="#l997">997</a></td>
+      <td class="lineno"><a id="l1016" href="#l1016">1016</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l998" href="#l998">998</a></td>
+      <td class="lineno"><a id="l1017" href="#l1017">1017</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">2/4</summary>
@@ -10554,7 +10767,7 @@
       <td class="src partialCoveredLine"><span class="w">			</span><span class="n">val</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">eval</span><span class="p">(</span><span class="s">&quot;DebugAdd(1, 2L)&quot;</span><span class="p">);</span><span class="w">  </span><span class="c1">// a + b + 100L</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l999" href="#l999">999</a></td>
+      <td class="lineno"><a id="l1018" href="#l1018">1018</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">1/2</summary>
@@ -10568,14 +10781,14 @@
       <td class="src partialCoveredLine"><span class="w">			</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">val</span><span class="p">.</span><span class="n">raw_value</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">FIXED_ONE</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">100</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1000" href="#l1000">1000</a></td>
+      <td class="lineno"><a id="l1019" href="#l1019">1019</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1001" href="#l1001">1001</a></td>
+      <td class="lineno"><a id="l1020" href="#l1020">1020</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">2/4</summary>
@@ -10591,7 +10804,7 @@
       <td class="src partialCoveredLine"><span class="w">			</span><span class="n">val</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">eval</span><span class="p">(</span><span class="s">&quot;DebugAdd(1, 2) + 3&quot;</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1002" href="#l1002">1002</a></td>
+      <td class="lineno"><a id="l1021" href="#l1021">1021</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">1/2</summary>
@@ -10605,21 +10818,21 @@
       <td class="src partialCoveredLine"><span class="w">			</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">val</span><span class="p">.</span><span class="n">raw_value</span><span class="p">,</span><span class="w"> </span><span class="mi">6</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">FIXED_ONE</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1003" href="#l1003">1003</a></td>
+      <td class="lineno"><a id="l1022" href="#l1022">1022</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1004" href="#l1004">1004</a></td>
+      <td class="lineno"><a id="l1023" href="#l1023">1023</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">			</span><span class="c1">// Too many options, so should throw.</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1005" href="#l1005">1005</a></td>
+      <td class="lineno"><a id="l1024" href="#l1024">1024</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">4/10</summary>
@@ -10641,21 +10854,21 @@
       <td class="src partialCoveredLine"><span class="w">			</span><span class="n">assertThrows</span><span class="p">(</span><span class="n">eval</span><span class="p">(</span><span class="s">&quot;DebugAdd(0L, 0L)&quot;</span><span class="p">));</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1006" href="#l1006">1006</a></td>
+      <td class="lineno"><a id="l1025" href="#l1025">1025</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1007" href="#l1007">1007</a></td>
+      <td class="lineno"><a id="l1026" href="#l1026">1026</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">			</span><span class="c1">// A::cl is not const, but the param of DebugPrintCL is. Should get promoted.</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1008" href="#l1008">1008</a></td>
+      <td class="lineno"><a id="l1027" href="#l1027">1027</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">2/4</summary>
@@ -10671,14 +10884,14 @@
       <td class="src partialCoveredLine"><span class="w">			</span><span class="n">eval</span><span class="p">(</span><span class="s">&quot;DebugPrintCL(A::cl)&quot;</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1009" href="#l1009">1009</a></td>
+      <td class="lineno"><a id="l1028" href="#l1028">1028</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">			</span><span class="c1">// untyped should be coerced to other types.</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1010" href="#l1010">1010</a></td>
+      <td class="lineno"><a id="l1029" href="#l1029">1029</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">2/4</summary>
@@ -10694,15 +10907,15 @@
       <td class="src partialCoveredLine"><span class="w">			</span><span class="n">eval</span><span class="p">(</span><span class="s">&quot;DebugPrintCL(NULL)&quot;</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1011" href="#l1011">1011</a></td>
+      <td class="lineno"><a id="l1030" href="#l1030">1030</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">2/4</summary>
         <div class="linebranchContents">
           <div class="takenBranch">&check; Branch 0 taken 1 times.</div>
           <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
-          <div class="takenBranch">&check; Branch 2 taken 1 times.</div>
-          <div class="notTakenBranch">&cross; Branch 3 not taken.</div>
+          <div class="notTakenBranch">&cross; Branch 2 not taken.</div>
+          <div class="takenBranch">&check; Branch 3 taken 1 times.</div>
         </div>
         </details>
       </td>
@@ -10710,56 +10923,56 @@
       <td class="src partialCoveredLine"><span class="w">			</span><span class="n">eval</span><span class="p">(</span><span class="s">&quot;long_fn(NULL)&quot;</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1012" href="#l1012">1012</a></td>
+      <td class="lineno"><a id="l1031" href="#l1031">1031</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">1</td>
       <td class="src coveredLine"><span class="w">		</span><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1013" href="#l1013">1013</a></td>
+      <td class="lineno"><a id="l1032" href="#l1032">1032</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1014" href="#l1014">1014</a></td>
+      <td class="lineno"><a id="l1033" href="#l1033">1033</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">		</span><span class="k">return</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1015" href="#l1015">1015</a></td>
+      <td class="lineno"><a id="l1034" href="#l1034">1034</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">15</td>
       <td class="src coveredLine"><span class="w">	</span><span class="p">});</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1016" href="#l1016">1016</a></td>
+      <td class="lineno"><a id="l1035" href="#l1035">1035</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1017" href="#l1017">1017</a></td>
+      <td class="lineno"><a id="l1036" href="#l1036">1036</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">1</td>
       <td class="src coveredLine"><span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="n">tr</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1018" href="#l1018">1018</a></td>
+      <td class="lineno"><a id="l1037" href="#l1037">1037</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">1</td>
       <td class="src coveredLine"><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1019" href="#l1019">1019</a></td>
+      <td class="lineno"><a id="l1038" href="#l1038">1038</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
