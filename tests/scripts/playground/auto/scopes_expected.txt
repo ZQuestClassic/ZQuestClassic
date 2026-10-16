@@ -4286,10 +4286,10 @@ POP D2; Func[npc npc::SummonMinionFromLayer(int)] Body Start                    
 POP REFNPC                                                                      | 4257 resources/include/bindings/npc.zh:1118
 NPC_SUMMON_MINION_LAYER D2                                                      | 4258 resources/include/bindings/npc.zh:1118
 RETURNFUNC; Func[npc npc::SummonMinionFromLayer(int)] Body End                  | 4259 resources/include/bindings/npc.zh:1118
-POP D2; Func[void npcdata::GetName(char32[])] Body Start                        | 4260 resources/include/bindings/npcdata.zh:560
-POP REFNPCDATA                                                                  | 4261 resources/include/bindings/npcdata.zh:560
-NPCDATAGETNAME D2                                                               | 4262 resources/include/bindings/npcdata.zh:560
-RETURNFUNC; Func[void npcdata::GetName(char32[])] Body End                      | 4263 resources/include/bindings/npcdata.zh:560
+POP D2; Func[void npcdata::GetName(char32[])] Body Start                        | 4260 resources/include/bindings/npcdata.zh:566
+POP REFNPCDATA                                                                  | 4261 resources/include/bindings/npcdata.zh:566
+NPCDATAGETNAME D2                                                               | 4262 resources/include/bindings/npcdata.zh:566
+RETURNFUNC; Func[void npcdata::GetName(char32[])] Body End                      | 4263 resources/include/bindings/npcdata.zh:566
 CREATEPALDATA; Func[paldata paldata::paldata()] Body Start                      | 4264 resources/include/bindings/paldata.zh:12
 RETURNFUNC; Func[paldata paldata::paldata()] Body End                           | 4265 resources/include/bindings/paldata.zh:12
 POP D2; Func[paldata paldata::paldata(rgb)] Body Start                          | 4266 resources/include/bindings/paldata.zh:17
@@ -4987,9 +4987,17 @@ debug data:
       - const ComboType CT_GLASS @ Constant[1710000]
       - const ComboType CT_LIGHT_TARGET @ Constant[1720000]
       - const ComboType CT_SWITCHHOOK_BLOCK @ Constant[1730000]
-      - const ComboType CT_CUSTOM_BLOCKER @ Constant[1740000]
-      - const ComboType CT_SHOOTER @ Constant[1750000]
-      - const ComboType CT_MAX @ Constant[1760000]
+      - const ComboType CT_BUTTON_PROMPT @ Constant[1740000]
+      - const ComboType CT_CUSTOM_BLOCKER @ Constant[1750000]
+      - const ComboType CT_SHOOTER @ Constant[1760000]
+      - const ComboType CT_SLOPE @ Constant[1770000]
+      - const ComboType CT_CUTSCENE_TRIGGER @ Constant[1780000]
+      - const ComboType CT_PUSH_GENERIC @ Constant[1790000]
+      - const ComboType CT_ICY @ Constant[1800000]
+      - const ComboType CT_MIRROR_CUSTOM @ Constant[1810000]
+      - const ComboType CT_CRUMBLE @ Constant[1820000]
+      - const ComboType CT_CUTSCENE_EFFECT @ Constant[1830000]
+      - const ComboType CT_MAX @ Constant[1840000]
     [ENUM] int CornerIndex <IDX:7>
       - const CornerIndex CORNER_UL @ Constant[0]
       - const CornerIndex CORNER_UR @ Constant[10000]
@@ -10690,7 +10698,13 @@ debug data:
       - const NPCDefenseType NPCDT_4XDAMAGE @ Constant[180000]
       - const NPCDefenseType NPCDT_HEAL @ Constant[190000]
       - const NPCDefenseType NPCDT_TRIGGERSECRETS @ Constant[200000]
-      - const NPCDefenseType NPCDT_SWITCH @ Constant[500000]
+      - const NPCDefenseType NPCDT_SPLIT @ Constant[260000]
+      - const NPCDefenseType NPCDT_TRANSFORM @ Constant[270000]
+      - const NPCDefenseType NPCDT_BOMBEXPLOSION @ Constant[330000]
+      - const NPCDefenseType NPCDT_SUPERBOMBEXPLOSION @ Constant[340000]
+      - const NPCDefenseType NPCDT_HARMLESSEXPLOSION @ Constant[410000]
+      - const NPCDefenseType NPCDT_SUMMON @ Constant[460000]
+      - const NPCDefenseType NPCDT_SWITCH @ Constant[510000]
     [ENUM] int NPCFade <IDX:702>
       - const NPCFade NPCF_NONE @ Constant[0]
       - const NPCFade NPCF_FLICKER @ Constant[10000]

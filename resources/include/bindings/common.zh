@@ -374,9 +374,18 @@ enum ComboType
 	CT_GLASS              = 171,
 	CT_LIGHT_TARGET       = 172,
 	CT_SWITCHHOOK_BLOCK   = 173,
-	CT_CUSTOM_BLOCKER     = 174,
-	CT_SHOOTER            = 175,
-	CT_MAX                = 176
+	CT_BUTTON_PROMPT      = 174,
+	CT_CUSTOM_BLOCKER     = 175,
+	CT_SHOOTER            = 176,
+	CT_SLOPE              = 177,
+	CT_CUTSCENE_TRIGGER   = 178,
+	CT_PUSH_GENERIC       = 179,
+	CT_ICY                = 180,
+	CT_MIRROR_CUSTOM      = 181,
+	CT_CRUMBLE            = 182,
+	// @versionadded 3.0
+	CT_CUTSCENE_EFFECT    = 183,
+	CT_MAX                = 184
 };
 
 enum TileWarpIndex
