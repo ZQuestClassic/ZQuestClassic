@@ -26,9 +26,11 @@ stdout:
 
 zasm:
 
-SETV GD2 0; void run() Body Start
-SETV GD3 0
+SETV GD3 0; void run() Body Start
 SETV GD4 0
+SETV GD5 0
+SETV GD2 0
+MARK_TYPE_REG GD1 0.0009
 SETV GD1 0
 QUIT; void run() Body End
 PUSHARGSV 0 0.0003; void run() Body Start
@@ -52,7 +54,7 @@ LOAD D2 0.0001; if() Test
 COMPAREV D2 -1
 SETCMP D2 I==
 COMPAREV D2 0
-GOTOCMP 34 ==; Test 'if'
+GOTOCMP 36 ==; Test 'if'
 ALLOCATEMEMV D2 53 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start AND if() Body Start
 WRITEPODSTRING D2 "[Test] failed to start - could not find test script\n"
 PUSHR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
@@ -79,10 +81,13 @@ PUSHR D2
 POP REFGENERICDATA
 SETR D2 GENDATARUNNING
 COMPAREV D2 0
-GOTOCMP 57 ==; Test 'while'
-WAITFRAME; InlineFunc[void Waitframe()] Body AND while() Body
-GOTO 49; while() End
-CALLFUNC 0.0816; UsrFunc[void End()] Call AND [Opt:NeverRet]
+GOTOCMP 62 ==; Test 'while'
+PUSHR D4; while() Body Start
+CALLFUNC 0.0833; UsrFunc[void DrawLabel()] Call
+POP D4
+WAITFRAME; InlineFunc[void Waitframe()] Body AND while() Body End
+GOTO 51; while() End
+CALLFUNC 0.0759; UsrFunc[void End()] Call AND [Opt:NeverRet]
 REF_REMOVE 0.0002; [Opt:NeverRet] AND void run() Body End
 PUSHARGSV 0 0.0002; void run() Body Start
 SETR D4 SP2
@@ -91,7 +96,7 @@ LOAD D2 0.0001; for() LoopTest
 COMPAREV D2 60
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 87 ==; for() TestFail?
+GOTOCMP 92 ==; for() TestFail?
 PUSHV 8; InlineFunc[bitmap bitmap::bitmap(int, int)] Params Start AND for() Body Start
 SETV D1 8; InlineFunc[bitmap bitmap::bitmap(int, int)] Params End
 POP D0; InlineFunc[bitmap bitmap::bitmap(int, int)] Body Start
@@ -100,9 +105,9 @@ STORE_OBJECT D2 0
 LOAD D2 0; InlineFunc[bool bitmap::isAllocated()] Params AND unless() Test
 ISALLOCATEDBITMAP D2; InlineFunc[bool bitmap::isAllocated()] Body
 COMPAREV D2 0
-GOTOCMP 78 !=; Test 'unless'
+GOTOCMP 83 !=; Test 'unless'
 SETV D2 1; unless() Body Start
-SETR GD2 D2; unless() Body End
+SETR GD3 D2; unless() Body End
 NOP
 LOAD D2 0; InlineFunc[void bitmap::Own()] Params Start
 SETR REFBITMAP D2; InlineFunc[void bitmap::Own()] Params End
@@ -111,24 +116,24 @@ REF_REMOVE 0; for() Body End
 LOAD D2 0.0001; for() LoopIncrement
 ADDV D2 1
 STORE D2 0.0001
-GOTO 62; for() End
+GOTO 67; for() End
 NOP
-SETR D2 GD1
+SETR D2 GD2
 ADDV D2 1
-SETR GD1 D2
+SETR GD2 D2
 WAITFRAME; InlineFunc[void Waitframe()] Body AND while(true) Body [Opt:AlwaysOn]
-GOTO 91; while() End AND [Opt:NeverRet] AND void run() Body End
+GOTO 96; while() End AND [Opt:NeverRet] AND void run() Body End
 SETR D4 SP2; void run() Body Start
-SETR D2 GD3
+SETR D2 GD4
 ADDV D2 1
-SETR GD3 D2
+SETR GD4 D2
 WAITFRAME; InlineFunc[void Waitframe()] Body AND while(true) Body [Opt:AlwaysOn]
-GOTO 97; while() End AND [Opt:NeverRet] AND void run() Body End
+GOTO 102; while() End AND [Opt:NeverRet] AND void run() Body End
 PUSHARGSV 0 0.0006; void run() Body Start
 SETR D4 SP2
 PUSHR D4
 PUSHV 0; UsrFunc[void Init(int)] Params
-CALLFUNC 0.0794; UsrFunc[void Init(int)] Call
+CALLFUNC 0.0737; UsrFunc[void Init(int)] Call
 POP D4
 SETV D2 0
 PUSHR D2
@@ -179,7 +184,7 @@ LOAD D2 0.0004; for() LoopTest
 COMPAREV D2 6
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 255 ==; for() TestFail?
+GOTOCMP 260 ==; for() TestFail?
 SETV D2 130; InlineFunc[eweapon screendata::CreateEWeapon(int)] Params AND for() Body Start
 CREATEEWEAPONR D2; InlineFunc[eweapon screendata::CreateEWeapon(int)] Body Start
 SETR D2 REFEWPN; InlineFunc[eweapon screendata::CreateEWeapon(int)] Body End
@@ -236,28 +241,28 @@ SETR D2 LWPNCOUNT; while() Test
 COMPAREV D2 0
 SETCMP D2 I==
 COMPAREV D2 0
-GOTOCMP 226 ==; Test 'while'
+GOTOCMP 231 ==; Test 'while'
 LOAD D2 0.0002; if() Test AND while() Body Start
 ADDV D2 1
 STORE D2 0.0002
 COMPAREV D2 60
 SETCMP D2 I>
 COMPAREV D2 0
-GOTOCMP 223 ==; Test 'if'
+GOTOCMP 228 ==; Test 'if'
 ALLOCATEMEMV D2 39 0; UsrFunc[void Fail(char32[])] Params Start AND if() Body Start
 WRITEPODSTRING D2 "eweapon never reflected off the mirror"
 PUSHR D2; UsrFunc[void Fail(char32[])] Params End
-CALLFUNC 0.0864; UsrFunc[void Fail(char32[])] Call AND [Opt:NeverRet] AND if() Body End
+CALLFUNC 0.0807; UsrFunc[void Fail(char32[])] Call AND [Opt:NeverRet] AND if() Body End
 NOP
 WAITFRAME; InlineFunc[void Waitframe()] Body AND while() Body End
-GOTO 207; while() End
+GOTO 212; while() End
 PUSHR D4
 PUSHR EWPNCOUNT; UsrFunc[void AssertEqual(int, int, char32[])] Params Start
 PUSHV 0
 ALLOCATEMEMV D2 39 0
 WRITEPODSTRING D2 "reflected weapon left the eweapon list"
 PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
-CALLFUNC 0.0823; UsrFunc[void AssertEqual(int, int, char32[])] Call
+CALLFUNC 0.0766; UsrFunc[void AssertEqual(int, int, char32[])] Call
 POP D4
 SETV D2 0
 PUSHR D2
@@ -274,29 +279,29 @@ PUSHV 0
 ALLOCATEMEMV D2 25 0
 WRITEPODSTRING D2 "reflected weapon removed"
 PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
-CALLFUNC 0.0823; UsrFunc[void AssertEqual(int, int, char32[])] Call
+CALLFUNC 0.0766; UsrFunc[void AssertEqual(int, int, char32[])] Call
 POP D4; for() Body End
 LOAD D2 0.0004; for() LoopIncrement
 ADDV D2 1
 STORE D2 0.0004
-GOTO 150; for() End
+GOTO 155; for() End
 NOP
 PUSHR D4
-PUSHR GD1; UsrFunc[void AssertEqual(int, int, char32[])] Params Start
+PUSHR GD2; UsrFunc[void AssertEqual(int, int, char32[])] Params Start
 PUSHV 6
 ALLOCATEMEMV D2 29 0
 WRITEPODSTRING D2 "every eweapon ran its script"
 PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
-CALLFUNC 0.0823; UsrFunc[void AssertEqual(int, int, char32[])] Call
+CALLFUNC 0.0766; UsrFunc[void AssertEqual(int, int, char32[])] Call
 PEEK D4
-SETR D2 GD2; UsrFunc[void Assert(bool, char32[])] Params Start
+SETR D2 GD3; UsrFunc[void Assert(bool, char32[])] Params Start
 COMPAREV D2 0
 SETCMP D2 I==
 PUSHR D2
 ALLOCATEMEMV D2 59 0
 WRITEPODSTRING D2 "owned bitmaps released when a reflected eweapon is removed"
 PUSHR D2; UsrFunc[void Assert(bool, char32[])] Params End
-CALLFUNC 0.0851; UsrFunc[void Assert(bool, char32[])] Call
+CALLFUNC 0.0794; UsrFunc[void Assert(bool, char32[])] Call
 POP D4
 SETV D2 130; InlineFunc[eweapon screendata::CreateEWeapon(int)] Params
 CREATEEWEAPONR D2; InlineFunc[eweapon screendata::CreateEWeapon(int)] Body Start
@@ -340,7 +345,7 @@ POP REFEWPN
 SETR EWPNSTEP D2
 PUSHR CLASS_THISKEY
 PUSHR D4
-CALLFUNC 0.0714; ClassFunc[ReflectedEweaponTracker ReflectedEweaponTracker::ReflectedEweaponTracker()] Constructor Call
+CALLFUNC 0.0719; ClassFunc[ReflectedEweaponTracker ReflectedEweaponTracker::ReflectedEweaponTracker()] Constructor Call
 POP D4
 POP CLASS_THISKEY
 PUSHR D2
@@ -359,30 +364,30 @@ SETR D2 LWPNCOUNT; while() Test
 COMPAREV D2 0
 SETCMP D2 I==
 COMPAREV D2 0
-GOTOCMP 349 ==; Test 'while'
+GOTOCMP 354 ==; Test 'while'
 LOAD D2 0.0003; if() Test AND while() Body Start
 ADDV D2 1
 STORE D2 0.0003
 COMPAREV D2 60
 SETCMP D2 I>
 COMPAREV D2 0
-GOTOCMP 346 ==; Test 'if'
+GOTOCMP 351 ==; Test 'if'
 ALLOCATEMEMV D2 60 0; UsrFunc[void Fail(char32[])] Params Start AND if() Body Start
 WRITEPODSTRING D2 "eweapon with a Misc[] object never reflected off the mirror"
 PUSHR D2; UsrFunc[void Fail(char32[])] Params End
-CALLFUNC 0.0864; UsrFunc[void Fail(char32[])] Call AND [Opt:NeverRet] AND if() Body End
+CALLFUNC 0.0807; UsrFunc[void Fail(char32[])] Call AND [Opt:NeverRet] AND if() Body End
 NOP
 WAITFRAME; InlineFunc[void Waitframe()] Body AND while() Body End
-GOTO 330; while() End
+GOTO 335; while() End
 SETV D2 2; InlineFunc[void Waitframes(int)] Params
 WAITFRAMESR D2; InlineFunc[void Waitframes(int)] Body
 PUSHR D4
-PUSHR GD4; UsrFunc[void AssertEqual(int, int, char32[])] Params Start
+PUSHR GD5; UsrFunc[void AssertEqual(int, int, char32[])] Params Start
 PUSHV 0
 ALLOCATEMEMV D2 50 0
 WRITEPODSTRING D2 "object in Misc[] kept through a mirror reflection"
 PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
-CALLFUNC 0.0823; UsrFunc[void AssertEqual(int, int, char32[])] Call
+CALLFUNC 0.0766; UsrFunc[void AssertEqual(int, int, char32[])] Call
 POP D4
 SETV D2 0; InlineFunc[void lweapon::Remove()] Params Start
 PUSHR D2
@@ -393,15 +398,15 @@ LWPNDEL; InlineFunc[void lweapon::Remove()] Body
 SETV D2 2; InlineFunc[void Waitframes(int)] Params
 WAITFRAMESR D2; InlineFunc[void Waitframes(int)] Body
 PUSHR D4
-PUSHR GD4; UsrFunc[void AssertEqual(int, int, char32[])] Params Start
+PUSHR GD5; UsrFunc[void AssertEqual(int, int, char32[])] Params Start
 PUSHV 1
 ALLOCATEMEMV D2 63 0
 WRITEPODSTRING D2 "object in Misc[] released when the reflected weapon is removed"
 PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
-CALLFUNC 0.0823; UsrFunc[void AssertEqual(int, int, char32[])] Call
+CALLFUNC 0.0766; UsrFunc[void AssertEqual(int, int, char32[])] Call
 PEEK D4
 PUSHV 12; UsrFunc[int GetHighestLevelItemOwned(int)] Params
-CALLFUNC 0.0732; UsrFunc[int GetHighestLevelItemOwned(int)] Call
+CALLFUNC 0.0852; UsrFunc[int GetHighestLevelItemOwned(int)] Call
 POP D4
 STORE D2 0.0004
 PUSHR D4
@@ -412,7 +417,7 @@ PUSHR D2
 ALLOCATEMEMV D2 19 0
 WRITEPODSTRING D2 "hero owns a shield"
 PUSHR D2; UsrFunc[void Assert(bool, char32[])] Params End
-CALLFUNC 0.0851; UsrFunc[void Assert(bool, char32[])] Call
+CALLFUNC 0.0794; UsrFunc[void Assert(bool, char32[])] Call
 POP D4
 LOAD D2 0.0004; InlineFunc[itemdata Game::LoadItemData(int)] Params
 LOADITEMDATAR D2; InlineFunc[itemdata Game::LoadItemData(int)] Body Start
@@ -461,7 +466,7 @@ LOAD D2 0.0002; for() LoopTest
 COMPAREV D2 4
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 453 ==; for() TestFail?
+GOTOCMP 458 ==; for() TestFail?
 SETV D2 1; for() Body Start
 PUSHR D2
 LOAD D2 0.0003
@@ -477,7 +482,7 @@ SETR IDATAFLAGS D2; for() Body End
 LOAD D2 0.0002; for() LoopIncrement
 ADDV D2 1
 STORE D2 0.0002
-GOTO 432; for() End
+GOTO 437; for() End
 NOP
 SETV D2 0
 PUSHR D2
@@ -584,21 +589,21 @@ SETR D2 SPRITE_DIR
 COMPAREV D2 3
 SETCMP D2 I!=
 COMPAREV D2 0
-GOTOCMP 574 ==; Test 'while'
+GOTOCMP 579 ==; Test 'while'
 LOAD D2 0.0001; if() Test AND while() Body Start
 ADDV D2 1
 STORE D2 0.0001
 COMPAREV D2 60
 SETCMP D2 I>
 COMPAREV D2 0
-GOTOCMP 571 ==; Test 'if'
+GOTOCMP 576 ==; Test 'if'
 ALLOCATEMEMV D2 46 0; UsrFunc[void Fail(char32[])] Params Start AND if() Body Start
 WRITEPODSTRING D2 "lweapon never reflected off the mirror shield"
 PUSHR D2; UsrFunc[void Fail(char32[])] Params End
-CALLFUNC 0.0864; UsrFunc[void Fail(char32[])] Call AND [Opt:NeverRet] AND if() Body End
+CALLFUNC 0.0807; UsrFunc[void Fail(char32[])] Call AND [Opt:NeverRet] AND if() Body End
 NOP
 WAITFRAME; InlineFunc[void Waitframe()] Body AND while() Body End
-GOTO 552; while() End
+GOTO 557; while() End
 SETV D2 2; InlineFunc[void Waitframes(int)] Params
 WAITFRAMESR D2; InlineFunc[void Waitframes(int)] Body
 PUSHR D4
@@ -608,14 +613,14 @@ PUSHR D2
 ALLOCATEMEMV D2 38 0
 WRITEPODSTRING D2 "shield-reflected lweapon still exists"
 PUSHR D2; UsrFunc[void Assert(bool, char32[])] Params End
-CALLFUNC 0.0851; UsrFunc[void Assert(bool, char32[])] Call
+CALLFUNC 0.0794; UsrFunc[void Assert(bool, char32[])] Call
 PEEK D4
-PUSHR GD3; UsrFunc[void AssertEqual(int, int, char32[])] Params Start
+PUSHR GD4; UsrFunc[void AssertEqual(int, int, char32[])] Params Start
 PUSHV 1
 ALLOCATEMEMV D2 58 0
 WRITEPODSTRING D2 "lweapon script kept its state through a shield reflection"
 PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
-CALLFUNC 0.0823; UsrFunc[void AssertEqual(int, int, char32[])] Call
+CALLFUNC 0.0766; UsrFunc[void AssertEqual(int, int, char32[])] Call
 POP D4
 LOAD D2 0.0002; InlineFunc[void lweapon::Remove()] Params Start
 SETR REFLWPN D2; InlineFunc[void lweapon::Remove()] Params End
@@ -677,7 +682,7 @@ POP REFEWPN
 SETR EWPNSTEP D2
 PUSHR CLASS_THISKEY
 PUSHR D4
-CALLFUNC 0.0714; ClassFunc[ReflectedEweaponTracker ReflectedEweaponTracker::ReflectedEweaponTracker()] Constructor Call
+CALLFUNC 0.0719; ClassFunc[ReflectedEweaponTracker ReflectedEweaponTracker::ReflectedEweaponTracker()] Constructor Call
 POP D4
 POP CLASS_THISKEY
 PUSHR D2
@@ -697,30 +702,30 @@ SETR D2 LWPNCOUNT; while() Test
 COMPAREV D2 0
 SETCMP D2 I==
 COMPAREV D2 0
-GOTOCMP 687 ==; Test 'while'
+GOTOCMP 692 ==; Test 'while'
 LOAD D2 0.0001; if() Test AND while() Body Start
 ADDV D2 1
 STORE D2 0.0001
 COMPAREV D2 60
 SETCMP D2 I>
 COMPAREV D2 0
-GOTOCMP 684 ==; Test 'if'
+GOTOCMP 689 ==; Test 'if'
 ALLOCATEMEMV D2 46 0; UsrFunc[void Fail(char32[])] Params Start AND if() Body Start
 WRITEPODSTRING D2 "eweapon never reflected off the mirror shield"
 PUSHR D2; UsrFunc[void Fail(char32[])] Params End
-CALLFUNC 0.0864; UsrFunc[void Fail(char32[])] Call AND [Opt:NeverRet] AND if() Body End
+CALLFUNC 0.0807; UsrFunc[void Fail(char32[])] Call AND [Opt:NeverRet] AND if() Body End
 NOP
 WAITFRAME; InlineFunc[void Waitframe()] Body AND while() Body End
-GOTO 668; while() End
+GOTO 673; while() End
 SETV D2 2; InlineFunc[void Waitframes(int)] Params
 WAITFRAMESR D2; InlineFunc[void Waitframes(int)] Body
 PUSHR D4
-PUSHR GD4; UsrFunc[void AssertEqual(int, int, char32[])] Params Start
+PUSHR GD5; UsrFunc[void AssertEqual(int, int, char32[])] Params Start
 PUSHV 1
 ALLOCATEMEMV D2 51 0
 WRITEPODSTRING D2 "object in InitD[] kept through a shield reflection"
 PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
-CALLFUNC 0.0823; UsrFunc[void AssertEqual(int, int, char32[])] Call
+CALLFUNC 0.0766; UsrFunc[void AssertEqual(int, int, char32[])] Call
 POP D4
 SETV D2 0; InlineFunc[void lweapon::Remove()] Params Start
 PUSHR D2
@@ -731,15 +736,15 @@ LWPNDEL; InlineFunc[void lweapon::Remove()] Body
 SETV D2 2; InlineFunc[void Waitframes(int)] Params
 WAITFRAMESR D2; InlineFunc[void Waitframes(int)] Body
 PUSHR D4
-PUSHR GD4; UsrFunc[void AssertEqual(int, int, char32[])] Params Start
+PUSHR GD5; UsrFunc[void AssertEqual(int, int, char32[])] Params Start
 PUSHV 2
 ALLOCATEMEMV D2 64 0
 WRITEPODSTRING D2 "object in InitD[] released when the reflected weapon is removed"
 PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
-CALLFUNC 0.0823; UsrFunc[void AssertEqual(int, int, char32[])] Call
+CALLFUNC 0.0766; UsrFunc[void AssertEqual(int, int, char32[])] Call
 POP D4
-CALLFUNC 0.0816; UsrFunc[void End()] Call AND [Opt:NeverRet] AND [Opt:NeverRet] AND void run() Body End
-SETV D2 0.0726; Func[ReflectedEweaponTracker ReflectedEweaponTracker::ReflectedEweaponTracker()] Body Start
+CALLFUNC 0.0759; UsrFunc[void End()] Call AND [Opt:NeverRet] AND [Opt:NeverRet] AND void run() Body End
+SETV D2 0.0731; Func[ReflectedEweaponTracker ReflectedEweaponTracker::ReflectedEweaponTracker()] Body Start
 SETR CLASS_THISKEY2 CLASS_THISKEY
 ZCLASS_CONSTRUCT CLASS_THISKEY {0}
 REF_INC -0.0001
@@ -753,72 +758,10 @@ POP CLASS_THISKEY
 RETURNFUNC; Func[ReflectedEweaponTracker ReflectedEweaponTracker::ReflectedEweaponTracker()] Body End
 STARTDESTRUCTOR "ReflectedEweaponTracker"; Func[void ~ReflectedEweaponTracker::ReflectedEweaponTracker()] Body Start
 SETR D4 SP2
-SETR D2 GD4
+SETR D2 GD5
 ADDV D2 1
-SETR GD4 D2
+SETR GD5 D2
 RETURNFUNC; Func[void ~ReflectedEweaponTracker::ReflectedEweaponTracker()] Body End
-PUSHARGSV 0 0.0004; Func[int GetHighestLevelItemOwned(int)] Body Start
-SETR D4 SP2
-STOREV -1 0.0003
-STOREV -1 0.0002
-STOREV 0 0.0001; for() setup
-LOAD D2 0.0001; for() LoopTest
-COMPAREV D2 255
-SETCMP D2 I<=
-COMPAREV D2 0
-GOTOCMP 790 ==; for() TestFail?
-LOAD D2 0.0001; InlineFunc[itemdata Game::LoadItemData(int)] Params AND for() Body Start
-LOADITEMDATAR D2; InlineFunc[itemdata Game::LoadItemData(int)] Body Start
-SETR D2 REFITEMDATA; InlineFunc[itemdata Game::LoadItemData(int)] Body End
-STORE D2 0
-LOAD D2 0; if() Test
-PUSHR D2
-POP REFITEMDATA
-SETR D2 IDATATYPE
-PUSHR D2
-LOAD D2 0.0004
-POP D3
-COMPARER D3 D2
-GOTOCMP 763 !=
-LOAD D2 0.0001
-PUSHR D2
-POP D0
-SETR D2 LINKITEMD
-COMPAREV D2 0
-GOTOCMP 763 ==
-SETV D2 1
-GOTO 764
-SETV D2 0
-COMPAREV D2 0
-GOTOCMP 785 ==; Test 'if'
-LOAD D2 0; if() Test AND if() Body Start
-PUSHR D2
-POP REFITEMDATA
-SETR D2 IDATALEVEL
-PUSHR D2
-LOAD D2 0.0002
-POP D3
-COMPARER D3 D2
-SETCMP D2 I>=
-COMPAREV D2 0
-GOTOCMP 784 ==; Test 'if'
-LOAD D2 0; if() Body Start
-PUSHR D2
-POP REFITEMDATA
-SETR D2 IDATALEVEL
-STORE D2 0.0002
-LOAD D2 0.0001
-STORE D2 0.0003; if() Body End
-NOP; if() Body End
-NOP; for() Body End
-LOAD D2 0.0001; for() LoopIncrement
-ADDV D2 1
-STORE D2 0.0001
-GOTO 737; for() End
-NOP
-LOAD D2 0.0003; return Start
-POPARGS D5 0.0005; return End
-RETURNFUNC; Func[int GetHighestLevelItemOwned(int)] Body End
 SETR D4 SP2; Func[void Init(int)] Body Start
 ALLOCATEMEMV D2 35 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
 WRITEPODSTRING D2 "[Test] started: dmap %d screen %d\n"
@@ -832,7 +775,7 @@ LOAD D2 0; if() Test
 COMPAREV D2 0
 SETCMP D2 I!=
 COMPAREV D2 0
-GOTOCMP 813 ==; Test 'if'
+GOTOCMP 756 ==; Test 'if'
 PUSHV 5; InlineFunc[void hero::Warp(int, int)] Params Start AND if() Body Start
 LOAD D2 0; InlineFunc[void hero::Warp(int, int)] Params End
 POP D3; InlineFunc[void hero::Warp(int, int)] Body Start
@@ -858,7 +801,7 @@ POP D3
 COMPARER D3 D2
 SETCMP D2 I!=
 COMPAREV D2 0
-GOTOCMP 847 ==; Test 'if'
+GOTOCMP 790 ==; Test 'if'
 ALLOCATEMEMV D2 53 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start AND if() Body Start
 WRITEPODSTRING D2 "[Test] failed assertion: expected %d but got %d. %s\n"
 PUSHR D2
@@ -881,10 +824,10 @@ MARK_TYPE_STACK 0.0009 0
 REF_INC 0
 LOAD D2 0.0001; unless() Test
 COMPAREV D2 0
-GOTOCMP 860 !=; Test 'unless'
+GOTOCMP 803 !=; Test 'unless'
 LOAD D2 0; UsrFunc[void Fail(char32[])] Params Start AND unless() Body Start
 PUSHR D2; UsrFunc[void Fail(char32[])] Params End
-CALLFUNC 0.0864; UsrFunc[void Fail(char32[])] Call AND [Opt:NeverRet] AND unless() Body End
+CALLFUNC 0.0807; UsrFunc[void Fail(char32[])] Call AND [Opt:NeverRet] AND unless() Body End
 NOP
 REF_REMOVE 0
 POPARGS D5 0.0002
@@ -898,7 +841,7 @@ STRINGLENGTH D2 D3; InlineFunc[int strlen(char32[])] Body
 COMPAREV D2 0
 SETCMP D2 I>
 COMPAREV D2 0
-GOTOCMP 883 ==; Test 'if'
+GOTOCMP 826 ==; Test 'if'
 ALLOCATEMEMV D2 24 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start AND if() Body Start
 WRITEPODSTRING D2 "[Test] failed test: %s\n"
 PUSHR D2
@@ -907,7 +850,7 @@ PUSHVARGR D2
 MARK_TYPE_VARG 0.0009; InlineFunc[void printf(char32[], ...untyped[])] Params End
 PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
 POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
-GOTO 888; if() Body End
+GOTO 831; if() Body End
 ALLOCATEMEMV D2 20 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start AND if() Else Start
 WRITEPODSTRING D2 "[Test] failed test\n"
 PUSHR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
@@ -915,3 +858,84 @@ PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
 POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End AND if() Else End
 NOP
 GAMEEXIT; InlineFunc[void Game::Exit()] Body AND [Opt:NeverRet] AND Func[void Fail(char32[])] Body End
+SETR D4 SP2; Func[void DrawLabel()] Body Start
+SETR D2 GD1; unless() Test
+COMPAREV D2 0
+GOTOCMP 851 ==; Test 'unless' AND return (Void) AND unless() Body
+NOP
+SETV D2 0.0001
+PUSHR D2
+POP D2
+SETR SCREEN_DRAW_ORIGIN D2
+PUSHV 7; InlineFunc[void screendata::DrawString(int, int, int, int, int, int, int, char32[], int)] Params Start
+PUSHARGSV 2 0.0003
+PUSHV 1
+PUSHV 15
+PUSHV 0
+PUSHR GD1
+PUSHV 128; InlineFunc[void screendata::DrawString(int, int, int, int, int, int, int, char32[], int)] Params End
+DRAWSTRINGR; InlineFunc[void screendata::DrawString(int, int, int, int, int, int, int, char32[], int)] Body Start
+POPARGS D5 0.0009; InlineFunc[void screendata::DrawString(int, int, int, int, int, int, int, char32[], int)] Body End
+RETURNFUNC; Func[void DrawLabel()] Body End
+PUSHARGSV 0 0.0004; Func[int GetHighestLevelItemOwned(int)] Body Start
+SETR D4 SP2
+STOREV -1 0.0003
+STOREV -1 0.0002
+STOREV 0 0.0001; for() setup
+LOAD D2 0.0001; for() LoopTest
+COMPAREV D2 255
+SETCMP D2 I<=
+COMPAREV D2 0
+GOTOCMP 910 ==; for() TestFail?
+LOAD D2 0.0001; InlineFunc[itemdata Game::LoadItemData(int)] Params AND for() Body Start
+LOADITEMDATAR D2; InlineFunc[itemdata Game::LoadItemData(int)] Body Start
+SETR D2 REFITEMDATA; InlineFunc[itemdata Game::LoadItemData(int)] Body End
+STORE D2 0
+LOAD D2 0; if() Test
+PUSHR D2
+POP REFITEMDATA
+SETR D2 IDATATYPE
+PUSHR D2
+LOAD D2 0.0004
+POP D3
+COMPARER D3 D2
+GOTOCMP 883 !=
+LOAD D2 0.0001
+PUSHR D2
+POP D0
+SETR D2 LINKITEMD
+COMPAREV D2 0
+GOTOCMP 883 ==
+SETV D2 1
+GOTO 884
+SETV D2 0
+COMPAREV D2 0
+GOTOCMP 905 ==; Test 'if'
+LOAD D2 0; if() Test AND if() Body Start
+PUSHR D2
+POP REFITEMDATA
+SETR D2 IDATALEVEL
+PUSHR D2
+LOAD D2 0.0002
+POP D3
+COMPARER D3 D2
+SETCMP D2 I>=
+COMPAREV D2 0
+GOTOCMP 904 ==; Test 'if'
+LOAD D2 0; if() Body Start
+PUSHR D2
+POP REFITEMDATA
+SETR D2 IDATALEVEL
+STORE D2 0.0002
+LOAD D2 0.0001
+STORE D2 0.0003; if() Body End
+NOP; if() Body End
+NOP; for() Body End
+LOAD D2 0.0001; for() LoopIncrement
+ADDV D2 1
+STORE D2 0.0001
+GOTO 857; for() End
+NOP
+LOAD D2 0.0003; return Start
+POPARGS D5 0.0005; return End
+RETURNFUNC; Func[int GetHighestLevelItemOwned(int)] Body End

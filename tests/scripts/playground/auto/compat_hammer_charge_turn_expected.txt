@@ -26,7 +26,9 @@ stdout:
 
 zasm:
 
-QUIT; void run() Body
+MARK_TYPE_REG GD1 0.0009; void run() Body Start
+SETV GD1 0
+QUIT; void run() Body End
 PUSHARGSV 0 0.0003; void run() Body Start
 SETR D4 SP2
 ALLOCATEMEMV D2 100 0
@@ -48,7 +50,7 @@ LOAD D2 0.0001; if() Test
 COMPAREV D2 -1
 SETCMP D2 I==
 COMPAREV D2 0
-GOTOCMP 30 ==; Test 'if'
+GOTOCMP 32 ==; Test 'if'
 ALLOCATEMEMV D2 53 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start AND if() Body Start
 WRITEPODSTRING D2 "[Test] failed to start - could not find test script\n"
 PUSHR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
@@ -75,15 +77,18 @@ PUSHR D2
 POP REFGENERICDATA
 SETR D2 GENDATARUNNING
 COMPAREV D2 0
-GOTOCMP 53 ==; Test 'while'
-WAITFRAME; InlineFunc[void Waitframe()] Body AND while() Body
-GOTO 45; while() End
-CALLFUNC 0.0144; UsrFunc[void End()] Call AND [Opt:NeverRet]
+GOTOCMP 58 ==; Test 'while'
+PUSHR D4; while() Body Start
+CALLFUNC 0.0184; UsrFunc[void DrawLabel()] Call
+POP D4
+WAITFRAME; InlineFunc[void Waitframe()] Body AND while() Body End
+GOTO 47; while() End
+CALLFUNC 0.0149; UsrFunc[void End()] Call AND [Opt:NeverRet]
 REF_REMOVE 0.0002; [Opt:NeverRet] AND void run() Body End
 SETR D4 SP2; void run() Body Start
 PUSHR D4
 PUSHV 0; UsrFunc[void Init(int)] Params
-CALLFUNC 0.0122; UsrFunc[void Init(int)] Call
+CALLFUNC 0.0127; UsrFunc[void Init(int)] Call
 POP D4
 SETV D2 1
 PUSHR D2
@@ -120,14 +125,14 @@ POP D0
 POP D2
 SETR FFRULE D2
 PUSHARGSR D4 0.0002; UsrFunc[void AssertEqual(int, int, char32[])] Params Start
-CALLFUNC 0.0179; UsrFunc[int chargeAndTurn()] Call
+CALLFUNC 0.0203; UsrFunc[int chargeAndTurn()] Call
 POP D4
 PUSHR D2
 PUSHV 1
 ALLOCATEMEMV D2 37 0
 WRITEPODSTRING D2 "can't turn while charging the hammer"
 PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
-CALLFUNC 0.0151; UsrFunc[void AssertEqual(int, int, char32[])] Call
+CALLFUNC 0.0156; UsrFunc[void AssertEqual(int, int, char32[])] Call
 POP D4
 SETV D2 1
 PUSHR D2
@@ -137,16 +142,16 @@ POP D0
 POP D2
 SETR FFRULE D2
 PUSHARGSR D4 0.0002; UsrFunc[void AssertEqual(int, int, char32[])] Params Start
-CALLFUNC 0.0179; UsrFunc[int chargeAndTurn()] Call
+CALLFUNC 0.0203; UsrFunc[int chargeAndTurn()] Call
 POP D4
 PUSHR D2
 PUSHV 2
 ALLOCATEMEMV D2 56 0
 WRITEPODSTRING D2 "can turn while charging the hammer with the compat rule"
 PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
-CALLFUNC 0.0151; UsrFunc[void AssertEqual(int, int, char32[])] Call
+CALLFUNC 0.0156; UsrFunc[void AssertEqual(int, int, char32[])] Call
 POP D4
-CALLFUNC 0.0144; UsrFunc[void End()] Call AND [Opt:NeverRet] AND [Opt:NeverRet] AND void run() Body End
+CALLFUNC 0.0149; UsrFunc[void End()] Call AND [Opt:NeverRet] AND [Opt:NeverRet] AND void run() Body End
 SETR D4 SP2; Func[void Init(int)] Body Start
 ALLOCATEMEMV D2 35 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
 WRITEPODSTRING D2 "[Test] started: dmap %d screen %d\n"
@@ -160,7 +165,7 @@ LOAD D2 0; if() Test
 COMPAREV D2 0
 SETCMP D2 I!=
 COMPAREV D2 0
-GOTOCMP 141 ==; Test 'if'
+GOTOCMP 146 ==; Test 'if'
 PUSHV 5; InlineFunc[void hero::Warp(int, int)] Params Start AND if() Body Start
 LOAD D2 0; InlineFunc[void hero::Warp(int, int)] Params End
 POP D3; InlineFunc[void hero::Warp(int, int)] Body Start
@@ -186,7 +191,7 @@ POP D3
 COMPARER D3 D2
 SETCMP D2 I!=
 COMPAREV D2 0
-GOTOCMP 175 ==; Test 'if'
+GOTOCMP 180 ==; Test 'if'
 ALLOCATEMEMV D2 53 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start AND if() Body Start
 WRITEPODSTRING D2 "[Test] failed assertion: expected %d but got %d. %s\n"
 PUSHR D2
@@ -204,6 +209,25 @@ NOP
 REF_REMOVE 0
 POPARGS D5 0.0003
 RETURNFUNC; Func[void AssertEqual(int, int, char32[])] Body End
+SETR D4 SP2; Func[void DrawLabel()] Body Start
+SETR D2 GD1; unless() Test
+COMPAREV D2 0
+GOTOCMP 202 ==; Test 'unless' AND return (Void) AND unless() Body
+NOP
+SETV D2 0.0001
+PUSHR D2
+POP D2
+SETR SCREEN_DRAW_ORIGIN D2
+PUSHV 7; InlineFunc[void screendata::DrawString(int, int, int, int, int, int, int, char32[], int)] Params Start
+PUSHARGSV 2 0.0003
+PUSHV 1
+PUSHV 15
+PUSHV 0
+PUSHR GD1
+PUSHV 128; InlineFunc[void screendata::DrawString(int, int, int, int, int, int, int, char32[], int)] Params End
+DRAWSTRINGR; InlineFunc[void screendata::DrawString(int, int, int, int, int, int, int, char32[], int)] Body Start
+POPARGS D5 0.0009; InlineFunc[void screendata::DrawString(int, int, int, int, int, int, int, char32[], int)] Body End
+RETURNFUNC; Func[void DrawLabel()] Body End
 PUSHARGSV 0 0.0002; Func[int chargeAndTurn()] Body Start
 SETR D4 SP2
 SETV D2 1
@@ -224,7 +248,7 @@ POP D2
 COMPAREV D2 40
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 213 ==; Test 'while'
+GOTOCMP 237 ==; Test 'while'
 PUSHV 2; InlineFunc[void WaitTo(ScriptTiming, bool)] Params Start AND while() Body Start
 SETV D3 0; InlineFunc[void WaitTo(ScriptTiming, bool)] Params End
 POP D2; InlineFunc[void WaitTo(ScriptTiming, bool)] Body Start
@@ -237,14 +261,14 @@ POP D0
 POP D2
 SETR BUTTONINPUT D2
 WAITFRAME; InlineFunc[void Waitframe()] Body AND while() Body End
-GOTO 191; while() End
+GOTO 215; while() End
 PUSHR D4
 PUSHR LINKACTION; UsrFunc[void AssertEqual(int, int, char32[])] Params Start
 PUSHV 22
 ALLOCATEMEMV D2 19 0
 WRITEPODSTRING D2 "hammer is charging"
 PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
-CALLFUNC 0.0151; UsrFunc[void AssertEqual(int, int, char32[])] Call
+CALLFUNC 0.0156; UsrFunc[void AssertEqual(int, int, char32[])] Call
 POP D4
 SETV D2 0
 STORE D2 0.0001
@@ -256,7 +280,7 @@ POP D2
 COMPAREV D2 10
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 252 ==; Test 'while'
+GOTOCMP 276 ==; Test 'while'
 PUSHV 2; InlineFunc[void WaitTo(ScriptTiming, bool)] Params Start AND while() Body Start
 SETV D3 0; InlineFunc[void WaitTo(ScriptTiming, bool)] Params End
 POP D2; InlineFunc[void WaitTo(ScriptTiming, bool)] Body Start
@@ -276,7 +300,7 @@ POP D0
 POP D2
 SETR BUTTONINPUT D2
 WAITFRAME; InlineFunc[void Waitframe()] Body AND while() Body End
-GOTO 223; while() End
+GOTO 247; while() End
 SETV D2 0.0001
 PUSHR D2
 POP REFSPRITE

@@ -26,7 +26,9 @@ stdout:
 
 zasm:
 
-QUIT; void run() Body
+MARK_TYPE_REG GD1 0.0009; void run() Body Start
+SETV GD1 0
+QUIT; void run() Body End
 PUSHARGSV 0 0.0003; void run() Body Start
 SETR D4 SP2
 ALLOCATEMEMV D2 100 0
@@ -48,7 +50,7 @@ LOAD D2 0.0001; if() Test
 COMPAREV D2 -1
 SETCMP D2 I==
 COMPAREV D2 0
-GOTOCMP 30 ==; Test 'if'
+GOTOCMP 32 ==; Test 'if'
 ALLOCATEMEMV D2 53 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start AND if() Body Start
 WRITEPODSTRING D2 "[Test] failed to start - could not find test script\n"
 PUSHR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
@@ -75,21 +77,24 @@ PUSHR D2
 POP REFGENERICDATA
 SETR D2 GENDATARUNNING
 COMPAREV D2 0
-GOTOCMP 53 ==; Test 'while'
-WAITFRAME; InlineFunc[void Waitframe()] Body AND while() Body
-GOTO 45; while() End
-CALLFUNC 0.0087; UsrFunc[void End()] Call AND [Opt:NeverRet]
+GOTOCMP 58 ==; Test 'while'
+PUSHR D4; while() Body Start
+CALLFUNC 0.0127; UsrFunc[void DrawLabel()] Call
+POP D4
+WAITFRAME; InlineFunc[void Waitframe()] Body AND while() Body End
+GOTO 47; while() End
+CALLFUNC 0.0092; UsrFunc[void End()] Call AND [Opt:NeverRet]
 REF_REMOVE 0.0002; [Opt:NeverRet] AND void run() Body End
 SETR D4 SP2; void run() Body Start
 PUSHR D4
 PUSHV 0; UsrFunc[void Init(int)] Params
-CALLFUNC 0.0065; UsrFunc[void Init(int)] Call
+CALLFUNC 0.0070; UsrFunc[void Init(int)] Call
 PEEK D4
-CALLFUNC 0.0122; UsrFunc[void testComboT()] Call
+CALLFUNC 0.0146; UsrFunc[void testComboT()] Call
 PEEK D4
-CALLFUNC 0.0252; UsrFunc[void testComboI()] Call
+CALLFUNC 0.0276; UsrFunc[void testComboI()] Call
 POP D4
-CALLFUNC 0.0087; UsrFunc[void End()] Call AND [Opt:NeverRet] AND [Opt:NeverRet] AND void run() Body End
+CALLFUNC 0.0092; UsrFunc[void End()] Call AND [Opt:NeverRet] AND [Opt:NeverRet] AND void run() Body End
 SETR D4 SP2; Func[void Init(int)] Body Start
 ALLOCATEMEMV D2 35 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
 WRITEPODSTRING D2 "[Test] started: dmap %d screen %d\n"
@@ -103,7 +108,7 @@ LOAD D2 0; if() Test
 COMPAREV D2 0
 SETCMP D2 I!=
 COMPAREV D2 0
-GOTOCMP 84 ==; Test 'if'
+GOTOCMP 89 ==; Test 'if'
 PUSHV 5; InlineFunc[void hero::Warp(int, int)] Params Start AND if() Body Start
 LOAD D2 0; InlineFunc[void hero::Warp(int, int)] Params End
 POP D3; InlineFunc[void hero::Warp(int, int)] Body Start
@@ -129,7 +134,7 @@ POP D3
 COMPARER D3 D2
 SETCMP D2 I!=
 COMPAREV D2 0
-GOTOCMP 118 ==; Test 'if'
+GOTOCMP 123 ==; Test 'if'
 ALLOCATEMEMV D2 53 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start AND if() Body Start
 WRITEPODSTRING D2 "[Test] failed assertion: expected %d but got %d. %s\n"
 PUSHR D2
@@ -147,6 +152,25 @@ NOP
 REF_REMOVE 0
 POPARGS D5 0.0003
 RETURNFUNC; Func[void AssertEqual(int, int, char32[])] Body End
+SETR D4 SP2; Func[void DrawLabel()] Body Start
+SETR D2 GD1; unless() Test
+COMPAREV D2 0
+GOTOCMP 145 ==; Test 'unless' AND return (Void) AND unless() Body
+NOP
+SETV D2 0.0001
+PUSHR D2
+POP D2
+SETR SCREEN_DRAW_ORIGIN D2
+PUSHV 7; InlineFunc[void screendata::DrawString(int, int, int, int, int, int, int, char32[], int)] Params Start
+PUSHARGSV 2 0.0003
+PUSHV 1
+PUSHV 15
+PUSHV 0
+PUSHR GD1
+PUSHV 128; InlineFunc[void screendata::DrawString(int, int, int, int, int, int, int, char32[], int)] Params End
+DRAWSTRINGR; InlineFunc[void screendata::DrawString(int, int, int, int, int, int, int, char32[], int)] Body Start
+POPARGS D5 0.0009; InlineFunc[void screendata::DrawString(int, int, int, int, int, int, int, char32[], int)] Body End
+RETURNFUNC; Func[void DrawLabel()] Body End
 PUSHARGSV 0 0.0002; Func[void testComboT()] Body Start
 SETR D4 SP2
 SETV D2 5; InlineFunc[dmapdata Game::LoadDMapData(int)] Params
@@ -188,7 +212,7 @@ PUSHV 167
 ALLOCATEMEMV D2 20 0
 WRITEPODSTRING D2 "the type is written"
 PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
-CALLFUNC 0.0094; UsrFunc[void AssertEqual(int, int, char32[])] Call
+CALLFUNC 0.0099; UsrFunc[void AssertEqual(int, int, char32[])] Call
 PEEK D4
 SETV D2 34; UsrFunc[void AssertEqual(int, int, char32[])] Params Start
 PUSHR D2
@@ -198,7 +222,7 @@ PUSHV 167
 ALLOCATEMEMV D2 29 0
 WRITEPODSTRING D2 "the engine sees the new type"
 PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
-CALLFUNC 0.0094; UsrFunc[void AssertEqual(int, int, char32[])] Call
+CALLFUNC 0.0099; UsrFunc[void AssertEqual(int, int, char32[])] Call
 POP D4
 LOAD D2 0.0001; InlineFunc[mapdata Game::LoadMapData(int, int)] Params Start
 PUSHR D2
@@ -241,7 +265,7 @@ PUSHV 167
 ALLOCATEMEMV D2 20 0
 WRITEPODSTRING D2 "the type is written"
 PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
-CALLFUNC 0.0094; UsrFunc[void AssertEqual(int, int, char32[])] Call
+CALLFUNC 0.0099; UsrFunc[void AssertEqual(int, int, char32[])] Call
 PEEK D4
 LOAD D2 0; UsrFunc[void AssertEqual(int, int, char32[])] Params Start
 PUSHR D2
@@ -254,7 +278,7 @@ PUSHV 167
 ALLOCATEMEMV D2 29 0
 WRITEPODSTRING D2 "the engine sees the new type"
 PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
-CALLFUNC 0.0094; UsrFunc[void AssertEqual(int, int, char32[])] Call
+CALLFUNC 0.0099; UsrFunc[void AssertEqual(int, int, char32[])] Call
 POP D4
 SETV D2 3511
 PUSHR D2
@@ -273,7 +297,7 @@ PUSHV 167
 ALLOCATEMEMV D2 29 0
 WRITEPODSTRING D2 "wherever the combo is placed"
 PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
-CALLFUNC 0.0094; UsrFunc[void AssertEqual(int, int, char32[])] Call
+CALLFUNC 0.0099; UsrFunc[void AssertEqual(int, int, char32[])] Call
 POP D4
 POPARGS D5 0.0002
 RETURNFUNC; Func[void testComboT()] Body End
@@ -312,7 +336,7 @@ PUSHV 1
 ALLOCATEMEMV D2 20 0
 WRITEPODSTRING D2 "the flag is written"
 PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
-CALLFUNC 0.0094; UsrFunc[void AssertEqual(int, int, char32[])] Call
+CALLFUNC 0.0099; UsrFunc[void AssertEqual(int, int, char32[])] Call
 PEEK D4
 SETV D2 34; UsrFunc[void AssertEqual(int, int, char32[])] Params Start
 PUSHR D2
@@ -322,7 +346,7 @@ PUSHV 1
 ALLOCATEMEMV D2 29 0
 WRITEPODSTRING D2 "the engine sees the new flag"
 PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
-CALLFUNC 0.0094; UsrFunc[void AssertEqual(int, int, char32[])] Call
+CALLFUNC 0.0099; UsrFunc[void AssertEqual(int, int, char32[])] Call
 POP D4
 LOAD D2 0.0001; InlineFunc[mapdata Game::LoadMapData(int, int)] Params Start
 PUSHR D2
@@ -365,7 +389,7 @@ PUSHV 1
 ALLOCATEMEMV D2 20 0
 WRITEPODSTRING D2 "the flag is written"
 PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
-CALLFUNC 0.0094; UsrFunc[void AssertEqual(int, int, char32[])] Call
+CALLFUNC 0.0099; UsrFunc[void AssertEqual(int, int, char32[])] Call
 PEEK D4
 LOAD D2 0; UsrFunc[void AssertEqual(int, int, char32[])] Params Start
 PUSHR D2
@@ -378,7 +402,7 @@ PUSHV 1
 ALLOCATEMEMV D2 29 0
 WRITEPODSTRING D2 "the engine sees the new flag"
 PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
-CALLFUNC 0.0094; UsrFunc[void AssertEqual(int, int, char32[])] Call
+CALLFUNC 0.0099; UsrFunc[void AssertEqual(int, int, char32[])] Call
 POP D4
 POPARGS D5 0.0002
 RETURNFUNC; Func[void testComboI()] Body End

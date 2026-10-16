@@ -26,7 +26,9 @@ stdout:
 
 zasm:
 
-QUIT; void run() Body
+MARK_TYPE_REG GD1 0.0009; void run() Body Start
+SETV GD1 0
+QUIT; void run() Body End
 PUSHARGSV 0 0.0003; void run() Body Start
 SETR D4 SP2
 ALLOCATEMEMV D2 100 0
@@ -48,7 +50,7 @@ LOAD D2 0.0001; if() Test
 COMPAREV D2 -1
 SETCMP D2 I==
 COMPAREV D2 0
-GOTOCMP 30 ==; Test 'if'
+GOTOCMP 32 ==; Test 'if'
 ALLOCATEMEMV D2 53 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start AND if() Body Start
 WRITEPODSTRING D2 "[Test] failed to start - could not find test script\n"
 PUSHR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
@@ -75,16 +77,19 @@ PUSHR D2
 POP REFGENERICDATA
 SETR D2 GENDATARUNNING
 COMPAREV D2 0
-GOTOCMP 53 ==; Test 'while'
-WAITFRAME; InlineFunc[void Waitframe()] Body AND while() Body
-GOTO 45; while() End
-CALLFUNC 0.0258; UsrFunc[void End()] Call AND [Opt:NeverRet]
+GOTOCMP 58 ==; Test 'while'
+PUSHR D4; while() Body Start
+CALLFUNC 0.0292; UsrFunc[void DrawLabel()] Call
+POP D4
+WAITFRAME; InlineFunc[void Waitframe()] Body AND while() Body End
+GOTO 47; while() End
+CALLFUNC 0.0263; UsrFunc[void End()] Call AND [Opt:NeverRet]
 REF_REMOVE 0.0002; [Opt:NeverRet] AND void run() Body End
 PUSHARGSV 0 0.0010; void run() Body Start
 SETR D4 SP2
 PUSHR D4
 PUSHV 0; UsrFunc[void Init(int)] Params
-CALLFUNC 0.0236; UsrFunc[void Init(int)] Call
+CALLFUNC 0.0241; UsrFunc[void Init(int)] Call
 POP D4
 ALLOCATEMEMV D2 6 0
 WRITEPODSTRING D2 "apple"
@@ -101,38 +106,38 @@ STORE_OBJECT D2 0.0006
 PUSHARGSR D4 0.0002; UsrFunc[void AssertEqual(int, int)] Params Start
 LOAD D2 0.0009; UsrFunc[int classify(char32[])] Params Start
 PUSHR D2; UsrFunc[int classify(char32[])] Params End
-CALLFUNC 0.0287; UsrFunc[int classify(char32[])] Call
+CALLFUNC 0.0311; UsrFunc[int classify(char32[])] Call
 POP D4
 PUSHR D2
 PUSHV 1; UsrFunc[void AssertEqual(int, int)] Params End
-CALLFUNC 0.0265; UsrFunc[void AssertEqual(int, int)] Call
+CALLFUNC 0.0270; UsrFunc[void AssertEqual(int, int)] Call
 PEEK D4
 PUSHR D4; UsrFunc[void AssertEqual(int, int)] Params Start
 LOAD D2 0.0008; UsrFunc[int classify(char32[])] Params Start
 PUSHR D2; UsrFunc[int classify(char32[])] Params End
-CALLFUNC 0.0287; UsrFunc[int classify(char32[])] Call
+CALLFUNC 0.0311; UsrFunc[int classify(char32[])] Call
 POP D4
 PUSHR D2
 PUSHV 2; UsrFunc[void AssertEqual(int, int)] Params End
-CALLFUNC 0.0265; UsrFunc[void AssertEqual(int, int)] Call
+CALLFUNC 0.0270; UsrFunc[void AssertEqual(int, int)] Call
 PEEK D4
 PUSHR D4; UsrFunc[void AssertEqual(int, int)] Params Start
 LOAD D2 0.0007; UsrFunc[int classify(char32[])] Params Start
 PUSHR D2; UsrFunc[int classify(char32[])] Params End
-CALLFUNC 0.0287; UsrFunc[int classify(char32[])] Call
+CALLFUNC 0.0311; UsrFunc[int classify(char32[])] Call
 POP D4
 PUSHR D2
 PUSHV 3; UsrFunc[void AssertEqual(int, int)] Params End
-CALLFUNC 0.0265; UsrFunc[void AssertEqual(int, int)] Call
+CALLFUNC 0.0270; UsrFunc[void AssertEqual(int, int)] Call
 PEEK D4
 PUSHR D4; UsrFunc[void AssertEqual(int, int)] Params Start
 LOAD D2 0.0006; UsrFunc[int classify(char32[])] Params Start
 PUSHR D2; UsrFunc[int classify(char32[])] Params End
-CALLFUNC 0.0287; UsrFunc[int classify(char32[])] Call
+CALLFUNC 0.0311; UsrFunc[int classify(char32[])] Call
 POP D4
 PUSHR D2
 PUSHV 0; UsrFunc[void AssertEqual(int, int)] Params End
-CALLFUNC 0.0265; UsrFunc[void AssertEqual(int, int)] Call
+CALLFUNC 0.0270; UsrFunc[void AssertEqual(int, int)] Call
 POP D4
 ALLOCATEMEMV D2 5 0
 WRITEPODSTRING D2 "left"
@@ -146,29 +151,29 @@ STORE_OBJECT D2 0.0003
 PUSHARGSR D4 0.0002; UsrFunc[void AssertEqual(int, int)] Params Start
 LOAD D2 0.0005; UsrFunc[int classify_nodefault(char32[])] Params Start
 PUSHR D2; UsrFunc[int classify_nodefault(char32[])] Params End
-CALLFUNC 0.0317; UsrFunc[int classify_nodefault(char32[])] Call
+CALLFUNC 0.0341; UsrFunc[int classify_nodefault(char32[])] Call
 POP D4
 PUSHR D2
 PUSHV 10; UsrFunc[void AssertEqual(int, int)] Params End
-CALLFUNC 0.0265; UsrFunc[void AssertEqual(int, int)] Call
+CALLFUNC 0.0270; UsrFunc[void AssertEqual(int, int)] Call
 PEEK D4
 PUSHR D4; UsrFunc[void AssertEqual(int, int)] Params Start
 LOAD D2 0.0004; UsrFunc[int classify_nodefault(char32[])] Params Start
 PUSHR D2; UsrFunc[int classify_nodefault(char32[])] Params End
-CALLFUNC 0.0317; UsrFunc[int classify_nodefault(char32[])] Call
+CALLFUNC 0.0341; UsrFunc[int classify_nodefault(char32[])] Call
 POP D4
 PUSHR D2
 PUSHV 20; UsrFunc[void AssertEqual(int, int)] Params End
-CALLFUNC 0.0265; UsrFunc[void AssertEqual(int, int)] Call
+CALLFUNC 0.0270; UsrFunc[void AssertEqual(int, int)] Call
 PEEK D4
 PUSHR D4; UsrFunc[void AssertEqual(int, int)] Params Start
 LOAD D2 0.0003; UsrFunc[int classify_nodefault(char32[])] Params Start
 PUSHR D2; UsrFunc[int classify_nodefault(char32[])] Params End
-CALLFUNC 0.0317; UsrFunc[int classify_nodefault(char32[])] Call
+CALLFUNC 0.0341; UsrFunc[int classify_nodefault(char32[])] Call
 POP D4
 PUSHR D2
 PUSHV -1; UsrFunc[void AssertEqual(int, int)] Params End
-CALLFUNC 0.0265; UsrFunc[void AssertEqual(int, int)] Call
+CALLFUNC 0.0270; UsrFunc[void AssertEqual(int, int)] Call
 POP D4
 STOREV 0 0.0002
 STOREV 0 0.0001; for() setup
@@ -176,14 +181,14 @@ LOAD D2 0.0001; for() LoopTest
 COMPAREV D2 3
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 221 ==; for() TestFail?
+GOTOCMP 226 ==; for() TestFail?
 ALLOCATEMEMV D2 8 0; for() Body Start
 STORE_OBJECT D2 0
 LOAD D2 0.0001; if() Test
 COMPAREV D2 0
 SETCMP D2 I==
 COMPAREV D2 0
-GOTOCMP 167 ==; Test 'if'
+GOTOCMP 172 ==; Test 'if'
 LOAD D2 0; InlineFunc[void strcpy(char32[], char32[])] Params Start AND if() Body Start
 PUSHR D2
 ALLOCATEMEMV D2 4 0
@@ -191,12 +196,12 @@ WRITEPODSTRING D2 "one"
 SETR D3 D2; InlineFunc[void strcpy(char32[], char32[])] Params End
 POP D2; InlineFunc[void strcpy(char32[], char32[])] Body Start
 STRINGCOPY D2 D3; InlineFunc[void strcpy(char32[], char32[])] Body End
-GOTO 188; if() Body End
+GOTO 193; if() Body End
 LOAD D2 0.0001; if() Test AND if() Else Start
 COMPAREV D2 1
 SETCMP D2 I==
 COMPAREV D2 0
-GOTOCMP 180 ==; Test 'if'
+GOTOCMP 185 ==; Test 'if'
 LOAD D2 0; InlineFunc[void strcpy(char32[], char32[])] Params Start AND if() Body Start
 PUSHR D2
 ALLOCATEMEMV D2 4 0
@@ -204,7 +209,7 @@ WRITEPODSTRING D2 "two"
 SETR D3 D2; InlineFunc[void strcpy(char32[], char32[])] Params End
 POP D2; InlineFunc[void strcpy(char32[], char32[])] Body Start
 STRINGCOPY D2 D3; InlineFunc[void strcpy(char32[], char32[])] Body End
-GOTO 187; if() Body End
+GOTO 192; if() Body End
 LOAD D2 0; InlineFunc[void strcpy(char32[], char32[])] Params Start AND if() Else Start
 PUSHR D2
 ALLOCATEMEMV D2 6 0
@@ -219,24 +224,24 @@ SETR SWITCHKEY D2; Store key
 ALLOCATEMEMV D2 4 0
 WRITEPODSTRING D2 "one"
 STRCMPR SWITCHKEY D2; case "one"
-GOTOCMP 204 ==
+GOTOCMP 209 ==
 ALLOCATEMEMV D2 4 0
 WRITEPODSTRING D2 "two"
 STRCMPR SWITCHKEY D2; case "two"
-GOTOCMP 208 ==
+GOTOCMP 213 ==
 ALLOCATEMEMV D2 6 0
 WRITEPODSTRING D2 "three"
 STRCMPR SWITCHKEY D2; case "three"
-GOTOCMP 212 ==
-GOTO 215; switch("") NoMatch
+GOTOCMP 217 ==
+GOTO 220; switch("") NoMatch
 LOAD D2 0.0002; Case block
 ADDV D2 1
 STORE D2 0.0002
-GOTO 215; break 1;
+GOTO 220; break 1;
 LOAD D2 0.0002; Case block
 ADDV D2 10
 STORE D2 0.0002
-GOTO 215; break 1;
+GOTO 220; break 1;
 LOAD D2 0.0002; Case block
 ADDV D2 100
 STORE D2 0.0002
@@ -245,15 +250,15 @@ REF_REMOVE 0; for() Body End
 LOAD D2 0.0001; for() LoopIncrement
 ADDV D2 1
 STORE D2 0.0001
-GOTO 147; for() End
+GOTO 152; for() End
 NOP
 PUSHR D4
 LOAD D2 0.0002; UsrFunc[void AssertEqual(int, int)] Params Start
 PUSHR D2
 PUSHV 111; UsrFunc[void AssertEqual(int, int)] Params End
-CALLFUNC 0.0265; UsrFunc[void AssertEqual(int, int)] Call
+CALLFUNC 0.0270; UsrFunc[void AssertEqual(int, int)] Call
 POP D4
-CALLFUNC 0.0258; UsrFunc[void End()] Call AND [Opt:NeverRet]
+CALLFUNC 0.0263; UsrFunc[void End()] Call AND [Opt:NeverRet]
 REF_REMOVE 0.0009
 REF_REMOVE 0.0008
 REF_REMOVE 0.0007
@@ -274,7 +279,7 @@ LOAD D2 0; if() Test
 COMPAREV D2 0
 SETCMP D2 I!=
 COMPAREV D2 0
-GOTOCMP 255 ==; Test 'if'
+GOTOCMP 260 ==; Test 'if'
 PUSHV 5; InlineFunc[void hero::Warp(int, int)] Params Start AND if() Body Start
 LOAD D2 0; InlineFunc[void hero::Warp(int, int)] Params End
 POP D3; InlineFunc[void hero::Warp(int, int)] Body Start
@@ -298,7 +303,7 @@ POP D3
 COMPARER D3 D2
 SETCMP D2 I!=
 COMPAREV D2 0
-GOTOCMP 284 ==; Test 'if'
+GOTOCMP 289 ==; Test 'if'
 ALLOCATEMEMV D2 49 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start AND if() Body Start
 WRITEPODSTRING D2 "[Test] failed assertion: expected %d but got %d\n"
 PUSHR D2
@@ -312,6 +317,25 @@ GAMEEXIT; InlineFunc[void Game::Exit()] Body AND if() Body End
 NOP
 POPARGS D5 0.0002
 RETURNFUNC; Func[void AssertEqual(int, int)] Body End
+SETR D4 SP2; Func[void DrawLabel()] Body Start
+SETR D2 GD1; unless() Test
+COMPAREV D2 0
+GOTOCMP 310 ==; Test 'unless' AND return (Void) AND unless() Body
+NOP
+SETV D2 0.0001
+PUSHR D2
+POP D2
+SETR SCREEN_DRAW_ORIGIN D2
+PUSHV 7; InlineFunc[void screendata::DrawString(int, int, int, int, int, int, int, char32[], int)] Params Start
+PUSHARGSV 2 0.0003
+PUSHV 1
+PUSHV 15
+PUSHV 0
+PUSHR GD1
+PUSHV 128; InlineFunc[void screendata::DrawString(int, int, int, int, int, int, int, char32[], int)] Params End
+DRAWSTRINGR; InlineFunc[void screendata::DrawString(int, int, int, int, int, int, int, char32[], int)] Body Start
+POPARGS D5 0.0009; InlineFunc[void screendata::DrawString(int, int, int, int, int, int, int, char32[], int)] Body End
+RETURNFUNC; Func[void DrawLabel()] Body End
 SETR D4 SP2; Func[int classify(char32[])] Body Start
 MARK_TYPE_STACK 0.0009 0
 REF_INC 0
@@ -320,24 +344,24 @@ SETR SWITCHKEY D2; Store key
 ALLOCATEMEMV D2 6 0
 WRITEPODSTRING D2 "apple"
 STRCMPR SWITCHKEY D2; case "apple"
-GOTOCMP 305 ==
+GOTOCMP 329 ==
 ALLOCATEMEMV D2 7 0
 WRITEPODSTRING D2 "banana"
 STRCMPR SWITCHKEY D2; case "banana"
-GOTOCMP 307 ==
+GOTOCMP 331 ==
 ALLOCATEMEMV D2 7 0
 WRITEPODSTRING D2 "cherry"
 STRCMPR SWITCHKEY D2; case "cherry"
-GOTOCMP 309 ==
-GOTO 311; switch("") NoMatch
+GOTOCMP 333 ==
+GOTO 335; switch("") NoMatch
 SETV D2 1; Case block AND return Start
-GOTO 314; return End
+GOTO 338; return End
 SETV D2 2; Case block AND return Start
-GOTO 314; return End
+GOTO 338; return End
 SETV D2 3; Case block AND return Start
-GOTO 314; return End
+GOTO 338; return End
 SETV D2 0; Case block AND return Start
-GOTO 314; return End
+GOTO 338; return End
 NOP
 REF_REMOVE 0
 POP D5
@@ -352,15 +376,15 @@ SETR SWITCHKEY D2; Store key
 ALLOCATEMEMV D2 5 0
 WRITEPODSTRING D2 "left"
 STRCMPR SWITCHKEY D2; case "left"
-GOTOCMP 333 ==
+GOTOCMP 357 ==
 ALLOCATEMEMV D2 6 0
 WRITEPODSTRING D2 "right"
 STRCMPR SWITCHKEY D2; case "right"
-GOTOCMP 336 ==
-GOTO 338; switch("") NoMatch
+GOTOCMP 360 ==
+GOTO 362; switch("") NoMatch
 SETV D2 10; Case block
 STORE D2 0
-GOTO 338; break 1;
+GOTO 362; break 1;
 SETV D2 20; Case block
 STORE D2 0
 LOAD D2 0; break 1; AND return Start

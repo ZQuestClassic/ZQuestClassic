@@ -1,0 +1,2431 @@
+stderr:
+
+Compiling 'switches_and_step_effects.zs'
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+Pass 4: Analyzing Code
+Pass 5: Checking code paths
+Pass 6: Generating object code
+Pass 7: Assembling
+Success!
+Compile finished with exit code '0' (success)
+
+stdout:
+
+{
+  "success": true,
+  "diagnostics": [],
+  "metadata": {
+    "currentFileSymbols": 47,
+    "symbols": 129,
+    "identifiers": 776,
+    "elided": true
+  }
+}
+
+zasm:
+
+MARK_TYPE_REG GD1 0.0009; void run() Body Start
+SETV GD1 0
+QUIT; void run() Body End
+PUSHARGSV 0 0.0003; void run() Body Start
+SETR D4 SP2
+ALLOCATEMEMV D2 100 0
+STORE_OBJECT D2 0.0002
+LOAD D2 0.0002; InlineFunc[void Game::GetSaveName(char32[])] Params
+GETSAVENAME D2; InlineFunc[void Game::GetSaveName(char32[])] Body
+ALLOCATEMEMV D2 19 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
+WRITEPODSTRING D2 "[Test] Running %s\n"
+PUSHR D2
+LOAD D2 0.0002
+PUSHVARGR D2
+MARK_TYPE_VARG 0.0009; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
+LOAD D2 0.0002; InlineFunc[int Game::GetGenericScript(char32[])] Params
+GETGENERICSCRIPT D2; InlineFunc[int Game::GetGenericScript(char32[])] Body
+STORE D2 0.0001
+LOAD D2 0.0001; if() Test
+COMPAREV D2 -1
+SETCMP D2 I==
+COMPAREV D2 0
+GOTOCMP 32 ==; Test 'if'
+ALLOCATEMEMV D2 53 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start AND if() Body Start
+WRITEPODSTRING D2 "[Test] failed to start - could not find test script\n"
+PUSHR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
+GAMEEXIT; InlineFunc[void Game::Exit()] Body AND if() Body End
+NOP
+LOAD D2 0.0001; InlineFunc[genericdata Game::LoadGenericData(int)] Params
+LOADGENERICDATA D2; InlineFunc[genericdata Game::LoadGenericData(int)] Body Start
+SETR D2 REFGENERICDATA; InlineFunc[genericdata Game::LoadGenericData(int)] Body End
+STORE D2 0
+SETV D2 1
+PUSHR D2
+LOAD D2 0
+POP D3
+PUSHR D2
+PUSHR D3
+POP D2
+CASTBOOLI D2
+POP REFGENERICDATA
+SETR GENDATARUNNING D2
+LOAD D2 0; while() Test
+PUSHR D2
+POP REFGENERICDATA
+SETR D2 GENDATARUNNING
+COMPAREV D2 0
+GOTOCMP 58 ==; Test 'while'
+PUSHR D4; while() Body Start
+CALLFUNC 0.0422; UsrFunc[void DrawLabel()] Call
+POP D4
+WAITFRAME; InlineFunc[void Waitframe()] Body AND while() Body End
+GOTO 47; while() End
+CALLFUNC 0.0106; UsrFunc[void End()] Call AND [Opt:NeverRet]
+REF_REMOVE 0.0002; [Opt:NeverRet] AND void run() Body End
+SETR D4 SP2; void run() Body Start
+PUSHR D4
+PUSHV 0; UsrFunc[void Init(int)] Params
+CALLFUNC 0.0084; UsrFunc[void Init(int)] Call
+PEEK D4
+CALLFUNC 0.0590; UsrFunc[void testGlobalSwitch()] Call
+PEEK D4
+CALLFUNC 0.0829; UsrFunc[void testTimedGlobalSwitch()] Call
+PEEK D4
+CALLFUNC 0.0942; UsrFunc[void testGlobalStateAcrossScreens()] Call
+PEEK D4
+CALLFUNC 0.1083; UsrFunc[void testGlobalStateTriggers()] Call
+PEEK D4
+CALLFUNC 0.1326; UsrFunc[void testLevelSwitch()] Call
+PEEK D4
+CALLFUNC 0.1450; UsrFunc[void testTriggeringABlock()] Call
+PEEK D4
+CALLFUNC 0.1536; UsrFunc[void testTimedTrigger()] Call
+PEEK D4
+CALLFUNC 0.1737; UsrFunc[void testStepEffects()] Call
+PEEK D4
+CALLFUNC 0.2149; UsrFunc[void testStepCombos()] Call
+POP D4
+CALLFUNC 0.0106; UsrFunc[void End()] Call AND [Opt:NeverRet] AND [Opt:NeverRet] AND void run() Body End
+SETR D4 SP2; Func[void Init(int)] Body Start
+ALLOCATEMEMV D2 35 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
+WRITEPODSTRING D2 "[Test] started: dmap %d screen %d\n"
+PUSHR D2
+PUSHVARGV 5
+LOAD D2 0
+PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
+LOAD D2 0; if() Test
+COMPAREV D2 0
+SETCMP D2 I!=
+COMPAREV D2 0
+GOTOCMP 103 ==; Test 'if'
+PUSHV 5; InlineFunc[void hero::Warp(int, int)] Params Start AND if() Body Start
+LOAD D2 0; InlineFunc[void hero::Warp(int, int)] Params End
+POP D3; InlineFunc[void hero::Warp(int, int)] Body Start
+WARPR D3 D2; InlineFunc[void hero::Warp(int, int)] Body End
+WAITFRAME; InlineFunc[void Waitframe()] Body AND if() Body End
+NOP
+POP D5
+RETURNFUNC; Func[void Init(int)] Body End
+SETR D4 SP2; Func[void End()] Body Start
+ALLOCATEMEMV D2 13 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
+WRITEPODSTRING D2 "[Test] done\n"
+PUSHR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
+GAMEEXIT; InlineFunc[void Game::Exit()] Body AND [Opt:NeverRet] AND Func[void End()] Body End
+SETR D4 SP2; Func[void AssertEqual(int, int, char32[])] Body Start
+MARK_TYPE_STACK 0.0009 0
+REF_INC 0
+LOAD D2 0.0001; if() Test
+PUSHR D2
+LOAD D2 0.0002
+POP D3
+COMPARER D3 D2
+SETCMP D2 I!=
+COMPAREV D2 0
+GOTOCMP 137 ==; Test 'if'
+ALLOCATEMEMV D2 53 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start AND if() Body Start
+WRITEPODSTRING D2 "[Test] failed assertion: expected %d but got %d. %s\n"
+PUSHR D2
+LOAD D2 0.0001
+PUSHVARGR D2
+LOAD D2 0.0002
+PUSHVARGR D2
+LOAD D2 0
+PUSHVARGR D2
+MARK_TYPE_VARG 0.0009; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
+GAMEEXIT; InlineFunc[void Game::Exit()] Body AND if() Body End
+NOP
+REF_REMOVE 0
+POPARGS D5 0.0003
+RETURNFUNC; Func[void AssertEqual(int, int, char32[])] Body End
+SETR D4 SP2; Func[void Assert(bool, char32[])] Body Start
+MARK_TYPE_STACK 0.0009 0
+REF_INC 0
+LOAD D2 0.0001; unless() Test
+COMPAREV D2 0
+GOTOCMP 150 !=; Test 'unless'
+LOAD D2 0; UsrFunc[void Fail(char32[])] Params Start AND unless() Body Start
+PUSHR D2; UsrFunc[void Fail(char32[])] Params End
+CALLFUNC 0.0167; UsrFunc[void Fail(char32[])] Call AND [Opt:NeverRet] AND unless() Body End
+NOP
+REF_REMOVE 0
+POPARGS D5 0.0002
+RETURNFUNC; Func[void Assert(bool, char32[])] Body End
+SETR D4 SP2; Func[void Assert(long, char32[])] Body Start
+MARK_TYPE_STACK 0.0009 0
+REF_INC 0
+LOAD D2 0.0001; unless() Test
+COMPAREV D2 0
+GOTOCMP 163 !=; Test 'unless'
+LOAD D2 0; UsrFunc[void Fail(char32[])] Params Start AND unless() Body Start
+PUSHR D2; UsrFunc[void Fail(char32[])] Params End
+CALLFUNC 0.0167; UsrFunc[void Fail(char32[])] Call AND [Opt:NeverRet] AND unless() Body End
+NOP
+REF_REMOVE 0
+POPARGS D5 0.0002
+RETURNFUNC; Func[void Assert(long, char32[])] Body End
+SETR D4 SP2; Func[void Fail(char32[])] Body Start
+MARK_TYPE_STACK 0.0009 0
+REF_INC 0
+LOAD D2 0; InlineFunc[int strlen(char32[])] Params Start AND if() Test
+SETR D3 D2; InlineFunc[int strlen(char32[])] Params End
+STRINGLENGTH D2 D3; InlineFunc[int strlen(char32[])] Body
+COMPAREV D2 0
+SETCMP D2 I>
+COMPAREV D2 0
+GOTOCMP 186 ==; Test 'if'
+ALLOCATEMEMV D2 24 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start AND if() Body Start
+WRITEPODSTRING D2 "[Test] failed test: %s\n"
+PUSHR D2
+LOAD D2 0
+PUSHVARGR D2
+MARK_TYPE_VARG 0.0009; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
+GOTO 191; if() Body End
+ALLOCATEMEMV D2 20 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start AND if() Else Start
+WRITEPODSTRING D2 "[Test] failed test\n"
+PUSHR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End AND if() Else End
+NOP
+GAMEEXIT; InlineFunc[void Game::Exit()] Body AND [Opt:NeverRet] AND Func[void Fail(char32[])] Body End
+PUSHARGSV 0 0.0002; Func[combodata setupCombo(int, int)] Body Start
+SETR D4 SP2
+LOAD D2 0.0003; InlineFunc[combodata Game::LoadComboData(int)] Params
+LOADCOMBODATAR D2; InlineFunc[combodata Game::LoadComboData(int)] Body Start
+SETR D2 REFCOMBODATA; InlineFunc[combodata Game::LoadComboData(int)] Body End
+STORE D2 0.0001
+LOAD D2 0.0002
+PUSHR D2
+LOAD D2 0.0001
+POP D3
+PUSHR D2
+PUSHR D3
+POP D2
+POP REFCOMBODATA
+SETR COMBODTYPE D2
+SETV D2 12; InlineFunc[combodata Game::LoadComboData(int)] Params
+LOADCOMBODATAR D2; InlineFunc[combodata Game::LoadComboData(int)] Body Start
+SETR D2 REFCOMBODATA; InlineFunc[combodata Game::LoadComboData(int)] Body End
+PUSHR D2
+POP REFCOMBODATA
+SETR D2 COMBODTILE
+PUSHR D2
+LOAD D2 0.0001
+POP D3
+PUSHR D2
+PUSHR D3
+POP D2
+POP REFCOMBODATA
+SETR COMBODTILE D2
+SETV D2 0
+PUSHR D2
+LOAD D2 0.0001
+POP D3
+PUSHR D2
+PUSHR D3
+POP D2
+POP REFCOMBODATA
+SETR COMBODWALK D2
+STOREV 0 0; for() setup
+LOAD D2 0; for() LoopTest
+COMPAREV D2 16
+SETCMP D2 I<
+COMPAREV D2 0
+GOTOCMP 253 ==; for() TestFail?
+SETV D2 0; for() Body Start
+PUSHR D2
+LOAD D2 0.0001
+POP D3
+PUSHR D2
+PUSHR D3
+LOAD D2 0
+PUSHR D2
+POP D0
+POP D2
+POP REFCOMBODATA
+SETR COMBODUSRFLAGARR D2; for() Body End
+LOAD D2 0; for() LoopIncrement
+ADDV D2 1
+STORE D2 0
+GOTO 232; for() End
+NOP
+STOREV 0 0; for() setup
+LOAD D2 0; for() LoopTest
+COMPAREV D2 24
+SETCMP D2 I<
+COMPAREV D2 0
+GOTOCMP 276 ==; for() TestFail?
+SETV D2 0; for() Body Start
+PUSHR D2
+LOAD D2 0.0001
+POP D3
+PUSHR D2
+PUSHR D3
+LOAD D2 0
+PUSHR D2
+POP D0
+POP D2
+POP REFCOMBODATA
+SETR COMBODATTRIBUTES D2; for() Body End
+LOAD D2 0; for() LoopIncrement
+ADDV D2 1
+STORE D2 0
+GOTO 255; for() End
+NOP
+SETV D2 0
+PUSHR D2
+LOAD D2 0.0001
+POP D3
+PUSHR D2
+PUSHR D3
+POP D2
+POP REFCOMBODATA
+SETR COMBODNUMTRIGGERS D2
+LOAD D2 0.0001; return Start
+POPARGS D5 0.0004; return End
+RETURNFUNC; Func[combodata setupCombo(int, int)] Body End
+SETR D4 SP2; Func[int pos(int, int)] Body Start
+LOAD D2 0.0001; return Start
+PUSHR D2
+LOAD D2 0
+MULTV D2 16
+POP D3
+ADDR D2 D3
+POPARGS D5 0.0002; return End
+RETURNFUNC; Func[int pos(int, int)] Body End
+PUSHARGSV 0 0.0002; Func[int countLWeapons(int)] Body Start
+SETR D4 SP2
+STOREV 0 0.0001
+STOREV 1 0; for() setup
+LOAD D2 0; for() LoopTest
+PUSHR D2
+SETR D2 LWPNCOUNT
+POP D3
+COMPARER D3 D2
+SETCMP D2 I<=
+COMPAREV D2 0
+GOTOCMP 332 ==; for() TestFail?
+LOAD D2 0; InlineFunc[lweapon screendata::LoadLWeapon(int)] Params AND if() Test AND for() Body Start
+SUBV D2 1; InlineFunc[lweapon screendata::LoadLWeapon(int)] Body Start
+LOADLWEAPONR D2
+SETR D2 REFLWPN; InlineFunc[lweapon screendata::LoadLWeapon(int)] Body End
+PUSHR D2
+POP REFLWPN
+SETR D2 LWPNTYPE
+PUSHR D2
+LOAD D2 0.0002
+POP D3
+COMPARER D3 D2
+SETCMP D2 I==
+COMPAREV D2 0
+GOTOCMP 327 ==; Test 'if'
+LOAD D2 0.0001; if() Body Start
+ADDV D2 1
+STORE D2 0.0001; if() Body End
+NOP; for() Body End
+LOAD D2 0; for() LoopIncrement
+ADDV D2 1
+STORE D2 0
+GOTO 302; for() End
+NOP
+LOAD D2 0.0001; return Start
+POPARGS D5 0.0003; return End
+RETURNFUNC; Func[int countLWeapons(int)] Body End
+PUSHARGSV 0 0.0002; Func[int countEWeapons(int)] Body Start
+SETR D4 SP2
+STOREV 0 0.0001
+STOREV 1 0; for() setup
+LOAD D2 0; for() LoopTest
+PUSHR D2
+SETR D2 EWPNCOUNT
+POP D3
+COMPARER D3 D2
+SETCMP D2 I<=
+COMPAREV D2 0
+GOTOCMP 370 ==; for() TestFail?
+LOAD D2 0; InlineFunc[eweapon screendata::LoadEWeapon(int)] Params AND if() Test AND for() Body Start
+SUBV D2 1; InlineFunc[eweapon screendata::LoadEWeapon(int)] Body Start
+LOADEWEAPONR D2
+SETR D2 REFEWPN; InlineFunc[eweapon screendata::LoadEWeapon(int)] Body End
+PUSHR D2
+POP REFEWPN
+SETR D2 EWPNTYPE
+PUSHR D2
+LOAD D2 0.0002
+POP D3
+COMPARER D3 D2
+SETCMP D2 I==
+COMPAREV D2 0
+GOTOCMP 365 ==; Test 'if'
+LOAD D2 0.0001; if() Body Start
+ADDV D2 1
+STORE D2 0.0001; if() Body End
+NOP; for() Body End
+LOAD D2 0; for() LoopIncrement
+ADDV D2 1
+STORE D2 0
+GOTO 340; for() End
+NOP
+LOAD D2 0.0001; return Start
+POPARGS D5 0.0003; return End
+RETURNFUNC; Func[int countEWeapons(int)] Body End
+PUSHV 0; Func[void clearWeapons()] Body Start
+SETR D4 SP2
+SETR D2 LWPNCOUNT; for() setup
+STORE D2 0
+LOAD D2 0; for() LoopTest
+COMPAREV D2 0
+SETCMP D2 I>
+COMPAREV D2 0
+GOTOCMP 393 ==; for() TestFail?
+LOAD D2 0; InlineFunc[lweapon screendata::LoadLWeapon(int)] Params AND InlineFunc[void lweapon::Remove()] Params Start AND for() Body Start
+SUBV D2 1; InlineFunc[lweapon screendata::LoadLWeapon(int)] Body Start
+LOADLWEAPONR D2
+SETR D2 REFLWPN; InlineFunc[lweapon screendata::LoadLWeapon(int)] Body End
+SETR REFLWPN D2; InlineFunc[void lweapon::Remove()] Params End
+LWPNDEL; InlineFunc[void lweapon::Remove()] Body AND for() Body End
+LOAD D2 0; for() LoopIncrement
+SUBV D2 1
+STORE D2 0
+GOTO 378; for() End
+NOP
+SETR D2 EWPNCOUNT; for() setup
+STORE D2 0
+LOAD D2 0; for() LoopTest
+COMPAREV D2 0
+SETCMP D2 I>
+COMPAREV D2 0
+GOTOCMP 411 ==; for() TestFail?
+LOAD D2 0; InlineFunc[eweapon screendata::LoadEWeapon(int)] Params AND InlineFunc[void eweapon::Remove()] Params Start AND for() Body Start
+SUBV D2 1; InlineFunc[eweapon screendata::LoadEWeapon(int)] Body Start
+LOADEWEAPONR D2
+SETR D2 REFEWPN; InlineFunc[eweapon screendata::LoadEWeapon(int)] Body End
+SETR REFEWPN D2; InlineFunc[void eweapon::Remove()] Params End
+EWPNDEL; InlineFunc[void eweapon::Remove()] Body AND for() Body End
+LOAD D2 0; for() LoopIncrement
+SUBV D2 1
+STORE D2 0
+GOTO 396; for() End
+NOP
+POP D5
+RETURNFUNC; Func[void clearWeapons()] Body End
+SETR D4 SP2; Func[void Label(char32[])] Body Start
+MARK_TYPE_STACK 0.0009 0
+REF_INC 0
+LOAD D2 0
+SET_OBJECT GD1 D2 0.0009
+REF_REMOVE 0
+POP D5
+RETURNFUNC; Func[void Label(char32[])] Body End
+SETR D4 SP2; Func[void DrawLabel()] Body Start
+SETR D2 GD1; unless() Test
+COMPAREV D2 0
+GOTOCMP 440 ==; Test 'unless' AND return (Void) AND unless() Body
+NOP
+SETV D2 0.0001
+PUSHR D2
+POP D2
+SETR SCREEN_DRAW_ORIGIN D2
+PUSHV 7; InlineFunc[void screendata::DrawString(int, int, int, int, int, int, int, char32[], int)] Params Start
+PUSHARGSV 2 0.0003
+PUSHV 1
+PUSHV 15
+PUSHV 0
+PUSHR GD1
+PUSHV 128; InlineFunc[void screendata::DrawString(int, int, int, int, int, int, int, char32[], int)] Params End
+DRAWSTRINGR; InlineFunc[void screendata::DrawString(int, int, int, int, int, int, int, char32[], int)] Body Start
+POPARGS D5 0.0009; InlineFunc[void screendata::DrawString(int, int, int, int, int, int, int, char32[], int)] Body End
+RETURNFUNC; Func[void DrawLabel()] Body End
+SETR D4 SP2; Func[combodata addTrigger(combodata)] Body Start
+LOAD D2 0
+PUSHR D2
+POP REFCOMBODATA
+SETR D2 COMBODNUMTRIGGERS
+ADDV D2 1
+PUSHR D2
+LOAD D2 0
+POP D3
+PUSHR D2
+PUSHR D3
+POP D2
+POP REFCOMBODATA
+SETR COMBODNUMTRIGGERS D2
+LOAD D2 0; return Start
+POP D5; return End
+RETURNFUNC; Func[combodata addTrigger(combodata)] Body End
+PUSHARGSV 0 0.0002; Func[void setupToggle(int, int, int, bool)] Body Start
+SETR D4 SP2
+STOREV 0 0.0001; for() setup
+LOAD D2 0.0001; for() LoopTest
+COMPAREV D2 2
+SETCMP D2 I<
+COMPAREV D2 0
+GOTOCMP 552 ==; for() TestFail?
+PUSHR D4; for() Body Start
+LOAD D2 0.0005; UsrFunc[combodata setupCombo(int, int)] Params Start
+PUSHR D2
+LOAD D2 0.0001
+POP D3
+ADDR D2 D3
+PUSHR D2
+LOAD D2 0.0004
+PUSHR D2; UsrFunc[combodata setupCombo(int, int)] Params End
+CALLFUNC 0.0193; UsrFunc[combodata setupCombo(int, int)] Call
+POP D4
+STORE D2 0
+LOAD D2 0.0001
+COMPAREV D2 0
+SETCMP D2 I==
+COMPAREV D2 0
+GOTOCMP 485 ==
+SETV D2 1
+GOTO 486
+SETV D2 -1
+PUSHR D2
+LOAD D2 0
+POP D3
+PUSHR D2
+PUSHR D3
+SETV D2 0
+PUSHR D2
+POP D0
+POP D2
+POP REFCOMBODATA
+SETR COMBODATTRIBUTES D2
+LOAD D2 0.0003
+PUSHR D2
+LOAD D2 0
+POP D3
+PUSHR D2
+PUSHR D3
+SETV D2 8
+PUSHR D2
+POP D0
+POP D2
+POP REFCOMBODATA
+SETR COMBODATTRIBUTES D2
+SETV D2 1
+PUSHR D2
+LOAD D2 0
+POP D3
+PUSHR D2
+PUSHR D3
+POP D2
+POP REFCOMBODATA
+SETR COMBODNUMTRIGGERS D2
+SETV D2 1
+PUSHR D2
+LOAD D2 0
+PUSHR D2
+SETV D2 0
+PUSHR D2
+POP D0
+POP REFCOMBODATA
+SETR D2 COMBODTRIGGERS
+POP D3
+PUSHR D2
+PUSHR D3
+SETV D2 28
+PUSHR D2
+POP D0
+POP D2
+POP REFCOMBOTRIGGER
+SETR CMBTRIGFLAGS D2
+LOAD D2 0.0002
+PUSHR D2
+LOAD D2 0
+POP D3
+PUSHR D2
+PUSHR D3
+SETV D2 10
+PUSHR D2
+POP D0
+POP D2
+POP REFCOMBODATA
+SETR COMBODUSRFLAGARR D2; for() Body End
+LOAD D2 0.0001; for() LoopIncrement
+ADDV D2 1
+STORE D2 0.0001
+GOTO 461; for() End
+NOP
+LOAD D2 0.0004; if() Test
+COMPAREV D2 168
+SETCMP D2 I==
+COMPAREV D2 0
+GOTOCMP 569 ==; Test 'if'
+SETV D2 15; if() Body Start
+PUSHR D2
+LOAD D2 0.0005; InlineFunc[combodata Game::LoadComboData(int)] Params
+LOADCOMBODATAR D2; InlineFunc[combodata Game::LoadComboData(int)] Body Start
+SETR D2 REFCOMBODATA; InlineFunc[combodata Game::LoadComboData(int)] Body End
+POP D3
+PUSHR D2
+PUSHR D3
+POP D2
+POP REFCOMBODATA
+SETR COMBODWALK D2; if() Body End
+NOP
+POPARGS D5 0.0006
+RETURNFUNC; Func[void setupToggle(int, int, int, bool)] Body End
+SETR D4 SP2; Func[void trigger(int)] Body Start
+PUSHR D4
+PUSHV 0; InlineFunc[bool screendata::TriggerCombo(int, int, int)] Params Start AND UsrFunc[void Assert(bool, char32[])] Params Start
+LOAD D2 0
+PUSHR D2
+SETV D1 0; InlineFunc[bool screendata::TriggerCombo(int, int, int)] Params End
+POP D3; InlineFunc[bool screendata::TriggerCombo(int, int, int)] Body Start
+POP D2
+SCRTRIGGERCOMBO2 D2 D3 D1; InlineFunc[bool screendata::TriggerCombo(int, int, int)] Body End
+PUSHR D2
+ALLOCATEMEMV D2 22 0
+WRITEPODSTRING D2 "TriggerCombo succeeds"
+PUSHR D2; UsrFunc[void Assert(bool, char32[])] Params End
+CALLFUNC 0.0141; UsrFunc[void Assert(bool, char32[])] Call
+POP D4
+WAITFRAME; InlineFunc[void Waitframe()] Body
+POP D5
+RETURNFUNC; Func[void trigger(int)] Body End
+PUSHARGSV 0 0.0002; Func[void testGlobalSwitch()] Body Start
+SETR D4 SP2
+PUSHR D4
+ALLOCATEMEMV D2 67 0; UsrFunc[void Label(char32[])] Params Start
+WRITEPODSTRING D2 "global switch at (2,2) lowers and raises the blocks at (5,5) (6,5)"
+PUSHR D2; UsrFunc[void Label(char32[])] Params End
+CALLFUNC 0.0414; UsrFunc[void Label(char32[])] Call
+PEEK D4
+PUSHV 3200; UsrFunc[void setupToggle(int, int, int, bool)] Params Start
+PUSHV 167
+PUSHV 5
+PUSHV 1; UsrFunc[void setupToggle(int, int, int, bool)] Params End
+CALLFUNC 0.0458; UsrFunc[void setupToggle(int, int, int, bool)] Call
+PEEK D4
+PUSHV 3202; UsrFunc[void setupToggle(int, int, int, bool)] Params Start
+PUSHV 168
+PUSHV 5
+PUSHV 1; UsrFunc[void setupToggle(int, int, int, bool)] Params End
+CALLFUNC 0.0458; UsrFunc[void setupToggle(int, int, int, bool)] Call
+POP D4
+SETV D2 5; InlineFunc[dmapdata Game::LoadDMapData(int)] Params AND InlineFunc[mapdata Game::LoadMapData(int, int)] Params Start
+LOADDMAPDATAR D2; InlineFunc[dmapdata Game::LoadDMapData(int)] Body Start
+SETR D2 REFDMAPDATA; InlineFunc[dmapdata Game::LoadDMapData(int)] Body End
+PUSHR D2
+POP REFDMAPDATA
+PUSHR DMAPDATAMAP
+SETV D1 0; InlineFunc[mapdata Game::LoadMapData(int, int)] Params End
+POP D0; InlineFunc[mapdata Game::LoadMapData(int, int)] Body Start
+SETR D2 LOADMAPDATA; InlineFunc[mapdata Game::LoadMapData(int, int)] Body End
+STORE D2 0.0001
+STOREV 0 0; for() setup
+LOAD D2 0; for() LoopTest
+COMPAREV D2 176
+SETCMP D2 I<
+COMPAREV D2 0
+GOTOCMP 642 ==; for() TestFail?
+SETV D2 0; for() Body Start
+PUSHR D2
+LOAD D2 0.0001
+POP D3
+PUSHR D2
+PUSHR D3
+LOAD D2 0
+PUSHR D2
+POP D0
+POP D2
+POP REFMAPDATA
+SETR MAPDATACOMBODD D2; for() Body End
+LOAD D2 0; for() LoopIncrement
+ADDV D2 1
+STORE D2 0
+GOTO 621; for() End
+NOP
+SETV D2 3200
+PUSHR D2
+LOAD D2 0.0001
+POP D3
+PUSHR D2
+PUSHR D3
+PUSHR D4
+PUSHARGSV 2 0.0002; UsrFunc[int pos(int, int)] Params Start AND UsrFunc[int pos(int, int)] Params End
+CALLFUNC 0.0289; UsrFunc[int pos(int, int)] Call
+POP D4
+PUSHR D2
+POP D0
+POP D2
+POP REFMAPDATA
+SETR MAPDATACOMBODD D2
+SETV D2 3202
+PUSHR D2
+LOAD D2 0.0001
+POP D3
+PUSHR D2
+PUSHR D3
+PUSHR D4
+PUSHARGSV 5 0.0002; UsrFunc[int pos(int, int)] Params Start AND UsrFunc[int pos(int, int)] Params End
+CALLFUNC 0.0289; UsrFunc[int pos(int, int)] Call
+POP D4
+PUSHR D2
+POP D0
+POP D2
+POP REFMAPDATA
+SETR MAPDATACOMBODD D2
+SETV D2 3202
+PUSHR D2
+LOAD D2 0.0001
+POP D3
+PUSHR D2
+PUSHR D3
+PUSHR D4
+PUSHV 6; UsrFunc[int pos(int, int)] Params Start
+PUSHV 5; UsrFunc[int pos(int, int)] Params End
+CALLFUNC 0.0289; UsrFunc[int pos(int, int)] Call
+POP D4
+PUSHR D2
+POP D0
+POP D2
+POP REFMAPDATA
+SETR MAPDATACOMBODD D2
+PUSHV 5; InlineFunc[void hero::Warp(int, int)] Params Start
+SETV D2 0; InlineFunc[void hero::Warp(int, int)] Params End
+POP D3; InlineFunc[void hero::Warp(int, int)] Body Start
+WARPR D3 D2; InlineFunc[void hero::Warp(int, int)] Body End
+SETV D2 2; InlineFunc[void Waitframes(int)] Params
+WAITFRAMESR D2; InlineFunc[void Waitframes(int)] Body
+SETV D2 32
+PUSHR D2
+SETV D2 0.0001
+POP D3
+PUSHR D2
+PUSHR D3
+POP D2
+POP REFSPRITE
+SETR SPRITE_X D2
+SETV D2 128
+PUSHR D2
+SETV D2 0.0001
+POP D3
+PUSHR D2
+PUSHR D3
+POP D2
+POP REFSPRITE
+SETR SPRITE_Y D2
+WAITFRAME; InlineFunc[void Waitframe()] Body
+PUSHARGSR D4 0.0002; UsrFunc[void AssertEqual(int, int, char32[])] Params Start
+PUSHARGSV 5 0.0002; UsrFunc[int pos(int, int)] Params Start AND UsrFunc[int pos(int, int)] Params End
+CALLFUNC 0.0289; UsrFunc[int pos(int, int)] Call
+POP D4
+PUSHR D2
+POP D0
+PUSHR COMBODD
+PUSHV 3202
+ALLOCATEMEMV D2 24 0
+WRITEPODSTRING D2 "the blocks start raised"
+PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
+CALLFUNC 0.0113; UsrFunc[void AssertEqual(int, int, char32[])] Call
+PEEK D4
+PUSHR D4; UsrFunc[void trigger(int)] Params Start
+PUSHARGSV 2 0.0002; UsrFunc[int pos(int, int)] Params Start AND UsrFunc[int pos(int, int)] Params End
+CALLFUNC 0.0289; UsrFunc[int pos(int, int)] Call
+POP D4
+PUSHR D2; UsrFunc[void trigger(int)] Params End
+CALLFUNC 0.0572; UsrFunc[void trigger(int)] Call
+PEEK D4
+SETV D2 5; UsrFunc[void AssertEqual(int, int, char32[])] Params Start
+PUSHR D2
+POP D0
+PUSHR GAMEGSWITCH
+PUSHV -1
+ALLOCATEMEMV D2 37 0
+WRITEPODSTRING D2 "the switch turns the global state on"
+PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
+CALLFUNC 0.0113; UsrFunc[void AssertEqual(int, int, char32[])] Call
+PEEK D4
+PUSHR D4; UsrFunc[void AssertEqual(int, int, char32[])] Params Start
+PUSHARGSV 2 0.0002; UsrFunc[int pos(int, int)] Params Start AND UsrFunc[int pos(int, int)] Params End
+CALLFUNC 0.0289; UsrFunc[int pos(int, int)] Call
+POP D4
+PUSHR D2
+POP D0
+PUSHR COMBODD
+PUSHV 3201
+ALLOCATEMEMV D2 17 0
+WRITEPODSTRING D2 "the switch flips"
+PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
+CALLFUNC 0.0113; UsrFunc[void AssertEqual(int, int, char32[])] Call
+PEEK D4
+PUSHR D4; UsrFunc[void AssertEqual(int, int, char32[])] Params Start
+PUSHARGSV 5 0.0002; UsrFunc[int pos(int, int)] Params Start AND UsrFunc[int pos(int, int)] Params End
+CALLFUNC 0.0289; UsrFunc[int pos(int, int)] Call
+POP D4
+PUSHR D2
+POP D0
+PUSHR COMBODD
+PUSHV 3203
+ALLOCATEMEMV D2 17 0
+WRITEPODSTRING D2 "the blocks lower"
+PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
+CALLFUNC 0.0113; UsrFunc[void AssertEqual(int, int, char32[])] Call
+PEEK D4
+PUSHR D4; UsrFunc[void AssertEqual(int, int, char32[])] Params Start
+PUSHV 6; UsrFunc[int pos(int, int)] Params Start
+PUSHV 5; UsrFunc[int pos(int, int)] Params End
+CALLFUNC 0.0289; UsrFunc[int pos(int, int)] Call
+POP D4
+PUSHR D2
+POP D0
+PUSHR COMBODD
+PUSHV 3203
+ALLOCATEMEMV D2 17 0
+WRITEPODSTRING D2 "the blocks lower"
+PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
+CALLFUNC 0.0113; UsrFunc[void AssertEqual(int, int, char32[])] Call
+PEEK D4
+PUSHR D4; UsrFunc[void trigger(int)] Params Start
+PUSHARGSV 2 0.0002; UsrFunc[int pos(int, int)] Params Start AND UsrFunc[int pos(int, int)] Params End
+CALLFUNC 0.0289; UsrFunc[int pos(int, int)] Call
+POP D4
+PUSHR D2; UsrFunc[void trigger(int)] Params End
+CALLFUNC 0.0572; UsrFunc[void trigger(int)] Call
+PEEK D4
+SETV D2 5; UsrFunc[void AssertEqual(int, int, char32[])] Params Start
+PUSHR D2
+POP D0
+PUSHR GAMEGSWITCH
+PUSHV 0
+ALLOCATEMEMV D2 38 0
+WRITEPODSTRING D2 "the switch turns the global state off"
+PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
+CALLFUNC 0.0113; UsrFunc[void AssertEqual(int, int, char32[])] Call
+PEEK D4
+PUSHR D4; UsrFunc[void AssertEqual(int, int, char32[])] Params Start
+PUSHARGSV 2 0.0002; UsrFunc[int pos(int, int)] Params Start AND UsrFunc[int pos(int, int)] Params End
+CALLFUNC 0.0289; UsrFunc[int pos(int, int)] Call
+POP D4
+PUSHR D2
+POP D0
+PUSHR COMBODD
+PUSHV 3200
+ALLOCATEMEMV D2 22 0
+WRITEPODSTRING D2 "the switch flips back"
+PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
+CALLFUNC 0.0113; UsrFunc[void AssertEqual(int, int, char32[])] Call
+PEEK D4
+PUSHR D4; UsrFunc[void AssertEqual(int, int, char32[])] Params Start
+PUSHARGSV 5 0.0002; UsrFunc[int pos(int, int)] Params Start AND UsrFunc[int pos(int, int)] Params End
+CALLFUNC 0.0289; UsrFunc[int pos(int, int)] Call
+POP D4
+PUSHR D2
+POP D0
+PUSHR COMBODD
+PUSHV 3202
+ALLOCATEMEMV D2 16 0
+WRITEPODSTRING D2 "the blocks rise"
+PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
+CALLFUNC 0.0113; UsrFunc[void AssertEqual(int, int, char32[])] Call
+POP D4
+POPARGS D5 0.0002
+RETURNFUNC; Func[void testGlobalSwitch()] Body End
+SETR D4 SP2; Func[void testTimedGlobalSwitch()] Body Start
+PUSHR D4
+ALLOCATEMEMV D2 65 0; UsrFunc[void Label(char32[])] Params Start
+WRITEPODSTRING D2 "timed global switch at (3,2): the blocks rise again on their own"
+PUSHR D2; UsrFunc[void Label(char32[])] Params End
+CALLFUNC 0.0414; UsrFunc[void Label(char32[])] Call
+PEEK D4
+PUSHV 3204; UsrFunc[void setupToggle(int, int, int, bool)] Params Start
+PUSHV 167
+PUSHV 5
+PUSHV 1; UsrFunc[void setupToggle(int, int, int, bool)] Params End
+CALLFUNC 0.0458; UsrFunc[void setupToggle(int, int, int, bool)] Call
+POP D4
+SETV D2 30
+PUSHR D2
+SETV D2 3204; InlineFunc[combodata Game::LoadComboData(int)] Params
+LOADCOMBODATAR D2; InlineFunc[combodata Game::LoadComboData(int)] Body Start
+SETR D2 REFCOMBODATA; InlineFunc[combodata Game::LoadComboData(int)] Body End
+POP D3
+PUSHR D2
+PUSHR D3
+SETV D2 2
+PUSHR D2
+POP D0
+POP D2
+POP REFCOMBODATA
+SETR COMBODATTRIBUTES D2
+SETV D2 3204
+PUSHR D2
+PUSHR D4
+PUSHV 3; UsrFunc[int pos(int, int)] Params Start
+PUSHV 2; UsrFunc[int pos(int, int)] Params End
+CALLFUNC 0.0289; UsrFunc[int pos(int, int)] Call
+POP D4
+PUSHR D2
+POP D0
+POP D2
+SETR COMBODD D2
+WAITFRAME; InlineFunc[void Waitframe()] Body
+PUSHARGSR D4 0.0002; UsrFunc[void trigger(int)] Params Start
+PUSHV 3; UsrFunc[int pos(int, int)] Params Start
+PUSHV 2; UsrFunc[int pos(int, int)] Params End
+CALLFUNC 0.0289; UsrFunc[int pos(int, int)] Call
+POP D4
+PUSHR D2; UsrFunc[void trigger(int)] Params End
+CALLFUNC 0.0572; UsrFunc[void trigger(int)] Call
+PEEK D4
+SETV D2 5; UsrFunc[void Assert(bool, char32[])] Params Start
+PUSHR D2
+POP D0
+SETR D2 GAMEGSWITCH
+COMPAREV D2 0
+SETCMP D2 I>
+PUSHR D2
+ALLOCATEMEMV D2 47 0
+WRITEPODSTRING D2 "a timed switch turns the state on with a timer"
+PUSHR D2; UsrFunc[void Assert(bool, char32[])] Params End
+CALLFUNC 0.0141; UsrFunc[void Assert(bool, char32[])] Call
+PEEK D4
+PUSHR D4; UsrFunc[void AssertEqual(int, int, char32[])] Params Start
+PUSHARGSV 5 0.0002; UsrFunc[int pos(int, int)] Params Start AND UsrFunc[int pos(int, int)] Params End
+CALLFUNC 0.0289; UsrFunc[int pos(int, int)] Call
+POP D4
+PUSHR D2
+POP D0
+PUSHR COMBODD
+PUSHV 3203
+ALLOCATEMEMV D2 17 0
+WRITEPODSTRING D2 "the blocks lower"
+PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
+CALLFUNC 0.0113; UsrFunc[void AssertEqual(int, int, char32[])] Call
+POP D4
+SETV D2 40; InlineFunc[void Waitframes(int)] Params
+WAITFRAMESR D2; InlineFunc[void Waitframes(int)] Body
+PUSHR D4
+SETV D2 5; UsrFunc[void AssertEqual(int, int, char32[])] Params Start
+PUSHR D2
+POP D0
+PUSHR GAMEGSWITCH
+PUSHV 0
+ALLOCATEMEMV D2 20 0
+WRITEPODSTRING D2 "the state times out"
+PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
+CALLFUNC 0.0113; UsrFunc[void AssertEqual(int, int, char32[])] Call
+PEEK D4
+PUSHR D4; UsrFunc[void AssertEqual(int, int, char32[])] Params Start
+PUSHARGSV 5 0.0002; UsrFunc[int pos(int, int)] Params Start AND UsrFunc[int pos(int, int)] Params End
+CALLFUNC 0.0289; UsrFunc[int pos(int, int)] Call
+POP D4
+PUSHR D2
+POP D0
+PUSHR COMBODD
+PUSHV 3202
+ALLOCATEMEMV D2 22 0
+WRITEPODSTRING D2 "the blocks rise again"
+PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
+CALLFUNC 0.0113; UsrFunc[void AssertEqual(int, int, char32[])] Call
+PEEK D4
+PUSHR D4; UsrFunc[void AssertEqual(int, int, char32[])] Params Start
+PUSHV 3; UsrFunc[int pos(int, int)] Params Start
+PUSHV 2; UsrFunc[int pos(int, int)] Params End
+CALLFUNC 0.0289; UsrFunc[int pos(int, int)] Call
+POP D4
+PUSHR D2
+POP D0
+PUSHR COMBODD
+PUSHV 3204
+ALLOCATEMEMV D2 22 0
+WRITEPODSTRING D2 "the switch flips back"
+PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
+CALLFUNC 0.0113; UsrFunc[void AssertEqual(int, int, char32[])] Call
+POP D4
+RETURNFUNC; Func[void testTimedGlobalSwitch()] Body End
+PUSHARGSV 0 0.0002; Func[void testGlobalStateAcrossScreens()] Body Start
+SETR D4 SP2
+PUSHR D4
+ALLOCATEMEMV D2 60 0; UsrFunc[void Label(char32[])] Params Start
+WRITEPODSTRING D2 "global state across screens: a block on screen 1 matches it"
+PUSHR D2; UsrFunc[void Label(char32[])] Params End
+CALLFUNC 0.0414; UsrFunc[void Label(char32[])] Call
+POP D4
+SETV D2 5; InlineFunc[dmapdata Game::LoadDMapData(int)] Params
+LOADDMAPDATAR D2; InlineFunc[dmapdata Game::LoadDMapData(int)] Body Start
+SETR D2 REFDMAPDATA; InlineFunc[dmapdata Game::LoadDMapData(int)] Body End
+PUSHR D2
+POP REFDMAPDATA
+SETR D2 DMAPDATAMAP
+STORE D2 0.0001
+LOAD D2 0.0001; InlineFunc[mapdata Game::LoadMapData(int, int)] Params Start
+PUSHR D2
+SETV D1 1; InlineFunc[mapdata Game::LoadMapData(int, int)] Params End
+POP D0; InlineFunc[mapdata Game::LoadMapData(int, int)] Body Start
+SETR D2 LOADMAPDATA; InlineFunc[mapdata Game::LoadMapData(int, int)] Body End
+STORE D2 0
+SETV D2 3202
+PUSHR D2
+LOAD D2 0
+POP D3
+PUSHR D2
+PUSHR D3
+PUSHR D4
+PUSHARGSV 5 0.0002; UsrFunc[int pos(int, int)] Params Start AND UsrFunc[int pos(int, int)] Params End
+CALLFUNC 0.0289; UsrFunc[int pos(int, int)] Call
+POP D4
+PUSHR D2
+POP D0
+POP D2
+POP REFMAPDATA
+SETR MAPDATACOMBODD D2
+PUSHARGSR D4 0.0002; UsrFunc[void trigger(int)] Params Start
+PUSHARGSV 2 0.0002; UsrFunc[int pos(int, int)] Params Start AND UsrFunc[int pos(int, int)] Params End
+CALLFUNC 0.0289; UsrFunc[int pos(int, int)] Call
+POP D4
+PUSHR D2; UsrFunc[void trigger(int)] Params End
+CALLFUNC 0.0572; UsrFunc[void trigger(int)] Call
+PEEK D4
+SETV D2 5; UsrFunc[void AssertEqual(int, int, char32[])] Params Start
+PUSHR D2
+POP D0
+PUSHR GAMEGSWITCH
+PUSHV -1
+ALLOCATEMEMV D2 16 0
+WRITEPODSTRING D2 "the state is on"
+PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
+CALLFUNC 0.0113; UsrFunc[void AssertEqual(int, int, char32[])] Call
+POP D4
+PUSHV 5; InlineFunc[void hero::Warp(int, int)] Params Start
+SETV D2 1; InlineFunc[void hero::Warp(int, int)] Params End
+POP D3; InlineFunc[void hero::Warp(int, int)] Body Start
+WARPR D3 D2; InlineFunc[void hero::Warp(int, int)] Body End
+SETV D2 2; InlineFunc[void Waitframes(int)] Params
+WAITFRAMESR D2; InlineFunc[void Waitframes(int)] Body
+PUSHARGSR D4 0.0002; UsrFunc[void AssertEqual(int, int, char32[])] Params Start
+PUSHARGSV 5 0.0002; UsrFunc[int pos(int, int)] Params Start AND UsrFunc[int pos(int, int)] Params End
+CALLFUNC 0.0289; UsrFunc[int pos(int, int)] Call
+POP D4
+PUSHR D2
+POP D0
+PUSHR COMBODD
+PUSHV 3203
+ALLOCATEMEMV D2 48 0
+WRITEPODSTRING D2 "blocks on a newly loaded screen match the state"
+PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
+CALLFUNC 0.0113; UsrFunc[void AssertEqual(int, int, char32[])] Call
+POP D4
+PUSHV 5; InlineFunc[void hero::Warp(int, int)] Params Start
+SETV D2 0; InlineFunc[void hero::Warp(int, int)] Params End
+POP D3; InlineFunc[void hero::Warp(int, int)] Body Start
+WARPR D3 D2; InlineFunc[void hero::Warp(int, int)] Body End
+SETV D2 2; InlineFunc[void Waitframes(int)] Params
+WAITFRAMESR D2; InlineFunc[void Waitframes(int)] Body
+SETV D2 32
+PUSHR D2
+SETV D2 0.0001
+POP D3
+PUSHR D2
+PUSHR D3
+POP D2
+POP REFSPRITE
+SETR SPRITE_X D2
+SETV D2 128
+PUSHR D2
+SETV D2 0.0001
+POP D3
+PUSHR D2
+PUSHR D3
+POP D2
+POP REFSPRITE
+SETR SPRITE_Y D2
+PUSHARGSR D4 0.0002; UsrFunc[void AssertEqual(int, int, char32[])] Params Start
+PUSHARGSV 5 0.0002; UsrFunc[int pos(int, int)] Params Start AND UsrFunc[int pos(int, int)] Params End
+CALLFUNC 0.0289; UsrFunc[int pos(int, int)] Call
+POP D4
+PUSHR D2
+POP D0
+PUSHR COMBODD
+PUSHV 3203
+ALLOCATEMEMV D2 35 0
+WRITEPODSTRING D2 "blocks stay lowered when returning"
+PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
+CALLFUNC 0.0113; UsrFunc[void AssertEqual(int, int, char32[])] Call
+PEEK D4
+PUSHR D4; UsrFunc[void AssertEqual(int, int, char32[])] Params Start
+PUSHARGSV 2 0.0002; UsrFunc[int pos(int, int)] Params Start AND UsrFunc[int pos(int, int)] Params End
+CALLFUNC 0.0289; UsrFunc[int pos(int, int)] Call
+POP D4
+PUSHR D2
+POP D0
+PUSHR COMBODD
+PUSHV 3201
+ALLOCATEMEMV D2 40 0
+WRITEPODSTRING D2 "the switch stays flipped when returning"
+PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
+CALLFUNC 0.0113; UsrFunc[void AssertEqual(int, int, char32[])] Call
+PEEK D4
+PUSHR D4; UsrFunc[void trigger(int)] Params Start
+PUSHARGSV 2 0.0002; UsrFunc[int pos(int, int)] Params Start AND UsrFunc[int pos(int, int)] Params End
+CALLFUNC 0.0289; UsrFunc[int pos(int, int)] Call
+POP D4
+PUSHR D2; UsrFunc[void trigger(int)] Params End
+CALLFUNC 0.0572; UsrFunc[void trigger(int)] Call
+PEEK D4
+SETV D2 5; UsrFunc[void AssertEqual(int, int, char32[])] Params Start
+PUSHR D2
+POP D0
+PUSHR GAMEGSWITCH
+PUSHV 0
+ALLOCATEMEMV D2 17 0
+WRITEPODSTRING D2 "the state is off"
+PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
+CALLFUNC 0.0113; UsrFunc[void AssertEqual(int, int, char32[])] Call
+POP D4
+POPARGS D5 0.0002
+RETURNFUNC; Func[void testGlobalStateAcrossScreens()] Body End
+PUSHARGSV 0 0.0002; Func[void testGlobalStateTriggers()] Body Start
+SETR D4 SP2
+PUSHR D4
+ALLOCATEMEMV D2 68 0; UsrFunc[void Label(char32[])] Params Start
+WRITEPODSTRING D2 "'->GlobalState' at (8,2) toggles it, 'GlobalState->' at (9,2) fires"
+PUSHR D2; UsrFunc[void Label(char32[])] Params End
+CALLFUNC 0.0414; UsrFunc[void Label(char32[])] Call
+PEEK D4
+PUSHR D4; UsrFunc[combodata addTrigger(combodata)] Params Start
+PUSHV 3220; UsrFunc[combodata setupCombo(int, int)] Params Start
+PUSHV 0; UsrFunc[combodata setupCombo(int, int)] Params End
+CALLFUNC 0.0193; UsrFunc[combodata setupCombo(int, int)] Call
+POP D4
+PUSHR D2; UsrFunc[combodata addTrigger(combodata)] Params End
+CALLFUNC 0.0441; UsrFunc[combodata addTrigger(combodata)] Call
+POP D4
+STORE D2 0.0001
+SETV D2 1
+PUSHR D2
+LOAD D2 0.0001
+PUSHR D2
+SETV D2 0
+PUSHR D2
+POP D0
+POP REFCOMBODATA
+SETR D2 COMBODTRIGGERS
+POP D3
+PUSHR D2
+PUSHR D3
+SETV D2 99
+PUSHR D2
+POP D0
+POP D2
+POP REFCOMBOTRIGGER
+SETR CMBTRIGFLAGS D2
+SETV D2 5
+PUSHR D2
+LOAD D2 0.0001
+PUSHR D2
+SETV D2 0
+PUSHR D2
+POP D0
+POP REFCOMBODATA
+SETR D2 COMBODTRIGGERS
+POP D3
+PUSHR D2
+PUSHR D3
+POP D2
+POP REFCOMBOTRIGGER
+SETR CMBTRIGGSTATE D2
+SETV D2 3220
+PUSHR D2
+PUSHR D4
+PUSHV 8; UsrFunc[int pos(int, int)] Params Start
+PUSHV 2; UsrFunc[int pos(int, int)] Params End
+CALLFUNC 0.0289; UsrFunc[int pos(int, int)] Call
+POP D4
+PUSHR D2
+POP D0
+POP D2
+SETR COMBODD D2
+PUSHR D4
+PUSHV 3223; UsrFunc[combodata setupCombo(int, int)] Params Start
+PUSHV 0; UsrFunc[combodata setupCombo(int, int)] Params End
+CALLFUNC 0.0193; UsrFunc[combodata setupCombo(int, int)] Call
+PEEK D4
+PUSHR D4; UsrFunc[combodata addTrigger(combodata)] Params Start
+PUSHV 3222; UsrFunc[combodata setupCombo(int, int)] Params Start
+PUSHV 0; UsrFunc[combodata setupCombo(int, int)] Params End
+CALLFUNC 0.0193; UsrFunc[combodata setupCombo(int, int)] Call
+POP D4
+PUSHR D2; UsrFunc[combodata addTrigger(combodata)] Params End
+CALLFUNC 0.0441; UsrFunc[combodata addTrigger(combodata)] Call
+POP D4
+STORE D2 0
+SETV D2 3222
+PUSHR D2
+PUSHR D4
+PUSHV 9; UsrFunc[int pos(int, int)] Params Start
+PUSHV 2; UsrFunc[int pos(int, int)] Params End
+CALLFUNC 0.0289; UsrFunc[int pos(int, int)] Call
+POP D4
+PUSHR D2
+POP D0
+POP D2
+SETR COMBODD D2
+SETV D2 1
+PUSHR D2
+LOAD D2 0
+PUSHR D2
+SETV D2 0
+PUSHR D2
+POP D0
+POP REFCOMBODATA
+SETR D2 COMBODTRIGGERS
+POP D3
+PUSHR D2
+PUSHR D3
+SETV D2 98
+PUSHR D2
+POP D0
+POP D2
+POP REFCOMBOTRIGGER
+SETR CMBTRIGFLAGS D2
+SETV D2 5
+PUSHR D2
+LOAD D2 0
+PUSHR D2
+SETV D2 0
+PUSHR D2
+POP D0
+POP REFCOMBODATA
+SETR D2 COMBODTRIGGERS
+POP D3
+PUSHR D2
+PUSHR D3
+POP D2
+POP REFCOMBOTRIGGER
+SETR CMBTRIGGSTATE D2
+SETV D2 1
+PUSHR D2
+LOAD D2 0
+PUSHR D2
+SETV D2 0
+PUSHR D2
+POP D0
+POP REFCOMBODATA
+SETR D2 COMBODTRIGGERS
+POP D3
+PUSHR D2
+PUSHR D3
+POP D2
+POP REFCOMBOTRIGGER
+SETR CMBTRIGCHANGECMB D2
+WAITFRAME; InlineFunc[void Waitframe()] Body
+PUSHARGSR D4 0.0002; UsrFunc[void trigger(int)] Params Start
+PUSHV 8; UsrFunc[int pos(int, int)] Params Start
+PUSHV 2; UsrFunc[int pos(int, int)] Params End
+CALLFUNC 0.0289; UsrFunc[int pos(int, int)] Call
+POP D4
+PUSHR D2; UsrFunc[void trigger(int)] Params End
+CALLFUNC 0.0572; UsrFunc[void trigger(int)] Call
+PEEK D4
+SETV D2 5; UsrFunc[void AssertEqual(int, int, char32[])] Params Start
+PUSHR D2
+POP D0
+PUSHR GAMEGSWITCH
+PUSHV -1
+ALLOCATEMEMV D2 35 0
+WRITEPODSTRING D2 "'->GlobalState' turns the state on"
+PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
+CALLFUNC 0.0113; UsrFunc[void AssertEqual(int, int, char32[])] Call
+PEEK D4
+PUSHR D4; UsrFunc[void AssertEqual(int, int, char32[])] Params Start
+PUSHARGSV 5 0.0002; UsrFunc[int pos(int, int)] Params Start AND UsrFunc[int pos(int, int)] Params End
+CALLFUNC 0.0289; UsrFunc[int pos(int, int)] Call
+POP D4
+PUSHR D2
+POP D0
+PUSHR COMBODD
+PUSHV 3203
+ALLOCATEMEMV D2 17 0
+WRITEPODSTRING D2 "the blocks lower"
+PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
+CALLFUNC 0.0113; UsrFunc[void AssertEqual(int, int, char32[])] Call
+PEEK D4
+PUSHR D4; UsrFunc[void AssertEqual(int, int, char32[])] Params Start
+PUSHV 9; UsrFunc[int pos(int, int)] Params Start
+PUSHV 2; UsrFunc[int pos(int, int)] Params End
+CALLFUNC 0.0289; UsrFunc[int pos(int, int)] Call
+POP D4
+PUSHR D2
+POP D0
+PUSHR COMBODD
+PUSHV 3223
+ALLOCATEMEMV D2 22 0
+WRITEPODSTRING D2 "'GlobalState->' fires"
+PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
+CALLFUNC 0.0113; UsrFunc[void AssertEqual(int, int, char32[])] Call
+POP D4
+SETV D2 20
+PUSHR D2
+LOAD D2 0.0001
+PUSHR D2
+SETV D2 0
+PUSHR D2
+POP D0
+POP REFCOMBODATA
+SETR D2 COMBODTRIGGERS
+POP D3
+PUSHR D2
+PUSHR D3
+POP D2
+POP REFCOMBOTRIGGER
+SETR CMBTRIGGTIMER D2
+PUSHARGSR D4 0.0002; UsrFunc[void trigger(int)] Params Start
+PUSHV 8; UsrFunc[int pos(int, int)] Params Start
+PUSHV 2; UsrFunc[int pos(int, int)] Params End
+CALLFUNC 0.0289; UsrFunc[int pos(int, int)] Call
+POP D4
+PUSHR D2; UsrFunc[void trigger(int)] Params End
+CALLFUNC 0.0572; UsrFunc[void trigger(int)] Call
+PEEK D4
+SETV D2 5; UsrFunc[void Assert(bool, char32[])] Params Start
+PUSHR D2
+POP D0
+SETR D2 GAMEGSWITCH
+COMPAREV D2 0
+SETCMP D2 I>
+PUSHR D2
+ALLOCATEMEMV D2 44 0
+WRITEPODSTRING D2 "'->GlobalState' with a timer sets the timer"
+PUSHR D2; UsrFunc[void Assert(bool, char32[])] Params End
+CALLFUNC 0.0141; UsrFunc[void Assert(bool, char32[])] Call
+POP D4
+SETV D2 25; InlineFunc[void Waitframes(int)] Params
+WAITFRAMESR D2; InlineFunc[void Waitframes(int)] Body
+PUSHR D4
+SETV D2 5; UsrFunc[void AssertEqual(int, int, char32[])] Params Start
+PUSHR D2
+POP D0
+PUSHR GAMEGSWITCH
+PUSHV 0
+ALLOCATEMEMV D2 20 0
+WRITEPODSTRING D2 "the state times out"
+PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
+CALLFUNC 0.0113; UsrFunc[void AssertEqual(int, int, char32[])] Call
+PEEK D4
+PUSHR D4; UsrFunc[void AssertEqual(int, int, char32[])] Params Start
+PUSHARGSV 5 0.0002; UsrFunc[int pos(int, int)] Params Start AND UsrFunc[int pos(int, int)] Params End
+CALLFUNC 0.0289; UsrFunc[int pos(int, int)] Call
+POP D4
+PUSHR D2
+POP D0
+PUSHR COMBODD
+PUSHV 3202
+ALLOCATEMEMV D2 16 0
+WRITEPODSTRING D2 "the blocks rise"
+PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
+CALLFUNC 0.0113; UsrFunc[void AssertEqual(int, int, char32[])] Call
+POP D4
+POPARGS D5 0.0002
+RETURNFUNC; Func[void testGlobalStateTriggers()] Body End
+SETR D4 SP2; Func[void testLevelSwitch()] Body Start
+PUSHR D4
+ALLOCATEMEMV D2 60 0; UsrFunc[void Label(char32[])] Params Start
+WRITEPODSTRING D2 "level switch at (2,7) toggles only the level block at (5,7)"
+PUSHR D2; UsrFunc[void Label(char32[])] Params End
+CALLFUNC 0.0414; UsrFunc[void Label(char32[])] Call
+PEEK D4
+PUSHV 3210; UsrFunc[void setupToggle(int, int, int, bool)] Params Start
+PUSHV 167
+PUSHV 3
+PUSHV 0; UsrFunc[void setupToggle(int, int, int, bool)] Params End
+CALLFUNC 0.0458; UsrFunc[void setupToggle(int, int, int, bool)] Call
+PEEK D4
+PUSHV 3212; UsrFunc[void setupToggle(int, int, int, bool)] Params Start
+PUSHV 168
+PUSHV 3
+PUSHV 0; UsrFunc[void setupToggle(int, int, int, bool)] Params End
+CALLFUNC 0.0458; UsrFunc[void setupToggle(int, int, int, bool)] Call
+POP D4
+SETV D2 3210
+PUSHR D2
+PUSHR D4
+PUSHV 2; UsrFunc[int pos(int, int)] Params Start
+PUSHV 7; UsrFunc[int pos(int, int)] Params End
+CALLFUNC 0.0289; UsrFunc[int pos(int, int)] Call
+POP D4
+PUSHR D2
+POP D0
+POP D2
+SETR COMBODD D2
+SETV D2 3212
+PUSHR D2
+PUSHR D4
+PUSHV 5; UsrFunc[int pos(int, int)] Params Start
+PUSHV 7; UsrFunc[int pos(int, int)] Params End
+CALLFUNC 0.0289; UsrFunc[int pos(int, int)] Call
+POP D4
+PUSHR D2
+POP D0
+POP D2
+SETR COMBODD D2
+WAITFRAME; InlineFunc[void Waitframe()] Body
+PUSHARGSR D4 0.0002; UsrFunc[void trigger(int)] Params Start
+PUSHV 2; UsrFunc[int pos(int, int)] Params Start
+PUSHV 7; UsrFunc[int pos(int, int)] Params End
+CALLFUNC 0.0289; UsrFunc[int pos(int, int)] Call
+POP D4
+PUSHR D2; UsrFunc[void trigger(int)] Params End
+CALLFUNC 0.0572; UsrFunc[void trigger(int)] Call
+PEEK D4
+SETR D2 CURLEVEL; UsrFunc[void Assert(long, char32[])] Params Start
+PUSHR D2
+POP D0
+SETR D2 GAMELSWITCH
+ANDV32 D2 0.0008
+PUSHR D2
+ALLOCATEMEMV D2 36 0
+WRITEPODSTRING D2 "the switch turns the level state on"
+PUSHR D2; UsrFunc[void Assert(long, char32[])] Params End
+CALLFUNC 0.0154; UsrFunc[void Assert(long, char32[])] Call
+PEEK D4
+PUSHR D4; UsrFunc[void AssertEqual(int, int, char32[])] Params Start
+PUSHV 5; UsrFunc[int pos(int, int)] Params Start
+PUSHV 7; UsrFunc[int pos(int, int)] Params End
+CALLFUNC 0.0289; UsrFunc[int pos(int, int)] Call
+POP D4
+PUSHR D2
+POP D0
+PUSHR COMBODD
+PUSHV 3213
+ALLOCATEMEMV D2 23 0
+WRITEPODSTRING D2 "the level block lowers"
+PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
+CALLFUNC 0.0113; UsrFunc[void AssertEqual(int, int, char32[])] Call
+PEEK D4
+PUSHR D4; UsrFunc[void AssertEqual(int, int, char32[])] Params Start
+PUSHARGSV 5 0.0002; UsrFunc[int pos(int, int)] Params Start AND UsrFunc[int pos(int, int)] Params End
+CALLFUNC 0.0289; UsrFunc[int pos(int, int)] Call
+POP D4
+PUSHR D2
+POP D0
+PUSHR COMBODD
+PUSHV 3202
+ALLOCATEMEMV D2 29 0
+WRITEPODSTRING D2 "global blocks are unaffected"
+PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
+CALLFUNC 0.0113; UsrFunc[void AssertEqual(int, int, char32[])] Call
+PEEK D4
+PUSHR D4; UsrFunc[void trigger(int)] Params Start
+PUSHV 2; UsrFunc[int pos(int, int)] Params Start
+PUSHV 7; UsrFunc[int pos(int, int)] Params End
+CALLFUNC 0.0289; UsrFunc[int pos(int, int)] Call
+POP D4
+PUSHR D2; UsrFunc[void trigger(int)] Params End
+CALLFUNC 0.0572; UsrFunc[void trigger(int)] Call
+PEEK D4
+SETR D2 CURLEVEL; UsrFunc[void Assert(bool, char32[])] Params Start
+PUSHR D2
+POP D0
+SETR D2 GAMELSWITCH
+ANDV32 D2 0.0008
+COMPAREV D2 0
+SETCMP D2 I==
+PUSHR D2
+ALLOCATEMEMV D2 37 0
+WRITEPODSTRING D2 "the switch turns the level state off"
+PUSHR D2; UsrFunc[void Assert(bool, char32[])] Params End
+CALLFUNC 0.0141; UsrFunc[void Assert(bool, char32[])] Call
+PEEK D4
+PUSHR D4; UsrFunc[void AssertEqual(int, int, char32[])] Params Start
+PUSHV 5; UsrFunc[int pos(int, int)] Params Start
+PUSHV 7; UsrFunc[int pos(int, int)] Params End
+CALLFUNC 0.0289; UsrFunc[int pos(int, int)] Call
+POP D4
+PUSHR D2
+POP D0
+PUSHR COMBODD
+PUSHV 3212
+ALLOCATEMEMV D2 22 0
+WRITEPODSTRING D2 "the level block rises"
+PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
+CALLFUNC 0.0113; UsrFunc[void AssertEqual(int, int, char32[])] Call
+POP D4
+RETURNFUNC; Func[void testLevelSwitch()] Body End
+PUSHV 0; Func[void testTriggeringABlock()] Body Start
+SETR D4 SP2
+PUSHR D4
+ALLOCATEMEMV D2 62 0; UsrFunc[void Label(char32[])] Params Start
+WRITEPODSTRING D2 "triggering the block at (6,5) directly toggles it and its ffc"
+PUSHR D2; UsrFunc[void Label(char32[])] Params End
+CALLFUNC 0.0414; UsrFunc[void Label(char32[])] Call
+POP D4
+SETV D2 1; InlineFunc[ffc screendata::LoadFFC(int)] Params
+LOAD_FFC D2; InlineFunc[ffc screendata::LoadFFC(int)] Body
+STORE D2 0
+SETV D2 3202
+PUSHR D2
+LOAD D2 0
+POP D3
+PUSHR D2
+PUSHR D3
+POP D2
+POP REFFFC
+SETR DATA D2
+SETV D2 96
+PUSHR D2
+LOAD D2 0
+POP D3
+PUSHR D2
+PUSHR D3
+POP D2
+POP REFSPRITE
+SETR SPRITE_X D2
+SETV D2 80
+PUSHR D2
+LOAD D2 0
+POP D3
+PUSHR D2
+PUSHR D3
+POP D2
+POP REFSPRITE
+SETR SPRITE_Y D2
+WAITFRAME; InlineFunc[void Waitframe()] Body
+PUSHARGSR D4 0.0002; UsrFunc[void trigger(int)] Params Start
+PUSHV 6; UsrFunc[int pos(int, int)] Params Start
+PUSHV 5; UsrFunc[int pos(int, int)] Params End
+CALLFUNC 0.0289; UsrFunc[int pos(int, int)] Call
+POP D4
+PUSHR D2; UsrFunc[void trigger(int)] Params End
+CALLFUNC 0.0572; UsrFunc[void trigger(int)] Call
+PEEK D4
+PUSHR D4; UsrFunc[void AssertEqual(int, int, char32[])] Params Start
+PUSHV 6; UsrFunc[int pos(int, int)] Params Start
+PUSHV 5; UsrFunc[int pos(int, int)] Params End
+CALLFUNC 0.0289; UsrFunc[int pos(int, int)] Call
+POP D4
+PUSHR D2
+POP D0
+PUSHR COMBODD
+PUSHV 3203
+ALLOCATEMEMV D2 18 0
+WRITEPODSTRING D2 "the block toggles"
+PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
+CALLFUNC 0.0113; UsrFunc[void AssertEqual(int, int, char32[])] Call
+PEEK D4
+PUSHR D4; UsrFunc[void AssertEqual(int, int, char32[])] Params Start
+PUSHARGSV 5 0.0002; UsrFunc[int pos(int, int)] Params Start AND UsrFunc[int pos(int, int)] Params End
+CALLFUNC 0.0289; UsrFunc[int pos(int, int)] Call
+POP D4
+PUSHR D2
+POP D0
+PUSHR COMBODD
+PUSHV 3202
+ALLOCATEMEMV D2 19 0
+WRITEPODSTRING D2 "other blocks don't"
+PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
+CALLFUNC 0.0113; UsrFunc[void AssertEqual(int, int, char32[])] Call
+PEEK D4
+LOAD D2 0; UsrFunc[void AssertEqual(int, int, char32[])] Params Start
+PUSHR D2
+POP REFFFC
+PUSHR DATA
+PUSHV 3203
+ALLOCATEMEMV D2 26 0
+WRITEPODSTRING D2 "the ffc on it toggles too"
+PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
+CALLFUNC 0.0113; UsrFunc[void AssertEqual(int, int, char32[])] Call
+POP D4
+POP D5
+RETURNFUNC; Func[void testTriggeringABlock()] Body End
+PUSHV 0; Func[void testTimedTrigger()] Body Start
+SETR D4 SP2
+PUSHR D4
+ALLOCATEMEMV D2 48 0; UsrFunc[void Label(char32[])] Params Start
+WRITEPODSTRING D2 "a timed trigger at (12,2) fires after 10 frames"
+PUSHR D2; UsrFunc[void Label(char32[])] Params End
+CALLFUNC 0.0414; UsrFunc[void Label(char32[])] Call
+PEEK D4
+PUSHV 3225; UsrFunc[combodata setupCombo(int, int)] Params Start
+PUSHV 0; UsrFunc[combodata setupCombo(int, int)] Params End
+CALLFUNC 0.0193; UsrFunc[combodata setupCombo(int, int)] Call
+PEEK D4
+PUSHR D4; UsrFunc[combodata addTrigger(combodata)] Params Start
+PUSHV 3224; UsrFunc[combodata setupCombo(int, int)] Params Start
+PUSHV 0; UsrFunc[combodata setupCombo(int, int)] Params End
+CALLFUNC 0.0193; UsrFunc[combodata setupCombo(int, int)] Call
+POP D4
+PUSHR D2; UsrFunc[combodata addTrigger(combodata)] Params End
+CALLFUNC 0.0441; UsrFunc[combodata addTrigger(combodata)] Call
+POP D4
+STORE D2 0
+SETV D2 1
+PUSHR D2
+LOAD D2 0
+PUSHR D2
+SETV D2 0
+PUSHR D2
+POP D0
+POP REFCOMBODATA
+SETR D2 COMBODTRIGGERS
+POP D3
+PUSHR D2
+PUSHR D3
+POP D2
+POP REFCOMBOTRIGGER
+SETR CMBTRIGCHANGECMB D2
+SETV D2 3224
+PUSHR D2
+PUSHR D4
+PUSHV 12; UsrFunc[int pos(int, int)] Params Start
+PUSHV 2; UsrFunc[int pos(int, int)] Params End
+CALLFUNC 0.0289; UsrFunc[int pos(int, int)] Call
+POP D4
+PUSHR D2
+POP D0
+POP D2
+SETR COMBODD D2
+WAITFRAME; InlineFunc[void Waitframe()] Body
+SETV D2 10
+PUSHR D2
+LOAD D2 0
+PUSHR D2
+SETV D2 0
+PUSHR D2
+POP D0
+POP REFCOMBODATA
+SETR D2 COMBODTRIGGERS
+POP D3
+PUSHR D2
+PUSHR D3
+POP D2
+POP REFCOMBOTRIGGER
+SETR CMBTRIGTIMER D2
+SETV D2 15; InlineFunc[void Waitframes(int)] Params
+WAITFRAMESR D2; InlineFunc[void Waitframes(int)] Body
+PUSHARGSR D4 0.0002; UsrFunc[void AssertEqual(int, int, char32[])] Params Start
+PUSHV 12; UsrFunc[int pos(int, int)] Params Start
+PUSHV 2; UsrFunc[int pos(int, int)] Params End
+CALLFUNC 0.0289; UsrFunc[int pos(int, int)] Call
+POP D4
+PUSHR D2
+POP D0
+PUSHR COMBODD
+PUSHV 3225
+ALLOCATEMEMV D2 22 0
+WRITEPODSTRING D2 "a timed trigger fires"
+PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
+CALLFUNC 0.0113; UsrFunc[void AssertEqual(int, int, char32[])] Call
+POP D4
+POP D5
+RETURNFUNC; Func[void testTimedTrigger()] Body End
+PUSHV 0; Func[void walk(int, int)] Body Start
+SETR D4 SP2
+STOREV 0 0; for() setup
+LOAD D2 0; for() LoopTest
+PUSHR D2
+LOAD D2 0.0001
+POP D3
+COMPARER D3 D2
+SETCMP D2 I<
+COMPAREV D2 0
+GOTOCMP 1644 ==; for() TestFail?
+PUSHV 2; InlineFunc[void WaitTo(ScriptTiming, bool)] Params Start AND for() Body Start
+SETV D3 0; InlineFunc[void WaitTo(ScriptTiming, bool)] Params End
+POP D2; InlineFunc[void WaitTo(ScriptTiming, bool)] Body Start
+WAITTO D2 D3; InlineFunc[void WaitTo(ScriptTiming, bool)] Body End
+SETV D2 1
+PUSHR D2
+LOAD D2 0.0002
+PUSHR D2
+POP D0
+POP D2
+SETR BUTTONINPUT D2
+WAITFRAME; InlineFunc[void Waitframe()] Body AND for() Body End
+LOAD D2 0; for() LoopIncrement
+ADDV D2 1
+STORE D2 0
+GOTO 1620; for() End
+NOP
+POPARGS D5 0.0003
+RETURNFUNC; Func[void walk(int, int)] Body End
+PUSHV 0; Func[combodata setupStepFX(int, int)] Body Start
+SETR D4 SP2
+PUSHR D4
+PUSHV 3231; UsrFunc[combodata setupCombo(int, int)] Params Start
+PUSHV 0; UsrFunc[combodata setupCombo(int, int)] Params End
+CALLFUNC 0.0193; UsrFunc[combodata setupCombo(int, int)] Call
+PEEK D4
+PUSHV 3230; UsrFunc[combodata setupCombo(int, int)] Params Start
+PUSHV 164; UsrFunc[combodata setupCombo(int, int)] Params End
+CALLFUNC 0.0193; UsrFunc[combodata setupCombo(int, int)] Call
+POP D4
+STORE D2 0
+SETV D2 1
+PUSHR D2
+LOAD D2 0
+POP D3
+PUSHR D2
+PUSHR D3
+SETV D2 0
+PUSHR D2
+POP D0
+POP D2
+POP REFCOMBODATA
+SETR COMBODUSRFLAGARR D2
+SETV D2 2
+PUSHR D2
+LOAD D2 0
+POP D3
+PUSHR D2
+PUSHR D3
+SETV D2 0
+PUSHR D2
+POP D0
+POP D2
+POP REFCOMBODATA
+SETR COMBODATTRIBUTES D2
+LOAD D2 0.0002
+PUSHR D2
+LOAD D2 0
+POP D3
+PUSHR D2
+PUSHR D3
+SETV D2 9
+PUSHR D2
+POP D0
+POP D2
+POP REFCOMBODATA
+SETR COMBODATTRIBUTES D2
+LOAD D2 0.0001
+PUSHR D2
+LOAD D2 0
+POP D3
+PUSHR D2
+PUSHR D3
+SETV D2 10
+PUSHR D2
+POP D0
+POP D2
+POP REFCOMBODATA
+SETR COMBODATTRIBUTES D2
+SETV D2 1
+PUSHR D2
+LOAD D2 0
+POP D3
+PUSHR D2
+PUSHR D3
+POP D2
+POP REFCOMBODATA
+SETR COMBODNUMTRIGGERS D2
+SETV D2 1
+PUSHR D2
+LOAD D2 0
+PUSHR D2
+SETV D2 0
+PUSHR D2
+POP D0
+POP REFCOMBODATA
+SETR D2 COMBODTRIGGERS
+POP D3
+PUSHR D2
+PUSHR D3
+SETV D2 28
+PUSHR D2
+POP D0
+POP D2
+POP REFCOMBOTRIGGER
+SETR CMBTRIGFLAGS D2
+LOAD D2 0; return Start
+POPARGS D5 0.0003; return End
+RETURNFUNC; Func[combodata setupStepFX(int, int)] Body End
+PUSHARGSV 0 0.0002; Func[void testStepEffects()] Body Start
+SETR D4 SP2
+SETV D2 32
+PUSHR D2
+SETV D2 0.0001
+POP D3
+PUSHR D2
+PUSHR D3
+POP D2
+POP REFSPRITE
+SETR SPRITE_X D2
+SETV D2 128
+PUSHR D2
+SETV D2 0.0001
+POP D3
+PUSHR D2
+PUSHR D3
+POP D2
+POP REFSPRITE
+SETR SPRITE_Y D2
+SETV D2 3
+PUSHR D2
+SETV D2 0.0001
+POP D3
+PUSHR D2
+PUSHR D3
+POP D2
+POP REFSPRITE
+SETR SPRITE_DIR D2
+WAITFRAME; InlineFunc[void Waitframe()] Body
+PUSHR D4
+ALLOCATEMEMV D2 50 0; UsrFunc[void Label(char32[])] Params Start
+WRITEPODSTRING D2 "step effect: walking onto it shoots an arrow down"
+PUSHR D2; UsrFunc[void Label(char32[])] Params End
+CALLFUNC 0.0414; UsrFunc[void Label(char32[])] Call
+PEEK D4
+PUSHV 130; UsrFunc[combodata setupStepFX(int, int)] Params Start
+PUSHV 1; UsrFunc[combodata setupStepFX(int, int)] Params End
+CALLFUNC 0.1647; UsrFunc[combodata setupStepFX(int, int)] Call
+POP D4
+SETV D2 3230
+PUSHR D2
+PUSHR D4
+PUSHV 4; UsrFunc[int pos(int, int)] Params Start
+PUSHV 8; UsrFunc[int pos(int, int)] Params End
+CALLFUNC 0.0289; UsrFunc[int pos(int, int)] Call
+POP D4
+PUSHR D2
+POP D0
+POP D2
+SETR COMBODD D2
+STOREV 0 0.0001; for() setup
+LOAD D2 0.0001; for() LoopTest
+COMPAREV D2 60
+GOTOCMP 1804 >=
+PUSHR D4
+PUSHV 4; UsrFunc[int pos(int, int)] Params Start
+PUSHV 8; UsrFunc[int pos(int, int)] Params End
+CALLFUNC 0.0289; UsrFunc[int pos(int, int)] Call
+POP D4
+PUSHR D2
+POP D0
+SETR D2 COMBODD
+COMPAREV D2 3230
+GOTOCMP 1804 !=
+SETV D2 1
+GOTO 1805
+SETV D2 0
+COMPAREV D2 0
+GOTOCMP 1816 ==; for() TestFail?
+PUSHR D4; for() Body Start
+PUSHV 3; UsrFunc[void walk(int, int)] Params Start
+PUSHV 1; UsrFunc[void walk(int, int)] Params End
+CALLFUNC 0.1617; UsrFunc[void walk(int, int)] Call
+POP D4; for() Body End
+LOAD D2 0.0001; for() LoopIncrement
+ADDV D2 1
+STORE D2 0.0001
+GOTO 1789; for() End
+NOP
+ALLOCATEMEMV D2 53 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
+WRITEPODSTRING D2 "stepfx stepped: hero at %d, %d; %d arrows; combo %d\n"
+PUSHR D2
+SETV D2 0.0001
+PUSHR D2
+POP REFSPRITE
+PUSHVARGR SPRITE_X
+SETV D2 0.0001
+PUSHR D2
+POP REFSPRITE
+PUSHVARGR SPRITE_Y
+PUSHVARGSTACK
+PUSHR D4
+PUSHV 130; UsrFunc[int countEWeapons(int)] Params
+CALLFUNC 0.0336; UsrFunc[int countEWeapons(int)] Call
+POP D4
+POPVARGSTACK
+PUSHVARGR D2
+PUSHVARGSTACK
+PUSHR D4
+PUSHV 4; UsrFunc[int pos(int, int)] Params Start
+PUSHV 8; UsrFunc[int pos(int, int)] Params End
+CALLFUNC 0.0289; UsrFunc[int pos(int, int)] Call
+POP D4
+POPVARGSTACK
+PUSHR D2
+POP D0
+PUSHVARGR COMBODD; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
+PUSHARGSR D4 0.0002; UsrFunc[void AssertEqual(int, int, char32[])] Params Start
+PUSHV 130; UsrFunc[int countEWeapons(int)] Params
+CALLFUNC 0.0336; UsrFunc[int countEWeapons(int)] Call
+POP D4
+PUSHR D2
+PUSHV 1
+ALLOCATEMEMV D2 33 0
+WRITEPODSTRING D2 "stepping on it spawns its weapon"
+PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
+CALLFUNC 0.0113; UsrFunc[void AssertEqual(int, int, char32[])] Call
+PEEK D4
+PUSHR D4; UsrFunc[void AssertEqual(int, int, char32[])] Params Start
+PUSHV 4; UsrFunc[int pos(int, int)] Params Start
+PUSHV 8; UsrFunc[int pos(int, int)] Params End
+CALLFUNC 0.0289; UsrFunc[int pos(int, int)] Call
+POP D4
+PUSHR D2
+POP D0
+PUSHR COMBODD
+PUSHV 3231
+ALLOCATEMEMV D2 16 0
+WRITEPODSTRING D2 "and advances it"
+PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
+CALLFUNC 0.0113; UsrFunc[void AssertEqual(int, int, char32[])] Call
+PEEK D4
+CALLFUNC 0.0374; UsrFunc[void clearWeapons()] Call
+PEEK D4
+ALLOCATEMEMV D2 50 0; UsrFunc[void Label(char32[])] Params Start
+WRITEPODSTRING D2 "step effect: triggered, it shoots a hero arrow up"
+PUSHR D2; UsrFunc[void Label(char32[])] Params End
+CALLFUNC 0.0414; UsrFunc[void Label(char32[])] Call
+PEEK D4
+PUSHV 8; UsrFunc[combodata setupStepFX(int, int)] Params Start
+PUSHV 0; UsrFunc[combodata setupStepFX(int, int)] Params End
+CALLFUNC 0.1647; UsrFunc[combodata setupStepFX(int, int)] Call
+POP D4
+SETV D2 3230
+PUSHR D2
+PUSHR D4
+PUSHV 10; UsrFunc[int pos(int, int)] Params Start
+PUSHV 4; UsrFunc[int pos(int, int)] Params End
+CALLFUNC 0.0289; UsrFunc[int pos(int, int)] Call
+POP D4
+PUSHR D2
+POP D0
+POP D2
+SETR COMBODD D2
+PUSHARGSR D4 0.0002; UsrFunc[void trigger(int)] Params Start
+PUSHV 10; UsrFunc[int pos(int, int)] Params Start
+PUSHV 4; UsrFunc[int pos(int, int)] Params End
+CALLFUNC 0.0289; UsrFunc[int pos(int, int)] Call
+POP D4
+PUSHR D2; UsrFunc[void trigger(int)] Params End
+CALLFUNC 0.0572; UsrFunc[void trigger(int)] Call
+PEEK D4
+PUSHR D4; UsrFunc[void AssertEqual(int, int, char32[])] Params Start
+PUSHV 8; UsrFunc[int countLWeapons(int)] Params
+CALLFUNC 0.0298; UsrFunc[int countLWeapons(int)] Call
+POP D4
+PUSHR D2
+PUSHV 1
+ALLOCATEMEMV D2 32 0
+WRITEPODSTRING D2 "triggering it spawns its weapon"
+PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
+CALLFUNC 0.0113; UsrFunc[void AssertEqual(int, int, char32[])] Call
+PEEK D4
+PUSHR D4; UsrFunc[void AssertEqual(int, int, char32[])] Params Start
+PUSHV 10; UsrFunc[int pos(int, int)] Params Start
+PUSHV 4; UsrFunc[int pos(int, int)] Params End
+CALLFUNC 0.0289; UsrFunc[int pos(int, int)] Call
+POP D4
+PUSHR D2
+POP D0
+PUSHR COMBODD
+PUSHV 3231
+ALLOCATEMEMV D2 16 0
+WRITEPODSTRING D2 "and advances it"
+PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
+CALLFUNC 0.0113; UsrFunc[void AssertEqual(int, int, char32[])] Call
+PEEK D4
+CALLFUNC 0.0374; UsrFunc[void clearWeapons()] Call
+PEEK D4
+ALLOCATEMEMV D2 64 0; UsrFunc[void Label(char32[])] Params Start
+WRITEPODSTRING D2 "step effect: an unlisted weapon becomes a bomb; 'Don't Advance'"
+PUSHR D2; UsrFunc[void Label(char32[])] Params End
+CALLFUNC 0.0414; UsrFunc[void Label(char32[])] Call
+PEEK D4
+PUSHV 1; UsrFunc[combodata setupStepFX(int, int)] Params Start
+PUSHV 0; UsrFunc[combodata setupStepFX(int, int)] Params End
+CALLFUNC 0.1647; UsrFunc[combodata setupStepFX(int, int)] Call
+POP D4
+STORE D2 0.0001
+SETV D2 1
+PUSHR D2
+LOAD D2 0.0001
+POP D3
+PUSHR D2
+PUSHR D3
+SETV D2 2
+PUSHR D2
+POP D0
+POP D2
+POP REFCOMBODATA
+SETR COMBODUSRFLAGARR D2
+SETV D2 3230
+PUSHR D2
+PUSHR D4
+PUSHV 10; UsrFunc[int pos(int, int)] Params Start
+PUSHV 4; UsrFunc[int pos(int, int)] Params End
+CALLFUNC 0.0289; UsrFunc[int pos(int, int)] Call
+POP D4
+PUSHR D2
+POP D0
+POP D2
+SETR COMBODD D2
+PUSHARGSR D4 0.0002; UsrFunc[void trigger(int)] Params Start
+PUSHV 10; UsrFunc[int pos(int, int)] Params Start
+PUSHV 4; UsrFunc[int pos(int, int)] Params End
+CALLFUNC 0.0289; UsrFunc[int pos(int, int)] Call
+POP D4
+PUSHR D2; UsrFunc[void trigger(int)] Params End
+CALLFUNC 0.0572; UsrFunc[void trigger(int)] Call
+PEEK D4
+PUSHR D4; UsrFunc[void AssertEqual(int, int, char32[])] Params Start
+PUSHV 137; UsrFunc[int countEWeapons(int)] Params
+CALLFUNC 0.0336; UsrFunc[int countEWeapons(int)] Call
+POP D4
+PUSHR D2
+PUSHV 1
+ALLOCATEMEMV D2 41 0
+WRITEPODSTRING D2 "an unlisted weapon becomes an enemy bomb"
+PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
+CALLFUNC 0.0113; UsrFunc[void AssertEqual(int, int, char32[])] Call
+PEEK D4
+PUSHR D4; UsrFunc[void AssertEqual(int, int, char32[])] Params Start
+PUSHV 10; UsrFunc[int pos(int, int)] Params Start
+PUSHV 4; UsrFunc[int pos(int, int)] Params End
+CALLFUNC 0.0289; UsrFunc[int pos(int, int)] Call
+POP D4
+PUSHR D2
+POP D0
+PUSHR COMBODD
+PUSHV 3230
+ALLOCATEMEMV D2 32 0
+WRITEPODSTRING D2 "'Don't Advance' keeps the combo"
+PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
+CALLFUNC 0.0113; UsrFunc[void AssertEqual(int, int, char32[])] Call
+PEEK D4
+CALLFUNC 0.0374; UsrFunc[void clearWeapons()] Call
+PEEK D4
+ALLOCATEMEMV D2 56 0; UsrFunc[void Label(char32[])] Params Start
+WRITEPODSTRING D2 "step effect: 'direct damage' hurts only when stepped on"
+PUSHR D2; UsrFunc[void Label(char32[])] Params End
+CALLFUNC 0.0414; UsrFunc[void Label(char32[])] Call
+PEEK D4
+PUSHV 31; UsrFunc[combodata setupStepFX(int, int)] Params Start
+PUSHV 0; UsrFunc[combodata setupStepFX(int, int)] Params End
+CALLFUNC 0.1647; UsrFunc[combodata setupStepFX(int, int)] Call
+POP D4
+STORE D2 0.0001
+SETV D2 1
+PUSHR D2
+LOAD D2 0.0001
+POP D3
+PUSHR D2
+PUSHR D3
+SETV D2 1
+PUSHR D2
+POP D0
+POP D2
+POP REFCOMBODATA
+SETR COMBODUSRFLAGARR D2
+SETV D2 1
+PUSHR D2
+LOAD D2 0.0001
+POP D3
+PUSHR D2
+PUSHR D3
+SETV D2 3
+PUSHR D2
+POP D0
+POP D2
+POP REFCOMBODATA
+SETR COMBODUSRFLAGARR D2
+SETV D2 8
+PUSHR D2
+LOAD D2 0.0001
+POP D3
+PUSHR D2
+PUSHR D3
+SETV D2 0
+PUSHR D2
+POP D0
+POP D2
+POP REFCOMBODATA
+SETR COMBODATTRIBUTES D2
+SETV D2 3230
+PUSHR D2
+PUSHR D4
+PUSHV 10; UsrFunc[int pos(int, int)] Params Start
+PUSHV 4; UsrFunc[int pos(int, int)] Params End
+CALLFUNC 0.0289; UsrFunc[int pos(int, int)] Call
+POP D4
+PUSHR D2
+POP D0
+POP D2
+SETR COMBODD D2
+SETR D2 LINKHP
+STORE D2 0
+PUSHARGSR D4 0.0002; UsrFunc[void trigger(int)] Params Start
+PUSHV 10; UsrFunc[int pos(int, int)] Params Start
+PUSHV 4; UsrFunc[int pos(int, int)] Params End
+CALLFUNC 0.0289; UsrFunc[int pos(int, int)] Call
+POP D4
+PUSHR D2; UsrFunc[void trigger(int)] Params End
+CALLFUNC 0.0572; UsrFunc[void trigger(int)] Call
+PEEK D4
+PUSHR LINKHP; UsrFunc[void AssertEqual(int, int, char32[])] Params Start
+LOAD D2 0
+PUSHR D2
+ALLOCATEMEMV D2 33 0
+WRITEPODSTRING D2 "triggering doesn't hurt the Hero"
+PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
+CALLFUNC 0.0113; UsrFunc[void AssertEqual(int, int, char32[])] Call
+PEEK D4
+PUSHR LWPNCOUNT; UsrFunc[void AssertEqual(int, int, char32[])] Params Start
+PUSHV 0
+ALLOCATEMEMV D2 20 0
+WRITEPODSTRING D2 "and makes no weapon"
+PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
+CALLFUNC 0.0113; UsrFunc[void AssertEqual(int, int, char32[])] Call
+POP D4
+SETV D2 112
+PUSHR D2
+SETV D2 0.0001
+POP D3
+PUSHR D2
+PUSHR D3
+POP D2
+POP REFSPRITE
+SETR SPRITE_X D2
+SETV D2 64
+PUSHR D2
+SETV D2 0.0001
+POP D3
+PUSHR D2
+PUSHR D3
+POP D2
+POP REFSPRITE
+SETR SPRITE_Y D2
+SETV D2 3
+PUSHR D2
+SETV D2 0.0001
+POP D3
+PUSHR D2
+PUSHR D3
+POP D2
+POP REFSPRITE
+SETR SPRITE_DIR D2
+SETV D2 3230
+PUSHR D2
+PUSHR D4
+PUSHV 8; UsrFunc[int pos(int, int)] Params Start
+PUSHV 4; UsrFunc[int pos(int, int)] Params End
+CALLFUNC 0.0289; UsrFunc[int pos(int, int)] Call
+POP D4
+PUSHR D2
+POP D0
+POP D2
+SETR COMBODD D2
+WAITFRAME; InlineFunc[void Waitframe()] Body
+PUSHR D4
+PUSHV 3; UsrFunc[void walk(int, int)] Params Start
+PUSHV 20; UsrFunc[void walk(int, int)] Params End
+CALLFUNC 0.1617; UsrFunc[void walk(int, int)] Call
+POP D4
+ALLOCATEMEMV D2 34 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
+WRITEPODSTRING D2 "stepfx direct damage: lost %d hp\n"
+PUSHR D2
+LOAD D2 0
+PUSHR D2
+SETR D2 LINKHP
+POP D3
+SUBR D3 D2
+PUSHVARGR D3; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
+PUSHR D4
+LOAD D2 0; UsrFunc[void AssertEqual(int, int, char32[])] Params Start
+PUSHR D2
+SETR D2 LINKHP
+POP D3
+SUBR D3 D2
+PUSHR D3
+PUSHV 8
+ALLOCATEMEMV D2 30 0
+WRITEPODSTRING D2 "stepping on it hurts the Hero"
+PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
+CALLFUNC 0.0113; UsrFunc[void AssertEqual(int, int, char32[])] Call
+POP D4
+POPARGS D5 0.0002
+RETURNFUNC; Func[void testStepEffects()] Body End
+PUSHARGSV 0 0.0002; Func[void testStepCombos()] Body Start
+SETR D4 SP2
+STOREV 0 0.0001; for() setup
+LOAD D2 0.0001; for() LoopTest
+COMPAREV D2 3
+SETCMP D2 I<
+COMPAREV D2 0
+GOTOCMP 2208 ==; for() TestFail?
+PUSHR D4; for() Body Start
+LOAD D2 0.0001; UsrFunc[combodata setupCombo(int, int)] Params Start
+MULTV D2 2
+ADDV D2 3240
+PUSHR D2
+LOAD D2 0.0001
+ADDV D2 106
+PUSHR D2; UsrFunc[combodata setupCombo(int, int)] Params End
+CALLFUNC 0.0193; UsrFunc[combodata setupCombo(int, int)] Call
+POP D4
+STORE D2 0
+SETV D2 1
+PUSHR D2
+LOAD D2 0
+POP D3
+PUSHR D2
+PUSHR D3
+POP D2
+POP REFCOMBODATA
+SETR COMBODNUMTRIGGERS D2
+SETV D2 1
+PUSHR D2
+LOAD D2 0
+PUSHR D2
+SETV D2 0
+PUSHR D2
+POP D0
+POP REFCOMBODATA
+SETR D2 COMBODTRIGGERS
+POP D3
+PUSHR D2
+PUSHR D3
+SETV D2 28
+PUSHR D2
+POP D0
+POP D2
+POP REFCOMBOTRIGGER
+SETR CMBTRIGFLAGS D2
+PUSHR D4
+LOAD D2 0.0001; UsrFunc[combodata setupCombo(int, int)] Params Start
+MULTV D2 2
+ADDV D2 3240
+ADDV D2 1
+PUSHR D2
+PUSHV 0; UsrFunc[combodata setupCombo(int, int)] Params End
+CALLFUNC 0.0193; UsrFunc[combodata setupCombo(int, int)] Call
+POP D4; for() Body End
+LOAD D2 0.0001; for() LoopIncrement
+ADDV D2 1
+STORE D2 0.0001
+GOTO 2152; for() End
+NOP
+PUSHR D4
+ALLOCATEMEMV D2 40 0; UsrFunc[void Label(char32[])] Params Start
+WRITEPODSTRING D2 "step->next at (2,9) changes only itself"
+PUSHR D2; UsrFunc[void Label(char32[])] Params End
+CALLFUNC 0.0414; UsrFunc[void Label(char32[])] Call
+POP D4
+SETV D2 3240
+PUSHR D2
+PUSHR D4
+PUSHV 2; UsrFunc[int pos(int, int)] Params Start
+PUSHV 9; UsrFunc[int pos(int, int)] Params End
+CALLFUNC 0.0289; UsrFunc[int pos(int, int)] Call
+POP D4
+PUSHR D2
+POP D0
+POP D2
+SETR COMBODD D2
+SETV D2 3240
+PUSHR D2
+PUSHR D4
+PUSHV 3; UsrFunc[int pos(int, int)] Params Start
+PUSHV 9; UsrFunc[int pos(int, int)] Params End
+CALLFUNC 0.0289; UsrFunc[int pos(int, int)] Call
+POP D4
+PUSHR D2
+POP D0
+POP D2
+SETR COMBODD D2
+PUSHARGSR D4 0.0002; UsrFunc[void trigger(int)] Params Start
+PUSHV 2; UsrFunc[int pos(int, int)] Params Start
+PUSHV 9; UsrFunc[int pos(int, int)] Params End
+CALLFUNC 0.0289; UsrFunc[int pos(int, int)] Call
+POP D4
+PUSHR D2; UsrFunc[void trigger(int)] Params End
+CALLFUNC 0.0572; UsrFunc[void trigger(int)] Call
+PEEK D4
+PUSHR D4; UsrFunc[void AssertEqual(int, int, char32[])] Params Start
+PUSHV 2; UsrFunc[int pos(int, int)] Params Start
+PUSHV 9; UsrFunc[int pos(int, int)] Params End
+CALLFUNC 0.0289; UsrFunc[int pos(int, int)] Call
+POP D4
+PUSHR D2
+POP D0
+PUSHR COMBODD
+PUSHV 3241
+ALLOCATEMEMV D2 19 0
+WRITEPODSTRING D2 "step->next changes"
+PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
+CALLFUNC 0.0113; UsrFunc[void AssertEqual(int, int, char32[])] Call
+PEEK D4
+PUSHR D4; UsrFunc[void AssertEqual(int, int, char32[])] Params Start
+PUSHV 3; UsrFunc[int pos(int, int)] Params Start
+PUSHV 9; UsrFunc[int pos(int, int)] Params End
+CALLFUNC 0.0289; UsrFunc[int pos(int, int)] Call
+POP D4
+PUSHR D2
+POP D0
+PUSHR COMBODD
+PUSHV 3240
+ALLOCATEMEMV D2 18 0
+WRITEPODSTRING D2 "the other doesn't"
+PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
+CALLFUNC 0.0113; UsrFunc[void AssertEqual(int, int, char32[])] Call
+PEEK D4
+ALLOCATEMEMV D2 46 0; UsrFunc[void Label(char32[])] Params Start
+WRITEPODSTRING D2 "step->next (same) at (5,9) also changes (6,9)"
+PUSHR D2; UsrFunc[void Label(char32[])] Params End
+CALLFUNC 0.0414; UsrFunc[void Label(char32[])] Call
+POP D4
+SETV D2 3242
+PUSHR D2
+PUSHR D4
+PUSHV 5; UsrFunc[int pos(int, int)] Params Start
+PUSHV 9; UsrFunc[int pos(int, int)] Params End
+CALLFUNC 0.0289; UsrFunc[int pos(int, int)] Call
+POP D4
+PUSHR D2
+POP D0
+POP D2
+SETR COMBODD D2
+SETV D2 3242
+PUSHR D2
+PUSHR D4
+PUSHV 6; UsrFunc[int pos(int, int)] Params Start
+PUSHV 9; UsrFunc[int pos(int, int)] Params End
+CALLFUNC 0.0289; UsrFunc[int pos(int, int)] Call
+POP D4
+PUSHR D2
+POP D0
+POP D2
+SETR COMBODD D2
+PUSHARGSR D4 0.0002; UsrFunc[void trigger(int)] Params Start
+PUSHV 5; UsrFunc[int pos(int, int)] Params Start
+PUSHV 9; UsrFunc[int pos(int, int)] Params End
+CALLFUNC 0.0289; UsrFunc[int pos(int, int)] Call
+POP D4
+PUSHR D2; UsrFunc[void trigger(int)] Params End
+CALLFUNC 0.0572; UsrFunc[void trigger(int)] Call
+PEEK D4
+PUSHR D4; UsrFunc[void AssertEqual(int, int, char32[])] Params Start
+PUSHV 5; UsrFunc[int pos(int, int)] Params Start
+PUSHV 9; UsrFunc[int pos(int, int)] Params End
+CALLFUNC 0.0289; UsrFunc[int pos(int, int)] Call
+POP D4
+PUSHR D2
+POP D0
+PUSHR COMBODD
+PUSHV 3243
+ALLOCATEMEMV D2 26 0
+WRITEPODSTRING D2 "step->next (same) changes"
+PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
+CALLFUNC 0.0113; UsrFunc[void AssertEqual(int, int, char32[])] Call
+PEEK D4
+PUSHR D4; UsrFunc[void AssertEqual(int, int, char32[])] Params Start
+PUSHV 6; UsrFunc[int pos(int, int)] Params Start
+PUSHV 9; UsrFunc[int pos(int, int)] Params End
+CALLFUNC 0.0289; UsrFunc[int pos(int, int)] Call
+POP D4
+PUSHR D2
+POP D0
+PUSHR COMBODD
+PUSHV 3243
+ALLOCATEMEMV D2 27 0
+WRITEPODSTRING D2 "and so does the same combo"
+PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
+CALLFUNC 0.0113; UsrFunc[void AssertEqual(int, int, char32[])] Call
+PEEK D4
+PUSHR D4; UsrFunc[void AssertEqual(int, int, char32[])] Params Start
+PUSHV 3; UsrFunc[int pos(int, int)] Params Start
+PUSHV 9; UsrFunc[int pos(int, int)] Params End
+CALLFUNC 0.0289; UsrFunc[int pos(int, int)] Call
+POP D4
+PUSHR D2
+POP D0
+PUSHR COMBODD
+PUSHV 3240
+ALLOCATEMEMV D2 24 0
+WRITEPODSTRING D2 "but not a different one"
+PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
+CALLFUNC 0.0113; UsrFunc[void AssertEqual(int, int, char32[])] Call
+PEEK D4
+ALLOCATEMEMV D2 51 0; UsrFunc[void Label(char32[])] Params Start
+WRITEPODSTRING D2 "step->next (all) at (8,9) changes every step combo"
+PUSHR D2; UsrFunc[void Label(char32[])] Params End
+CALLFUNC 0.0414; UsrFunc[void Label(char32[])] Call
+POP D4
+SETV D2 3244
+PUSHR D2
+PUSHR D4
+PUSHV 8; UsrFunc[int pos(int, int)] Params Start
+PUSHV 9; UsrFunc[int pos(int, int)] Params End
+CALLFUNC 0.0289; UsrFunc[int pos(int, int)] Call
+POP D4
+PUSHR D2
+POP D0
+POP D2
+SETR COMBODD D2
+PUSHARGSR D4 0.0002; UsrFunc[void trigger(int)] Params Start
+PUSHV 8; UsrFunc[int pos(int, int)] Params Start
+PUSHV 9; UsrFunc[int pos(int, int)] Params End
+CALLFUNC 0.0289; UsrFunc[int pos(int, int)] Call
+POP D4
+PUSHR D2; UsrFunc[void trigger(int)] Params End
+CALLFUNC 0.0572; UsrFunc[void trigger(int)] Call
+PEEK D4
+PUSHR D4; UsrFunc[void AssertEqual(int, int, char32[])] Params Start
+PUSHV 8; UsrFunc[int pos(int, int)] Params Start
+PUSHV 9; UsrFunc[int pos(int, int)] Params End
+CALLFUNC 0.0289; UsrFunc[int pos(int, int)] Call
+POP D4
+PUSHR D2
+POP D0
+PUSHR COMBODD
+PUSHV 3245
+ALLOCATEMEMV D2 25 0
+WRITEPODSTRING D2 "step->next (all) changes"
+PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
+CALLFUNC 0.0113; UsrFunc[void AssertEqual(int, int, char32[])] Call
+PEEK D4
+PUSHR D4; UsrFunc[void AssertEqual(int, int, char32[])] Params Start
+PUSHV 3; UsrFunc[int pos(int, int)] Params Start
+PUSHV 9; UsrFunc[int pos(int, int)] Params End
+CALLFUNC 0.0289; UsrFunc[int pos(int, int)] Call
+POP D4
+PUSHR D2
+POP D0
+PUSHR COMBODD
+PUSHV 3241
+ALLOCATEMEMV D2 35 0
+WRITEPODSTRING D2 "and so does every other step combo"
+PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
+CALLFUNC 0.0113; UsrFunc[void AssertEqual(int, int, char32[])] Call
+POP D4
+POPARGS D5 0.0002
+RETURNFUNC; Func[void testStepCombos()] Body End

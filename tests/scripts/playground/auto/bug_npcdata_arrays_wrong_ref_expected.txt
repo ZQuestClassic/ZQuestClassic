@@ -26,7 +26,9 @@ stdout:
 
 zasm:
 
-QUIT; void run() Body
+MARK_TYPE_REG GD1 0.0009; void run() Body Start
+SETV GD1 0
+QUIT; void run() Body End
 PUSHARGSV 0 0.0003; void run() Body Start
 SETR D4 SP2
 ALLOCATEMEMV D2 100 0
@@ -48,7 +50,7 @@ LOAD D2 0.0001; if() Test
 COMPAREV D2 -1
 SETCMP D2 I==
 COMPAREV D2 0
-GOTOCMP 30 ==; Test 'if'
+GOTOCMP 32 ==; Test 'if'
 ALLOCATEMEMV D2 53 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start AND if() Body Start
 WRITEPODSTRING D2 "[Test] failed to start - could not find test script\n"
 PUSHR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
@@ -75,16 +77,19 @@ PUSHR D2
 POP REFGENERICDATA
 SETR D2 GENDATARUNNING
 COMPAREV D2 0
-GOTOCMP 53 ==; Test 'while'
-WAITFRAME; InlineFunc[void Waitframe()] Body AND while() Body
-GOTO 45; while() End
-CALLFUNC 0.0362; UsrFunc[void End()] Call AND [Opt:NeverRet]
+GOTOCMP 58 ==; Test 'while'
+PUSHR D4; while() Body Start
+CALLFUNC 0.0418; UsrFunc[void DrawLabel()] Call
+POP D4
+WAITFRAME; InlineFunc[void Waitframe()] Body AND while() Body End
+GOTO 47; while() End
+CALLFUNC 0.0367; UsrFunc[void End()] Call AND [Opt:NeverRet]
 REF_REMOVE 0.0002; [Opt:NeverRet] AND void run() Body End
 PUSHARGSV 0 0.0005; void run() Body Start
 SETR D4 SP2
 PUSHR D4
 PUSHV 0; UsrFunc[void Init(int)] Params
-CALLFUNC 0.0340; UsrFunc[void Init(int)] Call
+CALLFUNC 0.0345; UsrFunc[void Init(int)] Call
 POP D4
 SETV D2 49; InlineFunc[npcdata Game::LoadNPCData(int)] Params
 LOADNPCDATAR D2; InlineFunc[npcdata Game::LoadNPCData(int)] Body Start
@@ -99,7 +104,7 @@ POP D0
 POP REFNPCDATA
 PUSHR NPCDATAFLAG
 PUSHV 1; UsrFunc[void AssertEqual(bool, bool)] Params End
-CALLFUNC 0.0369; UsrFunc[void AssertEqual(bool, bool)] Call
+CALLFUNC 0.0374; UsrFunc[void AssertEqual(bool, bool)] Call
 PEEK D4
 LOAD D2 0.0004; UsrFunc[void AssertEqual(bool, bool)] Params Start
 PUSHR D2
@@ -109,7 +114,7 @@ POP D0
 POP REFNPCDATA
 PUSHR NPCDATASHIELD
 PUSHV 1; UsrFunc[void AssertEqual(bool, bool)] Params End
-CALLFUNC 0.0369; UsrFunc[void AssertEqual(bool, bool)] Call
+CALLFUNC 0.0374; UsrFunc[void AssertEqual(bool, bool)] Call
 POP D4
 SETV D2 22; InlineFunc[npcdata Game::LoadNPCData(int)] Params
 LOADNPCDATAR D2; InlineFunc[npcdata Game::LoadNPCData(int)] Body Start
@@ -152,7 +157,7 @@ POP D0
 POP REFNPCDATA
 PUSHR NPCDATAFLAG
 PUSHV 1; UsrFunc[void AssertEqual(bool, bool)] Params End
-CALLFUNC 0.0369; UsrFunc[void AssertEqual(bool, bool)] Call
+CALLFUNC 0.0374; UsrFunc[void AssertEqual(bool, bool)] Call
 PEEK D4
 LOAD D2 0.0002; UsrFunc[void AssertEqual(bool, bool)] Params Start
 PUSHR D2
@@ -162,7 +167,7 @@ POP D0
 POP REFNPCDATA
 PUSHR NPCDATAFLAG
 PUSHV 0; UsrFunc[void AssertEqual(bool, bool)] Params End
-CALLFUNC 0.0369; UsrFunc[void AssertEqual(bool, bool)] Call
+CALLFUNC 0.0374; UsrFunc[void AssertEqual(bool, bool)] Call
 POP D4
 SETV D2 0
 PUSHR D2
@@ -209,7 +214,7 @@ POP D0
 POP REFNPCDATA
 PUSHR NPCDATAATTRIBUTE
 PUSHV 11; UsrFunc[void AssertEqual(int, int)] Params End
-CALLFUNC 0.0391; UsrFunc[void AssertEqual(int, int)] Call
+CALLFUNC 0.0396; UsrFunc[void AssertEqual(int, int)] Call
 PEEK D4
 LOAD D2 0.0002; UsrFunc[void AssertEqual(int, int)] Params Start
 PUSHR D2
@@ -219,7 +224,7 @@ POP D0
 POP REFNPCDATA
 PUSHR NPCDATAATTRIBUTE
 PUSHV 22; UsrFunc[void AssertEqual(int, int)] Params End
-CALLFUNC 0.0391; UsrFunc[void AssertEqual(int, int)] Call
+CALLFUNC 0.0396; UsrFunc[void AssertEqual(int, int)] Call
 POP D4
 SETV D2 1
 PUSHR D2
@@ -254,7 +259,7 @@ POP D0
 POP REFNPCDATA
 PUSHR NPCDATADEFENSE
 PUSHV 1; UsrFunc[void AssertEqual(int, int)] Params End
-CALLFUNC 0.0391; UsrFunc[void AssertEqual(int, int)] Call
+CALLFUNC 0.0396; UsrFunc[void AssertEqual(int, int)] Call
 PEEK D4
 LOAD D2 0.0002; UsrFunc[void AssertEqual(int, int)] Params Start
 PUSHR D2
@@ -264,7 +269,7 @@ POP D0
 POP REFNPCDATA
 PUSHR NPCDATADEFENSE
 PUSHV 2; UsrFunc[void AssertEqual(int, int)] Params End
-CALLFUNC 0.0391; UsrFunc[void AssertEqual(int, int)] Call
+CALLFUNC 0.0396; UsrFunc[void AssertEqual(int, int)] Call
 POP D4
 SETV D2 1
 PUSHR D2
@@ -299,7 +304,7 @@ POP D0
 POP REFNPCDATA
 PUSHR NPCDATAMOVEFLAGS
 PUSHV 1; UsrFunc[void AssertEqual(bool, bool)] Params End
-CALLFUNC 0.0369; UsrFunc[void AssertEqual(bool, bool)] Call
+CALLFUNC 0.0374; UsrFunc[void AssertEqual(bool, bool)] Call
 PEEK D4
 LOAD D2 0.0002; UsrFunc[void AssertEqual(bool, bool)] Params Start
 PUSHR D2
@@ -309,7 +314,7 @@ POP D0
 POP REFNPCDATA
 PUSHR NPCDATAMOVEFLAGS
 PUSHV 0; UsrFunc[void AssertEqual(bool, bool)] Params End
-CALLFUNC 0.0369; UsrFunc[void AssertEqual(bool, bool)] Call
+CALLFUNC 0.0374; UsrFunc[void AssertEqual(bool, bool)] Call
 POP D4
 SETV D2 1; InlineFunc[messagedata Game::LoadMessageData(int)] Params
 LOADMESSAGEDATAR D2; InlineFunc[messagedata Game::LoadMessageData(int)] Body Start
@@ -352,7 +357,7 @@ POP D0
 POP REFMSGDATA
 PUSHR MESSAGEDATAMARGINS
 PUSHV 3; UsrFunc[void AssertEqual(int, int)] Params End
-CALLFUNC 0.0391; UsrFunc[void AssertEqual(int, int)] Call
+CALLFUNC 0.0396; UsrFunc[void AssertEqual(int, int)] Call
 PEEK D4
 LOAD D2 0; UsrFunc[void AssertEqual(int, int)] Params Start
 PUSHR D2
@@ -362,9 +367,9 @@ POP D0
 POP REFMSGDATA
 PUSHR MESSAGEDATAMARGINS
 PUSHV 7; UsrFunc[void AssertEqual(int, int)] Params End
-CALLFUNC 0.0391; UsrFunc[void AssertEqual(int, int)] Call
+CALLFUNC 0.0396; UsrFunc[void AssertEqual(int, int)] Call
 POP D4
-CALLFUNC 0.0362; UsrFunc[void End()] Call AND [Opt:NeverRet] AND [Opt:NeverRet] AND void run() Body End
+CALLFUNC 0.0367; UsrFunc[void End()] Call AND [Opt:NeverRet] AND [Opt:NeverRet] AND void run() Body End
 SETR D4 SP2; Func[void Init(int)] Body Start
 ALLOCATEMEMV D2 35 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
 WRITEPODSTRING D2 "[Test] started: dmap %d screen %d\n"
@@ -378,7 +383,7 @@ LOAD D2 0; if() Test
 COMPAREV D2 0
 SETCMP D2 I!=
 COMPAREV D2 0
-GOTOCMP 359 ==; Test 'if'
+GOTOCMP 364 ==; Test 'if'
 PUSHV 5; InlineFunc[void hero::Warp(int, int)] Params Start AND if() Body Start
 LOAD D2 0; InlineFunc[void hero::Warp(int, int)] Params End
 POP D3; InlineFunc[void hero::Warp(int, int)] Body Start
@@ -402,7 +407,7 @@ POP D3
 COMPARER D3 D2
 SETCMP D2 BI!=
 COMPAREV D2 0
-GOTOCMP 388 ==; Test 'if'
+GOTOCMP 393 ==; Test 'if'
 ALLOCATEMEMV D2 49 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start AND if() Body Start
 WRITEPODSTRING D2 "[Test] failed assertion: expected %d but got %d\n"
 PUSHR D2
@@ -424,7 +429,7 @@ POP D3
 COMPARER D3 D2
 SETCMP D2 I!=
 COMPAREV D2 0
-GOTOCMP 410 ==; Test 'if'
+GOTOCMP 415 ==; Test 'if'
 ALLOCATEMEMV D2 49 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start AND if() Body Start
 WRITEPODSTRING D2 "[Test] failed assertion: expected %d but got %d\n"
 PUSHR D2
@@ -438,3 +443,22 @@ GAMEEXIT; InlineFunc[void Game::Exit()] Body AND if() Body End
 NOP
 POPARGS D5 0.0002
 RETURNFUNC; Func[void AssertEqual(int, int)] Body End
+SETR D4 SP2; Func[void DrawLabel()] Body Start
+SETR D2 GD1; unless() Test
+COMPAREV D2 0
+GOTOCMP 436 ==; Test 'unless' AND return (Void) AND unless() Body
+NOP
+SETV D2 0.0001
+PUSHR D2
+POP D2
+SETR SCREEN_DRAW_ORIGIN D2
+PUSHV 7; InlineFunc[void screendata::DrawString(int, int, int, int, int, int, int, char32[], int)] Params Start
+PUSHARGSV 2 0.0003
+PUSHV 1
+PUSHV 15
+PUSHV 0
+PUSHR GD1
+PUSHV 128; InlineFunc[void screendata::DrawString(int, int, int, int, int, int, int, char32[], int)] Params End
+DRAWSTRINGR; InlineFunc[void screendata::DrawString(int, int, int, int, int, int, int, char32[], int)] Body Start
+POPARGS D5 0.0009; InlineFunc[void screendata::DrawString(int, int, int, int, int, int, int, char32[], int)] Body End
+RETURNFUNC; Func[void DrawLabel()] Body End

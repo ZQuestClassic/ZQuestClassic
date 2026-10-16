@@ -26,16 +26,18 @@ stdout:
 
 zasm:
 
-SETV GD1 0; void run() Body Start
+SETV GD2 0; void run() Body Start
 ALLOCATEGMEMV D2 3 0
-MARK_TYPE_REG GD2 0.0009
-SET_OBJECT GD2 D2 0.0009
+MARK_TYPE_REG GD3 0.0009
+SET_OBJECT GD3 D2 0.0009
+MARK_TYPE_REG GD1 0.0009
+SETV GD1 0
 PUSHR D4
-CALLFUNC 0.0111
+CALLFUNC 0.0116
 PEEK D4
-CALLFUNC 0.0126
+CALLFUNC 0.0131
 PEEK D4
-CALLFUNC 0.0096
+CALLFUNC 0.0101
 POP D4
 QUIT; void run() Body End
 PUSHARGSV 0 0.0003; void run() Body Start
@@ -59,7 +61,7 @@ LOAD D2 0.0001; if() Test
 COMPAREV D2 -1
 SETCMP D2 I==
 COMPAREV D2 0
-GOTOCMP 41 ==; Test 'if'
+GOTOCMP 43 ==; Test 'if'
 ALLOCATEMEMV D2 53 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start AND if() Body Start
 WRITEPODSTRING D2 "[Test] failed to start - could not find test script\n"
 PUSHR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
@@ -86,50 +88,53 @@ PUSHR D2
 POP REFGENERICDATA
 SETR D2 GENDATARUNNING
 COMPAREV D2 0
-GOTOCMP 64 ==; Test 'while'
-WAITFRAME; InlineFunc[void Waitframe()] Body AND while() Body
-GOTO 56; while() End
-CALLFUNC 0.0163; UsrFunc[void End()] Call AND [Opt:NeverRet]
+GOTOCMP 69 ==; Test 'while'
+PUSHR D4; while() Body Start
+CALLFUNC 0.0197; UsrFunc[void DrawLabel()] Call
+POP D4
+WAITFRAME; InlineFunc[void Waitframe()] Body AND while() Body End
+GOTO 58; while() End
+CALLFUNC 0.0168; UsrFunc[void End()] Call AND [Opt:NeverRet]
 REF_REMOVE 0.0002; [Opt:NeverRet] AND void run() Body End
 SETR D4 SP2; void run() Body Start
 PUSHR D4
 PUSHV 0; UsrFunc[void Init(int)] Params
-CALLFUNC 0.0141; UsrFunc[void Init(int)] Call
+CALLFUNC 0.0146; UsrFunc[void Init(int)] Call
 PEEK D4
-SETR D2 GD2; UsrFunc[void AssertEqual(int, int)] Params Start
+SETR D2 GD3; UsrFunc[void AssertEqual(int, int)] Params Start
 PUSHR D2
 POP D0
 READPODARRAYV D2 0
 PUSHR D2
 PUSHV 1; UsrFunc[void AssertEqual(int, int)] Params End
-CALLFUNC 0.0170; UsrFunc[void AssertEqual(int, int)] Call
+CALLFUNC 0.0175; UsrFunc[void AssertEqual(int, int)] Call
 PEEK D4
-SETR D2 GD2; UsrFunc[void AssertEqual(int, int)] Params Start
+SETR D2 GD3; UsrFunc[void AssertEqual(int, int)] Params Start
 PUSHR D2
 POP D0
 READPODARRAYV D2 1
 PUSHR D2
 PUSHV 2; UsrFunc[void AssertEqual(int, int)] Params End
-CALLFUNC 0.0170; UsrFunc[void AssertEqual(int, int)] Call
+CALLFUNC 0.0175; UsrFunc[void AssertEqual(int, int)] Call
 PEEK D4
-SETR D2 GD2; UsrFunc[void AssertEqual(int, int)] Params Start
+SETR D2 GD3; UsrFunc[void AssertEqual(int, int)] Params Start
 PUSHR D2
 POP D0
 READPODARRAYV D2 2
 PUSHR D2
 PUSHV 3; UsrFunc[void AssertEqual(int, int)] Params End
-CALLFUNC 0.0170; UsrFunc[void AssertEqual(int, int)] Call
+CALLFUNC 0.0175; UsrFunc[void AssertEqual(int, int)] Call
 POP D4
-CALLFUNC 0.0163; UsrFunc[void End()] Call AND [Opt:NeverRet] AND [Opt:NeverRet] AND void run() Body End
+CALLFUNC 0.0168; UsrFunc[void End()] Call AND [Opt:NeverRet] AND [Opt:NeverRet] AND void run() Body End
 SETR D4 SP2; Func[void run()] Body Start
 SETV D2 3
 PUSHR D2
+SETR D2 GD3
+PUSHR D2
 SETR D2 GD2
 PUSHR D2
-SETR D2 GD1
-PUSHR D2
 ADDV D2 1
-SETR GD1 D2
+SETR GD2 D2
 POP D2
 SETR D3 D2
 POP D0
@@ -139,12 +144,12 @@ RETURNFUNC; Func[void run()] Body End
 SETR D4 SP2; Func[void run()] Body Start
 SETV D2 1
 PUSHR D2
+SETR D2 GD3
+PUSHR D2
 SETR D2 GD2
 PUSHR D2
-SETR D2 GD1
-PUSHR D2
 ADDV D2 1
-SETR GD1 D2
+SETR GD2 D2
 POP D2
 SETR D3 D2
 POP D0
@@ -154,12 +159,12 @@ RETURNFUNC; Func[void run()] Body End
 SETR D4 SP2; Func[void run()] Body Start
 SETV D2 2
 PUSHR D2
+SETR D2 GD3
+PUSHR D2
 SETR D2 GD2
 PUSHR D2
-SETR D2 GD1
-PUSHR D2
 ADDV D2 1
-SETR GD1 D2
+SETR GD2 D2
 POP D2
 SETR D3 D2
 POP D0
@@ -179,7 +184,7 @@ LOAD D2 0; if() Test
 COMPAREV D2 0
 SETCMP D2 I!=
 COMPAREV D2 0
-GOTOCMP 160 ==; Test 'if'
+GOTOCMP 165 ==; Test 'if'
 PUSHV 5; InlineFunc[void hero::Warp(int, int)] Params Start AND if() Body Start
 LOAD D2 0; InlineFunc[void hero::Warp(int, int)] Params End
 POP D3; InlineFunc[void hero::Warp(int, int)] Body Start
@@ -203,7 +208,7 @@ POP D3
 COMPARER D3 D2
 SETCMP D2 I!=
 COMPAREV D2 0
-GOTOCMP 189 ==; Test 'if'
+GOTOCMP 194 ==; Test 'if'
 ALLOCATEMEMV D2 49 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start AND if() Body Start
 WRITEPODSTRING D2 "[Test] failed assertion: expected %d but got %d\n"
 PUSHR D2
@@ -217,3 +222,22 @@ GAMEEXIT; InlineFunc[void Game::Exit()] Body AND if() Body End
 NOP
 POPARGS D5 0.0002
 RETURNFUNC; Func[void AssertEqual(int, int)] Body End
+SETR D4 SP2; Func[void DrawLabel()] Body Start
+SETR D2 GD1; unless() Test
+COMPAREV D2 0
+GOTOCMP 215 ==; Test 'unless' AND return (Void) AND unless() Body
+NOP
+SETV D2 0.0001
+PUSHR D2
+POP D2
+SETR SCREEN_DRAW_ORIGIN D2
+PUSHV 7; InlineFunc[void screendata::DrawString(int, int, int, int, int, int, int, char32[], int)] Params Start
+PUSHARGSV 2 0.0003
+PUSHV 1
+PUSHV 15
+PUSHV 0
+PUSHR GD1
+PUSHV 128; InlineFunc[void screendata::DrawString(int, int, int, int, int, int, int, char32[], int)] Params End
+DRAWSTRINGR; InlineFunc[void screendata::DrawString(int, int, int, int, int, int, int, char32[], int)] Body Start
+POPARGS D5 0.0009; InlineFunc[void screendata::DrawString(int, int, int, int, int, int, int, char32[], int)] Body End
+RETURNFUNC; Func[void DrawLabel()] Body End

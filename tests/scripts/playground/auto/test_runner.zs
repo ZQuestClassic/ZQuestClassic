@@ -101,9 +101,102 @@ dmapdata script TestRunner
 		gd->Running = true;
 		while (gd->Running)
 		{
+			Test::DrawLabel();
 			Waitframe();
 		}
-
 		Test::End();
+	}
+}
+
+// Helpers for tests that build their combos and sprites at runtime. These live
+// after the scripts above so that adding to them doesn't shift the line numbers
+// in every existing replay's traces.
+namespace Test
+{
+	// Turns a combo into a blank one of the given type, with a visible tile.
+	combodata setupCombo(int cid, int type)
+	{
+		combodata cd = Game->LoadComboData(cid);
+		cd->Type = type;
+		cd->Tile = Game->LoadComboData(12)->Tile;
+		cd->Walk = 0;
+		for (int i = 0; i < 16; i++)
+			cd->Flags[i] = false;
+		for (int i = 0; i < 24; i++)
+			cd->Attributes[i] = 0;
+		// Dropping the triggers resets every field of any the test adds back.
+		cd->NumTriggers = 0;
+		return cd;
+	}
+
+	int pos(int col, int row)
+	{
+		return col + row * 16;
+	}
+
+	int countLWeapons(int id)
+	{
+		int count = 0;
+		for (int i = 1; i <= Screen->NumLWeapons; i++)
+		{
+			if (Screen->LoadLWeapon(i)->ID == id)
+				count++;
+		}
+		return count;
+	}
+
+	int countEWeapons(int id)
+	{
+		int count = 0;
+		for (int i = 1; i <= Screen->NumEWeapons; i++)
+		{
+			if (Screen->LoadEWeapon(i)->ID == id)
+				count++;
+		}
+		return count;
+	}
+
+	int countNPCs(int id)
+	{
+		int count = 0;
+		for (int i = 1; i <= Screen->NumNPCs; i++)
+		{
+			if (Screen->LoadNPC(i)->ID == id)
+				count++;
+		}
+		return count;
+	}
+
+	void clearWeapons()
+	{
+		for (int i = Screen->NumLWeapons; i > 0; i--)
+			Screen->LoadLWeapon(i)->Remove();
+		for (int i = Screen->NumEWeapons; i > 0; i--)
+			Screen->LoadEWeapon(i)->Remove();
+	}
+
+	void clearNPCs()
+	{
+		for (int i = Screen->NumNPCs; i > 0; i--)
+			Screen->LoadNPC(i)->Remove();
+	}
+
+	// A line of text drawn at the top of the screen while a test runs, so that
+	// its replay can be followed by eye. Tests set it with Label and the
+	// TestRunner script draws it every frame. Arrays are garbage collected, so
+	// holding the caller's string (even a local or a literal) keeps it alive.
+	char32[] labelText;
+
+	void Label(char32[] what)
+	{
+		labelText = what;
+	}
+
+	void DrawLabel()
+	{
+		if (!labelText)
+			return;
+		Screen->DrawOrigin = DRAW_ORIGIN_PLAYING_FIELD;
+		Screen->DrawString(7, 2, 2, FONT_Z3SMALL, 0x01, 0x0F, TF_NORMAL, labelText, OP_OPAQUE);
 	}
 }
