@@ -352,7 +352,16 @@ def install_deps(ctx: CiContext, args):
         vcpkg_dir = root_dir / "vcpkg"
         vcpkg_exe = vcpkg_dir / "vcpkg.exe"
         triplet = 'x64-windows' if ctx.arch_label == 'x64' else 'x86-windows'
-        run_cmd(f"{vcpkg_exe} install --triplet {triplet} curl openssl freetype")
+        # run-vcpkg points vcpkg at its GitHub Actions cache backend, which vcpkg has
+        # removed, so every build compiled these (~7 min, mostly OpenSSL). Keep built
+        # packages in a folder instead; build.yml caches it.
+        cache_dir = root_dir / '.vcpkg-cache'
+        cache_dir.mkdir(exist_ok=True)
+        env = os.environ.copy()
+        env['VCPKG_BINARY_SOURCES'] = f'clear;files,{cache_dir},readwrite'
+        run_cmd(
+            f"{vcpkg_exe} install --triplet {triplet} curl openssl freetype", env=env
+        )
 
     logger.info("Dependency installation complete.")
 
