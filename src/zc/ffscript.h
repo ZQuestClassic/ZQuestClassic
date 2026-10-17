@@ -400,6 +400,7 @@ weapon* checkLWpn(int32_t uid);
 weapon* checkEWpn(int32_t uid);
 SubscrPage *checkSubPage(int32_t ref, std::set<int> const& req_tys = {});
 combo_trigger* get_first_combo_trigger();
+combo_trigger& get_first_combo_trigger(newcombo& cmb);
 combo_trigger* get_combo_trigger(dword ref);
 
 std::tuple<byte,int8_t,byte,word> from_subref(dword ref);

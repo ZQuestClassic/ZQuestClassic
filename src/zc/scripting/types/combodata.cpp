@@ -1333,6 +1333,15 @@ void combodata_set_register(int32_t reg, int32_t value)
 
 // combodata arrays.
 
+// The combo id of a combodata resolved from an array's own ref. Array accessors
+// must not read `ri->combodataref` for this: a stored array (`bool[] f = cd->Flags`)
+// keeps the combo it came from, while the register follows whatever combodata
+// the script touched last.
+static int combo_id(newcombo* cmb)
+{
+	return cmb - combobuf.data();
+}
+
 static ArrayRegistrar COMBODATTRIBUTES_registrar(COMBODATTRIBUTES, []{
 	static ScriptingArray_ObjectComputed<newcombo, int> impl(
 		[](newcombo*) {
@@ -1425,8 +1434,8 @@ static ArrayRegistrar COMBODUSRFLAGARR_registrar(COMBODUSRFLAGARR, []{
 	static ScriptingArray_ObjectMemberBitwiseFlags<newcombo, &newcombo::usrflags, 16> impl;
 	impl.setMul10000(true);
 	// Flags are cached (see combo_caches::gswitch).
-	impl.setSideEffect([](newcombo*, int, int){
-		combo_caches::refresh(GET_REF(combodataref));
+	impl.setSideEffect([](newcombo* cmb, int, int){
+		combo_caches::refresh(combo_id(cmb));
 	});
 	return &impl;
 }());
@@ -1453,14 +1462,11 @@ static ArrayRegistrar COMBODTRIGGERBUTTON_registrar(COMBODTRIGGERBUTTON, []{
 		[](newcombo*){
 			return 8;
 		},
-		[](newcombo*, int index) -> bool {
-			if (auto* trig = get_first_combo_trigger())
-				return trig->triggerbtn & (1<<index);
-			return 0;
+		[](newcombo* cmb, int index) -> bool {
+			return get_first_combo_trigger(*cmb).triggerbtn & (1<<index);
 		},
-		[](newcombo*, int index, bool value){
-			if (auto* trig = get_first_combo_trigger())
-				SETFLAG(trig->triggerbtn, 1<<index, value);
+		[](newcombo* cmb, int index, bool value){
+			SETFLAG(get_first_combo_trigger(*cmb).triggerbtn, 1<<index, value);
 		}
 	);
 	impl.setMul10000(true);
@@ -1473,25 +1479,16 @@ static ArrayRegistrar COMBODTRIGGERFLAGS2_registrar(COMBODTRIGGERFLAGS2, []{
 			return 32*6;
 		},
 		[](newcombo* cmb, int index) -> bool {
-			if (auto* trig = get_first_combo_trigger())
-			{
-				if (index == TRIGFLAG_ONLYGENTRIG)
-					return cmb->only_gentrig;
-				else
-					return (trig->trigger_flags.get(index));
-			}
-
-			return 0;
+			if (index == TRIGFLAG_ONLYGENTRIG)
+				return cmb->only_gentrig;
+			return get_first_combo_trigger(*cmb).trigger_flags.get(index);
 		},
 		[](newcombo* cmb, int index, bool value){
-			if (auto* trig = get_first_combo_trigger())
-			{
-				screen_combo_modify_pre(GET_REF(combodataref));
-				trig->trigger_flags.set(index, value);
-				if (index == TRIGFLAG_ONLYGENTRIG)
-					cmb->only_gentrig = value;
-				screen_combo_modify_post(GET_REF(combodataref));
-			}
+			screen_combo_modify_pre(combo_id(cmb));
+			get_first_combo_trigger(*cmb).trigger_flags.set(index, value);
+			if (index == TRIGFLAG_ONLYGENTRIG)
+				cmb->only_gentrig = value;
+			screen_combo_modify_post(combo_id(cmb));
 		}
 	);
 	impl.setMul10000(true);

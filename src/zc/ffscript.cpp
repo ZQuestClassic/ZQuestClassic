@@ -979,15 +979,20 @@ static weapon* ResolveLWeapon_checkSpriteList(int32_t uid)
 	return spr;
 }
 
+// For compat, get (creating if needed) the first `combo_trigger` of `cmb`.
+combo_trigger& get_first_combo_trigger(newcombo& cmb)
+{
+	if(cmb.triggers.empty())
+		return cmb.triggers.emplace_back();
+	return cmb.triggers[0];
+}
 // For compat, get the first `combo_trigger` of the current `ri->combodataref`
 combo_trigger* get_first_combo_trigger()
 {
 	int ref = GET_REF(combodataref);
 	if(ref < 0 || ref > (MAXCOMBOS-1) )
 		return nullptr;
-	if(combobuf[ref].triggers.empty())
-		return &(combobuf[ref].triggers.emplace_back());
-	return &(combobuf[ref].triggers[0]);
+	return &get_first_combo_trigger(combobuf[ref]);
 }
 // Get the combo trigger pointed to by `ref` (usually ri->combotriggerref)
 combo_trigger* get_combo_trigger(dword ref)
