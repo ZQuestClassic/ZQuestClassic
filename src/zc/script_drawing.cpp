@@ -2212,6 +2212,12 @@ void do_drawstringr2(BITMAP *bmp, int32_t i, int32_t *sdci, int32_t xoffset, int
 }
 
 
+// The quad/triangle draws take a negative `tile` to mean that combo id instead.
+static const minicombo_drawing& drawing_combo_from_tile(int32_t tile)
+{
+	return GET_DRAWING_COMBO(vbound(abs(tile), 0, MAXCOMBOS-1));
+}
+
 void do_drawquadr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 {
     //sdci[1]=layer
@@ -2308,7 +2314,7 @@ void do_drawquadr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
     
     if ( tile < 0 )        // COMBO
     {
-        auto& c = GET_DRAWING_COMBO(vbound(abs(tile), 0, 0xffff));
+        auto& c = drawing_combo_from_tile(tile);
         const int32_t tiletodraw = combo_tile(c, x1, y1);
         flip = flip ^ c.flip;
         
@@ -2398,7 +2404,7 @@ void do_drawtriangler(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffs
     }
     else        // COMBO
     {
-        auto& c = GET_DRAWING_COMBO(vbound(abs(tile), 0, 0xffff));
+        auto& c = drawing_combo_from_tile(tile);
         const int32_t tiletodraw = combo_tile(c, x1, y1);
         flip = flip ^ c.flip;
         
@@ -3861,7 +3867,7 @@ void do_drawquad3dr(BITMAP *bmp, int32_t i, int32_t *sdci, int32_t xoffset, int3
     }
     else        // COMBO
     {
-        auto& c = GET_DRAWING_COMBO(vbound(abs(tile), 0, 0xffff));
+        auto& c = drawing_combo_from_tile(tile);
         const int32_t tiletodraw = combo_tile(c, 0, 0);
         flip = flip ^ c.flip;
         
@@ -3945,7 +3951,7 @@ void do_drawtriangle3dr(BITMAP *bmp, int32_t i, int32_t *sdci, int32_t xoffset, 
     }
     else        // COMBO
     {
-        auto& c = GET_DRAWING_COMBO(vbound(abs(tile), 0, 0xffff));
+        auto& c = drawing_combo_from_tile(tile);
         const int32_t tiletodraw = combo_tile(c, 0, 0);
         flip = flip ^ c.flip;
         
@@ -6124,7 +6130,7 @@ void bmp_do_drawquadr(BITMAP*, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 	    
 		if ( tile < 0 )        // COMBO
 		{
-			auto& c = GET_DRAWING_COMBO(vbound(abs(tile), 0, 0xffff));
+			auto& c = drawing_combo_from_tile(tile);
 			const int32_t tiletodraw = combo_tile(c, x1, y1);
 			flip = flip ^ c.flip;
 		
@@ -6266,7 +6272,7 @@ void bmp_do_drawtriangler(BITMAP*, int32_t *sdci, int32_t xoffset, int32_t yoffs
     }
     else        // COMBO
     {
-        auto& c = GET_DRAWING_COMBO(vbound(abs(tile), 0, 0xffff));
+        auto& c = drawing_combo_from_tile(tile);
         const int32_t tiletodraw = combo_tile(c, x1, y1);
         flip = flip ^ c.flip;
         
@@ -10577,7 +10583,7 @@ void bmp_do_drawquad3dr(BITMAP*, int32_t i, int32_t *sdci, int32_t xoffset, int3
 		}
 		else		// COMBO
 		{
-		auto& c = GET_DRAWING_COMBO(vbound(abs(tile), 0, 0xffff));
+		auto& c = drawing_combo_from_tile(tile);
 		const int32_t tiletodraw = combo_tile(c, 0, 0);
 		flip = flip ^ c.flip;
 		
@@ -10712,7 +10718,7 @@ void bmp_do_drawtriangle3dr(BITMAP*, int32_t i, int32_t *sdci, int32_t xoffset, 
 		}
 		else		// COMBO
 		{
-		auto& c = GET_DRAWING_COMBO(vbound(abs(tile), 0, 0xffff));
+		auto& c = drawing_combo_from_tile(tile);
 		const int32_t tiletodraw = combo_tile(c, 0, 0);
 		flip = flip ^ c.flip;
 		
