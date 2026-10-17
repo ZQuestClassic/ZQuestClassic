@@ -18,6 +18,7 @@
 #include "core/qrs.h"
 #include "core/dmap.h"
 #include "zc/hero.h"
+#include "zc/lightbeam.h"
 #include "zc/guys.h"
 #include "subscr.h"
 #include "zc/maps.h"
@@ -22337,25 +22338,8 @@ static int32_t GridY(int32_t y)
 	return (y >> 4) << 4;
 }
 
-static int32_t beamGrabComboFromPos(rpos_t rpos, int32_t type)
-{
-	for (int lyr = 6; lyr >= 0; --lyr)
-	{
-		auto rpos_handle = get_rpos_handle(rpos, lyr);
-		if (rpos_handle.ctype() == type)
-			return rpos_handle.data();
-	}
-
-	return -1;
-}
-
-typedef word spot_t;
-static std::vector<int32_t> typeMap;
-static std::vector<int32_t> customTypeMap;
-static std::vector<int32_t> istrig;
-// static std::map<int32_t, std::map<size_t, word>> MAPS_prism_dir_seen_map;
-static rpos_t beam_hero_rpos = rpos_t::None;
-static const int32_t SPTYPE_SOLID = -1;
+// The region as light beams see it, rebuilt by handleSpotlights every frame.
+static lightbeam_world beam_world;
 enum
 {
 	beamoffs_gr, beamoffs_up, beamoffs_down, beamoffs_left, beamoffs_right,
@@ -22363,336 +22347,6 @@ enum
 	beamoffs_horz, beamoffs_notup, beamoffs_notdown, beamoffs_notleft, beamoffs_notright,
 	beamoffs_all, beamoffs_max
 };
-struct lightbeam_xy
-{
-	int16_t x;
-	int16_t y;
-	lightbeam_xy(int32_t nx, int32_t ny)
-	{
-		x = vbound(nx,-32768,32767);
-		y = vbound(ny,-32768,32767);
-	}
-	lightbeam_xy(dword ffpos)
-	{
-		x = int16_t(ffpos >> 16);
-		y = int16_t(ffpos & 0xFFFF);
-	}
-	bool valid() const
-	{
-		return valid(x,y);
-	}
-	void bound()
-	{
-		x = vbound(x,0-16,world_w-1+16);
-		y = vbound(y,0-16,world_h-1+16);
-	}
-	dword ffpos() const
-	{
-		return (word(x)<<16)|word(y&0xFFFF);
-	}
-	rpos_t pos() const
-	{
-		return COMBOPOS_REGION(vbound(x,0,world_w-1),vbound(y,0,world_h-1));
-	}
-	bool herocollide(byte beamwid)
-	{
-		int bx = x-beamwid/2, by = y-beamwid/2;
-		int hx = Hero.x.getInt(), hy = Hero.y.getInt();
-		return hx+15 >= bx && hx < bx+beamwid
-			&& hy+15 >= by && hy < by+beamwid;
-	}
-	static bool valid(int32_t x, int32_t y)
-	{
-		return x+16 >= 0 && x-16 < world_w && y+16 >= 0 && y-16 < world_h;
-	}
-};
-#define SP_VISITED       0x1
-#define SP_FLAGS         0x01E
-#define SP_GOFLAGS       0x1E0
-#define SP_MASK          (SP_VISITED|SP_FLAGS)
-#define SP_FLAG(dir)     (0x2<<dir)
-#define SP_GOFLAG(dir)   (0x20<<dir)
-#define BEAM_AGE_LIMIT   512
-
-static int lbeam_flag(uint idx)
-{
-	if (idx)
-		return 1 << (idx - 1);
-	return ~0;
-}
-static void handleBeam(spot_t* grid, size_t age, byte spotdir, rpos_t rpos, byte set, bool block, bool refl)
-{
-	if(spotdir > 3) return; //invalid dir
-
-	int combos_wide = cur_region.screen_width * 16;
-	int combos_tall = cur_region.screen_height * 11;
-	int32_t trigflag = lbeam_flag(set);
-	bool doAge = true;
-	spot_t f = 0;
-	while (rpos < region_max_rpos)
-	{
-		auto [x, y] = COMBOXY_REGION_INDEX(rpos);
-
-		f = SP_GOFLAG(spotdir);
-		if((grid[(int)rpos] & f) == f)
-			return;
-		else grid[(int)rpos] |= f;
-		f = SP_FLAG(spotdir);
-		if((grid[(int)rpos] & f) != f)
-		{
-			grid[(int)rpos] |= f;
-			istrig[(int)rpos] |= trigflag;
-			doAge = false;
-			age = 0;
-		}
-		switch(spotdir)
-		{
-			case up:
-				y -= 1;
-				break;
-			case down:
-				y += 1;
-				break;
-			case left:
-				x -= 1;
-				break;
-			case right:
-				x += 1;
-				break;
-		}
-
-		if (!(x >= 0 && x < combos_wide && y >= 0 && y < combos_tall)) return;
-
-		rpos = COMBOPOS_REGION_INDEX(x, y);
-
-		switch (typeMap[(int)rpos])
-		{
-			case SPTYPE_SOLID: case cBLOCKALL:
-				return;
-		}
-
-		if (rpos == beam_hero_rpos && block && spotdir == oppositeDir[Hero.getDir()])
-			return;
-
-		f = SP_FLAG(oppositeDir[spotdir]);
-		if((grid[(int)rpos] & f) != f)
-		{
-			grid[(int)rpos] |= f;
-			istrig[(int)rpos] |= trigflag;
-			doAge = false;
-			age = 0;
-		}
-		if(doAge)
-		{
-			if(++age > BEAM_AGE_LIMIT)
-				return;
-		}
-		else doAge = true;
-		
-		if (rpos == beam_hero_rpos && refl)
-			spotdir = Hero.getDir();
-		else switch (typeMap[(int)rpos])
-		{
-			case cLIGHTTARGET:
-			{
-				int cid = beamGrabComboFromPos(rpos, cLIGHTTARGET);
-				if(cid > -1 && combobuf[cid].usrflags&cflag3) //Blocks light
-					return;
-				if(get_qr(qr_BROKEN_LIGHTBEAM_HITBOX))
-					spotdir = oppositeDir[spotdir];
-				break;
-			}
-			case cMIRROR:
-				spotdir = oppositeDir[spotdir];
-				break;
-			case cMIRRORSLASH:
-				switch(spotdir)
-				{
-					case up:
-						spotdir = right; break;
-					case right:
-						spotdir = up; break;
-					case down:
-						spotdir = left; break;
-					case left:
-						spotdir = down; break;
-				}
-				break;
-			case cMIRRORBACKSLASH:
-				switch(spotdir)
-				{
-					case up:
-						spotdir = left; break;
-					case left:
-						spotdir = up; break;
-					case down:
-						spotdir = right; break;
-					case right:
-						spotdir = down; break;
-				}
-				break;
-			case cMAGICPRISM:
-				for(byte d = 0; d < 4; ++d)
-				{
-					if(d == oppositeDir[spotdir]) continue;
-					handleBeam(grid, age, d, rpos, set, block, refl);
-				}
-				return;
-			case cMAGICPRISM4:
-				for(byte d = 0; d < 4; ++d)
-				{
-					handleBeam(grid, age, d, rpos, set, block, refl);
-				}
-				return;
-			case cMIRRORNEW:
-			{
-				auto cid = customTypeMap[(int)rpos];
-				if(unsigned(cid) >= MAXCOMBOS) break;
-				newcombo const& cmb = combobuf[cid];
-				byte newdir = cmb.c_attributes[8+spotdir].getTrunc();
-				if(newdir > 7) return;
-				if(newdir > 3) break;
-				spotdir = newdir;
-				break;
-			}
-		}
-	}
-}
-
-static void handleFFBeam(std::map<dword,spot_t>& grid, size_t age, byte spotdir, lightbeam_xy curxy, byte set, bool block, bool refl, byte beamwid)
-{
-	if(spotdir > 3) return; //invalid dir
-	int32_t trigflag = lbeam_flag(set);
-	bool doAge = true;
-	byte f = 0;
-	while(curxy.valid())
-	{
-		f = SP_FLAG(spotdir);
-		if((grid[curxy.ffpos()] & f) != f)
-		{
-			grid[curxy.ffpos()] |= f;
-			istrig[(int)curxy.pos()] |= trigflag;
-			doAge = false;
-			age = 0;
-		}
-		switch(spotdir)
-		{
-			case up:
-				curxy.y -= 16;
-				break;
-			case down:
-				curxy.y += 16;
-				break;
-			case left:
-				curxy.x -= 16;
-				break;
-			case right:
-				curxy.x += 16;
-				break;
-		}
-		auto curpos = curxy.pos();
-		switch(typeMap[(int)curpos])
-		{
-			case SPTYPE_SOLID: case cBLOCKALL:
-				return;
-			case cMIRRORNEW:
-			{
-				auto cid = customTypeMap[(int)curpos];
-				if(unsigned(cid) >= MAXCOMBOS) break;
-				newcombo const& cmb = combobuf[cid];
-				byte newdir = cmb.c_attributes[8+spotdir].getTrunc();
-				if(newdir > 7) return;
-				break;
-			}
-		}
-		bool collided_hero = beam_hero_rpos != rpos_t::None && curxy.herocollide(beamwid);
-		if(block && (spotdir == oppositeDir[Hero.getDir()]) && collided_hero)
-			return;
-		
-		f = SP_FLAG(oppositeDir[spotdir]);
-		if((grid[curxy.ffpos()] & f) != f)
-		{
-			grid[curxy.ffpos()] |= f;
-			istrig[(int)curpos] |= trigflag;
-			doAge = false;
-			age = 0;
-		}
-		if(!curxy.valid()) return;
-		if(doAge)
-		{
-			if(++age > BEAM_AGE_LIMIT)
-				return;
-		}
-		else doAge = true;
-		
-		if(refl && collided_hero)
-			spotdir = Hero.getDir();
-		else switch(typeMap[(int)curpos])
-		{
-			case cLIGHTTARGET:
-			{
-				int cid = beamGrabComboFromPos(curpos, cLIGHTTARGET);
-				if(cid > -1 && combobuf[cid].usrflags&cflag3) //Blocks light
-					return;
-				if(get_qr(qr_BROKEN_LIGHTBEAM_HITBOX))
-					spotdir = oppositeDir[spotdir];
-				break;
-			}
-			case cMIRROR:
-				spotdir = oppositeDir[spotdir];
-				break;
-			case cMIRRORSLASH:
-				switch(spotdir)
-				{
-					case up:
-						spotdir = right; break;
-					case right:
-						spotdir = up; break;
-					case down:
-						spotdir = left; break;
-					case left:
-						spotdir = down; break;
-				}
-				break;
-			case cMIRRORBACKSLASH:
-				switch(spotdir)
-				{
-					case up:
-						spotdir = left; break;
-					case left:
-						spotdir = up; break;
-					case down:
-						spotdir = right; break;
-					case right:
-						spotdir = down; break;
-				}
-				break;
-			case cMAGICPRISM:
-				for(byte d = 0; d < 4; ++d)
-				{
-					if(d == oppositeDir[spotdir]) continue;
-					handleFFBeam(grid, age, d, curxy, set, block, refl, beamwid);
-				}
-				return;
-			case cMAGICPRISM4:
-				for(byte d = 0; d < 4; ++d)
-				{
-					handleFFBeam(grid, age, d, curxy, set, block, refl, beamwid);
-				}
-				return;
-			case cMIRRORNEW:
-			{
-				auto cid = customTypeMap[(int)curpos];
-				if(unsigned(cid) >= MAXCOMBOS) break;
-				newcombo const& cmb = combobuf[cid];
-				byte newdir = cmb.c_attributes[8+spotdir].getTrunc();
-				if(newdir > 3) break;
-				spotdir = newdir;
-				break;
-			}
-		}
-	}
-}
 
 #define BEAMID_COLOR0 (1<<24) //must have rightmost 24 bits empty
 static int get_beamid(newcombo const& cmb)
@@ -22708,71 +22362,23 @@ static int get_beamid(newcombo const& cmb)
 		return id;
 	}
 }
-static bool launch_lightbeam(const rpos_handle_t& rpos_handle, std::map<int32_t, spot_t*>& maps, bool refl, bool block)
+static bool launch_lightbeam(const rpos_handle_t& rpos_handle)
 {
 	auto& cmb = rpos_handle.combo();
-	int32_t id = get_beamid(cmb);
-	//Get the grid array for this tile/color
-	spot_t* grid;
-	if(maps[id])
-		grid = maps[id];
-	else
-	{
-		maps[id] = grid = new spot_t[region_num_rpos];
-		memset(grid, 0, sizeof(spot_t)*region_num_rpos);
-	}
 	byte spotdir = vbound(cmb.c_attributes[8].getTrunc(), 255, 0);
 	auto trigflag_idx = cmb.c_attributes[12].getTrunc();
-	if(spotdir > 3)
-	{
-		grid[(int)rpos_handle.rpos] |= SP_VISITED;
-		istrig[(int)rpos_handle.rpos] |= lbeam_flag(trigflag_idx);
-	}
-	if(refl && rpos_handle.rpos == beam_hero_rpos)
-	{
-		spotdir = Hero.getDir();
-	}
-	handleBeam(grid, 0, spotdir, rpos_handle.rpos, trigflag_idx, block, refl);
+	lightbeam_launch(beam_world, get_beamid(cmb), spotdir, rpos_handle.rpos, trigflag_idx);
 	return true;
 }
 
-static bool launch_fflightbeam(ffcdata const& ffc,
-	std::map<int32_t, std::map<dword,spot_t>>& ffmaps, bool refl, bool block)
+static bool launch_fflightbeam(ffcdata const& ffc)
 {
 	newcombo const& cmb = combobuf[ffc.data];
-	int32_t id = get_beamid(cmb);
-	//Get the grid array for this tile/color
-	std::map<dword,spot_t>& grid = ffmaps[id]; // grid of (x<<16)|(y&0xFFFF)
 	byte spotdir = vbound(cmb.c_attributes[8].getTrunc(), 255, 0);
 	auto trigflag_idx = cmb.c_attributes[12].getTrunc();
-	lightbeam_xy sxy(ffc.x+(ffc.hit_width/2), ffc.y+(ffc.hit_height/2));
-	if(spotdir > 3 && sxy.valid())
-	{
-		grid[sxy.ffpos()] |= SP_VISITED;
-		istrig[(int)sxy.pos()] |= lbeam_flag(trigflag_idx);
-	}
 	int beamwid = cmb.c_attributes[13].getTrunc();
 	if (beamwid < 1) beamwid = 8;
-	if(refl && beam_hero_rpos != rpos_t::None && sxy.herocollide(beamwid))
-	{
-		spotdir = Hero.getDir();
-	}
-	switch(spotdir)
-	{
-		case up:
-			sxy.y = zc_min(world_h-1,sxy.y);
-			break;
-		case down:
-			sxy.y = zc_max(0,sxy.y);
-			break;
-		case left:
-			sxy.x = zc_min(world_w-1,sxy.x);
-			break;
-		case right:
-			sxy.x = zc_max(0,sxy.x);
-			break;
-	}
-	handleFFBeam(grid, 0, spotdir, sxy, trigflag_idx, block, refl, beamwid);
+	lightbeam_launch_ffc(beam_world, get_beamid(cmb), spotdir, ffc.x+(ffc.hit_width/2), ffc.y+(ffc.hit_height/2), trigflag_idx, beamwid);
 	return true;
 }
 
@@ -22959,17 +22565,8 @@ void HeroClass::handleSpotlights()
 	static bool had_spotlight = true;
 	if (cpos_exists_spotlight())
 	{
-		istrig.clear();
-		customTypeMap.clear();
-		typeMap.clear();
+		beam_world.reset(cur_region);
 
-		typeMap.resize(region_num_rpos);
-		customTypeMap.resize(region_num_rpos);
-		istrig.resize(region_num_rpos);
-
-		//Store each different tile/color as grids
-		std::map<int32_t, spot_t*> maps;
-		std::map<int32_t, std::map<dword, spot_t>> ffmaps;
 		int32_t shieldid = getCurrentShield(false);
 		auto const& shield = get_item_data(shieldid);
 		bool valid = valid_item_id(shieldid);
@@ -22977,7 +22574,13 @@ void HeroClass::handleSpotlights()
 			valid = false;
 		bool refl = valid && (shield.misc2 & sh_lightbeam);
 		bool block = !refl && valid && (shield.misc1 & sh_lightbeam);
-		beam_hero_rpos = COMBOPOS_REGION_B(x.getInt()+8, y.getInt()+8);
+		beam_world.hero_reflects = refl;
+		beam_world.hero_blocks = block;
+		beam_world.hero_rpos = COMBOPOS_REGION_B(x.getInt()+8, y.getInt()+8);
+		beam_world.hero_x = x.getInt();
+		beam_world.hero_y = y.getInt();
+		beam_world.hero_dir = getDir();
+		beam_world.broken_hitbox = get_qr(qr_BROKEN_LIGHTBEAM_HITBOX);
 
 		clear_bitmap(lightbeam_bmp);
 
@@ -22996,6 +22599,7 @@ void HeroClass::handleSpotlights()
 
 					rpos_t rpos = POS_TO_RPOS(pos, region_scr_x, region_scr_y);
 					auto& cmb = combobuf[layer_scr->data[pos]];
+					auto& cell = beam_world.cells[(int)rpos];
 					bool found_combo = false;
 					switch(cmb.type)
 					{
@@ -23003,19 +22607,25 @@ void HeroClass::handleSpotlights()
 						case cMAGICPRISM: case cMAGICPRISM4:
 							if(!cmb.c_attributes[0] || (cmb.c_attributes[0].getZLong() & sh_lightbeam))
 							{
-								typeMap[(int)rpos] = cmb.type;
+								cell.type = cmb.type;
 								found_combo = true;
 							}
 							break;
-						case cBLOCKALL: case cLIGHTTARGET:
-							typeMap[(int)rpos] = cmb.type;
+						case cBLOCKALL:
+							cell.type = cmb.type;
+							found_combo = true;
+							break;
+						case cLIGHTTARGET:
+							cell.type = cmb.type;
+							cell.blocks_light = cmb.usrflags&cflag3;
 							found_combo = true;
 							break;
 						case cMIRRORNEW:
 							if(!cmb.c_attributes[0] || (cmb.c_attributes[0].getZLong() & sh_lightbeam))
 							{
-								typeMap[(int)rpos] = cMIRRORNEW;
-								customTypeMap[(int)rpos] = layer_scr->data[pos];
+								cell.type = cMIRRORNEW;
+								for (int d = 0; d < 4; ++d)
+									cell.mirror_dirs[d] = cmb.c_attributes[8+d].getTrunc();
 								found_combo = true;
 							}
 							break;
@@ -23030,18 +22640,19 @@ void HeroClass::handleSpotlights()
 					if(found_combo)
 						pos_has_seen_cmb[pos] = true;
 					else if(lyr < 3 && (cmb.walk & 0xF))
-						typeMap[(int)rpos] = SPTYPE_SOLID;
+						cell.type = SPTYPE_SOLID;
 				}
 			}
 
 			for (int pos = 0; pos < 176; pos++)
 			{
 				rpos_t rpos = POS_TO_RPOS(pos, region_scr_x, region_scr_y);
-				if (!get_qr(qr_SPOTLIGHT_IGNR_SOLIDOBJ) && !typeMap[(int)rpos])
+				auto& cell = beam_world.cells[(int)rpos];
+				if (!get_qr(qr_SPOTLIGHT_IGNR_SOLIDOBJ) && !cell.type)
 				{
 					auto [x, y] = COMBOXY_REGION(rpos);
 					if (collide_object(x, y, 16, 16, this))
-						typeMap[(int)rpos] = SPTYPE_SOLID;
+						cell.type = SPTYPE_SOLID;
 				}
 			}
 		});
@@ -23066,18 +22677,18 @@ void HeroClass::handleSpotlights()
 		// The world is dark and full of terrors.
 		if (!found_any_light) return;
 		
-		if (beam_hero_rpos != rpos_t::None)
+		if (beam_world.hero_rpos != rpos_t::None)
 		{
-			switch (typeMap[(int)beam_hero_rpos])
+			switch (beam_world.cells[(int)beam_world.hero_rpos].type)
 			{
 				case SPTYPE_SOLID: case cBLOCKALL:
-					beam_hero_rpos = rpos_t::None; //Blocked from hitting player
+					beam_world.hero_rpos = rpos_t::None; //Blocked from hitting player
 			}
 		}
 
 		for_every_rpos([&](const rpos_handle_t& rpos_handle) {
 			if (rpos_handle.ctype() == cSPOTLIGHT)
-				launch_lightbeam(rpos_handle, maps, refl, block);
+				launch_lightbeam(rpos_handle);
 		});
 
 		for_every_ffc([&](const ffc_handle_t& ffc_handle) {
@@ -23087,16 +22698,14 @@ void HeroClass::handleSpotlights()
 
 			newcombo const& cmb = combobuf[ffc.data];
 			if (ffc_handle.ctype() == cSPOTLIGHT && (cmb.usrflags&cflag2))
-				launch_fflightbeam(ffc,ffmaps,refl,block);
+				launch_fflightbeam(ffc);
 		});
 		
-		lightbeam_present = !maps.empty() || !ffmaps.empty();
+		lightbeam_present = !beam_world.grids.empty() || !beam_world.ffgrids.empty();
 		
-		//Draw visuals
-		for(auto it = maps.begin(); it != maps.end();)
+		//Draw visuals, one beam id (tile/color) at a time
+		for (auto const& [id, grid] : beam_world.grids)
 		{
-			int32_t id = it->first;
-			spot_t* grid = it->second;
 			BITMAP* cbmp = generate_beam_bitmap(id);
 			for (rpos_t rpos = (rpos_t)0; rpos < region_max_rpos; rpos = (rpos_t)((int)rpos + 1))
 			{
@@ -23108,31 +22717,24 @@ void HeroClass::handleSpotlights()
 				}
 			}
 			destroy_bitmap(cbmp);
-			delete[] it->second;
-			it = maps.erase(it);
 		}
-		for(auto it = ffmaps.begin(); it != ffmaps.end();)
+		for (auto const& [id, grid] : beam_world.ffgrids)
 		{
-			int32_t id = it->first;
-			std::map<dword,spot_t> const& grid = it->second;
 			BITMAP* cbmp = generate_beam_bitmap(id);
-			for(auto it2 = grid.begin(); it2 != grid.end(); ++it2)
+			for (auto const& [xy, spot] : grid)
 			{
-				lightbeam_xy ffxy(it2->first);
-				int32_t offs = get_beamoffs(it2->second);
+				int32_t offs = get_beamoffs(spot);
 				if(offs > -1)
-					masked_blit(cbmp, lightbeam_bmp, offs*16, 0, ffxy.x-8-viewport.x, ffxy.y-8-viewport.y, 16, 16);
+					masked_blit(cbmp, lightbeam_bmp, offs*16, 0, xy.x-8-viewport.x, xy.y-8-viewport.y, 16, 16);
 			}
 			destroy_bitmap(cbmp);
-			it = ffmaps.erase(it);
 		}
 	}
 	else
 	{
-		if(had_spotlight || istrig.size() != (size_t)region_num_rpos)
+		if(had_spotlight || beam_world.istrig.size() != (size_t)region_num_rpos)
 		{
-			istrig.clear();
-			istrig.resize(region_num_rpos);
+			beam_world.reset(cur_region);
 			clear_bitmap(lightbeam_bmp);
 		}
 		lightbeam_present = false;
@@ -23152,7 +22754,7 @@ void HeroClass::handleSpotlights()
 			bool alltrig = getmapflag(rpos_handle.scr, mLIGHTBEAM);
 			auto trigflag_idx = cmb.c_attributes[12].getTrunc();
 			screens_triggered.insert(rpos_handle.screen);
-			bool trigged = istrig[(int)rpos_handle.rpos] & lbeam_flag(trigflag_idx);
+			bool trigged = beam_world.istrig[(int)rpos_handle.rpos] & lbeam_flag(trigflag_idx);
 			if(cmb.usrflags&cflag2) //Invert
 				trigged = !trigged;
 			if(cmb.usrflags&cflag1) //Solved Version
@@ -23174,7 +22776,7 @@ void HeroClass::handleSpotlights()
 		{
 			trig_each_combo_trigger(rpos_handle, [&](combo_trigger const& trig){
 				int32_t trigflag = lbeam_flag(trig.triglbeam);
-				bool trigged = (istrig[(int)rpos_handle.rpos]&trigflag);
+				bool trigged = (beam_world.istrig[(int)rpos_handle.rpos]&trigflag);
 				return trig.trigger_flags.get(trigged ? TRIGFLAG_LIGHTON : TRIGFLAG_LIGHTOFF);
 			});
 		}
@@ -23195,7 +22797,7 @@ void HeroClass::handleSpotlights()
 			bool alltrig = getmapflag(ffc_handle.scr, mLIGHTBEAM);
 			auto trigflag_idx = cmb.c_attributes[12].getTrunc();
 			screens_triggered.insert(ffc_handle.screen);
-			bool trigged = istrig[(int)rpos] & lbeam_flag(trigflag_idx);
+			bool trigged = beam_world.istrig[(int)rpos] & lbeam_flag(trigflag_idx);
 			if(cmb.usrflags&cflag2) //Invert
 				trigged = !trigged;
 			if(cmb.usrflags&cflag1) //Solved Version
@@ -23217,7 +22819,7 @@ void HeroClass::handleSpotlights()
 		{
 			trig_each_combo_trigger(ffc_handle, [&](combo_trigger const& trig){
 				int32_t trigflag = lbeam_flag(trig.triglbeam);
-				bool trigged = (istrig[(int)rpos]&trigflag);
+				bool trigged = (beam_world.istrig[(int)rpos]&trigflag);
 				return trig.trigger_flags.get(trigged ? TRIGFLAG_LIGHTON : TRIGFLAG_LIGHTOFF);
 			});
 		}

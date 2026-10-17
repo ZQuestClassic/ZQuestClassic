@@ -9,6 +9,7 @@ src/zc/guys.cpp
 src/zc/weapons.cpp
 src/zc/combos.cpp
 src/zc/hero.cpp
+src/zc/lightbeam.cpp
 src/particles.cpp
 src/items.cpp
 src/sprite_data.cpp
