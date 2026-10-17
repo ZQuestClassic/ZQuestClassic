@@ -2316,7 +2316,7 @@ void do_drawquadr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
     
     if ( tile < 0 )        // COMBO
     {
-        const newcombo & c = combobuf[ vbound(abs(tile), 0, 0xffff) ];
+        const newcombo & c = combobuf[ vbound(abs(tile), 0, MAXCOMBOS-1) ];
         const int32_t tiletodraw = combo_tile(c, x1, y1);
         flip = flip ^ c.flip;
         
@@ -2405,7 +2405,7 @@ void do_drawtriangler(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffs
     }
     else        // COMBO
     {
-        const newcombo & c = combobuf[ vbound(abs(tile), 0, 0xffff) ];
+        const newcombo & c = combobuf[ vbound(abs(tile), 0, MAXCOMBOS-1) ];
         const int32_t tiletodraw = combo_tile(c, x1, y1);
         flip = flip ^ c.flip;
         
@@ -3867,7 +3867,7 @@ void do_drawquad3dr(BITMAP *bmp, int32_t i, int32_t *sdci, int32_t xoffset, int3
     }
     else        // COMBO
     {
-        const newcombo & c = combobuf[ vbound(abs(tile), 0, 0xffff) ];
+        const newcombo & c = combobuf[ vbound(abs(tile), 0, MAXCOMBOS-1) ];
         const int32_t tiletodraw = combo_tile(c, 0, 0);
         flip = flip ^ c.flip;
         
@@ -3950,7 +3950,7 @@ void do_drawtriangle3dr(BITMAP *bmp, int32_t i, int32_t *sdci, int32_t xoffset, 
     }
     else        // COMBO
     {
-        const newcombo & c = combobuf[ vbound(abs(tile), 0, 0xffff) ];
+        const newcombo & c = combobuf[ vbound(abs(tile), 0, MAXCOMBOS-1) ];
         const int32_t tiletodraw = combo_tile(c, 0, 0);
         flip = flip ^ c.flip;
         
@@ -6123,7 +6123,7 @@ void bmp_do_drawquadr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffs
 	    
 		if ( tile < 0 )        // COMBO
 		{
-			const newcombo & c = combobuf[ vbound(abs(tile), 0, 0xffff) ];
+			const newcombo & c = combobuf[ vbound(abs(tile), 0, MAXCOMBOS-1) ];
 			const int32_t tiletodraw = combo_tile(c, x1, y1);
 			flip = flip ^ c.flip;
 		
@@ -6294,7 +6294,7 @@ void bmp_do_drawtriangler(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t y
     }
     else        // COMBO
     {
-        const newcombo & c = combobuf[ vbound(abs(tile), 0, 0xffff) ];
+        const newcombo & c = combobuf[ vbound(abs(tile), 0, MAXCOMBOS-1) ];
         const int32_t tiletodraw = combo_tile(c, x1, y1);
         flip = flip ^ c.flip;
         
@@ -9454,7 +9454,7 @@ void bmp_do_drawquad3dr(BITMAP *bmp, int32_t i, int32_t *sdci, int32_t xoffset, 
 		}
 		else		// COMBO
 		{
-		const newcombo & c = combobuf[ vbound(abs(tile), 0, 0xffff) ];
+		const newcombo & c = combobuf[ vbound(abs(tile), 0, MAXCOMBOS-1) ];
 		const int32_t tiletodraw = combo_tile(c, 0, 0);
 		flip = flip ^ c.flip;
 		
@@ -9588,7 +9588,7 @@ void bmp_do_drawtriangle3dr(BITMAP *bmp, int32_t i, int32_t *sdci, int32_t xoffs
 		}
 		else		// COMBO
 		{
-		const newcombo & c = combobuf[ vbound(abs(tile), 0, 0xffff) ];
+		const newcombo & c = combobuf[ vbound(abs(tile), 0, MAXCOMBOS-1) ];
 		const int32_t tiletodraw = combo_tile(c, 0, 0);
 		flip = flip ^ c.flip;
 		
