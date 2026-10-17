@@ -17,6 +17,16 @@ void lightbeam_world::reset(const region_t& region)
 	steps = max_steps = 0;
 }
 
+lightbeam_lattice::lightbeam_lattice(const region_t& region, int ox, int oy)
+{
+	// Beams stay within 16px of the region, but can step 16px past that before stopping.
+	x0 = ox - 32;
+	y0 = oy - 32;
+	w = (region.width + 31 - x0) / 16 + 1;
+	h = (region.height + 31 - y0) / 16 + 1;
+	spots.resize(w * h);
+}
+
 lightbeam_xy::lightbeam_xy(int32_t nx, int32_t ny)
 {
 	x = vbound(nx,-32768,32767);
@@ -197,7 +207,7 @@ static void handleBeam(lightbeam_world& world, std::vector<spot_t>& grid, size_t
 	}
 }
 
-static void handleFFBeam(lightbeam_world& world, std::map<lightbeam_xy,spot_t>& grid, size_t age, byte spotdir, lightbeam_xy curxy, byte set, byte beamwid)
+static void handleFFBeam(lightbeam_world& world, lightbeam_lattice& lattice, size_t age, byte spotdir, lightbeam_xy curxy, byte set, byte beamwid)
 {
 	if(spotdir > 3) return; //invalid dir
 	int32_t trigflag = lbeam_flag(set);
@@ -210,14 +220,15 @@ static void handleFFBeam(lightbeam_world& world, std::map<lightbeam_xy,spot_t>& 
 
 		// Stop if a beam already left this spot in this direction. Without this, a beam that
 		// loops back into a prism splits again every time around.
+		spot_t& spot = lattice.at(curxy);
 		f = SP_GOFLAG(spotdir);
-		if((grid[curxy] & f) == f)
+		if((spot & f) == f)
 			return;
-		grid[curxy] |= f;
+		spot |= f;
 		f = SP_FLAG(spotdir);
-		if((grid[curxy] & f) != f)
+		if((spot & f) != f)
 		{
-			grid[curxy] |= f;
+			spot |= f;
 			world.istrig[(int)curxy.pos(world)] |= trigflag;
 			doAge = false;
 			age = 0;
@@ -255,10 +266,11 @@ static void handleFFBeam(lightbeam_world& world, std::map<lightbeam_xy,spot_t>& 
 		if(world.hero_blocks && (spotdir == oppositeDir[world.hero_dir]) && collided_hero)
 			return;
 
+		spot_t& entered = lattice.at(curxy);
 		f = SP_FLAG(oppositeDir[spotdir]);
-		if((grid[curxy] & f) != f)
+		if((entered & f) != f)
 		{
-			grid[curxy] |= f;
+			entered |= f;
 			world.istrig[(int)curpos] |= trigflag;
 			doAge = false;
 			age = 0;
@@ -278,7 +290,7 @@ static void handleFFBeam(lightbeam_world& world, std::map<lightbeam_xy,spot_t>& 
 			for(byte d = 0; d < 4; ++d)
 			{
 				if(cell.type == cMAGICPRISM && d == oppositeDir[spotdir]) continue;
-				handleFFBeam(world, grid, age, d, curxy, set, beamwid);
+				handleFFBeam(world, lattice, age, d, curxy, set, beamwid);
 			}
 			return;
 		}
@@ -306,11 +318,19 @@ void lightbeam_launch(lightbeam_world& world, int32_t beam_id, byte spotdir, rpo
 
 void lightbeam_launch_ffc(lightbeam_world& world, int32_t beam_id, byte spotdir, int32_t x, int32_t y, byte set, byte beamwid)
 {
-	auto& grid = world.ffgrids[beam_id];
+	auto& lattices = world.ffgrids[beam_id];
+	auto lattice_at = [&](lightbeam_xy xy) -> lightbeam_lattice& {
+		int key = (xy.y & 15) << 4 | (xy.x & 15);
+		auto it = lattices.find(key);
+		if (it == lattices.end())
+			it = lattices.emplace(key, lightbeam_lattice(world.region, xy.x & 15, xy.y & 15)).first;
+		return it->second;
+	};
+
 	lightbeam_xy sxy(x, y);
 	if(spotdir > 3 && sxy.valid(world))
 	{
-		grid[sxy] |= SP_VISITED;
+		lattice_at(sxy).at(sxy) |= SP_VISITED;
 		world.istrig[(int)sxy.pos(world)] |= lbeam_flag(set);
 	}
 	if(world.hero_reflects && world.hero_rpos != rpos_t::None && sxy.herocollide(world, beamwid))
@@ -332,5 +352,6 @@ void lightbeam_launch_ffc(lightbeam_world& world, int32_t beam_id, byte spotdir,
 			sxy.x = zc_max(0,sxy.x);
 			break;
 	}
-	handleFFBeam(world, grid, 0, spotdir, sxy, set, beamwid);
+	if(spotdir <= 3 && sxy.valid(world))
+		handleFFBeam(world, lattice_at(sxy), 0, spotdir, sxy, set, beamwid);
 }

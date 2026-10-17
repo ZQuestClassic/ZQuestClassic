@@ -6,7 +6,7 @@
 // flags of the beams that reached each combo position to `lightbeam_world::istrig`.
 //
 // Combo spotlights trace along the combo grid. FFC spotlights trace from the FFC's center in
-// 16px steps, so their grid is keyed by pixel position (`lightbeam_xy`).
+// 16px steps, so their spots go in a `lightbeam_lattice` for that offset from the combo grid.
 
 #ifndef ZC_LIGHTBEAM_H_
 #define ZC_LIGHTBEAM_H_
@@ -54,12 +54,30 @@ struct lightbeam_xy
 	bool valid(const lightbeam_world& world) const;
 	rpos_t pos(const lightbeam_world& world) const;
 	bool herocollide(const lightbeam_world& world, byte beamwid) const;
-	// Orders by the packed (x<<16)|y keys this replaced, so overlapping FFC beams still draw in
-	// the same order. Comparing one packed integer keeps the FFC grid lookups as fast as before.
+	// FFC beams are drawn in the order of this key (unsigned x, then unsigned y), which overlapping
+	// beams depend on.
 	dword key() const { return (dword(word(x))<<16)|word(y); }
-	bool operator<(const lightbeam_xy& other) const
+};
+
+// The spots FFC beams with one offset from the combo grid passed through. An FFC beam moves in
+// 16px steps, and nothing moves it off the offset it started on, so its spots fit a dense array
+// covering the region plus the 16px margin beams may leave it by and one step past that.
+struct lightbeam_lattice
+{
+	// The first position, and the size in spots.
+	int x0, y0, w, h;
+	std::vector<spot_t> spots;
+
+	lightbeam_lattice(const region_t& region, int ox, int oy);
+	spot_t& at(lightbeam_xy xy)
 	{
-		return key() < other.key();
+		int ix = (xy.x - x0) / 16, iy = (xy.y - y0) / 16;
+		DCHECK(xy.x >= x0 && ix < w && xy.y >= y0 && iy < h);
+		return spots[iy * w + ix];
+	}
+	lightbeam_xy xy(int index) const
+	{
+		return lightbeam_xy(x0 + index % w * 16, y0 + index / w * 16);
 	}
 };
 
@@ -71,9 +89,10 @@ struct lightbeam_world
 	// Output, indexed by rpos: the trigger flags (see lbeam_flag) of every beam that reached it.
 	std::vector<int32_t> istrig;
 	// Output, for drawing: the spots every beam with a given beam id passed through. Combo beams'
-	// grids are indexed by rpos, and FFC beams' grids keyed by pixel position.
+	// grids are indexed by rpos. FFC beams get a lattice per offset from the combo grid, keyed by
+	// (y&15)<<4 | (x&15).
 	std::map<int32_t, std::vector<spot_t>> grids;
-	std::map<int32_t, std::map<lightbeam_xy, spot_t>> ffgrids;
+	std::map<int32_t, std::map<int, lightbeam_lattice>> ffgrids;
 	// qr_BROKEN_LIGHTBEAM_HITBOX: light targets bounce beams back.
 	bool broken_hitbox;
 

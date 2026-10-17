@@ -22718,10 +22718,28 @@ void HeroClass::handleSpotlights()
 			}
 			destroy_bitmap(cbmp);
 		}
-		for (auto const& [id, grid] : beam_world.ffgrids)
+		std::vector<std::tuple<dword, lightbeam_xy, spot_t>> ffspots;
+		for (auto const& [id, lattices] : beam_world.ffgrids)
 		{
+			// Draw in lightbeam_xy::key order, since overlapping beams depend on it.
+			ffspots.clear();
+			for (auto const& [_, lattice] : lattices)
+			{
+				for (int i = 0; i < (int)lattice.spots.size(); i++)
+				{
+					if (spot_t spot = lattice.spots[i])
+					{
+						auto xy = lattice.xy(i);
+						ffspots.emplace_back(xy.key(), xy, spot);
+					}
+				}
+			}
+			std::sort(ffspots.begin(), ffspots.end(), [](auto const& a, auto const& b){
+				return std::get<0>(a) < std::get<0>(b);
+			});
+
 			BITMAP* cbmp = generate_beam_bitmap(id);
-			for (auto const& [xy, spot] : grid)
+			for (auto const& [_, xy, spot] : ffspots)
 			{
 				int32_t offs = get_beamoffs(spot);
 				if(offs > -1)
