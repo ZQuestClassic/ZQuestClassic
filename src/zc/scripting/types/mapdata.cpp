@@ -1091,7 +1091,12 @@ static ArrayRegistrar MAPDATACOMBOID_registrar(MAPDATACOMBOID, []{
 		},
 		[](mapdata* mapdata, int index, int value){
 			if (auto rpos_handle = mapdata->resolve_pos(index))
-				rpos_handle.combo().flag = value;
+			{
+				auto cid = rpos_handle.data();
+				screen_combo_modify_pre(cid);
+				combobuf[cid].flag = value;
+				screen_combo_modify_post(cid);
+			}
 		}
 	);
 	impl.compatSetDefaultValue(-10000);

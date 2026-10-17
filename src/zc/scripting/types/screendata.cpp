@@ -690,7 +690,10 @@ static ArrayRegistrar COMBOID_registrar(COMBOID, []{
 		[](int, int index, int value) {
 			auto rpos = (rpos_t)index;
 			auto rpos_handle = get_rpos_handle(rpos, 0);
-			rpos_handle.combo().flag = value;
+			auto cid = rpos_handle.data();
+			screen_combo_modify_pre(cid);
+			combobuf[cid].flag = value;
+			screen_combo_modify_post(cid);
 			return true;
 		}
 	);
