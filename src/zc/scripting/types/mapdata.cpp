@@ -1045,12 +1045,12 @@ static ArrayRegistrar MAPDATACOMBOTD_registrar(MAPDATACOMBOTD, []{
 		[](mapdata* mapdata, int index, int value){
 			if (auto rpos_handle = mapdata->resolve_pos(index))
 			{
+				// The combo's type is quest-wide data, so refresh regardless of
+				// whether this screen is loaded.
 				auto cid = rpos_handle.data();
-				if (mapdata->current())
-					screen_combo_modify_pre(rpos_handle);
+				screen_combo_modify_pre(cid);
 				combobuf[cid].type = value;
-				if (mapdata->current())
-					screen_combo_modify_post(rpos_handle);
+				screen_combo_modify_post(cid);
 			}
 		}
 	);

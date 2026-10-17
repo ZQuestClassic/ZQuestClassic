@@ -41,6 +41,7 @@
 #include "auto/bug_reflected_eweapon_owned_leak.zs"
 #include "auto/bug_region_enemies_first_load.zs"
 #include "auto/bug_region_ffc_solid_first_frame.zs"
+#include "auto/bug_screen_combo_setters_stale_cache.zs"
 #include "auto/bug_script_draw_error_logging.zs"
 #include "auto/bug_script_weapon_bomb_door.zs"
 #include "auto/bug_spawn_screen_oob.zs"

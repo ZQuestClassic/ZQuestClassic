@@ -39,7 +39,7 @@ struct rpos_handle_t
 	// rpos % 176
 	int32_t pos;
 
-	operator bool () const
+	explicit operator bool () const
 	{
 		return scr;
 	}
@@ -85,7 +85,7 @@ struct ffc_handle_t
 	uint8_t i;
 	ffcdata* ffc;
 
-	operator bool () const
+	explicit operator bool () const
 	{
 		return scr;
 	}
@@ -125,7 +125,7 @@ struct combined_handle_t : std::variant<rpos_handle_t, ffc_handle_t>
 	rpos_handle_t const& get_rpos() const;
 	ffc_handle_t const& get_ffc() const;
 	
-	operator bool() const;
+	explicit operator bool() const;
 	mapscr* base_scr() const;
 	mapscr* get_mapscr() const;
 	int get_layer() const;
