@@ -114,11 +114,10 @@ static void handleBeam(lightbeam_world& world, std::vector<spot_t>& grid, size_t
 
 	int combos_wide = world.region.screen_width * 16;
 	int combos_tall = world.region.screen_height * 11;
-	rpos_t max_rpos = (rpos_t)(world.region.screen_count*176 - 1);
 	int32_t trigflag = lbeam_flag(set);
 	bool doAge = true;
 	spot_t f = 0;
-	while (rpos < max_rpos)
+	while (true)
 	{
 		if (lightbeam_out_of_steps(world))
 			return;

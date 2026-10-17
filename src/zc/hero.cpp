@@ -22707,7 +22707,7 @@ void HeroClass::handleSpotlights()
 		for (auto const& [id, grid] : beam_world.grids)
 		{
 			BITMAP* cbmp = generate_beam_bitmap(id);
-			for (rpos_t rpos = (rpos_t)0; rpos < region_max_rpos; rpos = (rpos_t)((int)rpos + 1))
+			for (rpos_t rpos = (rpos_t)0; rpos <= region_max_rpos; rpos = (rpos_t)((int)rpos + 1))
 			{
 				int32_t offs = get_beamoffs(grid[(int)rpos]);
 				if(offs > -1)
