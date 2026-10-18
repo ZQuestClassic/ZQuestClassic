@@ -963,7 +963,6 @@ void combodata_set_register(int32_t reg, int32_t value)
 					cdata.tile += cdata.skipanimy * rowoffset * TILES_PER_ROW;
 				}
 			}
-			combo_caches::drawing.refresh(GET_REF(combodataref));
 			break;
 		}
 		case COMBODSKIPANIM:	SET_COMBO_VAR_BYTE(skipanim); break;					//C
@@ -1433,10 +1432,6 @@ static ArrayRegistrar COMBODLIFTFLAGS_registrar(COMBODLIFTFLAGS, []{
 static ArrayRegistrar COMBODUSRFLAGARR_registrar(COMBODUSRFLAGARR, []{
 	static ScriptingArray_ObjectMemberBitwiseFlags<newcombo, &newcombo::usrflags, 16> impl;
 	impl.setMul10000(true);
-	// Flags are cached (see combo_caches::gswitch).
-	impl.setSideEffect([](newcombo* cmb, int, int){
-		combo_caches::refresh(combo_id(cmb));
-	});
 	return &impl;
 }());
 

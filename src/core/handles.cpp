@@ -84,12 +84,12 @@ void rpos_handle_t::set_sflag(uint8_t value) const
 
 uint8_t rpos_handle_t::cflag() const
 {
-	return combo_caches::flag.minis[scr->data[pos]].flag;
+	return combobuf[scr->data[pos]].flag;
 }
 
 uint8_t rpos_handle_t::ctype() const
 {
-	return combo_caches::type.minis[scr->data[pos]].type;
+	return combobuf[scr->data[pos]].type;
 }
 
 int rpos_handle_t::id() const
@@ -180,12 +180,12 @@ void ffc_handle_t::set_cset(int32_t cset) const
 
 uint8_t ffc_handle_t::cflag() const
 {
-	return combo_caches::flag.minis[ffc->data].flag;
+	return combobuf[ffc->data].flag;
 }
 
 uint8_t ffc_handle_t::ctype() const
 {
-	return combo_caches::type.minis[ffc->data].type;
+	return combobuf[ffc->data].type;
 }
 
 int ffc_handle_t::id() const

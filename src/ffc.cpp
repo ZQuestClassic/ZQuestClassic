@@ -9,6 +9,7 @@
 extern sprite_list Lwpns;
 
 #ifdef IS_PLAYER
+#include "zc/combos.h"
 #include "zc/hero.h"
 #include "core/mapscr.h"
 #include "iter.h"

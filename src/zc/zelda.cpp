@@ -1720,8 +1720,6 @@ int32_t init_game()
 	// Apply the first frame's QR changes.
 	process_enqueued_qr_changes();
 
-	combo_caches::refresh();
-
 	FFCore.init();
 	FFCore.user_bitmaps_init();
 	FFCore.user_files_init();

@@ -18710,8 +18710,6 @@ void screen_combo_modify_post(int32_t cid)
 	DCHECK(cpos_modify_pending_cid == cid);
 	cpos_modify_pending_cid = -1;
 
-	combo_caches::refresh(cid);
-
 	for_every_rpos([&](const rpos_handle_t& rpos_handle) {
 		if (rpos_handle.info().data == cid)
 			cpos_count_instance(cid, 1);

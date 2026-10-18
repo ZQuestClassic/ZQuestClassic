@@ -1400,7 +1400,7 @@ void do_drawcombor(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
     int32_t x1=sdci[2]/10000;
     int32_t y1=sdci[3]/10000;
     
-    auto& c = GET_DRAWING_COMBO(cmb);
+    auto& c = combobuf[cmb];
 	if(c.animflags & AF_EDITOR_ONLY) return;
 	int frame = sdci[13] / 10000;
 	if (get_qr(qr_DRAWCOMBO_IGNORES_FRAME))
@@ -1559,7 +1559,7 @@ void do_drawcombocloakedr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t y
 	int32_t x1=sdci[2]/10000;
 	int32_t y1=sdci[3]/10000;
 	
-	auto& c = GET_DRAWING_COMBO(cmb);
+	auto& c = combobuf[cmb];
 	int32_t tiletodraw = combo_tile(c, x1, y1);
 	if(c.animflags & AF_EDITOR_ONLY) return;
 	int32_t flip = ((sdci[7]/10000) & 3) ^ c.flip;
@@ -2213,9 +2213,9 @@ void do_drawstringr2(BITMAP *bmp, int32_t i, int32_t *sdci, int32_t xoffset, int
 
 
 // The quad/triangle draws take a negative `tile` to mean that combo id instead.
-static const minicombo_drawing& drawing_combo_from_tile(int32_t tile)
+static const newcombo& drawing_combo_from_tile(int32_t tile)
 {
-	return GET_DRAWING_COMBO(vbound(abs(tile), 0, MAXCOMBOS-1));
+	return combobuf[vbound(abs(tile), 0, MAXCOMBOS-1)];
 }
 
 void do_drawquadr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
@@ -4883,7 +4883,7 @@ void bmp_do_drawcombor(BITMAP*, int32_t *sdci, int32_t xoffset, int32_t yoffset)
     int32_t x1=sdci[2]/10000;
     int32_t y1=sdci[3]/10000;
     
-    auto& c = GET_DRAWING_COMBO(cmb);
+    auto& c = combobuf[cmb];
 	if(c.animflags & AF_EDITOR_ONLY) return;
 	int frame = sdci[13] / 10000;
 	if (get_qr(qr_DRAWCOMBO_IGNORES_FRAME))
@@ -5058,7 +5058,7 @@ void bmp_do_drawcombocloakedr(BITMAP*, int32_t *sdci, int32_t xoffset, int32_t y
 	int32_t x1=sdci[2]/10000;
 	int32_t y1=sdci[3]/10000;
 	
-	auto& c = GET_DRAWING_COMBO(cmb);
+	auto& c = combobuf[cmb];
 	if(c.animflags & AF_EDITOR_ONLY) return;
 	int32_t tiletodraw = combo_tile(c, x1, y1);
 	int32_t flip = ((sdci[7]/10000) & 3) ^ c.flip;
@@ -10492,7 +10492,7 @@ void do_comboblit(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset, 
 		Z_scripterrlog("ComboBlit tried to draw invalid combo id '%d'\n", cid);
 		return;
 	}
-	sdci[2] = GET_DRAWING_COMBO(cid).tile * 10000;
+	sdci[2] = combobuf[cid].tile * 10000;
 	do_tileblit(bmp, sdci, xoffset, yoffset, is_bmp, "ComboBlit()");
 }
 
@@ -11477,7 +11477,7 @@ void do_bmpdrawlayerr(BITMAP*, int32_t *sdci, [[maybe_unused]] int32_t xoffset, 
             
             //if(noclip&&(x2 > -16 && x2 < maxX && y2 > -16 && y2 < maxY))   //in clipping rect
             {
-                auto& c = GET_DRAWING_COMBO(l.data[i]);
+                auto& c = combobuf[l.data[i]];
 				if(c.animflags & AF_EDITOR_ONLY) continue;
                 const int32_t tile = combo_tile(c, x2, y2);
 

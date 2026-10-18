@@ -17522,8 +17522,6 @@ int32_t FFScript::combo_script_engine([[maybe_unused]] const bool preload, const
 		enabled[q] = get_qr(qr_COMBOSCRIPTS_LAYER_0 + q);
 	}
 
-	auto& combo_cache = combo_caches::script;
-
 	///non-scripted effects
 	for_every_rpos([&](const rpos_handle_t& rpos_handle) {
 		if (!enabled[rpos_handle.layer])
@@ -17538,7 +17536,7 @@ int32_t FFScript::combo_script_engine([[maybe_unused]] const bool preload, const
 			clear_script_engine_data(ScriptType::Combo, combopos_ref);
 		}
 		
-		auto script = combo_cache.minis[cid].script;
+		auto script = combobuf[cid].scrconfig.script;
 		if (script)
 		{
 			auto& data = get_script_engine_data(ScriptType::Combo, combopos_ref);

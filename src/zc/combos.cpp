@@ -634,7 +634,6 @@ static void trigger_cswitch_block(const combined_handle_t& handle)
 		combobuf[newcid].tile = combobuf[newcid].o_tile;
 		combobuf[newcid].cur_frame=0;
 		combobuf[newcid].aclk = 0;
-		combo_caches::drawing.refresh(newcid);
 	}
 	
 	auto rpos = ffc ? COMBOPOS_REGION_B(ffc->x+8, ffc->y+8) : rpos_t(handle.id());
@@ -660,7 +659,6 @@ static void trigger_cswitch_block(const combined_handle_t& handle)
 			combobuf[newcid2].tile = combobuf[newcid2].o_tile;
 			combobuf[newcid2].cur_frame=0;
 			combobuf[newcid2].aclk = 0;
-			combo_caches::drawing.refresh(newcid2);
 		}
 	}
 	if (cmb.usrflags&cflag11)
@@ -683,7 +681,6 @@ static void trigger_cswitch_block(const combined_handle_t& handle)
 					combobuf[newcid2].tile = combobuf[newcid2].o_tile;
 					combobuf[newcid2].cur_frame=0;
 					combobuf[newcid2].aclk = 0;
-					combo_caches::drawing.refresh(newcid2);
 				}
 			}
 		});
@@ -2163,7 +2160,6 @@ void do_ex_trigger(const combined_handle_t& handle, size_t idx)
 		rcmb.tile = rcmb.o_tile;
 		rcmb.cur_frame = 0;
 		rcmb.aclk = 0;
-		combo_caches::drawing.refresh(handle.data());
 	}
 
 	if (is_active_screen && trig.trigcopycat) //has a copycat set
@@ -2922,7 +2918,6 @@ static void handle_trigger_results(const combined_handle_t& handle, combo_trigge
 			rcmb.tile = rcmb.o_tile;
 			rcmb.cur_frame = 0;
 			rcmb.aclk = 0;
-			combo_caches::drawing.refresh(handle.data());
 		}
 
 		if (trig.trigcopycat) //has a copycat set
@@ -3543,8 +3538,6 @@ static bool handle_crumble(newcombo const& cmb, cpos_info& timer, word& cid, zfi
 
 void trig_trigger_groups()
 {
-	auto& combo_cache = combo_caches::trigger_group;
-
 	bool include_ffcs = true;
 	std::vector<int> visited_cids;
 	for_every_combo([&](const auto& handle) {
@@ -3562,8 +3555,6 @@ void trig_trigger_groups()
 		visited_cids.push_back(cid);
 		do
 		{
-			if (!combo_cache.minis[cid].tgroup)
-				break;
 			auto& cmb = combobuf[cid];
 			recheck = false;
 			for(size_t idx = 0; idx < cmb.triggers.size(); ++idx)
@@ -3762,7 +3753,6 @@ void cpos_force_update() //updates without side-effects
 
 void cpos_update() //updates with side-effects
 {
-	auto& combo_cache = combo_caches::cpos_update;
 	bool freeze_combo_cpos = replay_version_check(58) && (freeze_general || freeze_message || freeze_holdup);
 	bool freeze_ffc_cpos = replay_version_check(58) && (freeze_ffc || freeze_message || freeze_holdup);
 
@@ -3793,17 +3783,14 @@ void cpos_update() //updates with side-effects
 				timer.spr_onchange = 0;
 			}
 
-			auto& mini_cmb = combo_cache.minis[cid];
-			bool do_trigger_timer = mini_cmb.trigtimer;
-			newcombo const* cmb = nullptr;
-			if(do_trigger_timer)
-				cmb = &combobuf[cid];
-			size_t max_trig = zc_max(cmb ? cmb->triggers.size() : 0, timer.trig_data.capacity());
+			newcombo const& cmb = combobuf[cid];
+			bool do_trigger_timer = true;
+			size_t max_trig = zc_max(cmb.triggers.size(), timer.trig_data.capacity());
 			for(size_t idx = 0; idx < max_trig; ++idx)
 			{
-				if(do_trigger_timer && idx < cmb->triggers.size())
+				if(do_trigger_timer && idx < cmb.triggers.size())
 				{
-					auto& trig = cmb->triggers[idx];
+					auto& trig = cmb.triggers[idx];
 					if (trig.trigtimer)
 					{
 						cpos_trig_info& trig_info = timer.trig_data[idx];
@@ -3825,7 +3812,7 @@ void cpos_update() //updates with side-effects
 					if (trig_info.cooldown) --trig_info.cooldown;
 				}
 			}
-			handle_cpos_type(mini_cmb.type,timer,rpos_handle);
+			handle_cpos_type(cmb.type,timer,rpos_handle);
 		});
 
 	if (!freeze_ffc_cpos)
@@ -3869,17 +3856,14 @@ void cpos_update() //updates with side-effects
 				timer.spr_onchange = 0;
 			}
 
-			auto& mini_cmb = combo_cache.minis[cid];
-			bool do_trigger_timer = mini_cmb.trigtimer;
-			newcombo const* cmb;
-			if(do_trigger_timer)
-				cmb = &combobuf[cid];
+			newcombo const& cmb = combobuf[cid];
+			bool do_trigger_timer = true;
 			
 			for(size_t idx = 0; idx < MAX_COMBO_TRIGGERS; ++idx)
 			{
-				if (do_trigger_timer && idx < cmb->triggers.size())
+				if (do_trigger_timer && idx < cmb.triggers.size())
 				{
-					auto& trig = cmb->triggers[idx];
+					auto& trig = cmb.triggers[idx];
 					if (trig.trigtimer)
 					{
 						cpos_trig_info& trig_info = timer.trig_data[idx];
@@ -3901,8 +3885,8 @@ void cpos_update() //updates with side-effects
 					if (trig_info.cooldown) --trig_info.cooldown;
 				}
 			}
-			if(mini_cmb.type == cSHOOTER)
-				handle_shooter(combobuf[cid], timer, wx, wy);
+			if(cmb.type == cSHOOTER)
+				handle_shooter(cmb, timer, wx, wy);
 		});
 
 	trig_trigger_groups();
@@ -3913,21 +3897,6 @@ void cpos_update() //updates with side-effects
 	for (auto sfx_id : queue_start_loop_sfx)
 		cont_sfx(sfx_id);
 	queue_start_loop_sfx.clear();
-}
-
-namespace combo_caches
-{
-	combo_cache<minicombo_type> type;
-	combo_cache<minicombo_flag> flag;
-	combo_cache<minicombo_cpos_update> cpos_update;
-	combo_cache<minicombo_trigger_group> trigger_group;
-	combo_cache<minicombo_can_cycle> can_cycle;
-	combo_cache<minicombo_shutter> shutter;
-	combo_cache<minicombo_gswitch> gswitch;
-	combo_cache<minicombo_script> script;
-	combo_cache<minicombo_drawing> drawing;
-	combo_cache<minicombo_lens> lens;
-	combo_cache<minicombo_spotlight> spotlight;
 }
 
 void combos_init_game_vars()

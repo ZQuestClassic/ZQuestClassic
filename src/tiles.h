@@ -6,15 +6,6 @@
 #include "core/combo.h"
 #include <utility>
 
-#ifdef IS_PLAYER
-#include "zc/combos.h"
-typedef combo_caches::minicombo_drawing minicombo_drawing;
-#define GET_DRAWING_COMBO(cid) (std::as_const(combo_caches::drawing.minis[cid]))
-#else
-typedef newcombo minicombo_drawing;
-#define GET_DRAWING_COMBO(cid) (std::as_const(combobuf[cid]))
-#endif
-
 extern tiledata *newtilebuf, *grabtilebuf;
 extern int32_t animated_combo_table[MAXCOMBOS][2];             //[0]=position in act2, [1]=original tile
 extern int32_t animated_combo_table4[MAXCOMBOS][2];            //[0]=combo, [1]=clock
@@ -78,7 +69,7 @@ void overtileblock16(BITMAP* _Dest, int32_t tile, int32_t x, int32_t y, int32_t 
 extern int combotile_override_x, combotile_override_y;
 extern int combotile_add_x, combotile_add_y;
 extern double combotile_mul_x, combotile_mul_y;
-int32_t combo_tile(const minicombo_drawing &c, int32_t x, int32_t y, int frame = -1);
+int32_t combo_tile(const newcombo &c, int32_t x, int32_t y, int frame = -1);
 int32_t combo_tile(int32_t cid, int32_t x, int32_t y, int frame = -1);
 
 void putcombo(BITMAP* dest,int32_t x,int32_t y,int32_t cid,int32_t cset);

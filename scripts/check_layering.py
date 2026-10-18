@@ -76,6 +76,7 @@ dialog/pickruleset.cpp -> zq/zq_files.h
 dialog/pickruletemplate.h -> zq/zq_files.h
 dialog/quest_rules.cpp -> zq/zquest.h
 drawing.cpp -> zc/zelda.h
+ffc.cpp -> zc/combos.h
 ffc.cpp -> zc/hero.h
 gamedata.cpp -> zc/scripting/script_object.h
 gamedata.cpp -> zc/scripting/types/stack.h
@@ -107,7 +108,6 @@ sprite.cpp -> zc/guys.h
 sprite.cpp -> zc/render.h
 subscr.cpp -> zc/ffscript.h
 tiles.cpp -> zc/maps.h
-tiles.h -> zc/combos.h
 user_object.cpp -> zc/scripting/arrays.h
 user_object.cpp -> zc/scripting/script_object.h
 user_object.cpp -> zc/zscriptversion.h

@@ -13169,11 +13169,8 @@ bool isRaftFlag(int32_t flag)
 void handle_lens_triggers(int32_t l_id)
 {
 	bool enabled = valid_item_id(l_id) && (itemsbuf.get(l_id).flags & item_flag6);
-	auto& combo_cache = combo_caches::lens;
 	for_every_combo([&](const auto& handle) {
-		auto cid = handle.data();
-		auto& mini_cmb = combo_cache.minis[cid];
-		if (!(enabled ? mini_cmb.on : mini_cmb.off))
+		if (handle.combo().triggers.empty())
 			return;
 		trig_each_combo_trigger(handle, [&](combo_trigger const& trig){
 			return trig.trigger_flags.get(enabled ? TRIGFLAG_LENSON : TRIGFLAG_LENSOFF);
@@ -22761,14 +22758,12 @@ void HeroClass::handleSpotlights()
 	had_spotlight = lightbeam_present;
 
 	//Check triggers
-	auto& combo_cache = combo_caches::spotlight;
 	std::set<int> screens_triggered;
 	bool istrigged = true;
 	for_every_rpos([&](const rpos_handle_t& rpos_handle) {
-		auto& mini_cmb = combo_cache.minis[rpos_handle.data()];
-		if (mini_cmb.target)
+		auto& cmb = rpos_handle.combo();
+		if (cmb.type == cLIGHTTARGET)
 		{
-			auto& cmb = rpos_handle.combo();
 			bool alltrig = getmapflag(rpos_handle.scr, mLIGHTBEAM);
 			auto trigflag_idx = cmb.c_attributes[12].getTrunc();
 			screens_triggered.insert(rpos_handle.screen);
@@ -22790,7 +22785,7 @@ void HeroClass::handleSpotlights()
 				else istrigged = false;
 			}
 		}
-		else if (mini_cmb.trigger)
+		else if (!cmb.triggers.empty())
 		{
 			trig_each_combo_trigger(rpos_handle, [&](combo_trigger const& trig){
 				int32_t trigflag = lbeam_flag(trig.triglbeam);
@@ -22808,10 +22803,9 @@ void HeroClass::handleSpotlights()
 		if (rpos == rpos_t::None)
 			return;
 
-		auto& mini_cmb = combo_cache.minis[ffc_handle.data()];
-		if (mini_cmb.target)
+		auto& cmb = ffc_handle.combo();
+		if (cmb.type == cLIGHTTARGET)
 		{
-			auto& cmb = ffc_handle.combo();
 			bool alltrig = getmapflag(ffc_handle.scr, mLIGHTBEAM);
 			auto trigflag_idx = cmb.c_attributes[12].getTrunc();
 			screens_triggered.insert(ffc_handle.screen);
@@ -22833,7 +22827,7 @@ void HeroClass::handleSpotlights()
 				else istrigged = false;
 			}
 		}
-		else //if (mini_cmb.trigger)
+		else
 		{
 			trig_each_combo_trigger(ffc_handle, [&](combo_trigger const& trig){
 				int32_t trigflag = lbeam_flag(trig.triglbeam);
@@ -23082,7 +23076,7 @@ int32_t HeroClass::nextflag(int32_t cx, int32_t cy, int32_t cdir, bool comboflag
         }
         else
         {
-            return combo_caches::flag.minis[scr->data[pos]].flag;
+            return combobuf[scr->data[pos]].flag;
         }
     }
     

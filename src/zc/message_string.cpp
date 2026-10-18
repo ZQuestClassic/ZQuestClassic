@@ -6,6 +6,7 @@
 #include "core/fonts.h"
 #include "core/misctypes.h"
 #include "sprite_data.h"
+#include "zc/combos.h"
 #include "zc/zelda.h"
 #include "zc/hero.h"
 #include "zc/ffscript.h"
