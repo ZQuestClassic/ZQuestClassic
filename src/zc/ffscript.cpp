@@ -24987,7 +24987,7 @@ void set_register_slow(int32_t arg, int32_t value)
 			else
 			{
 				newcombo& cdata = combobuf[ri->combosref];
-				cdata.o_tile = vbound((value / 10000),0,NEWMAXTILES);
+				cdata.o_tile = vbound((value / 10000),0,NEWMAXTILES-1);
 				if(get_qr(qr_NEW_COMBO_ANIMATION))
 				{
 					cdata.tile = cdata.o_tile + ((1+cdata.skipanim)*cdata.cur_frame);
