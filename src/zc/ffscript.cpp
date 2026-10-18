@@ -25154,7 +25154,14 @@ void set_register_slow(int32_t arg, int32_t value)
 			break;
 		}
 		case COMBODUSRFLAGS:	SET_COMBO_VAR_INT(usrflags, "UserFlags"); break;					//LONG
-		case COMBODTRIGGERFLAGS:	SET_COMBO_VAR_INDEX(triggerflags, "TriggerFlags[]", 6);	break;			//LONG 3 INDICES AS FLAGSETS
+		case COMBODTRIGGERFLAGS:			//LONG 3 INDICES AS FLAGSETS
+		{
+			bool valid = unsigned(ri->combosref) < MAXCOMBOS;
+			if (valid) screen_combo_modify_pre(ri->combosref);
+			SET_COMBO_VAR_INDEX(triggerflags, "TriggerFlags[]", 6);
+			if (valid) screen_combo_modify_post(ri->combosref);
+			break;
+		}
 		case COMBODTRIGGERFLAGS2:
 		{
 			int32_t indx = ri->d[rINDEX] / 10000;
@@ -25168,7 +25175,9 @@ void set_register_slow(int32_t arg, int32_t value)
 			}
 			else
 			{
+				screen_combo_modify_pre(ri->combosref);
 				SETFLAG(combobuf[ri->combosref].triggerflags[indx/32],1<<(indx%32),value);
+				screen_combo_modify_post(ri->combosref);
 			}
 			break;
 		}
@@ -25519,7 +25528,12 @@ void set_register_slow(int32_t arg, int32_t value)
 			{
 				Z_scripterrlog("Invalid Combo ID passed to combodata->TrigGroup: %d\n", (ri->combosref*10000));
 			}
-			else combobuf[ri->combosref].trig_group = vbound(value/10000, 0, 255);
+			else
+			{
+				screen_combo_modify_pre(ri->combosref);
+				combobuf[ri->combosref].trig_group = vbound(value/10000, 0, 255);
+				screen_combo_modify_post(ri->combosref);
+			}
 			break;
 		}
 		case COMBODTRIGGERGROUPVAL:

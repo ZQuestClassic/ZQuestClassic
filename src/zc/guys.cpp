@@ -1,10 +1,12 @@
 #include <cstring>
 #include <stdio.h>
+#include "base/check.h"
 #include "base/combo.h"
 #include "base/general.h"
 #include "base/zc_alleg.h"
 #include "zc/guys.h"
 #include "zc/replay.h"
+#include "zc/combos.h"
 #include "zc/zc_ffc.h"
 #include "zc/zc_subscr.h"
 #include "zc/zelda.h"
@@ -19511,8 +19513,40 @@ void screen_ffc_modify_postroutine(word index)
 	tmpscr->ffcCountMarkDirty();
 }
 
+// `screen_combo_modify_pre` and `_post` must be called as a pair around a change
+// to a combo's data: the cpos counts are subtracted from the old data in pre and
+// added back from the new data in post.
+static int32_t cpos_modify_pending_cid = -1;
+
+// Counts (add = -1) or recounts (add = +1) every placed instance of `cid`, keyed on
+// `cpos_info::data` - which lags a position's combo until the next cpos_update().
+static void cpos_count_instances(int32_t cid, int add)
+{
+	for(auto lyr = 0; lyr < 7; ++lyr)
+	{
+		for(int32_t i = 0; i < 176; i++)
+		{
+			if(cpos_get(lyr, i).data == cid)
+				cpos_count_instance(cid, add);
+		}
+	}
+	mapscr* ffscr = FFCore.tempScreens[0];
+	word c = ffscr->numFFC();
+	for(word ind = 0; ind < c; ++ind)
+	{
+		if(ffscr->ffcs[ind].info.data == cid)
+			cpos_count_instance(cid, add);
+	}
+	if(cpos_moving_block_holds(cid))
+		cpos_count_instance(cid, add);
+}
+
 void screen_combo_modify_pre(int32_t cid)
 {
+	DCHECK(cpos_modify_pending_cid == -1);
+	cpos_modify_pending_cid = cid;
+
+	cpos_count_instances(cid, -1);
 	for(auto lyr = 0; lyr < 7; ++lyr)
 	{
 		mapscr* t = FFCore.tempScreens[lyr];
@@ -19527,6 +19561,10 @@ void screen_combo_modify_pre(int32_t cid)
 }
 void screen_combo_modify_post(int32_t cid)
 {
+	DCHECK(cpos_modify_pending_cid == cid);
+	cpos_modify_pending_cid = -1;
+
+	cpos_count_instances(cid, 1);
 	for(auto lyr = 0; lyr < 7; ++lyr)
 	{
 		mapscr* t = FFCore.tempScreens[lyr];
