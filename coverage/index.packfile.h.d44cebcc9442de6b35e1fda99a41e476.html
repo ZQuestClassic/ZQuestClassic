@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2026-10-18 19:11:35</td>
+      <td>2026-10-18 22:51:37</td>
     </tr>
   </table>
 </div>
@@ -108,7 +108,7 @@
     <tr><td><a href="#l217">bool p_getvar&lt;unsigned char, 4ul&gt;(std::array&lt;unsigned char, 4ul&gt;*, PACKFILE*) (line 217)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l151">bool p_getvar&lt;unsigned char, int&gt;(bounded_vec&lt;unsigned char, int&gt;*, PACKFILE*) (line 151)</a></td><td>called 8534 times, returned 8534 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l162">bool p_getvar&lt;unsigned char, unsigned char&gt;(bounded_map&lt;unsigned char, unsigned char&gt;*, PACKFILE*) (line 162)</a></td><td>called 3 times, returned 3 times</td><td>100.0%</td></tr>
-    <tr><td><a href="#l127">bool p_getvar&lt;unsigned char&gt;(unsigned char*, PACKFILE*) (line 127)</a></td><td>called 1323634428 times, returned 1323634428 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l127">bool p_getvar&lt;unsigned char&gt;(unsigned char*, PACKFILE*) (line 127)</a></td><td>called 1323707264 times, returned 1323707264 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l162">bool p_getvar&lt;unsigned int, int&gt;(bounded_map&lt;unsigned int, int&gt;*, PACKFILE*) (line 162)</a></td><td>called 281 times, returned 281 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l127">bool p_getvar&lt;unsigned int&gt;(unsigned int*, PACKFILE*) (line 127)</a></td><td>called 328280 times, returned 328280 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l184">bool p_getvar&lt;unsigned short, int&gt;(std::map&lt;unsigned short, int, std::less&lt;unsigned short&gt;, std::allocator&lt;std::pair&lt;unsigned short const, int&gt; &gt; &gt;*, PACKFILE*) (line 184)</a></td><td>not called</td><td>0.0%</td></tr>
@@ -151,7 +151,7 @@
     <tr><td><a href="#l222">bool p_putvar&lt;unsigned char, 4ul&gt;(std::array&lt;unsigned char, 4ul&gt; const&amp;, PACKFILE*) (line 222)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l156">bool p_putvar&lt;unsigned char, int&gt;(bounded_vec&lt;unsigned char, int&gt; const&amp;, PACKFILE*) (line 156)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l167">bool p_putvar&lt;unsigned char, unsigned char&gt;(bounded_map&lt;unsigned char, unsigned char&gt; const&amp;, PACKFILE*) (line 167)</a></td><td>called 3 times, returned 3 times</td><td>100.0%</td></tr>
-    <tr><td><a href="#l139">bool p_putvar&lt;unsigned char&gt;(unsigned char const&amp;, PACKFILE*) (line 139)</a></td><td>called 36303100 times, returned 36303100 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l139">bool p_putvar&lt;unsigned char&gt;(unsigned char const&amp;, PACKFILE*) (line 139)</a></td><td>called 36309388 times, returned 36309388 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l167">bool p_putvar&lt;unsigned int, int&gt;(bounded_map&lt;unsigned int, int&gt; const&amp;, PACKFILE*) (line 167)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l139">bool p_putvar&lt;unsigned int&gt;(unsigned int const&amp;, PACKFILE*) (line 139)</a></td><td>called 99 times, returned 99 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l189">bool p_putvar&lt;unsigned short, int&gt;(std::map&lt;unsigned short, int, std::less&lt;unsigned short&gt;, std::allocator&lt;std::pair&lt;unsigned short const, int&gt; &gt; &gt; const&amp;, PACKFILE*) (line 189)</a></td><td>not called</td><td>0.0%</td></tr>
@@ -1060,7 +1060,7 @@
       <td class="lineno"><a id="l127" href="#l127">127</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">1346696872</td>
+      <td class="linecount coveredLine">1346769708</td>
       <td class="src coveredLine"><span class="kr">inline</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">p_getvar</span><span class="p">(</span><span class="n">T</span><span class="o">*</span><span class="w"> </span><span class="n">ptr</span><span class="p">,</span><span class="w"> </span><span class="n">PACKFILE</span><span class="w"> </span><span class="o">*</span><span class="n">f</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -1081,7 +1081,7 @@
       <td class="lineno"><a id="l130" href="#l130">130</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">1323634428</td>
+      <td class="linecount coveredLine">1323707264</td>
       <td class="src coveredLine"><span class="w">		</span><span class="k">return</span><span class="w"> </span><span class="n">p_getc</span><span class="p">(</span><span class="n">ptr</span><span class="p">,</span><span class="w"> </span><span class="n">f</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
@@ -1144,7 +1144,7 @@
       <td class="lineno"><a id="l139" href="#l139">139</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">37433743</td>
+      <td class="linecount coveredLine">37440031</td>
       <td class="src coveredLine"><span class="kr">inline</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">p_putvar</span><span class="p">(</span><span class="n">T</span><span class="w"> </span><span class="k">const</span><span class="o">&amp;</span><span class="w"> </span><span class="n">ptr</span><span class="p">,</span><span class="w"> </span><span class="n">PACKFILE</span><span class="w"> </span><span class="o">*</span><span class="n">f</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -1165,7 +1165,7 @@
       <td class="lineno"><a id="l142" href="#l142">142</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">36303100</td>
+      <td class="linecount coveredLine">36309388</td>
       <td class="src coveredLine"><span class="w">		</span><span class="k">return</span><span class="w"> </span><span class="n">p_putc</span><span class="p">(</span><span class="n">ptr</span><span class="p">,</span><span class="w"> </span><span class="n">f</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
@@ -5804,12 +5804,12 @@
         <div class="linebranchContents">
           <div class="takenBranch">&check; Branch 0 taken 22954329 times.</div>
           <div class="takenBranch">&check; Branch 1 taken 14 times.</div>
-          <div class="takenBranch">&check; Branch 2 taken 1300107060 times.</div>
+          <div class="takenBranch">&check; Branch 2 taken 1300179896 times.</div>
           <div class="takenBranch">&check; Branch 3 taken 809 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount coveredLine">1323062212</td>
+      <td class="linecount coveredLine">1323135048</td>
       <td class="src coveredLine"><span class="w">		</span><span class="k">for</span><span class="p">(</span><span class="kt">size_t</span><span class="w"> </span><span class="n">q</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">q</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">sz</span><span class="p">;</span><span class="w"> </span><span class="o">++</span><span class="n">q</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -5828,11 +5828,11 @@
           <div class="notTakenBranch">&cross; Branch 0 not taken.</div>
           <div class="takenBranch">&check; Branch 1 taken 22954329 times.</div>
           <div class="notTakenBranch">&cross; Branch 2 not taken.</div>
-          <div class="takenBranch">&check; Branch 3 taken 1300107060 times.</div>
+          <div class="takenBranch">&check; Branch 3 taken 1300179896 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">1323061389</td>
+      <td class="linecount partialCoveredLine">1323134225</td>
       <td class="src partialCoveredLine"><span class="w">			</span><span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">p_getvar</span><span class="p">(</span><span class="o">&amp;</span><span class="n">dummy</span><span class="p">,</span><span class="n">f</span><span class="p">))</span></td>
     </tr>
     <tr class="source-line">
@@ -5846,14 +5846,14 @@
       <td class="lineno"><a id="l563" href="#l563">563</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">1323061389</td>
+      <td class="linecount coveredLine">1323134225</td>
       <td class="src coveredLine"><span class="w">			</span><span class="n">vec</span><span class="o">-&gt;</span><span class="n">push_back</span><span class="p">(</span><span class="n">dummy</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l564" href="#l564">564</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">1323061389</td>
+      <td class="linecount coveredLine">1323134225</td>
       <td class="src coveredLine"><span class="w">		</span><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
@@ -5957,14 +5957,14 @@
         <details class="linebranchDetails">
         <summary class="linebranchSummary">2/4</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 36301008 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 36307296 times.</div>
           <div class="takenBranch">&check; Branch 1 taken 24 times.</div>
           <div class="notTakenBranch">&cross; Branch 2 not taken.</div>
           <div class="notTakenBranch">&cross; Branch 3 not taken.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">36301032</td>
+      <td class="linecount partialCoveredLine">36307320</td>
       <td class="src partialCoveredLine"><span class="w">		</span><span class="k">for</span><span class="p">(</span><span class="kt">size_t</span><span class="w"> </span><span class="n">q</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">q</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">sz</span><span class="p">;</span><span class="w"> </span><span class="o">++</span><span class="n">q</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -5981,13 +5981,13 @@
         <summary class="linebranchSummary">1/4</summary>
         <div class="linebranchContents">
           <div class="notTakenBranch">&cross; Branch 0 not taken.</div>
-          <div class="takenBranch">&check; Branch 1 taken 36301008 times.</div>
+          <div class="takenBranch">&check; Branch 1 taken 36307296 times.</div>
           <div class="notTakenBranch">&cross; Branch 2 not taken.</div>
           <div class="notTakenBranch">&cross; Branch 3 not taken.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">36301008</td>
+      <td class="linecount partialCoveredLine">36307296</td>
       <td class="src partialCoveredLine"><span class="w">			</span><span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">p_putvar</span><span class="p">(</span><span class="n">vec</span><span class="p">.</span><span class="n">at</span><span class="p">(</span><span class="n">q</span><span class="p">),</span><span class="w"> </span><span class="n">f</span><span class="p">))</span></td>
     </tr>
     <tr class="source-line">
@@ -6001,7 +6001,7 @@
       <td class="lineno"><a id="l580" href="#l580">580</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">36301008</td>
+      <td class="linecount coveredLine">36307296</td>
       <td class="src coveredLine"><span class="w">		</span><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
