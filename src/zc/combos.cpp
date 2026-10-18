@@ -3755,7 +3755,10 @@ static void cpos_reset_cache()
 	}
 	combo_loop_sfx.clear();
 }
-static void cpos_update_cache(newcombo const& cmb, int add)
+// `queue_sfx` is false while a combo's data is being modified in place: its
+// instances are uncounted and recounted around the change, and the looping sfx
+// bookkeeping must not stop and restart the sfx for that.
+static void cpos_update_cache(newcombo const& cmb, int add, bool queue_sfx = true)
 {
 	if(cmb.type == cSPOTLIGHT)
 		cpos_spotlight_count += add;
@@ -3768,25 +3771,41 @@ static void cpos_update_cache(newcombo const& cmb, int add)
 		auto count = combo_loop_sfx[sfx_id];
 		// keep count of how many combos are looping the same sfx
 		combo_loop_sfx[sfx_id] = count + add;
-		if (count && !(count+add))
+		if (queue_sfx)
 		{
-			// If the sfx was being looped and now isn't anymore,
-			// queue it to stop. Don't stop it immediately, incase
-			// another combo appears that loops it before the next
-			// cpos_update() call.
-			queue_stop_loop_sfx.insert(sfx_id);
-			queue_start_loop_sfx.erase(sfx_id);
-		}
-		else if (!count && (count+add))
-		{
-			// If the sfx wasn't being looped by any combos, but
-			// now is, queue it to start- and if it was queued to stop,
-			// undo that.
-			queue_stop_loop_sfx.erase(sfx_id);
-			queue_start_loop_sfx.insert(sfx_id);
+			if (count && !(count+add))
+			{
+				// If the sfx was being looped and now isn't anymore,
+				// queue it to stop. Don't stop it immediately, incase
+				// another combo appears that loops it before the next
+				// cpos_update() call.
+				queue_stop_loop_sfx.insert(sfx_id);
+				queue_start_loop_sfx.erase(sfx_id);
+			}
+			else if (!count && (count+add))
+			{
+				// If the sfx wasn't being looped by any combos, but
+				// now is, queue it to start- and if it was queued to stop,
+				// undo that.
+				queue_stop_loop_sfx.erase(sfx_id);
+				queue_start_loop_sfx.insert(sfx_id);
+			}
 		}
 	}
 }
+void cpos_count_instance(int cid, int add)
+{
+	if (unsigned(cid) < combobuf.size())
+		cpos_update_cache(combobuf[cid], add, false);
+}
+
+bool cpos_moving_block_holds(int cid)
+{
+	// With the 'broken' rule on, the block only copies the position's info and
+	// never takes over its counts.
+	return !get_qr(qr_BROKEN_PUSHBLOCK_TRIGGER_GROUPS) && mblock2.blockinfo.data == cid;
+}
+
 void cpos_update_cache(int32_t oldid, int32_t newid)
 {
 	if(oldid == newid) return;
