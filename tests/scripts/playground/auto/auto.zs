@@ -26,6 +26,7 @@
 #include "auto/ffc_script_runner.zs"
 #include "auto/init_scripts.zs"
 #include "auto/instant_reload_on_death.zs"
+#include "auto/lightbeams.zs"
 #include "auto/literal_stack_slots.zs"
 #include "auto/stack_limit.zs"
 #include "auto/std_unit.zs"
