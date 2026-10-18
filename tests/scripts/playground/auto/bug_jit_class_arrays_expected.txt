@@ -44,17 +44,17 @@ POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
 LOAD D2 0.0002; InlineFunc[int Game::GetGenericScript(char32[])] Params
 GETGENERICSCRIPT D2; InlineFunc[int Game::GetGenericScript(char32[])] Body
 STORE D2 0.0001
-LOAD D2 0.0001; if() #9 Test
+LOAD D2 0.0001; if() Test
 COMPAREV D2 -1
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 30 ==; Test 'if'
-ALLOCATEMEMV D2 53 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start AND if() #9 Body Start
+ALLOCATEMEMV D2 53 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start AND if() Body Start
 WRITEPODSTRING D2 "[Test] failed to start - could not find test script\n"
 PUSHR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
 PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
 POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
-GAMEEXIT; InlineFunc[void Game::Exit()] Body AND if() #9 Body End
+GAMEEXIT; InlineFunc[void Game::Exit()] Body AND if() Body End
 NOP
 LOAD D2 0.0001; InlineFunc[genericdata Game::LoadGenericData(int)] Params
 LOADGENERICDATA D2; InlineFunc[genericdata Game::LoadGenericData(int)] Body Start
@@ -70,14 +70,14 @@ POP D2
 CASTBOOLI D2
 POP REFGENERICDATA
 SETR GENDATARUNNING D2
-LOAD D2 0; while() #1 Test
+LOAD D2 0; while() Test
 PUSHR D2
 POP REFGENERICDATA
 SETR D2 GENDATARUNNING
 COMPAREV D2 0
 GOTOCMP 53 ==; Test 'while'
-WAITFRAME; InlineFunc[void Waitframe()] Body AND while() #1 Body
-GOTO 45; while() #1 End
+WAITFRAME; InlineFunc[void Waitframe()] Body AND while() Body
+GOTO 45; while() End
 CALLFUNC 0.0124; UsrFunc[void End()] Call AND [Opt:NeverRet]
 REF_REMOVE 0.0002; [Opt:NeverRet] AND void run() Body End
 PUSHARGSV 0 0.0003; void run() Body Start
@@ -92,13 +92,13 @@ CALLFUNC 0.0166; ClassFunc[RNES RNES::RNES()] Constructor Call
 POP D4
 POP CLASS_THISKEY
 STORE_OBJECT D2 0.0002
-STOREV 0 0.0001; for() #10 setup
-LOAD D2 0.0001; for() #10 LoopTest
+STOREV 0 0.0001; for() setup
+LOAD D2 0.0001; for() LoopTest
 COMPAREV D2 3
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 99 ==; for() #10 TestFail?
-PUSHR CLASS_THISKEY; for() #10 Body Start
+GOTOCMP 99 ==; for() TestFail?
+PUSHR CLASS_THISKEY; for() Body Start
 PUSHR D4
 LOAD D2 0.0002; ClassFunc[int RNES::Draw()] Params Start
 SETR CLASS_THISKEY D2; ClassFunc[int RNES::Draw()] Params End
@@ -119,11 +119,11 @@ PUSHR D2
 PUSHV 2742; UsrFunc[void AssertEqual(int, int)] Params End
 CALLFUNC 0.0131; UsrFunc[void AssertEqual(int, int)] Call
 POP D4
-WAITFRAME; InlineFunc[void Waitframe()] Body AND for() #10 Body End
-LOAD D2 0.0001; for() #10 LoopIncrement
+WAITFRAME; InlineFunc[void Waitframe()] Body AND for() Body End
+LOAD D2 0.0001; for() LoopIncrement
 ADDV D2 1
 STORE D2 0.0001
-GOTO 68; for() #10 End
+GOTO 68; for() End
 NOP
 CALLFUNC 0.0124; UsrFunc[void End()] Call AND [Opt:NeverRet]
 REF_REMOVE 0.0002; [Opt:NeverRet] AND void run() Body End
@@ -136,16 +136,16 @@ LOAD D2 0
 PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
 PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
 POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
-LOAD D2 0; if() #8 Test
+LOAD D2 0; if() Test
 COMPAREV D2 0
 SETCMP D2 I!=
 COMPAREV D2 0
 GOTOCMP 121 ==; Test 'if'
-PUSHV 5; InlineFunc[void hero::Warp(int, int)] Params Start AND if() #8 Body Start
+PUSHV 5; InlineFunc[void hero::Warp(int, int)] Params Start AND if() Body Start
 LOAD D2 0; InlineFunc[void hero::Warp(int, int)] Params End
 POP D3; InlineFunc[void hero::Warp(int, int)] Body Start
 WARPR D3 D2; InlineFunc[void hero::Warp(int, int)] Body End
-WAITFRAME; InlineFunc[void Waitframe()] Body AND if() #8 Body End
+WAITFRAME; InlineFunc[void Waitframe()] Body AND if() Body End
 NOP
 POP D5
 RETURNFUNC; Func[void Init(int)] Body End
@@ -157,7 +157,7 @@ PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
 POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
 GAMEEXIT; InlineFunc[void Game::Exit()] Body AND [Opt:NeverRet] AND Func[void End()] Body End
 SETR D4 SP2; Func[void AssertEqual(int, int)] Body Start
-LOAD D2 0; if() #10 Test
+LOAD D2 0; if() Test
 PUSHR D2
 LOAD D2 0.0001
 POP D3
@@ -165,7 +165,7 @@ COMPARER D3 D2
 SETCMP D2 I!=
 COMPAREV D2 0
 GOTOCMP 150 ==; Test 'if'
-ALLOCATEMEMV D2 49 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start AND if() #10 Body Start
+ALLOCATEMEMV D2 49 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start AND if() Body Start
 WRITEPODSTRING D2 "[Test] failed assertion: expected %d but got %d\n"
 PUSHR D2
 LOAD D2 0
@@ -174,7 +174,7 @@ LOAD D2 0.0001
 PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
 PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
 POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
-GAMEEXIT; InlineFunc[void Game::Exit()] Body AND if() #10 Body End
+GAMEEXIT; InlineFunc[void Game::Exit()] Body AND if() Body End
 NOP
 POPARGS D5 0.0002
 RETURNFUNC; Func[void AssertEqual(int, int)] Body End
@@ -212,13 +212,13 @@ RETURNFUNC; Func[RNES RNES::RNES()] Body End
 REF_INC -0.0001; Func[int RNES::Draw()] Body Start
 PUSHARGSV 0 0.0015
 SETR D4 SP2
-STOREV 0 0.0014; for() #5 setup
-LOAD D2 0.0014; for() #5 LoopTest
+STOREV 0 0.0014; for() setup
+LOAD D2 0.0014; for() LoopTest
 COMPAREV D2 4
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 214 ==; for() #5 TestFail?
-LOAD D2 0.0014; for() #5 Body Start
+GOTOCMP 214 ==; for() TestFail?
+LOAD D2 0.0014; for() Body Start
 PUSHR D2
 LOAD D2 0.0014; InlineFunc[int Floor(int)] Params Start
 DIVV D2 32; InlineFunc[int Floor(int)] Params End
@@ -234,11 +234,11 @@ LOAD D2 0.0014
 SETR D3 D2
 POP D0
 POP D2
-WRITEPODARRAYRR D3 D2 0; for() #5 Body End
-LOAD D2 0.0014; for() #5 LoopIncrement
+WRITEPODARRAYRR D3 D2 0; for() Body End
+LOAD D2 0.0014; for() LoopIncrement
 ADDV D2 1
 STORE D2 0.0014
-GOTO 188; for() #5 End
+GOTO 188; for() End
 NOP
 SETV D2 15
 PUSHR D2
@@ -276,19 +276,19 @@ SETV D2 4096
 GOTO 250
 SETV D2 0
 STORE D2 0.0012
-STOREV 0 0.0011; for() #6 setup
-LOAD D2 0.0011; for() #6 LoopTest
+STOREV 0 0.0011; for() setup
+LOAD D2 0.0011; for() LoopTest
 COMPAREV D2 30
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 431 ==; for() #6 TestFail?
-STOREV 0 0.0010; for() #7 setup AND for() #6 Body Start
-LOAD D2 0.0010; for() #7 LoopTest
+GOTOCMP 431 ==; for() TestFail?
+STOREV 0 0.0010; for() setup AND for() Body Start
+LOAD D2 0.0010; for() LoopTest
 COMPAREV D2 32
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 426 ==; for() #7 TestFail?
-ZCLASS_READ CLASS_THISKEY 0; for() #7 Body Start
+GOTOCMP 426 ==; for() TestFail?
+ZCLASS_READ CLASS_THISKEY 0; for() Body Start
 ZCLASS_READ D2 0.0001
 PUSHR D2
 LOAD D2 0.0013
@@ -342,13 +342,13 @@ RSHIFTR D3 D2
 SETR D2 D3
 ANDV D2 3
 STORE D2 0.0006
-STOREV 0 0.0005; for() #8 setup
-LOAD D2 0.0005; for() #8 LoopTest
+STOREV 0 0.0005; for() setup
+LOAD D2 0.0005; for() LoopTest
 COMPAREV D2 8
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 421 ==; for() #8 TestFail?
-ZCLASS_READ CLASS_THISKEY 0; for() #8 Body Start
+GOTOCMP 421 ==; for() TestFail?
+ZCLASS_READ CLASS_THISKEY 0; for() Body Start
 ZCLASS_READ D2 0.0002
 PUSHR D2
 LOAD D2 0.0012
@@ -381,13 +381,13 @@ ADDV D2 8
 POP D0
 READPODARRAYR D2 D2
 STORE D2 0.0003
-STOREV 0 0.0002; for() #9 setup
-LOAD D2 0.0002; for() #9 LoopTest
+STOREV 0 0.0002; for() setup
+LOAD D2 0.0002; for() LoopTest
 COMPAREV D2 8
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 416 ==; for() #9 TestFail?
-LOAD D2 0.0004; for() #9 Body Start
+GOTOCMP 416 ==; for() TestFail?
+LOAD D2 0.0004; for() Body Start
 PUSHR D2
 LOAD D2 0.0002
 SUBV2 7 D2
@@ -436,26 +436,26 @@ LOAD D2 0
 POP D3
 ADDR D2 D3
 MODV D2 4999
-STORE D2 0.0014; for() #9 Body End
-LOAD D2 0.0002; for() #9 LoopIncrement
+STORE D2 0.0014; for() Body End
+LOAD D2 0.0002; for() LoopIncrement
 ADDV D2 1
 STORE D2 0.0002
-GOTO 357; for() #9 End
-NOP; for() #8 Body End
-LOAD D2 0.0005; for() #8 LoopIncrement
+GOTO 357; for() End
+NOP; for() Body End
+LOAD D2 0.0005; for() LoopIncrement
 ADDV D2 1
 STORE D2 0.0005
-GOTO 318; for() #8 End
-NOP; for() #7 Body End
-LOAD D2 0.0010; for() #7 LoopIncrement
+GOTO 318; for() End
+NOP; for() Body End
+LOAD D2 0.0010; for() LoopIncrement
 ADDV D2 1
 STORE D2 0.0010
-GOTO 258; for() #7 End
-NOP; for() #6 Body End
-LOAD D2 0.0011; for() #6 LoopIncrement
+GOTO 258; for() End
+NOP; for() Body End
+LOAD D2 0.0011; for() LoopIncrement
 ADDV D2 1
 STORE D2 0.0011
-GOTO 252; for() #6 End
+GOTO 252; for() End
 NOP
 LOAD D2 0.0014; return Start
 POPARGS D5 0.0015; return End

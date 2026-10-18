@@ -31,16 +31,16 @@ PUSHR D0; void run(int) Params
 PUSHV 0; void run(int) Body Start
 SETR D4 SP2
 NOP
-STOREV 2 0; for() #4 setup AND while(true) #1 Body [Opt:AlwaysOn] Start
-LOAD D2 0; for() #4 LoopTest
+STOREV 2 0; for() setup AND while(true) Body [Opt:AlwaysOn] Start
+LOAD D2 0; for() LoopTest
 PUSHR D2
 LOAD D2 0.0001
 POP D3
 COMPARER D3 D2
 SETCMP D2 I<=
 COMPAREV D2 0
-GOTOCMP 40 ==; for() #4 TestFail?
-LOAD D2 0.0001; if() #9 Test AND for() #4 Body Start
+GOTOCMP 40 ==; for() TestFail?
+LOAD D2 0.0001; if() Test AND for() Body Start
 PUSHR D2
 LOAD D2 0
 POP D3
@@ -49,29 +49,29 @@ SETR D2 D3
 COMPAREV D2 0
 SETCMP D2 I!=
 COMPAREV D2 0
-GOTOCMP 36 !=; Test 'if' AND continue 1; AND if() #9 Body
+GOTOCMP 36 !=; Test 'if' AND continue 1; AND if() Body
 NOP
-PUSHR D4; if() #10 Test
+PUSHR D4; if() Test
 LOAD D2 0; UsrFunc[bool is_prime(int)] Params Start
 PUSHR D2; UsrFunc[bool is_prime(int)] Params End
 CALLFUNC 0.0043; UsrFunc[bool is_prime(int)] Call
 POP D4
 COMPAREV D2 0
 GOTOCMP 35 ==; Test 'if'
-LOAD D2 0; InlineFunc[void Trace(untyped)] Params AND if() #10 Body Start
-TRACER D2; InlineFunc[void Trace(untyped)] Body AND if() #10 Body End
-NOP; for() #4 Body End
-LOAD D2 0; for() #4 LoopIncrement
+LOAD D2 0; InlineFunc[void Trace(untyped)] Params AND if() Body Start
+TRACER D2; InlineFunc[void Trace(untyped)] Body AND if() Body End
+NOP; for() Body End
+LOAD D2 0; for() LoopIncrement
 ADDV D2 1
 STORE D2 0
-GOTO 7; for() #4 End
+GOTO 7; for() End
 NOP
-WAITFRAME; InlineFunc[void Waitframe()] Body AND while(true) #1 Body [Opt:AlwaysOn] End
-GOTO 5; while() #1 End AND [Opt:NeverRet] AND void run(int) Body End
+WAITFRAME; InlineFunc[void Waitframe()] Body AND while(true) Body [Opt:AlwaysOn] End
+GOTO 5; while() End AND [Opt:NeverRet] AND void run(int) Body End
 PUSHV 0; Func[bool is_prime(int)] Body Start
 SETR D4 SP2
-STOREV 2 0; for() #3 setup
-LOAD D2 0; for() #3 LoopTest
+STOREV 2 0; for() setup
+LOAD D2 0; for() LoopTest
 PUSHR D2
 LOAD D2 0.0001
 DIVV D2 2
@@ -79,8 +79,8 @@ POP D3
 COMPARER D3 D2
 SETCMP D2 I<=
 COMPAREV D2 0
-GOTOCMP 72 ==; for() #3 TestFail?
-LOAD D2 0.0001; if() #8 Test AND for() #3 Body Start
+GOTOCMP 72 ==; for() TestFail?
+LOAD D2 0.0001; if() Test AND for() Body Start
 PUSHR D2
 LOAD D2 0
 POP D3
@@ -90,13 +90,13 @@ COMPAREV D2 0
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 67 ==; Test 'if'
-SETV D2 0; return Start AND if() #8 Body Start
-GOTO 74; return End AND if() #8 Body End
-NOP; for() #3 Body End
-LOAD D2 0; for() #3 LoopIncrement
+SETV D2 0; return Start AND if() Body Start
+GOTO 74; return End AND if() Body End
+NOP; for() Body End
+LOAD D2 0; for() LoopIncrement
 ADDV D2 1
 STORE D2 0
-GOTO 46; for() #3 End
+GOTO 46; for() End
 NOP
 SETV D2 1; return Start
 POPARGS D5 0.0002; return End

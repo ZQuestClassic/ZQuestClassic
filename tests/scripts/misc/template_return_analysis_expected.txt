@@ -29,21 +29,21 @@ zasm:
 QUIT; void run() Body
 PUSHR D0; void run(int) Params
 SETR D4 SP2; void run(int) Body Start
-LOAD D2 0; if() #1 Test
+LOAD D2 0; if() Test
 COMPAREV D2 0
 GOTOCMP 10 ==; Test 'if'
-PUSHV 1; UsrFunc[void Tmpl(int)] Params AND if() #1 Body Start
+PUSHV 1; UsrFunc[void Tmpl(int)] Params AND if() Body Start
 CALLFUNC 0.0019; UsrFunc[void Tmpl(int)] Call AND [Opt:NeverRet]
-GOTO 12; if() #1 Body End
-PUSHV 1; UsrFunc[void Plain(int)] Params AND if() #1 Else Start
-CALLFUNC 0.0022; UsrFunc[void Plain(int)] Call AND [Opt:NeverRet] AND if() #1 Else End
+GOTO 12; if() Body End
+PUSHV 1; UsrFunc[void Plain(int)] Params AND if() Else Start
+CALLFUNC 0.0022; UsrFunc[void Plain(int)] Call AND [Opt:NeverRet] AND if() Else End
 NOP; [Opt:NeverRet] AND void run(int) Body End
 SETR D4 SP2; Func[void A()] Body Start
 CALLFUNC 0.0015; UsrFunc[void B()] Call AND [Opt:NeverRet] AND [Opt:NeverRet] AND Func[void A()] Body End
 SETR D4 SP2; Func[void B()] Body Start
 NOP
-WAITFRAME; InlineFunc[void Waitframe()] Body AND while(true) #1 Body [Opt:AlwaysOn]
-GOTO 16; while() #1 End AND [Opt:NeverRet] AND Func[void B()] Body End
+WAITFRAME; InlineFunc[void Waitframe()] Body AND while(true) Body [Opt:AlwaysOn]
+GOTO 16; while() End AND [Opt:NeverRet] AND Func[void B()] Body End
 PUSHV 0; Func[void Tmpl(int)] Body Start
 SETR D4 SP2
 CALLFUNC 0.0013; UsrFunc[void A()] Call AND [Opt:NeverRet] AND [Opt:NeverRet] AND Func[void Tmpl(int)] Body End

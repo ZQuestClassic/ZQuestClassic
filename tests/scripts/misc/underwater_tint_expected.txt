@@ -30,12 +30,12 @@ QUIT; void run() Body
 PUSHARGSV 0 0.0002; void run() Body Start
 SETR D4 SP2
 NOP
-SETR D2 LINKACTION; if() #8 Test AND while(true) #1 Body [Opt:AlwaysOn] Start
+SETR D2 LINKACTION; if() Test AND while(true) Body [Opt:AlwaysOn] Start
 COMPAREV D2 24
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 33 ==; Test 'if'
-SETV D2 0.0001; if() #8 Body Start
+SETV D2 0.0001; if() Body Start
 PUSHR D2
 POP D2
 SETR SCREEN_DRAW_ORIGIN D2
@@ -57,7 +57,7 @@ PUSHARGSV 0 0.0003
 PUSHV 1
 PUSHV 64; InlineFunc[void screendata::Rectangle(int, int, int, int, int, int, int, int, int, int, bool, int)] Params End
 RECTR; InlineFunc[void screendata::Rectangle(int, int, int, int, int, int, int, int, int, int, bool, int)] Body Start
-POPARGS D5 0.0012; InlineFunc[void screendata::Rectangle(int, int, int, int, int, int, int, int, int, int, bool, int)] Body End AND if() #8 Body End
+POPARGS D5 0.0012; InlineFunc[void screendata::Rectangle(int, int, int, int, int, int, int, int, int, int, bool, int)] Body End AND if() Body End
 NOP
-WAITFRAME; InlineFunc[void Waitframe()] Body AND while(true) #1 Body [Opt:AlwaysOn] End
-GOTO 4; while() #1 End AND [Opt:NeverRet] AND void run() Body End
+WAITFRAME; InlineFunc[void Waitframe()] Body AND while(true) Body [Opt:AlwaysOn] End
+GOTO 4; while() End AND [Opt:NeverRet] AND void run() Body End

@@ -36,7 +36,7 @@ DIVV D2 2
 PUSHR D2
 POP D2
 SETR LINKHP D2
-SETV D2 0.0001; InlineFunc[int ComboAt(int, int)] Params Start AND while(true) #2 Body [Opt:AlwaysOn] Start
+SETV D2 0.0001; InlineFunc[int ComboAt(int, int)] Params Start AND while(true) Body [Opt:AlwaysOn] Start
 PUSHR D2
 POP REFSPRITE
 SETR D2 SPRITE_X
@@ -51,7 +51,7 @@ SETR D3 D2; InlineFunc[int ComboAt(int, int)] Params End
 POP D2; InlineFunc[int ComboAt(int, int)] Body Start
 COMBO_AT D2 D3; InlineFunc[int ComboAt(int, int)] Body End
 STORE D2 0
-LOAD D2 0; if() #388 Test
+LOAD D2 0; if() Test
 PUSHR D2
 POP D0
 SETR D2 COMBODD
@@ -62,7 +62,7 @@ COMPARER D3 D2
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 50 ==; Test 'if'
-LOAD D2 0; if() #388 Body Start
+LOAD D2 0; if() Body Start
 PUSHR D2
 POP D0
 SETR D2 COMBODD
@@ -74,7 +74,7 @@ POP D0
 POP D2
 SETR COMBODD D2
 LOAD D2 0.0001; InlineFunc[void Audio::PlaySound(int)] Params
-PLAYSOUNDR D2; InlineFunc[void Audio::PlaySound(int)] Body AND if() #388 Body End
+PLAYSOUNDR D2; InlineFunc[void Audio::PlaySound(int)] Body AND if() Body End
 NOP
 PUSHV 6; InlineFunc[void screendata::DrawTile(int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Params Start
 SETV D2 0.0001
@@ -130,5 +130,5 @@ PUSHV 1
 PUSHV 128; InlineFunc[void screendata::DrawTile(int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Params End
 DRAWTILER; InlineFunc[void screendata::DrawTile(int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Body Start
 POPARGS D5 0.0015; InlineFunc[void screendata::DrawTile(int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Body End
-WAITFRAME; InlineFunc[void Waitframe()] Body AND while(true) #2 Body [Opt:AlwaysOn] End
-GOTO 11; while() #2 End AND [Opt:NeverRet] AND void run(int, int) Body End
+WAITFRAME; InlineFunc[void Waitframe()] Body AND while(true) Body [Opt:AlwaysOn] End
+GOTO 11; while() End AND [Opt:NeverRet] AND void run(int, int) Body End

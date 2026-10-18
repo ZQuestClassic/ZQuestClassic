@@ -30,7 +30,7 @@ QUIT; void run() Body
 PUSHARGSV 0 0.0003; void run() Body Start
 SETR D4 SP2
 NOP
-SETV D2 0.0003; while(true) #1 Body [Opt:AlwaysOn] Start
+SETV D2 0.0003; while(true) Body [Opt:AlwaysOn] Start
 PUSHR D2
 POP D2
 SETR SCREEN_DRAW_ORIGIN D2
@@ -46,5 +46,5 @@ PUSHV 1
 PUSHV 64; InlineFunc[void screendata::DrawCombo(int, int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Params End
 DRAWCOMBOR; InlineFunc[void screendata::DrawCombo(int, int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Body Start
 POPARGS D5 0.0016; InlineFunc[void screendata::DrawCombo(int, int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Body End
-WAITFRAME; InlineFunc[void Waitframe()] Body AND while(true) #1 Body [Opt:AlwaysOn] End
-GOTO 4; while() #1 End AND [Opt:NeverRet] AND void run() Body End
+WAITFRAME; InlineFunc[void Waitframe()] Body AND while(true) Body [Opt:AlwaysOn] End
+GOTO 4; while() End AND [Opt:NeverRet] AND void run() Body End

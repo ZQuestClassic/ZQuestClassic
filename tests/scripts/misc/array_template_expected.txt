@@ -99,27 +99,27 @@ CALLFUNC 0.0273; UsrFunc[void print(int[][])] Call
 POP D4
 ALLOCATEMEMV D2 0 0
 STORE_OBJECT D2 0.0007
-LOAD D2 0.0009; for(each) #1 ArrDecl
+LOAD D2 0.0009; for(each) ArrDecl
 STORE_OBJECT D2 0.0005
-STOREV 0 0.0006; for(each) #1 IndxDecl
-STOREV 0 0.0004; for(each) #1 ValDecl
-LOAD D0 0.0005; for(each) #1 EndArrayCheck
+STOREV 0 0.0006; for(each) IndxDecl
+STOREV 0 0.0004; for(each) ValDecl
+LOAD D0 0.0005; for(each) EndArrayCheck
 ARRAYSIZE D0
 LOAD D3 0.0006
 COMPARER D3 D2
-GOTOCMP 95 >=; for(each) #1 to Else
-READPODARRAYR D2 D3; for(each) #1 Next Index
+GOTOCMP 95 >=; for(each) to Else
+READPODARRAYR D2 D3; for(each) Next Index
 STORE_OBJECT D2 0.0004
 ADDV D3 1
 STORE D3 0.0006
-PUSHR D4; for(each) #1 Body Start
+PUSHR D4; for(each) Body Start
 LOAD D2 0.0007; UsrFunc[void arraycat(int[], int[])] Params Start
 PUSHR D2
 LOAD D2 0.0004
 PUSHR D2; UsrFunc[void arraycat(int[], int[])] Params End
 CALLFUNC 0.0178; UsrFunc[void arraycat(int[], int[])] Call
-POP D4; for(each) #1 Body End
-GOTO 78; for(each) #1 End
+POP D4; for(each) Body End
+GOTO 78; for(each) End
 REF_REMOVE 0.0005
 REF_REMOVE 0.0004
 PUSHR D4
@@ -127,18 +127,18 @@ LOAD D2 0.0007; UsrFunc[void print(int[])] Params Start
 PUSHR D2; UsrFunc[void print(int[])] Params End
 CALLFUNC 0.0259; UsrFunc[void print(int[])] Call
 POP D4
-STOREV -1 0.0006; loop() #1 ValDecl
-PUSHR D4; loop() #1 Body Start
+STOREV -1 0.0006; loop() ValDecl
+PUSHR D4; loop() Body Start
 LOAD D2 0.0007; UsrFunc[void append(int[], int)] Params Start
 PUSHR D2
 LOAD D2 0.0006
 PUSHR D2; UsrFunc[void append(int[], int)] Params End
 CALLFUNC 0.0230; UsrFunc[void append(int[], int)] Call
-POP D4; loop() #1 Body End
-LOAD D3 0.0006; loop() #1 Incr
+POP D4; loop() Body End
+LOAD D3 0.0006; loop() Incr
 ADDV D3 -1
 STORE D3 0.0006
-COMPAREV D3 -9.9999; loop() #1 Test
+COMPAREV D3 -9.9999; loop() Test
 GOTOCMP 103 >=; >= start, keep looping
 POPARGS D5 0
 PUSHR D4
@@ -223,20 +223,20 @@ ADDR D2 D3
 SETR D3 D2; InlineFunc[void ResizeArray(untyped[], int)] Params End
 POP D2; InlineFunc[void ResizeArray(untyped[], int)] Body Start
 RESIZEARRAYR D2 D3; InlineFunc[void ResizeArray(untyped[], int)] Body End
-LOAD D2 0.0004; for(each) #2 ArrDecl
+LOAD D2 0.0004; for(each) ArrDecl
 STORE_OBJECT D2 0.0001
-STOREV 0 0.0002; for(each) #2 IndxDecl
-STOREV 0 0; for(each) #2 ValDecl
-LOAD D0 0.0001; for(each) #2 EndArrayCheck
+STOREV 0 0.0002; for(each) IndxDecl
+STOREV 0 0; for(each) ValDecl
+LOAD D0 0.0001; for(each) EndArrayCheck
 ARRAYSIZE D0
 LOAD D3 0.0002
 COMPARER D3 D2
-GOTOCMP 225 >=; for(each) #2 to Else
-READPODARRAYR D2 D3; for(each) #2 Next Index
+GOTOCMP 225 >=; for(each) to Else
+READPODARRAYR D2 D3; for(each) Next Index
 STORE D2 0
 ADDV D3 1
 STORE D3 0.0002
-LOAD D2 0; for(each) #2 Body Start
+LOAD D2 0; for(each) Body Start
 PUSHR D2
 LOAD D2 0.0005
 PUSHR D2
@@ -248,8 +248,8 @@ POP D2
 SETR D3 D2
 POP D0
 POP D2
-WRITEPODARRAYRR D3 D2 0; for(each) #2 Body End
-GOTO 202; for(each) #2 End
+WRITEPODARRAYRR D3 D2 0; for(each) Body End
+GOTO 202; for(each) End
 REF_REMOVE 0.0001
 REF_REMOVE 0.0005
 REF_REMOVE 0.0004

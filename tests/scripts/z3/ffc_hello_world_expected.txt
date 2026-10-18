@@ -63,8 +63,8 @@ PUSHVARGR SCREEN_INDEX; InlineFunc[void printf(char32[], ...untyped[])] Params E
 PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
 POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
 STOREV 0 0.0004
-WAITDRAW; InlineFunc[void Waitdraw()] Body AND while(true) #4 Body [Opt:AlwaysOn] Start
-LOAD D2 0.0004; if() #390 Test
+WAITDRAW; InlineFunc[void Waitdraw()] Body AND while(true) Body [Opt:AlwaysOn] Start
+LOAD D2 0.0004; if() Test
 PUSHR D2
 ADDV D2 1
 STORE D2 0.0004
@@ -73,7 +73,7 @@ COMPAREV D2 30
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 65 ==; Test 'if'
-ALLOCATEMEMV D2 43 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start AND if() #390 Body Start
+ALLOCATEMEMV D2 43 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start AND if() Body Start
 WRITEPODSTRING D2 "FFC script is running, ID: %d x: %d y: %d\n"
 PUSHR D2
 SETR D2 SCR0
@@ -89,7 +89,7 @@ PUSHR D2
 POP REFSPRITE
 PUSHVARGR SPRITE_Y; InlineFunc[void printf(char32[], ...untyped[])] Params End
 PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
-POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End AND if() #390 Body End
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End AND if() Body End
 NOP
 SETR D2 SCR0
 PUSHR D2
@@ -140,33 +140,33 @@ PUSHARGSV 0 0.0004
 PUSHV 128; InlineFunc[void screendata::Rectangle(int, int, int, int, int, int, int, int, int, int, bool, int)] Params End
 RECTR; InlineFunc[void screendata::Rectangle(int, int, int, int, int, int, int, int, int, int, bool, int)] Body Start
 POPARGS D5 0.0012; InlineFunc[void screendata::Rectangle(int, int, int, int, int, int, int, int, int, int, bool, int)] Body End
-WAITFRAME; InlineFunc[void Waitframe()] Body AND while(true) #4 Body [Opt:AlwaysOn] End
-GOTO 38; while() #4 End AND [Opt:NeverRet] AND void run(int) Body End
+WAITFRAME; InlineFunc[void Waitframe()] Body AND while(true) Body [Opt:AlwaysOn] End
+GOTO 38; while() End AND [Opt:NeverRet] AND void run(int) Body End
 PUSHARGSV 0 0.0005; void run() Body Start
 SETR D4 SP2
 SETV D2 0.0003
 PUSHR D2
 POP D2
 SETR SCREEN_DRAW_ORIGIN D2
-WAITDRAW; InlineFunc[void Waitdraw()] Body AND while(true) #2 Body [Opt:AlwaysOn] Start
-STOREV 1 0.0004; for() #134 setup
-LOAD D2 0.0004; for() #134 LoopTest
+WAITDRAW; InlineFunc[void Waitdraw()] Body AND while(true) Body [Opt:AlwaysOn] Start
+STOREV 1 0.0004; for() setup
+LOAD D2 0.0004; for() LoopTest
 PUSHR D2
 SETR D2 MAX_FFC_ID
 POP D3
 COMPARER D3 D2
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 178 ==; for() #134 TestFail?
-LOAD D2 0.0004; InlineFunc[ffc screendata::LoadFFC(int)] Params AND for() #134 Body Start
+GOTOCMP 178 ==; for() TestFail?
+LOAD D2 0.0004; InlineFunc[ffc screendata::LoadFFC(int)] Params AND for() Body Start
 LOAD_FFC D2; InlineFunc[ffc screendata::LoadFFC(int)] Body
 STORE D2 0.0003
-LOAD D2 0.0003; unless() #388 Test
+LOAD D2 0.0003; unless() Test
 PUSHR D2
 POP REFFFC
 SETR D2 DATA
 COMPAREV D2 0
-GOTOCMP 174 ==; Test 'unless' AND continue 1; AND unless() #388 Body
+GOTOCMP 174 ==; Test 'unless' AND continue 1; AND unless() Body
 NOP
 STOREV 5 0.0002
 LOAD D2 0.0003
@@ -198,39 +198,39 @@ PUSHARGSV 0 0.0003
 PUSHV 1
 PUSHV 128; InlineFunc[void screendata::Circle(int, int, int, int, int, int, int, int, int, bool, int)] Params End
 CIRCLER; InlineFunc[void screendata::Circle(int, int, int, int, int, int, int, int, int, bool, int)] Body Start
-POPARGS D5 0.0011; InlineFunc[void screendata::Circle(int, int, int, int, int, int, int, int, int, bool, int)] Body End AND for() #134 Body End
-LOAD D2 0.0004; for() #134 LoopIncrement
+POPARGS D5 0.0011; InlineFunc[void screendata::Circle(int, int, int, int, int, int, int, int, int, bool, int)] Body End AND for() Body End
+LOAD D2 0.0004; for() LoopIncrement
 ADDV D2 1
 STORE D2 0.0004
-GOTO 125; for() #134 End
+GOTO 125; for() End
 NOP
-WAITFRAME; InlineFunc[void Waitframe()] Body AND while(true) #2 Body [Opt:AlwaysOn] End
-GOTO 123; while() #2 End AND [Opt:NeverRet] AND void run() Body End
+WAITFRAME; InlineFunc[void Waitframe()] Body AND while(true) Body [Opt:AlwaysOn] End
+GOTO 123; while() End AND [Opt:NeverRet] AND void run() Body End
 PUSHARGSV 0 0.0005; void run() Body Start
 SETR D4 SP2
 SETV D2 0.0003
 PUSHR D2
 POP D2
 SETR SCREEN_DRAW_ORIGIN D2
-WAITDRAW; InlineFunc[void Waitdraw()] Body AND while(true) #3 Body [Opt:AlwaysOn] Start
-STOREV 1 0.0004; for() #135 setup
-LOAD D2 0.0004; for() #135 LoopTest
+WAITDRAW; InlineFunc[void Waitdraw()] Body AND while(true) Body [Opt:AlwaysOn] Start
+STOREV 1 0.0004; for() setup
+LOAD D2 0.0004; for() LoopTest
 PUSHR D2
 SETR D2 MAX_FFC_ID
 POP D3
 COMPARER D3 D2
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 238 ==; for() #135 TestFail?
-LOAD D2 0.0004; InlineFunc[ffc screendata::LoadFFC(int)] Params AND for() #135 Body Start
+GOTOCMP 238 ==; for() TestFail?
+LOAD D2 0.0004; InlineFunc[ffc screendata::LoadFFC(int)] Params AND for() Body Start
 LOAD_FFC D2; InlineFunc[ffc screendata::LoadFFC(int)] Body
 STORE D2 0.0003
-LOAD D2 0.0003; unless() #389 Test
+LOAD D2 0.0003; unless() Test
 PUSHR D2
 POP REFFFC
 SETR D2 DATA
 COMPAREV D2 0
-GOTOCMP 234 ==; Test 'unless' AND continue 1; AND unless() #389 Body
+GOTOCMP 234 ==; Test 'unless' AND continue 1; AND unless() Body
 NOP
 STOREV 3 0.0002
 LOAD D2 0.0003
@@ -258,11 +258,11 @@ PUSHARGSV 0 0.0003
 PUSHV 1
 PUSHV 128; InlineFunc[void screendata::Circle(int, int, int, int, int, int, int, int, int, bool, int)] Params End
 CIRCLER; InlineFunc[void screendata::Circle(int, int, int, int, int, int, int, int, int, bool, int)] Body Start
-POPARGS D5 0.0011; InlineFunc[void screendata::Circle(int, int, int, int, int, int, int, int, int, bool, int)] Body End AND for() #135 Body End
-LOAD D2 0.0004; for() #135 LoopIncrement
+POPARGS D5 0.0011; InlineFunc[void screendata::Circle(int, int, int, int, int, int, int, int, int, bool, int)] Body End AND for() Body End
+LOAD D2 0.0004; for() LoopIncrement
 ADDV D2 1
 STORE D2 0.0004
-GOTO 189; for() #135 End
+GOTO 189; for() End
 NOP
-WAITFRAME; InlineFunc[void Waitframe()] Body AND while(true) #3 Body [Opt:AlwaysOn] End
-GOTO 187; while() #3 End AND [Opt:NeverRet] AND void run() Body End
+WAITFRAME; InlineFunc[void Waitframe()] Body AND while(true) Body [Opt:AlwaysOn] End
+GOTO 187; while() End AND [Opt:NeverRet] AND void run() Body End

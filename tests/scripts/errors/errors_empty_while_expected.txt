@@ -29,4 +29,4 @@ zasm:
 QUIT; void run() Body
 SETR D4 SP2; void run() Body Start
 NOP
-GOTO 3; while() #1 End AND [Opt:NeverRet] AND void run() Body End
+GOTO 3; while() End AND [Opt:NeverRet] AND void run() Body End

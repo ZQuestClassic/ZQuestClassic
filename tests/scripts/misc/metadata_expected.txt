@@ -2857,24 +2857,24 @@ PUSHR D2                                                                        
 WRITEPODARRAY D2 {1,2,3}                                                        | 85 tests/scripts/misc/metadata.zs:95
 POP D2                                                                          | 86 tests/scripts/misc/metadata.zs:95
 STORE_OBJECT D2 0.0003                                                          | 87 tests/scripts/misc/metadata.zs:95
-LOAD D2 0.0003; for(each) #1 ArrDecl                                            | 88 tests/scripts/misc/metadata.zs:96
+LOAD D2 0.0003; for(each) ArrDecl                                            | 88 tests/scripts/misc/metadata.zs:96
 STORE_OBJECT D2 0.0001                                                          | 89 tests/scripts/misc/metadata.zs:96
-STOREV 0 0.0002; for(each) #1 IndxDecl                                          | 90 tests/scripts/misc/metadata.zs:96
-STOREV 0 0; for(each) #1 ValDecl                                                | 91 tests/scripts/misc/metadata.zs:96
-LOAD D0 0.0001; for(each) #1 EndArrayCheck                                      | 92 tests/scripts/misc/metadata.zs:96
+STOREV 0 0.0002; for(each) IndxDecl                                          | 90 tests/scripts/misc/metadata.zs:96
+STOREV 0 0; for(each) ValDecl                                                | 91 tests/scripts/misc/metadata.zs:96
+LOAD D0 0.0001; for(each) EndArrayCheck                                      | 92 tests/scripts/misc/metadata.zs:96
 ARRAYSIZE D0                                                                    | 93 tests/scripts/misc/metadata.zs:96
 LOAD D3 0.0002                                                                  | 94 tests/scripts/misc/metadata.zs:96
 COMPARER D3 D2                                                                  | 95 tests/scripts/misc/metadata.zs:96
-GOTOCMP 105 >=; for(each) #1 to Else                                            | 96 tests/scripts/misc/metadata.zs:96
-READPODARRAYR D2 D3; for(each) #1 Next Index                                    | 97 tests/scripts/misc/metadata.zs:96
+GOTOCMP 105 >=; for(each) to Else                                            | 96 tests/scripts/misc/metadata.zs:96
+READPODARRAYR D2 D3; for(each) Next Index                                    | 97 tests/scripts/misc/metadata.zs:96
 STORE D2 0                                                                      | 98 tests/scripts/misc/metadata.zs:96
 ADDV D3 1                                                                       | 99 tests/scripts/misc/metadata.zs:96
 STORE D3 0.0002                                                                 | 100 tests/scripts/misc/metadata.zs:96
-LOAD D2 0; InlineFunc[void Trace(untyped)] Params AND for(each) #1 Body Start   | 101 tests/scripts/misc/metadata.zs:97
-TRACER D2; InlineFunc[void Trace(untyped)] Body AND for(each) #1 Body End       | 102 tests/scripts/misc/metadata.zs:97
-GOTO 93; for(each) #1 End                                                       | 103 tests/scripts/misc/metadata.zs:96
+LOAD D2 0; InlineFunc[void Trace(untyped)] Params AND for(each) Body Start   | 101 tests/scripts/misc/metadata.zs:97
+TRACER D2; InlineFunc[void Trace(untyped)] Body AND for(each) Body End       | 102 tests/scripts/misc/metadata.zs:97
+GOTO 93; for(each) End                                                       | 103 tests/scripts/misc/metadata.zs:96
 REF_REMOVE 0.0001                                                               | 104 tests/scripts/misc/metadata.zs:96
-STOREV 1 0.0002; if(ahhh=true) #8 [Opt:AlwaysOn]                                | 105 tests/scripts/misc/metadata.zs:99
+STOREV 1 0.0002; if(ahhh=true) [Opt:AlwaysOn]                                | 105 tests/scripts/misc/metadata.zs:99
 LOAD D2 0.0002; InlineFunc[void Trace(untyped)] Params                          | 106 tests/scripts/misc/metadata.zs:101
 TRACER D2; InlineFunc[void Trace(untyped)] Body                                 | 107 tests/scripts/misc/metadata.zs:101
 STOREV 0 0.0002                                                                 | 108 tests/scripts/misc/metadata.zs:103

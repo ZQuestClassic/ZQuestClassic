@@ -14,6 +14,7 @@ import argparse
 import json
 import os
 import platform
+import re
 import subprocess
 import sys
 import unittest
@@ -40,6 +41,16 @@ tmp_dir.mkdir(exist_ok=True, parents=True)
 
 sys.path.append(str((root_dir / 'scripts').absolute()))
 import run_target
+
+
+def strip_node_ids(zasm: str) -> str:
+    """Drops the node ids from ZASM comments: `if() #390 Test` becomes `if() Test`.
+
+    Each statement type numbers its nodes in parse order across every file the
+    compiler reads, so an edit to a shared header renumbers the ids in every
+    snapshot that includes it, without changing any ZASM.
+    """
+    return re.sub(r'\) #\d+', ')', zasm)
 
 
 class TestZScript(ZCTestCase):
@@ -166,6 +177,7 @@ class TestZScript(ZCTestCase):
         zasm = '\n'.join(
             [l.strip() for l in zasm.splitlines() if not l.startswith('#')]
         ).strip()
+        zasm = strip_node_ids(zasm)
 
         if elide_source_lines:
             lines = zasm.splitlines()

@@ -29,22 +29,22 @@ zasm:
 QUIT; void run() Body
 PUSHARGSV 0 0.0002; void run() Body Start
 SETR D4 SP2
-SETR D2 SCR4; if() #8 Test
+SETR D2 SCR4; if() Test
 COMPAREV D2 0
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 11 ==; Test 'if'
-SETR D2 SCR1; if() #8 Body Start
-SETR SCR4 D2; if() #8 Body End
+SETR D2 SCR1; if() Body Start
+SETR SCR4 D2; if() Body End
 NOP
-SETR D2 SCR3; if() #9 Test
+SETR D2 SCR3; if() Test
 COMPAREV D2 0
 SETCMP D2 I<
 COMPAREV D2 0
 GOTOCMP 20 ==; Test 'if'
-SETV D3 360; InlineFunc[int Rand(int)] Params AND if() #9 Body Start
+SETV D3 360; InlineFunc[int Rand(int)] Params AND if() Body Start
 RNDR D2 D3; InlineFunc[int Rand(int)] Body
-SETR SCR3 D2; if() #9 Body End
+SETR SCR3 D2; if() Body End
 NOP
 SETR D2 SCR0
 PUSHR D2
@@ -56,37 +56,37 @@ PUSHR D2
 POP REFSPRITE
 SETR D2 SPRITE_Y
 STORE D2 0
-SETR D2 SCR3; while(true) #1 Body [Opt:AlwaysOn] Start
+SETR D2 SCR3; while(true) Body [Opt:AlwaysOn] Start
 PUSHR D2
 SETR D2 SCR2
 POP D3
 ADDR D2 D3
 SETR SCR3 D2
-SETR D2 SCR3; if() #1 Test
+SETR D2 SCR3; if() Test
 COMPAREV D2 -360
 SETCMP D2 I<
 COMPAREV D2 0
 GOTOCMP 46 ==; Test 'if'
-SETR D2 SCR3; if() #1 Body Start
+SETR D2 SCR3; if() Body Start
 ADDV D2 360
 SETR SCR3 D2
-GOTO 55; if() #1 Body End
-SETR D2 SCR3; if() #10 Test AND if() #1 Else Start
+GOTO 55; if() Body End
+SETR D2 SCR3; if() Test AND if() Else Start
 COMPAREV D2 360
 SETCMP D2 I>
 COMPAREV D2 0
 GOTOCMP 54 ==; Test 'if'
-SETR D2 SCR3; if() #10 Body Start
+SETR D2 SCR3; if() Body Start
 SUBV D2 360
-SETR SCR3 D2; if() #10 Body End
-NOP; if() #1 Else End
+SETR SCR3 D2; if() Body End
+NOP; if() Else End
 NOP
-SETR D2 SCR5; if() #2 Test
+SETR D2 SCR5; if() Test
 COMPAREV D2 0
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 98 ==; Test 'if'
-LOAD D2 0.0001; if() #2 Body Start
+LOAD D2 0.0001; if() Body Start
 PUSHR D2
 SETR D2 SCR1
 PUSHR D2
@@ -122,8 +122,8 @@ PUSHR D3
 POP D2
 POP REFSPRITE
 SETR SPRITE_Y D2
-GOTO 173; if() #2 Body End
-LOAD D2 0.0001; if() #2 Else Start
+GOTO 173; if() Body End
+LOAD D2 0.0001; if() Else Start
 PUSHR D2
 SETR D2 SCR1
 PUSHR D2
@@ -197,7 +197,7 @@ PUSHR D2
 PUSHR D3
 POP D2
 POP REFSPRITE
-SETR SPRITE_Y D2; if() #2 Else End
+SETR SPRITE_Y D2; if() Else End
 NOP
-WAITFRAME; InlineFunc[void Waitframe()] Body AND while(true) #1 Body [Opt:AlwaysOn] End
-GOTO 31; while() #1 End AND [Opt:NeverRet] AND void run() Body End
+WAITFRAME; InlineFunc[void Waitframe()] Body AND while(true) Body [Opt:AlwaysOn] End
+GOTO 31; while() End AND [Opt:NeverRet] AND void run() Body End
