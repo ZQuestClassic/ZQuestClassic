@@ -962,8 +962,8 @@ void combodata_set_register(int32_t reg, int32_t value)
 				{
 					cdata.tile += cdata.skipanimy * rowoffset * TILES_PER_ROW;
 				}
-				combo_caches::drawing.refresh(GET_REF(combodataref));
 			}
+			combo_caches::drawing.refresh(GET_REF(combodataref));
 			break;
 		}
 		case COMBODSKIPANIM:	SET_COMBO_VAR_BYTE(skipanim); break;					//C
