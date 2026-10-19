@@ -37,8 +37,9 @@
 # --update records with the JIT and ZASM optimizer disabled, so the baseline comes from
 # the plain interpreter. --update_known_good then asserts the updated replays with both
 # enabled, and only replays that pass that too are added to the known good set. Replays
-# that update but fail that assert likely point to a JIT or optimizer bug, and are
-# listed at the end.
+# that update but fail that assert are asserted again without the JIT and optimizer,
+# and listed at the end as likely JIT/optimizer bugs (if they pass that) or replay
+# bugs (if they don't).
 #
 # To debug why a replay can't be updated, run:
 #
@@ -420,9 +421,30 @@ def run_replays():
             )
             jit_passed = get_passed_paths(jit_test_results)
         jit_failing_paths = [p for p in updated_ok_paths if p not in jit_passed]
+
+        # Assert those again without the JIT and optimizer, to tell apart JIT or
+        # optimizer bugs from replays that just don't assert right after updating.
+        nojit_passed = set()
+        if jit_failing_paths:
+            nojit_test_results = run_replays_process(
+                [
+                    '--assert',
+                    '--no_report_on_failure',
+                    *build_args,
+                    '--no-jit',
+                    '--no-optimize-zasm',
+                    *jit_failing_paths,
+                ],
+                'replay_uploads_test_results_nojit',
+            )
+            nojit_passed = get_passed_paths(nojit_test_results)
         print_failing_replays(
-            'These replays updated, but then failed with the JIT and ZASM optimizer enabled (likely a JIT or optimizer bug):',
-            jit_failing_paths,
+            'These replays updated, but then failed with the JIT and ZASM optimizer enabled, and passed without them (likely a JIT or optimizer bug):',
+            [p for p in jit_failing_paths if p in nojit_passed],
+        )
+        print_failing_replays(
+            'These replays updated, but then failed to assert even without the JIT and ZASM optimizer (likely a replay bug):',
+            [p for p in jit_failing_paths if p not in nojit_passed],
         )
 
         known_good = {}
