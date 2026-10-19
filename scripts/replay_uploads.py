@@ -34,6 +34,12 @@
 # and re-uploaded replays), run `python scripts/replay_uploads.py --update --update_known_good`
 # (some will fail to update, that is ok) and commit the result.
 #
+# --update records with the JIT and ZASM optimizer disabled, so the baseline comes from
+# the plain interpreter. --update_known_good then asserts the updated replays with both
+# enabled, and only replays that pass that too are added to the known good set. Replays
+# that update but fail that assert likely point to a JIT or optimizer bug, and are
+# listed at the end.
+#
 # To debug why a replay can't be updated, run:
 #
 #   python scripts/replay_uploads.py --debug 50C00A5197148F3D1587A16509DCC89F/0be80dd3-c719-4203-a314-fec7e9557a7f.zplay
@@ -62,7 +68,8 @@ import database
 
 script_dir = Path(os.path.dirname(os.path.realpath(__file__)))
 root_dir = script_dir.parent
-replays_dir = root_dir / '.tmp/replay_uploads'
+# Resolved, so these paths compare equal to the (resolved) paths in test results.
+replays_dir = (root_dir / '.tmp/replay_uploads').resolve()
 
 os.sys.path.append(str((root_dir / 'tests/lib').absolute()))
 os.sys.path.append(str((root_dir / 'tests').absolute()))
@@ -93,6 +100,19 @@ parser.add_argument(
     '--update_known_good',
     action='store_true',
     help='Update the checked-in file for which replays are update-able',
+)
+parser.add_argument(
+    '--jit',
+    action=argparse.BooleanOptionalAction,
+    help='Enables JIT compilation. Defaults to off for --update, on for --assert',
+)
+parser.add_argument(
+    '--optimize-zasm',
+    action=argparse.BooleanOptionalAction,
+    help='Enables the ZASM optimizer. Defaults to off for --update, on for --assert',
+)
+parser.add_argument(
+    '--build_folder', help='The folder containing the zplayer executable to run'
 )
 parser.add_argument('--debug', help='Debug why the given replay cannot be updated')
 parser.add_argument(
@@ -300,14 +320,14 @@ def init_updated_replay(key: str, pin: dict | None):
     updated_replay_path.write_text('\n'.join(new_lines), 'utf-8')
 
 
-def run_replays_process(args):
-    test_results_folder = root_dir / '.tmp/replay_uploads_test_results'
+def run_replays_process(args, test_results_folder_name='replay_uploads_test_results'):
+    test_results_folder = root_dir / '.tmp' / test_results_folder_name
     if test_results_folder.exists():
         shutil.rmtree(test_results_folder)
     test_results_folder.parent.mkdir(parents=True, exist_ok=True)
     # There can be hundreds of replay paths here, which blows past Windows'
     # ~32k command line limit, so pass them in a response file instead.
-    args_path = test_results_folder.parent / 'replay_uploads_args.txt'
+    args_path = test_results_folder.parent / f'{test_results_folder_name}_args.txt'
     args_path.write_text('\n'.join(str(arg) for arg in args))
     subprocess.run(
         [
@@ -362,35 +382,86 @@ def run_replays():
     updated_keys = [get_updated_key(key) for key in original_keys]
     updated_paths = [get_replay_path(key) for key in updated_keys]
 
-    test_results = run_replays_process([f'--{mode}', *updated_paths])
+    # Baselines are recorded with the plain interpreter, so a JIT or optimizer bug can't
+    # end up in them.
+    use_jit = args.jit if args.jit is not None else mode == 'assert'
+    use_optimize_zasm = (
+        args.optimize_zasm if args.optimize_zasm is not None else mode == 'assert'
+    )
+    build_args = ['--build_folder', args.build_folder] if args.build_folder else []
+
+    run_args = [f'--{mode}', *build_args]
+    if not use_jit:
+        run_args.append('--no-jit')
+    if not use_optimize_zasm:
+        run_args.append('--no-optimize-zasm')
+    # With no paths, run_replay_tests.py would run every replay in replays_dir instead.
+    if not updated_paths:
+        print('No replays to run')
+        sys.exit(1)
+
+    test_results = run_replays_process([*run_args, *updated_paths])
+    passed = get_passed_paths(test_results)
+    failing_paths = [p for p in updated_paths if p not in passed]
+    print_failing_replays(
+        'These replays failed (to debug, use `--debug replay/path.zplay`):',
+        failing_paths,
+    )
 
     if args.update_known_good:
+        # Only trust replays that also pass with the JIT and optimizer enabled.
+        updated_ok_paths = [p for p in updated_paths if p in passed]
+        jit_passed = set()
+        # With no paths, run_replay_tests.py would run every test replay instead.
+        if updated_ok_paths:
+            jit_test_results = run_replays_process(
+                ['--assert', '--no_report_on_failure', *build_args, *updated_ok_paths],
+                'replay_uploads_test_results_jit',
+            )
+            jit_passed = get_passed_paths(jit_test_results)
+        jit_failing_paths = [p for p in updated_ok_paths if p not in jit_passed]
+        print_failing_replays(
+            'These replays updated, but then failed with the JIT and ZASM optimizer enabled (likely a JIT or optimizer bug):',
+            jit_failing_paths,
+        )
+
         known_good = {}
-        for run in test_results.runs[0]:
-            if run.success:
-                index = updated_paths.index(Path(run.path))
-                pin = read_updated_replay_pin(updated_paths[index])
-                known_good[original_keys[index]] = pin
+        for index, path in enumerate(updated_paths):
+            if path in jit_passed:
+                known_good[original_keys[index]] = read_updated_replay_pin(path)
         known_good = dict(sorted(known_good.items()))
+        # Nothing passing means something is broken (ex: the build), not that every
+        # replay is bad - so keep the existing list.
+        if not known_good:
+            print('No replays passed, so not updating the known good replays')
+            sys.exit(1)
         known_good_path = Path(script_dir / 'replay_uploads_known_good_replays.json')
         known_good_path.write_text(json.dumps(known_good, indent=2))
-
-    failing_runs = []
-    for run in test_results.runs[-1]:
-        if not run.success:
-            failing_runs.append(run)
-
-    if failing_runs:
-        print('These replays failed (to debug, use `--debug replay/path.zplay`):\n')
-
-        for run in failing_runs:
-            meta = replay_helpers.read_replay_meta(Path(run.path))
-            title = meta.get('qst_title', meta['qst'])
-            print(Path(run.path).relative_to(replays_dir))
-            print(title)
-            print()
-    else:
+        print(f'Wrote {len(known_good)} known good replays to {known_good_path}')
+    elif not failing_paths:
         print('All replays passed')
+
+
+def get_passed_paths(test_results: ReplayTestResults) -> set[Path]:
+    # A replay may have been retried; its last run is the one that counts.
+    success_by_path = {}
+    for runs in test_results.runs:
+        for run in runs:
+            success_by_path[Path(run.path).resolve()] = run.success
+    return {path for path, success in success_by_path.items() if success}
+
+
+def print_failing_replays(header: str, paths: list[Path]):
+    if not paths:
+        return
+
+    print(f'{header}\n')
+    for path in paths:
+        meta = replay_helpers.read_replay_meta(path)
+        title = meta.get('qst_title', meta['qst'])
+        print(path.relative_to(replays_dir))
+        print(title)
+        print()
 
 
 # https://docs.google.com/spreadsheets/d/1BD0wsO2fDpvZDMgI9-wwgcLKNqCc7j8e8ZLJlfNdTz8/edit?gid=0#gid=0&fvid=2018909849
@@ -579,9 +650,12 @@ def debug_replay(replay_path: Path):
     tmp_path = replay_path.with_stem(f'{replay_path.stem}-tmp')
     shutil.copyfile(replay_path, tmp_path)
 
+    # Same as --update: the baseline is made without the JIT or optimizer.
+    update_args = ['--update', '--no-jit', '--no-optimize-zasm']
+
     # Validate that this replay can even be updated in the version that created it.
     test_results = run_replays_process_with_version(
-        zc_version_updated, [tmp_path, '--update']
+        zc_version_updated, [tmp_path, *update_args]
     )
     if not test_results.runs[-1][0].success:
         print('cannot update the replay even in the same ZC version it was created in')
@@ -589,7 +663,7 @@ def debug_replay(replay_path: Path):
         sys.exit(1)
 
     shutil.copyfile(replay_path, tmp_path)
-    test_results = run_replays_process([tmp_path, '--update'])
+    test_results = run_replays_process([tmp_path, *update_args])
     if test_results.runs[-1][0].success:
         print(test_results.runs[-1][0])
         print(
@@ -643,7 +717,7 @@ def debug_replay(replay_path: Path):
             '--',
             'bash',
             '-c',
-            f'cp {tmp_trimmed_path} {tmp_path} && %zc -v0 -headless -replay-exit-when-done -update {tmp_path}',
+            f'cp {tmp_trimmed_path} {tmp_path} && %zc -v0 -headless -replay-exit-when-done -no-jit -no-optimize-zasm -update {tmp_path}',
         ],
         encoding='utf-8',
         stderr=subprocess.STDOUT,
@@ -665,7 +739,7 @@ def debug_replay(replay_path: Path):
 
     shutil.copyfile(tmp_trimmed_path, tmp_path)
     test_results = run_replays_process_with_version(
-        last_good_version, [tmp_path, '--update']
+        last_good_version, [tmp_path, *update_args]
     )
     if not test_results.runs[-1][0].success:
         print(
