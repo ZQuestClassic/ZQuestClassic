@@ -37,7 +37,7 @@ bool replay_add_snapshot_frame(std::string frames_shorthand);
 void replay_peek_quit();
 void replay_peek_input();
 void replay_do_cheats();
-void replay_do_qrs();
+void replay_do_qrs(bool frame_start);
 bool replay_is_assert_done();
 void replay_forget_input();
 void replay_stop(bool aborted = false);

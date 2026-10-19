@@ -3979,10 +3979,10 @@ void enqueue_qr_change(int qr, bool value)
 // is executed here too.
 // This is currently only used to allow users to configure qr_HIDE_BOTTOM_8_PIXELS, but
 // could be later extended to all QRs (perhaps as a cheat).
-void process_enqueued_qr_changes()
+void process_enqueued_qr_changes(bool frame_start)
 {
 	if (replay_is_replaying())
-		replay_do_qrs();
+		replay_do_qrs(frame_start);
 
 	while (!change_qr_queue.empty())
 	{
@@ -4056,7 +4056,7 @@ void advanceframe(bool allowwavy, bool sfxcleanup, bool allowF6Script)
 			replay_peek_input();
 	}
 
-	process_enqueued_qr_changes();
+	process_enqueued_qr_changes(true);
 
 	load_control_called_this_frame = false;
 	

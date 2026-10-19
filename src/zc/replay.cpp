@@ -117,6 +117,9 @@ struct ReplayState
 	size_t replay_log_current_index = 0;
 	size_t replay_log_current_quit_index = 0;
 	size_t replay_log_current_state_index = 0;
+	// Index of the next QR step that replay_do_qrs may enqueue. Only meaningful for
+	// the current frame's steps (see replay_do_qrs).
+	size_t replay_log_current_qr_index = 0;
 	size_t assert_current_index = 0;
 	bool has_assert_failed = false;
 	bool has_aborted = false;
@@ -1180,6 +1183,7 @@ static bool load_replay(std::string& buffer, std::map<std::string, std::string>&
     rs.replay_log_current_index = 0;
     rs.replay_log_current_quit_index = 0;
     rs.replay_log_current_state_index = 0;
+    rs.replay_log_current_qr_index = 0;
     if (!set_version())
     {
         fprintf(stderr, "invalid version in replay file: %s\n", path.string().c_str());
@@ -1372,6 +1376,7 @@ static void do_replaying_poll()
 
     rs.replay_log_current_quit_index = rs.replay_log_current_index;
     rs.replay_log_current_state_index = rs.replay_log_current_index;
+    rs.replay_log_current_qr_index = rs.replay_log_current_index;
 }
 
 static void check_assert()
@@ -1922,15 +1927,27 @@ void replay_do_cheats()
     }
 }
 
-void replay_do_qrs()
+// QR changes are processed at the start of every frame, and again in init_game. Each
+// QR step must be enqueued only once, at the same point it was recorded - otherwise
+// a step recorded in init_game is also applied (and recorded again, when updating) at
+// the start of that frame. Steps recorded at the start of a frame come before any
+// other step of that frame (except meta steps, which peek_meta_steps records first),
+// so `frame_start` only takes those leading steps; init_game takes the rest.
+void replay_do_qrs(bool frame_start)
 {
-    size_t i = rs.replay_log_current_index;
+    size_t i = rs.replay_log_current_qr_index;
     while (i < replay_log.size() && get_frame(replay_log[i]) == rs.frame_count)
     {
-        if (get_type(replay_log[i]) == TypeQR)
+        char type = get_type(replay_log[i]);
+        if (type == TypeQR)
         {
             auto& qr_replay_step = std::get<QRReplayStep>(replay_log[i]);
             enqueue_qr_change(qr_replay_step.qr, qr_replay_step.value);
+            rs.replay_log_current_qr_index = i + 1;
+        }
+        else if (frame_start && type != TypeMeta)
+        {
+            break;
         }
         i++;
     }

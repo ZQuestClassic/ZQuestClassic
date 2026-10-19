@@ -1717,8 +1717,10 @@ int32_t init_game()
 		enqueue_qr_change(qr, value);
 	}
 
-	// Apply the first frame's QR changes.
-	process_enqueued_qr_changes();
+	// Apply the first frame's QR changes. When replaying, this must come after some
+	// other step (the "init_game" comment) is recorded this frame, as replay_do_qrs
+	// only treats QR steps before any such step as recorded at the start of the frame.
+	process_enqueued_qr_changes(false);
 
 	FFCore.init();
 	FFCore.user_bitmaps_init();

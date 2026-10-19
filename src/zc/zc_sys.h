@@ -31,7 +31,7 @@ void fix_menu();
 int32_t onFullscreenMenu();
 void f_Quit(int32_t type);
 void enqueue_qr_change(int qr, bool value);
-void process_enqueued_qr_changes();
+void process_enqueued_qr_changes(bool frame_start);
 void advanceframe(bool allowwavy, bool sfxcleaup = true, bool allowF6Script = true);
 void updatescr(bool allowwavy);
 void syskeys();
