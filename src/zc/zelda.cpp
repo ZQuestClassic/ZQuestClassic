@@ -1618,6 +1618,24 @@ void init_dmap()
     return;
 }
 
+// The life the hero has after continuing. Never 0, as that would just kill
+// the hero again immediately.
+static int get_continue_life()
+{
+	int maxlife = game->get_maxlife();
+	int hp_per_heart = game->get_hp_per_heart();
+	int life;
+	if(game->get_cont_percent())
+	{
+		life = maxlife*game->get_cont_hearts()/100;
+		// Round down to whole hearts, but not below one heart.
+		if(maxlife%hp_per_heart==0)
+			life = std::max(life - life%hp_per_heart, hp_per_heart);
+	}
+	else life = game->get_cont_hearts();
+	return std::max(life, 1);
+}
+
 // Sets globals to their default values.
 void init_game_vars(bool is_cont_game = false)
 {
@@ -2087,21 +2105,7 @@ int32_t init_game()
 	}
 	else
 	{
-		if(game->get_cont_percent())
-		{
-			if(game->get_maxlife()%game->get_hp_per_heart()==0)
-			{
-				auto life = (game->get_maxlife()*game->get_cont_hearts()/100);
-				life -= life % game->get_hp_per_heart();
-				game->set_life(life);
-			}
-			else
-				game->set_life(game->get_maxlife()*game->get_cont_hearts()/100);
-		}
-		else
-		{
-			game->set_life(game->get_cont_hearts());
-		}
+		game->set_life(get_continue_life());
 	}
 	
 	if(firstplay)
@@ -2420,21 +2424,7 @@ int32_t cont_game()
 	
 	wavy=quakeclk=0;
 	
-	if(game->get_cont_percent())
-	{
-		if(game->get_maxlife()%game->get_hp_per_heart()==0)
-		{
-			auto life = (game->get_maxlife()*game->get_cont_hearts()/100);
-			life -= life % game->get_hp_per_heart();
-			game->set_life(life);
-		}
-		else
-			game->set_life(game->get_maxlife()*game->get_cont_hearts()/100);
-	}
-	else
-	{
-		game->set_life(game->get_cont_hearts());
-	}
+	game->set_life(get_continue_life());
 	
 	initZScriptGlobalScript(GLOBAL_SCRIPT_ONCONTGAME);
 	ZScriptVersion::RunScript(ScriptType::Global, GLOBAL_SCRIPT_ONCONTGAME, GLOBAL_SCRIPT_ONCONTGAME);	
