@@ -1402,7 +1402,7 @@ stdout:
           "uri": "URI"
         }
       },
-      "fn.2083": {
+      "fn.2082": {
         "loc": {
           "range": {
             "start": {
@@ -1449,7 +1449,7 @@ stdout:
           "uri": "URI"
         }
       },
-      "fn.4456": {
+      "fn.4455": {
         "loc": {
           "range": {
             "start": {
@@ -1499,7 +1499,7 @@ stdout:
         "name": "c",
         "type": "Car"
       },
-      "fn.2084": {
+      "fn.2083": {
         "loc": {
           "range": {
             "start": {
@@ -1514,7 +1514,7 @@ stdout:
           "uri": "URI"
         }
       },
-      "fn.2085": {
+      "fn.2084": {
         "loc": {
           "range": {
             "start": {
@@ -1564,7 +1564,7 @@ stdout:
         "name": "hmm",
         "type": "int"
       },
-      "fn.2086": {
+      "fn.2085": {
         "loc": {
           "range": {
             "start": {
@@ -1595,7 +1595,7 @@ stdout:
           "uri": "URI"
         }
       },
-      "fn.2087": {
+      "fn.2086": {
         "loc": {
           "range": {
             "start": {
@@ -1645,7 +1645,7 @@ stdout:
         "name": "c",
         "type": "Car"
       },
-      "fn.2090": {
+      "fn.2089": {
         "loc": {
           "range": {
             "start": {
@@ -1726,7 +1726,7 @@ stdout:
         "name": "d",
         "type": "IhaveAdefCtor"
       },
-      "fn.4457": {
+      "fn.4456": {
         "loc": {
           "range": {
             "start": {
@@ -1931,7 +1931,7 @@ stdout:
         "name": "speed",
         "type": "int"
       },
-      "fn.2088": {
+      "fn.2087": {
         "loc": {
           "range": {
             "start": {
@@ -1947,7 +1947,7 @@ stdout:
         },
         "doc": "Go fast"
       },
-      "fn.2089": {
+      "fn.2088": {
         "loc": {
           "range": {
             "start": {
@@ -1962,7 +1962,7 @@ stdout:
           "uri": "URI"
         }
       },
-      "7695": {
+      "7692": {
         "loc": {
           "range": {
             "start": {
@@ -2113,7 +2113,7 @@ stdout:
           "character": 15,
           "length": 9
         },
-        "symbol": "fn.2083"
+        "symbol": "fn.2082"
       },
       {
         "loc": {
@@ -2153,7 +2153,7 @@ stdout:
           "character": 4,
           "length": 8
         },
-        "symbol": "fn.4456"
+        "symbol": "fn.4455"
       },
       {
         "loc": {
@@ -2193,7 +2193,7 @@ stdout:
           "character": 5,
           "length": 1
         },
-        "symbol": "fn.2084"
+        "symbol": "fn.2083"
       },
       {
         "loc": {
@@ -2201,7 +2201,7 @@ stdout:
           "character": 5,
           "length": 2
         },
-        "symbol": "fn.2085"
+        "symbol": "fn.2084"
       },
       {
         "loc": {
@@ -2217,7 +2217,7 @@ stdout:
           "character": 18,
           "length": 1
         },
-        "symbol": "fn.2084"
+        "symbol": "fn.2083"
       },
       {
         "loc": {
@@ -2241,7 +2241,7 @@ stdout:
           "character": 9,
           "length": 2
         },
-        "symbol": "fn.2086"
+        "symbol": "fn.2085"
       },
       {
         "loc": {
@@ -2257,7 +2257,7 @@ stdout:
           "character": 9,
           "length": 3
         },
-        "symbol": "fn.2087"
+        "symbol": "fn.2086"
       },
       {
         "loc": {
@@ -2297,7 +2297,7 @@ stdout:
           "character": 15,
           "length": 2
         },
-        "symbol": "fn.2086"
+        "symbol": "fn.2085"
       },
       {
         "loc": {
@@ -2313,7 +2313,7 @@ stdout:
           "character": 8,
           "length": 9
         },
-        "symbol": "fn.2083"
+        "symbol": "fn.2082"
       },
       {
         "loc": {
@@ -2345,7 +2345,7 @@ stdout:
           "character": 21,
           "length": 3
         },
-        "symbol": "fn.2090"
+        "symbol": "fn.2089"
       },
       {
         "loc": {
@@ -2449,7 +2449,7 @@ stdout:
           "character": 21,
           "length": 13
         },
-        "symbol": "fn.4457"
+        "symbol": "fn.4456"
       },
       {
         "loc": {
@@ -2473,7 +2473,7 @@ stdout:
           "character": 21,
           "length": 3
         },
-        "symbol": "fn.2090"
+        "symbol": "fn.2089"
       },
       {
         "loc": {
@@ -2681,7 +2681,7 @@ stdout:
           "character": 9,
           "length": 5
         },
-        "symbol": "fn.2088"
+        "symbol": "fn.2087"
       },
       {
         "loc": {
@@ -2697,7 +2697,7 @@ stdout:
           "character": 9,
           "length": 6
         },
-        "symbol": "fn.2089"
+        "symbol": "fn.2088"
       },
       {
         "loc": {
@@ -2705,7 +2705,7 @@ stdout:
           "character": 8,
           "length": 5
         },
-        "symbol": "fn.2088"
+        "symbol": "fn.2087"
       },
       {
         "loc": {
@@ -2713,7 +2713,7 @@ stdout:
           "character": 4,
           "length": 3
         },
-        "symbol": "fn.2090"
+        "symbol": "fn.2089"
       },
       {
         "loc": {
@@ -2737,7 +2737,7 @@ stdout:
           "character": 22,
           "length": 5
         },
-        "symbol": "7695"
+        "symbol": "7692"
       },
       {
         "loc": {
@@ -2753,7 +2753,7 @@ stdout:
           "character": 6,
           "length": 13
         },
-        "symbol": "fn.4457"
+        "symbol": "fn.4456"
       },
       {
         "loc": {

@@ -548,6 +548,11 @@ int32_t hero_get_register(int32_t reg)
 		case LINKOTILE:
 			ret=FFCore.getHeroOTile(GET_D(rINDEX)/10000, GET_D(rINDEX2) / 10000);
 			break;
+		case LINKOFLIP:
+			// Hero->GetOriginalFlip(), which was removed. It was never implemented, and has always
+			// returned 0, but quests compiled before then can still call it.
+			ret = 0;
+			break;
 		case SETITEMSLOT:
 			scripting_log_error_with_context("Not supported.");
 			ret = 0;

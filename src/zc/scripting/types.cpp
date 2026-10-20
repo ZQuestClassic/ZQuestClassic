@@ -547,6 +547,7 @@ constexpr EngineSubsystem getEngineSubsystemForRegister(int reg)
 		case LINKMAXHP:
 		case LINKMAXMP:
 		case LINKMP:
+		case LINKOFLIP:
 		case LINKOTILE:
 		case LINKPUSH:
 		case LINKROTATION:

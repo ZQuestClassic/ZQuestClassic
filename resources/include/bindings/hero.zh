@@ -980,12 +980,6 @@ class hero {
 	//   SETR D2 LINKOTILE
 	internal int GetOriginalTile(int hero_sprite_id, int dir);
 
-	// @zasm
-	//   POP D1
-	//   POP D0
-	//   SETR D2 LINKOFLIP
-	internal int GetOriginalFlip(int hero_sprite_id, int dir);
-
 	// @deprecated_future Use [Input->Button] instead!
 	// @zasm_var INPUTSTART
 	internal bool InputStart;
