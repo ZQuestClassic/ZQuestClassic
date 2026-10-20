@@ -412,6 +412,17 @@ static void get_z_register(CompilationState& state, int r)
 		emit_get_ri(state);
 		state.wasm->emitI32Load(offsetof(refInfo, switchkey));
 	}
+	else if (auto ref = state.inline_regs ? script_ref_for_register_jit(r) : std::nullopt)
+	{
+		// The REF* registers are plain refInfo fields too.
+		emit_get_ri(state);
+		state.wasm->emitI32Load(offsetof(refInfo, refs) + (int)ref->ref * 4);
+		if (ref->scaled)
+		{
+			state.wasm->emitI32Const(10000);
+			state.wasm->emitI32Mul();
+		}
+	}
 	else if ((r == GLOBALRAM || r == SCRIPTRAM || r == GLOBALRAMD || r == SCRIPTRAMD) && state.inline_regs)
 	{
 		// Old-style array reads (arrayptr in D0/rINDEX, element in D1/rINDEX2):
@@ -488,6 +499,17 @@ static void set_z_register(CompilationState& state, int r, F&& fn)
 		emit_get_ri(state);
 		fn();
 		state.wasm->emitI32Store(offsetof(refInfo, switchkey));
+	}
+	else if (auto ref = state.inline_regs ? script_ref_for_register_jit(r) : std::nullopt)
+	{
+		emit_get_ri(state);
+		fn();
+		if (ref->scaled)
+		{
+			state.wasm->emitI32Const(10000);
+			state.wasm->emitI32DivS();
+		}
+		state.wasm->emitI32Store(offsetof(refInfo, refs) + (int)ref->ref * 4);
 	}
 	else if ((r == GLOBALRAM || r == SCRIPTRAM || r == GLOBALRAMD || r == SCRIPTRAMD) && state.inline_regs)
 	{

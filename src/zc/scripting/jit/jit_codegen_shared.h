@@ -554,6 +554,14 @@ void jit_emit_function_body(Backend& b, zasm_script* script, JittedScript* j_scr
 	}
 }
 
+// The byte offset of a script ref (see SCRIPT_REFS) from refInfo::d, which compiled code holds a
+// pointer to (JittedExecutionContext::registers). Lets compiled code read and write the REF*
+// registers directly, instead of calling into get_register/set_register.
+inline int32_t jit_script_ref_offset(ScriptRef ref)
+{
+	return (int32_t)(offsetof(refInfo, refs) - offsetof(refInfo, d)) + (int32_t)ref * 4;
+}
+
 // The commands both native backends compile (everything else runs through the
 // interpreter in batches). FLOOR and CEILING are decided by the backend:
 // x64 gates them on SSE4.1, a64 compiles them unconditionally.

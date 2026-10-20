@@ -2913,6 +2913,14 @@ std::optional<ScriptRef> script_ref_for_register(int reg)
 	return (ScriptRef)script_ref_by_register[reg];
 }
 
+std::optional<JitScriptRef> script_ref_for_register_jit(int reg)
+{
+	auto ref = script_ref_for_register(reg);
+	if (!ref)
+		return std::nullopt;
+	return JitScriptRef{*ref, reg == REFFFC && !ZScriptVersion::ffcRefIsSpriteId()};
+}
+
 static int get_ref(int arg)
 {
 	switch (arg)

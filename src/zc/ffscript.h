@@ -971,6 +971,15 @@ struct ScriptExecState
 
 // The ref (see SCRIPT_REFS) the REF* register `reg` reads and writes, if it is one.
 std::optional<ScriptRef> script_ref_for_register(int reg);
+// For the JIT backends: the ref that register `reg` reads and writes, which compiled code can load
+// and store directly. If `scaled`, the register is the ref * 10000: reading multiplies by 10000 and
+// writing divides by it (REFFFC, in quests where it holds an ffc number; see get_register).
+struct JitScriptRef
+{
+	ScriptRef ref;
+	bool scaled;
+};
+std::optional<JitScriptRef> script_ref_for_register_jit(int reg);
 
 int32_t get_combopos_ref(const rpos_handle_t& rpos_handle);
 int32_t get_combopos_ref(rpos_t rpos, int32_t layer);

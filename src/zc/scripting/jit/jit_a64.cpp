@@ -405,6 +405,12 @@ static a64::Gp get_z_register(CompilationState& state, a64::Compiler& cc, int r)
 	{
 		cc.mov(val, state.vSwitchKey);
 	}
+	else if (auto ref = script_ref_for_register_jit(r))
+	{
+		cc.ldr(val, a64::ptr(state.ptrRegisters, jit_script_ref_offset(ref->ref)));
+		if (ref->scaled)
+			cc.mul(val, val, state.vTenK.w());
+	}
 	else if (does_register_use_stack(r))
 	{
 		flush_cache_for_dependent_registers(state, cc, r);
@@ -481,6 +487,11 @@ static void set_z_register(CompilationState& state, a64::Compiler& cc, int r, T 
 	{
 		state.vSwitchKey = cc.newInt32();
 		cc.mov(state.vSwitchKey, val_reg);
+	}
+	else if (auto ref = script_ref_for_register_jit(r))
+	{
+		a64::Gp ref_val = ref->scaled ? div_10000(state, cc, val_reg) : val_reg;
+		cc.str(ref_val, a64::ptr(state.ptrRegisters, jit_script_ref_offset(ref->ref)));
 	}
 	else if (does_register_use_stack(r))
 	{

@@ -358,6 +358,12 @@ static x86::Gp get_z_register(CompilationState& state, x86::Compiler& cc, int r)
 	{
 		cc.mov(val, state.vSwitchKey);
 	}
+	else if (auto ref = script_ref_for_register_jit(r))
+	{
+		cc.mov(val, x86::ptr_32(state.ptrRegisters, jit_script_ref_offset(ref->ref)));
+		if (ref->scaled)
+			cc.imul(val, val, 10000);
+	}
 	else if (does_register_use_stack(r))
 	{
 		flush_cache_for_dependent_registers(state, cc, r);
@@ -426,6 +432,15 @@ static x86::Gp get_z_register_64(CompilationState& state, x86::Compiler& cc, int
 	{
 		cc.movsxd(val, state.vSwitchKey);
 	}
+	else if (auto ref = script_ref_for_register_jit(r))
+	{
+		// Scale in 32 bits, so the result wraps like get_register's does.
+		x86::Gp val32 = cc.newInt32();
+		cc.mov(val32, x86::ptr_32(state.ptrRegisters, jit_script_ref_offset(ref->ref)));
+		if (ref->scaled)
+			cc.imul(val32, val32, 10000);
+		cc.movsxd(val, val32);
+	}
 	else if (does_register_use_stack(r))
 	{
 		flush_cache_for_dependent_registers(state, cc, r);
@@ -457,6 +472,8 @@ static x86::Gp get_z_register_64(CompilationState& state, x86::Compiler& cc, int
 	}
 	return val;
 }
+
+static x86::Gp div_10000(x86::Compiler& cc, x86::Gp src);
 
 template <typename T>
 static void set_z_register(CompilationState& state, x86::Compiler& cc, int r, T val)
@@ -494,6 +511,16 @@ static void set_z_register(CompilationState& state, x86::Compiler& cc, int r, T 
 	{
 		state.vSwitchKey = cc.newInt32();
 		cc.mov(state.vSwitchKey, val);
+	}
+	else if (auto ref = script_ref_for_register_jit(r))
+	{
+		x86::Mem dest = x86::ptr_32(state.ptrRegisters, jit_script_ref_offset(ref->ref));
+		if (!ref->scaled)
+			cc.mov(dest, val);
+		else if constexpr (std::is_integral_v<T>)
+			cc.mov(dest, (int32_t)val / 10000);
+		else
+			cc.mov(dest, div_10000(cc, val));
 	}
 	else if (does_register_use_stack(r))
 	{
