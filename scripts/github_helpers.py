@@ -24,8 +24,12 @@ def infer_gha_platform():
         runs_on = 'macos-15-intel'
         arch = 'intel'
     elif system == 'Linux':
-        runs_on = 'ubuntu-22.04'
-        arch = 'x64'
+        if platform.machine() in ('aarch64', 'arm64'):
+            runs_on = 'ubuntu-22.04-arm'
+            arch = 'aarch64'
+        else:
+            runs_on = 'ubuntu-22.04'
+            arch = 'x64'
     else:
         raise Exception(f'unexpected platform: {system}')
     return runs_on, arch

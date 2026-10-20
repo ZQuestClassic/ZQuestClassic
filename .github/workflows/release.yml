@@ -86,6 +86,11 @@ jobs:
             compiler: clang
             config: RelWithDebInfo
             sentry: ${{ inputs.sentry }}
+          - runs-on: ubuntu-22.04-arm
+            arch: aarch64
+            compiler: clang
+            config: RelWithDebInfo
+            sentry: ${{ inputs.sentry }}
       fail-fast: false
     uses: ./.github/workflows/build.yml
     with:
