@@ -154,11 +154,7 @@ ZC_FORCE_INLINE int32_t scripting_engine_get_register(int32_t reg)
 		case EngineSubsystem::websocket: return websocket_get_register(reg);
 		case EngineSubsystem::weapondata: return weapondata_get_register(reg);
     }
-#ifdef DEBUG_REGISTER_DEPS
-	return 0; // TODO: remove this branch.
-#else
 	NOTREACHED();
-#endif
 }
 
 ZC_FORCE_INLINE void scripting_engine_set_register(int32_t reg, int32_t value)
@@ -212,11 +208,7 @@ ZC_FORCE_INLINE void scripting_engine_set_register(int32_t reg, int32_t value)
 		case EngineSubsystem::weapondata: weapondata_set_register(reg, value); return;
     }
 
-#ifdef DEBUG_REGISTER_DEPS
-	// TODO: remove this branch.
-#else
 	NOTREACHED();
-#endif
 }
 
 // TODO: replace cascading code with a routing table (like above), and move all commands to files in types/

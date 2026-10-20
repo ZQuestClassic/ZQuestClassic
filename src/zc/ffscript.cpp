@@ -17987,17 +17987,66 @@ void print_d_register_deps()
 	std::map<std::string, std::vector<std::string>> value_to_labels;
 	std::map<std::string, std::vector<std::string>> value_to_labels2;
 
+	auto reset = [&](int reg){
+		reset_test_ri(&testRi);
+		for (int j = 0; j < 8; j++) ri->d[j] = reg == CREATEBITMAP ? 10000 : 0;
+	};
+
+	// Prints the cases of a generated switch, one group per distinct value.
+	auto print_cases = [](auto&& groups, auto print_body){
+		bool first = true;
+		for (auto& [value, labels] : groups)
+		{
+			if (!first)
+				fmt::println("");
+			first = false;
+			std::sort(labels.begin(), labels.end(), natural_less);
+			for (auto& label : labels)
+				fmt::println("\t\tcase {}:", label);
+			print_body(value);
+		}
+	};
+
 	for (int i = 0; i < NUMVARIABLES; i++)
 	{
 		auto sv = get_script_variable(i);
 		if (!sv) continue;
 
-		reset_test_ri(&testRi);
-		for (int j = 0; j < 8; j++) ri->d[j] = i == 4891 ? 10000 : 0;
-
+		reset(i);
 		debug_deps_cur_regs = {};
 		debug_ref = 0;
-		get_register(i);
+		try
+		{
+			get_register(i);
+		}
+		catch (const DebugDepsNotReached&)
+		{
+			fmt::println(stderr, "{}: getter hit NOTREACHED", sv->name);
+			abort();
+		}
+
+		// A register's dependencies cover both reading and writing it, so also collect what the
+		// setter reads (ex: SETITEMSLOT takes its arguments from D registers). A read-only
+		// register's setter has no case for it, and NOTREACHED throws in this mode - drop the ref
+		// it read on the way there (some setters resolve their ref before the switch), since that
+		// never happens for real. Reading a D register first would mean a real case was skipped.
+		reset(i);
+		auto getter_regs = debug_deps_cur_regs;
+		auto getter_ref = debug_ref;
+		try
+		{
+			set_register(i, 0);
+		}
+		catch (const DebugDepsNotReached&)
+		{
+			if (debug_deps_cur_regs != getter_regs)
+			{
+				fmt::println(stderr, "{}: setter read D registers before hitting NOTREACHED", sv->name);
+				abort();
+			}
+			debug_ref = getter_ref;
+			current_zasm_register = 0;
+		}
 
 		bool any = false;
 		for (int j = 0; j < 8; j++)
@@ -18040,16 +18089,11 @@ void print_d_register_deps()
 	fmt::println("\tswitch (reg)");
 	fmt::println("\t{{");
 
-	for (auto& [value, labels] : value_to_labels | std::views::reverse)
-	{
-		std::sort(labels.begin(), labels.end(), natural_less);
-		for (auto& label : labels)
-			fmt::println("\t\tcase {}:", label);
+	print_cases(value_to_labels | std::views::reverse, [](const std::string& value){
 		fmt::println("\t\t{{");
 		fmt::println("\t\t\treturn {};", value);
 		fmt::println("\t\t}}");
-		fmt::println("");
-	}
+	});
 	value_to_labels.clear();
 
 	fmt::println("\t}}");
@@ -18062,14 +18106,9 @@ void print_d_register_deps()
 	fmt::println("\tswitch (reg)");
 	fmt::println("\t{{");
 
-	for (auto& [value, labels] : value_to_labels2)
-	{
-		std::sort(labels.begin(), labels.end(), natural_less);
-		for (auto& label : labels)
-			fmt::println("\t\tcase {}:", label);
+	print_cases(value_to_labels2, [](const std::string& value){
 		fmt::println("\t\t\treturn {};", value);
-		fmt::println("");
-	}
+	});
 
 	fmt::println("\t}}");
 	fmt::println("");
@@ -18107,6 +18146,7 @@ void print_d_register_deps()
 			case LOAD_INTERNAL_ARRAY_REF:
 			case LOAD_INTERNAL_ARRAY:
 			case MARK_TYPE_REG:
+			case MARK_TYPE_VARG:
 			case OBJ_OWN_ARRAY:
 			case OBJ_OWN_BITMAP:
 			case OBJ_OWN_DIR:
@@ -18123,10 +18163,13 @@ void print_d_register_deps()
 			case PUSHR:
 			case PUSHV:
 			case QUIT:
+			case REF_DEC:
+			case REF_INC:
 			case RETURN:
 			case RETURNFUNC:
 			case SAVE:
 			case SAVEQUITSCREEN:
+			case SAVEMENU_OPEN:
 			case SAVESCREEN:
 			case SET_OBJECT:
 			case SHOWF6SCREEN:
@@ -18159,20 +18202,7 @@ void print_d_register_deps()
 		int command = curscript->zasm_script->zasm[i].command;
 		auto sc = get_script_command(command);
 
-		switch (command)
-		{
-			case REF_DEC:
-			case REF_INC:
-			{
-				debug_deps_cur_regs[rSFRAME] = REG_R;
-				break;
-			}
-
-			default:
-			{
-				run_script_jit_one(&j_instance, i, MAX_STACK_SIZE - 100);
-			}
-		}
+		run_script_jit_one(&j_instance, i, MAX_STACK_SIZE - 100);
 
 		bool any = false;
 		for (int j = 0; j < 8; j++)
@@ -18208,9 +18238,18 @@ void print_d_register_deps()
 			value_to_labels[value] = {sc->name};
 	}
 
-	value_to_labels["{{CLASS_THISKEY, REG_W}}"] = {"ZCLASS_MARK_TYPE"};
-	value_to_labels["{{rEXP1, REG_R}, {CLASS_THISKEY, REG_W}}"] = {"ZCLASS_CONSTRUCT"};
-	value_to_labels["{{SP, REG_RW}, {SP2, REG_RW}}"] = {"POP", "POPARGS", "PUSHARGSR", "PUSHARGSV", "PUSHR", "PUSHV"};
+	// Commands skipped above, because running them here doesn't work.
+	auto add_manual = [&](std::string value, std::vector<std::string> labels){
+		auto& existing = value_to_labels[value];
+		existing.insert(existing.end(), labels.begin(), labels.end());
+	};
+	add_manual("{{CLASS_THISKEY, REG_W}}", {"ZCLASS_MARK_TYPE"});
+	add_manual("{{rEXP1, REG_R}, {CLASS_THISKEY, REG_W}}", {"ZCLASS_CONSTRUCT"});
+	add_manual("{{SP, REG_RW}, {SP2, REG_RW}}", {"POP", "POPARGS", "PUSHARGSR", "PUSHARGSV", "PUSHR", "PUSHV"});
+	// Only writes rEXP1 after running a real save menu, which waits for the player.
+	add_manual("{{rEXP1, REG_W}}", {"SAVEMENU_OPEN"});
+	// Would change the refcount of whatever the stack holds.
+	add_manual("{{rSFRAME, REG_R}, {CLASS_THISKEY, REG_R}}", {"REF_DEC", "REF_INC"});
 
 	fmt::println("std::initializer_list<CommandDependency> get_command_implicit_dependencies(int command)");
 	fmt::println("{{");
@@ -18219,17 +18258,12 @@ void print_d_register_deps()
 	fmt::println("\tswitch (command)");
 	fmt::println("\t{{");
 
-	for (auto& [value, labels] : value_to_labels | std::views::reverse)
-	{
-		std::sort(labels.begin(), labels.end(), natural_less);
-		for (auto& label : labels)
-			fmt::println("\t\tcase {}:", label);
+	print_cases(value_to_labels | std::views::reverse, [](const std::string& value){
 		fmt::println("\t\t{{");
 		fmt::println("\t\t\tstatic T r = {};", value);
 		fmt::println("\t\t\treturn r;");
 		fmt::println("\t\t}}");
-		fmt::println("");
-	}
+	});
 	value_to_labels.clear();
 
 	fmt::println("\t}}");

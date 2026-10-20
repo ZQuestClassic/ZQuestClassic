@@ -38,6 +38,14 @@ void HandleCheckError(const char* file, int line, const char* func, const char* 
 #define DCHECK_LAYER_ZERO_INDEX(l) DCHECK(l >= 0 && l < 7)
 #define DCHECK_LAYER_NEG1_INDEX(l) DCHECK(l >= -1 && l < 6)
 
+// zplayer's -debug-print-register-deps (see DEBUG_REGISTER_DEPS in zc/ffscript.h) calls every
+// register's setter, including read-only registers that the setter has no case for, so it needs
+// NOTREACHED to be recoverable.
+#if defined(DEBUG_REGISTER_DEPS) && !defined(NOTREACHED)
+struct DebugDepsNotReached {};
+#define NOTREACHED() throw DebugDepsNotReached{}
+#endif
+
 #ifndef NOTREACHED
 #define NOTREACHED() {\
 	HandleCheckError(__FILE__, __LINE__, __func__, "unexpected code path");\

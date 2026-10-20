@@ -1056,8 +1056,12 @@ int get_mouse_state(int index);
 bool pc_overflow(dword pc, bool print_err = true);
 bool check_stack(uint32_t sp);
 
-// Uncomment locally to run the -debug-print-register-deps command
-// #define DEBUG_REGISTER_DEPS
+// To run the -debug-print-register-deps command, which prints the generated tables in
+// components/zasm/table.cpp, define DEBUG_REGISTER_DEPS for every file - not just here, since
+// base/check.h needs it too - in a separate build folder:
+//   cmake -B build_deps -S . -DCMAKE_CXX_FLAGS=-DDEBUG_REGISTER_DEPS
+//   cmake --build build_deps --config Release -t zplayer copy_resources
+//   cd build_deps/Release && ./zplayer -headless -debug-print-register-deps
 
 #ifdef DEBUG_REGISTER_DEPS
 

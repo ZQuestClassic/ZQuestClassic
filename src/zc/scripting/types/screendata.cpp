@@ -342,6 +342,16 @@ int32_t screendata_get_register(int32_t reg)
 
 void screendata_set_register(int32_t reg, int32_t value)
 {
+	// Registers that don't use the screen ref, matching the getter above.
+	switch (reg)
+	{
+		case SCREENDATANUMFF:
+			return;
+		case WAVY:
+			wavy = value/10000;
+			return;
+	}
+
 	mapscr* scr = get_scr(GET_REF(screenref));
 
 	#define	SET_SCREENDATA_VAR_INT32(member, str) \
@@ -507,10 +517,6 @@ void screendata_set_register(int32_t reg, int32_t value)
 		case SCREENDATANEXTSCREEN: 	SET_SCREENDATA_VAR_BYTE(nextscr, "NextScreen"); break;	//B
 		case SCREENDATANOCARRY: 		SET_SCREENDATA_VAR_INT32(nocarry, "NoCarry"); break;	//W
 		case SCREENDATANORESET: 		SET_SCREENDATA_VAR_INT32(noreset, "NoReset"); break;	//W
-		case SCREENDATANUMFF: 	
-		{
-			break;
-		}
 		case SCREENDATAOCEANSFX:
 		{
 			int32_t v = vbound(value/10000, 0, MAX_SFX);
@@ -601,10 +607,6 @@ void screendata_set_register(int32_t reg, int32_t value)
 		case UNDERCSET:
 			scr->undercset=value/10000;
 			break;
-		case WAVY:
-			wavy=value/10000;
-			break;
-
 		default:
 			NOTREACHED();
 	}

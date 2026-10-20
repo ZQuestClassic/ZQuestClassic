@@ -203,11 +203,11 @@ std::optional<int32_t> musicdata_run_command(word command)
 	extern word curScriptNum;
 	extern int32_t curScriptIndex;
 
-	int ref = command == PLAY_MUSIC ? get_register(sarg1) : GET_REF(musicref);
 	switch (command)
 	{
 		case MUSICDATA_GETPATH:
 		{
+			int ref = GET_REF(musicref);
 			string str;
 			if (ref != 0) // ref 0 will return an empty path without error
 			{
@@ -221,6 +221,7 @@ std::optional<int32_t> musicdata_run_command(word command)
 		}
 		case MUSICDATA_GETNAME:
 		{
+			int ref = GET_REF(musicref);
 			string str;
 			if (ref != 0) // ref 0 will return an empty name without error
 			{
@@ -234,6 +235,7 @@ std::optional<int32_t> musicdata_run_command(word command)
 		}
 		case MUSICDATA_SETPATH:
 		{
+			int ref = GET_REF(musicref);
 			if (auto* amus = checkMusic(ref))
 			{
 				auto arrayptr = get_register(sarg1);
@@ -254,6 +256,7 @@ std::optional<int32_t> musicdata_run_command(word command)
 		}
 		case MUSICDATA_SETNAME:
 		{
+			int ref = GET_REF(musicref);
 			if (auto* amus = checkMusic(ref))
 			{
 				auto arrayptr = get_register(sarg1);
@@ -263,6 +266,7 @@ std::optional<int32_t> musicdata_run_command(word command)
 		}
 		case PLAY_MUSIC:
 		{
+			int ref = get_register(sarg1);
 			if (ref == 0) // null kills music
 				music_stop();
 			else if (ref == -1) // -1 plays current engine music directly
