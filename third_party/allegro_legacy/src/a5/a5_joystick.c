@@ -38,21 +38,31 @@ static int a5_get_joystick(ALLEGRO_JOYSTICK * joystick)
     return -1;
 }
 
-static int stick_to_btn[10];
+// local edit - per joystick, sized to joy[] (one shared [10] was indexed by stick only).
+// static int stick_to_btn[10];
+static int stick_to_btn[MAX_JOYSTICKS][MAX_JOYSTICK_STICKS];
 // local edit - bumped whenever the joystick set is reconfigured (see
 // all_joystick_generation).
 static volatile int joystick_generation;
-static int dpad_to_btn[10]; /* per joystick: first of 4 synthesized dpad buttons, 0 = none */
+// local edit - sized to joy[].
+// static int dpad_to_btn[10];
+static int dpad_to_btn[MAX_JOYSTICKS]; /* per joystick: first of 4 synthesized dpad buttons, 0 = none */
 
 static void a5_reconfigure_joysticks()
 {
     ALLEGRO_JOYSTICK * joystick;
     int i, j, k;
 
-    memset(stick_to_btn, 0, sizeof(stick_to_btn));
+    // local edit - -1 marks a trigger-like stick that got no button slot.
+    // memset(stick_to_btn, 0, sizeof(stick_to_btn));
+    memset(stick_to_btn, -1, sizeof(stick_to_btn));
     memset(dpad_to_btn, 0, sizeof(dpad_to_btn));
 
-    num_joysticks = al_get_num_joysticks();
+    // local edit - joy[] and its per-joystick arrays are fixed-size; drop
+    // whatever does not fit instead of writing past them. The same applies to
+    // the button, stick and axis counts below.
+    // num_joysticks = al_get_num_joysticks();
+    num_joysticks = MIN(al_get_num_joysticks(), MAX_JOYSTICKS);
     for(i = 0; i < num_joysticks; i++)
     {
         joystick = al_get_joystick(i);
@@ -62,19 +72,25 @@ static void a5_reconfigure_joysticks()
             joy[i].flags = JOYFLAG_DIGITAL | JOYFLAG_ANALOGUE;
 
             /* buttons */
-            joy[i].num_buttons = al_get_joystick_num_buttons(joystick);
+            // local edit
+            // joy[i].num_buttons = al_get_joystick_num_buttons(joystick);
+            joy[i].num_buttons = MIN(al_get_joystick_num_buttons(joystick), MAX_JOYSTICK_BUTTONS);
             for(j = 0; j < joy[i].num_buttons; j++)
             {
                 joy[i].button[j].name = al_get_joystick_button_name(joystick, j);
             }
 
             /* sticks */
-            joy[i].num_sticks = al_get_joystick_num_sticks(joystick);
+            // local edit
+            // joy[i].num_sticks = al_get_joystick_num_sticks(joystick);
+            joy[i].num_sticks = MIN(al_get_joystick_num_sticks(joystick), MAX_JOYSTICK_STICKS);
             for(j = 0; j < joy[i].num_sticks; j++)
             {
                 joy[i].stick[j].name = al_get_joystick_stick_name(joystick, j);
                 joy[i].stick[j].flags = JOYFLAG_DIGITAL | JOYFLAG_ANALOGUE | JOYFLAG_SIGNED;
-                joy[i].stick[j].num_axis = al_get_joystick_num_axes(joystick, j);
+                // local edit
+                // joy[i].stick[j].num_axis = al_get_joystick_num_axes(joystick, j);
+                joy[i].stick[j].num_axis = MIN(al_get_joystick_num_axes(joystick, j), MAX_JOYSTICK_AXIS);
                 for(k = 0; k < joy[i].stick[j].num_axis; k++)
                 {
                     joy[i].stick[j].axis[k].name = al_get_joystick_axis_name(joystick, j, k);
@@ -88,9 +104,9 @@ static void a5_reconfigure_joysticks()
                 // This is quite hacky, and is only done so that the rest of the control code
                 // can deal in only buttons. Ideally, the control dialog would be able to select
                 // a stick and a given threshold to treat as a button press.
-                if (joy[i].stick[j].num_axis == 1)
+                if (joy[i].stick[j].num_axis == 1 && joy[i].num_buttons < MAX_JOYSTICK_BUTTONS)
                 {
-                    stick_to_btn[j] = joy[i].num_buttons;
+                    stick_to_btn[i][j] = joy[i].num_buttons;
                     joy[i].button[joy[i].num_buttons].name = joy[i].stick[j].name;
                     joy[i].num_buttons++;
                 }
@@ -100,7 +116,8 @@ static void a5_reconfigure_joysticks()
             // binds buttons, so also expose it as four buttons (in the order
             // Up, Down, Left, Right).
             if (al_get_joystick_type(joystick) == ALLEGRO_JOYSTICK_TYPE_GAMEPAD
-                && ALLEGRO_GAMEPAD_STICK_DPAD < joy[i].num_sticks)
+                && ALLEGRO_GAMEPAD_STICK_DPAD < joy[i].num_sticks
+                && joy[i].num_buttons + 4 <= MAX_JOYSTICK_BUTTONS)
             {
                 static const char* dpad_names[4] = {"Dpad Up", "Dpad Down", "Dpad Left", "Dpad Right"};
                 dpad_to_btn[i] = joy[i].num_buttons;
@@ -152,7 +169,9 @@ static void * a5_joystick_thread_proc(ALLEGRO_THREAD * thread, void * data)
                         break;
 
                     i = a5_get_joystick(event.joystick.id);
-                    if(i >= 0)
+                    // local edit - ignore events for buttons/sticks that were dropped above.
+                    // if(i >= 0)
+                    if(i >= 0 && i < num_joysticks && event.joystick.button < joy[i].num_buttons)
                     {
                         joy[i].button[event.joystick.button].b = 1;
                     }
@@ -161,7 +180,9 @@ static void * a5_joystick_thread_proc(ALLEGRO_THREAD * thread, void * data)
                 case ALLEGRO_EVENT_JOYSTICK_BUTTON_UP:
                 {
                     i = a5_get_joystick(event.joystick.id);
-                    if(i >= 0)
+                    // local edit - ignore events for buttons/sticks that were dropped above.
+                    // if(i >= 0)
+                    if(i >= 0 && i < num_joysticks && event.joystick.button < joy[i].num_buttons)
                     {
                         joy[i].button[event.joystick.button].b = 0;
                     }
@@ -174,7 +195,10 @@ static void * a5_joystick_thread_proc(ALLEGRO_THREAD * thread, void * data)
                         break;
 
                     i = a5_get_joystick(event.joystick.id);
-                    if(i >= 0)
+                    // local edit - ignore events for buttons/sticks that were dropped above.
+                    // if(i >= 0)
+                    if(i >= 0 && i < num_joysticks && event.joystick.stick < joy[i].num_sticks
+                        && event.joystick.axis < joy[i].stick[event.joystick.stick].num_axis)
                     {
                         if(event.joystick.pos < -0.5)
                         {
@@ -196,8 +220,9 @@ static void * a5_joystick_thread_proc(ALLEGRO_THREAD * thread, void * data)
                         // local edit - treat like a button
                         if (joy[i].stick[event.joystick.stick].num_axis == 1)
                         {
-                            int btn = stick_to_btn[event.joystick.stick];
-                            joy[i].button[btn].b = event.joystick.pos > 0.1;
+                            int btn = stick_to_btn[i][event.joystick.stick];
+                            if (btn >= 0)
+                                joy[i].button[btn].b = event.joystick.pos > 0.1;
                         }
 
                         // local edit - reflect dpad axes into the synthesized
