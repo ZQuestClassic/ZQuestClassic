@@ -2,6 +2,7 @@
 #include "test_runner/test_runner.h"
 #include "zc/saves.h"
 #include <cstring>
+#include <fstream>
 
 template<std::size_t N, class T>
 constexpr std::size_t countof(T(&)[N]) { return N; }
@@ -305,6 +306,47 @@ TestResults test_saves([[maybe_unused]] bool verbose)
 			tr.failed++;
 		}
 		delete bad;
+	}
+
+	// An unreadable save file must not stop the saves folder from loading. Done in a
+	// temporary working directory, so the default saves folder (and no config file) is used.
+	tr.total++;
+	{
+		auto old_cwd = fs::current_path();
+		auto dir = fs::temp_directory_path() / "zc_saves_test";
+		fs::remove_all(dir);
+		fs::create_directories(dir / "saves");
+		fs::current_path(dir);
+
+		save_t good;
+		good.game = game;
+		good.header = &game->header;
+		good.path = "saves/good.sav";
+		good.write_to_disk = true;
+		bool wrote = _write_save(&good, err);
+		good.game = nullptr;
+		good.header = nullptr;
+
+		std::ofstream("saves/bad.sav", std::ios::binary) << "not a save file";
+
+		bool loaded = wrote && saves_load(err);
+		int good_slots = 0, bad_slots = 0;
+		for (int i = 0; loaded && i < saves_count(); i++)
+		{
+			if (saves_get_slot(i))
+				good_slots++;
+			else
+				bad_slots++;
+		}
+
+		fs::current_path(old_cwd);
+		fs::remove_all(dir);
+
+		if (!loaded || good_slots != 1 || bad_slots != 1)
+		{
+			printf("failed unreadable save test: loaded %d, good %d, bad %d, err: %s\n", loaded, good_slots, bad_slots, err.c_str());
+			tr.failed++;
+		}
 	}
 
 	return tr;

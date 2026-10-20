@@ -1994,17 +1994,26 @@ static bool maybe_split_save_file(fs::path filename, std::string& err)
 		return false;
 	}
 
+	// A file that can't be read is left as-is, so it shows up as a broken save slot on the
+	// title screen. Failing here would stop the program from starting at all.
+	std::string load_err;
 	std::vector<save_t> saves;
-	if (!load_from_save_file(ReadMode::Size, filename, saves, err))
-		return false;
+	if (!load_from_save_file(ReadMode::Size, filename, saves, load_err))
+	{
+		Z_error("%s\n", load_err.c_str());
+		return true;
+	}
 
 	if (saves.size() <= 1)
 		return true;
 
 	// Load for real.
 	saves.clear();
-	if (!load_from_save_file(ReadMode::All, filename, saves, err))
-		return false;
+	if (!load_from_save_file(ReadMode::All, filename, saves, load_err))
+	{
+		Z_error("%s\n", load_err.c_str());
+		return true;
+	}
 
 	bool errored = false;
 	for (auto& save : saves)
