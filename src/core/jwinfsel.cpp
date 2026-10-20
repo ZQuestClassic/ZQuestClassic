@@ -113,6 +113,17 @@ static DIALOG file_selector[] =
 #define EXPLORER_LABEL "File Explorer"
 #endif
 
+#ifdef HAS_NFD
+static bool explorer_available = true;
+#else
+static bool explorer_available = false;
+#endif
+
+void jwin_file_select_disable_explorer()
+{
+    explorer_available = false;
+}
+
 #ifdef HAVE_DIR_LIST                                        /* not all platforms need a directory list */
 
 #define FS_DISKS        7
@@ -970,9 +981,8 @@ int32_t jwin_file_select_ex(AL_CONST char *message, char *path, AL_CONST char *e
     file_selector[FS_OK].dp = (void*)get_config_text("OK");
     file_selector[FS_CANCEL].dp = (void*)get_config_text("Cancel");
     file_selector[FS_EXPLORER].dp = (void*)EXPLORER_LABEL;
-#ifndef HAS_NFD
-    file_selector[FS_EXPLORER].flags |= D_HIDDEN;
-#endif
+    if (!explorer_available)
+        file_selector[FS_EXPLORER].flags |= D_HIDDEN;
     
     /* Set default attributes. */
     memcpy(attrb_state, default_attrb_state, sizeof(default_attrb_state));
@@ -1173,9 +1183,8 @@ int32_t jwin_dfile_select_ex(AL_CONST char *message, char *path, AL_CONST char *
     file_selector[FS_OK].dp = (void*)get_config_text("OK");
     file_selector[FS_CANCEL].dp = (void*)get_config_text("Cancel");
     file_selector[FS_EXPLORER].dp = (void*)EXPLORER_LABEL;
-#ifndef HAS_NFD
-    file_selector[FS_EXPLORER].flags |= D_HIDDEN;
-#endif
+    if (!explorer_available)
+        file_selector[FS_EXPLORER].flags |= D_HIDDEN;
     
     /* Set default attributes. */
     memcpy(attrb_state, default_attrb_state, sizeof(default_attrb_state));
@@ -1356,9 +1365,8 @@ int32_t jwin_file_browse_ex(AL_CONST char *message, char *path, EXT_LIST *list, 
     file_selector[FS_OK].dp = (void*)get_config_text("OK");
     file_selector[FS_CANCEL].dp = (void*)get_config_text("Cancel");
     file_selector[FS_EXPLORER].dp = (void*)EXPLORER_LABEL;
-#ifndef HAS_NFD
-    file_selector[FS_EXPLORER].flags |= D_HIDDEN;
-#endif
+    if (!explorer_available)
+        file_selector[FS_EXPLORER].flags |= D_HIDDEN;
 
     fext_list = list;
     const char* ext2 = list[*list_sel].ext == NULL ? "" : list[*list_sel].ext;
