@@ -7,6 +7,7 @@ import argparse
 import functools
 import io
 import os
+import platform
 import shutil
 import subprocess
 import sys
@@ -31,6 +32,15 @@ root_dir = script_dir.parent
 archives_dir = root_dir / '.tmp/archives'
 memory = Memory(root_dir / '.tmp/memory_archives', verbose=0)
 bucket_url = 'https://zc-archives.nyc3.cdn.digitaloceanspaces.com'
+
+
+def _linux_package_names():
+    # Package names (without the version prefix) that run on this machine,
+    # most preferred first. Before packages were named by architecture, the
+    # only Linux package was x86-64.
+    if platform.machine() in ('aarch64', 'arm64'):
+        return ['linux-aarch64.tar.gz']
+    return ['linux-x64.tar.gz', 'linux.tar.gz', 'ubuntu.tar.gz', 'ubuntu.tgz']
 
 
 @dataclass
@@ -184,8 +194,14 @@ def get_download_urls(release_platform: str):
         elif release_platform == 'mac':
             key = next((k for k in keys if k.endswith('.dmg')), None)
         elif release_platform == 'linux':
-            key = next((k for k in keys if k.endswith('linux.tar.gz')), None) or next(
-                (k for k in keys if k.endswith(('ubuntu.tar.gz', 'ubuntu.tgz'))), None
+            key = next(
+                (
+                    k
+                    for name in _linux_package_names()
+                    for k in keys
+                    if k.endswith(name)
+                ),
+                None,
             )
         if key:
             urls_by_commitish[commitish] = f'{bucket_url}/{key}'
@@ -352,14 +368,22 @@ def get_gh_release_package_url(tag: str, release_platform: str):
                 (asset for asset in candidates if 'x64' in asset.name), None
             ) or next((asset for asset in candidates if 'x86' in asset.name), None)
     elif release_platform == 'linux':
+        names = _linux_package_names()
         asset = next(
-            (
-                asset
-                for asset in assets
-                if asset.name.endswith('.tar.gz') or asset.name.endswith('.tgz')
-            ),
+            (asset for name in names for asset in assets if asset.name.endswith(name)),
             None,
         )
+        # Very old releases used other names, but were all x86-64.
+        if not asset and 'linux.tar.gz' in names:
+            asset = next(
+                (
+                    asset
+                    for asset in assets
+                    if asset.name.endswith(('.tar.gz', '.tgz'))
+                    and 'aarch64' not in asset.name
+                ),
+                None,
+            )
 
     if not asset:
         return None
@@ -394,11 +418,7 @@ def download_revision(revision: Revision, release_platform: str):
             f'{prefix}mac.dmg',
         ]
     elif release_platform == 'linux':
-        urls = [
-            f'{prefix}linux.tar.gz',
-            f'{prefix}ubuntu.tar.gz',
-            f'{prefix}ubuntu.tgz',
-        ]
+        urls = [f'{prefix}{name}' for name in _linux_package_names()]
     else:
         raise Exception(f'unexpected release_platform: {release_platform}')
 
