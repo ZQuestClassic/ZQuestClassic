@@ -154,6 +154,16 @@ if(NOT EMSCRIPTEN)
 		# toolset that built the binaries always matches.
 		set(CMAKE_INSTALL_SYSTEM_RUNTIME_DESTINATION "${INSTALL_BIN_DIR}")
 		include(InstallRequiredSystemLibraries)
+		# A CMake older than the Visual Studio in use doesn't know its redist folder name
+		# (ex: CMake 3.31 looks for Microsoft.VC143.CRT, but VS 2026 has Microsoft.VC145.CRT),
+		# so fall back to the redist folder of the active toolset.
+		if(NOT CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS AND DEFINED ENV{VCToolsRedistDir})
+			string(TOLOWER "${CMAKE_CXX_COMPILER_ARCHITECTURE_ID}" zc_msvc_arch)
+			file(GLOB CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS "$ENV{VCToolsRedistDir}/${zc_msvc_arch}/Microsoft.VC*.CRT/*.dll")
+			if(CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS)
+				install(PROGRAMS ${CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS} DESTINATION "${INSTALL_BIN_DIR}")
+			endif()
+		endif()
 		if(NOT CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS AND (DEFINED ENV{CI} OR ZC_OFFICIAL))
 			message(FATAL_ERROR "Could not find the MSVC runtime DLLs to package")
 		endif()
