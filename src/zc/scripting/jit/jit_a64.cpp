@@ -1275,6 +1275,45 @@ static void compile_single_command(CompilationState& state, a64::Compiler& cc, c
 			invokeNode->setArg(1, val);
 		}
 		break;
+		case REF_INC:
+		case REF_DEC:
+		{
+			// arg1 is the object's stack offset from rSFRAME, or -1 for `this`.
+			bool is_this = arg1 == -1;
+			a64::Gp offset = is_this ? imm_to_reg(cc, 0) : immutable_add_constant(cc, get_z_register(state, cc, rSFRAME), arg1);
+
+			InvokeNode *invokeNode;
+			invoke(cc, &invokeNode, jit_ref_change, FuncSignature::build<void, int32_t, int32_t, int32_t, int32_t>(state.calling_convention));
+			invokeNode->setArg(0, is_this ? 1 : 0);
+			invokeNode->setArg(1, offset);
+			invokeNode->setArg(2, command == REF_INC ? 1 : 0);
+			invokeNode->setArg(3, state.pc);
+		}
+		break;
+		case MARK_TYPE_STACK:
+		{
+			a64::Gp offset = immutable_add_constant(cc, get_z_register(state, cc, rSFRAME), arg2);
+
+			InvokeNode *invokeNode;
+			invoke(cc, &invokeNode, jit_mark_type_stack, FuncSignature::build<void, int32_t, int32_t>(state.calling_convention));
+			invokeNode->setArg(0, offset);
+			invokeNode->setArg(1, arg1 ? 1 : 0);
+		}
+		break;
+		case ARRAYSIZE:
+		{
+			// rEXP1 = size of the array in arg1.
+			a64::Gp arrayptr = get_z_register(state, cc, arg1);
+			a64::Gp result = cc.newInt32();
+
+			InvokeNode *invokeNode;
+			invoke(cc, &invokeNode, jit_arraysize, FuncSignature::build<int32_t, int32_t, int32_t>(state.calling_convention));
+			invokeNode->setArg(0, arrayptr);
+			invokeNode->setArg(1, state.pc);
+			invokeNode->setRet(0, result);
+			set_z_register(state, cc, rEXP1, result);
+		}
+		break;
 		case STOREV:
 		{
 			// Write directly value on the stack (offset is arg2 + rSFRAME register).

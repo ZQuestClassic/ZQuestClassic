@@ -97,6 +97,9 @@ function ensureEmFunctions() {
   emFunctions.classRead = rawEngineExport('em_class_read');
   emFunctions.classWrite = rawEngineExport('em_class_write');
   emFunctions.stringCompare = rawEngineExport('em_string_compare');
+  emFunctions.refChange = rawEngineExport('em_ref_change');
+  emFunctions.markTypeStack = rawEngineExport('em_mark_type_stack');
+  emFunctions.arraysize = rawEngineExport('em_arraysize');
 }
 
 async function compileOneModule(name, ptr, size) {
@@ -125,6 +128,9 @@ async function compileOneModule(name, ptr, size) {
         class_read: emFunctions.classRead,
         class_write: emFunctions.classWrite,
         string_compare: emFunctions.stringCompare,
+        ref_change: emFunctions.refChange,
+        mark_type_stack: emFunctions.markTypeStack,
+        arraysize: emFunctions.arraysize,
       },
     });
 

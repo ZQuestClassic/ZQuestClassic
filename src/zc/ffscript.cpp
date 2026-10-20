@@ -3467,6 +3467,43 @@ void do_store_object(const bool v)
 	script_store_object(stackoffset, new_id);
 }
 
+void script_ref_change(bool is_this, int32_t offset, bool inc)
+{
+	uint32_t id;
+	if (is_this)
+	{
+		id = ri->thiskey;
+	}
+	else
+	{
+		if (!ri->stackPosHasObject(offset))
+		{
+			assert(false);
+			return;
+		}
+		id = SH::read_stack(offset);
+	}
+
+	if (inc)
+		script_object_ref_inc(id);
+	else
+		script_object_ref_dec(id);
+}
+
+void script_mark_type_stack(int32_t offset, bool is_object)
+{
+	if (offset < 0 || offset >= MAX_STACK_SIZE)
+	{
+		assert(false);
+		return;
+	}
+
+	if (is_object)
+		ri->stack_pos_is_object.insert(offset);
+	else
+		ri->stack_pos_is_object.erase(offset);
+}
+
 void script_remove_object_ref(int32_t offset)
 {
 	if (offset < 0 || offset >= MAX_STACK_SIZE)
@@ -9026,10 +9063,14 @@ void do_set_dmap_enh_music([[maybe_unused]] const bool v)
 ///----------------------------------------------------------------------------------------------------//
 //Array & string related
 
+int32_t script_arraysize(int32_t arrayptr)
+{
+	return ArrayH::getSize(arrayptr) * 10000;
+}
+
 void do_arraysize()
 {
-	int32_t arrayptr = get_register(sarg1);
-	SET_D(rEXP1, ArrayH::getSize(arrayptr) * 10000);
+	SET_D(rEXP1, script_arraysize(get_register(sarg1)));
 }
 
 void do_tobyte()
@@ -9276,6 +9317,24 @@ void do_writepod(const bool v1, const bool v2)
 	array_set_element(GET_D(rINDEX), indx, val, can_neg_array, type);
 }
 
+void jit_ref_change(int32_t is_this, int32_t offset, int32_t inc, int32_t pc)
+{
+	ri->pc = pc;
+	script_ref_change(is_this, offset, inc);
+}
+void jit_mark_type_stack(int32_t offset, int32_t is_object)
+{
+	script_mark_type_stack(offset, is_object);
+}
+int32_t jit_arraysize(int32_t arrayptr, int32_t pc)
+{
+	ri->pc = pc;
+	// Name the command in any error, as the interpreter does (compiled code leaves this unset).
+	current_zasm_command = ARRAYSIZE;
+	int32_t size = script_arraysize(arrayptr);
+	current_zasm_command = (ASM_DEFINE)0;
+	return size;
+}
 int32_t jit_pod_read(int32_t arrayptr, int32_t index, int32_t pc, int32_t no_neg)
 {
 	ri->pc = pc;
@@ -13633,45 +13692,10 @@ int32_t run_script_int(JittedScriptInstance* j_instance)
 			}
 			
 			case REF_INC:
-			{
-				int thiskey = ri->thiskey;
-
-				if (sarg1 == -1)
-				{
-					script_object_ref_inc(thiskey);
-					break;
-				}
-
-				int offset = GET_D(rSFRAME) + sarg1;
-				if (!ri->stackPosHasObject(offset))
-				{
-					assert(false);
-					break;
-				}
-
-				uint32_t id = SH::read_stack(offset);
-				script_object_ref_inc(id);
-				break;
-			}
 			case REF_DEC:
 			{
-				int thiskey = ri->thiskey;
-
-				if (sarg1 == -1)
-				{
-					script_object_ref_dec(thiskey);
-					break;
-				}
-
-				int offset = GET_D(rSFRAME) + sarg1;
-				if (!ri->stackPosHasObject(offset))
-				{
-					assert(false);
-					break;
-				}
-
-				uint32_t id = SH::read_stack(offset);
-				script_object_ref_dec(id);
+				bool is_this = sarg1 == -1;
+				script_ref_change(is_this, is_this ? 0 : GET_D(rSFRAME) + sarg1, scommand == REF_INC);
 				break;
 			}
 			case REF_AUTORELEASE:
@@ -13700,20 +13724,8 @@ int32_t run_script_int(JittedScriptInstance* j_instance)
 				break;
 			}
 			case MARK_TYPE_STACK:
-			{
-				int offset = GET_D(rSFRAME) + sarg2;
-				if (offset < 0 || offset >= MAX_STACK_SIZE)
-				{
-					assert(false);
-					break;
-				}
-
-				if (sarg1)
-					ri->stack_pos_is_object.insert(offset);
-				else
-					ri->stack_pos_is_object.erase(offset);
+				script_mark_type_stack(GET_D(rSFRAME) + sarg2, sarg1);
 				break;
-			}
 			case MARK_TYPE_REG:
 			{
 				markRegisterType(sarg1, sarg2);

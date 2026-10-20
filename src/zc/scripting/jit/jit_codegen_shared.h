@@ -678,6 +678,10 @@ inline bool jit_command_is_compiled_shared(int command)
 	case ZCLASS_WRITE:
 	case GOTOTABLE:
 	case GOTORANGES:
+	case REF_INC:
+	case REF_DEC:
+	case MARK_TYPE_STACK:
+	case ARRAYSIZE:
 		return true;
 	}
 

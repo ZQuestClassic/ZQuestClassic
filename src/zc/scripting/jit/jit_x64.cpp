@@ -1407,6 +1407,52 @@ static void compile_single_command(CompilationState& state, x86::Compiler& cc, c
 			invokeNode->setArg(1, val);
 		}
 		break;
+		case REF_INC:
+		case REF_DEC:
+		{
+			// arg1 is the object's stack offset from rSFRAME, or -1 for `this`.
+			bool is_this = arg1 == -1;
+			x86::Gp offset = is_this ? cc.newInt32() : immutable_add_constant(cc, get_z_register(state, cc, rSFRAME), arg1);
+			if (is_this)
+				cc.xor_(offset, offset);
+			else
+			{
+				// jit_ref_change reads that slot from memory, so any pending pushes must land first.
+				flush_stack_cache(state, cc);
+			}
+
+			InvokeNode *invokeNode;
+			cc.invoke(&invokeNode, jit_ref_change, FuncSignature::build<void, int32_t, int32_t, int32_t, int32_t>(state.calling_convention));
+			invokeNode->setArg(0, is_this ? 1 : 0);
+			invokeNode->setArg(1, offset);
+			invokeNode->setArg(2, command == REF_INC ? 1 : 0);
+			invokeNode->setArg(3, state.pc);
+		}
+		break;
+		case MARK_TYPE_STACK:
+		{
+			x86::Gp offset = immutable_add_constant(cc, get_z_register(state, cc, rSFRAME), arg2);
+
+			InvokeNode *invokeNode;
+			cc.invoke(&invokeNode, jit_mark_type_stack, FuncSignature::build<void, int32_t, int32_t>(state.calling_convention));
+			invokeNode->setArg(0, offset);
+			invokeNode->setArg(1, arg1 ? 1 : 0);
+		}
+		break;
+		case ARRAYSIZE:
+		{
+			// rEXP1 = size of the array in arg1.
+			x86::Gp arrayptr = get_z_register(state, cc, arg1);
+			x86::Gp result = cc.newInt32();
+
+			InvokeNode *invokeNode;
+			cc.invoke(&invokeNode, jit_arraysize, FuncSignature::build<int32_t, int32_t, int32_t>(state.calling_convention));
+			invokeNode->setArg(0, arrayptr);
+			invokeNode->setArg(1, state.pc);
+			invokeNode->setRet(0, result);
+			set_z_register(state, cc, rEXP1, result);
+		}
+		break;
 		case STOREV:
 		{
 			// Write directly value on the stack (offset is arg2 + rSFRAME register).

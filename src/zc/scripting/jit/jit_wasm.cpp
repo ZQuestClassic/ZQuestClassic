@@ -92,6 +92,9 @@ struct CompilationState
 	uint8_t f_idx_class_read;
 	uint8_t f_idx_class_write;
 	uint8_t f_idx_string_compare;
+	uint8_t f_idx_ref_change;
+	uint8_t f_idx_mark_type_stack;
+	uint8_t f_idx_arraysize;
 
 	uint8_t l_idx_j_instance;
 	uint8_t l_idx_ri;
@@ -764,6 +767,10 @@ static bool command_is_compiled(int command)
 	case ALLOCATEMEMV:
 	case ZCLASS_READ:
 	case ZCLASS_WRITE:
+	case REF_INC:
+	case REF_DEC:
+	case MARK_TYPE_STACK:
+	case ARRAYSIZE:
 		return true;
 	}
 
@@ -2064,6 +2071,52 @@ static void compile_plain_command(CompilationState& state, const zasm_script* sc
 			get_z_register(state, rEXP1);
 			wasm.emitI32Const(state.pc);
 			wasm.emitCall(state.f_idx_class_write);
+		}
+		break;
+		case REF_INC:
+		case REF_DEC:
+		{
+			// arg1 is the object's stack offset from rSFRAME, or -1 for `this`.
+			bool is_this = arg1 == -1;
+			wasm.emitI32Const(is_this ? 1 : 0);
+			if (is_this)
+			{
+				wasm.emitI32Const(0);
+			}
+			else
+			{
+				get_z_register(state, rSFRAME);
+				if (arg1)
+				{
+					wasm.emitI32Const(arg1);
+					wasm.emitI32Add();
+				}
+			}
+			wasm.emitI32Const(command == REF_INC ? 1 : 0);
+			wasm.emitI32Const(state.pc);
+			wasm.emitCall(state.f_idx_ref_change);
+		}
+		break;
+		case MARK_TYPE_STACK:
+		{
+			get_z_register(state, rSFRAME);
+			if (arg2)
+			{
+				wasm.emitI32Const(arg2);
+				wasm.emitI32Add();
+			}
+			wasm.emitI32Const(arg1 ? 1 : 0);
+			wasm.emitCall(state.f_idx_mark_type_stack);
+		}
+		break;
+		case ARRAYSIZE:
+		{
+			// rEXP1 = size of the array in arg1.
+			set_z_register(state, rEXP1, [&](){
+				get_z_register(state, arg1);
+				wasm.emitI32Const(state.pc);
+				wasm.emitCall(state.f_idx_arraysize);
+			});
 		}
 		break;
 
@@ -3575,6 +3628,9 @@ static bool wasm_codegen_impl(zasm_script* script, WasmCodegenResult& out)
 	state.f_idx_class_read = comp.builder.importFunction("class_read", 3, 1);
 	state.f_idx_class_write = comp.builder.importFunction("class_write", 4, 0);
 	state.f_idx_string_compare = comp.builder.importFunction("string_compare", 4, 1);
+	state.f_idx_ref_change = comp.builder.importFunction("ref_change", 4, 0);
+	state.f_idx_mark_type_stack = comp.builder.importFunction("mark_type_stack", 2, 0);
+	state.f_idx_arraysize = comp.builder.importFunction("arraysize", 2, 1);
 
 	// params
 	state.l_idx_j_instance = 0;
@@ -4191,6 +4247,21 @@ extern "C" void em_class_write(int id, int index, int value, int pc)
 extern "C" int em_string_compare(int arrayptr_a, int arrayptr_b, int insensitive, int pc)
 {
 	return jit_string_compare(arrayptr_a, arrayptr_b, insensitive, pc);
+}
+
+extern "C" void em_ref_change(int is_this, int offset, int inc, int pc)
+{
+	jit_ref_change(is_this, offset, inc, pc);
+}
+
+extern "C" void em_mark_type_stack(int offset, int is_object)
+{
+	jit_mark_type_stack(offset, is_object);
+}
+
+extern "C" int em_arraysize(int arrayptr, int pc)
+{
+	return jit_arraysize(arrayptr, pc);
 }
 
 #endif

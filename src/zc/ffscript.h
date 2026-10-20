@@ -891,6 +891,18 @@ inline void set_register(int32_t arg, int32_t value)
 int32_t jit_class_read(int32_t id, int32_t index, int32_t pc);
 void jit_class_write(int32_t id, int32_t index, int32_t value, int32_t pc);
 
+// REF_INC (inc) / REF_DEC (!inc): adds or removes a reference to the object on the stack at
+// `offset`, or to the running script's `this` object.
+void script_ref_change(bool is_this, int32_t offset, bool inc);
+// MARK_TYPE_STACK: marks whether the stack slot at `offset` holds an object reference.
+void script_mark_type_stack(int32_t offset, bool is_object);
+// ARRAYSIZE: the size of an array, as a ZScript number.
+int32_t script_arraysize(int32_t arrayptr);
+// The above for the JIT backends.
+void jit_ref_change(int32_t is_this, int32_t offset, int32_t inc, int32_t pc);
+void jit_mark_type_stack(int32_t offset, int32_t is_object);
+int32_t jit_arraysize(int32_t arrayptr, int32_t pc);
+
 // POD-array access helpers, called from the JIT backends.
 int32_t jit_pod_read(int32_t arrayptr, int32_t index, int32_t pc, int32_t no_neg);
 void jit_pod_write(int32_t arrayptr, int32_t index, int32_t value, int32_t type, int32_t pc, int32_t no_neg);
