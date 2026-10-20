@@ -624,7 +624,7 @@ int32_t combotrigger_get_register(int32_t reg)
 				scripting_log_error_with_context("Invalid dir '{}'; must be 0-3\n", dir);
 			else if(unsigned(ind) > 7)
 				scripting_log_error_with_context("Invalid index '{}'; must be 0-7\n", ind);
-			else
+			else if (trig)
 				ret = trig->req_screen_ex_door[dir].get(ind) ? 10000 : 0;
 			break;
 		}
@@ -636,7 +636,7 @@ int32_t combotrigger_get_register(int32_t reg)
 				scripting_log_error_with_context("Invalid dir '{}'; must be 0-3\n", dir);
 			else if(unsigned(ind) > 7)
 				scripting_log_error_with_context("Invalid index '{}'; must be 0-7\n", ind);
-			else
+			else if (trig)
 				ret = trig->unreq_screen_ex_door[dir].get(ind) ? 10000 : 0;
 			break;
 		}
