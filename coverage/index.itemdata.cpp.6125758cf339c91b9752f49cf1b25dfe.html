@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2026-10-19 03:08:43</td>
+      <td>2026-10-20 09:38:15</td>
     </tr>
   </table>
 </div>
@@ -98,7 +98,7 @@
     <tr><td><a href="#l15">(anonymous namespace)::item_flag(flags::item_flags) (line 15)</a></td><td>called 3 times, returned 3 times</td><td>75.0%</td></tr>
     <tr><td><a href="#l24">(anonymous namespace)::item_flag(flags::item_flags, bool) (line 24)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l1338">auto $_1::operator()() const::&#39;lambda&#39;(auto*, auto*, auto*, int, int)::operator()&lt;itemdata, script_config, std::array&lt;int, 8ul&gt; &gt;(auto*, auto*, auto*, int, int) const (line 1338)</a></td><td>not called</td><td>0.0%</td></tr>
-    <tr><td><a href="#l36">itemdata_get_register(int) (line 36)</a></td><td>called 606675360 times, returned 606675360 times</td><td>9.0%</td></tr>
+    <tr><td><a href="#l36">itemdata_get_register(int) (line 36)</a></td><td>called 606675364 times, returned 606675364 times</td><td>10.0%</td></tr>
     <tr><td><a href="#l706">itemdata_set_register(int, int) (line 706)</a></td><td>called 3092 times, returned 3092 times</td><td>5.0%</td></tr>
   </table>
 </details>
@@ -370,7 +370,7 @@
       <td class="lineno"><a id="l36" href="#l36">36</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">606675360</td>
+      <td class="linecount coveredLine">606675364</td>
       <td class="src coveredLine"><span class="kt">int32_t</span><span class="w"> </span><span class="n">itemdata_get_register</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">reg</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -384,7 +384,7 @@
       <td class="lineno"><a id="l38" href="#l38">38</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">606675360</td>
+      <td class="linecount coveredLine">606675364</td>
       <td class="src coveredLine"><span class="w">	</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">ret</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
@@ -481,12 +481,12 @@
           <div class="notTakenBranch">&cross; Branch 78 not taken.</div>
           <div class="notTakenBranch">&cross; Branch 79 not taken.</div>
           <div class="notTakenBranch">&cross; Branch 80 not taken.</div>
-          <div class="takenBranch">&check; Branch 81 taken 20 times.</div>
+          <div class="takenBranch">&check; Branch 81 taken 24 times.</div>
           <div class="notTakenBranch">&cross; Branch 82 not taken.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">606675360</td>
+      <td class="linecount partialCoveredLine">606675364</td>
       <td class="src partialCoveredLine"><span class="w">	</span><span class="k">switch</span><span class="w"> </span><span class="p">(</span><span class="n">reg</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -5102,11 +5102,11 @@
         <summary class="linebranchSummary">1/2</summary>
         <div class="linebranchContents">
           <div class="notTakenBranch">&cross; Branch 0 not taken.</div>
-          <div class="takenBranch">&check; Branch 1 taken 20 times.</div>
+          <div class="takenBranch">&check; Branch 1 taken 24 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">20</td>
+      <td class="linecount partialCoveredLine">24</td>
       <td class="src partialCoveredLine"><span class="w">			</span><span class="k">if</span><span class="p">(</span><span class="n">invalid_item_id</span><span class="p">(</span><span class="n">GET_REF</span><span class="p">(</span><span class="n">itemdataref</span><span class="p">)))</span></td>
     </tr>
     <tr class="source-line">
@@ -5148,14 +5148,14 @@
       <td class="lineno"><a id="l695" href="#l695">695</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">20</td>
+      <td class="linecount coveredLine">24</td>
       <td class="src coveredLine"><span class="w">			</span><span class="n">ret</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">FFCore</span><span class="p">.</span><span class="n">get_new_weapondata</span><span class="p">(</span><span class="n">wdata_type</span><span class="o">::</span><span class="n">itemdata</span><span class="p">,</span><span class="w"> </span><span class="n">GET_REF</span><span class="p">(</span><span class="n">itemdataref</span><span class="p">));</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l696" href="#l696">696</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">20</td>
+      <td class="linecount coveredLine">24</td>
       <td class="src coveredLine"><span class="w">			</span><span class="k">break</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
@@ -5204,7 +5204,7 @@
       <td class="lineno"><a id="l703" href="#l703">703</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">606675360</td>
+      <td class="linecount coveredLine">606675364</td>
       <td class="src coveredLine"><span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="n">ret</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
