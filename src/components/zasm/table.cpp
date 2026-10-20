@@ -3454,6 +3454,7 @@ static std::vector<int> _get_register_dependencies(int reg)
 		case MAPDATACOMBOPOSSTATE:
 		case MAPDATAFFCPOSSTATE:
 		case FFC_POSSTATE:
+		case SIMULATEKEYPRESS:
 		{
 			return {rINDEX};
 		}
@@ -3479,6 +3480,7 @@ static std::vector<int> _get_register_dependencies(int reg)
 		case COMBOSDM:
 		case COMBOTDM:
 		case SDDDD:
+		case SETITEMSLOT:
 		{
 			return {rINDEX, rINDEX2, rEXP1};
 		}
