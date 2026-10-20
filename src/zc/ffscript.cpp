@@ -441,7 +441,6 @@ zc_randgen script_rnggens[MAX_USER_RNGS];
 
 FONT *get_zc_font(int index);
 
-int32_t combopos_modified = -1;
 static std::vector<word> combo_id_cache;
 
 int32_t CScriptDrawingCommands::GetCount()
@@ -9646,7 +9645,6 @@ int32_t run_script(ScriptType type, word script, int32_t i)
 		~RestoreZasmCommand() { current_zasm_command = prev; }
 	} _restore_zasm_command;
 
-	combopos_modified = -1;
 	curScriptType=type;
 	curScriptNum=script;
 	curScriptIndex=i;
@@ -13875,7 +13873,7 @@ int32_t run_script_int(JittedScriptInstance* j_instance)
 	post_switch:
 		// These conditions almost never hit, so screen them all behind one predictable branch.
 		if (unlikely(earlyretval > -1 || ri->overflow || hit_invalid_zasm ||
-			old_script_funcrun || (type == ScriptType::Combo && combopos_modified == i)))
+			old_script_funcrun))
 		{
 			if(earlyretval == RUNSCRIPT_SELFDELETE)
 			{
@@ -13896,14 +13894,6 @@ int32_t run_script_int(JittedScriptInstance* j_instance)
 			if(old_script_funcrun && ri->pc == MAX_PC)
 				return RUNSCRIPT_OK;
 
-			if (type == ScriptType::Combo)
-			{
-				if(combopos_modified == i)
-				{
-					//Combo changed! Abort script!
-					return RUNSCRIPT_OK;
-				}
-			}
 			if(scommand != 0xFFFF)
 			{
 				if(increment)	ri->pc++;
@@ -17539,7 +17529,6 @@ void FFScript::clear_combo_script(const rpos_handle_t& rpos_handle)
 {
 	int32_t index = get_combopos_ref(rpos_handle);
 	combo_id_cache[index] = -1;
-	combopos_modified = index;
 	clear_script_engine_data(ScriptType::Combo, index);
 }
 
@@ -17560,7 +17549,6 @@ int32_t FFScript::combo_script_engine([[maybe_unused]] const bool preload, const
 		word cid = rpos_handle.data();
 		if(combo_id_cache[combopos_ref] != cid)
 		{
-			combopos_modified = combopos_ref;
 			combo_id_cache[combopos_ref] = cid;
 			clear_script_engine_data(ScriptType::Combo, combopos_ref);
 		}
