@@ -944,6 +944,9 @@ struct triangle3Dstruct
 
 int command_to_cmp(int command, int arg);
 
+// The ref (see SCRIPT_REFS) the REF* register `reg` reads and writes, if it is one.
+std::optional<ScriptRef> script_ref_for_register(int reg);
+
 int32_t get_combopos_ref(const rpos_handle_t& rpos_handle);
 int32_t get_combopos_ref(rpos_t rpos, int32_t layer);
 rpos_t combopos_ref_to_rpos(int32_t combopos_ref);
@@ -1045,7 +1048,7 @@ void print_d_register_deps();
 
 #define GET_D(r) ri->d[r]
 #define SET_D(r, v) ri->d[r] = (v)
-#define GET_REF(x) (ri->x+0)
+#define GET_REF(x) (ri->x()+0)
 
 #endif
 

@@ -183,7 +183,7 @@ void portal_set_register(int32_t reg, int32_t value)
 		}
 		case PORTALSAVED:
 		{
-			if(ri->portalref < 0 || value < 0) break;
+			if(ri->portalref() < 0 || value < 0) break;
 			if(portal* p = checkPortal(GET_REF(portalref)))
 			{
 				if(!value)

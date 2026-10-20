@@ -1333,7 +1333,7 @@ void combodata_set_register(int32_t reg, int32_t value)
 // combodata arrays.
 
 // The combo id of a combodata resolved from an array's own ref. Array accessors
-// must not read `ri->combodataref` for this: a stored array (`bool[] f = cd->Flags`)
+// must not read `ri->combodataref()` for this: a stored array (`bool[] f = cd->Flags`)
 // keeps the combo it came from, while the register follows whatever combodata
 // the script touched last.
 static int combo_id(newcombo* cmb)

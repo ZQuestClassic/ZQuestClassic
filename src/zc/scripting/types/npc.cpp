@@ -510,20 +510,20 @@ void do_npc_add(const bool v)
 	
 	if(numcreated == 0)
 	{
-		ri->npcref = MAX_DWORD;
+		ri->npcref() = MAX_DWORD;
 		Z_scripterrlog("Couldn't create NPC \"%s\", screen NPC limit reached\n", guy_string[id]);
 	}
 	else
 	{
 		word index = guys.Count() - numcreated; //Get the main enemy, not a segment
-		ri->npcref = guys.spr(index)->getUID();
+		ri->npcref() = guys.spr(index)->getUID();
 		
 		for(; index<guys.Count(); index++)
 			((enemy*)guys.spr(index))->script_spawned=true;
 		
-		SET_D(rEXP1, ri->npcref);
-		SET_D(rEXP2, ri->npcref);
-		Z_eventlog("Script created NPC \"%s\" with UID = %u\n", guy_string[id], ri->npcref);
+		SET_D(rEXP1, ri->npcref());
+		SET_D(rEXP2, ri->npcref());
+		Z_eventlog("Script created NPC \"%s\" with UID = %u\n", guy_string[id], ri->npcref());
 	}
 }
 
@@ -2132,7 +2132,7 @@ std::optional<int32_t> npc_run_command(word command)
 		}
 		case NPCCANPLACE:
 		{
-			ri->npcref = SH::read_stack(ri->sp + 6);
+			ri->npcref() = SH::read_stack(ri->sp + 6);
 			SET_D(rEXP1, 0);
 			if(GuyH::loadNPC(GET_REF(npcref)) == SH::_NoError)
 			{

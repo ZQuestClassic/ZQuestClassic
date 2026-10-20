@@ -197,7 +197,7 @@ int32_t savemenu_get_register(int32_t reg)
 		case SAVEMENU_ID:
 		{
 			if (menu)
-				ret = ri->savemenuref * 10000L;
+				ret = ri->savemenuref() * 10000L;
 			else ret = -10000L;
 			break;
 		}
@@ -392,7 +392,7 @@ std::optional<int32_t> savemenu_run_command(word command)
 			{
 				if (menu->options.size() >= MAX_SAVEMENU_OPTIONS)
 				{
-					scripting_log_error_with_context("Save menu {} already has {} options, no more can be added!", ri->savemenuref, menu->options.size());
+					scripting_log_error_with_context("Save menu {} already has {} options, no more can be added!", ri->savemenuref(), menu->options.size());
 					break;
 				}
 				auto opt_idx = get_register(sarg1) / 10000L;
@@ -471,7 +471,7 @@ std::optional<int32_t> savemenu_run_command(word command)
 			{
 				if (menu->misc_texts.size() >= MAX_SAVEMENU_MISC_TEXTS)
 				{
-					scripting_log_error_with_context("Save menu {} already has {} misc texts, no more can be added!", ri->savemenuref, menu->misc_texts.size());
+					scripting_log_error_with_context("Save menu {} already has {} misc texts, no more can be added!", ri->savemenuref(), menu->misc_texts.size());
 					break;
 				}
 				auto misc_text_idx = get_register(sarg1) / 10000L;

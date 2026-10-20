@@ -30,17 +30,17 @@ void do_loaddirectory()
 
 	if (util::checkPath(resolved_path.c_str(), true))
 	{
-		ri->directoryref = user_dirs.get_free();
-		if(!ri->directoryref) return;
+		ri->directoryref() = user_dirs.get_free();
+		if(!ri->directoryref()) return;
 
-		user_dir* d = checkDir(ri->directoryref, true);
-		set_register(sarg1, ri->directoryref);
+		user_dir* d = checkDir(ri->directoryref(), true);
+		set_register(sarg1, ri->directoryref());
 		d->setPath(resolved_path.c_str());
 		return;
 	}
 
 	scripting_log_error_with_context("Path '{}' points to a file; must point to a directory!", resolved_path);
-	ri->directoryref = 0;
+	ri->directoryref() = 0;
 	set_register(sarg1, 0);
 }
 

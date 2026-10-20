@@ -303,7 +303,7 @@ int32_t mapdata_get_register(int32_t reg)
 	#define GET_MAPDATA_FFCPOS_INDEX32(member, indexbound) \
 	{ \
 		int32_t index = (GET_D(rINDEX) / 10000); \
-		if (auto handle = ResolveMapdataFFCForRead(ri->mapdataref, index)) \
+		if (auto handle = ResolveMapdataFFCForRead(ri->mapdataref(), index)) \
 		{ \
 			ret = (handle.ffc->member).getZLong(); \
 		} \
@@ -316,7 +316,7 @@ int32_t mapdata_get_register(int32_t reg)
 	#define GET_MAPDATA_FFC_INDEX32(member, indexbound) \
 	{ \
 		int32_t index = (GET_D(rINDEX) / 10000); \
-		if (auto handle = ResolveMapdataFFCForRead(ri->mapdataref, index)) \
+		if (auto handle = ResolveMapdataFFCForRead(ri->mapdataref(), index)) \
 		{ \
 			ret = (handle.ffc->member)*10000; \
 		} \
@@ -329,7 +329,7 @@ int32_t mapdata_get_register(int32_t reg)
 	#define GET_MAPDATA_FFC_INDEX32(member, indexbound) \
 	{ \
 		int32_t index = (GET_D(rINDEX) / 10000); \
-		if (auto handle = ResolveMapdataFFCForRead(ri->mapdataref, index)) \
+		if (auto handle = ResolveMapdataFFCForRead(ri->mapdataref(), index)) \
 		{ \
 			ret = (handle.ffc->member)*10000; \
 		} \
@@ -397,7 +397,7 @@ int32_t mapdata_get_register(int32_t reg)
 			if (BC::checkBounds(d_index, 0, 7) != SH::_NoError)
 				break;
 
-			if (auto handle = ResolveMapdataFFCForRead(ri->mapdataref, index))
+			if (auto handle = ResolveMapdataFFCForRead(ri->mapdataref(), index))
 				ret = handle.ffc->scrconfig.run_args[d_index];
 			else
 			{
@@ -442,7 +442,7 @@ int32_t mapdata_get_register(int32_t reg)
 		{
 			int index = GET_D(rINDEX) / 10000;
 
-			if (auto handle = ResolveMapdataFFCForRead(ri->mapdataref, index))
+			if (auto handle = ResolveMapdataFFCForRead(ri->mapdataref(), index))
 			{
 				ret = (handle.data() != 0) ? 10000 : 0;
 			}
@@ -698,7 +698,7 @@ void mapdata_set_register(int32_t reg, int32_t value)
 	#define SET_FFC_MAPDATA_BOOL_INDEX(member, indexbound) \
 	{ \
 		int32_t index = GET_D(rINDEX) / 10000; \
-		if (auto handle = ResolveMapdataFFC(ri->mapdataref, index)) \
+		if (auto handle = ResolveMapdataFFC(ri->mapdataref(), index)) \
 		{ \
 			handle.ffc->member =( (value/10000) ? 1 : 0 ); \
 		} \
@@ -771,7 +771,7 @@ void mapdata_set_register(int32_t reg, int32_t value)
 			if (BC::checkBounds(dindex, 0, 7) != SH::_NoError)
 				break;
 
-			if (auto handle = ResolveMapdataFFC(ri->mapdataref, index))
+			if (auto handle = ResolveMapdataFFC(ri->mapdataref(), index))
 				handle.ffc->scrconfig.run_args[dindex] = value;
 			break;
 		}	
@@ -870,7 +870,7 @@ void mapdata_set_register(int32_t reg, int32_t value)
 						result.scr->scrconfig.run_args.fill(0);
 					result.scr->scrconfig.inst_init.clear();
 
-					on_reassign_script_engine_data(ScriptType::Screen, ri->screenref);
+					on_reassign_script_engine_data(ScriptType::Screen, ri->screenref());
 				}
 
 				result.scr->scrconfig.script = vbound(value/10000, 0, NUMSCRIPTSCREEN-1);

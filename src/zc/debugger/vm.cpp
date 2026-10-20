@@ -471,7 +471,7 @@ expected<int32_t, std::string> VM::executeSandboxed(pc_t start_pc, int this_zasm
 	int32_t tmp_stack[MAX_STACK_SIZE] = {0};
 	int32_t tmp_ret_stack[MAX_CALL_FRAMES] = {0};
 
-	tmp_ri.screenref = current_data ? current_data->ref.screenref : (origin_scr ? origin_scr->screen : 0);
+	tmp_ri.screenref() = current_data ? current_data->ref.screenref() : (origin_scr ? origin_scr->screen : 0);
 
 	ri = &tmp_ri;
 	ri->pc = start_pc;

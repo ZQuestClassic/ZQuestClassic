@@ -19,9 +19,9 @@ int32_t dropsetdata_get_register(int32_t reg)
 	{
 		case DROPSETCHOOSE:
 		{
-			if(ri->dropsetdataref > MAXITEMDROPSETS)
+			if((unsigned)ri->dropsetdataref() > MAXITEMDROPSETS)
 			{
-				Z_scripterrlog("Invalid dropset pointer %d\n", ri->dropsetdataref);
+				Z_scripterrlog("Invalid dropset pointer %d\n", ri->dropsetdataref());
 				ret = -10000;
 				break;
 			}
@@ -30,9 +30,9 @@ int32_t dropsetdata_get_register(int32_t reg)
 		}
 		case DROPSETNULLCHANCE:
 		{
-			if(ri->dropsetdataref > MAXITEMDROPSETS)
+			if((unsigned)ri->dropsetdataref() > MAXITEMDROPSETS)
 			{
-				Z_scripterrlog("Invalid dropset pointer %d\n", ri->dropsetdataref);
+				Z_scripterrlog("Invalid dropset pointer %d\n", ri->dropsetdataref());
 				ret = -10000;
 				break;
 			}
@@ -53,9 +53,9 @@ void dropsetdata_set_register(int32_t reg, int32_t value)
 	{
 		case DROPSETNULLCHANCE:
 		{
-			if(ri->dropsetdataref > MAXITEMDROPSETS)
+			if((unsigned)ri->dropsetdataref() > MAXITEMDROPSETS)
 			{
-				Z_scripterrlog("Invalid dropset pointer %d\n", ri->dropsetdataref);
+				Z_scripterrlog("Invalid dropset pointer %d\n", ri->dropsetdataref());
 				break;
 			}
 			item_drop_sets[GET_REF(dropsetdataref)].chance[0] = vbound((value / 10000),0,32767);

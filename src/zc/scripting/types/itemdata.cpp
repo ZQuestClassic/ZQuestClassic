@@ -865,7 +865,7 @@ void itemdata_set_register(int32_t reg, int32_t value)
 				break;
 			}
 
-			itemsbuf[ri->itemdataref].csets = (itemsbuf[ri->itemdataref].csets & 0xF) | (vbound(value/10000,0,15)<<4);
+			itemsbuf[ri->itemdataref()].csets = (itemsbuf[ri->itemdataref()].csets & 0xF) | (vbound(value/10000,0,15)<<4);
 			break;
 		case IDATAFRAMES:
 			if(invalid_item_id(GET_REF(itemdataref)))

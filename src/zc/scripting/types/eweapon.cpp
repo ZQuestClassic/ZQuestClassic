@@ -560,7 +560,7 @@ void eweapon_set_register(int32_t reg, int32_t value)
 				if (get_qr(qr_CLEARINITDONSCRIPTCHANGE))
 					s->scrconfig.run_args.fill(0);
 				s->scrconfig.inst_init.clear();
-				on_reassign_script_engine_data(ScriptType::Ewpn, ri->ewpnref);
+				on_reassign_script_engine_data(ScriptType::Ewpn, ri->ewpnref());
 			}
 			break;
 		case EWPNSCRIPTFLIP:

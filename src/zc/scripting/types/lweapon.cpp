@@ -568,7 +568,7 @@ void lweapon_set_register(int32_t reg, int32_t value)
 			if (get_qr(qr_CLEARINITDONSCRIPTCHANGE))
 				s->scrconfig.run_args.fill(0);
 			s->scrconfig.inst_init.clear();
-			on_reassign_script_engine_data(ScriptType::Lwpn, ri->lwpnref);
+			on_reassign_script_engine_data(ScriptType::Lwpn, ri->lwpnref());
 			break;
 		case LWPNSCRIPTFLIP:
 			s->scriptflip=vbound((value/10000),-1,127);

@@ -1176,7 +1176,7 @@ std::optional<int32_t> itemsprite_run_command(word command)
 	{
 		case ITEMDEL:
 		{
-			if(type == ScriptType::ItemSprite && ri->itemref == i)
+			if(type == ScriptType::ItemSprite && ri->itemref() == i)
 			{
 				if(do_itemsprite_delete())
 					return RUNSCRIPT_SELFDELETE;

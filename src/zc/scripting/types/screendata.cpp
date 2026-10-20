@@ -122,7 +122,7 @@ int32_t screendata_get_register(int32_t reg)
 						(ID==wWind?1:0)  /*special*/
 					)
 				);
-				ri->lwpnref = Lwpns.spr(Lwpns.Count() - 1)->getUID();
+				ri->lwpnref() = Lwpns.spr(Lwpns.Count() - 1)->getUID();
 
 				weapon *w = (weapon*)Lwpns.spr(Lwpns.Count()-1); //last created
 				//w->LOADGFX(FFCore.getDefWeaponSprite(ID)); //What the fuck Zoria, this broke old quests...
@@ -135,10 +135,10 @@ int32_t screendata_get_register(int32_t reg)
 			else
 			{
 				Z_scripterrlog("Tried to create too many LWeapons on the screen. The current LWeapon count is: %d\n", Lwpns.Count());
-				ri->lwpnref = 0;
+				ri->lwpnref() = 0;
 			}
 
-			ret = ri->lwpnref; 
+			ret = ri->lwpnref(); 
 		}
 		break;
 		case EWPNCOUNT:
@@ -323,7 +323,7 @@ int32_t screendata_get_register(int32_t reg)
 			ret = ri->screen_draw_origin_target;
 			break;
 		case SCREEN_INDEX:
-			ret = ri->screenref*10000;
+			ret = ri->screenref()*10000;
 			break;
 		case UNDERCOMBO:
 			ret = scr->undercombo*10000;
@@ -585,7 +585,7 @@ void screendata_set_register(int32_t reg, int32_t value)
 				scr->scrconfig.run_args.fill(0);
 			scr->scrconfig.inst_init.clear();
 			scr->scrconfig.script=vbound(value/10000, 0, NUMSCRIPTSCREEN-1);
-			on_reassign_script_engine_data(ScriptType::Screen, ri->screenref);
+			on_reassign_script_engine_data(ScriptType::Screen, ri->screenref());
 			break;
 		}
 		case SCREEN_DRAW_ORIGIN:

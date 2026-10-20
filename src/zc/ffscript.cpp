@@ -986,7 +986,7 @@ combo_trigger& get_first_combo_trigger(newcombo& cmb)
 		return cmb.triggers.emplace_back();
 	return cmb.triggers[0];
 }
-// For compat, get the first `combo_trigger` of the current `ri->combodataref`
+// For compat, get the first `combo_trigger` of the current `ri->combodataref()`
 combo_trigger* get_first_combo_trigger()
 {
 	int ref = GET_REF(combodataref);
@@ -994,7 +994,7 @@ combo_trigger* get_first_combo_trigger()
 		return nullptr;
 	return &get_first_combo_trigger(combobuf[ref]);
 }
-// Get the combo trigger pointed to by `ref` (usually ri->combotriggerref)
+// Get the combo trigger pointed to by `ref` (usually ri->combotriggerref())
 combo_trigger* get_combo_trigger(dword ref)
 {
 	byte idx = (ref >> 24) & 0xFF;
@@ -1012,7 +1012,7 @@ combo_trigger* get_combo_trigger(dword ref)
 	}
 	return &(cmb.triggers[idx]);
 }
-// Get the combo ID of the trigger pointed to by `ref` (usually ri->combotriggerref)
+// Get the combo ID of the trigger pointed to by `ref` (usually ri->combotriggerref())
 dword get_combo_from_trigger_ref(dword ref)
 {
 	dword cid = ref & 0x00FFFFFF;
@@ -1556,7 +1556,7 @@ static void set_current_script_engine_data(ScriptEngineData& data, ScriptType ty
 
 	// By default, make `Screen->` refer to the top-left screen.
 	// Will be set to something more specific for relevant script types.
-	ri->screenref = cur_screen;
+	ri->screenref() = cur_screen;
 
 	switch (type)
 	{
@@ -1573,9 +1573,9 @@ static void set_current_script_engine_data(ScriptEngineData& data, ScriptType ty
 				ri->sprite_draw_target_ref = ffc->getUID();
 			}
 
-			ri->ffcref = ZScriptVersion::ffcRefIsSpriteId() ? ffc->getUID() : index;
-			ri->screenref = ffc->screen_spawned;
-			set_script_this_ref(ri->ffcref);
+			ri->ffcref() = ZScriptVersion::ffcRefIsSpriteId() ? ffc->getUID() : index;
+			ri->screenref() = ffc->screen_spawned;
+			set_script_this_ref(ri->ffcref());
 		}
 		break;
 		
@@ -1591,9 +1591,9 @@ static void set_current_script_engine_data(ScriptEngineData& data, ScriptType ty
 				ri->sprite_draw_target_ref = index;
 			}
 			
-			ri->npcref = index;
-			ri->screenref = spr->screen_spawned;
-			set_script_this_ref(ri->npcref);
+			ri->npcref() = index;
+			ri->screenref() = spr->screen_spawned;
+			set_script_this_ref(ri->npcref());
 		}
 		break;
 		
@@ -1609,9 +1609,9 @@ static void set_current_script_engine_data(ScriptEngineData& data, ScriptType ty
 				ri->sprite_draw_target_ref = index;
 			}
 			
-			ri->lwpnref = index;
-			ri->screenref = spr->screen_spawned;
-			set_script_this_ref(ri->lwpnref);
+			ri->lwpnref() = index;
+			ri->screenref() = spr->screen_spawned;
+			set_script_this_ref(ri->lwpnref());
 		}
 		break;
 		
@@ -1627,9 +1627,9 @@ static void set_current_script_engine_data(ScriptEngineData& data, ScriptType ty
 				ri->sprite_draw_target_ref = index;
 			}
 			
-			ri->ewpnref = index;
-			ri->screenref = spr->screen_spawned;
-			set_script_this_ref(ri->ewpnref);
+			ri->ewpnref() = index;
+			ri->screenref() = spr->screen_spawned;
+			set_script_this_ref(ri->ewpnref());
 		}
 		break;
 		
@@ -1645,9 +1645,9 @@ static void set_current_script_engine_data(ScriptEngineData& data, ScriptType ty
 				ri->sprite_draw_target_ref = index;
 			}
 			
-			ri->itemref = index;
-			ri->screenref = spr->screen_spawned;
-			set_script_this_ref(ri->itemref);
+			ri->itemref() = index;
+			ri->screenref() = spr->screen_spawned;
+			set_script_this_ref(ri->itemref());
 		}
 		break;
 		
@@ -1667,8 +1667,8 @@ static void set_current_script_engine_data(ScriptEngineData& data, ScriptType ty
 				data.initialized = true;
 			}			
 			//'this' pointer
-			ri->itemdataref = ( collect ) ? new_i : i;
-			set_script_this_ref(ri->itemdataref);
+			ri->itemdataref() = ( collect ) ? new_i : i;
+			set_script_this_ref(ri->itemdataref());
 		}
 		break;
 		
@@ -1702,8 +1702,8 @@ static void set_current_script_engine_data(ScriptEngineData& data, ScriptType ty
 				reset_script_variables(scr.scrconfig);
 				data.initialized = true;
 			}
-			ri->genericdataref = script;
-			set_script_this_ref(ri->genericdataref);
+			ri->genericdataref() = script;
+			set_script_this_ref(ri->genericdataref());
 		}
 		break;
 		
@@ -1716,14 +1716,14 @@ static void set_current_script_engine_data(ScriptEngineData& data, ScriptType ty
 				reset_script_variables(scr.scrconfig);
 				data.initialized = true;
 			}
-			ri->genericdataref = script;
-			set_script_this_ref(ri->genericdataref);
+			ri->genericdataref() = script;
+			set_script_this_ref(ri->genericdataref());
 		}
 		break;
 		
 		case ScriptType::Hero:
 		{
-			ri->screenref = Hero.current_screen;
+			ri->screenref() = Hero.current_screen;
 			if (!data.initialized)
 			{
 				got_initialized = true;
@@ -1735,7 +1735,7 @@ static void set_current_script_engine_data(ScriptEngineData& data, ScriptType ty
 		
 		case ScriptType::DMap:
 		{
-			ri->dmapdataref = index;
+			ri->dmapdataref() = index;
 			//how do we clear initialised on dmap change?
 			if ( !data.initialized )
 			{
@@ -1743,52 +1743,52 @@ static void set_current_script_engine_data(ScriptEngineData& data, ScriptType ty
 				reset_script_variables(DMaps[index].active_scrconfig);
 				data.initialized = true;
 			}
-			set_script_this_ref(ri->dmapdataref);
+			set_script_this_ref(ri->dmapdataref());
 		}
 		break;
 		
 		case ScriptType::OnMap:
 		{
-			ri->dmapdataref = index;
+			ri->dmapdataref() = index;
 			if (!data.initialized)
 			{
 				got_initialized = true;
 				reset_script_variables(DMaps[index].onmap_scrconfig);
 				data.initialized = true;
 			}
-			set_script_this_ref(ri->dmapdataref);
+			set_script_this_ref(ri->dmapdataref());
 		}
 		break;
 		
 		case ScriptType::ScriptedActiveSubscreen:
 		{
-			ri->dmapdataref = index;
+			ri->dmapdataref() = index;
 			if (!data.initialized)
 			{
 				got_initialized = true;
 				reset_script_variables(DMaps[index].active_sub_scrconfig);
 				data.initialized = true;
 			}
-			set_script_this_ref(ri->dmapdataref);
+			set_script_this_ref(ri->dmapdataref());
 		}
 		break;
 		
 		case ScriptType::ScriptedPassiveSubscreen:
 		{
-			ri->dmapdataref = index;
+			ri->dmapdataref() = index;
 			if (!data.initialized)
 			{
 				got_initialized = true;
 				reset_script_variables(DMaps[index].passive_sub_scrconfig);
 				data.initialized = true;
 			}
-			set_script_this_ref(ri->dmapdataref);
+			set_script_this_ref(ri->dmapdataref());
 		}
 		break;
 		case ScriptType::EngineSubscreen:
 		{
-			ri->subscreendataref = get_subref(-1, index);
-			auto [ptr,_ty] = load_subdata(ri->subscreendataref);
+			ri->subscreendataref() = get_subref(-1, index);
+			auto [ptr,_ty] = load_subdata(ri->subscreendataref());
 			
 			if (ptr && !data.initialized)
 			{
@@ -1796,7 +1796,7 @@ static void set_current_script_engine_data(ScriptEngineData& data, ScriptType ty
 				reset_script_variables(ptr->scrconfig);
 				data.initialized = true;
 			}
-			set_script_this_ref(ri->subscreendataref);
+			set_script_this_ref(ri->subscreendataref());
 		}
 		break;
 		
@@ -1810,7 +1810,7 @@ static void set_current_script_engine_data(ScriptEngineData& data, ScriptType ty
 				data.initialized = true;
 			}
 
-			ri->screenref = index;
+			ri->screenref() = index;
 		}
 		break;
 		
@@ -1827,10 +1827,10 @@ static void set_current_script_engine_data(ScriptEngineData& data, ScriptType ty
 				data.initialized = true;
 			}
 
-			ri->combodataref = id; //'this' pointer
-			ri->comboposref = index; //used for X(), Y(), Layer(), and so forth.
-			ri->screenref = rpos_handle.screen;
-			set_script_this_ref(ri->combodataref);
+			ri->combodataref() = id; //'this' pointer
+			ri->comboposref() = index; //used for X(), Y(), Layer(), and so forth.
+			ri->screenref() = rpos_handle.screen;
+			set_script_this_ref(ri->combodataref());
 			break;
 		}
 	}
@@ -2854,50 +2854,78 @@ static bool write_array(T(&arr)[N], int index, T value)
 	return true;
 }
 
+static constexpr std::optional<ScriptRef> script_ref_for_register_impl(int reg)
+{
+	switch (reg)
+	{
+		case REFBITMAP: return ScriptRef::bitmapref;
+		case REFBOTTLESHOP: return ScriptRef::bottleshopref;
+		case REFBOTTLETYPE: return ScriptRef::bottletyperef;
+		case REFCOMBODATA: return ScriptRef::combodataref;
+		case REFCOMBOTRIGGER: return ScriptRef::combotriggerref;
+		case REFDIRECTORY: return ScriptRef::directoryref;
+		case REFDMAPDATA: return ScriptRef::dmapdataref;
+		case REFDROPSETDATA: return ScriptRef::dropsetdataref;
+		case REFEWPN: return ScriptRef::ewpnref;
+		case REFFFC: return ScriptRef::ffcref;
+		case REFFILE: return ScriptRef::fileref;
+		case REFGENERICDATA: return ScriptRef::genericdataref;
+		case REFITEM: return ScriptRef::itemref;
+		case REFITEMDATA: return ScriptRef::itemdataref;
+		case REFLWPN: return ScriptRef::lwpnref;
+		case REFMAPDATA: return ScriptRef::mapdataref;
+		case REFMSGDATA: return ScriptRef::msgdataref;
+		case REFMUSIC: return ScriptRef::musicref;
+		case REFNPC: return ScriptRef::npcref;
+		case REFNPCDATA: return ScriptRef::npcdataref;
+		case REFPALDATA: return ScriptRef::paldataref;
+		case REFPORTAL: return ScriptRef::portalref;
+		case REFRNG: return ScriptRef::rngref;
+		case REFSAVEMENU: return ScriptRef::savemenuref;
+		case REFSAVPORTAL: return ScriptRef::savportalref;
+		case REFSCREEN: return ScriptRef::screenref;
+		case REFSHOPDATA: return ScriptRef::shopdataref;
+		case REFSPRITE: return ScriptRef::spriteref;
+		case REFSPRITEDATA: return ScriptRef::spritedataref;
+		case REFSTACK: return ScriptRef::stackref;
+		case REFSUBSCREENDATA: return ScriptRef::subscreendataref;
+		case REFSUBSCREENPAGE: return ScriptRef::subscreenpageref;
+		case REFSUBSCREENWIDG: return ScriptRef::subscreenwidgref;
+		case REFWEAPDATA: return ScriptRef::weapdataref;
+		case REFWEBSOCKET: return ScriptRef::websocketref;
+	}
+	return std::nullopt;
+}
+
+// By register: the index of the ScriptRef it reads and writes, or -1.
+static constexpr auto script_ref_by_register = []() constexpr {
+	std::array<int8_t, NUMVARIABLES> data{};
+	for (int i = 0; i < NUMVARIABLES; i++)
+	{
+		auto ref = script_ref_for_register_impl(i);
+		data[i] = ref ? (int8_t)*ref : -1;
+	}
+	return data;
+}();
+
+std::optional<ScriptRef> script_ref_for_register(int reg)
+{
+	if ((unsigned)reg >= NUMVARIABLES || script_ref_by_register[reg] == -1)
+		return std::nullopt;
+	return (ScriptRef)script_ref_by_register[reg];
+}
+
 static int get_ref(int arg)
 {
 	switch (arg)
 	{
 		case CLASS_THISKEY: return ri->thiskey;
 		case CLASS_THISKEY2: return ri->thiskey2;
-		case REFBITMAP: return ri->bitmapref;
-		case REFBOTTLESHOP: return ri->bottleshopref;
-		case REFBOTTLETYPE: return ri->bottletyperef;
-		case REFCOMBODATA: return ri->combodataref;
-		case REFCOMBOTRIGGER: return ri->combotriggerref;
-		case REFDIRECTORY: return ri->directoryref;
-		case REFDMAPDATA: return ri->dmapdataref;
-		case REFDROPSETDATA: return ri->dropsetdataref;
-		case REFEWPN: return ri->ewpnref;
-		case REFFFC: return ri->ffcref;
-		case REFFILE: return ri->fileref;
-		case REFGENERICDATA: return ri->genericdataref;
-		case REFITEM: return ri->itemref;
-		case REFITEMDATA: return ri->itemdataref;
-		case REFLWPN: return ri->lwpnref;
-		case REFMAPDATA: return ri->mapdataref;
-		case REFMSGDATA: return ri->msgdataref;
-		case REFNPC: return ri->npcref;
-		case REFNPCDATA: return ri->npcdataref;
-		case REFPALDATA: return ri->paldataref;
-		case REFPORTAL: return ri->portalref;
-		case REFRNG: return ri->rngref;
-		case REFSAVPORTAL: return ri->savportalref;
-		case REFSCREEN: return ri->screenref;
-		case REFSHOPDATA: return ri->shopdataref;
-		case REFSPRITE: return ri->spriteref;
-		case REFSPRITEDATA: return ri->spritedataref;
-		case REFSTACK: return ri->stackref;
-		case REFSUBSCREENDATA: return ri->subscreendataref;
-		case REFSUBSCREENPAGE: return ri->subscreenpageref;
-		case REFSUBSCREENWIDG: return ri->subscreenwidgref;
-		case REFWEBSOCKET: return ri->websocketref;
-		case REFSAVEMENU: return ri->savemenuref;
-		case REFMUSIC: return ri->musicref;
-		case REFWEAPDATA: return ri->weapdataref;
-
-		default: NOTREACHED();
 	}
+
+	auto ref = script_ref_for_register(arg);
+	if (!ref) NOTREACHED();
+	return ri->refs[(int)*ref];
 }
 
 int32_t earlyretval = -1;
@@ -2972,12 +3000,7 @@ int32_t get_register_slow(int32_t arg)
 		case CLASS_THISKEY2: return ri->thiskey2;
 		case SP: return ri->sp * 10000;
 		case SP2: return ri->sp;
-		case REFFFC: return ZScriptVersion::ffcRefIsSpriteId() ? ri->ffcref : ri->ffcref * 10000;
-		case REFNPC: return ri->npcref;
-		case REFLWPN: return ri->lwpnref;
-		case REFEWPN: return ri->ewpnref;
-		case REFITEM: return ri->itemref;
-		case REFSPRITE: return ri->spriteref;
+		case REFFFC: return ZScriptVersion::ffcRefIsSpriteId() ? ri->ffcref() : ri->ffcref() * 10000;
 		case SCRIPTRAM:
 		case GLOBALRAM:
 		{
@@ -2999,6 +3022,10 @@ int32_t get_register_slow(int32_t arg)
 			return ret;
 		}
 	}
+
+	// The REF* registers (other than REFFFC above) are plain reads of the script's refs.
+	if ((unsigned)arg < NUMVARIABLES && script_ref_by_register[arg] != -1)
+		return ri->refs[script_ref_by_register[arg]];
 
 	int32_t ret = 0;
 	current_zasm_register = arg;
@@ -3047,12 +3074,7 @@ void set_register_slow(int32_t arg, int32_t value)
 		case CLASS_THISKEY2: ri->thiskey2 = value; return;
 		case SP: ri->sp = value / 10000; return;
 		case SP2: ri->sp = value; return;
-		case REFFFC: ri->ffcref = ZScriptVersion::ffcRefIsSpriteId() ? value : value / 10000; return;
-		case REFNPC: ri->npcref = value; return;
-		case REFLWPN: ri->lwpnref = value; return;
-		case REFEWPN: ri->ewpnref = value; return;
-		case REFITEM: ri->itemref = value; return;
-		case REFSPRITE: ri->spriteref = value; return;
+		case REFFFC: ri->ffcref() = ZScriptVersion::ffcRefIsSpriteId() ? value : value / 10000; return;
 		case SCRIPTRAM:
 		case GLOBALRAM:
 			current_zasm_register = arg;
@@ -3069,6 +3091,13 @@ void set_register_slow(int32_t arg, int32_t value)
 			ArrayH::setElement(GET_D(rINDEX), 0, value);
 			current_zasm_register = 0;
 			return;
+	}
+
+	// See the matching REF* path in get_register.
+	if ((unsigned)arg < NUMVARIABLES && script_ref_by_register[arg] != -1)
+	{
+		ri->refs[script_ref_by_register[arg]] = value;
+		return;
 	}
 
 	current_zasm_register = arg;
@@ -3296,36 +3325,36 @@ void do_set(int reg, int value)
 			
 			if(collect)
 			{
-				if(reg==IDATAPSCRIPT && ri->itemdataref==new_UID)
+				if(reg==IDATAPSCRIPT && ri->itemdataref()==new_UID)
 					allowed = false;
 			}
-			else if(reg==IDATASCRIPT && ri->itemdataref==new_UID)
+			else if(reg==IDATASCRIPT && ri->itemdataref()==new_UID)
 				allowed = false;
 			break;
 		}
 		
 		case ScriptType::Lwpn:
-			if(reg==LWPNSCRIPT && ri->lwpnref==whichUID)
+			if(reg==LWPNSCRIPT && ri->lwpnref()==whichUID)
 				allowed = false;
 			break;
 			
 		case ScriptType::NPC:
-			if(reg==NPCSCRIPT && ri->npcref==whichUID)
+			if(reg==NPCSCRIPT && ri->npcref()==whichUID)
 				allowed = false;
 			break;
 		
 		case ScriptType::Ewpn:
-			if(reg==EWPNSCRIPT && ri->ewpnref==whichUID)
+			if(reg==EWPNSCRIPT && ri->ewpnref()==whichUID)
 				allowed = false;
 			break;
 		
 		case ScriptType::DMap:
-			if(reg==DMAPSCRIPT && ri->dmapdataref==whichUID)
+			if(reg==DMAPSCRIPT && ri->dmapdataref()==whichUID)
 				allowed = false;
 			break;
 		
 		case ScriptType::ItemSprite:
-			if(reg==ITEMSPRITESCRIPT && ri->itemref==whichUID)
+			if(reg==ITEMSPRITESCRIPT && ri->itemref()==whichUID)
 				allowed = false;
 			break;
 	}
@@ -5029,10 +5058,10 @@ void do_loadlweapon(const bool v)
 	int32_t index = SH::get_arg(sarg1, v) / 10000;
 	
 	if(BC::checkLWeaponIndex(index) != SH::_NoError)
-		ri->lwpnref = 0; //MAX_DWORD; //Now NULL
+		ri->lwpnref() = 0; //MAX_DWORD; //Now NULL
 	else
 	{
-		ri->lwpnref = Lwpns.spr(index)->getUID();
+		ri->lwpnref() = Lwpns.spr(index)->getUID();
 		// This is too trivial to log. -L
 	}
 }
@@ -5042,10 +5071,10 @@ void do_loadeweapon(const bool v)
 	int32_t index = SH::get_arg(sarg1, v) / 10000;
 	
 	if(BC::checkEWeaponIndex(index) != SH::_NoError)
-		ri->ewpnref = 0; //MAX_DWORD; //Now NULL
+		ri->ewpnref() = 0; //MAX_DWORD; //Now NULL
 	else
 	{
-		ri->ewpnref = Ewpns.spr(index)->getUID();
+		ri->ewpnref() = Ewpns.spr(index)->getUID();
 	}
 }
 
@@ -5054,10 +5083,10 @@ void do_loaditem(const bool v)
 	int32_t index = SH::get_arg(sarg1, v) / 10000;
 	
 	if(BC::checkItemIndex(index) != SH::_NoError)
-		ri->itemref = 0; //MAX_DWORD; //Now NULL
+		ri->itemref() = 0; //MAX_DWORD; //Now NULL
 	else
 	{
-		ri->itemref = items.spr(index)->getUID();
+		ri->itemref() = items.spr(index)->getUID();
 	}
 }
 
@@ -5069,10 +5098,10 @@ void do_loaditemdata(const bool v)
 	//I *think* this is the right check ~Joe
 	if(BC::checkItemID(ID) != SH::_NoError)
 	{
-		ri->itemdataref = -1; //new null value
+		ri->itemdataref() = -1; //new null value
 		return;
 	}
-	ri->itemdataref = ID;
+	ri->itemdataref() = ID;
 }
 
 void do_loadnpc(const bool v)
@@ -5080,10 +5109,10 @@ void do_loadnpc(const bool v)
 	int32_t index = SH::get_arg(sarg1, v) / 10000;
 	
 	if(BC::checkGuyIndex(index) != SH::_NoError)
-		ri->npcref = 0; // MAX_DWORD;
+		ri->npcref() = 0; // MAX_DWORD;
 	else
 	{
-		ri->npcref = guys.spr(index)->getUID();
+		ri->npcref() = guys.spr(index)->getUID();
 	}
 }
 
@@ -5094,9 +5123,9 @@ void FFScript::do_loaddmapdata(const bool v)
 	if ( ID < 0 || ID > 511 )
 	{
 		Z_scripterrlog("Invalid DMap ID passed to Game->LoadDMapData(): %d\n", ID);
-		ri->dmapdataref = MAX_DWORD;
+		ri->dmapdataref() = MAX_DWORD;
 	}
-	else ri->dmapdataref = ID;
+	else ri->dmapdataref() = ID;
 }
 
 void FFScript::do_load_active_subscreendata(const bool v)
@@ -5105,14 +5134,14 @@ void FFScript::do_load_active_subscreendata(const bool v)
 	
 	if(ID == -1 || (unsigned(ID) < subscreens_active.size() && unsigned(ID) < 256))
 	{
-		ri->subscreendataref = get_subref(ID, sstACTIVE);
+		ri->subscreendataref() = get_subref(ID, sstACTIVE);
 	}
 	else
 	{
 		Z_scripterrlog("Invalid Subscreen ID passed to Game->LoadASubData(): %d\n", ID);
-		ri->subscreendataref = 0;
+		ri->subscreendataref() = 0;
 	}
-	SET_D(rEXP1, ri->subscreendataref);
+	SET_D(rEXP1, ri->subscreendataref());
 }
 void FFScript::do_load_passive_subscreendata(const bool v)
 {
@@ -5120,14 +5149,14 @@ void FFScript::do_load_passive_subscreendata(const bool v)
 	
 	if(ID == -1 || (unsigned(ID) < subscreens_passive.size() && unsigned(ID) < 256))
 	{
-		ri->subscreendataref = get_subref(ID, sstPASSIVE);
+		ri->subscreendataref() = get_subref(ID, sstPASSIVE);
 	}
 	else
 	{
 		Z_scripterrlog("Invalid Subscreen ID passed to Game->LoadPSubData(): %d\n", ID);
-		ri->subscreendataref = 0;
+		ri->subscreendataref() = 0;
 	}
-	SET_D(rEXP1, ri->subscreendataref);
+	SET_D(rEXP1, ri->subscreendataref());
 }
 void FFScript::do_load_overlay_subscreendata(const bool v)
 {
@@ -5135,14 +5164,14 @@ void FFScript::do_load_overlay_subscreendata(const bool v)
 	
 	if(ID == -1 || (unsigned(ID) < subscreens_overlay.size() && unsigned(ID) < 256))
 	{
-		ri->subscreendataref = get_subref(ID, sstOVERLAY);
+		ri->subscreendataref() = get_subref(ID, sstOVERLAY);
 	}
 	else
 	{
 		Z_scripterrlog("Invalid Subscreen ID passed to Game->LoadOSubData(): %d\n", ID);
-		ri->subscreendataref = 0;
+		ri->subscreendataref() = 0;
 	}
-	SET_D(rEXP1, ri->subscreendataref);
+	SET_D(rEXP1, ri->subscreendataref());
 }
 void FFScript::do_load_map_subscreendata(const bool v)
 {
@@ -5150,14 +5179,14 @@ void FFScript::do_load_map_subscreendata(const bool v)
 	
 	if(ID == -1 || (unsigned(ID) < subscreens_map.size() && unsigned(ID) < 256))
 	{
-		ri->subscreendataref = get_subref(ID, sstMAP);
+		ri->subscreendataref() = get_subref(ID, sstMAP);
 	}
 	else
 	{
 		Z_scripterrlog("Invalid Subscreen ID passed to Game->LoadMSubData(): %d\n", ID);
-		ri->subscreendataref = 0;
+		ri->subscreendataref() = 0;
 	}
-	SET_D(rEXP1, ri->subscreendataref);
+	SET_D(rEXP1, ri->subscreendataref());
 }
 void FFScript::do_load_subscreendata(const bool v, const bool v2)
 {
@@ -5179,11 +5208,11 @@ void FFScript::do_load_subscreendata(const bool v, const bool v2)
 		default:
 		{
 			Z_scripterrlog("Invalid Subscreen Type passed to ???: %d\n", ty);
-			ri->subscreendataref = 0;
+			ri->subscreendataref() = 0;
 			break;
 		}
 	}
-	SET_D(rEXP1, ri->subscreendataref);
+	SET_D(rEXP1, ri->subscreendataref());
 }
 
 void FFScript::do_loadrng()
@@ -5197,19 +5226,19 @@ void FFScript::do_loadrng()
 
 	int q = script_object_ids_by_type[script_object_type::rng].size() - 1;
 	rng->gen = &script_rnggens[q];
-	ri->rngref = rng->id;
+	ri->rngref() = rng->id;
 	SET_D(rEXP1, rng->id);
 }
 
 uint32_t FFScript::get_new_weapondata(wdata_type data_type, dword data_index)
 {
-	return (ri->weapdataref = make_new_user_weapondata(data_type, data_index));
+	return (ri->weapdataref() = make_new_user_weapondata(data_type, data_index));
 }
 
 void FFScript::do_loadstack()
 {
-	ri->stackref = user_stacks.get_free();
-	SET_D(rEXP1, ri->stackref);
+	ri->stackref() = user_stacks.get_free();
+	SET_D(rEXP1, ri->stackref());
 }
 
 void FFScript::do_loaddropset(const bool v)
@@ -5219,10 +5248,10 @@ void FFScript::do_loaddropset(const bool v)
 	if ( ID < 0 || ID > MAXITEMDROPSETS )
 	{
 		scripting_log_error_with_context("Invalid Dropset ID: {}", ID);
-		ri->dropsetdataref = MAX_DWORD;
+		ri->dropsetdataref() = MAX_DWORD;
 	}
 		
-	else ri->dropsetdataref = ID;
+	else ri->dropsetdataref() = ID;
 }
 
 void FFScript::do_loadbottle(const bool v)
@@ -5232,9 +5261,9 @@ void FFScript::do_loadbottle(const bool v)
 	if ( ID < 1 || ID > 64 )
 	{
 		scripting_log_error_with_context("Invalid BottleType ID: {}", ID);
-		ri->bottletyperef = 0;
+		ri->bottletyperef() = 0;
 	}
-	else ri->bottletyperef = ID;
+	else ri->bottletyperef() = ID;
 }
 
 void FFScript::do_loadbottleshop(const bool v)
@@ -5244,9 +5273,9 @@ void FFScript::do_loadbottleshop(const bool v)
 	if ( ID < 0 || ID > 255 )
 	{
 		scripting_log_error_with_context("Invalid BottleShopType ID: {}", ID);
-		ri->bottleshopref = 0;
+		ri->bottleshopref() = 0;
 	}
-	else ri->bottleshopref = ID+1;
+	else ri->bottleshopref() = ID+1;
 }
 void FFScript::do_loadgenericdata(const bool v)
 {
@@ -5255,21 +5284,21 @@ void FFScript::do_loadgenericdata(const bool v)
 	if ( ID < 1 || ID > NUMSCRIPTSGENERIC )
 	{
 		scripting_log_error_with_context("Invalid GenericData ID: {}", ID);
-		ri->genericdataref = 0;
+		ri->genericdataref() = 0;
 	}
-	else ri->genericdataref = ID;
+	else ri->genericdataref() = ID;
 }
 
 void FFScript::do_create_paldata()
 {
-	ri->paldataref = user_paldatas.get_free();
-	SET_D(rEXP1, ri->paldataref);
+	ri->paldataref() = user_paldatas.get_free();
+	SET_D(rEXP1, ri->paldataref());
 }
 
 void FFScript::do_create_paldata_clr()
 {
-	ri->paldataref = user_paldatas.get_free();
-	if (ri->paldataref > 0)
+	ri->paldataref() = user_paldatas.get_free();
+	if (ri->paldataref() != 0)
 	{
 		user_paldata& pd = user_paldatas[GET_REF(paldataref)];
 		int32_t clri = get_register(sarg1);
@@ -5283,7 +5312,7 @@ void FFScript::do_create_paldata_clr()
 		for (int32_t q = 0; q < 240; ++q)
 			pd.set_color(q, c);
 	}
-	SET_D(rEXP1, ri->paldataref);
+	SET_D(rEXP1, ri->paldataref());
 }
 
 void FFScript::do_mix_clr()
@@ -6103,7 +6132,7 @@ void FFScript::do_paldata_copy()
 
 void FFScript::do_paldata_copycset()
 {
-	ri->paldataref = SH::read_stack(ri->sp + 3);
+	ri->paldataref() = SH::read_stack(ri->sp + 3);
 	if (user_paldata* pd = checkPalData(GET_REF(paldataref)))
 	{
 		int32_t ref_dest = SH::read_stack(ri->sp + 2);
@@ -6901,10 +6930,10 @@ void FFScript::do_loadnpcdata(const bool v)
 	if ( ID < 1 || ID > (MAXGUYS-1) )
 	{
 		Z_scripterrlog("Invalid NPC ID passed to Game->LoadNPCData: %d\n", ID);
-		ri->npcdataref = MAX_DWORD;
+		ri->npcdataref() = MAX_DWORD;
 	}
 		
-	else ri->npcdataref = ID;
+	else ri->npcdataref() = ID;
 }
 void FFScript::do_loadmessagedata(const bool v)
 {
@@ -6913,10 +6942,10 @@ void FFScript::do_loadmessagedata(const bool v)
 	if ( ID < 1 || ID > (msg_count-1) )
 	{
 		Z_scripterrlog("Invalid Message ID passed to Game->LoadMessageData: %d\n", ID);
-		ri->msgdataref = MAX_DWORD;
+		ri->msgdataref() = MAX_DWORD;
 	}
 		
-	else ri->msgdataref = ID;
+	else ri->msgdataref() = ID;
 }
 //same syntax as loadmessage data
 //the input is an array
@@ -6957,10 +6986,10 @@ void FFScript::do_loadcombodata(const bool v)
 	if ( (unsigned)ID > (MAXCOMBOS-1) )
 	{
 		scripting_log_error_with_context("Invalid combodata ID: {}", ID);
-		ri->combodataref = 0;
+		ri->combodataref() = 0;
 	}
 
-	else ri->combodataref = ID;
+	else ri->combodataref() = ID;
 }
 
 void FFScript::do_loadmapdata_tempscr(const bool v)
@@ -6969,13 +6998,13 @@ void FFScript::do_loadmapdata_tempscr(const bool v)
 
 	if (BC::checkBounds(layer, 0, 6) != SH::_NoError)
 	{
-		ri->mapdataref = 0;
-		set_register(sarg1, ri->mapdataref);
+		ri->mapdataref() = 0;
+		set_register(sarg1, ri->mapdataref());
 		return;
 	}
 
-	ri->mapdataref = create_mapdata_temp_ref(mapdata_type::TemporaryCurrentRegion, cur_screen, layer);
-	set_register(sarg1, ri->mapdataref);
+	ri->mapdataref() = create_mapdata_temp_ref(mapdata_type::TemporaryCurrentRegion, cur_screen, layer);
+	set_register(sarg1, ri->mapdataref());
 }
 
 void FFScript::do_loadmapdata_tempscr2(const bool v)
@@ -6985,21 +7014,21 @@ void FFScript::do_loadmapdata_tempscr2(const bool v)
 
 	if (BC::checkBounds(layer, 0, 6) != SH::_NoError)
 	{
-		ri->mapdataref = 0;
-		set_register(sarg1, ri->mapdataref);
+		ri->mapdataref() = 0;
+		set_register(sarg1, ri->mapdataref());
 		return;
 	}
 
 	if (!is_in_current_region(screen))
 	{
 		scripting_log_error_with_context("Must use a screen in the current region. got: {}", screen);
-		ri->mapdataref = 0;
-		set_register(sarg1, ri->mapdataref);
+		ri->mapdataref() = 0;
+		set_register(sarg1, ri->mapdataref());
 		return;
 	}
 
-	ri->mapdataref = create_mapdata_temp_ref(mapdata_type::TemporaryCurrentScreen, screen, layer);
-	set_register(sarg1, ri->mapdataref);
+	ri->mapdataref() = create_mapdata_temp_ref(mapdata_type::TemporaryCurrentScreen, screen, layer);
+	set_register(sarg1, ri->mapdataref());
 }
 
 static void do_loadtmpscrforcombopos(const bool v)
@@ -7009,14 +7038,14 @@ static void do_loadtmpscrforcombopos(const bool v)
 
 	if (BC::checkBoundsRpos(rpos, (rpos_t)0, region_max_rpos) != SH::_NoError)
 	{
-		ri->mapdataref = 0;
-		set_register(sarg1, ri->mapdataref);
+		ri->mapdataref() = 0;
+		set_register(sarg1, ri->mapdataref());
 		return;
 	}
 	if (BC::checkBounds(layer, 0, 6) != SH::_NoError)
 	{
-		ri->mapdataref = 0;
-		set_register(sarg1, ri->mapdataref);
+		ri->mapdataref() = 0;
+		set_register(sarg1, ri->mapdataref());
 		return;
 	}
 
@@ -7029,13 +7058,13 @@ void FFScript::do_loadmapdata_scrollscr(const bool v)
 
 	if (BC::checkBounds(layer, 0, 6) != SH::_NoError)
 	{
-		ri->mapdataref = 0;
-		set_register(sarg1, ri->mapdataref);
+		ri->mapdataref() = 0;
+		set_register(sarg1, ri->mapdataref());
 		return;
 	}
 
-	ri->mapdataref = create_mapdata_temp_ref(mapdata_type::TemporaryScrollingRegion, scrolling_hero_screen, layer);
-	set_register(sarg1, ri->mapdataref);
+	ri->mapdataref() = create_mapdata_temp_ref(mapdata_type::TemporaryScrollingRegion, scrolling_hero_screen, layer);
+	set_register(sarg1, ri->mapdataref());
 }
 
 void FFScript::do_loadmapdata_scrollscr2(const bool v)
@@ -7045,21 +7074,21 @@ void FFScript::do_loadmapdata_scrollscr2(const bool v)
 
 	if (BC::checkBounds(layer, 0, 6) != SH::_NoError)
 	{
-		ri->mapdataref = 0;
-		set_register(sarg1, ri->mapdataref);
+		ri->mapdataref() = 0;
+		set_register(sarg1, ri->mapdataref());
 		return;
 	}
 
 	if (!is_in_screenscrolling_region(screen))
 	{
 		scripting_log_error_with_context("Must use a screen in the current scrolling region. got: {}", screen);
-		ri->mapdataref = 0;
-		set_register(sarg1, ri->mapdataref);
+		ri->mapdataref() = 0;
+		set_register(sarg1, ri->mapdataref());
 		return;
 	}
 
-	ri->mapdataref = create_mapdata_temp_ref(mapdata_type::TemporaryScrollingScreen, screen, layer);
-	set_register(sarg1, ri->mapdataref);
+	ri->mapdataref() = create_mapdata_temp_ref(mapdata_type::TemporaryScrollingScreen, screen, layer);
+	set_register(sarg1, ri->mapdataref());
 }
 	
 void FFScript::do_loadshopdata(const bool v)
@@ -7069,9 +7098,9 @@ void FFScript::do_loadshopdata(const bool v)
 	if ( (unsigned)ID > 255 )
 	{
 		Z_scripterrlog("Invalid Shop ID passed to Game->LoadShopData: %d\n", ID);
-		ri->shopdataref = 0;
+		ri->shopdataref() = 0;
 	}	
-	else ri->shopdataref = ID;
+	else ri->shopdataref() = ID;
 }
 
 
@@ -7082,9 +7111,9 @@ void FFScript::do_loadinfoshopdata(const bool v)
 	if ( (unsigned)ID > 255 )
 	{
 		Z_scripterrlog("Invalid Shop ID passed to Game->LoadShopData: %d\n", ID);
-		ri->shopdataref = 0;
+		ri->shopdataref() = 0;
 	}	
-	else ri->shopdataref = ID+NUMSHOPS;
+	else ri->shopdataref() = ID+NUMSHOPS;
 }
 
 void FFScript::do_loadspritedata(const bool v)
@@ -7094,10 +7123,10 @@ void FFScript::do_loadspritedata(const bool v)
 	if ( (unsigned)ID > (MAXSPRITES-1) )
 	{
 		Z_scripterrlog("Invalid Sprite ID passed to Game->LoadSpriteData: %d\n", ID);
-		ri->spritedataref = 0; 
+		ri->spritedataref() = 0; 
 	}
 
-	else ri->spritedataref = ID;
+	else ri->spritedataref() = ID;
 }
 
 void FFScript::do_loadbitmapid(const bool v)
@@ -7113,11 +7142,11 @@ void FFScript::do_loadbitmapid(const bool v)
 		case rtBMP4:
 		case rtBMP5:
 		case rtBMP6:
-			ri->bitmapref = ID+10; break;
+			ri->bitmapref() = ID+10; break;
 		default:
 		{
 			Z_scripterrlog("Invalid Bitmap ID passed to Game->Load BitmapID: %d\n", ID);
-			ri->bitmapref = 0; break;
+			ri->bitmapref() = 0; break;
 		}
 	}
 }
@@ -7151,16 +7180,16 @@ void do_createlweapon(const bool v)
 			)
 		);
 		weapon *w = (weapon*)Lwpns.spr(Lwpns.Count()-1); //last created
-		ri->lwpnref = w->getUID();
-		w->screen_spawned = ri->screenref;
+		ri->lwpnref() = w->getUID();
+		w->screen_spawned = ri->screenref();
 		w->ScriptGenerated = 1;
 		w->isLWeapon = 1;
 		if(ID == wWind) w->specialinfo = 1;
-		Z_eventlog("Script created lweapon %d with UID = %u\n", ID, ri->lwpnref);
+		Z_eventlog("Script created lweapon %d with UID = %u\n", ID, ri->lwpnref());
 	}
 	else
 	{
-		ri->lwpnref = 0; // Now NULL
+		ri->lwpnref() = 0; // Now NULL
 		Z_scripterrlog("Couldn't create lweapon %d, screen lweapon limit reached\n", ID);
 	}
 }
@@ -7181,11 +7210,11 @@ void do_createeweapon(const bool v)
 		if( ID > wEnemyWeapons || ( ID >= wScript1 && ID <= wScript10) )
 		{
 			weapon *w = (weapon*)Ewpns.spr(Ewpns.Count()-1); //last created
-			w->screen_spawned = ri->screenref;
+			w->screen_spawned = ri->screenref();
 			w->ScriptGenerated = 1;
 			w->isLWeapon = 0;
-			ri->ewpnref = w->getUID();
-			Z_eventlog("Script created eweapon %d with UID = %u\n", ID, ri->ewpnref);
+			ri->ewpnref() = w->getUID();
+			Z_eventlog("Script created eweapon %d with UID = %u\n", ID, ri->ewpnref());
 		}
 		else
 		{
@@ -7195,7 +7224,7 @@ void do_createeweapon(const bool v)
 	}
 	else
 	{
-		ri->ewpnref = 0;
+		ri->ewpnref() = 0;
 		Z_scripterrlog("Couldn't create eweapon %d, screen eweapon limit reached\n", ID);
 	}
 }
@@ -7211,13 +7240,13 @@ void do_createitem(const bool v)
 	{
 		additem(0, (get_qr(qr_NOITEMOFFSET) ? 1: 0), ID, ipBIGRANGE);
 		sprite* item = items.spr(items.Count() - 1);
-		item->screen_spawned = ri->screenref;
-		ri->itemref = item->getUID();
-		Z_eventlog("Script created item \"%s\" with UID = %u\n", itemsbuf.get(ID).name.c_str(), ri->itemref);
+		item->screen_spawned = ri->screenref();
+		ri->itemref() = item->getUID();
+		Z_eventlog("Script created item \"%s\" with UID = %u\n", itemsbuf.get(ID).name.c_str(), ri->itemref());
 	}
 	else
 	{
-		ri->itemref = 0;
+		ri->itemref() = 0;
 		Z_scripterrlog("Couldn't create item \"%s\", screen item limit reached\n", itemsbuf.get(ID).name.c_str());
 	}
 }
@@ -7230,26 +7259,26 @@ void do_createnpc(const bool v)
 		return;
 		
 	//If we make a segmented enemy there'll be more than one sprite created
-	word numcreated = addenemy(ri->screenref, 0, 0, ID, -10);
+	word numcreated = addenemy(ri->screenref(), 0, 0, ID, -10);
 	
 	if(numcreated == 0)
 	{
-		ri->npcref = 0;
+		ri->npcref() = 0;
 		Z_scripterrlog("Couldn't create NPC \"%s\", screen NPC limit reached\n", guy_string[ID]);
 	}
 	else
 	{
 		word index = guys.Count() - numcreated; //Get the main enemy, not a segment
-		ri->npcref = guys.spr(index)->getUID();
+		ri->npcref() = guys.spr(index)->getUID();
 		
 		for(; index<guys.Count(); index++)
 		{
 			enemy* e = ((enemy*)guys.spr(index));
 			e->script_spawned = true;
-			e->screen_spawned = ri->screenref;
+			e->screen_spawned = ri->screenref();
 		}
 			
-		Z_eventlog("Script created NPC \"%s\" with UID = %u\n", guy_string[ID], ri->npcref);
+		Z_eventlog("Script created NPC \"%s\" with UID = %u\n", guy_string[ID], ri->npcref());
 	}
 }
 
@@ -7283,7 +7312,7 @@ INLINE void set_drawing_command_args(const int32_t j, const word numargs)
 INLINE void set_user_bitmap_command_args(const int32_t j, const word numargs)
 {
 	assert(numargs <= DRAWCMD_MAX_ARG_COUNT);
-	//ri->bitmapref = SH::read_stack(ri->sp+numargs);
+	//ri->bitmapref() = SH::read_stack(ri->sp+numargs);
 	for(int32_t k = 1; k <= numargs; k++)
 		script_drawing_commands[j][k] = SH::read_stack(ri->sp + (numargs - k));
 }
@@ -9365,17 +9394,17 @@ sprite* get_own_sprite(refInfo* ri, ScriptType type)
 	switch(type)
 	{
 		case ScriptType::None:
-			return ResolveBaseSprite(ri->spriteref);
+			return ResolveBaseSprite(ri->spriteref());
 		case ScriptType::Lwpn:
-			return checkLWpn(ri->lwpnref);
+			return checkLWpn(ri->lwpnref());
 		case ScriptType::Ewpn:
-			return checkEWpn(ri->ewpnref);
+			return checkEWpn(ri->ewpnref());
 		case ScriptType::ItemSprite:
-			return checkItem(ri->itemref);
+			return checkItem(ri->itemref());
 		case ScriptType::NPC:
-			return checkNPC(ri->npcref);
+			return checkNPC(ri->npcref());
 		case ScriptType::FFC:
-			return ResolveFFC(ri->ffcref);
+			return ResolveFFC(ri->ffcref());
 	}
 	return nullptr;
 }
@@ -12696,17 +12725,17 @@ int32_t run_script_int(JittedScriptInstance* j_instance)
 						val = 0;
 					}
 				}
-				ri->portalref = SET_D(rEXP1, val);
+				ri->portalref() = SET_D(rEXP1, val);
 				break;
 			}
 			case CREATEPORTAL:
 			{
 				portal* p = new portal();
 				if(portals.add(p))
-					ri->portalref = SET_D(rEXP1, p->getUID());
+					ri->portalref() = SET_D(rEXP1, p->getUID());
 				else
 				{
-					ri->portalref = SET_D(rEXP1, 0);
+					ri->portalref() = SET_D(rEXP1, 0);
 					Z_scripterrlog("Unable to create new portal! Limit reached!\n");
 				}
 				break;
@@ -12715,19 +12744,19 @@ int32_t run_script_int(JittedScriptInstance* j_instance)
 			{
 				auto val = get_register(sarg1)/10000;
 				savedportal* prt = checkSavedPortal(val);
-				ri->savportalref = SET_D(rEXP1, prt ? val : 0);
+				ri->savportalref() = SET_D(rEXP1, prt ? val : 0);
 				break;
 			}
 			case CREATESAVPORTAL:
 			{
 				if(game->user_portals.size() >= MAX_SAVED_PORTALS)
 				{
-					ri->savportalref = SET_D(rEXP1, 0);
+					ri->savportalref() = SET_D(rEXP1, 0);
 					Z_scripterrlog("Cannot create any more Saved Portals! Remove some first!\n");
 					break;
 				}
 				savedportal& ref = game->user_portals.emplace_back();
-				ri->savportalref = SET_D(rEXP1, ref.getUID());
+				ri->savportalref() = SET_D(rEXP1, ref.getUID());
 				break;
 			}
 			case PORTALREMOVE:
@@ -12983,7 +13012,7 @@ int32_t run_script_int(JittedScriptInstance* j_instance)
 			
 			case LWPNDEL:
 			{
-				if(type == ScriptType::Lwpn && ri->lwpnref == i)
+				if(type == ScriptType::Lwpn && ri->lwpnref() == i)
 				{
 					FFCore.do_lweapon_delete();
 					earlyretval = RUNSCRIPT_SELFDELETE;
@@ -12995,7 +13024,7 @@ int32_t run_script_int(JittedScriptInstance* j_instance)
 			}
 			case EWPNDEL:
 			{
-				if(type == ScriptType::Ewpn && ri->ewpnref == i)
+				if(type == ScriptType::Ewpn && ri->ewpnref() == i)
 				{
 					FFCore.do_eweapon_delete();
 					earlyretval = RUNSCRIPT_SELFDELETE;
@@ -13295,7 +13324,7 @@ int32_t run_script_int(JittedScriptInstance* j_instance)
 				{
 					Z_scripterrlog("Tried to load invalid save_menu index '%d'\n", val);
 				}
-				ri->savemenuref = SET_D(rEXP1, val);
+				ri->savemenuref() = SET_D(rEXP1, val);
 				break;
 			}
 			case LOADMUSICDATA:
@@ -13306,7 +13335,7 @@ int32_t run_script_int(JittedScriptInstance* j_instance)
 					Z_scripterrlog("Tried to load invalid musicdata index '%d'\n", val);
 					val = 0; // return null pointer
 				}
-				ri->musicref = SET_D(rEXP1, val);
+				ri->musicref() = SET_D(rEXP1, val);
 				break;
 			}
 			case LOADGENERICDATA:
@@ -13333,7 +13362,7 @@ int32_t run_script_int(JittedScriptInstance* j_instance)
 				if(checkSubData(GET_REF(subscreendataref), {sstACTIVE, sstMAP}))
 				{
 					if (type != ScriptType::EngineSubscreen
-						|| ri->subscreendataref != get_subref(-1, i))
+						|| ri->subscreendataref() != get_subref(-1, i))
 					{
 						scripting_log_error_with_context("This function can only be used on the currently-open Active or Map subscreen.");
 					}
@@ -13361,7 +13390,7 @@ int32_t run_script_int(JittedScriptInstance* j_instance)
 			}
 			case SUBDATA_SWAP_PAGES:
 			{
-				ri->subscreendataref = SH::read_stack(ri->sp+2);
+				ri->subscreendataref() = SH::read_stack(ri->sp+2);
 				if(ZCSubscreen* sub = checkSubData(GET_REF(subscreendataref)))
 				{
 					int p1 = SH::read_stack(ri->sp+1) / 10000;
@@ -13376,7 +13405,7 @@ int32_t run_script_int(JittedScriptInstance* j_instance)
 			}
 			case SUBPAGE_SWAP_WIDG:
 			{
-				ri->subscreenpageref = SH::read_stack(ri->sp+2);
+				ri->subscreenpageref() = SH::read_stack(ri->sp+2);
 				if(SubscrPage* pg = checkSubPage(GET_REF(subscreenpageref)))
 				{
 					int p1 = SH::read_stack(ri->sp+1) / 10000;
@@ -13393,7 +13422,7 @@ int32_t run_script_int(JittedScriptInstance* j_instance)
 			{
 				SET_D(rEXP1, 0);
 
-				ri->subscreenpageref = SH::read_stack(ri->sp+1);
+				ri->subscreenpageref() = SH::read_stack(ri->sp+1);
 				if(SubscrPage* pg = checkSubPage(GET_REF(subscreenpageref), {sstACTIVE, sstMAP}))
 				{
 					int cursorpos = SH::read_stack(ri->sp+0) / 10000;
@@ -13413,7 +13442,7 @@ int32_t run_script_int(JittedScriptInstance* j_instance)
 			{
 				SET_D(rEXP1, 0);
 
-				ri->subscreenpageref = SH::read_stack(ri->sp+1);
+				ri->subscreenpageref() = SH::read_stack(ri->sp+1);
 				if(SubscrPage* pg = checkSubPage(GET_REF(subscreenpageref)))
 				{
 					int aptr = SH::read_stack(ri->sp+0);
@@ -13438,7 +13467,7 @@ int32_t run_script_int(JittedScriptInstance* j_instance)
 
 				SET_D(rEXP1, 0);
 
-				ri->subscreenpageref = SH::read_stack(ri->sp+3);
+				ri->subscreenpageref() = SH::read_stack(ri->sp+3);
 				if(SubscrPage* pg = checkSubPage(GET_REF(subscreenpageref)))
 				{
 					int flags = SH::read_stack(ri->sp+0) / 10000;
@@ -13471,7 +13500,7 @@ int32_t run_script_int(JittedScriptInstance* j_instance)
 			{
 				SET_D(rEXP1, 0);
 
-				ri->subscreenpageref = SH::read_stack(ri->sp+1);
+				ri->subscreenpageref() = SH::read_stack(ri->sp+1);
 				if(SubscrPage* pg = checkSubPage(GET_REF(subscreenpageref)))
 				{
 					if(pg->size() == 0x2000)
@@ -13651,7 +13680,7 @@ int32_t run_script_int(JittedScriptInstance* j_instance)
 			
 			case REF_INC:
 			{
-				int thiskey = GET_REF(thiskey);
+				int thiskey = ri->thiskey;
 
 				if (sarg1 == -1)
 				{
@@ -13672,7 +13701,7 @@ int32_t run_script_int(JittedScriptInstance* j_instance)
 			}
 			case REF_DEC:
 			{
-				int thiskey = GET_REF(thiskey);
+				int thiskey = ri->thiskey;
 
 				if (sarg1 == -1)
 				{
@@ -14469,15 +14498,15 @@ int32_t FFScript::loadMapData()
 	 if ( map < 1 || map > map_count )
 	{
 		Z_scripterrlog("Invalid Map ID passed to Game->LoadMapData: %d\n", map);
-		ri->mapdataref = 0;
+		ri->mapdataref() = 0;
 	}
 	else if ( screen < 0 || screen > 129 ) //0x00 to 0x81 -Z
 	{
 		Z_scripterrlog("Invalid Screen Index passed to Game->LoadMapData: %d\n", screen);
-		ri->mapdataref = 0;
+		ri->mapdataref() = 0;
 	}
-	else ri->mapdataref = indx + 1;
-	return ri->mapdataref;
+	else ri->mapdataref() = indx + 1;
+	return ri->mapdataref();
 }
 
 // Called when leaving a screen; deallocate arrays created by FFCs that aren't carried over
@@ -17466,10 +17495,10 @@ void FFScript::do_loadlweapon_by_script_uid(const bool v)
 {
 	int32_t uid = SH::get_arg(sarg1, v);
 	if (ResolveLWeapon_checkSpriteList(uid))
-		ri->lwpnref = uid;
+		ri->lwpnref() = uid;
 	else
 	{
-		ri->lwpnref = 0;
+		ri->lwpnref() = 0;
 	}
 }
 
@@ -17477,10 +17506,10 @@ void FFScript::do_loadeweapon_by_script_uid(const bool v)
 {
 	int32_t uid = SH::get_arg(sarg1, v);
 	if (ResolveEWeapon_checkSpriteList(uid))
-		ri->ewpnref = uid;
+		ri->ewpnref() = uid;
 	else
 	{
-		ri->ewpnref = 0;
+		ri->ewpnref() = 0;
 	}
 }
 
@@ -17489,10 +17518,10 @@ void FFScript::do_loadnpc_by_script_uid(const bool v)
 {
 	int32_t uid = SH::get_arg(sarg1, v);
 	if (ResolveSprite<enemy>(uid, "enemy"))
-		ri->npcref = uid;
+		ri->npcref() = uid;
 	else
 	{
-		ri->npcref = 0;
+		ri->npcref() = 0;
 	}
 }
 
@@ -17740,8 +17769,8 @@ static void reset_test_ri(refInfo* ri)
 {
 	*ri = {};
 	ri->sp = MAX_STACK_SIZE - 100;
-	ri->screenref = cur_screen;
-	ri->msgdataref = -1;
+	ri->screenref() = cur_screen;
+	ri->msgdataref() = -1;
 }
 
 // This matches "Sort lines" command in VS Code.

@@ -18,7 +18,7 @@ int32_t shopdata_get_register(int32_t reg)
 	{
 		case SHOPDATATYPE:
 		{
-			int32_t ref = ri->shopdataref; 
+			int32_t ref = ri->shopdataref(); 
 			if ( ref > NUMINFOSHOPS || ref < 0 ) ret = 0;
 			else ret = ( ( ref <= NUMSHOPS ) ? 10000 : 20000 ); 
 			break;

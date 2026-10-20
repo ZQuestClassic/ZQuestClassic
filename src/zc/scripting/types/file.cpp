@@ -53,10 +53,10 @@ void do_fopen(const bool v, const char* f_mode)
 	user_file* f = checkFile(GET_REF(fileref), false, true);
 	if(!f) //auto-allocate
 	{
-		ri->fileref = user_files.get_free();
+		ri->fileref() = user_files.get_free();
 		f = checkFile(GET_REF(fileref), false, true);
 	}
-	SET_D(rEXP2, ri->fileref); //Returns to the variable!
+	SET_D(rEXP2, ri->fileref()); //Returns to the variable!
 	if(f)
 	{
 		f->close(); //Close the old FILE* before overwriting it!
@@ -118,8 +118,8 @@ void do_fclose()
 void do_allocate_file()
 {
 	//Get a file and return it
-	ri->fileref = user_files.get_free();
-	SET_D(rEXP2, ri->fileref); //Return to ptr
+	ri->fileref() = user_files.get_free();
+	SET_D(rEXP2, ri->fileref()); //Return to ptr
 	SET_D(rEXP1, (ri->d[rEXP2] == 0 ? 0L : 10000L));
 }
 

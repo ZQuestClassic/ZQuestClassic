@@ -52,7 +52,7 @@ int32_t spritedata_get_register(int32_t reg)
 				Z_scripterrlog("Invalid Sprite ID passed to spritedata->ID: %d\n", GET_REF(spritedataref));
 				break;
 			}
-			ret = ri->spritedataref*10000;
+			ret = ri->spritedataref()*10000;
 			break;
 		}
 

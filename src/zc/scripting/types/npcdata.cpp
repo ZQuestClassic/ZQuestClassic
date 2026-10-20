@@ -148,9 +148,9 @@ int32_t npcdata_get_register(int32_t reg)
 		case NPCDATAWEAPONDAMAGE: GET_NPCDATA_VAR_INT16(wdp, "WeaponDamage"); break;
 		case NPCDATAWEAPONSCRIPT: 
 		{
-			if( (unsigned) ri->npcdataref > (MAXNPCS-1) )
+			if( (unsigned) ri->npcdataref() > (MAXNPCS-1) )
 			{
-				Z_scripterrlog("Invalid NPC ID passed to npcdata->WeaponScript: %d\n", ri->npcdataref);
+				Z_scripterrlog("Invalid NPC ID passed to npcdata->WeaponScript: %d\n", ri->npcdataref());
 				ret = -10000;
 			}
 			else ret = (nd->weap_data.scrconfig.script *10000);
@@ -165,7 +165,7 @@ int32_t npcdata_get_register(int32_t reg)
 		{
 			if(!nd) 
 			{ 
-				Z_scripterrlog("Invalid NPC ID passed to npcdata->DeathSprite: %d\n", ri->npcdataref);
+				Z_scripterrlog("Invalid NPC ID passed to npcdata->DeathSprite: %d\n", ri->npcdataref());
 				ret = -10000; 
 			} 
 			else 
@@ -178,7 +178,7 @@ int32_t npcdata_get_register(int32_t reg)
 		{
 			if(!nd) 
 			{ 
-				Z_scripterrlog("Invalid NPC ID passed to npcdata->ShadowSprite: %d\n", ri->npcdataref);
+				Z_scripterrlog("Invalid NPC ID passed to npcdata->ShadowSprite: %d\n", ri->npcdataref());
 				ret = -10000; 
 			} 
 			else 
@@ -191,7 +191,7 @@ int32_t npcdata_get_register(int32_t reg)
 		{
 			if(!nd) 
 			{ 
-				Z_scripterrlog("Invalid NPC ID passed to npcdata->SpawnSprite: %d\n", ri->npcdataref);
+				Z_scripterrlog("Invalid NPC ID passed to npcdata->SpawnSprite: %d\n", ri->npcdataref());
 				ret = -10000; 
 			} 
 			else 
@@ -204,7 +204,7 @@ int32_t npcdata_get_register(int32_t reg)
 		{
 			if(!nd)
 			{
-				Z_scripterrlog("Invalid NPC ID passed to npcdata->WeaponData: %d\n", ri->npcdataref);
+				Z_scripterrlog("Invalid NPC ID passed to npcdata->WeaponData: %d\n", ri->npcdataref());
 				ret = -10000;
 				break;
 			}

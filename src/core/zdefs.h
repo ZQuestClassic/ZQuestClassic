@@ -1255,6 +1255,54 @@ struct DebuggerStackFrame
 	dword this_ptr;
 };
 
+// The objects a script is currently operating on (like the npc whose X a script is reading). Most
+// are set by the REF* register of the same name (see script_ref_for_register).
+#define SCRIPT_REFS(X) \
+	X(ffcref) \
+	X(itemdataref) \
+	X(itemref) \
+	X(npcref) \
+	X(lwpnref) \
+	X(ewpnref) \
+	X(screenref) \
+	X(npcdataref) \
+	X(bitmapref) \
+	X(spriteref) \
+	X(spritedataref) \
+	X(dmapdataref) \
+	X(msgdataref) \
+	X(shopdataref) \
+	X(mapdataref) \
+	X(dropsetdataref) \
+	X(fileref) \
+	X(directoryref) \
+	X(rngref) \
+	X(stackref) \
+	X(paldataref) \
+	X(savemenuref) \
+	X(musicref) \
+	X(weapdataref) \
+	X(bottletyperef) \
+	X(bottleshopref) \
+	X(genericdataref) \
+	X(combodataref) \
+	X(comboposref) \
+	X(combotriggerref) \
+	X(portalref) \
+	X(savportalref) \
+	X(websocketref) \
+	X(subscreendataref) \
+	X(subscreenpageref) \
+	X(subscreenwidgref)
+
+enum class ScriptRef : uint8_t
+{
+#define SCRIPT_REF_ENUM(name) name,
+	SCRIPT_REFS(SCRIPT_REF_ENUM)
+#undef SCRIPT_REF_ENUM
+	Count
+};
+
 class refInfo
 {
 public:
@@ -1266,19 +1314,14 @@ public:
 	uint32_t retsp; //stack pointer for the return stack
 	std::vector<DebuggerStackFrame> debugger_stack_frames; // an arena indexed by retsp (see debugger_stack_frame_store).
 
-	uint32_t ffcref;
-	int32_t itemdataref;
-	dword itemref, npcref, lwpnref, ewpnref;
-	dword screenref, npcdataref, bitmapref, spriteref, spritedataref, dmapdataref, msgdataref, shopdataref;
-	int32_t mapdataref;
-	dword dropsetdataref;
-	dword fileref, directoryref, rngref, stackref, paldataref, savemenuref, musicref, weapdataref;
-	dword bottletyperef, bottleshopref, genericdataref;
-	int32_t combodataref, comboposref;
-	dword combotriggerref;
-	int32_t portalref, savportalref;
-	int32_t websocketref;
-	dword subscreendataref, subscreenpageref, subscreenwidgref;
+	// See SCRIPT_REFS. Access a ref by its name (ri->npcref()), or by its ScriptRef when that's
+	// only known at runtime (like the REF* registers).
+	int32_t refs[(int)ScriptRef::Count] = {};
+#define SCRIPT_REF_ACCESSORS(name) \
+	int32_t& name() { return refs[(int)ScriptRef::name]; } \
+	int32_t name() const { return refs[(int)ScriptRef::name]; }
+	SCRIPT_REFS(SCRIPT_REF_ACCESSORS)
+#undef SCRIPT_REF_ACCESSORS
 
 	int32_t switchkey; //used for switch statements
 	dword thiskey, thiskey2; //used for user class 'this' pointers

@@ -39,7 +39,7 @@ int32_t dmapdata_get_register(int32_t reg)
 		{
 			ret = ((byte)dmap.floor) * 10000; break;
 		}
-		case DMAPDATAID: ret = ri->dmapdataref*10000; break; //read-only, equal to CurrentDMap
+		case DMAPDATAID: ret = ri->dmapdataref()*10000; break; //read-only, equal to CurrentDMap
 		case DMAPDATAINTROSTRINGID:
 		{
 			ret = (dmap.intro_string_id * 10000); break;
@@ -168,7 +168,7 @@ void dmapdata_set_register(int32_t reg, int32_t value)
 		case DMAPDATAASUBSCRIPT:	//byte
 		{
 			dmap.active_sub_scrconfig.script = vbound((value / 10000),0,NUMSCRIPTSDMAP-1);
-			on_reassign_script_engine_data(ScriptType::ScriptedActiveSubscreen, ri->dmapdataref);
+			on_reassign_script_engine_data(ScriptType::ScriptedActiveSubscreen, ri->dmapdataref());
 			break;
 		}
 		case DMAPDATACOMPASS:	//byte
@@ -201,7 +201,7 @@ void dmapdata_set_register(int32_t reg, int32_t value)
 			if (auto* amus = checkMusic(find_or_make_dmap_music(GET_REF(dmapdataref))))
 			{
 				amus->enhanced.loop_end = value; 
-				if (ri->dmapdataref == cur_dmap && amus->is_playing(false) && zcmusic)
+				if (ri->dmapdataref() == cur_dmap && amus->is_playing(false) && zcmusic)
 					zcmusic_set_loop(zcmusic, (amus->enhanced.loop_start / 10000.0), (amus->enhanced.loop_end / 10000.0));
 			}
 			break;
@@ -211,7 +211,7 @@ void dmapdata_set_register(int32_t reg, int32_t value)
 			if (auto* amus = checkMusic(find_or_make_dmap_music(GET_REF(dmapdataref))))
 			{
 				amus->enhanced.loop_start = value; 
-				if (ri->dmapdataref == cur_dmap && amus->is_playing(false) && zcmusic)
+				if (ri->dmapdataref() == cur_dmap && amus->is_playing(false) && zcmusic)
 					zcmusic_set_loop(zcmusic, (amus->enhanced.loop_start / 10000.0), (amus->enhanced.loop_end / 10000.0));
 			}
 			break;
@@ -223,7 +223,7 @@ void dmapdata_set_register(int32_t reg, int32_t value)
 		case DMAPDATAMAPSCRIPT:	//byte
 		{
 			dmap.onmap_scrconfig.script = vbound((value / 10000),0,NUMSCRIPTSDMAP-1);
-			on_reassign_script_engine_data(ScriptType::OnMap, ri->dmapdataref);
+			on_reassign_script_engine_data(ScriptType::OnMap, ri->dmapdataref());
 			break;
 		}
 		case DMAPDATAMIDI:	//byte
@@ -249,7 +249,7 @@ void dmapdata_set_register(int32_t reg, int32_t value)
 		case DMAPDATAPALETTE:	//word
 		{
 			dmap.color= ((word)(value / 10000));
-			if(ri->dmapdataref == cur_dmap)
+			if(ri->dmapdataref() == cur_dmap)
 			{
 				loadlvlpal(dmap.color);
 				currcset = dmap.color;
@@ -258,12 +258,12 @@ void dmapdata_set_register(int32_t reg, int32_t value)
 		}
 		case DMAPDATAPSUBSCRIPT:	//byte
 		{
-			FFScript::deallocateAllScriptOwned(ScriptType::ScriptedPassiveSubscreen, ri->dmapdataref);
+			FFScript::deallocateAllScriptOwned(ScriptType::ScriptedPassiveSubscreen, ri->dmapdataref());
 			word val = vbound((value / 10000),0,NUMSCRIPTSDMAP-1);
-			if (FFCore.doscript(ScriptType::ScriptedPassiveSubscreen) && ri->dmapdataref == cur_dmap && val == dmap.passive_sub_scrconfig.script)
+			if (FFCore.doscript(ScriptType::ScriptedPassiveSubscreen) && ri->dmapdataref() == cur_dmap && val == dmap.passive_sub_scrconfig.script)
 				break;
 			dmap.passive_sub_scrconfig.script = val;
-			if(ri->dmapdataref == cur_dmap)
+			if(ri->dmapdataref() == cur_dmap)
 			{
 				FFCore.doscript(ScriptType::ScriptedPassiveSubscreen) = val != 0;
 			};
@@ -277,7 +277,7 @@ void dmapdata_set_register(int32_t reg, int32_t value)
 		{
 			bool changed = dmap.active_subscreen != ((byte)(value / 10000));
 			dmap.active_subscreen= ((byte)(value / 10000));
-			if(changed&&ri->dmapdataref==cur_dmap)
+			if(changed&&ri->dmapdataref()==cur_dmap)
 				update_subscreens();
 			break;
 		}
@@ -285,7 +285,7 @@ void dmapdata_set_register(int32_t reg, int32_t value)
 		{
 			bool changed = dmap.overlay_subscreen != ((byte)(value / 10000));
 			dmap.overlay_subscreen = ((byte)(value / 10000));
-			if(changed&&ri->dmapdataref==cur_dmap)
+			if(changed&&ri->dmapdataref()==cur_dmap)
 				update_subscreens();
 			break;
 		}
@@ -293,7 +293,7 @@ void dmapdata_set_register(int32_t reg, int32_t value)
 		{
 			bool changed = dmap.passive_subscreen != ((byte)(value / 10000));
 			dmap.passive_subscreen= ((byte)(value / 10000));
-			if(changed&&ri->dmapdataref==cur_dmap)
+			if(changed&&ri->dmapdataref()==cur_dmap)
 				update_subscreens();
 			break;
 		}
@@ -301,7 +301,7 @@ void dmapdata_set_register(int32_t reg, int32_t value)
 		{
 			bool changed = dmap.map_subscreen != ((byte)(value / 10000));
 			dmap.map_subscreen = ((byte)(value / 10000));
-			if(changed&&ri->dmapdataref==cur_dmap)
+			if(changed&&ri->dmapdataref()==cur_dmap)
 				update_subscreens();
 			break;
 		}
@@ -350,7 +350,7 @@ void dmapdata_set_register(int32_t reg, int32_t value)
 		case DMAPSCRIPT:	//byte
 		{
 			dmap.active_scrconfig.script = vbound((value / 10000),0,NUMSCRIPTSDMAP-1);
-			on_reassign_script_engine_data(ScriptType::DMap, ri->dmapdataref);
+			on_reassign_script_engine_data(ScriptType::DMap, ri->dmapdataref());
 			break;
 		}
 

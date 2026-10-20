@@ -145,7 +145,7 @@ void savedportal_set_register(int32_t reg, int32_t value)
 		}
 		case SAVEDPORTALPORTAL:
 		{
-			if(ri->savportalref < 0 || value < 0) break;
+			if(ri->savportalref() < 0 || value < 0) break;
 			if(savedportal* sp = checkSavedPortal(GET_REF(savportalref)))
 			{
 				int32_t id = getPortalFromSaved(sp);

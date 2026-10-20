@@ -916,41 +916,6 @@ constexpr EngineSubsystem getEngineSubsystemForRegister(int reg)
 		case CLASS_THISKEY2:
 		case GDD:
 		case PC:
-		case REFBITMAP:
-		case REFBOTTLESHOP:
-		case REFBOTTLETYPE:
-		case REFCOMBODATA:
-		case REFCOMBOTRIGGER:
-		case REFDIRECTORY:
-		case REFDMAPDATA:
-		case REFDROPSETDATA:
-		case REFEWPN:
-		case REFFFC:
-		case REFFILE:
-		case REFGENERICDATA:
-		case REFITEM:
-		case REFITEMDATA:
-		case REFLWPN:
-		case REFMAPDATA:
-		case REFMSGDATA:
-		case REFMUSIC:
-		case REFNPC:
-		case REFNPCDATA:
-		case REFPALDATA:
-		case REFPORTAL:
-		case REFRNG:
-		case REFSAVEMENU:
-		case REFSAVPORTAL:
-		case REFSCREEN:
-		case REFSHOPDATA:
-		case REFSPRITE:
-		case REFSPRITEDATA:
-		case REFSTACK:
-		case REFSUBSCREENDATA:
-		case REFSUBSCREENPAGE:
-		case REFSUBSCREENWIDG:
-		case REFWEBSOCKET:
-		case REFWEAPDATA:
 		case SP:
 		case SP2:
 		case SWITCHKEY:
