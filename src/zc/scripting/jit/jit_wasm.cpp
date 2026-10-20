@@ -620,19 +620,15 @@ static bool command_is_compiled(int command)
 	if (command_is_wait(command))
 		return true;
 
-	if (command_uses_comparison_result(command))
+	// Comparison producers and consumers are critical to control flow. That includes STRCMPR/
+	// STRICMPR (string switch): a consumer following an interpreted STRCMPR would have no result
+	// to test.
+	if (command_uses_comparison_result(command) || command_sets_comparison_result(command))
 		return true;
 
 	switch (command)
 	{
 	// These commands are critical to control flow.
-	case COMPARER:
-	case COMPAREV:
-	case COMPAREV2:
-	// Comparison producers too (see command_is_compare_producer); a consumer
-	// following an interpreted STRCMPR would have no result to test.
-	case STRCMPR:
-	case STRICMPR:
 	case GOTO:
 	case GOTOTABLE:
 	case GOTORANGES:
@@ -781,15 +777,6 @@ constexpr uint8_t l_idx_scratch = 0;
 constexpr uint8_t l_idx_scratch2 = 1;
 constexpr uint8_t l_idx_cmp1 = 1;
 constexpr uint8_t l_idx_cmp2 = 2;
-
-// The commands that produce a comparison result for the SETx/GOTOx consumers
-// that follow. STRCMPR/STRICMPR (string switch) belong here too: the
-// interpreter reads their result through the same check_cmp path.
-static bool command_is_compare_producer(int command)
-{
-	return command == COMPARER || command == COMPAREV || command == COMPAREV2 ||
-		   command == STRCMPR || command == STRICMPR;
-}
 
 static bool command_is_goto_consumer(int command)
 {
@@ -2133,7 +2120,7 @@ struct StructuredFnSink : StructSink
 				wasm.emitCall(state->f_idx_runtime_debug);
 			}
 
-			if (command_is_compare_producer(command))
+			if (command_sets_comparison_result(command))
 			{
 				// Emit the operand snapshot (if any); the consumers emit as
 				// they are reached - SETx below, a GOTOx terminator in
@@ -2379,7 +2366,7 @@ static bool collect_cmp_groups(const zasm_script* script, pc_t start_pc, pc_t fi
 	for (pc_t i = start_pc; i <= final_pc; i++)
 	{
 		int command = script->zasm[i].command;
-		if (!command_is_compare_producer(command))
+		if (!command_sets_comparison_result(command))
 			continue;
 
 		CmpGroup g = analyze_comparison(script, i);
@@ -2864,7 +2851,7 @@ static std::vector<YielderRegionPlan> detect_yielder_regions(const zasm_script* 
 				if (it == structured_zasm.start_pc_to_function.end() || structured_zasm.functions[it->second].may_yield)
 					ok = false;
 			}
-			else if (command_is_compare_producer(command))
+			else if (command_sets_comparison_result(command))
 			{
 				CmpGroup g = analyze_comparison(script, i);
 				if (!g.consumers.empty())
@@ -2914,7 +2901,7 @@ static std::vector<YielderRegionPlan> detect_yielder_regions(const zasm_script* 
 				continue;
 			}
 			int command = script->zasm[i].command;
-			if (!command_is_compare_producer(command))
+			if (!command_sets_comparison_result(command))
 				continue;
 			CmpGroup g = analyze_comparison(script, i);
 			if (g.consumers.empty())
@@ -3138,7 +3125,7 @@ static WasmAssembler compile_function(CompilationState& state, const zasm_script
 				wasm.emitCall(state.f_idx_runtime_debug);
 			}
 
-			if (command_is_compare_producer(command))
+			if (command_sets_comparison_result(command))
 			{
 				i = compile_comparison(state, script, cfg, num_frames, current_rank, current_block_index, i);
 				continue;

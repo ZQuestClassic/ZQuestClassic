@@ -13,6 +13,7 @@
 #include <deque>
 #include "components/zasm/debug_data.h"
 #include "components/zasm/pc.h"
+#include "components/zasm/table.h"
 #include "zc/scripting/array_manager.h"
 #include "zc/scripting/context_strings.h"
 #include "zc/scripting/jit/jit.h"
@@ -941,42 +942,7 @@ struct triangle3Dstruct
     int32_t size[2], color[3];
 };
 
-// Inline: called per-instruction in several JIT compile passes, where the
-// out-of-line call showed up in compile-time profiles.
-inline bool command_is_wait(int command)
-{
-	switch (command)
-	{
-	case WAITFRAME:
-	case WAITDRAW:
-	case WAITTO:
-	case WAITEVENT:
-	case WAITFRAMESR:
-		return true;
-	}
-	return false;
-}
-// Waits, plus RUNGENFRZSCR: commands that suspend the script and yield
-// control back to the engine (RUNGENFRZSCR runs nested engine frames, which
-// can't execute inside a jitted wasm frame - see jit_wasm.cpp). Correct resume
-// depends on every consult site - CFG block splits, dispatch entries,
-// yielding-function detection, region eligibility - agreeing on this set, so
-// it lives here rather than being spelled out at each site.
-inline bool command_is_suspend(int command)
-{
-	return command_is_wait(command) || command == RUNGENFRZSCR;
-}
-bool command_is_goto(int command);
-bool command_uses_comparison_result(int command);
-bool command_writes_comparison_result(int command);
 int command_to_cmp(int command, int arg);
-bool command_could_return_not_ok(int command);
-// Returns true if the command has no side effects other than
-// potentially writing some value to a register pointed at by
-// on of its args.
-// The optimizer uses this to know if it is safe to remove a
-// command, given its register output is not needed.
-bool command_is_pure(int command);
 
 int32_t get_combopos_ref(const rpos_handle_t& rpos_handle);
 int32_t get_combopos_ref(rpos_t rpos, int32_t layer);

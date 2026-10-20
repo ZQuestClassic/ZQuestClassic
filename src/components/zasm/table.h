@@ -3,6 +3,7 @@
 
 #include "base/ints.h"
 #include "components/zasm/defines.h"
+#include <array>
 #include <initializer_list>
 #include <optional>
 #include <string>
@@ -19,9 +20,23 @@ enum class ARGTY : byte
     COMPARE_OP,
 };
 
+// Reads the result of the last comparison (see ARGFL_COMPARE_SET).
 #define ARGFL_COMPARE_USED 0x01
+// Produces a comparison result for the ARGFL_COMPARE_USED commands that follow.
 #define ARGFL_COMPARE_SET  0x02
 #define ARGFL_UNIMPL       0x04
+// A jump to the pc in arg1, possibly conditional. GOTOR, GOTOTABLE, GOTORANGES and returns are
+// left out on purpose.
+#define ARGFL_GOTO         0x08
+// Suspends the script until a later frame.
+#define ARGFL_WAIT         0x10
+// No side effects other than potentially writing some value to a register pointed at by one of
+// its args. The optimizer uses this to know if it is safe to remove a command, given its register
+// output is not needed.
+#define ARGFL_PURE         0x20
+// May stop the script or return something other than RUNSCRIPT_OK (like deleting the sprite that
+// is running it). These are the only commands that the JIT checks the result of.
+#define ARGFL_MAY_STOP     0x40
 struct script_command
 {
 	char name[64];
@@ -49,6 +64,56 @@ struct script_variable
 };
 
 const script_command* get_script_command(int command);
+
+// The ARGFL_ flags of each command, by command. Commands without an entry in the command table
+// (like deleted ones) have none.
+extern const std::array<byte, NUMCOMMANDS> script_command_flags;
+// The flags of the terminal command 0xFFFF.
+constexpr byte null_command_flags = ARGFL_MAY_STOP;
+
+inline byte get_script_command_flags(int command)
+{
+	if ((unsigned)command < NUMCOMMANDS)
+		return script_command_flags[command];
+	return command == 0xFFFF ? null_command_flags : 0;
+}
+
+inline bool command_is_goto(int command)
+{
+	return get_script_command_flags(command) & ARGFL_GOTO;
+}
+inline bool command_is_wait(int command)
+{
+	return get_script_command_flags(command) & ARGFL_WAIT;
+}
+// Waits, plus RUNGENFRZSCR: commands that suspend the script and yield
+// control back to the engine (RUNGENFRZSCR runs nested engine frames, which
+// can't execute inside a jitted wasm frame - see jit_wasm.cpp). Correct resume
+// depends on every consult site - CFG block splits, dispatch entries,
+// yielding-function detection, region eligibility - agreeing on this set, so
+// it lives here rather than being spelled out at each site.
+inline bool command_is_suspend(int command)
+{
+	return command_is_wait(command) || command == RUNGENFRZSCR;
+}
+inline bool command_uses_comparison_result(int command)
+{
+	return get_script_command_flags(command) & ARGFL_COMPARE_USED;
+}
+inline bool command_sets_comparison_result(int command)
+{
+	return get_script_command_flags(command) & ARGFL_COMPARE_SET;
+}
+// The SETx commands: write the last comparison's result to the register in arg1.
+bool command_writes_comparison_result(int command);
+inline bool command_could_return_not_ok(int command)
+{
+	return get_script_command_flags(command) & ARGFL_MAY_STOP;
+}
+inline bool command_is_pure(int command)
+{
+	return get_script_command_flags(command) & ARGFL_PURE;
+}
 const script_command* get_script_command(const std::string& name);
 const script_variable* get_script_variable(int var);
 std::optional<int> get_script_variable(const std::string& var_name);
