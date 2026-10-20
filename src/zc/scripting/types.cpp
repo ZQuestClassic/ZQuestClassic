@@ -987,6 +987,7 @@ constexpr EngineSubsystem getEngineSubsystemForRegister(int reg)
 		case NPCFALLCLK:
 		case NPCFALLCMB:
 		case NPCFIRESFX:
+		case NPCFIRESFXSECONDARY:
 		case NPCFLASHINGCSET:
 		case NPCFLICKERCOLOR:
 		case NPCFLICKERTRANSP:
@@ -1075,6 +1076,7 @@ constexpr EngineSubsystem getEngineSubsystemForRegister(int reg)
 		case NPCDATAETILE:
 		case NPCDATAEWIDTH:
 		case NPCDATAFIRESFX:
+		case NPCDATAFIRESFXSECONDARY:
 		case NPCDATAFLAGS1:
 		case NPCDATAFLAGS2:
 		case NPCDATAFRAMERATE:

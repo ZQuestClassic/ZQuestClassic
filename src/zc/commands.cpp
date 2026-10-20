@@ -86,6 +86,9 @@ void zplayer_handle_commands()
 		extern TestResults test_arrays(bool);
 		if (!run_tests(test_arrays, "test_arrays", verbose)) success = false;
 
+		extern TestResults test_register_routing(bool);
+		if (!run_tests(test_register_routing, "test_register_routing", verbose)) success = false;
+
 #ifndef __EMSCRIPTEN__
 		extern TestResults test_debugger(bool);
 		if (!run_tests(test_debugger, "test_debugger", verbose)) success = false;
