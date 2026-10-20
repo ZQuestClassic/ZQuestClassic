@@ -90,6 +90,8 @@ class CiContext:
             # RELEASE_PLATFORM string, which both slices of a universal
             # binary share.
             return 'mac-universal' if self.arch == 'universal' else 'mac'
+        if self.is_linux:
+            return f'linux-{self.arch}'
         return self.system.lower()
 
     @property
@@ -645,7 +647,7 @@ def package(ctx: CiContext, args):
         else:
             package_name = f"{ctx.release_version}-mac.dmg"
     elif ctx.is_linux:
-        package_name = f"{ctx.release_version}-linux.tar.gz"
+        package_name = f"{ctx.release_version}-linux-{ctx.arch}.tar.gz"
     else:
         package_name = f"{ctx.release_version}-unknown.zip"
 

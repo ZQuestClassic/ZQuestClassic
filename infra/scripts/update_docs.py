@@ -58,7 +58,10 @@ def main():
 
     TMP_BUILD_DIR.mkdir(parents=True, exist_ok=True)
 
-    asset = next(a for a in info['assets'] if 'linux' in a['name'])
+    # Prefer the x86-64 package; older releases had a single, unqualified one.
+    asset = next(
+        (a for a in info['assets'] if a['name'].endswith('-linux-x64.tar.gz')), None
+    ) or next(a for a in info['assets'] if a['name'].endswith('-linux.tar.gz'))
     linux_url = asset['url']
     print(f"Downloading {linux_url}...")
     tarball_path = TMP_BUILD_DIR / "linux.tar.gz"
