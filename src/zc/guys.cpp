@@ -7890,9 +7890,6 @@ waves2:
 
 int32_t enemy::run_script(int32_t mode)
 {
-	void push_ri();
-	void pop_ri();
-
 	if(switch_hooked && !get_qr(qr_SWITCHOBJ_RUN_SCRIPT)) return RUNSCRIPT_OK;
 	if (scrconfig.script <= 0 || scrconfig.script >= NUMSCRIPTGUYS || quest_format[vZelda] < 0x255 || FFCore.system_suspend[susptNPCSCRIPTS])
 		return RUNSCRIPT_OK;
@@ -7902,7 +7899,7 @@ int32_t enemy::run_script(int32_t mode)
 		return RUNSCRIPT_OK;
 	int32_t ret = RUNSCRIPT_OK;
 	bool& waitdraw = FFCore.waitdraw(scrty, uid);
-	push_ri();
+	auto saved_exec_state = ScriptExecState::save();
 	switch(mode)
 	{
 		case MODE_NORMAL:
@@ -7917,7 +7914,7 @@ int32_t enemy::run_script(int32_t mode)
 			}
 			break;
 	}
-	pop_ri();
+	saved_exec_state.restore();
 	return ret;
 }
 ALLEGRO_COLOR enemy::hitboxColor(byte opacity) const

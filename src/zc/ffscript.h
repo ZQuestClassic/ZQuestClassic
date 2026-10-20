@@ -944,6 +944,31 @@ struct triangle3Dstruct
 
 int command_to_cmp(int command, int arg);
 
+// What the interpreter's globals say about the script it is running (ri, curscript, the current
+// command's args, ...). Running a script from within another one (an npc script run by an engine
+// call, an object destructor, a frozen generic script, ...) replaces them, so save them before and
+// restore them after.
+struct ScriptExecState
+{
+	refInfo* ri;
+	script_data* curscript;
+	int32_t (*stack)[MAX_STACK_SIZE];
+	int32_t (*ret_stack)[MAX_CALL_FRAMES];
+	ScriptType type;
+	word num;
+	int32_t index;
+	int32_t sarg1, sarg2, sarg3;
+	const std::vector<int32_t>* sargvec;
+	const std::string* sargstr;
+	// The register being read or written, for error messages.
+	uint32_t current_zasm_register;
+	// A command's request to stop the script (like RUNSCRIPT_SELFDELETE), not yet acted on.
+	int32_t earlyretval;
+
+	[[nodiscard]] static ScriptExecState save();
+	void restore() const;
+};
+
 // The ref (see SCRIPT_REFS) the REF* register `reg` reads and writes, if it is one.
 std::optional<ScriptRef> script_ref_for_register(int reg);
 

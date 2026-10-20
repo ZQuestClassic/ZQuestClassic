@@ -8,8 +8,6 @@
 #include <algorithm>
 #include <memory>
 
-void push_ri();
-void pop_ri();
 extern refInfo* ri;
 extern script_data* curscript;
 extern int32_t(*stack)[MAX_STACK_SIZE];
@@ -343,7 +341,7 @@ void scr_func_exec::execute()
 	if(validate(sc_data->zasm_script.get()))
 	{
 		// Either it did, or it was auto-correctable
-		push_ri(); //Store the prior script state
+		auto saved_exec_state = ScriptExecState::save();
 		// Setup the refInfo/stack/global vars for the destructor script state
 		NamedScriptEngineData script_data{};
 		script_data.name = "~" + name;
@@ -376,7 +374,7 @@ void scr_func_exec::execute()
 		script_funcrun = old_funcrun;
 		destructstr = oldstr;
 		//
-		pop_ri(); //restore the prior script state
+		saved_exec_state.restore();
 	}
 }
 bool scr_func_exec::validate(const zasm_script* zasm_script)

@@ -441,6 +441,7 @@ zc_randgen script_rnggens[MAX_USER_RNGS];
 
 FONT *get_zc_font(int index);
 
+int32_t earlyretval = -1;
 static std::vector<word> combo_id_cache;
 
 int32_t CScriptDrawingCommands::GetCount()
@@ -674,47 +675,45 @@ bool script_funcrun;
 string* destructstr;
 size_t gen_frozen_index;
 
-static vector<ScriptType> curScriptType_cache;
-static vector<int32_t> curScriptNum_cache;
-static vector<int32_t> curScriptIndex_cache;
-static vector<int32_t> sarg1cache;
-static vector<int32_t> sarg2cache;
-static vector<int32_t> sarg3cache;
-static vector<const vector<int32_t>*> sargvec_cache;
-static vector<const string*> sargstr_cache;
-static vector<refInfo*> ricache;
-static vector<script_data*> sdcache;
-static vector<int32_t(*)[MAX_STACK_SIZE]> stackcache;
-static vector<int32_t(*)[MAX_CALL_FRAMES]> ret_stack_cache;
-void push_ri()
+ScriptExecState ScriptExecState::save()
 {
-	sarg1cache.push_back(sarg1);
-	sarg2cache.push_back(sarg2);
-	sarg3cache.push_back(sarg3);
-	curScriptType_cache.push_back(curScriptType);
-	curScriptNum_cache.push_back(curScriptNum);
-	curScriptIndex_cache.push_back(curScriptIndex);
-	sargvec_cache.push_back(sargvec);
-	sargstr_cache.push_back(sargstr);
-	ricache.push_back(ri);
-	sdcache.push_back(curscript);
-	stackcache.push_back(stack);
-	ret_stack_cache.push_back(ret_stack);
+	ScriptExecState state{
+		.ri = ::ri,
+		.curscript = ::curscript,
+		.stack = ::stack,
+		.ret_stack = ::ret_stack,
+		.type = curScriptType,
+		.num = curScriptNum,
+		.index = curScriptIndex,
+		.sarg1 = ::sarg1,
+		.sarg2 = ::sarg2,
+		.sarg3 = ::sarg3,
+		.sargvec = ::sargvec,
+		.sargstr = ::sargstr,
+		.current_zasm_register = ::current_zasm_register,
+		.earlyretval = ::earlyretval,
+	};
+	// The nested run starts without the outer script's pending stop request (restore puts it back).
+	::earlyretval = -1;
+	return state;
 }
-void pop_ri()
+
+void ScriptExecState::restore() const
 {
-	sarg1 = sarg1cache.back(); sarg1cache.pop_back();
-	sarg2 = sarg2cache.back(); sarg2cache.pop_back();
-	sarg3 = sarg3cache.back(); sarg3cache.pop_back();
-	curScriptType = curScriptType_cache.back(); curScriptType_cache.pop_back();
-	curScriptNum = curScriptNum_cache.back(); curScriptNum_cache.pop_back();
-	curScriptIndex = curScriptIndex_cache.back(); curScriptIndex_cache.pop_back();
-	sargvec = sargvec_cache.back(); sargvec_cache.pop_back();
-	sargstr = sargstr_cache.back(); sargstr_cache.pop_back();
-	ri = ricache.back(); ricache.pop_back();
-	curscript = sdcache.back(); sdcache.pop_back();
-	stack = stackcache.back(); stackcache.pop_back();
-	ret_stack = ret_stack_cache.back(); ret_stack_cache.pop_back();
+	::ri = ri;
+	::curscript = curscript;
+	::stack = stack;
+	::ret_stack = ret_stack;
+	curScriptType = type;
+	curScriptNum = num;
+	curScriptIndex = index;
+	::sarg1 = sarg1;
+	::sarg2 = sarg2;
+	::sarg3 = sarg3;
+	::sargvec = sargvec;
+	::sargstr = sargstr;
+	::current_zasm_register = current_zasm_register;
+	::earlyretval = earlyretval;
 }
 
 //START HELPER FUNCTIONS
@@ -2927,7 +2926,6 @@ static int get_ref(int arg)
 	return ri->refs[(int)*ref];
 }
 
-int32_t earlyretval = -1;
 
 // Inline fast path for the hottest array element accesses (the pod opcodes and
 // the JIT's pod helpers): a cached plain (non-internal) array with an in-bounds
@@ -15130,7 +15128,7 @@ void FFScript::runF6Engine()
 		if(globalscripts[GLOBAL_SCRIPT_F6]->valid())
 		{
 			//Incase this was called mid-another script, store ref data
-			push_ri();
+			auto saved_exec_state = ScriptExecState::save();
 			//
 			clear_bitmap(f6_menu_buf);
 			blit(latest_screen_image(), f6_menu_buf, 0, 0, 0, 0, f6_menu_buf->w, f6_menu_buf->h);
@@ -15184,7 +15182,7 @@ void FFScript::runF6Engine()
 				}
 			}
 			//Restore script refinfo
-			pop_ri();
+			saved_exec_state.restore();
 			//
 			if(!Quit)
 			{
@@ -15285,7 +15283,7 @@ bool FFScript::runGenericFrozenEngine(const word script)
 		return false;
 	}
 	//Store script refinfo
-	push_ri();
+	auto saved_exec_state = ScriptExecState::save();
 	int local_i = int(gen_frozen_index++);
 	reset_script_engine_data(ScriptType::GenericFrozen, local_i);
 	ScopedScriptEngineDataClear engine_data_guard{ScriptType::GenericFrozen, local_i};
@@ -15327,7 +15325,7 @@ bool FFScript::runGenericFrozenEngine(const word script)
 	}
 	--gen_frozen_index;
 	//Restore script refinfo
-	pop_ri();
+	saved_exec_state.restore();
 	return true;
 }
 bool FFScript::runGenericFrozenEngine(script_config const& scrconfig)
@@ -15480,7 +15478,7 @@ void FFScript::runOnSaveEngine()
 {
 	if(globalscripts[GLOBAL_SCRIPT_ONSAVE]->valid())
 	{
-		push_ri();
+		auto saved_exec_state = ScriptExecState::save();
 		//Prevent getting here via Quit from causing a forced-script-quit after 1000 commands!
 		int32_t tQuit = Quit;
 		Quit = 0;
@@ -15489,7 +15487,7 @@ void FFScript::runOnSaveEngine()
 		ScopedScriptEngineDataClear engine_data_guard{ScriptType::Global, GLOBAL_SCRIPT_ONSAVE};
 		ZScriptVersion::RunScript(ScriptType::Global, GLOBAL_SCRIPT_ONSAVE, GLOBAL_SCRIPT_ONSAVE);
 		//
-		pop_ri();
+		saved_exec_state.restore();
 		Quit = tQuit;
 	}
 }
