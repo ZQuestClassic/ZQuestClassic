@@ -1702,17 +1702,26 @@ static bool maybe_split_save_file(fs::path filename, std::string& err)
 		return false;
 	}
 
+	// A file that can't be read is left as-is, so it shows up as a broken save slot on the
+	// title screen. Failing here would stop the program from starting at all.
+	std::string load_err;
 	std::vector<save_t> saves;
-	if (!load_from_save_file(ReadMode::Size, filename, saves, err))
-		return false;
+	if (!load_from_save_file(ReadMode::Size, filename, saves, load_err))
+	{
+		Z_error("%s\n", load_err.c_str());
+		return true;
+	}
 
 	if (saves.size() <= 1)
 		return true;
 
 	// Load for real.
 	saves.clear();
-	if (!load_from_save_file(ReadMode::All, filename, saves, err))
-		return false;
+	if (!load_from_save_file(ReadMode::All, filename, saves, load_err))
+	{
+		Z_error("%s\n", load_err.c_str());
+		return true;
+	}
 
 	bool errored = false;
 	for (auto& save : saves)
@@ -2670,6 +2679,46 @@ bool saves_test()
 		return false;
 	}
 #endif
+
+	// An unreadable save file must not stop the saves folder from loading. Done in a
+	// temporary working directory, so the default saves folder (and no config file) is used.
+	{
+		auto old_cwd = fs::current_path();
+		auto dir = fs::temp_directory_path() / "zc_saves_test";
+		fs::remove_all(dir);
+		fs::create_directories(dir / "saves");
+		fs::current_path(dir);
+
+		save_t good;
+		good.game = game;
+		good.header = &game->header;
+		good.path = "saves/good.sav";
+		good.write_to_disk = true;
+		bool wrote = write_save(&good, err);
+		good.game = nullptr;
+		good.header = nullptr;
+
+		std::ofstream("saves/bad.sav", std::ios::binary) << "not a save file";
+
+		bool loaded = wrote && saves_load(err);
+		int good_slots = 0, bad_slots = 0;
+		for (int i = 0; loaded && i < saves_count(); i++)
+		{
+			if (saves_get_slot(i))
+				good_slots++;
+			else
+				bad_slots++;
+		}
+
+		fs::current_path(old_cwd);
+		fs::remove_all(dir);
+
+		if (!loaded || good_slots != 1 || bad_slots != 1)
+		{
+			printf("failed unreadable save test: loaded %d, good %d, bad %d, err: %s\n", loaded, good_slots, bad_slots, err.c_str());
+			return false;
+		}
+	}
 
 	return true;
 }
