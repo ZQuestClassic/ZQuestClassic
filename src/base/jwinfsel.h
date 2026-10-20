@@ -21,6 +21,9 @@ int32_t get_fs_size(FLIST* list);
 bool get_fs_file(FLIST* list, int32_t index, char* buf);
 void destroy_fs_flist(FLIST* list);
 
+// Hides the button that opens the OS file dialog (used when it fails to open).
+void jwin_file_select_disable_explorer();
+
 // #ifdef __cplusplus
 // extern "C"
 // {
