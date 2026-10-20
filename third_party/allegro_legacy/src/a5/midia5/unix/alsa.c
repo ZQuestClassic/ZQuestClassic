@@ -27,7 +27,11 @@ int _midia5_get_platform_output_device_count(void)
 	snd_seq_port_info_t *pinfo;
 	int count = 0;
 
-	snd_seq_open(&seq, "default", SND_SEQ_OPEN_OUTPUT, 0);
+	// local edit
+	// snd_seq_open(&seq, "default", SND_SEQ_OPEN_OUTPUT, 0);
+	// On failure seq is left uninitialized, and querying it aborts inside alsa-lib.
+	if (snd_seq_open(&seq, "default", SND_SEQ_OPEN_OUTPUT, 0) < 0)
+		return 0;
 	snd_seq_client_info_alloca(&cinfo);
 	snd_seq_port_info_alloca(&pinfo);
 	snd_seq_client_info_set_client(cinfo, -1);
