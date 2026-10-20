@@ -1021,6 +1021,18 @@ struct ScriptEngineData {
 	}
 };
 
+// Calls `fn(id)` for every object reference a script holds: on its stack, then in its varargs, then in
+// its instance variables. Releasing them goes in this order, which is the order their destructors run.
+template <typename F>
+void for_each_script_object_ref(const ScriptEngineData& data, F&& fn)
+{
+	data.ref.stack_pos_is_object.for_each([&](uint32_t offset) { fn(uint32_t(data.stack[offset])); });
+	for (size_t q = 0; q < data.ref.zs_vargs_stack.size(); ++q)
+		for (int i : data.ref.zs_vargs_pos_is_object[q])
+			fn(uint32_t(data.ref.zs_vargs_stack.at(q).at(i)));
+	data.ref.script_d_is_object.for_each([&](uint32_t index) { fn(uint32_t(data.ref.script_d[index])); });
+}
+
 // (type, index) => ScriptEngineData
 extern std::map<std::pair<ScriptType, int>, ScriptEngineData> scriptEngineDatas;
 

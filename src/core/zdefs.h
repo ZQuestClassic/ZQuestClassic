@@ -40,6 +40,8 @@
 #include <set>
 #include <assert.h>
 #include <algorithm>
+#include <array>
+#include <bit>
 
 #include "base/headers.h"
 #include "metadata/metadata.h"
@@ -1295,6 +1297,51 @@ struct DebuggerStackFrame
 	X(subscreenpageref) \
 	X(subscreenwidgref)
 
+// Which slots of a fixed-size array of N values (like a script's stack) hold object references.
+//
+// Like a std::set<uint32_t> of values below N, but a fixed bitset: insert/erase/contains are O(1)
+// with no allocation, while clear and for_each always scan all N bits. insert and erase ignore a
+// slot >= N, and contains returns false for one.
+//
+// for_each visits slots in ascending order. That order matters: releasing a script's objects runs
+// the destructors of any that are freed, so it decides the order destructors run in, which replays
+// can observe.
+template <size_t N>
+class ObjectSlotSet
+{
+public:
+	bool contains(uint32_t slot) const
+	{
+		return slot < N && (words[slot / 64] >> (slot % 64)) & 1;
+	}
+	void insert(uint32_t slot)
+	{
+		if (slot < N)
+			words[slot / 64] |= uint64_t(1) << (slot % 64);
+	}
+	void erase(uint32_t slot)
+	{
+		if (slot < N)
+			words[slot / 64] &= ~(uint64_t(1) << (slot % 64));
+	}
+	void clear()
+	{
+		words = {};
+	}
+	template <typename F>
+	void for_each(F&& fn) const
+	{
+		for (size_t i = 0; i < words.size(); i++)
+		{
+			for (uint64_t word = words[i]; word; word &= word - 1)
+				fn(uint32_t(i * 64 + std::countr_zero(word)));
+		}
+	}
+
+private:
+	std::array<uint64_t, (N + 63) / 64> words{};
+};
+
 enum class ScriptRef : uint8_t
 {
 #define SCRIPT_REF_ENUM(name) name,
@@ -1334,7 +1381,7 @@ public:
 
 	int32_t cmp_op1, cmp_op2; //cached compare operands
 	optional<int32_t> cmp_strcache;
-	std::set<uint32_t> stack_pos_is_object;
+	ObjectSlotSet<MAX_STACK_SIZE> stack_pos_is_object;
 	bool overflow;
 	
 	vector<vector<int32_t>> zs_vargs_stack {1};
@@ -1345,7 +1392,7 @@ public:
 	// and never resized while the script runs, so the JIT backends can address
 	// the buffer directly via a stable pointer.
 	std::vector<int32_t> script_d;
-	std::set<uint32_t> script_d_is_object;
+	ObjectSlotSet<MAX_SCRIPT_INST_VARIABLES> script_d_is_object;
 
 	void Clear()
 	{

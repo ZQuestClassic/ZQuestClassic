@@ -570,17 +570,7 @@ static auto run_mark_and_sweep(bool only_include_global_roots)
 				live_object_ids.insert(array->id);
 		}
 		for (auto& data : scriptEngineDatas | std::views::values)
-		{
-			for (int i : data.ref.stack_pos_is_object)
-				live_object_ids.insert(data.stack[i]);
-			
-			for (size_t q = 0; q < data.ref.zs_vargs_stack.size(); ++q)
-				for (int i : data.ref.zs_vargs_pos_is_object[q])
-					live_object_ids.insert(data.ref.zs_vargs_stack.at(q).at(i));
-			
-			for (int i : data.ref.script_d_is_object)
-				live_object_ids.insert(data.ref.script_d[i]);
-		}
+			for_each_script_object_ref(data, [&](uint32_t id) { live_object_ids.insert(id); });
 		// The index, not the vector - the vector can contain stale entries.
 		for (auto id : script_object_autorelease_pool_index)
 			live_object_ids.insert(id);
@@ -590,14 +580,7 @@ static auto run_mark_and_sweep(bool only_include_global_roots)
 		for (auto id : objects_being_destructed)
 			live_object_ids.insert(id);
 		for (auto* named_data : active_object_dtor_script_datas)
-		{
-			auto& data = *named_data->data;
-			for (int i : data.ref.stack_pos_is_object)
-				live_object_ids.insert(data.stack[i]);
-			for (size_t q = 0; q < data.ref.zs_vargs_stack.size(); ++q)
-				for (int i : data.ref.zs_vargs_pos_is_object[q])
-					live_object_ids.insert(data.ref.zs_vargs_stack.at(q).at(i));
-		}
+			for_each_script_object_ref(*named_data->data, [&](uint32_t id) { live_object_ids.insert(id); });
 	}
 
 	// Insert all root objects into worklist.

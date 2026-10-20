@@ -1488,10 +1488,7 @@ static int32_t zasm_script_num_instance_variables(zasm_script* zs)
 static void clear_script_variables()
 {
 	vector<int> ids_to_clear;
-	for (uint32_t offset : ri->script_d_is_object)
-	{
-		ids_to_clear.push_back(ri->script_d[offset]);
-	}
+	ri->script_d_is_object.for_each([&](uint32_t index) { ids_to_clear.push_back(ri->script_d[index]); });
 	ri->script_d.clear();
 	ri->script_d_is_object.clear();
 	for (auto id : ids_to_clear)
@@ -2291,6 +2288,17 @@ vector<int> clear_vargs_back()
 	return vargs;
 }
 
+// Adds every object reference `data` holds to `ids` (see for_each_script_object_ref), and forgets
+// them, so the caller can release them.
+static void take_script_object_refs(ScriptEngineData& data, std::vector<uint32_t>& ids)
+{
+	for_each_script_object_ref(data, [&](uint32_t id) { ids.push_back(id); });
+	data.ref.stack_pos_is_object.clear();
+	data.ref.zs_vargs_stack = {{}};
+	data.ref.zs_vargs_pos_is_object = {{}};
+	data.ref.script_d_is_object.clear();
+}
+
 void FFScript::deallocateAllScriptOwned(ScriptType scriptType, const int32_t UID)
 {
 	std::vector<uint32_t> ids_to_clear;
@@ -2305,26 +2313,7 @@ void FFScript::deallocateAllScriptOwned(ScriptType scriptType, const int32_t UID
 
 	if (ZScriptVersion::gc() && script_engine_data_exists(scriptType, UID))
 	{
-		auto& data = get_script_engine_data(scriptType, UID);
-		for (uint32_t offset : data.ref.stack_pos_is_object)
-		{
-			uint32_t id = data.stack[offset];
-			ids_to_clear.push_back(id);
-		}
-		data.ref.stack_pos_is_object.clear();
-		
-		for (size_t q = 0; q < data.ref.zs_vargs_stack.size(); ++q)
-			for (int i : data.ref.zs_vargs_pos_is_object[q])
-				ids_to_clear.push_back(data.ref.zs_vargs_stack.at(q).at(i));
-		data.ref.zs_vargs_stack = {{}};
-		data.ref.zs_vargs_pos_is_object = {{}};
-		
-		for (uint32_t offset : data.ref.script_d_is_object)
-		{
-			uint32_t id = data.ref.script_d[offset];
-			ids_to_clear.push_back(id);
-		}
-		data.ref.script_d_is_object.clear();
+		take_script_object_refs(get_script_engine_data(scriptType, UID), ids_to_clear);
 	}
 
 	if (ZScriptVersion::gc())
@@ -2367,25 +2356,7 @@ void FFScript::deallocateAllScriptOwnedOfType(ScriptType scriptType)
 			if (key.first != scriptType)
 				continue;
 
-			for (uint32_t offset : data.ref.stack_pos_is_object)
-			{
-				uint32_t id = data.stack[offset];
-				ids_to_clear.push_back(id);
-			}
-			data.ref.stack_pos_is_object.clear();
-			
-			for (size_t q = 0; q < data.ref.zs_vargs_stack.size(); ++q)
-				for (int i : data.ref.zs_vargs_pos_is_object[q])
-					ids_to_clear.push_back(data.ref.zs_vargs_stack.at(q).at(i));
-			data.ref.zs_vargs_stack = {{}};
-			data.ref.zs_vargs_pos_is_object = {{}};
-			
-			for (uint32_t offset : data.ref.script_d_is_object)
-			{
-				uint32_t id = data.ref.script_d[offset];
-				ids_to_clear.push_back(id);
-			}
-			data.ref.script_d_is_object.clear();
+			take_script_object_refs(data, ids_to_clear);
 		}
 
 		for (auto id : ids_to_clear)
@@ -2454,28 +2425,7 @@ void FFScript::deallocateAllScriptOwnedCont()
 			if (key.first == ScriptType::Generic)
 				continue;
 
-			for (uint32_t offset : data.ref.stack_pos_is_object)
-			{
-				uint32_t id = data.stack[offset];
-				ids_to_clear.push_back(id);
-			}
-			data.ref.stack_pos_is_object.clear();
-			
-			for (size_t q = 0; q < data.ref.zs_vargs_stack.size(); ++q)
-				for (int i : data.ref.zs_vargs_pos_is_object[q])
-				{
-					uint32_t id = data.ref.zs_vargs_stack.at(q).at(i);
-					ids_to_clear.push_back(id);
-				}
-			data.ref.zs_vargs_stack = {{}};
-			data.ref.zs_vargs_pos_is_object = {{}};
-			
-			for (uint32_t offset : data.ref.script_d_is_object)
-			{
-				uint32_t id = data.ref.script_d[offset];
-				ids_to_clear.push_back(id);
-			}
-			data.ref.script_d_is_object.clear();
+			take_script_object_refs(data, ids_to_clear);
 		}
 
 		for (auto id : ids_to_clear)
