@@ -13833,10 +13833,10 @@ int32_t run_script_int(JittedScriptInstance* j_instance)
 		{
 			if(earlyretval == RUNSCRIPT_SELFDELETE)
 			{
-				// The JIT uses command_could_return_not_ok to decide whether to check a command's
+				// The JIT uses instruction_could_return_not_ok to decide whether to check a command's
 				// return code. A self-deleting command that isn't registered there is silently
 				// ignored by the JIT (it diverges from the interpreter), so catch that here.
-				CHECK(command_could_return_not_ok(scommand));
+				CHECK(instruction_could_return_not_ok(ffscript(scommand, sarg1, sarg2, sarg3)));
 				earlyretval = -1;
 				return RUNSCRIPT_SELFDELETE;
 			}
@@ -13865,7 +13865,7 @@ int32_t run_script_int(JittedScriptInstance* j_instance)
 			if(earlyretval > -1) //Should this be below the 'commands_run += 1'? Unsure. -Em
 			{
 				// Same JIT-divergence guard as the RUNSCRIPT_SELFDELETE branch above.
-				CHECK(command_could_return_not_ok(scommand));
+				CHECK(instruction_could_return_not_ok(ffscript(scommand, sarg1, sarg2, sarg3)));
 				auto v = earlyretval;
 				earlyretval = -1;
 				return v;

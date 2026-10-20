@@ -335,8 +335,7 @@ std::set<pc_t> zasm_find_yielding_functions(const zasm_script* script, Structure
 	{
 		for (pc_t i = fn.start_pc; i <= fn.final_pc; i++)
 		{
-			int command = script->zasm[i].command;
-			if (command_is_suspend(command))
+			if (instruction_is_suspend(script->zasm[i]))
 			{
 				yielding_function_ids.insert(fn.id);
 				break;
@@ -473,7 +472,7 @@ static ZasmCFG construct_cfg(const zasm_script* script, const std::vector<std::p
 				if (i + 1 <= final_pc)
 					block_starts.push_back(i + 1);
 			}
-			else if (command_is_suspend(command))
+			else if (instruction_is_suspend(script->zasm[i]))
 			{
 				// A suspend point ends its block so execution can resume at the
 				// next instruction.
@@ -747,7 +746,7 @@ static void instruction_reads_writes(const ffscript& instr, bool suspend_uses_al
 		reads |= register_dependency_mask_cache[reg];
 	}
 
-	if (suspend_uses_all_registers && command_is_suspend(instr.command))
+	if (suspend_uses_all_registers && instruction_is_suspend(instr))
 		reads = 0xFF;
 }
 

@@ -46,12 +46,12 @@ struct script_command
 	byte arr_type; //0x1 = string, 0x2 = array
 	byte flags; //ARGFL_
 
-	bool is_register(int arg) const
+	constexpr bool is_register(int arg) const
 	{
 		return arg_type[arg] == ARGTY::READ_REG || arg_type[arg] == ARGTY::WRITE_REG || arg_type[arg] == ARGTY::READWRITE_REG;
 	}
 
-	bool writes_to_register(int arg) const
+	constexpr bool writes_to_register(int arg) const
 	{
 		return arg_type[arg] == ARGTY::WRITE_REG || arg_type[arg] == ARGTY::READWRITE_REG;
 	}
@@ -91,7 +91,9 @@ inline bool command_is_wait(int command)
 // can't execute inside a jitted wasm frame - see jit_wasm.cpp). Correct resume
 // depends on every consult site - CFG block splits, dispatch entries,
 // yielding-function detection, region eligibility - agreeing on this set, so
-// it lives here rather than being spelled out at each site.
+// it lives here rather than being spelled out at each site. Those sites use
+// instruction_is_suspend (zc/ffscript.h), which adds instructions that can
+// suspend because of their args.
 inline bool command_is_suspend(int command)
 {
 	return command_is_wait(command) || command == RUNGENFRZSCR;
@@ -109,6 +111,33 @@ bool command_writes_comparison_result(int command);
 inline bool command_could_return_not_ok(int command)
 {
 	return get_script_command_flags(command) & ARGFL_MAY_STOP;
+}
+// Returns true if writing to `reg` can stop the script doing it, like a command flagged
+// ARGFL_MAY_STOP can: an lweapon script lifting itself with Hero->LiftedWeapon.
+inline bool register_write_could_return_not_ok(int reg)
+{
+	return reg == HEROLIFTEDWPN;
+}
+
+// Which of each command's args are registers it writes, by command: bit i for arg i (see
+// script_command::writes_to_register). Commands without an entry in the command table have none.
+extern const std::array<byte, NUMCOMMANDS> script_command_written_args;
+
+inline byte get_script_command_written_args(int command)
+{
+	return (unsigned)command < NUMCOMMANDS ? script_command_written_args[command] : 0;
+}
+
+// For instruction_is_suspend, by command: SUSPEND_INFO_COMMAND if the command itself can suspend
+// the script, plus which of its args are registers it writes (bit i for arg i), since writing some
+// registers can suspend it too. One lookup, because this is checked for every instruction each
+// time a CFG is built.
+constexpr byte SUSPEND_INFO_COMMAND = 0x80;
+extern const std::array<byte, NUMCOMMANDS> script_command_suspend_info;
+
+inline byte get_script_command_suspend_info(int command)
+{
+	return (unsigned)command < NUMCOMMANDS ? script_command_suspend_info[command] : 0;
 }
 inline bool command_is_pure(int command)
 {

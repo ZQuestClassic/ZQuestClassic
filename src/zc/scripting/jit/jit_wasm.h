@@ -34,6 +34,10 @@ struct JittedScriptInstance
 	// the register the result of runGenericFrozenEngine should be written to before
 	// resuming. -1 means no frozen script is pending (a normal return/wait).
 	int32_t frozen_dest_reg = -1;
+	// When compiled code stops for the rest of the frame without waiting (an lweapon script lifting
+	// itself - see instruction_is_suspend), the code to report, like RUNSCRIPT_SELFREMOVE. A
+	// return from compiled code always reports RUNSCRIPT_OK otherwise.
+	int32_t suspend_return_code = RUNSCRIPT_OK;
 
 	~JittedScriptInstance();
 };

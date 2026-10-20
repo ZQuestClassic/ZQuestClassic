@@ -617,6 +617,26 @@ TestResults test_zasm_optimize([[maybe_unused]] bool verbose)
 		}
 	});
 
+	TEST("instruction_is_suspend", tr, [&]{
+		// The suspend info table is built separately from command_is_suspend (which can't be used
+		// in a constant expression), so check they agree.
+		for (int command = 0; command < NUMCOMMANDS; command++)
+		{
+			bool is_suspend = command_is_suspend(command) || command == HEROLIFTGRAB;
+			assertEqual(bool(get_script_command_suspend_info(command) & SUSPEND_INFO_COMMAND), is_suspend);
+		}
+
+		// An lweapon script lifting itself, by command or by writing Hero->LiftedWeapon.
+		assertTrue(instruction_is_suspend({WAITFRAME}));
+		assertTrue(instruction_is_suspend({HEROLIFTGRAB}));
+		assertTrue(instruction_is_suspend({SETR, HEROLIFTEDWPN, D(2)}));
+		assertTrue(instruction_is_suspend({POP, HEROLIFTEDWPN}));
+		// Reading it doesn't suspend, and neither do other writes.
+		assertTrue(!instruction_is_suspend({SETR, D(2), HEROLIFTEDWPN}));
+		assertTrue(!instruction_is_suspend({PUSHR, HEROLIFTEDWPN}));
+		assertTrue(!instruction_is_suspend({SETR, D(2), D(3)}));
+	});
+
 	TEST("zasm_literals", tr, [&]{
 		zasm_literals literals;
 		ffscript op{WRITEPODSTRING, D(2)};

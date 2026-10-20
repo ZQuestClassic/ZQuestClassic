@@ -943,6 +943,60 @@ struct triangle3Dstruct
 };
 
 int command_to_cmp(int command, int arg);
+// Returns true if running `op` can stop the script or return something other than RUNSCRIPT_OK:
+// its command can (command_could_return_not_ok), or it writes a register that can
+// (register_write_could_return_not_ok). The JIT runs these in the interpreter, which reports it.
+inline bool instruction_writes_register_that_could_return_not_ok(const ffscript& op)
+{
+	// This is called for every instruction in several compile passes, so it first checks the args
+	// themselves (almost never such a register), before which of them the command writes.
+	return (register_write_could_return_not_ok(op.arg1) && (get_script_command_written_args(op.command) & 1)) ||
+		(register_write_could_return_not_ok(op.arg2) && (get_script_command_written_args(op.command) & 2)) ||
+		(register_write_could_return_not_ok(op.arg3) && (get_script_command_written_args(op.command) & 4));
+}
+inline bool instruction_could_return_not_ok(const ffscript& op)
+{
+	return command_could_return_not_ok(op.command) || instruction_writes_register_that_could_return_not_ok(op);
+}
+// Returns true if `op` can suspend the script until a later frame, to resume at the next
+// instruction: the suspend commands (command_is_suspend), and an lweapon script lifting itself
+// (HEROLIFTGRAB, or a write to Hero->LiftedWeapon), which stops it for the rest of the frame.
+// The CFG splits blocks after these, the wasm JIT resumes at the block after one, a function
+// containing one counts as yielding, and liveness treats one as reading every register, so those
+// must all use this and agree. The native JITs' resume labels (jit_create_labels) are only made
+// for waits, calls and cross-piece jump targets: a script that lifted itself resumes through the
+// driver's interpreter fallback instead (see jit_shared.cpp).
+inline bool instruction_is_suspend(const ffscript& op)
+{
+	byte info = get_script_command_suspend_info(op.command);
+	return (info & SUSPEND_INFO_COMMAND) ||
+		((info & 1) && register_write_could_return_not_ok(op.arg1)) ||
+		((info & 2) && register_write_could_return_not_ok(op.arg2)) ||
+		((info & 4) && register_write_could_return_not_ok(op.arg3));
+}
+// For the JIT backends: true if `op` must run in the interpreter even when its command is compiled.
+// The interpreter is what acts on a script being stopped mid-frame (see
+// instruction_could_return_not_ok), and compiled code checks the result of interpreted commands.
+inline bool jit_instruction_runs_in_interpreter(const ffscript& op)
+{
+	return instruction_could_return_not_ok(op);
+}
+// Compiled code keeps its own copy of sp, so after the interpreter runs one of these commands for
+// it (see jit_instruction_runs_in_interpreter), it reloads sp from ri->sp.
+inline bool command_moves_sp(int command)
+{
+	switch (command)
+	{
+		case POP:
+		case POPARGS:
+		case PUSHR:
+		case PUSHV:
+		case PUSHARGSR:
+		case PUSHARGSV:
+			return true;
+	}
+	return false;
+}
 
 // What the interpreter's globals say about the script it is running (ri, curscript, the current
 // command's args, ...). Running a script from within another one (an npc script run by an engine

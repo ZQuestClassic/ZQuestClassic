@@ -192,7 +192,7 @@ void jit_reg_cache_flush_policy(Ops& ops, DRegCache<Reg>& cache, JittedScript* j
 	{
 		ops.flush_cache();
 	}
-	else if (!ops.is_command_compiled(command))
+	else if (!ops.is_instruction_compiled(script->zasm[i]))
 	{
 		// The interpreter reads and writes ri->d[] directly.
 		ops.flush_cache();
@@ -521,7 +521,7 @@ void jit_emit_function_body(Backend& b, zasm_script* script, JittedScript* j_scr
 			continue;
 		}
 
-		if (!b.is_command_compiled(command))
+		if (!b.is_instruction_compiled(op))
 		{
 			if (DEBUG_JIT_PRINT_ASM && command != 0xFFFF)
 				uncompiled_command_counts[command]++;
@@ -532,7 +532,7 @@ void jit_emit_function_body(Backend& b, zasm_script* script, JittedScript* j_scr
 			int uncompiled_command_count = 1;
 			for (pc_t j = i + 1; j <= final_pc; j++)
 			{
-				if (b.is_command_compiled(script->zasm[j].command))
+				if (b.is_instruction_compiled(script->zasm[j]))
 					break;
 				if (b.has_goto_label(j))
 					break;
@@ -554,12 +554,30 @@ void jit_emit_function_body(Backend& b, zasm_script* script, JittedScript* j_scr
 	}
 }
 
+// The byte offset of a refInfo member from refInfo::d, which compiled code holds a pointer to
+// (JittedExecutionContext::registers).
+inline int32_t jit_ri_offset(size_t member_offset)
+{
+	return (int32_t)(member_offset - offsetof(refInfo, d));
+}
+
+// True if any of the `count` instructions at `pc` moves sp (see command_moves_sp).
+inline bool jit_instructions_move_sp(const zasm_script* script, pc_t pc, int count)
+{
+	for (int j = 0; j < count; j++)
+	{
+		if (command_moves_sp(script->zasm[pc + j].command))
+			return true;
+	}
+	return false;
+}
+
 // The byte offset of a script ref (see SCRIPT_REFS) from refInfo::d, which compiled code holds a
 // pointer to (JittedExecutionContext::registers). Lets compiled code read and write the REF*
 // registers directly, instead of calling into get_register/set_register.
 inline int32_t jit_script_ref_offset(ScriptRef ref)
 {
-	return (int32_t)(offsetof(refInfo, refs) - offsetof(refInfo, d)) + (int32_t)ref * 4;
+	return jit_ri_offset(offsetof(refInfo, refs)) + (int32_t)ref * 4;
 }
 
 // The commands both native backends compile (everything else runs through the

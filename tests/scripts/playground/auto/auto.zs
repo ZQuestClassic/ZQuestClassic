@@ -25,6 +25,7 @@
 #include "auto/bug_jit_stack_overflow.zs"
 #include "auto/bug_jit_stale_error_context.zs"
 #include "auto/bug_jit_string_switch.zs"
+#include "auto/bug_lifted_weapon_self.zs"
 #include "auto/bug_merged_allocate_bitmap_pushes.zs"
 #include "auto/bug_mod_int_min.zs"
 #include "auto/bug_neg_index_one_indexed.zs"

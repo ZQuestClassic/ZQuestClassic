@@ -236,7 +236,7 @@ static void flush_stack_cache(CompilationState& state, x86::Compiler& cc)
 	}
 }
 
-static bool command_is_compiled(int command);
+static bool instruction_is_compiled(const ffscript& op);
 
 // Adapter giving the shared D-register cache (jit_codegen_shared.h) its
 // primitive emissions. flush_cache also flushes the stack-value cache, which
@@ -259,7 +259,7 @@ struct CacheOps
 		state.dreg_cache.flush(*this);
 		flush_stack_cache(state, cc);
 	}
-	bool is_command_compiled(int command) { return command_is_compiled(command); }
+	bool is_instruction_compiled(const ffscript& op) { return instruction_is_compiled(op); }
 };
 
 static void flush_cache_for_dependent_registers(CompilationState& state, x86::Compiler& cc, int r)
@@ -907,6 +907,9 @@ static void compile_compare(CompilationState& state, x86::Compiler& cc, int comm
 	}
 }
 
+// For the result of interpreted commands: if it isn't RUNSCRIPT_OK, exit with it. The interpreter
+// already set ri->pc to where the script resumes (like after a Hero->Lift() of itself), so exit
+// with that pc.
 static void ret_if_not_ok(CompilationState& state, x86::Compiler& cc, x86::Gp reg)
 {
 	Label L_noret = cc.newLabel();
@@ -914,6 +917,9 @@ static void ret_if_not_ok(CompilationState& state, x86::Compiler& cc, x86::Gp re
 	cc.je(L_noret);
 
 	set_ctx_ret_code(state, cc, reg);
+	x86::Gp pc = cc.newInt32();
+	cc.mov(pc, x86::ptr_32(state.ptrRegisters, jit_ri_offset(offsetof(refInfo, pc))));
+	set_ctx_pc(state, cc, pc);
 	cc.jmp(state.L_End);
 
 	cc.bind(L_noret);
@@ -959,11 +965,18 @@ static void compile_command_interpreter(CompilationState& state, x86::Compiler& 
 		return;
 	}
 
+	if (jit_instructions_move_sp(script, state.pc, count))
+	{
+		// See command_moves_sp.
+		cc.mov(state.vSp, x86::ptr_32(state.ptrRegisters, jit_ri_offset(offsetof(refInfo, sp))));
+		state.modified_stack = true;
+	}
+
 	bool could_return_not_ok = false;
 	for (int j = 0; j < count; j++)
 	{
 		int index = state.pc + j;
-		if (command_could_return_not_ok(script->zasm[index].command))
+		if (instruction_could_return_not_ok(script->zasm[index]))
 		{
 			could_return_not_ok = true;
 			break;
@@ -994,6 +1007,11 @@ static bool command_is_compiled(int command)
 		return cpu_supports_sse41;
 
 	return jit_command_is_compiled_shared(command);
+}
+
+static bool instruction_is_compiled(const ffscript& op)
+{
+	return command_is_compiled(op.command) && !jit_instruction_runs_in_interpreter(op);
 }
 
 // Check for stack overflows, but only once per contiguous series of PUSH (or POP) commands.
@@ -2287,7 +2305,7 @@ struct LoopOps
 		invokeNode->setArg(0, i);
 		invokeNode->setArg(1, sp);
 	}
-	bool is_command_compiled(int command) { return command_is_compiled(command); }
+	bool is_instruction_compiled(const ffscript& op) { return instruction_is_compiled(op); }
 	void compile_compare(const ffscript& op) { ::compile_compare(state, cc, op.command, op.arg1, op.arg2, op.arg3); }
 	void compile_wait() { compile_command_interpreter(state, cc, script, 1, true); }
 	void compile_uncompiled_batch(int count) { compile_command_interpreter(state, cc, script, count); }
