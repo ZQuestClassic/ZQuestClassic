@@ -27,6 +27,14 @@ is_mac = platform.system() == 'Darwin'
 is_linux = platform.system() == 'Linux'
 
 
+def is_arm64_windows_exe(path: Path):
+    # Reads the PE header's machine field. (The python running this may be x64 under
+    # emulation, so the host's reported architecture can't be trusted.)
+    data = path.read_bytes()[:4096]
+    pe_offset = int.from_bytes(data[0x3C:0x40], 'little')
+    return int.from_bytes(data[pe_offset + 4 : pe_offset + 6], 'little') == 0xAA64
+
+
 def make_zip(entries):
     buf = io.BytesIO()
     with zipfile.ZipFile(buf, 'w', zipfile.ZIP_STORED) as z:
@@ -114,6 +122,11 @@ class TestUpdater(unittest.TestCase):
 
     def test_updater(self):
         package_folder = self.get_package_folder()
+        # The updater installs the latest published release for its own platform.
+        # TODO: remove once a release includes a windows-arm64 package.
+        if not is_mac and not is_linux:
+            if is_arm64_windows_exe(package_folder / 'zupdater.exe'):
+                self.skipTest('no published release has a windows-arm64 package yet')
 
         for app in ['zupdater', 'zlauncher']:
             with self.subTest(msg=f'w/ {app}'):
