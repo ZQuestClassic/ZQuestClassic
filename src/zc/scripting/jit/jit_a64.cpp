@@ -34,6 +34,12 @@
 #include <optional>
 #include <asmjit/a64.h>
 
+// MSVC's arm64 NEON header (included by windows.h) defines `mvn` as a macro,
+// which breaks calls to the Compiler's mvn().
+#ifdef mvn
+#undef mvn
+#endif
+
 using namespace asmjit;
 
 static JitRuntime rt;
