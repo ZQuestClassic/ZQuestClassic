@@ -72,6 +72,7 @@
 #include "auto/mirrors_and_light.zs"
 #include "auto/msg_strings.zs"
 #include "auto/optional_params.zs"
+#include "auto/run_frozen_generic.zs"
 #include "auto/scc.zs"
 #include "auto/scopes.zs"
 #include "auto/screen_wipe.zs"
