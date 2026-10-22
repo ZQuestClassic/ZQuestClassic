@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2026-10-20 09:38:15</td>
+      <td>2026-10-22 07:20:39</td>
     </tr>
   </table>
 </div>
@@ -99,9 +99,9 @@
     <tr><td><a href="#l99">(anonymous namespace)::do_fremove() (line 99)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l559">checkFile(int, bool, bool) (line 559)</a></td><td>called 566 times, returned 566 times</td><td>35.0%</td></tr>
     <tr><td><a href="#l572">file_get_register(int) (line 572)</a></td><td>not called</td><td>0.0%</td></tr>
-    <tr><td><a href="#l611">file_run_command(unsigned short) (line 611)</a></td><td>called 354 times, returned 354 times</td><td>33.0%</td></tr>
+    <tr><td><a href="#l611">file_run_command(unsigned short) (line 611)</a></td><td>called 348 times, returned 348 times</td><td>33.0%</td></tr>
     <tr><td><a href="#l606">file_set_register(int, int) (line 606)</a></td><td>not called</td><td>0.0%</td></tr>
-    <tr><td><a href="#l554">files_init() (line 554)</a></td><td>called 1091 times, returned 1091 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l554">files_init() (line 554)</a></td><td>called 1095 times, returned 1095 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l531">user_file::close() (line 531)</a></td><td>called 2 times, returned 2 times</td><td>66.0%</td></tr>
     <tr><td><a href="#l538">user_file::do_remove() (line 538)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l547">user_file::setPath(char const*) (line 547)</a></td><td>called 1 time, returned 1 time</td><td>75.0%</td></tr>
@@ -572,7 +572,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">2</td>
-      <td class="src partialCoveredLine"><span class="w">		</span><span class="n">ri</span><span class="o">-&gt;</span><span class="n">fileref</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">user_files</span><span class="p">.</span><span class="n">get_free</span><span class="p">();</span></td>
+      <td class="src partialCoveredLine"><span class="w">		</span><span class="n">ri</span><span class="o">-&gt;</span><span class="n">fileref</span><span class="p">()</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">user_files</span><span class="p">.</span><span class="n">get_free</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l57" href="#l57">57</a></td>
@@ -600,7 +600,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">2</td>
-      <td class="src coveredLine"><span class="w">	</span><span class="n">SET_D</span><span class="p">(</span><span class="n">rEXP2</span><span class="p">,</span><span class="w"> </span><span class="n">ri</span><span class="o">-&gt;</span><span class="n">fileref</span><span class="p">);</span><span class="w"> </span><span class="c1">//Returns to the variable!</span></td>
+      <td class="src coveredLine"><span class="w">	</span><span class="n">SET_D</span><span class="p">(</span><span class="n">rEXP2</span><span class="p">,</span><span class="w"> </span><span class="n">ri</span><span class="o">-&gt;</span><span class="n">fileref</span><span class="p">());</span><span class="w"> </span><span class="c1">//Returns to the variable!</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l60" href="#l60">60</a></td>
@@ -1124,14 +1124,14 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">	</span><span class="n">ri</span><span class="o">-&gt;</span><span class="n">fileref</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">user_files</span><span class="p">.</span><span class="n">get_free</span><span class="p">();</span></td>
+      <td class="src uncoveredLine"><span class="w">	</span><span class="n">ri</span><span class="o">-&gt;</span><span class="n">fileref</span><span class="p">()</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">user_files</span><span class="p">.</span><span class="n">get_free</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l122" href="#l122">122</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">	</span><span class="n">SET_D</span><span class="p">(</span><span class="n">rEXP2</span><span class="p">,</span><span class="w"> </span><span class="n">ri</span><span class="o">-&gt;</span><span class="n">fileref</span><span class="p">);</span><span class="w"> </span><span class="c1">//Return to ptr</span></td>
+      <td class="src uncoveredLine"><span class="w">	</span><span class="n">SET_D</span><span class="p">(</span><span class="n">rEXP2</span><span class="p">,</span><span class="w"> </span><span class="n">ri</span><span class="o">-&gt;</span><span class="n">fileref</span><span class="p">());</span><span class="w"> </span><span class="c1">//Return to ptr</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l123" href="#l123">123</a></td>
@@ -4240,7 +4240,7 @@
       <td class="lineno"><a id="l554" href="#l554">554</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">1091</td>
+      <td class="linecount coveredLine">1095</td>
       <td class="src coveredLine"><span class="kt">void</span><span class="w"> </span><span class="n">files_init</span><span class="p">()</span></td>
     </tr>
     <tr class="source-line">
@@ -4254,14 +4254,14 @@
       <td class="lineno"><a id="l556" href="#l556">556</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">1091</td>
+      <td class="linecount coveredLine">1095</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">user_files</span><span class="p">.</span><span class="n">clear</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l557" href="#l557">557</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">1091</td>
+      <td class="linecount coveredLine">1095</td>
       <td class="src coveredLine"><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
@@ -4650,7 +4650,7 @@
       <td class="lineno"><a id="l611" href="#l611">611</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">354</td>
+      <td class="linecount coveredLine">348</td>
       <td class="src coveredLine"><span class="n">std</span><span class="o">::</span><span class="n">optional</span><span class="o">&lt;</span><span class="kt">int32_t</span><span class="o">&gt;</span><span class="w"> </span><span class="n">file_run_command</span><span class="p">(</span><span class="n">word</span><span class="w"> </span><span class="n">command</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -4692,14 +4692,14 @@
       <td class="lineno"><a id="l617" href="#l617">617</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">354</td>
+      <td class="linecount coveredLine">348</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">ScriptType</span><span class="w"> </span><span class="n">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">curScriptType</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l618" href="#l618">618</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">354</td>
+      <td class="linecount coveredLine">348</td>
       <td class="src coveredLine"><span class="w">	</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">curScriptIndex</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
@@ -4716,7 +4716,7 @@
         <summary class="linebranchSummary">7/27</summary>
         <div class="linebranchContents">
           <div class="takenBranch">&check; Branch 0 taken 279 times.</div>
-          <div class="takenBranch">&check; Branch 1 taken 70 times.</div>
+          <div class="takenBranch">&check; Branch 1 taken 64 times.</div>
           <div class="notTakenBranch">&cross; Branch 2 not taken.</div>
           <div class="takenBranch">&check; Branch 3 taken 1 times.</div>
           <div class="takenBranch">&check; Branch 4 taken 1 times.</div>
@@ -4745,7 +4745,7 @@
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">354</td>
+      <td class="linecount partialCoveredLine">348</td>
       <td class="src partialCoveredLine"><span class="w">	</span><span class="k">switch</span><span class="w"> </span><span class="p">(</span><span class="n">command</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -5711,7 +5711,7 @@
       <td class="lineno"><a id="l757" href="#l757">757</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">70</td>
+      <td class="linecount coveredLine">64</td>
       <td class="src coveredLine"><span class="w">		</span><span class="k">default</span><span class="o">:</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">nullopt</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
@@ -5739,7 +5739,7 @@
       <td class="lineno"><a id="l761" href="#l761">761</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">354</td>
+      <td class="linecount coveredLine">348</td>
       <td class="src coveredLine"><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
