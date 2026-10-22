@@ -1,5 +1,5 @@
 import { configureMount, renderSettingsPanel, setupSettingsPanel } from "./settings.js";
-import { createElement, createUrlString, fetchWithProgress, formatBytes, fsReadAllFiles } from "./utils.js";
+import { createElement, createUrlString, fetchWithProgress, formatBytes, fsExists, fsReadAllFiles } from "./utils.js";
 import { handleFileLaunch } from "./file_launch.js";
 import { compileScriptWasmModule, compileScriptWasmModuleBatch, createScriptWasmHandle, pollScriptWasmHandle, destroyScriptWasmHandle, destroyAllScriptWasmHandles, destroyScriptWasmModule } from "./zasm.js";
 
@@ -112,7 +112,7 @@ globalThis.ZC = {
     await ZScript({
       preRun(zscript) {
         // For some reason `set_config_file` errors if the file doesn't exist ...
-        if (!FS.analyzePath('/local/zscript.cfg').exists) FS.writeFile('/local/zscript.cfg', '');
+        if (!fsExists('/local/zscript.cfg')) FS.writeFile('/local/zscript.cfg', '');
 
         zscript.FS.mkdir('/root-fs');
         zscript.FS.mount(PROXYFS, {

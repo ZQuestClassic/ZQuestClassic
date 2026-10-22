@@ -63,18 +63,27 @@ export function createUrlString(pathname, params) {
   return url.toString();
 }
 
+export function fsExists(path) {
+  try {
+    FS.lookupPath(path);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 export function fsReadAllFiles(folder) {
   const files = [];
-  if (!FS.analyzePath(folder).exists) return files;
+  if (!fsExists(folder)) return files;
 
   function impl(curFolder) {
     for (const name of FS.readdir(curFolder)) {
       if (name === '.' || name === '..') continue;
 
       const path = `${curFolder}/${name}`;
-      const { mode, timestamp } = FS.lookupPath(path).node;
+      const { mode, mtime } = FS.lookupPath(path).node;
       if (FS.isFile(mode)) {
-        files.push({ path, timestamp });
+        files.push({ path, timestamp: mtime });
       } else if (FS.isDir(mode)) {
         impl(path);
       }

@@ -39,7 +39,11 @@ async function setup() {
         self.postMessage({ id });
       } else if (type === 'delete') {
         const { path } = data;
-        if (Module.FS.analyzePath(path).exists) Module.FS.unlink(path);
+        try {
+          Module.FS.unlink(path);
+        } catch {
+          // Already gone.
+        }
         self.postMessage({ id });
       } else if (type === 'read') {
         const { path } = data;

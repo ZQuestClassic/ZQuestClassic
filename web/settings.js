@@ -1,6 +1,6 @@
 import { fileSave, fileOpen, directoryOpen } from "browser-fs-access";
 import * as kv from "idb-keyval";
-import { createElement, fsReadAllFiles } from "./utils.js";
+import { createElement, fsExists, fsReadAllFiles } from "./utils.js";
 
 /** @type {FileSystemDirectoryHandle} */
 let attachedDirHandle = null;
@@ -58,7 +58,7 @@ export async function configureMount() {
     FS.mount(IDBFS, {}, '/local');
   }
   await ZC.fsSync(true);
-  if (!FS.analyzePath('/local/zquest.cfg').exists) {
+  if (!fsExists('/local/zquest.cfg')) {
     FS.writeFile('/local/zquest.cfg', FS.readFile('/zquest_web.cfg'));
   }
   await renderSettingsPanel();
@@ -168,7 +168,7 @@ export function setupSettingsPanel() {
       const path = '/local/' + localRelPath;
 
       // Backup existing files.
-      if (FS.analyzePath(path).exists) {
+      if (fsExists(path)) {
         const backupPath = '/local/.backup/' + localRelPath;
         FS.mkdirTree(PATH.dirname(backupPath));
         FS.writeFile(backupPath, FS.readFile(path));
@@ -246,7 +246,7 @@ export async function renderSettingsPanel() {
       'freepats.cfg',
     ];
     let currentCfg = await kv.get('timidity-cfg');
-    if (!currentCfg || !FS.analyzePath(`/etc/${currentCfg}`).exists) {
+    if (!currentCfg || !fsExists(`/etc/${currentCfg}`)) {
       currentCfg = cfgs[0];
     }
 
