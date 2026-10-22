@@ -141,10 +141,11 @@ async function runReplay(zplay) {
 
   async function getResultFile() {
     const result = await page.evaluate((zplay) => {
-      if (!FS.findObject(`${zplay}.result.txt`)) {
+      try {
+        return new TextDecoder().decode(FS.readFile(`${zplay}.result.txt`));
+      } catch {
         return;
       }
-      return new TextDecoder().decode(FS.readFile(`${zplay}.result.txt`));
     }, zplay);
     if (!result) return;
 
@@ -186,8 +187,10 @@ async function runReplay(zplay) {
   fs.writeFileSync(`${outputFolder}/allegro.log`, allegroLog);
 
   const roundtrip = await page.evaluate((zplay) => {
-    if (FS.findObject(`${zplay}.roundtrip`)) {
+    try {
       return new TextDecoder().decode(FS.readFile(`${zplay}.roundtrip`));
+    } catch {
+      return;
     }
   }, zplay);
   if (roundtrip) {
