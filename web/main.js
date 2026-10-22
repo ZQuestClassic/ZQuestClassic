@@ -155,6 +155,8 @@ async function main() {
   let readyToRunPromiseResolve;
   const readyToRunPromise = new Promise(resolve => readyToRunPromiseResolve = resolve);
 
+  renderBrowserSupport();
+
   // Not all browsers support navigator.keyboard.getLayoutMap.
   try {
     await renderDefaultControls();
@@ -603,6 +605,55 @@ async function renderQuestList() {
   const qsQuestId = qsQuest ? qsQuest.match(/quests\/[^/]+\/[^/?#]+/)?.[0] : '';
   const initialSelectedQuest = (qsQuestId && quests.find(q => q.id == qsQuestId)) || questListEntriesEl.firstElementChild?.quest;
   if (initialSelectedQuest) showQuest(initialSelectedQuest);
+}
+
+// The optional browser features the app uses, for the About panel.
+function getBrowserFeatures() {
+  return [
+    {
+      name: 'Threads (SharedArrayBuffer) - required',
+      supported: typeof SharedArrayBuffer === 'function' && self.crossOriginIsolated,
+    },
+    {
+      name: 'Attach a folder from your computer (File System Access)',
+      supported: !!self.showDirectoryPicker,
+    },
+    {
+      name: 'Default controls shown for your keyboard layout',
+      supported: !!navigator.keyboard?.getLayoutMap,
+    },
+    {
+      name: 'Gamepads',
+      supported: !!navigator.getGamepads,
+    },
+    {
+      name: 'Fullscreen',
+      supported: !!document.fullscreenEnabled,
+    },
+    {
+      name: 'Persistent storage (the browser won\'t clear your saves to free space)',
+      supported: !!navigator.storage?.persist,
+    },
+    {
+      name: 'Works offline (service worker)',
+      supported: 'serviceWorker' in navigator,
+    },
+  ];
+}
+
+function renderBrowserSupport() {
+  const features = getBrowserFeatures();
+  const el = document.querySelector('.browser-support');
+  el.textContent = '';
+  el.append(createElement('h3', '', 'Browser support'));
+  const fullySupported = features.every(f => f.supported);
+  el.append(createElement('p', '', fullySupported ? 'This browser is fully supported.' : 'This browser is partially supported.'));
+
+  const listEl = createElement('ul');
+  for (const { name, supported } of features) {
+    listEl.append(createElement('li', supported ? '' : 'unsupported', `${supported ? '✅' : '❌'} ${name}`));
+  }
+  el.append(listEl);
 }
 
 async function renderDefaultControls() {

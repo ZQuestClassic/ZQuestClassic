@@ -67,6 +67,15 @@ button:active {
   margin: 0 5vw;
 }
 
+.browser-support ul {
+  list-style: none;
+  padding-left: 1em;
+}
+
+.browser-support .unsupported {
+  opacity: 0.6;
+}
+
 .quest-list {
   display: grid;
   grid-template-columns: 25vw 75vw;
