@@ -166,9 +166,12 @@ jobs:
 
       - run: sudo apt-get update && sudo apt-get install ccache ninja-build flex bison
 
-      # Setup build cache via ccache.
+      # Setup build cache via ccache. Only main and release branches save the cache -
+      # every save is a new key, and saves from other branches would evict main's
+      # caches (the repo's cache storage is capped).
       - name: ccache cache files
-        uses: actions/cache@v5
+        id: ccache-restore
+        uses: actions/cache/restore@v5
         with:
           path: .ccache
           key: web-ccache-v2-${{ github.run_id }}
@@ -201,6 +204,12 @@ jobs:
           free -h
       - run: cmake --build build_emscripten --config RelWithDebInfo -t web
       - run: ccache -s
+      - name: Save ccache
+        if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/releases/')
+        uses: actions/cache/save@v5
+        with:
+          path: .ccache
+          key: ${{ steps.ccache-restore.outputs.cache-primary-key }}
 
       - run: sudo apt-get update && sudo apt-get install libopengl0
       - run: sudo apt-get install xvfb

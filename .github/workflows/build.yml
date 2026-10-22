@@ -118,9 +118,11 @@ jobs:
           echo "CXX=$GITHUB_WORKSPACE/llvm/bin/clang++" >> $GITHUB_ENV
           "$GITHUB_WORKSPACE/llvm/bin/clang" --version
 
+      # Only main and release branches save the cache (see "Save ccache").
       - name: Restore ccache
+        id: ccache-restore
         if: inputs.cache
-        uses: actions/cache@v5
+        uses: actions/cache/restore@v5
         with:
           path: .ccache
           key: ${{ inputs.runs-on }}-${{ inputs.arch }}-${{ inputs.compiler }}-${{ inputs.config }}-v3-ccache-${{ github.run_id }}
@@ -160,6 +162,15 @@ jobs:
           ${{ inputs.test-runner && '--test-runner' || '' }}
           ${{ inputs.sentry && '--sentry' || '' }}
           ${{ !inputs.cache && '--no-cache' || '' }}
+
+      # Every save is a new key, so saves from other branches would evict main's
+      # caches (the repo's cache storage is capped).
+      - name: Save ccache
+        if: inputs.cache && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/releases/'))
+        uses: actions/cache/save@v5
+        with:
+          path: .ccache
+          key: ${{ steps.ccache-restore.outputs.cache-primary-key }}
 
       - name: Package
         run: >
