@@ -21,6 +21,7 @@ from typing import Literal
 
 import common
 import git_helpers
+import github_helpers
 import requests
 import s3_helpers
 
@@ -41,6 +42,14 @@ def _linux_package_names():
     if platform.machine() in ('aarch64', 'arm64'):
         return ['linux-aarch64.tar.gz']
     return ['linux-x64.tar.gz', 'linux.tar.gz', 'ubuntu.tar.gz', 'ubuntu.tgz']
+
+
+def _windows_arch_preference():
+    # Name fragments of Windows packages, most preferred first. Arm64 machines
+    # can also run the x86 builds under emulation.
+    if github_helpers.is_arm64_windows():
+        return ['arm64', 'x64', 'x86']
+    return ['x64', 'x86']
 
 
 @dataclass
@@ -188,8 +197,14 @@ def get_download_urls(release_platform: str):
                 if len(candidates) == 1:
                     key = candidates[0]
                 else:
-                    key = next((k for k in candidates if 'x64' in k), None) or next(
-                        (k for k in candidates if 'x86' in k), None
+                    key = next(
+                        (
+                            k
+                            for arch in _windows_arch_preference()
+                            for k in candidates
+                            if arch in k
+                        ),
+                        None,
                     )
         elif release_platform == 'mac':
             key = next((k for k in keys if k.endswith('.dmg')), None)
@@ -365,8 +380,14 @@ def get_gh_release_package_url(tag: str, release_platform: str):
         else:
             candidates = [asset for asset in candidates if 'windows' in asset.name]
             asset = next(
-                (asset for asset in candidates if 'x64' in asset.name), None
-            ) or next((asset for asset in candidates if 'x86' in asset.name), None)
+                (
+                    asset
+                    for arch in _windows_arch_preference()
+                    for asset in candidates
+                    if arch in asset.name
+                ),
+                None,
+            )
     elif release_platform == 'linux':
         names = _linux_package_names()
         asset = next(
@@ -409,10 +430,7 @@ def download_revision(revision: Revision, release_platform: str):
     prefix = f'{bucket_url}/{tag}/'
 
     if release_platform == 'windows':
-        urls = [
-            f'{prefix}windows-x64.zip',
-            f'{prefix}windows-x86.zip',
-        ]
+        urls = [f'{prefix}windows-{arch}.zip' for arch in _windows_arch_preference()]
     elif release_platform == 'mac':
         urls = [
             f'{prefix}mac.dmg',
