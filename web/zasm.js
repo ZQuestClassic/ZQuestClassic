@@ -125,11 +125,9 @@ function ensureEmFunctions() {
 }
 
 async function compileOneModule(name, ptr, size) {
-  console.log(`compiling ${name}, ${size} len`);
   try {
     const buffer = new Uint8Array(Module.wasmMemory.buffer, ptr, size);
     const module = await WebAssembly.compile(buffer);
-    console.log(`compiling ${name} DONE`);
     const id = nextWasmModuleId++;
 
     const instance = await WebAssembly.instantiate(module, {
