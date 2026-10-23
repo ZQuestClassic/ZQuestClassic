@@ -23,32 +23,19 @@ static bool jit_log_enabled;
 static bool jit_use_cached_regs_enabled;
 static bool jit_precompile;
 
-static int worker_pool_generation;
 static ALLEGRO_MUTEX* compiled_scripts_mutex;
-static ALLEGRO_COND* compiled_scripts_cond;
 // Values may be null.
 static std::map<zasm_script_id, JittedScript*> compiled_scripts;
 
 static void create_compile_task(WorkerPool* worker_pool, zasm_script* script)
 {
+	// No result can be stale (from an earlier quest load): zasm_pipeline_shutdown finishes the
+	// pool's tasks before the next jit_startup.
 	worker_pool->add_task([script](){
-		int generation = worker_pool_generation;
-
 		JittedScript* j_script = jit_compile_script(script);
 
 		al_lock_mutex(compiled_scripts_mutex);
-
-		// Only store the result if a new quest hasn't been loaded in the meantime.
-		if (worker_pool_generation == generation)
-		{
-			compiled_scripts[script->id] = j_script;
-		}
-		else
-		{
-			jit_release(j_script); // Stale result, release it.
-		}
-
-		al_broadcast_cond(compiled_scripts_cond);
+		compiled_scripts[script->id] = j_script;
 		al_unlock_mutex(compiled_scripts_mutex);
 	});
 }
@@ -232,8 +219,6 @@ void jit_startup(bool precompile)
 
 	if (!compiled_scripts_mutex)
 		compiled_scripts_mutex = al_create_mutex();
-	if (!compiled_scripts_cond)
-		compiled_scripts_cond = al_create_cond();
 
 	// Only clear compiled scripts if the loaded scripts actually changed since
 	// the last quest load, so resetting (F9) an unchanged quest reuses them.
@@ -255,9 +240,6 @@ void jit_startup(bool precompile)
 			}
 			compiled_scripts.clear();
 		}
-
-		// TODO: not sure this is needed anymore.
-		worker_pool_generation++;
 	}
 	al_unlock_mutex(compiled_scripts_mutex);
 
@@ -321,10 +303,5 @@ void jit_shutdown()
 	{
 		al_destroy_mutex(compiled_scripts_mutex);
 		compiled_scripts_mutex = nullptr;
-	}
-	if (compiled_scripts_cond)
-	{
-		al_destroy_cond(compiled_scripts_cond);
-		compiled_scripts_cond = nullptr;
 	}
 }
