@@ -148,13 +148,12 @@ sudo apt install python3-pip ninja-build libgtk-3-dev libdbus-1-dev libasound2-d
 
 ```sh
 sudo apt update
-sudo apt install build-essential gcc-multilib g++-multilib libx11-dev libglu1-mesa-dev freeglut3-dev mesa-common-dev libxcursor1 libasound2-dev libgtk-3-dev libdbus-1-dev flex bison libpulse-dev libfreetype6-dev
+sudo apt install build-essential gcc-multilib g++-multilib libx11-dev freeglut3-dev mesa-common-dev libxcursor1 libasound2-dev libgtk-3-dev libdbus-1-dev flex bison libpulse-dev libfreetype6-dev
 ```
 
 Then before running, you need some additional packages installed:
-<!-- TODO: why both? I think when using GCC we need to link with libopengl, but with clang we need libglu? -->
 ```sh
-sudo apt install libopengl0 libglu1
+sudo apt install libopengl0
 ```
 
 ## Building

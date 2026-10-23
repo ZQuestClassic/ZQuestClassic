@@ -197,7 +197,7 @@ jobs:
       - run: cmake --build build_emscripten --config RelWithDebInfo -t web
       - run: ccache -s
 
-      - run: sudo apt-get update && sudo apt-get install libopengl0 libglu1
+      - run: sudo apt-get update && sudo apt-get install libopengl0
       - run: sudo apt-get install xvfb
       - run: npm install
         working-directory: web

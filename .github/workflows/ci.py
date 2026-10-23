@@ -323,7 +323,6 @@ def install_deps(ctx: CiContext, args):
             "ninja-build",
             "build-essential",
             "libx11-dev",
-            "libglu1-mesa-dev",
             "freeglut3-dev",
             "mesa-common-dev",
             "libssl-dev",

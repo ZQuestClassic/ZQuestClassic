@@ -104,6 +104,8 @@ jobs:
 
       - name: Install Linux Test Dependencies
         if: ${{ contains(inputs.runs-on, 'ubuntu') }}
+        # libglu1 is for the older release binaries some tests run (e.g. the vscode
+        # extension tests), which still link GLU. The current build does not.
         run: sudo apt-get update && sudo apt-get install libopengl0 libglu1 lldb libpulse0 xvfb
 
       - run: mkdir -p .tmp
@@ -256,6 +258,8 @@ jobs:
 
       - name: Install Linux Test Dependencies
         if: ${{ contains(inputs.runs-on, 'ubuntu') }}
+        # libglu1 is for the older release binaries some tests run (e.g. the vscode
+        # extension tests), which still link GLU. The current build does not.
         run: sudo apt-get update && sudo apt-get install libopengl0 libglu1 lldb libpulse0 xvfb
 
       - run: mkdir -p .tmp
