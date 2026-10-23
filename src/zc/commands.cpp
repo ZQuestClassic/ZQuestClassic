@@ -103,11 +103,14 @@ void zplayer_handle_commands()
 		extern TestResults test_qst_cfg_header(bool);
 		if (!run_tests(test_qst_cfg_header, "test_qst_cfg_header", verbose)) success = false;
 
+#ifndef __EMSCRIPTEN__
+		// These load a quest from the tests folder on the host, which the web build can't reach.
 		extern TestResults test_title_reload(bool);
 		if (!run_tests(test_title_reload, "test_title_reload", verbose)) success = false;
 
 		extern TestResults test_title_standalone(bool);
 		if (!run_tests(test_title_standalone, "test_title_standalone", verbose)) success = false;
+#endif
 
 		if (success)
 			printf("all tests passed\n");
