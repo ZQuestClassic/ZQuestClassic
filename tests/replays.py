@@ -107,12 +107,13 @@ class RunResult:
 class ReplayTestResults:
     runs_on: Literal[
         'windows-2022',
+        'windows-11-arm',
         'macos-13',
         'macos-15-intel',
         'ubuntu-22.04',
         'ubuntu-22.04-arm',
     ]
-    arch: Literal['x64', 'win32', 'intel', 'aarch64']
+    arch: Literal['x64', 'win32', 'arm64', 'intel', 'aarch64']
     ci: bool
     workflow_run_id: Optional[int]
     git_ref: Optional[str]

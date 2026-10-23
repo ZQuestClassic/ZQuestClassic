@@ -84,8 +84,7 @@ class CiContext:
     @property
     def platform_label(self) -> str:
         if self.is_windows:
-            arch_label = 'x86' if self.arch == 'win32' else 'x64'
-            return f'windows-{arch_label}'
+            return f'windows-{self.arch_label}'
         if self.is_mac:
             # Arch-neutral on purpose: this becomes the compile-time
             # RELEASE_PLATFORM string, which both slices of a universal
@@ -96,8 +95,12 @@ class CiContext:
     @property
     def arch_label(self) -> str:
         if self.is_windows:
-            return 'x86' if self.arch == 'win32' else 'x64'
+            return {'win32': 'x86', 'arm64': 'arm64'}.get(self.arch, 'x64')
         return self.arch
+
+    @property
+    def vcpkg_triplet(self) -> str:
+        return f'{self.arch_label}-windows'
 
     def get_binary_dir(self) -> Path:
         """Determines the correct binary folder path based on OS extraction logic."""
@@ -350,7 +353,7 @@ def install_deps(ctx: CiContext, args):
 
         vcpkg_dir = root_dir / "vcpkg"
         vcpkg_exe = vcpkg_dir / "vcpkg.exe"
-        triplet = 'x64-windows' if ctx.arch_label == 'x64' else 'x86-windows'
+        triplet = ctx.vcpkg_triplet
         # run-vcpkg points vcpkg at its GitHub Actions cache backend, which vcpkg has
         # removed, so every build compiled these (~7 min, mostly OpenSSL). Keep built
         # packages in a folder instead; build.yml caches it.
@@ -514,7 +517,7 @@ def build(ctx: CiContext, args):
 
     cmake_toolchain = None
     if ctx.is_windows:
-        triplet = 'x64-windows' if ctx.arch_label == 'x64' else 'x86-windows'
+        triplet = ctx.vcpkg_triplet
         cmake_toolchain = root_dir / 'vcpkg/scripts/buildsystems/vcpkg.cmake'
 
     targets = ['zplayer', 'zeditor', 'zscript', 'zlauncher']
@@ -1012,7 +1015,7 @@ def main():
     parent.add_argument(
         "--arch",
         default="x64",
-        help="Architecture (x64, win32, intel, aarch64, universal)",
+        help="Architecture (x64, win32, arm64, intel, aarch64, universal)",
     )
     parent.add_argument("--compiler", default="gcc", help="Compiler (gcc, clang, msvc)")
     parent.add_argument(

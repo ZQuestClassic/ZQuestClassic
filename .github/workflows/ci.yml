@@ -45,6 +45,11 @@ jobs:
             num-shards: 4
             config: RelWithDebInfo
             extra-args: --max_duration 60
+          - runs-on: windows-11-arm
+            arch: arm64
+            compiler: msvc
+            num-shards: 5
+            config: Release
           - runs-on: macos-15-intel
             arch: intel
             compiler: clang
