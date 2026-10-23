@@ -100,6 +100,9 @@ jobs:
       - uses: actions/setup-python@v6
         with:
           python-version: '3.11.4'
+          # Many pinned packages have no Windows arm64 wheels; x64 Python runs
+          # under emulation there (the binaries being built/tested stay native).
+          architecture: ${{ (runner.os == 'Windows' && runner.arch == 'ARM64') && 'x64' || '' }}
 
       - name: Install Python dependencies
         run: pip install -r requirements.txt
@@ -143,7 +146,8 @@ jobs:
           import os
 
           arch = '${{ inputs.arch }}'
-          triplet = 'x64-windows' if arch == 'x64' else 'x86-windows'
+          arch_label = {'win32': 'x86', 'arm64': 'arm64'}.get(arch, 'x64')
+          triplet = f'{arch_label}-windows'
 
           with open(os.environ['GITHUB_ENV'], 'a') as f:
             print('{0}={1}'.format('CMAKE_TOOLCHAIN_FILE', r'${{ github.workspace }}/vcpkg/scripts/buildsystems/vcpkg.cmake'), file=f)
@@ -202,7 +206,7 @@ jobs:
 
           system = platform.system()
           if system == 'Windows':
-            arch_label = 'x86' if arch == 'win32' else 'x64'
+            arch_label = {'win32': 'x86', 'arm64': 'arm64'}.get(arch, 'x64')
             release_platform = f'windows-{arch_label}'
           elif system == 'Darwin':
             release_platform = 'mac'
@@ -247,7 +251,7 @@ jobs:
 
           system = platform.system()
           if system == 'Windows':
-            arch_label = 'x86' if arch == 'win32' else 'x64'
+            arch_label = {'win32': 'x86', 'arm64': 'arm64'}.get(arch, 'x64')
             package_name = f'{release_tag}-windows-{arch_label}.zip'
           elif system == 'Darwin':
             package_name = f'{release_tag}-mac.dmg'

@@ -15,11 +15,42 @@ script_dir = Path(os.path.dirname(os.path.realpath(__file__)))
 root_dir = script_dir.parent
 
 
+def is_arm64_windows():
+    if platform.system() != 'Windows':
+        return False
+    if platform.machine() == 'ARM64':
+        return True
+
+    # An x64 python running under emulation may report the emulated
+    # architecture, so ask Windows for the machine's own.
+    import ctypes
+
+    IMAGE_FILE_MACHINE_ARM64 = 0xAA64
+    try:
+        kernel32 = ctypes.windll.kernel32
+        process_machine = ctypes.c_ushort()
+        native_machine = ctypes.c_ushort()
+        if kernel32.IsWow64Process2(
+            kernel32.GetCurrentProcess(),
+            ctypes.byref(process_machine),
+            ctypes.byref(native_machine),
+        ):
+            return native_machine.value == IMAGE_FILE_MACHINE_ARM64
+    except (AttributeError, OSError):
+        # Older than Windows 10 1709.
+        pass
+    return False
+
+
 def infer_gha_platform():
     system = platform.system()
     if system == 'Windows':
-        runs_on = 'windows-2022'
-        arch = 'x64' if platform.architecture()[0] == '64bit' else 'win32'
+        if is_arm64_windows():
+            runs_on = 'windows-11-arm'
+            arch = 'arm64'
+        else:
+            runs_on = 'windows-2022'
+            arch = 'x64' if platform.architecture()[0] == '64bit' else 'win32'
     elif system == 'Darwin':
         runs_on = 'macos-15-intel'
         arch = 'intel'
