@@ -68,6 +68,9 @@ jobs:
       - uses: actions/setup-python@v6
         with:
           python-version: '3.11.4'
+          # Many pinned packages have no Windows arm64 wheels; x64 Python runs
+          # under emulation there (the binaries being built/tested stay native).
+          architecture: ${{ (runner.os == 'Windows' && runner.arch == 'ARM64') && 'x64' || '' }}
           cache: pip
       - if: ${{ !contains(inputs.runs-on, 'ubuntu') }}
         run: pip install -r requirements.txt
