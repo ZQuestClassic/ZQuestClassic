@@ -83,8 +83,6 @@ function ensureEmFunctions() {
   if (emFunctions.doCommands) return;
 
   emFunctions.doCommands = rawEngineExport('em_do_commands');
-  // Some commands may temporarily control the game loop (ex: RUNGENFRZSCR), so they need to be done async.
-  emFunctions.doCommandsAsync = Module.cwrap('em_do_commands', 'int', ['int', 'int', 'int'], {async: true});
   emFunctions.getRegister = rawEngineExport('em_get_register');
   emFunctions.setRegister = rawEngineExport('em_set_register');
   emFunctions.setGuardedRegister = rawEngineExport('em_set_guarded_register');
@@ -115,7 +113,6 @@ async function compileOneModule(name, ptr, size) {
         memory: Module.wasmMemory,
         set_return_value: onSetReturnValue,
         do_commands: emFunctions.doCommands,
-        do_commands_async: emFunctions.doCommandsAsync,
         get_register: emFunctions.getRegister,
         set_register: emFunctions.setRegister,
         set_guarded_register: emFunctions.setGuardedRegister,
@@ -182,10 +179,8 @@ export function createScriptWasmHandle(moduleId) {
   return id;
 }
 
-// Runs the wasm module in a worker.
-// Only need one worker, as only one ZASM script runs at any time.
-// When one does run, it necessarily blocks the application main thread.
-export async function pollScriptWasmHandle(handleId, ptr) {
+// Runs the script until it yields (waits) or stops.
+export function pollScriptWasmHandle(handleId, ptr) {
   assertMainThread();
 
   const scriptHandle = scriptHandles.get(handleId);
@@ -224,7 +219,7 @@ export async function pollScriptWasmHandle(handleId, ptr) {
   return currentReturnValue;
 }
 
-export async function destroyScriptWasmHandle(handleId) {
+export function destroyScriptWasmHandle(handleId) {
   assertMainThread();
 
   const scriptHandle = scriptHandles.get(handleId);
@@ -234,9 +229,9 @@ export async function destroyScriptWasmHandle(handleId) {
   return true;
 }
 
-export async function destroyAllScriptWasmHandles() {
+export function destroyAllScriptWasmHandles() {
   for (const handleId of scriptHandles.keys()) {
-    await destroyScriptWasmHandle(handleId);
+    destroyScriptWasmHandle(handleId);
   }
 }
 

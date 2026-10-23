@@ -79,7 +79,6 @@ struct CompilationState
 
 	uint8_t f_idx_set_return_value;
 	uint8_t f_idx_do_commands;
-	uint8_t f_idx_do_commands_async;
 	uint8_t f_idx_get_register;
 	uint8_t f_idx_set_register;
 	uint8_t f_idx_set_guarded_register;
@@ -152,7 +151,10 @@ static int em_create_wasm_handle(int module_id)
 	return em_create_wasm_handle_(module_id);
 }
 
-EM_ASYNC_JS(int, em_poll_wasm_handle_, (int id, uintptr_t ptr), {
+// Synchronous: running a script never suspends (RUNGENFRZSCR yields back to
+// run_script instead), and an async call here would unwind and rewind the
+// whole C++ stack for every script run.
+EM_JS(int, em_poll_wasm_handle_, (int id, uintptr_t ptr), {
 	return ZC.pollScriptWasmHandle(id, ptr);
 });
 static int em_poll_wasm_handle(int id, uintptr_t ptr)
@@ -160,7 +162,7 @@ static int em_poll_wasm_handle(int id, uintptr_t ptr)
 	return em_poll_wasm_handle_(id, ptr);
 }
 
-EM_ASYNC_JS(bool, em_destroy_wasm_handle_, (int id), {
+EM_JS(bool, em_destroy_wasm_handle_, (int id), {
 	return ZC.destroyScriptWasmHandle(id);
 });
 bool em_destroy_wasm_handle(int id)
@@ -3615,7 +3617,6 @@ static bool wasm_codegen_impl(zasm_script* script, WasmCodegenResult& out)
 
 	state.f_idx_set_return_value = comp.builder.importFunction("set_return_value", 1, 0);
 	state.f_idx_do_commands = comp.builder.importFunction("do_commands", 4, 1);
-	state.f_idx_do_commands_async = comp.builder.importFunction("do_commands_async", 4, 1);
 	state.f_idx_get_register = comp.builder.importFunction("get_register", 1, 1);
 	state.f_idx_set_register = comp.builder.importFunction("set_register", 2, 0);
 	state.f_idx_set_guarded_register = comp.builder.importFunction("set_guarded_register", 3, 0);
@@ -4113,9 +4114,18 @@ void jit_profiler_increment_function_back_edge([[maybe_unused]] JittedScriptInst
 
 // Depth of the currently-executing jitted wasm script(s). A jitted script that
 // runs a nested script (e.g. an FFC that runs an enemy's script mid-frame) does
-// so while its own em_poll_wasm_handle call is still on the stack; asyncify can
-// only manage one script's unwind/rewind at a time, so the nested script must
-// run on the interpreter. run_script consults jit_can_start_script() for this.
+// so while its own em_poll_wasm_handle call is still on the stack, and a nested
+// jitted run would clobber the outer script's state in two places:
+// - A module keeps the running script's state (sp, the ri/stack pointers, the
+//   call stack, wait_index, ...) in its globals, so a nested run of the same
+//   module (e.g. two scripts of one @single chunk) would leave the outer script
+//   running on the inner one's state.
+// - The JS side (pollScriptWasmHandle) keeps the running script's return value
+//   in one module-level variable, so a nested poll would clobber the outer
+//   script's sentinel and an outer trap would then be reported as a clean
+//   return.
+// So the nested script must run on the interpreter. run_script consults
+// jit_can_start_script() for this.
 //
 // This is the general-case escape hatch; the RUNGENFRZSCR yield lowering is
 // the optimized protocol for the one command where nesting is the purpose.
