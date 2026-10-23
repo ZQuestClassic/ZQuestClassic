@@ -31,6 +31,30 @@ function assert(value, message) {
   }
 }
 
+// Views of the wasm memory. Not Module.HEAPU8 and friends: when a worker thread grows the memory,
+// memory.buffer becomes a new, larger SharedArrayBuffer, and those views can still be of the old
+// one - shorter, so reads past its end come back undefined. (JIT codegen runs on worker threads,
+// and allocates a lot.)
+function heapU8() {
+  return new Uint8Array(Module.wasmMemory.buffer);
+}
+
+function heapU32() {
+  return new Uint32Array(Module.wasmMemory.buffer);
+}
+
+function heapI32() {
+  return new Int32Array(Module.wasmMemory.buffer);
+}
+
+function readCString(ptr) {
+  const u8 = heapU8();
+  let end = ptr;
+  while (u8[end]) end++;
+  // TextDecoder can't read a SharedArrayBuffer directly.
+  return new TextDecoder().decode(u8.slice(ptr, end));
+}
+
 function assertMainThread() {
   assert(typeof window !== 'undefined', 'expected to be called from main thread');
 }
@@ -103,7 +127,7 @@ function ensureEmFunctions() {
 async function compileOneModule(name, ptr, size) {
   console.log(`compiling ${name}, ${size} len`);
   try {
-    const buffer = new Uint8Array(Module.HEAPU8.buffer, ptr, size);
+    const buffer = new Uint8Array(Module.wasmMemory.buffer, ptr, size);
     const module = await WebAssembly.compile(buffer);
     console.log(`compiling ${name} DONE`);
     const id = nextWasmModuleId++;
@@ -157,15 +181,17 @@ export async function compileScriptWasmModuleBatch(count, namesPtr, ptrsPtr, siz
   ensureEmFunctions();
 
   const jobs = [];
+  const u32 = heapU32();
   for (let i = 0; i < count; i++) {
-    const name = Module.UTF8ToString(Module.HEAPU32[namesPtr / 4 + i]);
-    const ptr = Module.HEAPU32[ptrsPtr / 4 + i];
-    const size = Module.HEAPU32[sizesPtr / 4 + i];
+    const name = readCString(u32[namesPtr / 4 + i]);
+    const ptr = u32[ptrsPtr / 4 + i];
+    const size = u32[sizesPtr / 4 + i];
     jobs.push(compileOneModule(name, ptr, size));
   }
   const ids = await Promise.all(jobs);
+  const i32 = heapI32();
   for (let i = 0; i < count; i++) {
-    Module.HEAP32[outIdsPtr / 4 + i] = ids[i];
+    i32[outIdsPtr / 4 + i] = ids[i];
   }
 }
 
@@ -186,15 +212,16 @@ export function pollScriptWasmHandle(handleId, ptr) {
   const scriptHandle = scriptHandles.get(handleId);
   if (!scriptHandle) return false;
 
-  const a = Module.HEAP32[ptr/4];
-  const b = Module.HEAP32[ptr/4+1];
-  const c = Module.HEAP32[ptr/4+2];
-  const d = Module.HEAP32[ptr/4+3];
-  const e = Module.HEAP32[ptr/4+4];
-  const f = Module.HEAP32[ptr/4+5];
-  const g = Module.HEAP32[ptr/4+6];
-  const h = Module.HEAP32[ptr/4+7];
-  const i = Module.HEAP32[ptr/4+8];
+  const i32 = heapI32();
+  const a = i32[ptr/4];
+  const b = i32[ptr/4+1];
+  const c = i32[ptr/4+2];
+  const d = i32[ptr/4+3];
+  const e = i32[ptr/4+4];
+  const f = i32[ptr/4+5];
+  const g = i32[ptr/4+6];
+  const h = i32[ptr/4+7];
+  const i = i32[ptr/4+8];
   const args = [a, b, c, d, e, f, g, h, i];
   scriptHandle.args = args;
 

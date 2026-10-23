@@ -1297,7 +1297,7 @@ endforeach()
 #############################################################
 
 if (EMSCRIPTEN)
-	target_link_options(zplayer PRIVATE "SHELL:-s EXPORTED_FUNCTIONS=_main,_get_shareable_url,_zc_web_display_size_changed,_em_do_commands,_em_get_register,_em_set_register,_em_set_guarded_register,_em_runtime_script_debug,_em_log_error,_em_pod_read,_em_pod_write,_em_allocatemem,_em_writepodarr,_em_class_read,_em_class_write,_em_string_compare,_em_ref_change,_em_mark_type_stack,_em_arraysize -s EXPORTED_RUNTIME_METHODS=cwrap,wasmMemory,HEAPU8,HEAP32,HEAPU32,UTF8ToString")
+	target_link_options(zplayer PRIVATE "SHELL:-s EXPORTED_FUNCTIONS=_main,_get_shareable_url,_zc_web_display_size_changed,_em_do_commands,_em_get_register,_em_set_register,_em_set_guarded_register,_em_runtime_script_debug,_em_log_error,_em_pod_read,_em_pod_write,_em_allocatemem,_em_writepodarr,_em_class_read,_em_class_write,_em_string_compare,_em_ref_change,_em_mark_type_stack,_em_arraysize -s EXPORTED_RUNTIME_METHODS=cwrap,wasmMemory")
 	target_link_options(zeditor PRIVATE "SHELL:-s EXPORTED_FUNCTIONS=_main,_get_shareable_url,_open_test_mode")
 	# zscript never suspends (the playground calls compile_script synchronously), so it skips
 	# ASYNCIFY, which would otherwise instrument every function for nothing.
