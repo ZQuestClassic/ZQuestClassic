@@ -69,6 +69,11 @@ jobs:
             compiler: msvc
             config: RelWithDebInfo
             sentry: ${{ inputs.sentry }}
+          - runs-on: windows-11-arm
+            arch: arm64
+            compiler: msvc
+            config: RelWithDebInfo
+            sentry: ${{ inputs.sentry }}
           # Builds a universal (arm64 + x86_64) bundle: the native arm64 build
           # is merged with a second x86_64 build via lipo. See the `build`
           # command in ci.py.
