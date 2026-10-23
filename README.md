@@ -14,7 +14,12 @@ Website: [zquestclassic.com](https://zquestclassic.com)
 
 [Our Discord](https://discord.gg/uStAnHJhPM)
 
-We support Windows (Win7+), OSX (12+), and Linux. There is also an experimental [web version](https://zquestclassic.com/play/) that can also be played on mobile devices.
+## Supported platforms
+
+- **Windows**: Windows 7 or newer (x64 and x86). A native arm64 build is also available for Windows on ARM.
+- **macOS**: 12 or newer (universal binary, Intel and Apple Silicon).
+- **Linux**: x86-64 and AArch64, with glibc 2.35 or newer (Ubuntu 22.04, Debian 12, Fedora 36, SteamOS 3, or newer). Requires GTK 3 and OpenSSL 3. Also available as a [Flatpak](https://flathub.org/en/apps/com.zquestclassic.ZQuest) (currently 2.55 releases only), which has no system requirements beyond Flatpak itself.
+- **Web**: an experimental [web version](https://zquestclassic.com/play/) that can also be played on mobile devices.
 
 ## Development
 
