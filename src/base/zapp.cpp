@@ -27,6 +27,8 @@ float zapp_osx_get_main_screen_scale_factor(void);
 #include <SDL.h>
 #endif
 
+namespace fs = std::filesystem;
+
 #ifdef HAS_SENTRY
 #define SENTRY_BUILD_STATIC 1
 #include "sentry.h"
@@ -38,9 +40,10 @@ void sentry_atexit()
 
 static std::function<void()> crash_cb;
 
-static sentry_value_t on_crash_callback(const sentry_ucontext_t *uctx, sentry_value_t event, void *closure)
+static sentry_value_t on_crash_callback(const sentry_ucontext_t *uctx, sentry_value_t event, sentry_hint_t *hint, void *closure)
 {
 	(void)uctx;
+	(void)hint;
 	(void)closure;
 
 	if (crash_cb)
@@ -48,9 +51,58 @@ static sentry_value_t on_crash_callback(const sentry_ucontext_t *uctx, sentry_va
 
 	return event;
 }
+
+static void init_sentry(App id)
+{
+	// Crashes during CI test runs would pollute the project, so don't report them.
+	if (is_ci())
+		return;
+
+	// Clean up the last crash screenshot.
+	const char* crash_screenshot_path = ".sentry_native/screenshot.png";
+	{
+		std::error_code ec;
+		if (fs::exists(crash_screenshot_path, ec))
+			fs::remove(crash_screenshot_path, ec);
+	}
+
+    sentry_options_t *options = sentry_options_new();
+    sentry_options_set_dsn(options, "https://133f371c936a4bc4bddec532b1d1304a@o1313474.ingest.sentry.io/6563738");
+    sentry_options_set_database_path(options, ".sentry_native");
+    sentry_options_set_release(options, "zelda-classic@" RELEASE_TAG);
+    sentry_options_add_attachment(options, crash_screenshot_path);
+    sentry_options_set_on_crash(options, on_crash_callback, NULL);
+	// Only track sessions for the main apps.
+	if (id != App::zelda && id != App::zquest)
+		sentry_options_set_auto_session_tracking(options, 0);
+    sentry_init(options);
+    switch (id)
+    {
+        case App::zelda:
+            sentry_set_tag("app", "zelda");
+            break;
+        case App::zquest:
+            sentry_set_tag("app", "zquest");
+            break;
+        case App::zscript:
+            sentry_set_tag("app", "zscript");
+            break;
+        case App::launcher:
+            sentry_set_tag("app", "launcher");
+            break;
+		case App::updater:
+            sentry_set_tag("app", "updater");
+            break;
+    }
+    atexit(sentry_atexit);
+
+	// Sentry backend is configured to scrub the IP. This just gets us a rough unique user count.
+	sentry_value_t user = sentry_value_new_object();
+	sentry_value_set_by_key(user, "ip_address", sentry_value_new_string("{{auto}}"));
+	sentry_set_user(user);
+}
 #endif
 
-namespace fs = std::filesystem;
 
 static App app_id = App::undefined;
 static int argc;
@@ -128,48 +180,7 @@ void common_main_setup(App id, int argc_, char **argv_)
 	}
 
 #ifdef HAS_SENTRY
-	// Clean up the last crash screenshot.
-	const char* crash_screenshot_path = ".sentry_native/screenshot.png";
-	{
-		std::error_code ec;
-		if (fs::exists(crash_screenshot_path, ec))
-			fs::remove(crash_screenshot_path, ec);
-	}
-
-    sentry_options_t *options = sentry_options_new();
-    sentry_options_set_dsn(options, "https://133f371c936a4bc4bddec532b1d1304a@o1313474.ingest.sentry.io/6563738");
-    sentry_options_set_database_path(options, ".sentry_native");
-    sentry_options_set_release(options, "zelda-classic@" RELEASE_TAG);
-    sentry_options_add_attachment(options, crash_screenshot_path);
-    sentry_options_set_on_crash(options, on_crash_callback, NULL);
-	// Only track sessions for the main apps.
-	if (id != App::zelda && id != App::zquest)
-		sentry_options_set_auto_session_tracking(options, 0);
-    sentry_init(options);
-    switch (id)
-    {
-        case App::zelda:
-            sentry_set_tag("app", "zelda");
-            break;
-        case App::zquest:
-            sentry_set_tag("app", "zquest");
-            break;
-        case App::zscript:
-            sentry_set_tag("app", "zscript");
-            break;
-        case App::launcher:
-            sentry_set_tag("app", "launcher");
-            break;
-		case App::updater:
-            sentry_set_tag("app", "updater");
-            break;
-    }
-    atexit(sentry_atexit);
-
-	// Sentry backend is configured to scrub the IP. This just gets us a rough unique user count.
-	sentry_value_t user = sentry_value_new_object();
-	sentry_value_set_by_key(user, "ip_address", sentry_value_new_string("{{auto}}"));
-	sentry_set_user(user);
+	init_sentry(id);
 #endif
 
 #ifdef ALLEGRO_SDL
