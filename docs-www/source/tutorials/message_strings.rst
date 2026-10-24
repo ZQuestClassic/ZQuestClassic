@@ -170,7 +170,7 @@ These commands modify counters or items.
 +------+-------------------------------------+---------------------+---------------------------------------------------------------------------------------------------------------------------------+
 | 11   | ``\CounterSubtract\ctr\val\``       | ``\11\ctr\val``     | Subtracts 'val' from 'ctr'                                                                                                      |
 +------+-------------------------------------+---------------------+---------------------------------------------------------------------------------------------------------------------------------+
-| 12   | ``\CounterSet\ctr\val\``            | `\12\ctr\val`       | Sets 'ctr' to 'val'                                                                                                             |
+| 12   | ``\CounterSet\ctr\val\``            | ``\12\ctr\val``     | Sets 'ctr' to 'val'                                                                                                             |
 +------+-------------------------------------+---------------------+---------------------------------------------------------------------------------------------------------------------------------+
 | 13   | ``\CounterAdd%\ctr\percent\``       | ``\13\ctr\percent`` | Adds 'percent' % to 'ctr'                                                                                                       |
 +------+-------------------------------------+---------------------+---------------------------------------------------------------------------------------------------------------------------------+
@@ -237,7 +237,7 @@ Misc
 +------+-------------------------------------------------------------+-----------------------------------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
 | 136  | ``\RunFrozenGenericScript\generic_script_id\force_redraw\`` | ``\136\generic_script_id\force_redraw`` | Run the specified generic script, in RunFrozen mode. Since 3.0: up to 8 optional InitD arguments may follow force_redraw, e.g. ``\RunFrozenGenericScript\id\1\10\20\`` passes 10, 20              |
 +------+-------------------------------------------------------------+-----------------------------------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| 137  | ``\TriggerComboCopycat\copy_cat_id\``                       | ``\137\copy_cat_id``                    |                                                                                                                                                                                                   |
+| 137  | ``\TriggerComboCopycat\copy_cat_id\``                       | *not supported*                         |                                                                                                                                                                                                   |
 +------+-------------------------------------------------------------+-----------------------------------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
 | 153  | ``\KillHero\bypass_revive\``                                | *not supported*                         | Kills the player instantly (plays the death animation). If bypass_revive is zero, fairies may prevent death.                                                                                      |
 +------+-------------------------------------------------------------+-----------------------------------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
@@ -286,3 +286,56 @@ This example is from :ref:`tango<lib_tango>`, the text library. It shows reading
 
    .. zscript::
       :url: https://raw.githubusercontent.com/ZQuestClassic/ZQuestClassic/refs/heads/main/resources/headers/tango/1.3/tango_stringControlCode.zh
+
+
+Compatibility
+-------------
+
+Strings from older quests
++++++++++++++++++++++++++
+
+When a quest from 2.55 or earlier is loaded, each message string is converted to the new syntax. Because the old encoding has no way to mark where a command ends, the conversion reads each command using the number of arguments that command is supposed to have.
+
+A string that was quietly broken in 2.55, such as one with the wrong number of arguments or an unknown command code, will show as plain text after conversion, and the string editor will show a warning for it. What such a string did in 2.55 depended on exactly how its bytes lined up, so there is no way for ZC to automatically recover the intended command: instead, you will need to retype these bad commands. Opening an old quest in 3.0 and looking in allegro.log is a quick way to find strings like this.
+
+Compat rules
+++++++++++++
+
+These rules change how message strings behave. Each is turned on automatically for quests saved before the change it reverts.
+
+.. list-table::
+   :header-rows: 1
+   :widths: 25 50 25
+
+   * - Rule
+     - Effect
+     - Enabled for quests saved before
+   * - :ref:`Broken SCC Map Args<globals_enum_member_qr_broken_scc_map_args>`
+     - SCCs that target a screen on another map use the map after the one given (off by one). Affects ``\SetAnyScreenState`` (134) in 2.55, and also ``\GoIfAnyScreenState`` (140), ``\GoIfAnyScreenExState`` (142) and ``\SetAnyScreenExState`` (147) in 3.0.
+     - 2.55.15, or 3.0.0-prerelease.197
+   * - :ref:`Old Long SCC Args<globals_enum_member_qr_old_long_scc_args>`
+     - The "value" argument of the Screen D SCCs (3, 19, 23 and 162) is used as a raw number, so a script sees it divided by 10000: ``\SetScreenD\0\0\0\5\`` makes ``Screen->D[0]`` read as ``0.0005``. When disabled, the value is used as written, and decimals are allowed.
+     - 3.0.0-prerelease.199
+   * - :ref:`Scripts use legacy binary encoding for messagedata strings<globals_enum_member_qr_old_scripts_message_data_binary_encoding>`
+     - Scripts read and write :ref:`classes_messagedata` text in the 2.55 binary encoding. See the "ZScript" section above.
+     - 3.0.0-prerelease.140
+   * - :ref:`Strings Don't Scroll<globals_enum_member_qr_strings_dont_scroll>`
+     - Strings are cut off at their bottom margin, instead of scrolling.
+     - 3.0.0-prerelease.200
+   * - :ref:`Old String Frame Width/Height<globals_enum_member_qr_string_frame_old_width_height>`
+     - Strings default to a 25x4 box instead of 26x5.
+     - 2.55 (early alpha builds)
+   * - :ref:`Old String Margins<globals_enum_member_qr_old_string_editor_margins>`
+     - Strings have no border spacing and can extend past the bottom of the message box.
+     - 1.93 (or older string data)
+
+.. warning::
+   Before turning off "Broken SCC Map Args", check the map argument of every SCC it affects. If a string was written to work around the off-by-one, for example by giving the map before the one intended, turning the rule off will make that string target the wrong map.
+
+Known 2.55 bugs
++++++++++++++++
+
+* **2.55.0 to 2.55.14:** ``\134`` targets the wrong map (off by one). Fixed in 2.55.15, behind "Broken SCC Map Args" (see above).
+* **2.55.17 and earlier:** the "Insert SCC" wizard labels the first field of "Set a state of any screen" (``\134``) as "DMap", but it is a map number. Fixed in 2.55.18 and 3.0.0-prerelease.140.
+* **2.55.17 and earlier:** if ``\133`` or ``\134`` is given an invalid argument (such as a map that doesn't exist), the game logs an error and stops reading that command's arguments partway through. The remaining arguments are then run as other commands or printed as characters. Fixed in 2.55.18. 3.0 does not have this bug.
+* **All 2.55 versions:** giving a command the wrong number of arguments shifts everything after it. See "Syntax (2.55)" above.
