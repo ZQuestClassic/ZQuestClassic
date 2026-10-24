@@ -1179,12 +1179,17 @@ endif()
 # builder DSL makes these by far the slowest files in the project to compile
 # at high optimization levels (-O3 spends most of its time inlining the widget
 # trees). Dialing back the inlining cuts their compile time by ~25% with no
-# observable difference: -O1 for Clang/GCC; /Ob1 for MSVC, which keeps /O2's
-# speed optimizations but only inlines functions marked inline.
+# observable difference. /Ob1 for MSVC, which keeps /O2's speed optimizations
+# but only inlines functions marked inline. -Oz for Clang, which also compiles
+# faster than -O1 and makes the dialog code much smaller: each widget otherwise
+# inlines its shared_ptr and callback cleanup paths (zeditor is ~20% smaller).
+# GCC only has -Oz since 12, so it gets -Os.
 if(MSVC)
 	set(zc_dialog_opt_flag /Ob1)
+elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+	set(zc_dialog_opt_flag -Oz)
 else()
-	set(zc_dialog_opt_flag -O1)
+	set(zc_dialog_opt_flag -Os)
 endif()
 file(GLOB zc_dialog_sources CONFIGURE_DEPENDS src/dialog/*.cpp src/zc/dialog/*.cpp src/zq/dialog/*.cpp)
 # The Xcode generator rejects per-config per-source COMPILE_OPTIONS; that
