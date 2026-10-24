@@ -185,6 +185,8 @@ if(APPLE)
 	set(CPACK_DMG_DS_STORE_SETUP_SCRIPT "${CMAKE_SOURCE_DIR}/packaging/MacDMGSetup.scpt")
 	set(CPACK_DMG_BACKGROUND_IMAGE "${CMAKE_SOURCE_DIR}/packaging/MacDMGBackground.png")
 	set(CPACK_COMMAND_HDIUTIL "${CMAKE_SOURCE_DIR}/packaging/hdiutil_repeat.sh")
+	# LZMA. ~20% smaller than the default (UDZO, zlib). Needs macOS 10.15+.
+	set(CPACK_DMG_FORMAT "ULMO")
 
 	install(FILES "${CMAKE_SOURCE_DIR}/packaging/Info.plist" DESTINATION "ZQuest Classic.app/Contents")
 	install(PROGRAMS "${CMAKE_SOURCE_DIR}/packaging/mac_entry.sh" DESTINATION "ZQuest Classic.app/Contents/MacOS")
