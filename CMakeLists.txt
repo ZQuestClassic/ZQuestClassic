@@ -165,7 +165,7 @@ endif()
 if(NOT EMSCRIPTEN)
 	set(strip_cfgs "$<CONFIG:Release,RelWithDebInfo>")
 	if(MSVC)
-		add_compile_options("$<${strip_cfgs}:/Gy;/Gw>")
+		add_compile_options("$<$<AND:${strip_cfgs},$<COMPILE_LANGUAGE:C,CXX>>:/Gy;/Gw>")
 		# RelWithDebInfo links with /DEBUG, which defaults these to off.
 		add_link_options("$<${strip_cfgs}:/OPT:REF;/OPT:ICF>")
 	else()
@@ -475,7 +475,10 @@ endif()
 
 if(MSVC)
 	# Build in parallel - speeds up the build on multicore machines.
-	add_compile_options(/MP)
+	# MSVC-only options are scoped to C/C++ here and below: add_compile_options also
+	# reaches assembler sources (crashpad's ASM_MARMASM files on arm64), and
+	# armasm64 rejects them.
+	add_compile_options("$<$<COMPILE_LANGUAGE:C,CXX>:/MP>")
 
 	add_definitions(-D_CRT_SECURE_NO_WARNINGS)
 	
@@ -503,7 +506,7 @@ endif()
 
 if(MSVC)
 	# REQUIRED or else MSVC throws internal compiler error(!)
-	add_compile_options("/fp:fast")
+	add_compile_options("$<$<COMPILE_LANGUAGE:C,CXX>:/fp:fast>")
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 	# TODO: GCC w/ these flags don't quite match the behavior of MSVC or clang, as seen in a replay report:
 	#    https://zc-replay-compare-3700187020.surge.sh/
