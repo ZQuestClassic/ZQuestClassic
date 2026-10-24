@@ -264,7 +264,7 @@ jobs:
           mkdir package_output
           cpack --verbose -C ${{ inputs.config }} \
             -D CPACK_PACKAGE_DIRECTORY=$PWD/package_output \
-            ${{ inputs.debug-info && '-D CPACK_CUSTOM_INSTALL_VARIABLES=MAC_CREATE_DEBUG_SYMBOLS_BUNDLE=TRUE' || '' }}
+            ${{ inputs.debug-info && '-D "CPACK_CUSTOM_INSTALL_VARIABLES=MAC_CREATE_DEBUG_SYMBOLS_BUNDLE=TRUE;ZC_KEEP_SYMBOLS=TRUE"' || '' }}
           mv package_output/*.* ../packages/${{ steps.set-package-name.outputs.package-name }}
 
       # Coverage builds need the entire build folder.
