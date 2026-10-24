@@ -687,7 +687,9 @@ def package(ctx: CiContext, args):
         cpack_cmd.extend(
             [
                 "-D",
-                "CPACK_CUSTOM_INSTALL_VARIABLES=MAC_CREATE_DEBUG_SYMBOLS_BUNDLE=TRUE",
+                # Mac gets a dSYM bundle; Linux has nothing like it, so just
+                # skip stripping there.
+                "CPACK_CUSTOM_INSTALL_VARIABLES=MAC_CREATE_DEBUG_SYMBOLS_BUNDLE=TRUE;ZC_KEEP_SYMBOLS=TRUE",
             ]
         )
 
