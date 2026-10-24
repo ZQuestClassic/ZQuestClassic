@@ -69,14 +69,11 @@ jobs:
             compiler: msvc
             config: RelWithDebInfo
             sentry: ${{ inputs.sentry }}
-          # No Sentry: sentry-native 0.6.6's crashpad doesn't build for Windows
-          # arm64 (x86 zlib intrinsics and x86 MASM sources). Fixed in
-          # sentry-native 0.7.0, so re-enable after upgrading it.
           - runs-on: windows-11-arm
             arch: arm64
             compiler: msvc
             config: RelWithDebInfo
-            sentry: false
+            sentry: ${{ inputs.sentry }}
           # Builds a universal (arm64 + x86_64) bundle: the native arm64 build
           # is merged with a second x86_64 build via lipo. See the `build`
           # command in ci.py.
