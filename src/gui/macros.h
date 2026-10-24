@@ -133,12 +133,12 @@ struct widgetType##Builder                                                      
     std::shared_ptr<::GUI:: widgetType> ptr;                                                       \
                                                                                                    \
     inline widgetType##Builder(std::shared_ptr<::GUI:: widgetType>&& p):                           \
-        ptr(p)                                                                                     \
+        ptr(std::move(p))                                                                          \
     {}                                                                                             \
                                                                                                    \
-    inline std::shared_ptr<::GUI:: widgetType> resolve() const                                     \
+    inline std::shared_ptr<::GUI:: widgetType> resolve() &&                                        \
     {                                                                                              \
-        return ptr;                                                                                \
+        return std::move(ptr);                                                                     \
     }                                                                                              \
                                                                                                    \
     /* This function will be called if a property not valid for this widget is given. */           \
@@ -198,12 +198,12 @@ struct widgetType##Builder                                                      
     std::shared_ptr<::GUI:: widgetType> ptr;                                                       \
                                                                                                    \
     inline widgetType##Builder(std::shared_ptr<::GUI:: widgetType>&& p):                           \
-        ptr(p)                                                                                     \
+        ptr(std::move(p))                                                                          \
     {}                                                                                             \
                                                                                                    \
-    inline std::shared_ptr<::GUI:: widgetType> resolve() const                                     \
+    inline std::shared_ptr<::GUI:: widgetType> resolve() &&                                        \
     {                                                                                              \
-        return ptr;                                                                                \
+        return std::move(ptr);                                                                     \
     }                                                                                              \
                                                                                                    \
     /* This function will be called if a property not valid for this widget is given. */           \
@@ -264,7 +264,7 @@ struct widgetType##Builder                                                      
     {                                                                                              \
         ZCGUI_STATIC_ASSERT(totalChildren == 1, "This widget can only have one child.");           \
         Internal::allowChild(ptr, child);                                                          \
-        ptr->function(child);                                                                      \
+        ptr->function(std::forward<ChildType>(child));                                             \
     }
 
 
@@ -273,7 +273,7 @@ struct widgetType##Builder                                                      
     inline void addOneChild(ChildType&& child)                                                     \
     {                                                                                              \
         Internal::allowChild(ptr, child);                                                          \
-        ptr->function(child);                                                                      \
+        ptr->function(std::forward<ChildType>(child));                                             \
     }
 
 
@@ -294,7 +294,7 @@ inline std::shared_ptr<::GUI:: widgetType> ZCGUI_WIDGET_NAME(functionName)(Props
     widgetType##Builder ret(::GUI::Internal:: implCreator());                                      \
     ::GUI::Internal::applyArgs(::GUI::Internal::dummy, ret,                                        \
         std::forward<PropsType>(props)...);                                                        \
-    return ret.resolve();                                                                          \
+    return std::move(ret).resolve();                                                               \
 }
 
 
@@ -305,7 +305,7 @@ inline std::shared_ptr<::GUI:: widgetType> ZCGUI_WIDGET_NAME(functionName)(Props
     widgetType##Builder ret(::GUI::Internal:: implCreator(TemplateParam));                         \
     ::GUI::Internal::applyArgs(::GUI::Internal::dummy, ret,                                        \
         std::forward<PropsType>(props)...);                                                        \
-    return ret.resolve();                                                                          \
+    return std::move(ret).resolve();                                                               \
 }
 
 #define ZCGUI_BUILDER_FUNCTION_TEMPLATE2(widgetType, functionName, implCreator, T, T2)  \
@@ -315,7 +315,7 @@ inline std::shared_ptr<::GUI:: widgetType> ZCGUI_WIDGET_NAME(functionName)(Props
     widgetType##Builder ret(::GUI::Internal:: implCreator(t,t2));                         \
     ::GUI::Internal::applyArgs(::GUI::Internal::dummy, ret,                                        \
         std::forward<PropsType>(props)...);                                                        \
-    return ret.resolve();                                                                          \
+    return std::move(ret).resolve();                                                               \
 }
 
 #endif
