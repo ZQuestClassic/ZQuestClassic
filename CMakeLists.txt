@@ -886,6 +886,26 @@ if(WIN32)
 	)
 endif()
 
+# Build dialog code for size. It's UI glue with no perf-sensitive code, but
+# the templated GUI builder DSL makes each widget inline its shared_ptr and
+# callback cleanup paths, so it's most of zeditor. -Oz for Clang (which also
+# compiles these files faster); GCC only has -Oz since 12, so it gets -Os.
+# MSVC is left alone.
+if(NOT MSVC)
+	if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+		set(zc_dialog_opt_flag -Oz)
+	else()
+		set(zc_dialog_opt_flag -Os)
+	endif()
+	file(GLOB zc_dialog_sources CONFIGURE_DEPENDS src/dialog/*.cpp)
+	# The Xcode generator rejects per-config per-source COMPILE_OPTIONS; that
+	# build is only used for profiling, so just skip it there.
+	if(NOT CMAKE_GENERATOR STREQUAL "Xcode")
+		set_source_files_properties(${zc_dialog_sources} PROPERTIES
+			COMPILE_OPTIONS "$<$<CONFIG:Release,RelWithDebInfo>:${zc_dialog_opt_flag}>")
+	endif()
+endif()
+
 #############################################################
 # ZScript parser
 #############################################################
