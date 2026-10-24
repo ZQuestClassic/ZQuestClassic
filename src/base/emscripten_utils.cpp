@@ -76,8 +76,8 @@ EM_ASYNC_JS(void, em_fetch_file_, (const char *path), {
 
     const data = await ZC.fetchAsByteArray(url);
 	if (!data) {
-		// Fetch failed (could be offline).
-		console.error(`error fetching ${path}`, e);
+		// Fetch failed (could be offline). fetchAsByteArray logged why.
+		console.error(`error fetching ${path}`);
 		return;
 	}
 
