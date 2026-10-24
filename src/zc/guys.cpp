@@ -21185,13 +21185,15 @@ bool parsemsgcode()
 		}
 		case MSGC_SETSCREENSTATE:
 		{
+			// Read every argument before validating, so an invalid one doesn't leave
+			// the rest to be parsed as commands or text.
 			int32_t flag = int32_t(grab_next_argument());
+			bool state = bool(grab_next_argument());
 			if(unsigned(flag)>=mMAXIND)
 			{
 				Z_error("SCC 133: Flag %d is invalid\n", flag);
 				return true;
 			}
-			bool state = bool(grab_next_argument());
 			if(state)
 				setmapflag(1<<flag);
 			else
@@ -21200,8 +21202,12 @@ bool parsemsgcode()
 		}
 		case MSGC_SETSCREENSTATER:
 		{
+			// Read every argument before validating, so an invalid one doesn't leave
+			// the rest to be parsed as commands or text.
 			int32_t map = (int32_t)grab_next_argument();
 			int32_t scrid = (int32_t)grab_next_argument();
+			int32_t flag = int32_t(grab_next_argument());
+			bool state = bool(grab_next_argument());
 			if(map < 1 || map > map_count)
 			{
 				Z_error("SCC 134: Map %d is invalid\n", map);
@@ -21212,8 +21218,6 @@ bool parsemsgcode()
 				Z_error("SCC 134: Screen %d is invalid\n", scrid);
 				return true;
 			}
-			
-			int32_t flag = int32_t(grab_next_argument());
 			if(unsigned(flag)>=mMAXIND)
 			{
 				Z_error("SCC 134: Flag %d is invalid\n", flag);
@@ -21221,7 +21225,6 @@ bool parsemsgcode()
 			}
 			if (!get_qr(qr_BROKEN_SCC_MAP_ARGS))
 				--map; // 0-index
-			bool state = bool(grab_next_argument());
 			if(state)
 				setmapflag(mapind(map,scrid),1<<flag);
 			else
