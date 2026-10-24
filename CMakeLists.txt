@@ -1418,7 +1418,7 @@ foreach(target IN LISTS zc_targets)
 endforeach()
 
 if(WANT_SENTRY)
-	set(SENTRY_VERSION 0.6.6)
+	set(SENTRY_VERSION 0.17.4)
 	FetchContent_Declare(sentry
 		URL https://github.com/getsentry/sentry-native/releases/download/${SENTRY_VERSION}/sentry-native.zip
 		EXCLUDE_FROM_ALL
@@ -1433,6 +1433,10 @@ if(WANT_SENTRY)
 	endforeach()
 
 	list(APPEND ZC_INSTALL_TARGETS crashpad_handler)
+	if(WIN32)
+		# Windows Error Reporting module; crashpad loads it from next to the handler.
+		list(APPEND ZC_INSTALL_TARGETS crashpad_wer)
+	endif()
 endif()
 
 # See docs/versioning.md
