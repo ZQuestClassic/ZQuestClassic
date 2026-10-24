@@ -10,6 +10,7 @@ import shutil
 import subprocess
 import sys
 import tarfile
+import time
 import zipfile
 
 from dataclasses import dataclass
@@ -121,8 +122,12 @@ class CiContext:
         return self.build_folder_base
 
 
-def run_cmd(cmd, env=None, cwd=None, shell=False):
-    """Helper to run a subprocess command with logging and error handling."""
+def run_cmd(cmd, env=None, cwd=None, shell=False, retries=0, retry_delay=0):
+    """Helper to run a subprocess command with logging and error handling.
+
+    A non-zero exit is retried up to `retries` more times, sleeping `retry_delay`
+    seconds between attempts, before the script exits with the command's code.
+    """
     if isinstance(cmd, str) and not shell:
         cmd_str = cmd
         # posix=False helps preserve Windows paths if they contain backslashes
@@ -135,14 +140,23 @@ def run_cmd(cmd, env=None, cwd=None, shell=False):
         cmd_str = str(cmd)
 
     logger.info(f"Running: {cmd_str}")
-    try:
-        subprocess.run(cmd, env=env, cwd=cwd, shell=shell, check=True)
-    except subprocess.CalledProcessError as e:
-        logger.error(f"Command failed with exit code {e.returncode}: {cmd_str}")
-        sys.exit(e.returncode)
-    except OSError as e:
-        logger.error(f"Failed to execute command: {e}")
-        sys.exit(1)
+    for attempt in range(retries + 1):
+        try:
+            subprocess.run(cmd, env=env, cwd=cwd, shell=shell, check=True)
+            return
+        except subprocess.CalledProcessError as e:
+            if attempt < retries:
+                logger.warning(
+                    f"Command failed with exit code {e.returncode}, retrying in "
+                    f"{retry_delay}s ({attempt + 1}/{retries}): {cmd_str}"
+                )
+                time.sleep(retry_delay)
+                continue
+            logger.error(f"Command failed with exit code {e.returncode}: {cmd_str}")
+            sys.exit(e.returncode)
+        except OSError as e:
+            logger.error(f"Failed to execute command: {e}")
+            sys.exit(1)
 
 
 def run_python_cmd(cmd, env=None, cwd=None, shell=False):
@@ -351,7 +365,14 @@ def install_deps(ctx: CiContext, args):
 
     elif ctx.is_windows:
         logger.info("Windows detected. Installing via Chocolatey and vcpkg.")
-        run_cmd("choco install .github/dependencies.config -y --allow-downgrade")
+        # The community Chocolatey feed intermittently answers 503/504, which choco
+        # reports as "package not found". Already-installed packages are skipped on
+        # the next attempt, so retrying only re-fetches what failed.
+        run_cmd(
+            "choco install .github/dependencies.config -y --allow-downgrade",
+            retries=3,
+            retry_delay=30,
+        )
 
         vcpkg_dir = root_dir / "vcpkg"
         vcpkg_exe = vcpkg_dir / "vcpkg.exe"
