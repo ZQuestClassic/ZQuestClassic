@@ -946,7 +946,7 @@ std::shared_ptr<GUI::Widget> SCCDialog::view()
 		{
 			sgrid = Column(padding = 0_px, vAlign = 0.0,
 				Row(padding = 0_px, hAlign = 1.0,
-					TXT("DMap:"),
+					TXT("Map:"),
 					NUM_FIELD(cur_args[0],0,255),
 					INFOBTN("Map to modify")
 				),
