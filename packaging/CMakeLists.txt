@@ -202,7 +202,7 @@ if(APPLE)
 
 	# Generate debug info bundle (ZQuest Classic.app.dSYM):
 	#   cpack -D CPACK_CUSTOM_INSTALL_VARIABLES=MAC_CREATE_DEBUG_SYMBOLS_BUNDLE=TRUE
-	# This is only used for testing in CI. For releases, the debug symbols are stripped and sent to Sentry directly.
+	# This is only used for testing in CI. For releases, the .dSYMs made at link time are sent to Sentry directly.
 	install(CODE "
 		if(MAC_CREATE_DEBUG_SYMBOLS_BUNDLE)
 			set(APP_BUNDLE \"$<INSTALL_PREFIX>/ZQuest Classic.app\")
@@ -264,10 +264,78 @@ if(APPLE)
 		endif()
 		fixup_bundle(\"\${APP_ROOT}\" \"\${BINARIES_TO_FIX}\" \"\${APP_ROOT}/Contents/Frameworks\")
 	")
+
+	# Strip the symbol tables, which are ~1.6 MB in zplayer and ~7.7 MB in zeditor. Debug info
+	# never ships (it's in the .dSYMs, which go to Sentry), but the symbol table did. Must run
+	# after the dSYM bundle above, as dsymutil reads the debug map from the symbol table.
+	# Only local symbols go (-x): the executables must keep exporting their globals, as
+	# liballegro_main looks up the real main (_al_mangled_main) from them at load time.
+	install(CODE "
+		file(GLOB_RECURSE CANDIDATES \"$<INSTALL_PREFIX>/ZQuest Classic.app/Contents/*\")
+		foreach(ITEM \${CANDIDATES})
+			if(IS_SYMLINK \"\${ITEM}\" OR IS_DIRECTORY \"\${ITEM}\")
+				continue()
+			endif()
+
+			execute_process(
+				COMMAND file -b \"\${ITEM}\"
+				OUTPUT_VARIABLE FILE_TYPE
+				OUTPUT_STRIP_TRAILING_WHITESPACE
+			)
+
+			if(NOT FILE_TYPE MATCHES \"Mach-O.*(executable|shared library)\")
+				continue()
+			endif()
+
+			message(STATUS \"Stripping: \${ITEM}\")
+			# Dylibs copied in from a package manager may be read-only.
+			execute_process(COMMAND chmod u+w \"\${ITEM}\" COMMAND_ERROR_IS_FATAL ANY)
+			execute_process(
+				COMMAND \"${CMAKE_STRIP}\" -x \"\${ITEM}\"
+				ERROR_VARIABLE STRIP_ERR
+				COMMAND_ERROR_IS_FATAL ANY
+			)
+			# strip re-signs linker-signed binaries (everything we build), but only warns for
+			# others, and arm64 refuses to load code with a broken signature.
+			if(STRIP_ERR MATCHES \"invalidate the code signature\")
+				execute_process(
+					COMMAND codesign --force --sign - \"\${ITEM}\"
+					COMMAND_ERROR_IS_FATAL ANY
+				)
+			endif()
+		endforeach()
+	")
 elseif(LINUX)
 	if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
 		set_property(CACHE CMAKE_INSTALL_PREFIX PROPERTY VALUE "/opt/zquestclassic")
 	endif()
+
+	# Strip the symbol tables. The link step only moves the debug info out to a .debug file
+	# (see eu-strip in the root CMakeLists.txt), which goes to Sentry along with the unstripped
+	# binary. CI's test packages keep the symbols, for readable backtraces.
+	install(CODE "
+		if(NOT ZC_KEEP_SYMBOLS)
+			file(GLOB CANDIDATES
+				\"$<INSTALL_PREFIX>/${INSTALL_BIN_DIR}/*\"
+				\"$<INSTALL_PREFIX>/${INSTALL_LIB_DIR}/*\")
+			foreach(ITEM \${CANDIDATES})
+				if(IS_SYMLINK \"\${ITEM}\" OR IS_DIRECTORY \"\${ITEM}\")
+					continue()
+				endif()
+
+				file(READ \"\${ITEM}\" MAGIC LIMIT 4 HEX)
+				if(NOT MAGIC STREQUAL \"7f454c46\")
+					continue()
+				endif()
+
+				message(STATUS \"Stripping: \${ITEM}\")
+				execute_process(
+					COMMAND \"${CMAKE_STRIP}\" --strip-all \"\${ITEM}\"
+					COMMAND_ERROR_IS_FATAL ANY
+				)
+			endforeach()
+		endif()
+	")
 
 	set(CPACK_GENERATOR "TGZ")
 elseif(WIN32)
