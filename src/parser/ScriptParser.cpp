@@ -393,8 +393,7 @@ bool ScriptParser::valid_include(ASTImportDecl& decl, string& ret_fname)
 	//Note: If the user gives an absolute path, `relpath` will be that absolute path!
 	std::filesystem::path relpath = std::filesystem::path(filename).lexically_normal();
 	std::filesystem::path abspath = derelativize_path(filename);
-	FILE* f = fopen(abspath.string().c_str(), "r");
-	if (!f)
+	if (!fs::exists(abspath))
 		return false;
 
 	// Canonicalize the path to resolve exact OS-specific casing and symlinks.
