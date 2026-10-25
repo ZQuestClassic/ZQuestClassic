@@ -22067,13 +22067,24 @@ endsigns:
 		comb_handle = get_rpos_handle_for_world_xy(fx, fy, found_lyr);
 	if(foundffc)
 		comb_handle = foundffc.value();
+	
+	byte inputs_to_eat = 0;
+	
 	did_trigger = TriggerData([&](combo_trigger const& trig, size_t idx){
 		if(!trig.trigger_flags.get(dir_trigflag)) return false;
 		found_a_trigger_dir = true;
 		auto& trig_data = cpos.trig_data.get(idx);
 		if(fx != -1 && fy != -1 && trig_data.cooldown) return false;
-		return trig.triggerbtn && (getIntBtnInput(trig.triggerbtn, INPUT_PRESS | INPUT_DRUNK) || checkIntBtnVal(trig.triggerbtn, signInput));
+		return trig.triggerbtn && (getIntBtnInput(trig.triggerbtn, INPUT_PRESS | INPUT_DRUNK | INPUT_PEEK) || checkIntBtnVal(trig.triggerbtn, signInput));
+	}).set_side_fx([&](combo_trigger const& trig, bool success){
+		// Eat inputs only after trigger succeeds, or plays failure string
+		if (success || trig.fail_msgstr)
+			inputs_to_eat |= trig.triggerbtn;
 	}).execute(comb_handle);
+	
+	if (inputs_to_eat)
+		getIntBtnInput(inputs_to_eat, INPUT_PRESS | INPUT_DRUNK);
+	
 	if(!found_a_trigger_dir || didprompt || did_trigger)
 		return;
 	else if(cmb.type == cBUTTONPROMPT)
