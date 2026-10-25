@@ -1,5 +1,6 @@
 #include <deque>
 #include "base/check.h"
+#include "base/win_encoding.h"
 #include <string>
 #include <sstream>
 #include <math.h>
@@ -40812,12 +40813,17 @@ bool validate_userfile_extension(string const& path)
 	return banned_extensions.find(ext) == banned_extensions.end();
 }
 
+// `buf` must hold 2048+1 chars.
 bool FFScript::get_scriptfile_path(char* buf, const char* path)
 {
 	while((path[0] == '/' || path[0] == '\\') && path[0]) ++path;
-	if(path[0])
-		sprintf(buf, "%s%c%s", qst_files_path, PATH_SLASH, path);
-	else sprintf(buf, "%s", qst_files_path);
+	// A script's string can be in the ANSI code page (typed or saved before src/windows.manifest);
+	// convert it so the file is found under the same name as before.
+	std::string utf8_path = path;
+	util::legacy_path_to_utf8(utf8_path);
+	if(utf8_path[0])
+		snprintf(buf, 2048+1, "%s%c%s", qst_files_path, PATH_SLASH, utf8_path.c_str());
+	else snprintf(buf, 2048+1, "%s", qst_files_path);
 	return true;
 }
 
@@ -40840,6 +40846,9 @@ void FFScript::do_fopen(const bool v, const char* f_mode)
 	string filename_str;
 	ArrayH::getString(arrayptr, filename_str, 512);
 	regulate_path(filename_str);
+	// A script's string can be in the ANSI code page (typed or saved before src/windows.manifest),
+	// which std::filesystem::path (in validate_userfile_extension and get_ext) would throw on.
+	util::legacy_path_to_utf8(filename_str);
 	ri->d[rEXP1] = 0L; //Presume failure; update to 10000L on success
 	if(!valid_file(filename_str))
 	{

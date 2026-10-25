@@ -646,6 +646,7 @@ set(zcbase_sources
 	src/base/win32.cpp
 	src/base/check.cpp
 	src/base/version.cpp
+	src/base/win_encoding.cpp
 	src/base/zapp.cpp
 	src/base/zc_alleg.cpp
 	src/base/zc_math.cpp
@@ -992,6 +993,22 @@ if(BUILD_ZUPDATER)
 	FetchContent_MakeAvailable(miniz)
 	set(BUILD_SHARED_LIBS ${BUILD_SHARED_LIBS_PREV} CACHE BOOL "" FORCE)
 	target_link_libraries(zupdater PRIVATE miniz)
+endif()
+
+#############################################################
+# Windows manifest
+#############################################################
+
+# Run with UTF-8 as the process code page, so the narrow-char APIs (argv, fopen,
+# std::ifstream, ...) take the UTF-8 strings Allegro and the file dialogs use. Otherwise a
+# path with a non-ASCII character (like "Créateur") is read in the ANSI code page and the
+# file can't be found. Needs Windows 10 1903+; older versions ignore it.
+if(MSVC)
+	foreach(target zplayer zeditor zscript zlauncher zstandalone zupdater zconsole base_test_runner)
+		if(TARGET ${target})
+			target_sources(${target} PRIVATE src/windows.manifest)
+		endif()
+	endforeach()
 endif()
 
 #############################################################
