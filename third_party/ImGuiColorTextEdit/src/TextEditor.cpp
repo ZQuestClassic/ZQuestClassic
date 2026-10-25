@@ -71,6 +71,8 @@ void TextEditor::SetLanguageDefinition(const LanguageDefinition & aLanguageDef)
 void TextEditor::SetPalette(const Palette & aValue)
 {
 	mPaletteBase = aValue;
+	// local edit: Render() reads mPalette before it is first derived from mPaletteBase.
+	mPalette = aValue;
 }
 
 std::string TextEditor::GetText(const Coordinates & aStart, const Coordinates & aEnd) const
