@@ -129,7 +129,7 @@ TriggerData& TriggerData::set_weapon(weapon* new_weapon)
 	w = new_weapon;
 	return *this;
 }
-TriggerData& TriggerData::set_side_fx(std::function<void(combo_trigger const&)> const& new_side_fx)
+TriggerData& TriggerData::set_side_fx(std::function<void(combo_trigger const&, bool)> const& new_side_fx)
 {
 	side_fx = new_side_fx;
 	return *this;
@@ -149,13 +149,11 @@ bool TriggerData::execute(const combined_handle_t& comb_handle) const
 		if (trig_cond_b && !trig_cond_b(trig, idx))
 			continue;
 		ret = true;
-		if (do_trigger_combo(comb_handle, idx, special, w))
-		{
-			if (side_fx)
-				side_fx(trig);
-			if (trig.trigger_flags.get(TRIGFLAG_CANCEL_TRIGGER))
-				break;
-		}
+		bool success = do_trigger_combo(comb_handle, idx, special, w);
+		if (side_fx)
+			side_fx(trig, success);
+		if (success && trig.trigger_flags.get(TRIGFLAG_CANCEL_TRIGGER))
+			break;
 		if (comb_handle.data() != cid)
 			break;
 	}

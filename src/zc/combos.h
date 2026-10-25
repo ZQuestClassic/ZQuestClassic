@@ -35,7 +35,7 @@ public:
 	weapon* w;
 	std::function<bool(combo_trigger const&)> trig_cond_a;
 	std::function<bool(combo_trigger const&, size_t)> trig_cond_b;
-	std::function<void(combo_trigger const&)> side_fx;
+	std::function<void(combo_trigger const&, bool)> side_fx;
 	
 	TriggerData(std::function<bool(combo_trigger const&)> const& cond)
 		: special(0), w(nullptr), trig_cond_a(cond), trig_cond_b(), side_fx()
@@ -45,7 +45,7 @@ public:
 	{}
 	TriggerData& set_special(int32_t new_special);
 	TriggerData& set_weapon(weapon* new_weapon);
-	TriggerData& set_side_fx(std::function<void(combo_trigger const&)> const& new_side_fx);
+	TriggerData& set_side_fx(std::function<void(combo_trigger const&, bool)> const& new_side_fx);
 	
 	bool execute(const combined_handle_t& comb_handle) const;
 };
