@@ -1242,8 +1242,7 @@ MaybeLegacyEncodedResult try_open_maybe_legacy_encoded_file(const char *filename
 
 	bool id_came_from_compressed_file = false;
 	const char* packfile_password = "";
-	char id[32];
-	id[0] = id[31] = '\0';
+	char id[32] = {};
 	PACKFILE* pf = zalleg_pack_fopen_password(filename, F_READ_PACKED, "");
 	if (!pf)
 		pf = zalleg_pack_fopen_password(filename, F_READ_PACKED, packfile_password = datapwd);

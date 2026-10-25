@@ -404,7 +404,7 @@ namespace ZScript
 		UserClassVar(Scope& scope, ASTDataDecl& node, DataType const& type);
 		
 		int32_t _index;
-		int32_t _order_ind;
+		int32_t _order_ind = 0;
 		ASTDataDecl& node;
 	};
 
