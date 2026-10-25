@@ -41,10 +41,16 @@ set -e
 # This prevents spurious errors caused by a race condition with XProtect
 # See https://github.com/actions/runner-images/issues/7522
 i=0
+args=("$@")
 until
-hdiutil "$@"
+hdiutil "${args[@]}"
 do
 if [ $i -eq 30 ]; then exit 1; fi
 i=$((i+1))
+# Local edit: a volume can stay busy (Spotlight, XProtect, Finder) for longer than all the
+# retries, so after a few tries force the detach.
+if [ "$1" = "detach" ] && [ $i -eq 5 ]; then
+	args=(detach -force "${@:2}")
+fi
 sleep 5
 done
