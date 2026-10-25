@@ -17,14 +17,14 @@ struct savedportal
 
 	int16_t destdmap = -1;
 	int16_t srcdmap = -1;
-	byte srcscr;
-	byte destscr;
-	int32_t x;
-	int32_t y;
-	word sfx;
-	int32_t warpfx;
-	int16_t spr;
-	bool deleting;
+	byte srcscr = 0;
+	byte destscr = 0;
+	int32_t x = 0;
+	int32_t y = 0;
+	word sfx = 0;
+	int32_t warpfx = 0;
+	int16_t spr = 0;
+	bool deleting = false;
 	
 	int32_t getUID(){return uid;}
 	void clearUID(){uid = 0;}
