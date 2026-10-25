@@ -235,11 +235,11 @@ private:
 
 	void buildSymbolCache() const;
 	mutable std::vector<std::vector<const DebugSymbol*>> scope_symbol_cache;
-	mutable bool scope_symbol_cache_built;
+	mutable bool scope_symbol_cache_built = false;
 
 	void buildScopeChildrenCache() const;
 	mutable std::vector<std::vector<int32_t>> scope_children_cache;
-	mutable bool scope_children_cache_built;
+	mutable bool scope_children_cache_built = false;
 };
 
 #endif
