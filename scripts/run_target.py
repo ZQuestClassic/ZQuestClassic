@@ -1,6 +1,7 @@
 import os
 import platform
 import shutil
+import signal
 import subprocess
 import sys
 
@@ -22,15 +23,16 @@ def print_run_target(message):
     print(prefix, file=sys.stderr)
 
 
+def describe_signal(signum: int):
+    try:
+        name = signal.Signals(signum).name
+    except ValueError:
+        name = 'an unknown signal'
+    return f'was killed by {name} (signal {signum})'
+
+
 def get_debug_method():
     if 'ZC_DISABLE_DEBUG' in os.environ:
-        return {'method': DEBUG_METHOD_NONE}
-
-    # Set by tests that fan out many short-lived runs (see submit_all in
-    # tests/common.py). The lldb wrapper re-indexes the target's debug symbols
-    # on every invocation, which costs seconds per run and dwarfs the actual
-    # work; skip crash handling entirely for these.
-    if 'ZC_FAST_RUN_TARGET' in os.environ:
         return {'method': DEBUG_METHOD_NONE}
 
     debug_method = _get_debug_method()
@@ -183,11 +185,15 @@ def _run(target_name: str, args: list, build_folder: Optional[str] = None):
         debug_method = get_debug_method()
         if debug_method['method'] != DEBUG_METHOD_NONE:
             print_run_target(
-                f'process crashed (exit code {p.returncode}), re-running for a backtrace\n'
+                f'process {describe_signal(-p.returncode)}, re-running for a backtrace\n'
             )
             # Callers may parse stdout, so keep the re-run's output out of it.
             _run_with_debugger(
                 exe_name, args, build_folder, debug_method, stdout=sys.stderr
+            )
+        else:
+            print_run_target(
+                f'process {describe_signal(-p.returncode)} (no debugger, so no backtrace)\n'
             )
         return p
 
@@ -357,4 +363,9 @@ def check_run(
 
 if __name__ == '__main__':
     p = _run(sys.argv[1], sys.argv[2:])
+    # A process killed by a signal has a negative returncode. sys.exit would
+    # turn that into 256 - signal (245 for SIGSEGV), so follow the shell's
+    # 128 + signal convention instead (139 for SIGSEGV).
+    if p.returncode < 0:
+        sys.exit(128 - p.returncode)
     sys.exit(p.returncode)
