@@ -110,7 +110,7 @@ bool io_manager::ProcessReadFile(HANDLE read_handle, LPVOID buf, DWORD bytes_to_
 	GetOverlappedResultExPROC imp_GetOverlappedResultEx =
 		(GetOverlappedResultExPROC) GetProcAddress(kernel32, "GetOverlappedResultEx");
 	
-	// Windows 7 compat: GetOverlappedResultEx was added in Windows 8.
+	// Windows 7 compat: GetOverlappedResultEx was added in Windows 8. See docs/windows_support.md.
 	if (!kernel32 || kernel32 == INVALID_HANDLE_VALUE || !imp_GetOverlappedResultEx)
 	{
 		DWORD num_read = 0;
