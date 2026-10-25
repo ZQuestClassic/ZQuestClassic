@@ -1616,6 +1616,7 @@ DataEnum:
 	ENUM LBRACE Enum_Block Trail_Comma_RBrace {
 		ASTDataEnum* list = (ASTDataEnum*)$3;
 		list->doc_comment = std::move($1->doc_comment);
+		if (first_identifier_for_line == $1) first_identifier_for_line = list;
 		delete $1;
 		$$ = list;}
 	| ENUM ASSIGN DataType LBRACE Enum_Block Trail_Comma_RBrace {
@@ -1625,6 +1626,7 @@ DataEnum:
 		list->baseType = type;
 		list->location = @$;
 		list->doc_comment = std::move($1->doc_comment);
+		if (first_identifier_for_line == $1) first_identifier_for_line = list;
 		delete $1;
 		$$ = list;}
 	| ENUM IDENTIFIER LBRACE Enum_Block Trail_Comma_RBrace {
@@ -1635,6 +1637,7 @@ DataEnum:
 		custom_typedef->doc_comment = std::move(identifier->doc_comment);
 		if (custom_typedef->doc_comment.empty())
 			custom_typedef->doc_comment = std::move($1->doc_comment);
+		if (first_identifier_for_line == $1) first_identifier_for_line = custom_typedef;
 		delete $1;
 		$$ = custom_typedef;};
 
