@@ -297,10 +297,10 @@ public:
 class portal : public sprite
 {
 public:
-	int32_t destdmap = -1, destscr, weffect, wsfx;
-    int32_t aclk, aframe, o_tile, aspd, frames;
-	int32_t saved_data;
-	bool prox_active;
+	int32_t destdmap = -1, destscr = 0, weffect = 0, wsfx = 0;
+    int32_t aclk = 0, aframe = 0, o_tile = 0, aspd = 0, frames = 0;
+	int32_t saved_data = 0;
+	bool prox_active = false;
 	portal();
 	portal(int32_t dm, int32_t scr, int32_t gfx, int32_t sfx, int32_t spr);
 	virtual bool animate(int32_t);
