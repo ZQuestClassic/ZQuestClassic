@@ -4164,6 +4164,9 @@ void do_load_and_quit_command(const char* quest_path)
 
 	byte skip_flags[] = {0, 0, 0, 0};
 	int ret = loadquest(quest_path,&QHeader,&QMisc,tunes+ZC_MIDI_COUNT,false,skip_flags,false,false,0xFF);
+	// The trace log only reaches stdout on some platforms, so report failure on stderr too.
+	if (ret)
+		fprintf(stderr, "failed to load %s: %s\n", quest_path, qst_error[ret]);
 	exit(ret);
 }
 
@@ -4250,6 +4253,10 @@ int main(int argc, char **argv)
 		success &= run_tests(test_zc_math, "test_zc_math", verbose);
 		extern TestResults test_util(bool);
 		success &= run_tests(test_util, "test_util", verbose);
+		extern TestResults test_win_encoding(bool);
+		success &= run_tests(test_win_encoding, "test_win_encoding", verbose);
+		extern TestResults test_process_management(bool);
+		success &= run_tests(test_process_management, "test_process_management", verbose);
 		extern TestResults test_control_scheme(bool);
 		success &= run_tests(test_control_scheme, "test_control_scheme", verbose);
 		if (success)
