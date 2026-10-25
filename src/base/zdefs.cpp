@@ -566,8 +566,8 @@ void load_colorset(int32_t colorset, PALETTE pal, ALLEGRO_COLOR* colors)
 	
 	if(!udef) //Auto-fill the indexes that aren't used in old styles
 	{
-		for(int q = jcCURSORMISC; q <= jcDISABLED_BG; ++q)
-			jwin_pal[jcCURSORMISC] = dvc(t_cfg_def[q].get());
+		for(int q = jcCURSORMISC; q < jcMAX; ++q)
+			jwin_pal[q] = dvc(t_cfg_def[q].get());
 		
 		for(int q = 1; q <= 8; ++q)
 		{
