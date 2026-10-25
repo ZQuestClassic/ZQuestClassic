@@ -56,7 +56,7 @@ float GetDebuggerDpiScale([[maybe_unused]] ALLEGRO_DISPLAY* display)
 	// GetDpiForWindow/GetDpiForSystem only exist on Windows 10 1607+, and
 	// importing them directly makes the exe fail to load on Windows 7 (which we
 	// still support). Resolve them from user32 at runtime; where they don't
-	// exist, don't scale.
+	// exist, don't scale. See docs/windows_support.md.
 	typedef UINT(WINAPI* GetDpiForWindowProc)(HWND);
 	typedef UINT(WINAPI* GetDpiForSystemProc)(void);
 	static auto get_dpi_for_window = reinterpret_cast<GetDpiForWindowProc>(
