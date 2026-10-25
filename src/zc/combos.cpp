@@ -119,46 +119,55 @@ static void calc_large_combo_handles(const combined_handle_t& base_handle,
 }
 
 // TRIGGERS STUFF
-bool trig_each_combo_trigger(const combined_handle_t& comb_handle, std::function<bool(combo_trigger const&)> trig_cond,
-	int32_t special, weapon* w)
+TriggerData& TriggerData::set_special(int32_t new_special)
 {
+	special = new_special;
+	return *this;
+}
+TriggerData& TriggerData::set_weapon(weapon* new_weapon)
+{
+	w = new_weapon;
+	return *this;
+}
+TriggerData& TriggerData::set_side_fx(std::function<void(combo_trigger const&)> const& new_side_fx)
+{
+	side_fx = new_side_fx;
+	return *this;
+}
+bool TriggerData::execute(const combined_handle_t& comb_handle) const
+{
+	if (!trig_cond_a && !trig_cond_b)
+		return false;
 	auto cid = comb_handle.data();
 	auto& cmb = comb_handle.combo();
 	bool ret = false;
 	for(size_t idx = 0; idx < cmb.triggers.size(); ++idx)
 	{
 		auto& trig = cmb.triggers[idx];
-		if(trig_cond(trig))
+		if (trig_cond_a && !trig_cond_a(trig))
+			continue;
+		if (trig_cond_b && !trig_cond_b(trig, idx))
+			continue;
+		ret = true;
+		if (do_trigger_combo(comb_handle, idx, special, w))
 		{
-			ret = true;
-			if(do_trigger_combo(comb_handle, idx, special, w))
-				if(trig.trigger_flags.get(TRIGFLAG_CANCEL_TRIGGER))
-					break;
-			if(comb_handle.data() != cid) break;
+			if (side_fx)
+				side_fx(trig);
+			if (trig.trigger_flags.get(TRIGFLAG_CANCEL_TRIGGER))
+				break;
 		}
+		if (comb_handle.data() != cid)
+			break;
 	}
 	return ret;
 }
-bool trig_each_combo_trigger(const combined_handle_t& comb_handle, std::function<bool(combo_trigger const&, size_t)> trig_cond,
-	int32_t special, weapon* w)
+
+static bool _ctype_causes_trig_cond(combo_trigger const& trig)
 {
-	auto cid = comb_handle.data();
-	auto& cmb = comb_handle.combo();
-	bool ret = false;
-	for(size_t idx = 0; idx < cmb.triggers.size(); ++idx)
-	{
-		auto& trig = cmb.triggers[idx];
-		if(trig_cond(trig, idx))
-		{
-			ret = true;
-			if(do_trigger_combo(comb_handle, idx, special, w))
-				if(trig.trigger_flags.get(TRIGFLAG_CANCEL_TRIGGER))
-					break;
-			if(comb_handle.data() != cid) break;
-		}
-	}
-	return ret;
+	return trig.trigger_flags.get(TRIGFLAG_CMBTYPECAUSES);
 }
+
+const TriggerData ctype_causes_trigger(_ctype_causes_trig_cond);
 
 bool alwaysCTypeEffects(int32_t type)
 {
@@ -2032,37 +2041,30 @@ void trigger_save(newcombo const& cmb, mapscr* scr)
 }
 
 static byte copycat_id = 0;
-static bool _copycat_trig_cond(combo_trigger const& trig)
-{
-	return trig.trigcopycat == copycat_id && !trig.trigger_flags.get(TRIGFLAG_NO_COPYCAT_CAUSE);
-}
-static bool do_copycat_trigger(const combined_handle_t& comb_handle)
-{
-	if(!copycat_id) return false;
-	
-	return trig_each_combo_trigger(comb_handle, _copycat_trig_cond);
-}
-
 static int copycat_skip_lyr = -1, copycat_skip_ffc = -1;
 static rpos_t copycat_skip_rpos = rpos_t::None;
 
 void trig_copycat(byte copyid)
 {
-	if(copycat_id)
+	if (copycat_id || !copyid)
 		return;
 	copycat_id = copyid;
+	
+	static TriggerData copycat_trigger([](combo_trigger const& trig){
+		return trig.trigcopycat == copycat_id && !trig.trigger_flags.get(TRIGFLAG_NO_COPYCAT_CAUSE);
+	});
 
 	for_every_rpos([&](const rpos_handle_t& cc_rpos_handle) {
 		if (cc_rpos_handle.layer == copycat_skip_lyr && cc_rpos_handle.rpos == copycat_skip_rpos)
 			return;
-		do_copycat_trigger(cc_rpos_handle);
+		copycat_trigger.execute(cc_rpos_handle);
 	});
 
 	if (!get_qr(qr_OLD_FFC_FUNCTIONALITY))
 	{
 		for_every_ffc([&](const ffc_handle_t& ffc_handle) {
 			if (ffc_handle.i != copycat_skip_ffc)
-				do_copycat_trigger(ffc_handle);
+				copycat_trigger.execute(ffc_handle);
 		});
 	}
 	copycat_id = 0;
@@ -2114,12 +2116,12 @@ static bool handle_large_combo_copycat(const combined_handle_t& handle, combo_tr
 		if (util::contains(large_copycat_ids[identifier], id))
 			return false; // prevent unwanted recursion
 		large_copycat_ids[identifier].push_back(id);
+		TriggerData large_copy_trigger = TriggerData([&, id](combo_trigger const& trig){
+			return trig.large_combo_copycat == id && trig.trigger_flags.get(TRIGFLAG_TRIGGERED_BY_LARGE_COMBO_COPYCAT);
+		}).set_weapon(w);
 		for (auto const& large_handle : handles)
 		{
-			trig_each_combo_trigger(large_handle, [&, id](combo_trigger const& trig)
-				{
-					return trig.large_combo_copycat == id && trig.trigger_flags.get(TRIGFLAG_TRIGGERED_BY_LARGE_COMBO_COPYCAT);
-				}, 0, w);
+			large_copy_trigger.execute(large_handle);
 		}
 		util::remove_if_exists(large_copycat_ids[identifier], id);
 		return true;
@@ -3261,15 +3263,6 @@ bool do_trigger_combo(const combined_handle_t& handle, size_t idx, int32_t speci
 	auto ret = _do_trigger_combo(handle, idx, special, w);
 	active_triggers.erase(data);
 	return ret;
-}
-
-static bool _ctype_causes_trig_cond(combo_trigger const& trig)
-{
-	return trig.trigger_flags.get(TRIGFLAG_CMBTYPECAUSES);
-}
-bool do_trigger_ctype_causes(const combined_handle_t& comb_handle)
-{
-	return trig_each_combo_trigger(comb_handle, _ctype_causes_trig_cond);
 }
 
 bool check_trig_conditions(const combined_handle_t& comb_handle, size_t idx)

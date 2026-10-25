@@ -9571,7 +9571,7 @@ heroanimate_skip_liftwpn:;
 			drownCombo = 0;
 			
 			if (comb_handle)
-				do_trigger_ctype_causes(*comb_handle);
+				ctype_causes_trigger.execute(*comb_handle);
 			go_respawn_point();
 		}
 		
@@ -9905,6 +9905,10 @@ heroanimate_skip_liftwpn:;
 	
 	// Global Combo Effects (AUTO STUFF)
 	bool awarp = false;
+	
+	TriggerData auto_trigger([](combo_trigger const& trig){
+		return trig.trigger_flags.get(TRIGFLAG_AUTOMATIC);
+	});
 	for_some_rpos([&](const rpos_handle_t& rpos_handle) {
 		if (!get_qr(qr_AUTOCOMBO_ANY_LAYER))
 		{
@@ -9915,9 +9919,7 @@ heroanimate_skip_liftwpn:;
 		int32_t ind=0;
 		
 		//AUTOMATIC TRIGGER CODE
-		trig_each_combo_trigger(rpos_handle, [&](combo_trigger const& trig){
-			return trig.trigger_flags.get(TRIGFLAG_AUTOMATIC);
-		});
+		auto_trigger.execute(rpos_handle);
 		newcombo const& cmb = rpos_handle.combo();
 		
 		//AUTO WARP CODE
@@ -9970,9 +9972,7 @@ heroanimate_skip_liftwpn:;
 	for_some_ffcs([&](const ffc_handle_t& ffc_handle) {
 		int32_t ind=0;
 		
-		trig_each_combo_trigger(ffc_handle, [&](combo_trigger const& trig){
-			return trig.trigger_flags.get(TRIGFLAG_AUTOMATIC);
-		});
+		auto_trigger.execute(ffc_handle);
 		auto& cmb = ffc_handle.combo();
 		
 		if(!(cmb.only_gentrig))
@@ -10769,6 +10769,9 @@ void HeroClass::land_on_ground()
 		played_land_sfx = true;
 	}
 
+	TriggerData land_here_trigger([](combo_trigger const& trig){
+		return trig.trigger_flags.get(TRIGFLAG_PLAYERLANDHERE);
+	});
 	for_each_rpos_stood_on([&](const rpos_handle_t& handle)
 		{
 			auto& cmb = handle.combo();
@@ -10778,27 +10781,21 @@ void HeroClass::land_on_ground()
 				sfx(csfx, pan(x));
 				played_land_sfx = true;
 			}
-			trig_each_combo_trigger(handle, [&](combo_trigger const& trig){
-				return trig.trigger_flags.get(TRIGFLAG_PLAYERLANDHERE);
-			});
+			land_here_trigger.execute(handle);
 		});
 	
 	if(!played_land_sfx && QMisc.miscsfx[sfxHERO_LANDS])
 		sfx(QMisc.miscsfx[sfxHERO_LANDS], pan(x));
 	
-	
+	TriggerData land_anywhere_trigger([](combo_trigger const& trig){
+		return trig.trigger_flags.get(TRIGFLAG_PLAYERLANDANYWHERE);
+	});
 	for_some_rpos([&](const rpos_handle_t& rpos_handle) {
-		trig_each_combo_trigger(rpos_handle, [&](combo_trigger const& trig){
-			return trig.trigger_flags.get(TRIGFLAG_PLAYERLANDANYWHERE);
-		});
-		
+		land_anywhere_trigger.execute(rpos_handle);
 		return true;
 	});
 	for_some_ffcs([&](const ffc_handle_t& ffc_handle) {
-		trig_each_combo_trigger(ffc_handle, [&](combo_trigger const& trig){
-			return trig.trigger_flags.get(TRIGFLAG_PLAYERLANDANYWHERE);
-		});
-		
+		land_anywhere_trigger.execute(ffc_handle);
 		return true;
 	});
 }
@@ -13043,11 +13040,11 @@ bool HeroClass::doattack()
 
 						vector<int> trigflags = {TRIGFLAG_QUAKESTUN};
 						if(super) trigflags.push_back(TRIGFLAG_SQUAKESTUN);
-						trig_each_combo_trigger(handle, [&](combo_trigger const& trig){
+						TriggerData([&](combo_trigger const& trig){
 							if(!trig.trigger_flags.any(trigflags)) return false;
 							return (trig.trigger_flags.get(TRIGFLAG_INVERTMINMAX)
 								? hmrlvl <= trig.triggerlevel : hmrlvl >= trig.triggerlevel);
-						});
+						}).execute(handle);
 					});
 				}
 			}
@@ -13169,12 +13166,13 @@ bool isRaftFlag(int32_t flag)
 void handle_lens_triggers(int32_t l_id)
 {
 	bool enabled = valid_item_id(l_id) && (itemsbuf.get(l_id).flags & item_flag6);
+	TriggerData lens_trigger([&](combo_trigger const& trig){
+		return trig.trigger_flags.get(enabled ? TRIGFLAG_LENSON : TRIGFLAG_LENSOFF);
+	});
 	for_every_combo([&](const auto& handle) {
 		if (handle.combo().triggers.empty())
 			return;
-		trig_each_combo_trigger(handle, [&](combo_trigger const& trig){
-			return trig.trigger_flags.get(enabled ? TRIGFLAG_LENSON : TRIGFLAG_LENSOFF);
-		});
+		lens_trigger.execute(handle);
 	});
 }
 
@@ -14226,7 +14224,7 @@ bool HeroClass::pitfall()
 				lstunclock = stun_timer;
 			
 			if(comb_handle)
-				do_trigger_ctype_causes(*comb_handle);
+				ctype_causes_trigger.execute(*comb_handle);
 			
 			if(warp) //Warp
 			{
@@ -20099,7 +20097,7 @@ void HeroClass::finish_auto_walk()
 	{
 		auto& cmb = autowalk_handle.combo();
 		if(cmb.type == cCUTSCENEEFFECT && cmb.c_attributes[8].getTrunc() == CUTEFF_PLAYER_WALK)
-			do_trigger_ctype_causes(autowalk_handle);
+			ctype_causes_trigger.execute(autowalk_handle);
 	}
 	autowalk_handle = rpos_handle_t();
 	autowalk_combo_id = -1;
@@ -21767,13 +21765,14 @@ void HeroClass::checkgenpush(rpos_t rpos)
 	if (rpos == rpos_t::None)
 		return;
 
+	TriggerData push_trigger([&](combo_trigger const& trig){
+		if(!trig.trigger_flags.get(TRIGFLAG_PUSH)) return false;
+		return pushing && !(pushing % zc_max(1,trig.trig_pushtime));
+	});
 	for (int layer = 0; layer < 7; ++layer)
 	{
 		auto rpos_handle = get_rpos_handle(rpos, layer);
-		trig_each_combo_trigger(rpos_handle, [&](combo_trigger const& trig){
-			if(!trig.trigger_flags.get(TRIGFLAG_PUSH)) return false;
-			return pushing && !(pushing % zc_max(1,trig.trig_pushtime));
-		});
+		push_trigger.execute(rpos_handle);
 	}
 }
 
@@ -21816,13 +21815,14 @@ void HeroClass::checkgenpush()
 
 	if (!get_qr(qr_OLD_FFC_FUNCTIONALITY))
 	{
+		TriggerData push_trigger([&](combo_trigger const& trig){
+			if(!trig.trigger_flags.get(TRIGFLAG_PUSH)) return false;
+			return pushing && !(pushing % zc_max(1,trig.trig_pushtime));
+		});
 		for_some_ffcs([&](const ffc_handle_t& ffc_handle) {
 			if (ffcIsAt(ffc_handle, bx, by) || ffcIsAt(ffc_handle, bx2, by2))
 			{
-				trig_each_combo_trigger(ffc_handle, [&](combo_trigger const& trig){
-					if(!trig.trigger_flags.get(TRIGFLAG_PUSH)) return false;
-					return pushing && !(pushing % zc_max(1,trig.trig_pushtime));
-				});
+				push_trigger.execute(ffc_handle);
 			}
 			return true;
 		});
@@ -22067,13 +22067,13 @@ endsigns:
 		comb_handle = get_rpos_handle_for_world_xy(fx, fy, found_lyr);
 	if(foundffc)
 		comb_handle = foundffc.value();
-	did_trigger = trig_each_combo_trigger(comb_handle, [&](combo_trigger const& trig, size_t idx){
+	did_trigger = TriggerData([&](combo_trigger const& trig, size_t idx){
 		if(!trig.trigger_flags.get(dir_trigflag)) return false;
 		found_a_trigger_dir = true;
 		auto& trig_data = cpos.trig_data.get(idx);
 		if(fx != -1 && fy != -1 && trig_data.cooldown) return false;
 		return trig.triggerbtn && (getIntBtnInput(trig.triggerbtn, INPUT_PRESS | INPUT_DRUNK) || checkIntBtnVal(trig.triggerbtn, signInput));
-	});
+	}).execute(comb_handle);
 	if(!found_a_trigger_dir || didprompt || did_trigger)
 		return;
 	else if(cmb.type == cBUTTONPROMPT)
@@ -22787,11 +22787,11 @@ void HeroClass::handleSpotlights()
 		}
 		else if (!cmb.triggers.empty())
 		{
-			trig_each_combo_trigger(rpos_handle, [&](combo_trigger const& trig){
+			TriggerData([&](combo_trigger const& trig){
 				int32_t trigflag = lbeam_flag(trig.triglbeam);
 				bool trigged = (beam_world.istrig[(int)rpos_handle.rpos]&trigflag);
 				return trig.trigger_flags.get(trigged ? TRIGFLAG_LIGHTON : TRIGFLAG_LIGHTOFF);
-			});
+			}).execute(rpos_handle);
 		}
 	});
 
@@ -22829,11 +22829,11 @@ void HeroClass::handleSpotlights()
 		}
 		else
 		{
-			trig_each_combo_trigger(ffc_handle, [&](combo_trigger const& trig){
+			TriggerData([&](combo_trigger const& trig){
 				int32_t trigflag = lbeam_flag(trig.triglbeam);
 				bool trigged = (beam_world.istrig[(int)rpos]&trigflag);
 				return trig.trigger_flags.get(trigged ? TRIGFLAG_LIGHTON : TRIGFLAG_LIGHTOFF);
-			});
+			}).execute(ffc_handle);
 		}
 	});
 
@@ -23091,6 +23091,9 @@ int32_t HeroClass::nextflag(int32_t cx, int32_t cy, int32_t cdir, bool comboflag
 void HeroClass::checkspecial()
 {
     checktouchblk();
+	static TriggerData enemies_dead_trigger([](combo_trigger const& trig){
+		return trig.trigger_flags.get(TRIGFLAG_ENEMIESKILLED);
+	});
 
 	for_every_base_screen_in_region([&](mapscr* scr, unsigned int region_scr_x, unsigned int region_scr_y) {
 		int screen = scr->screen;
@@ -23106,9 +23109,7 @@ void HeroClass::checkspecial()
 
 			// generic 'Enemies->' trigger
 			for_every_combo_in_screen(create_screen_handles(scr), [&](const auto& handle) {
-				trig_each_combo_trigger(handle, [&](combo_trigger const& trig){
-					return trig.trigger_flags.get(TRIGFLAG_ENEMIESKILLED);
-				});
+				enemies_dead_trigger.execute(handle);
 			});
 
 			if (scr->flags9 & fENEMY_WAVES)
@@ -23801,6 +23802,24 @@ void HeroClass::checkspecial2(int32_t *ls)
 		int32_t yPoses[4] = {ty + 4, ty + 11, ty+(bigHitbox?0:8), ty + 15};
 		
 		bool foundNonStep = false;
+		TriggerData any_step_or_swim_trigger([](combo_trigger const& trig){
+			return trig.trigger_flags.any({TRIGFLAG_STEP,TRIGFLAG_STEPSENS,TRIGFLAG_SWIMTRIG,TRIGFLAG_SWIMSENSTRIG});
+		});
+		TriggerData any_step_trigger([](combo_trigger const& trig){
+			return trig.trigger_flags.any({TRIGFLAG_STEP,TRIGFLAG_STEPSENS});
+		});
+		TriggerData sens_step_or_swim_trigger([](combo_trigger const& trig){
+			return trig.trigger_flags.any({TRIGFLAG_STEPSENS,TRIGFLAG_SWIMSENSTRIG});
+		});
+		TriggerData sens_step_trigger([](combo_trigger const& trig){
+			return trig.trigger_flags.any({TRIGFLAG_STEPSENS});
+		});
+		TriggerData nonsens_step_or_swim_trigger([](combo_trigger const& trig){
+			return trig.trigger_flags.any({TRIGFLAG_STEP,TRIGFLAG_SWIMTRIG});
+		});
+		TriggerData nonsens_step_trigger([](combo_trigger const& trig){
+			return trig.trigger_flags.any({TRIGFLAG_STEP});
+		});
 		bool swim_triggers = isSwimming();
 		for (auto [rpos, lyrbits] : stepRposes)
 		{
@@ -23846,10 +23865,7 @@ void HeroClass::checkspecial2(int32_t *ls)
 				if (!(lyrbits & (1 << lyr)))
 					continue;
 				auto rpos_handle = get_rpos_handle(rpos, lyr);
-				bool did_trig = !foundNonStep && trig_each_combo_trigger(rpos_handle, [&](combo_trigger const& trig){
-					return trig.trigger_flags.get(TRIGFLAG_STEP) ||
-						(swim_triggers && trig.trigger_flags.get(TRIGFLAG_SWIMTRIG));
-				});
+				bool did_trig = !foundNonStep && (swim_triggers ? nonsens_step_or_swim_trigger : nonsens_step_trigger).execute(rpos_handle);
 				if (did_trig && sensRposes.contains(rpos))
 					sensRposes[rpos] &= ~(1 << lyr); // don't trigger this layer/pos again
 			}
@@ -23861,10 +23877,7 @@ void HeroClass::checkspecial2(int32_t *ls)
 				if (!(lyrbits & (1 << lyr)))
 					continue;
 				auto rpos_handle = get_rpos_handle(rpos, lyr);
-				trig_each_combo_trigger(rpos_handle, [&](combo_trigger const& trig){
-					return trig.trigger_flags.get(TRIGFLAG_STEPSENS)
-						|| (swim_triggers && trig.trigger_flags.get(TRIGFLAG_SWIMSENSTRIG));
-				});
+				(swim_triggers ? sens_step_or_swim_trigger : sens_step_trigger).execute(rpos_handle);
 			}
 		}
 
@@ -23882,10 +23895,7 @@ void HeroClass::checkspecial2(int32_t *ls)
 			}
 			if (found)
 			{
-				trig_each_combo_trigger(ffc_handle, [&](combo_trigger const& trig){
-					return trig.trigger_flags.any({TRIGFLAG_STEP,TRIGFLAG_STEPSENS})
-						|| (swim_triggers && trig.trigger_flags.any({TRIGFLAG_SWIMTRIG,TRIGFLAG_SWIMSENSTRIG}));
-				});
+				(swim_triggers ? any_step_or_swim_trigger : any_step_trigger).execute(ffc_handle);
 			}
 		});
 	}
@@ -23898,14 +23908,18 @@ void HeroClass::checkspecial2(int32_t *ls)
 		int yposes[] = {y1,y2,y1,y2};
 		auto rposes = getRposes(x1,y1,x2,y2);
 		bool hit_center_bridge = false;
+		TriggerData dive_trigger([](combo_trigger const& trig){
+			return trig.trigger_flags.get(TRIGFLAG_DIVETRIG);
+		});
+		TriggerData dive_sens_trigger([](combo_trigger const& trig){
+			return trig.trigger_flags.get(TRIGFLAG_DIVESENSTRIG);
+		});
 		for(auto lyr = 6; lyr >= 0; --lyr)
 		{
 			auto rpos_handle = get_rpos_handle(crpos, lyr);
 			if (!hit_center_bridge)
 			{
-				bool didtrig = trig_each_combo_trigger(rpos_handle, [&](combo_trigger const& trig){
-					return trig.trigger_flags.get(TRIGFLAG_DIVETRIG);
-				});
+				bool didtrig = dive_trigger.execute(rpos_handle);
 				if (didtrig)
 					rposes[crpos] &= ~(1 << lyr);
 				if (has_bridge_at(x+8, y+8, lyr))
@@ -23916,26 +23930,22 @@ void HeroClass::checkspecial2(int32_t *ls)
 				if (!(lyrbits & (1 << lyr))) continue;
 
 				auto rpos_handle_2 = get_rpos_handle(rpos, lyr);
-				trig_each_combo_trigger(rpos_handle_2, [&](combo_trigger const& trig){
-					return trig.trigger_flags.get(TRIGFLAG_DIVESENSTRIG);
-				});
+				dive_sens_trigger.execute(rpos_handle_2);
 			}
 		}
 
 		for_every_ffc([&](const ffc_handle_t& ffc_handle) {
 			if(ffcIsAt(ffc_handle, x+8, y+8))
 			{
-				if(trig_each_combo_trigger(ffc_handle, [&](combo_trigger const& trig){
-					return trig.trigger_flags.get(TRIGFLAG_DIVETRIG);
-				})) return;
+				if (dive_trigger.execute(ffc_handle))
+					return;
 			}
 			for(auto q = 0; q < 4; ++q)
 			{
 				if(ffcIsAt(ffc_handle, xposes[q], yposes[q]))
 				{
-					if(trig_each_combo_trigger(ffc_handle, [&](combo_trigger const& trig){
-						return trig.trigger_flags.get(TRIGFLAG_DIVESENSTRIG);
-					})) break;
+					if (dive_sens_trigger.execute(ffc_handle))
+						break;
 				}
 			}
 		});
