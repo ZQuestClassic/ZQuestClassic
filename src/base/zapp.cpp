@@ -2,6 +2,7 @@
 
 #include "base/about.h"
 #include "base/version.h"
+#include "base/win_encoding.h"
 #include "fmt/ranges.h"
 #include <filesystem>
 #include <optional>
@@ -161,10 +162,9 @@ static std::string get_exe_folder_path()
 	std::string path;
 
 #ifdef _WIN32
-	wchar_t wc[260] = {0};
-	GetModuleFileNameW(NULL, wc, 260);
-	std::wstring ws(wc);
-	std::transform(ws.begin(), ws.end(), std::back_inserter(path), [](wchar_t c) { return (char)c; });
+	wchar_t wc[MAX_PATH] = {0};
+	GetModuleFileNameW(NULL, wc, MAX_PATH);
+	path = util::wide_to_utf8(wc);
 	std::replace(path.begin(), path.end(), '\\', '/');
 #elif defined(__APPLE__)
 	char buf[PATH_MAX] = {0};
@@ -254,8 +254,15 @@ void common_main_setup(App id, int argc_, char **argv_)
 		}
 #else
 		std::string new_cwd = zapp_get_exe_folder_path();
+#ifdef _WIN32
+		// The path is UTF-8, which chdir would read in the ANSI code page before Windows 10 1903.
+		// See docs/windows_support.md.
+		std::error_code ec;
+		fs::current_path(util::utf8_to_wide(new_cwd), ec);
+#else
 		if (fs::current_path().string() != new_cwd)
 			chdir(new_cwd.c_str());
+#endif
 #endif
 	}
 

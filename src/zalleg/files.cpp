@@ -93,8 +93,8 @@ static std::vector<filteritem_t> create_filter_list(std::string ext, EXT_LIST *l
 	return result;
 }
 
-// TODO: while this function supports loading utf8 filenames (i think), the rest of ZC doesn't (at least not on Windows).
-// One example of an issue is gme_load_file which uses fopen.
+// Returns a UTF-8 path. On Windows, the rest of ZC can use it with narrow-char APIs like fopen
+// only because src/windows.manifest sets the process code page to UTF-8.
 static nfdresult_t open_native_dialog_impl(FileMode mode, std::string initial_path, std::vector<nfdfilteritem_t> filters, std::string& path)
 {
 #ifdef _WIN32

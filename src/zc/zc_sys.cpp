@@ -23,6 +23,7 @@
 #include <sstream>
 #include "base/about.h"
 #include "base/version.h"
+#include "base/win_encoding.h"
 #include "gamedata.h"
 #include "zc/debugger/debugger.h"
 #include "zc/frame_timings.h"
@@ -349,7 +350,9 @@ void load_game_configs()
 	clearConsoleOnLoad = zc_get_config("CONSOLE","clear_console_on_load",1)!=0;
 	clearConsoleOnReload = zc_get_config("CONSOLE","clear_console_on_reload",0)!=0;
 
-	strcpy(qstdir,zc_get_config(cfg_sect,"quest_dir","quests"));
+	std::string quest_dir = zc_get_config(cfg_sect,"quest_dir","quests");
+	util::legacy_path_to_utf8(quest_dir);
+	strcpy(qstdir,quest_dir.c_str());
 	strcpy(qstpath,qstdir); //qstpath is the local (for this run of ZC) quest path, qstdir is the universal quest dir.
 	ss_enable = zc_get_config(cfg_sect, "ss_enable", 0) != 0;
 	ss_seconds = zc_get_config(cfg_sect,"ss_seconds", 5 * 60);
