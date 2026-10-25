@@ -50,7 +50,8 @@ class Viewport {
 	// the viewport does not move horizontally; once it pushes past an edge of the box, the
 	// viewport moves just enough to keep it on the edge.
 	//
-	// 0 (the default) keeps the viewport locked to the target. Only observable in scrolling
+	// 0 keeps the viewport locked to the target, which is the default for quests made before
+	// this setting existed; new quests start with a 32 by 32 box. Only observable in scrolling
 	// regions. One of the follow settings; see the class notes for how it is configured and
 	// reset.
 	//

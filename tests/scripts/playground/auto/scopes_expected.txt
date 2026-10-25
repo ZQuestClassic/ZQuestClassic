@@ -2738,8 +2738,8 @@ RETURNFUNC; Func[int Text::MessageWidth(int)] Body End                          
 POP D2; Func[int Text::MessageHeight(int)] Body Start                           | 2709 resources/include/bindings/text.zh:67
 MESSAGEHEIGHTR D2                                                               | 2710 resources/include/bindings/text.zh:67
 RETURNFUNC; Func[int Text::MessageHeight(int)] Body End                         | 2711 resources/include/bindings/text.zh:67
-VIEWPORT_RESET_FOLLOW_SETTINGS; Func[void Viewport::ResetFollowSettings()] Body Start | 2712 resources/include/bindings/viewport.zh:160
-RETURNFUNC; Func[void Viewport::ResetFollowSettings()] Body End                 | 2713 resources/include/bindings/viewport.zh:160
+VIEWPORT_RESET_FOLLOW_SETTINGS; Func[void Viewport::ResetFollowSettings()] Body Start | 2712 resources/include/bindings/viewport.zh:161
+RETURNFUNC; Func[void Viewport::ResetFollowSettings()] Body End                 | 2713 resources/include/bindings/viewport.zh:161
 SETV D2 0; Func[Thing Thing::Thing()] Body Start                                | 2714 tests/scripts/playground/auto/global_objects.zs:3
 SETR CLASS_THISKEY2 CLASS_THISKEY                                               | 2715 tests/scripts/playground/auto/global_objects.zs:3
 ZCLASS_CONSTRUCT CLASS_THISKEY {0.0003,0.0005}                                  | 2716 tests/scripts/playground/auto/global_objects.zs:3

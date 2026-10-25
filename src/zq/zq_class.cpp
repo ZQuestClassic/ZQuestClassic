@@ -6148,6 +6148,10 @@ int32_t init_quest(std::string tileset_path)
     set_window_title("ZC Editor - Untitled Quest");
     zinit.last_map = 0;
     zinit.last_screen = 0;
+    // New quests start with a small viewport deadzone (one tile each way from the center). Existing
+    // quests, and the tilesets new quests are built from, predate the setting and load with none.
+    zinit.viewport_follow.deadzone_w = 32;
+    zinit.viewport_follow.deadzone_h = 32;
 
     if(bmap != NULL)
     {
