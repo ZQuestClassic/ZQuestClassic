@@ -799,6 +799,8 @@ if(WANT_ZC_TESTS)
 		src/base/zfix_test.cpp
 		src/base/containers_test.cpp
 		src/base/util_test.cpp
+		src/base/process_management_test.cpp
+		src/base/win_encoding_test.cpp
 		src/zalleg/lzss_test.cpp
 		src/core/msgstr_test.cpp
 		src/core/msgstr.cpp

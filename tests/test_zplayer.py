@@ -6,7 +6,9 @@
 
 import os
 import platform
+import shutil
 import sys
+import tempfile
 import unittest
 
 from pathlib import Path
@@ -56,6 +58,21 @@ class TestZPlayer(unittest.TestCase):
                 lines = p.stdout.splitlines()
                 for expected in expected_lines:
                     self.assertIn(expected, lines)
+
+    def test_non_ascii_quest_path(self):
+        # On Windows, narrow-char APIs (argv, fopen, ...) read paths in the process code
+        # page, which src/windows.manifest sets to UTF-8. Without it these fail to load:
+        # 'クエスト' isn't in any Western code page.
+        if 'emscripten' in str(run_target.get_build_folder()):
+            raise unittest.SkipTest('skipping test because emscripten')
+
+        with tempfile.TemporaryDirectory() as tmp:
+            for folder in ['Créateur', 'クエスト']:
+                with self.subTest(msg=folder):
+                    qst = Path(tmp) / folder / 'playground.qst'
+                    qst.parent.mkdir()
+                    shutil.copy(root_dir / 'tests/replays/playground/playground.qst', qst)
+                    run_target.check_run('zplayer', ['-headless', '-dump-qrs', str(qst)])
 
     def test_base_test_runner(self):
         if 'emscripten' in str(run_target.get_build_folder()):
