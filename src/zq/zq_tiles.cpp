@@ -623,6 +623,30 @@ void little_x(BITMAP *dest, int32_t x, int32_t y, int32_t c, int32_t w, int32_t 
 	line(dest,x+w,y,x,y+h,c);
 }
 
+// The color used to mark transparent pixels: the inverse of color 'index', snapped to the
+// nearest of the fixed VGA colors. Searching the whole palette (makecol8) could return the
+// editor dialog's transparent index (0xFF), making the marks see-through.
+static int get_inverse_color(PALETTE pal, int index)
+{
+	int r = 255 - pal[index].r;
+	int g = 255 - pal[index].g;
+	int b = 255 - pal[index].b;
+	int best = vc(0);
+	int best_dist = INT_MAX;
+	for (int q = 0; q < 16; ++q)
+	{
+		RGB const& c = pal[vc(q)];
+		int dr = c.r - r, dg = c.g - g, db = c.b - b;
+		int dist = dr*dr + dg*dg + db*db;
+		if (dist < best_dist)
+		{
+			best = vc(q);
+			best_dist = dist;
+		}
+	}
+	return best;
+}
+
 enum {gm_light, gm_dark, gm_max};
 int32_t gridmode=gm_light;
 
@@ -2128,14 +2152,7 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 	
 	get_palette(tpal);
 	
-	if(newtilebuf[tile].format==tf4Bit)
-	{
-		invcol=makecol8(255 - tpal[CSET(cs)].r, 255 - tpal[CSET(cs)].g, 255 - tpal[CSET(cs)].b);
-	}
-	else
-	{
-		invcol=makecol8(255 - tpal[0].r, 255 - tpal[0].g, 255 - tpal[0].b);
-	}
+	invcol = get_inverse_color(tpal, newtilebuf[tile].format==tf4Bit ? CSET(cs) : 0);
 	
 	zc_set_palette(tpal);
 	draw_edit_scr(tile,flip,cs,oldtile, true);
@@ -2868,14 +2885,7 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 					colors_menu.pop(edit_button.x+2,edit_button.y-40);
 					get_palette(tpal);
 					
-					if(newtilebuf[tile].format==tf4Bit)
-					{
-						invcol=makecol8(255 - tpal[CSET(cs)].r, 255 - tpal[CSET(cs)].g, 255 - tpal[CSET(cs)].b);
-					}
-					else
-					{
-						invcol=makecol8(255 - tpal[0].r, 255 - tpal[0].g, 255 - tpal[0].b);
-					}
+					invcol = get_inverse_color(tpal, newtilebuf[tile].format==tf4Bit ? CSET(cs) : 0);
 					
 					redraw=true;
 				}
