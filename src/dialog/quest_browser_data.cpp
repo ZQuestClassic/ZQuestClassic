@@ -1,6 +1,7 @@
 #include "dialog/quest_browser_data.h"
 #include "dialog/quest_browser.h"
 #include "base/version.h"
+#include "base/win_encoding.h"
 #include "base/zapp.h"
 #include "zc/ffscript.h"
 #include "base/misctypes.h"
@@ -344,7 +345,9 @@ bool cache_dirty = false;
 // quest_dir; users can point it elsewhere).
 std::string quest_folder()
 {
-	return zc_get_config("zeldadx", "quest_dir", "quests", App::zelda);
+	std::string path = zc_get_config("zeldadx", "quest_dir", "quests", App::zelda);
+	util::legacy_path_to_utf8(path);
+	return path;
 }
 
 bool stat_file(std::string const& path, uint64_t& mtime, uint64_t& size)
@@ -464,7 +467,10 @@ std::vector<std::string> load_imported_paths()
 		std::string key = fmt::format("imported_{}", i);
 		char const* str = zc_get_config(CFG_SECTION, key.c_str(), "");
 		if (str && str[0])
+		{
 			paths.push_back(str);
+			util::legacy_path_to_utf8(paths.back());
+		}
 	}
 	return paths;
 }
@@ -506,6 +512,7 @@ void load_cache(std::map<std::string, Entry>& out)
 
 		Entry e;
 		e.path = fields[0];
+		util::legacy_path_to_utf8(e.path);
 		e.mtime = strtoull(fields[1].c_str(), nullptr, 10);
 		e.size = strtoull(fields[2].c_str(), nullptr, 10);
 		// Cleaned on load too, covering cache entries written before
@@ -875,7 +882,10 @@ void gather()
 		std::string key = fmt::format("rec_qst_{}", i);
 		char const* str = zc_get_config("recent", key.c_str(), "");
 		if (str && str[0] && strcmp(str, "---") != 0)
+		{
 			found.emplace_back(str, i);
+			util::legacy_path_to_utf8(found.back().first);
+		}
 	}
 
 	// Everything in the quests folder (shipped next to the app by default).
