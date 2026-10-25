@@ -10,6 +10,7 @@
 #include <sstream>
 
 #include "base/files.h"
+#include "base/win_encoding.h"
 #include "md5.h"
 #include "base/qrs.h"
 #include "base/dmap.h"
@@ -3989,6 +3990,7 @@ static void load_replay_file(ReplayMode mode, std::string replay_file, int frame
 	}
 
 	std::string qst_meta = replay_get_meta_str("qst");
+	util::legacy_path_to_utf8(qst_meta);
 	testingqst_name = qst_meta;
 	// If the path resolved relative to the .zplay file exists, use that instead.
 	if (!std::filesystem::path(qst_meta).is_absolute())

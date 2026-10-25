@@ -1,7 +1,9 @@
 #include "base/process_management.h"
 #include "base/util.h"
+#include "base/win_encoding.h"
 #include "base/zapp.h"
 #include <fmt/format.h>
+#include <fmt/ranges.h>
 #include <sstream>
 
 #ifndef _WIN32
@@ -307,20 +309,28 @@ static std::vector<char*> create_argv_unix(std::string file, const std::vector<s
 }
 
 #ifdef _WIN32
+// Launching with the wide-char API gives a child process its arguments in whatever code page it
+// uses. Each part is converted on its own, since they can come from different sources (and so,
+// before Windows 10 1903, different code pages). See docs/windows_support.md.
+static std::wstring create_command_line(const std::string& file, const std::vector<std::string>& args)
+{
+	std::wstring cmd = L"\"" + util::utf8_to_wide(file) + L"\"";
+	for (auto& arg : args)
+		cmd += L" \"" + util::utf8_to_wide(arg) + L"\"";
+	return cmd;
+}
+
 /******************************************************************
 * https://groups.google.com/g/microsoft.public.win32.programmer.kernel/c/5UX78EXhyz0/m/oA-_hfk3_A0J
 *
-* BOOL RunOneShot(UseDos, szCmd)
+* BOOL RunOneShot(file, args, output)
 *
 * Spawn a child process and capture the redirect output.
-*
-* UseDos = Set TRUE to use OS command interpreter
-* cmd = command to run (if DOS command, set UseDos=TRUE)
 *
 * return TRUE if successful. Otherwise FALSE, read extended error.
 ******************************************************************/
 
-BOOL RunOneShot(const char *szCmd, const BOOL UseDos, std::string& output) {
+BOOL RunOneShot(const std::string& file, const std::vector<std::string>& args, std::string& output) {
   SECURITY_ATTRIBUTES sa;
   ZeroMemory(&sa, sizeof(sa));
   sa.nLength = sizeof(sa);
@@ -358,7 +368,7 @@ BOOL RunOneShot(const char *szCmd, const BOOL UseDos, std::string& output) {
   // setup startup info, set std out/err handles
   // hide window
 
-  STARTUPINFO si;
+  STARTUPINFOW si;
   ZeroMemory(&si, sizeof(si));
   si.cb = sizeof(si);
   if (hOut != INVALID_HANDLE_VALUE) {
@@ -368,22 +378,15 @@ BOOL RunOneShot(const char *szCmd, const BOOL UseDos, std::string& output) {
     si.wShowWindow = SW_HIDE;
   }
 
-  // use the current OS comspec for DOS commands, i.e., DIR
-
-  char cmd[MAX_PATH] = {0};
-  if (UseDos) {
-    strcpy(cmd, getenv("comspec"));
-    strcat(cmd, " /c ");
-  }
-  strcat(cmd, szCmd);
-  printf("-Process: %s\n", cmd);
+  printf("-Process: \"%s\" %s\n", file.c_str(), fmt::format("{}", fmt::join(args, " ")).c_str());
+  std::wstring wcmd = create_command_line(file, args);
 
   PROCESS_INFORMATION pi;
   ZeroMemory(&pi, sizeof(pi));
 
   DWORD dwFlags = CREATE_NO_WINDOW; // NT/2000 only
 
-  if (!CreateProcess(NULL, (char *)cmd, NULL, NULL, TRUE, dwFlags, NULL, NULL,
+  if (!CreateProcessW(NULL, wcmd.data(), NULL, NULL, TRUE, dwFlags, NULL, NULL,
                      &si, &pi)) {
 
     int err = GetLastError(); // preserve the CreateProcess error
@@ -449,20 +452,13 @@ std::string locate_zapp_file(std::string const& file)
 process_killer launch_process(std::string file, const std::vector<std::string>& args)
 {
 #ifdef _WIN32
-	STARTUPINFO si;
-	PROCESS_INFORMATION pi;
+	STARTUPINFOW si;
+	PROCESS_INFORMATION pi{};
 
-	char path_buf[2048];
-	sprintf(path_buf, "\"%s\"", file.c_str());
-	for (auto q : args)
-	{
-		strcat(path_buf, " \"");
-		strcat(path_buf, q.c_str());
-		strcat(path_buf, "\"");
-	}
-
-	GetStartupInfo(&si);
-	CreateProcess(NULL,path_buf,NULL,NULL,FALSE,CREATE_NEW_CONSOLE,NULL,NULL,&si,&pi);
+	std::wstring cmd = create_command_line(file, args);
+	GetStartupInfoW(&si);
+	if (!CreateProcessW(NULL,cmd.data(),NULL,NULL,FALSE,CREATE_NEW_CONSOLE,NULL,NULL,&si,&pi))
+		zprint2("[PROCESS_LAUNCH: '%s' ERROR %d]: Failed to create process\n", file.c_str(), (int)GetLastError());
 	return process_killer(pi.hProcess);
 #else
 	std::vector<char*> argv = create_argv_unix(file, args);
@@ -528,27 +524,20 @@ process_manager* launch_piped_process(std::string file, std::string pipename, co
 	
 	
 	PROCESS_INFORMATION pi;
-	STARTUPINFO si;
+	STARTUPINFOW si;
 	BOOL bSuccess = FALSE;
 	
 	ZeroMemory(&pi,sizeof(PROCESS_INFORMATION));
-	ZeroMemory(&si,sizeof(STARTUPINFO));
-	si.cb = sizeof(STARTUPINFO);
+	ZeroMemory(&si,sizeof(STARTUPINFOW));
+	si.cb = sizeof(STARTUPINFOW);
 	
 	si.hStdError = pm->re_2;
 	si.hStdOutput = pm->re_2;
 	si.hStdInput = pm->wr_2;
 	si.dwFlags |= STARTF_USESTDHANDLES;
-	char path_buf[2048];
-	sprintf(path_buf, "\"%s\"", file.c_str());
-	for (auto q : args)
-	{
-		strcat(path_buf, " \"");
-		strcat(path_buf, q.c_str());
-		strcat(path_buf, "\"");
-	}
-	bSuccess = CreateProcess(NULL, 
-		(LPSTR)path_buf, // command line 
+	std::wstring cmd = create_command_line(file, args);
+	bSuccess = CreateProcessW(NULL, 
+		cmd.data(), // command line 
 		NULL,          // process security attributes 
 		NULL,          // primary thread security attributes 
 		TRUE,          // handles are inherited 
@@ -645,15 +634,7 @@ bool run_and_get_output(std::string file, const std::vector<std::string>& args, 
 	output = result.str();
 	return true;
 #else
-	char path_buf[2048];
-	sprintf(path_buf, "\"%s\"", file.c_str());
-	for (auto q : args)
-	{
-		strcat(path_buf, " \"");
-		strcat(path_buf, q.c_str());
-		strcat(path_buf, "\"");
-	}
-	return RunOneShot(path_buf, false, output);
+	return RunOneShot(file, args, output);
 #endif
 }
 

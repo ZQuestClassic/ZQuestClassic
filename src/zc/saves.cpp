@@ -8,6 +8,7 @@
 #include "base/dmap.h"
 #include "qst.h"
 #include "base/util.h"
+#include "base/win_encoding.h"
 #include "base/zapp.h"
 #include "base/zdefs.h"
 #include "base/zsys.h"
@@ -66,7 +67,9 @@ static fs::path get_legacy_save_file_path()
 
 static fs::path get_save_folder_path()
 {
-	return zc_get_config("zeldadx", "save_folder", "saves");
+	std::string path = zc_get_config("zeldadx", "save_folder", "saves");
+	util::legacy_path_to_utf8(path);
+	return path;
 }
 
 static fs::path get_save_order_path()
@@ -564,6 +567,7 @@ static int32_t read_saves(ReadMode read_mode, PACKFILE* f, std::vector<save_t>& 
 
 		// Convert path separators so save files work across platforms (hopefully)
 		regulate_path(game.header.qstpath);
+		util::legacy_path_to_utf8(game.header.qstpath);
 		
 		if(!pfread(game.header.icon,sizeof(game.header.icon),f))
 		{
@@ -988,6 +992,7 @@ static int32_t read_saves(ReadMode read_mode, PACKFILE* f, std::vector<save_t>& 
 		{
 			if (!p_getwstr(&game.header.replay_file, f))
 				return 80;
+			util::legacy_path_to_utf8(game.header.replay_file);
 		}
 		else
 		{

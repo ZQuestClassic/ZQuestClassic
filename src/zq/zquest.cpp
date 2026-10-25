@@ -27,6 +27,7 @@
 #include "base/packfile.h"
 #include "base/cpool.h"
 #include "base/autocombo.h"
+#include "base/win_encoding.h"
 #include "zq/autocombo/autopattern_base.h"
 #include "zq/autocombo/pattern_basic.h"
 #include "zq/autocombo/pattern_flatmtn.h"
@@ -917,7 +918,9 @@ void load_recent_quests()
 		char const* qst_str = zc_get_config("recent",configname,nullptr);
 		if(qst_str[0])
 		{
-			strncpy(rec_menu_fullpaths[q], qst_str, 511);
+			std::string qst_path = qst_str;
+			util::legacy_path_to_utf8(qst_path);
+			strncpy(rec_menu_fullpaths[q], qst_path.c_str(), 511);
 			snprintf(buf, sizeof(buf), "%s", relativize_path(std::string(rec_menu_fullpaths[q])).c_str());
 			if(strlen(buf) > 62)
 			{
