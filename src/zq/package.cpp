@@ -1,5 +1,6 @@
 #include "zq/package.h"
 #include "base/util.h"
+#include "base/win_encoding.h"
 #include "zalleg/zalleg.h"
 #include <allegro5/allegro.h>
 #include <fmt/format.h>
@@ -94,21 +95,23 @@ static bool set_icon(std::wstring exe_path, std::wstring icon_path)
 #ifdef _WIN32
 static std::optional<std::string> _package_create(std::string quest_path_, std::string package_name)
 {
+	// Built from wide strings, since fs::path(std::string) reads the ANSI code page before Windows
+	// 10 1903, which garbles (or rejects) the UTF-8 these are in.
 	auto root_dir = fs::path("");
-	auto quest_path = fs::path(quest_path_);
+	auto quest_path = fs::path(util::utf8_to_wide(quest_path_));
 	auto quest_dir = quest_path.parent_path();
-	auto package_dir = root_dir / "packages" / package_name;
-	auto extra_dir = root_dir / "packages" / (package_name + "_extra");
+	auto package_dir = root_dir / "packages" / util::utf8_to_wide(package_name);
+	auto extra_dir = root_dir / "packages" / util::utf8_to_wide(package_name + "_extra");
 	auto data_dir = package_dir / "data";
 
 	std::error_code ec;
 	fs::remove_all(package_dir, ec);
 	if (ec)
-		return fmt::format("Failed to clear {}: {}", package_dir.string(), std::strerror(ec.value()));
+		return fmt::format("Failed to clear {}: {}", util::wide_to_utf8(package_dir.wstring()), std::strerror(ec.value()));
 
 	fs::create_directories(data_dir, ec);
 	if (ec)
-		return fmt::format("Failed to create {}: {}", data_dir.string(), std::strerror(ec.value()));
+		return fmt::format("Failed to create {}: {}", util::wide_to_utf8(data_dir.wstring()), std::strerror(ec.value()));
 
 	fs::copy(quest_path, data_dir);
 	fs::copy(root_dir / "zplayer.exe", data_dir / "zplayer.exe");
@@ -149,6 +152,8 @@ static std::optional<std::string> _package_create(std::string quest_path_, std::
 	al_close_directory(entry);
 
 	std::ofstream out(data_dir / "zc_args.txt", std::ios::binary);
+	// zplayer reads this file as its argv. The quest file name goes to narrow-char file APIs, so it
+	// must be in zplayer's code page (what string() converts to); the window title is UTF-8.
 	out << "-only " << std::quoted(quest_path.filename().string()) << " ";
 	out << "-window-title " << std::quoted(package_name);
 	out.close();
@@ -158,7 +163,7 @@ static std::optional<std::string> _package_create(std::string quest_path_, std::
 		fs::copy(extra_dir, data_dir, fs::copy_options::recursive | fs::copy_options::overwrite_existing);
 	}
 
-	auto exe_path = package_dir / fs::path(package_name).replace_extension("exe");
+	auto exe_path = package_dir / fs::path(util::utf8_to_wide(package_name + ".exe"));
 	fs::copy(root_dir / "zstandalone.exe", exe_path);
 
 	auto icon_path = extra_dir / "icon.png";
@@ -189,7 +194,8 @@ std::optional<std::string> package_create(std::string quest_path_, std::string p
 	{
 		return _package_create(quest_path_, package_name);
 	}
-	catch (const std::filesystem::filesystem_error& e)
+	// Includes std::filesystem::filesystem_error, and what fs::path throws for a bad string.
+	catch (const std::system_error& e)
 	{
 		return fmt::format("Filesystem error: {}", e.what());
 	}
