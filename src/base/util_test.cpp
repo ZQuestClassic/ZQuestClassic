@@ -34,11 +34,36 @@ static void test_fuzzy_match_score()
 	assertTrue(!score(std::string(40, 'a') + "b", many_a).has_value());
 }
 
+static void test_sanitize_spaces_ok()
+{
+	auto sanitized = [](std::string str) {
+		util::sanitize_spaces_ok(str);
+		return str;
+	};
+
+	assertEqual(sanitized("  My   Quest!  "), std::string("My Quest-"));
+	assertEqual(sanitized("a:b/c\\d"), std::string("a-b-c-d"));
+
+	// Characters outside ASCII are kept. Escaped because MSVC reads source files in the ANSI
+	// code page: "Créateur", "クエスト", and an emoji.
+	assertEqual(sanitized("Cr\xc3\xa9" "ateur"), std::string("Cr\xc3\xa9" "ateur"));
+	assertEqual(sanitized("\xe3\x82\xaf\xe3\x82\xa8\xe3\x82\xb9\xe3\x83\x88"), std::string("\xe3\x82\xaf\xe3\x82\xa8\xe3\x82\xb9\xe3\x83\x88"));
+	assertEqual(sanitized("\xf0\x9f\x98\x80"), std::string("\xf0\x9f\x98\x80"));
+
+	// Invalid UTF-8 (like an old quest's title in cp1252), a C1 control character, a
+	// surrogate, and a truncated character are not.
+	assertEqual(sanitized("Cr\xe9" "ateur"), std::string("Cr-ateur"));
+	assertEqual(sanitized("a\xc2\x85" "b"), std::string("a-b"));
+	assertEqual(sanitized("a\xed\xa0\x80" "b"), std::string("a-b"));
+	assertEqual(sanitized("a\xe3\x82"), std::string("a-"));
+}
+
 TestResults test_util(bool verbose)
 {
 	TestResults tr{};
 	struct { const char* name; void (*fn)(); } tests[] = {
 		{ "fuzzy_match_score", test_fuzzy_match_score },
+		{ "sanitize_spaces_ok", test_sanitize_spaces_ok },
 	};
 
 	for (auto& test : tests)

@@ -104,12 +104,74 @@ namespace util
 		str = std::regex_replace(str, re, "-");
 	}
 
+	// Returns the length of the UTF-8 encoded character at `i`, or 0 if it is not valid UTF-8
+	// (or is a C1 control character).
+	static size_t utf8_char_length(std::string_view str, size_t i)
+	{
+		auto byte = [&](size_t j) { return j < str.size() ? (unsigned char)str[j] : 0; };
+		unsigned char c = byte(i);
+		size_t len;
+		unsigned char min = 0x80, max = 0xBF; // Range of the byte after the first.
+		if (c >= 0xC2 && c <= 0xDF)
+		{
+			len = 2;
+			if (c == 0xC2) min = 0xA0; // C1 control characters.
+		}
+		else if (c >= 0xE0 && c <= 0xEF)
+		{
+			len = 3;
+			if (c == 0xE0) min = 0xA0; // Overlong.
+			if (c == 0xED) max = 0x9F; // Surrogates.
+		}
+		else if (c >= 0xF0 && c <= 0xF4)
+		{
+			len = 4;
+			if (c == 0xF0) min = 0x90; // Overlong.
+			if (c == 0xF4) max = 0x8F; // Past U+10FFFF.
+		}
+		else return 0;
+
+		if (byte(i + 1) < min || byte(i + 1) > max)
+			return 0;
+		for (size_t j = 2; j < len; j++)
+			if (byte(i + j) < 0x80 || byte(i + j) > 0xBF)
+				return 0;
+		return len;
+	}
+
 	// TODO: replace `sanitize` with this?
+	// Keeps characters outside ASCII (valid UTF-8 only), so names in any language survive.
 	void sanitize_spaces_ok(string& str)
 	{
 		trimstr(str);
 		str = std::regex_replace(str, std::regex(R"(\s+)"), " ");
-		str = std::regex_replace(str, std::regex(R"([^a-zA-Z0-9_+\- ]+)"), "-");
+
+		string result;
+		bool replacing = false;
+		for (size_t i = 0; i < str.size();)
+		{
+			unsigned char c = str[i];
+			size_t len = 1;
+			bool keep;
+			if (c < 0x80)
+				keep = (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9')
+					|| c == '_' || c == '+' || c == '-' || c == ' ';
+			else
+				keep = (len = utf8_char_length(str, i)) > 0;
+
+			if (keep)
+			{
+				result.append(str, i, len);
+				replacing = false;
+			}
+			else if (!replacing)
+			{
+				result += '-';
+				replacing = true;
+			}
+			i += std::max<size_t>(len, 1);
+		}
+		str = result;
 	}
 
 	// https://stackoverflow.com/a/5888676/2788187
