@@ -31,12 +31,16 @@ def describe_signal(signum: int):
     return f'was killed by {name} (signal {signum})'
 
 
-def get_debug_method():
+def get_debug_method(warn_if_none=True):
     if 'ZC_DISABLE_DEBUG' in os.environ:
         return {'method': DEBUG_METHOD_NONE}
 
     debug_method = _get_debug_method()
-    if debug_method['method'] == DEBUG_METHOD_NONE and platform.system() != 'Windows':
+    if (
+        warn_if_none
+        and debug_method['method'] == DEBUG_METHOD_NONE
+        and platform.system() != 'Windows'
+    ):
         print_run_target('WARNING: if there is a crash, you will not see a backtrace')
     return debug_method
 
@@ -182,7 +186,8 @@ def _run(target_name: str, args: list, build_folder: Optional[str] = None):
         if p.returncode >= 0:
             return p
 
-        debug_method = get_debug_method()
+        # The crash is reported below either way, so skip the "if there is a crash" warning.
+        debug_method = get_debug_method(warn_if_none=False)
         if debug_method['method'] != DEBUG_METHOD_NONE:
             print_run_target(
                 f'process {describe_signal(-p.returncode)}, re-running for a backtrace\n'
