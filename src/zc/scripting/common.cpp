@@ -1,6 +1,7 @@
 #include "zc/scripting/common.h"
 
 #include "base/expected.h"
+#include "base/win_encoding.h"
 #include "zc/zc_sys.h"
 
 #include <fmt/format.h>
@@ -30,16 +31,21 @@ int32_t SH::read_stack_oob()
 // Gotten from 'https://fileinfo.com/filetypes/executable'
 std::set<std::string> banned_extensions = {".xlm",".caction",".8ck", ".actc",".a6p", ".m3g",".run",".workflow",".otm",".apk",".fxp",".73k",".0xe",".exe",".cmd",".jsx",".scar",".wcm",".jar",".ebs2",".ipa",".xap",".ba_",".ac",".bin",".vlx",".icd",".elf",".xbap",".89k",".widget",".a7r",".ex_",".zl9",".cgi",".scr",".coffee",".ahk",".plsc",".air",".ear",".app",".scptd",".xys",".hms",".cyw",".ebm",".pwc",".xqt",".msl",".seed",".vexe",".ebs",".mcr",".gpu",".celx",".wsh",".frs",".vxp",".action",".com",".out",".gadget",".command",".script",".rfu",".tcp",".widget",".ex4",".bat",".cof",".phar",".rxe",".scb",".ms",".isu",".fas",".mlx",".gpe",".mcr",".mrp",".u3p",".js",".acr",".epk",".exe1",".jsf",".rbf",".rgs",".vpm",".ecf",".hta",".dld",".applescript",".prg",".pyc",".spr",".nexe",".server",".appimage",".pyo",".dek",".mrc",".fpi",".rpj",".iim",".vbs",".pif",".mel",".scpt",".csh",".paf",".ws",".mm",".acc",".ex5",".mac",".plx",".snap",".ps1",".vdo",".mxe",".gs",".osx",".sct",".wiz",".x86",".e_e",".fky",".prg",".fas",".azw2",".actm",".cel",".tiapp",".thm",".kix",".wsf",".vbe",".lo",".ls",".tms",".ezs",".ds",".n",".esh",".vbscript",".arscript",".qit",".pex",".dxl",".wpm",".s2a",".sca",".prc",".shb",".rbx",".jse",".beam",".udf",".mem",".kx",".ksh",".rox",".upx",".ms",".mam",".btm",".es",".asb",".ipf",".mio",".sbs",".hpf",".ita",".eham",".ezt",".dmc",".qpx",".ore",".ncl",".exopc",".smm",".pvd",".ham",".wpk"};
 
-// If the path is valid, returns an absolute path under the quest "Files" directory.
-expected<std::string, std::string> parse_user_path(const std::string& user_path, bool is_file)
+static expected<std::string, std::string> parse_user_path_impl(std::string user_path, bool is_file)
 {
+	// A script's string can be in the ANSI code page (typed or saved before src/windows.manifest),
+	// which std::filesystem::path would throw on.
+	util::legacy_path_to_utf8(user_path);
+
 	// First check for non-portable path characters.
 	static const char* invalid_chars = "<>|?*&^$#\":";
-	if (auto index = user_path.find_first_of(invalid_chars) != std::string::npos)
+	if (size_t index = user_path.find_first_of(invalid_chars); index != std::string::npos)
 	{
 		return make_unexpected(fmt::format("Bad path: {} - invalid character {}", user_path, user_path[index]));
 	}
-	for (char c : user_path)
+	// Unsigned, so characters outside ASCII (UTF-8 bytes >= 0x80) aren't taken for control
+	// characters where char is signed.
+	for (unsigned char c : user_path)
 	{
 		if (c < 32)
 			return make_unexpected(fmt::format("Bad path: {} - invalid control character {:#x}", user_path, c));
@@ -104,4 +110,19 @@ expected<std::string, std::string> parse_user_path(const std::string& user_path,
 	}
 
 	return resolved_path.string();
+}
+
+// If the path is valid, returns an absolute path under the quest "Files" directory.
+expected<std::string, std::string> parse_user_path(const std::string& user_path, bool is_file)
+{
+	try
+	{
+		return parse_user_path_impl(user_path, is_file);
+	}
+	// std::filesystem::path throws for a string it can't convert, which can still happen before
+	// Windows 10 1903 (no UTF-8 code page there).
+	catch (const std::system_error& e)
+	{
+		return make_unexpected(fmt::format("Bad path: {} - {}", user_path, e.what()));
+	}
 }
