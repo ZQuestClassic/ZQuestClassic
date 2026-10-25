@@ -54871,7 +54871,13 @@ int32_t FFScript::Distance(double x1, double y1, double x2, double y2)
 {
 	double x = (x1-x2);
 	double y = (y1-y2);
-	double sum = (x*x)+(y*y);
+	// The volatile temps pin each square's rounding, keeping this identical on
+	// every architecture under fast-math: x86 rounds both products before the
+	// add, while arm64 fuses one of them into an fma (which one depends on the
+	// compiler), so Distance() could come out 0.0001 low and desync replays.
+	volatile double xx = x*x;
+	volatile double yy = y*y;
+	double sum = xx+yy;
 	//if(((int32_t)sum) < 0)
 	//{
 	//	Z_scripterrlog("Distance() attempted to calculate square root of %ld!\n", ((int32_t)sum));
@@ -54902,7 +54908,10 @@ int32_t FFScript::LongDistance(double x1, double y1, double x2, double y2)
 {
 	double x = (x1-x2);
 	double y = (y1-y2);
-	double sum = (x*x)+(y*y);
+	// See Distance().
+	volatile double xx = x*x;
+	volatile double yy = y*y;
+	double sum = xx+yy;
 	//if(((int32_t)sum) < 0)
 	//{
 	//	Z_scripterrlog("Distance() attempted to calculate square root of %ld!\n", ((int32_t)sum));
