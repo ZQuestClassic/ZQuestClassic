@@ -817,6 +817,12 @@ bool movingblock::animate(int32_t)
 			Z_message("Push block error: destination screen does not exist. Check the screen's layers.\n");
 		}
 
+		TriggerData same_layer_block_trigger([](combo_trigger const& trig){
+			return trig.trigger_flags.get(TRIGFLAG_BLOCK_TRIGGER_SAME_LAYER);
+		});
+		TriggerData any_layer_block_trigger([](combo_trigger const& trig){
+			return trig.trigger_flags.get(TRIGFLAG_BLOCK_TRIGGER_ANY_LAYER);
+		});
 		if(new_block)
 		{
 			clk = 0;
@@ -831,14 +837,10 @@ bool movingblock::animate(int32_t)
 			bool trig_hole_same_only = get_qr(qr_BLOCKHOLE_SAME_ONLY);
 			bool trig_is_layer = false;
 			
-			trig_each_combo_trigger(end_rpos_handle, [](combo_trigger const& trig){
-				return trig.trigger_flags.get(TRIGFLAG_BLOCK_TRIGGER_SAME_LAYER);
-			});
+			same_layer_block_trigger.execute(end_rpos_handle);
 			for (int lyr = 0; lyr < 7; ++lyr)
 			{
-				trig_each_combo_trigger(get_rpos_handle_for_world_xy(endx, endy, lyr), [](combo_trigger const& trig){
-					return trig.trigger_flags.get(TRIGFLAG_BLOCK_TRIGGER_ANY_LAYER);
-				});
+				any_layer_block_trigger.execute(get_rpos_handle_for_world_xy(endx, endy, lyr));
 			}
 			
 			if(!fallclk && !drownclk)
@@ -1040,14 +1042,10 @@ bool movingblock::animate(int32_t)
 			bool trig_hole_same_only = get_qr(qr_BLOCKHOLE_SAME_ONLY);
 			bool trig_is_layer = false;
 			
-			trig_each_combo_trigger(end_rpos_handle, [](combo_trigger const& trig){
-				return trig.trigger_flags.get(TRIGFLAG_BLOCK_TRIGGER_SAME_LAYER);
-			});
+			same_layer_block_trigger.execute(end_rpos_handle);
 			for (int lyr = 0; lyr < 7; ++lyr)
 			{
-				trig_each_combo_trigger(get_rpos_handle_for_world_xy(endx, endy, lyr), [](combo_trigger const& trig){
-					return trig.trigger_flags.get(TRIGFLAG_BLOCK_TRIGGER_ANY_LAYER);
-				});
+				any_layer_block_trigger.execute(get_rpos_handle_for_world_xy(endx, endy, lyr));
 			}
 			
 			if((!fallclk && !drownclk) || (bhole && !get_qr(qr_BROKEN_BLOCKHOLE_PITFALLS)))
@@ -1266,9 +1264,9 @@ bool movingblock::animate(int32_t)
 			if(!get_qr(qr_BROKEN_PUSHBLOCK_TRIGGER_GROUPS) && m->data[end_pos] == bcombo)
 				cpos_get(end_rpos_handle).updateInfo(blockinfo);
 		}
-		trig_each_combo_trigger(end_rpos_handle, [](combo_trigger const& trig){
+		TriggerData([](combo_trigger const& trig){
 			return trig.trigger_flags.get(TRIGFLAG_PUSHEDTRIG);
-		});
+		}).execute(end_rpos_handle);
 		clear();
 	}
 	return false;

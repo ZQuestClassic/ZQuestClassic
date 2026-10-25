@@ -504,14 +504,14 @@ static bool triggerfire(int x, int y, weapon* w, bool setflag, bool any, bool st
 		ret = ret||trigger_secrets_if_flag(x,y,mfDIVINEFIRE,setflag);
 
 	std::set<rpos_t> rposes({COMBOPOS_REGION_B(x,y),COMBOPOS_REGION_B(x,y+15),COMBOPOS_REGION_B(x+15,y),COMBOPOS_REGION_B(x+15,y+15)});
-	auto _burn_cond_proc = [&](combo_trigger const& trig){
+	TriggerData burn_trigger = TriggerData([&](combo_trigger const& trig){
 		if (w->z > 0 && trig.trigger_flags.get(TRIGFLAG_ONLY_GROUND_WPN))
 			return false; // Air based weapon shouldn't trigger ground-only combo
 		for(auto flag : trigflags)
 			if(trig.trigger_flags.get(flag))
 				return true;
 		return false;
-	};
+	}).set_weapon(wptr);
 	for(int q = 0; q < 7; ++q)
 	{
 		for (rpos_t rpos : rposes)
@@ -520,14 +520,14 @@ static bool triggerfire(int x, int y, weapon* w, bool setflag, bool any, bool st
 				continue;
 
 			auto rpos_handle = get_rpos_handle(rpos, q);
-			trig_each_combo_trigger(rpos_handle, _burn_cond_proc, 0, wptr);
+			burn_trigger.execute(rpos_handle);
 		}
 	}
 
 	for_every_ffc([&](const ffc_handle_t& ffc_handle) {
 		ffcdata& ffc = *ffc_handle.ffc;
 		if(!ffc.collide(x,y,16,16)) return;
-		trig_each_combo_trigger(ffc_handle, _burn_cond_proc, 0, wptr);
+		burn_trigger.execute(ffc_handle);
 	});
 
 	return ret;

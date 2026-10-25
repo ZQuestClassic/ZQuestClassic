@@ -18735,7 +18735,7 @@ void awaken_spinning_tile(const combined_handle_t& comb_handle, bool natural)
 	auto [x, y] = comb_handle.xy();
 	addenemy(comb_handle.get_screen(), x, y, (cset<<12)+eSPINTILE1, combobuf[cid].o_tile + zc_max(1,combobuf[cid].frames));
 	if (natural)
-		do_trigger_ctype_causes(comb_handle);
+		ctype_causes_trigger.execute(comb_handle);
 	if (!get_qr(qr_BROKEN_SPINTILE_COMBO_CHANGE) && cid == comb_handle.data())
 		comb_handle.increment_data();
 }

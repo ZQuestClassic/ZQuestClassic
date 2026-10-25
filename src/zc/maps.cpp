@@ -643,24 +643,24 @@ void tick_camera_effect()
 		// clear before causes, incase the causes triggers a new camera effect
 		clear_camera_effect();
 		if (valid_causes_combo && causes_mode == CameraEffectCausesMode::OnFinish)
-			do_trigger_ctype_causes(handle);
+			ctype_causes_trigger.execute(handle);
 	}
 	else if (res == CameraEffectResult::Parked)
 	{
 		// Don't clear — effect keeps holding the viewport at the target position.
 		// A chained cause that starts a new camera effect will implicitly replace this one.
 		if (valid_causes_combo && causes_mode == CameraEffectCausesMode::OnFinish)
-			do_trigger_ctype_causes(handle);
+			ctype_causes_trigger.execute(handle);
 	}
 	else if (res == CameraEffectResult::Returning)
 	{
 		if (valid_causes_combo && causes_mode == CameraEffectCausesMode::BeforeReturn)
-			do_trigger_ctype_causes(handle);
+			ctype_causes_trigger.execute(handle);
 	}
 	else if (res == CameraEffectResult::Idling)
 	{
 		if (valid_causes_combo && causes_mode == CameraEffectCausesMode::BeforeIdle)
-			do_trigger_ctype_causes(handle);
+			ctype_causes_trigger.execute(handle);
 	}
 }
 
@@ -1415,9 +1415,9 @@ static void _handle_screen_load_trigger(const combined_handle_t& handle)
 		visited.insert(cid);
 
 		done = true; // don't loop again unless something changes
-		trig_each_combo_trigger(handle, [&](combo_trigger const& trig){
+		TriggerData([](combo_trigger const& trig){
 			return trig.trigger_flags.get(TRIGFLAG_SCREENLOAD);
-		});
+		}).execute(handle);
 		if(handle.data() != cid)
 		{
 			cid = handle.data();
@@ -1457,9 +1457,9 @@ static void _handle_screen_unload_trigger(const combined_handle_t& handle)
 		visited.insert(cid);
 
 		done = true; // don't loop again unless something changes
-		trig_each_combo_trigger(handle, [&](combo_trigger const& trig){
+		TriggerData([](combo_trigger const& trig){
 			return trig.trigger_flags.get(TRIGFLAG_SCREENUNLOAD);
-		});
+		}).execute(handle);
 		if(handle.data() != cid)
 		{
 			cid = handle.data();
@@ -3197,9 +3197,9 @@ void trigger_secrets_for_screen_internal(const screen_handles_t& screen_handles,
 	if (from_active_screen)
 	{
 		for_every_combo_in_screen(screen_handles, [&](const auto& handle) {
-			trig_each_combo_trigger(handle, [&](combo_trigger const& trig){
+			TriggerData([](combo_trigger const& trig){
 				return trig.trigger_flags.get(TRIGFLAG_SECRETSTR);
-			}, ctrigSECRETS);
+			}).set_special(ctrigSECRETS).execute(handle);
 		});
 	}
 
@@ -6306,9 +6306,9 @@ void openshutters(mapscr* scr)
 	for_every_combo_in_screen(create_screen_handles(scr), [&](const auto& handle) {
 		if (handle.combo().triggers.empty())
 			return;
-		trig_each_combo_trigger(handle, [&](combo_trigger const& trig){
+		TriggerData([](combo_trigger const& trig){
 			return trig.trigger_flags.get(TRIGFLAG_SHUTTER);
-		});
+		}).execute(handle);
 	});
 
 	if(opened_door)
@@ -7730,6 +7730,9 @@ void toggle_switches(dword flags, bool entry)
 void toggle_switches(dword flags, bool entry, const screen_handles_t& screen_handles)
 {
 	if(!flags) return; //No flags to toggle
+	TriggerData level_trigger = TriggerData([&](combo_trigger const& trig){
+		return trig.trigger_flags.get(TRIGFLAG_TRIGLEVELSTATE) && trig.trig_lstate < 32 && (flags&(1<<trig.trig_lstate));
+	}).set_special(ctrigSWITCHSTATE);
 
 	mapscr* m = screen_handles[0].base_scr;
 	int screen = m->screen;
@@ -7742,9 +7745,7 @@ void toggle_switches(dword flags, bool entry, const screen_handles_t& screen_han
 		int pos = rpos_handle.pos;
 		newcombo const& cmb = combobuf[scr->data[pos]];
 		if(is_active_screen)
-			trig_each_combo_trigger(rpos_handle, [&](combo_trigger const& trig){
-				return trig.trigger_flags.get(TRIGFLAG_TRIGLEVELSTATE) && trig.trig_lstate < 32 && (flags&(1<<trig.trig_lstate));
-			}, ctrigSWITCHSTATE);
+			level_trigger.execute(rpos_handle);
 		if((cmb.type == cCSWITCH || cmb.type == cCSWITCHBLOCK) && unsigned(cmb.c_attributes[8].getTrunc()) < 32
 			&& !(cmb.usrflags & cflag11)) //global state
 		{
@@ -7865,9 +7866,7 @@ void toggle_switches(dword flags, bool entry, const screen_handles_t& screen_han
 		for (int q = 0; q < c; ++q)
 		{
 			auto ffc_handle = m->getFFCHandle(q, screen_index_offset);
-			trig_each_combo_trigger(ffc_handle, [&](combo_trigger const& trig){
-				return trig.trigger_flags.get(TRIGFLAG_TRIGLEVELSTATE) && trig.trig_lstate < 32 && (flags&(1<<trig.trig_lstate));
-			}, ctrigSWITCHSTATE);
+			level_trigger.execute(ffc_handle);
 		}
 	}
 }
@@ -7887,6 +7886,9 @@ void toggle_gswitches(int32_t state, bool entry, const screen_handles_t& screen_
 void toggle_gswitches(bool* states, bool entry, const screen_handles_t& screen_handles)
 {
 	if(!states) return;
+	TriggerData global_trigger = TriggerData([&](combo_trigger const& trig){
+		return trig.trigger_flags.get(TRIGFLAG_TRIGGLOBALSTATE) && states[trig.trig_gstate];
+	}).set_special(ctrigSWITCHSTATE);
 
 	mapscr* base_scr = screen_handles[0].base_scr;
 	int screen = base_scr->screen;
@@ -7908,9 +7910,7 @@ void toggle_gswitches(bool* states, bool entry, const screen_handles_t& screen_h
 				if (!cmb.triggers.empty())
 				{
 					auto rpos_handle = get_rpos_handle_for_screen(screen, lyr, pos);
-					trig_each_combo_trigger(rpos_handle, [&](combo_trigger const& trig){
-						return trig.trigger_flags.get(TRIGFLAG_TRIGGLOBALSTATE) && states[trig.trig_gstate];
-					}, ctrigSWITCHSTATE);
+					global_trigger.execute(rpos_handle);
 				}
 			}
 
@@ -8037,9 +8037,7 @@ void toggle_gswitches(bool* states, bool entry, const screen_handles_t& screen_h
 		for (int q = 0; q < c; ++q)
 		{
 			auto ffc_handle = base_scr->getFFCHandle(q, screen_index_offset);
-			trig_each_combo_trigger(ffc_handle, [&](combo_trigger const& trig){
-				return trig.trigger_flags.get(TRIGFLAG_TRIGGLOBALSTATE) && states[trig.trig_gstate];
-			}, ctrigSWITCHSTATE);
+			global_trigger.execute(ffc_handle);
 		}
 	}
 }

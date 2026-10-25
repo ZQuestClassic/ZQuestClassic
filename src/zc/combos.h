@@ -28,6 +28,29 @@ public:
 };
 extern CutsceneState active_cutscene;
 
+class TriggerData
+{
+public:
+	int32_t special;
+	weapon* w;
+	std::function<bool(combo_trigger const&)> trig_cond_a;
+	std::function<bool(combo_trigger const&, size_t)> trig_cond_b;
+	std::function<void(combo_trigger const&)> side_fx;
+	
+	TriggerData(std::function<bool(combo_trigger const&)> const& cond)
+		: special(0), w(nullptr), trig_cond_a(cond), trig_cond_b(), side_fx()
+	{}
+	TriggerData(std::function<bool(combo_trigger const&, size_t)> const& cond)
+		: special(0), w(nullptr), trig_cond_a(), trig_cond_b(cond), side_fx()
+	{}
+	TriggerData& set_special(int32_t new_special);
+	TriggerData& set_weapon(weapon* new_weapon);
+	TriggerData& set_side_fx(std::function<void(combo_trigger const&)> const& new_side_fx);
+	
+	bool execute(const combined_handle_t& comb_handle) const;
+};
+extern const TriggerData ctype_causes_trigger;
+
 bool do_cswitch_combo(newcombo const& cmb, weapon* w = NULL);
 void do_generic_combo_ffc2(const ffc_handle_t& ffc_handle, int32_t cid, int32_t ft);
 
@@ -59,10 +82,7 @@ bool force_ex_door_trigger(const combined_handle_t& handle, size_t idx, int dir 
 bool force_ex_door_trigger_any(const combined_handle_t& handle, int dir = -1, uint ind = 0);
 bool force_combopos_trigger(const combined_handle_t& handle, size_t idx, int mi = -1);
 bool force_combopos_trigger_any(const combined_handle_t& handle, int mi = -1);
-bool trig_each_combo_trigger(const combined_handle_t& comb_handle, std::function<bool(combo_trigger const&)> trig_cond, int32_t special = 0, weapon* w = NULL);
-bool trig_each_combo_trigger(const combined_handle_t& comb_handle, std::function<bool(combo_trigger const&, size_t)> trig_cond, int32_t special = 0, weapon* w = NULL);
 bool do_trigger_combo(const combined_handle_t& comb_handle, size_t idx, int32_t special = 0, weapon* w = NULL);
-bool do_trigger_ctype_causes(const combined_handle_t& comb_handle);
 bool check_trig_conditions(const combined_handle_t& comb_handle, size_t idx);
 
 bool do_lift_combo(const combined_handle_t&, int32_t gloveid);
