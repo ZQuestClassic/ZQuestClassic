@@ -102,7 +102,7 @@ struct SubscrMTInfo
 struct SubscrSelectorTileInfo
 {
 	word sw, sh;
-	int32_t tile;
+	int32_t tile = 0;
 	byte cset, frames, speed, delay;
 	
 	void clear();
@@ -380,7 +380,7 @@ public:
 struct SW_2x2Frame : public SubscrWidget
 {
 	SubscrColorInfo cs;
-	int32_t tile;
+	int32_t tile = 0;
 	
 	SW_2x2Frame() = default;
 	SW_2x2Frame(subscreen_object const& old);
@@ -403,9 +403,9 @@ protected:
 #define SUBSCR_NUMFLAG_TEXT           0
 struct SW_Text : public SubscrWidget
 {
-	int32_t fontid;
+	int32_t fontid = 0;
 	std::string text;
-	byte align, shadtype;
+	byte align = 0, shadtype = 0;
 	SubscrColorInfo c_text = {ssctMISC,ssctTEXT}, c_shadow, c_bg;
 	
 	SW_Text() = default;
@@ -468,8 +468,8 @@ protected:
 #define SUBSCR_NUMFLAG_TIME           1
 struct SW_Time : public SubscrWidget
 {
-	int32_t fontid;
-	byte align, shadtype;
+	int32_t fontid = 0;
+	byte align = 0, shadtype = 0;
 	SubscrColorInfo c_text = {ssctMISC,ssctTEXT}, c_shadow, c_bg;
 	
 	SW_Time() = default;
@@ -514,7 +514,7 @@ protected:
 #define SUBSCR_NUMFLAG_LIFEMET        1
 struct SW_LifeMeter : public SubscrWidget
 {
-	byte rows;
+	byte rows = 0;
 	
 	SW_LifeMeter() = default;
 	SW_LifeMeter(subscreen_object const& old);
@@ -536,7 +536,7 @@ protected:
 #define SUBSCR_NUMFLAG_BTNITM         1
 struct SW_ButtonItem : public SubscrWidget
 {
-	byte btn;
+	byte btn = 0;
 	SW_ButtonItem() = default;
 	SW_ButtonItem(subscreen_object const& old);
 	
@@ -557,11 +557,11 @@ protected:
 #define SUBSCR_NUMFLAG_COUNTER        2
 struct SW_Counter : public SubscrWidget
 {
-	int32_t fontid;
-	byte align, shadtype;
+	int32_t fontid = 0;
+	byte align = 0, shadtype = 0;
 	SubscrColorInfo c_text = {ssctMISC,ssctTEXT}, c_shadow, c_bg, c_text2 = {ssctMISC,ssctTEXT}, c_shadow2, c_bg2;
 	int32_t ctrs[3] = {crNONE,crNONE,crNONE};
-	byte mindigits, maxdigits = 3;
+	byte mindigits = 0, maxdigits = 3;
 	int32_t infitm = -1;
 	char infchar = 'A';
 	
@@ -586,10 +586,10 @@ protected:
 #define SUBSCR_NUMFLAG_COUNTERS       1
 struct SW_Counters : public SubscrWidget
 {
-	int32_t fontid;
-	byte shadtype;
+	int32_t fontid = 0;
+	byte shadtype = 0;
 	SubscrColorInfo c_text = {ssctMISC,ssctTEXT}, c_shadow, c_bg;
-	byte digits;
+	byte digits = 0;
 	int32_t infitm = -1;
 	char infchar = 'A';
 	
@@ -615,12 +615,12 @@ protected:
 #define SUBSCR_NUMFLAG_BTNCOUNTER     2
 struct SW_BtnCounter : public SubscrWidget
 {
-	int32_t fontid;
-	byte align, shadtype;
+	int32_t fontid = 0;
+	byte align = 0, shadtype = 0;
 	SubscrColorInfo c_text = {ssctMISC,ssctTEXT}, c_shadow, c_bg, c_text2 = {ssctMISC,ssctTEXT}, c_shadow2, c_bg2;
-	byte mindigits, maxdigits = 3;
+	byte mindigits = 0, maxdigits = 3;
 	char infchar = 'A';
-	byte btn, costind;
+	byte btn = 0, costind = 0;
 	
 	SW_BtnCounter() = default;
 	
@@ -643,8 +643,8 @@ protected:
 #define SUBSCR_NUMFLAG_MMAPTIT        3
 struct SW_MMapTitle : public SubscrWidget
 {
-	int32_t fontid;
-	byte align, shadtype, tabsize = 4;
+	int32_t fontid = 0;
+	byte align = 0, shadtype = 0, tabsize = 4;
 	SubscrColorInfo c_text = {ssctMISC,ssctTEXT}, c_shadow, c_bg;
 	
 	SW_MMapTitle() = default;
@@ -744,7 +744,7 @@ protected:
 #define SUBSCR_NUMFLAG_CURITM           7
 struct SW_ItemSlot : public SubscrWidget
 {
-	int32_t iclass, iid = -1;
+	int32_t iclass = 0, iid = -1;
 	
 	SW_ItemSlot() = default;
 	SW_ItemSlot(subscreen_object const& old);
@@ -769,8 +769,8 @@ protected:
 #define SUBSCR_NUMFLAG_TRIFR            3
 struct SW_TriFrame : public SubscrWidget
 {
-	int32_t frame_tile, piece_tile;
-	byte frame_cset, piece_cset;
+	int32_t frame_tile = 0, piece_tile = 0;
+	byte frame_cset = 0, piece_cset = 0;
 	SubscrColorInfo c_outline, c_number;
 	
 	SW_TriFrame() = default;
@@ -796,8 +796,8 @@ protected:
 #define SUBSCR_NUMFLAG_MCGUF            2
 struct SW_McGuffin : public SubscrWidget
 {
-	int32_t tile, number;
-	byte flip;
+	int32_t tile = 0, number = 0;
+	byte flip = 0;
 	SubscrColorInfo cs;
 	
 	SW_McGuffin() = default;
@@ -823,8 +823,8 @@ protected:
 #define SUBSCR_NUMFLAG_TILEBL           2
 struct SW_TileBlock : public SubscrWidget
 {
-	int32_t tile;
-	byte flip;
+	int32_t tile = 0;
+	byte flip = 0;
 	SubscrColorInfo cs;
 	
 	SW_TileBlock() = default;
@@ -850,8 +850,8 @@ protected:
 #define SUBSCR_NUMFLAG_MINITL           2
 struct SW_MiniTile : public SubscrWidget
 {
-	int32_t tile, special_tile;
-	byte crn, flip;
+	int32_t tile = 0, special_tile = 0;
+	byte crn = 0, flip = 0;
 	SubscrColorInfo cs;
 	
 	SW_MiniTile() = default;
@@ -917,11 +917,11 @@ protected:
 struct SW_GaugePiece : public SubscrWidget
 {
 	SubscrMTInfo mts[4];
-	word frames = 1, speed = 1, delay, container;
-	byte gauge_wid, gauge_hei, unit_per_frame;
-	int8_t hspace, vspace;
-	int16_t grid_xoff, grid_yoff;
-	word anim_val;
+	word frames = 1, speed = 1, delay = 0, container = 0;
+	byte gauge_wid = 0, gauge_hei = 0, unit_per_frame = 0;
+	int8_t hspace = 0, vspace = 0;
+	int16_t grid_xoff = 0, grid_yoff = 0;
+	word anim_val = 0;
 	int16_t inf_item = -1;
 	
 	SW_GaugePiece() = default;
@@ -992,7 +992,7 @@ protected:
 #define SUBSCR_NUMFLAG_MISCGAUGE       SUBSCR_NUMFLAG_GAUGE
 struct SW_MiscGaugePiece : public SW_GaugePiece
 {
-	int16_t counter;
+	int16_t counter = 0;
 	word per_container = 1;
 	
 	SW_MiscGaugePiece() = default;
@@ -1015,9 +1015,9 @@ protected:
 #define SUBSCR_NUMFLAG_TEXTBOX         1
 struct SW_TextBox : public SubscrWidget
 {
-	int32_t fontid;
+	int32_t fontid = 0;
 	std::string text;
-	byte align, shadtype, tabsize = 4;
+	byte align = 0, shadtype = 0, tabsize = 4;
 	SubscrColorInfo c_text = {ssctMISC,ssctTEXT}, c_shadow, c_bg;
 	
 	SW_TextBox() = default;
@@ -1037,8 +1037,8 @@ protected:
 #define SUBSCR_NUMFLAG_SELTEXT         1
 struct SW_SelectedText : public SubscrWidget
 {
-	int32_t fontid;
-	byte align, shadtype, tabsize = 4;
+	int32_t fontid = 0;
+	byte align = 0, shadtype = 0, tabsize = 4;
 	SubscrColorInfo c_text = {ssctMISC,ssctTEXT}, c_shadow, c_bg;
 	
 	SW_SelectedText() = default;
@@ -1058,7 +1058,7 @@ protected:
 #define MAX_SUBSCR_PAGES 255
 struct SubscrPage
 {
-	byte cursor_pos;
+	byte cursor_pos = 0;
 	
 	void move_cursor(int dir, bool item_only = false);
 	int32_t movepos_legacy(int dir, word startp, word fp = 255, word fp2 = 255, word fp3 = 255, bool equip_only=true, bool item_only=true, bool stay_on_page = false);
@@ -1103,8 +1103,8 @@ struct SubscrPage
 	#endif
 private:
 	std::vector<SubscrWidget*> contents;
-	word index;
-	ZCSubscreen const* parent;
+	word index = 0;
+	ZCSubscreen const* parent = nullptr;
 	
 	void force_update();
 	
@@ -1115,13 +1115,13 @@ private:
 struct ZCSubscreen
 {
 	std::vector<SubscrPage> pages;
-	byte curpage, sub_type;
+	byte curpage = 0, sub_type = 0;
 	std::string name;
-	dword flags;
+	dword flags = 0;
 	
 	word def_btns[4]={255,255,255,255};
 	
-	byte btn_left, btn_right;
+	byte btn_left = 0, btn_right = 0;
 	SubscrTransition trans_left, trans_right;
 	
 	SubscrSelectorInfo selector_setting;
