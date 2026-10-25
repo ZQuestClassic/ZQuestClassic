@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2026-10-25 01:23:00</td>
+      <td>2026-10-25 23:17:05</td>
     </tr>
   </table>
 </div>
@@ -79,16 +79,16 @@
     <tr><td><a href="#l84">collect_scripts(std::vector&lt;zasm_script*, std::allocator&lt;zasm_script*&gt; &gt;&amp;, script_data**, unsigned long, unsigned long) (line 84)</a></td><td>called 11900 times, returned 11900 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l30">create_compile_task(WorkerPool*, zasm_script*) (line 30)</a></td><td>called 8178 times, returned 8178 times</td><td>50.0%</td></tr>
     <tr><td><a href="#l34">create_compile_task(WorkerPool*, zasm_script*)::$_0::operator()() const (line 34)</a></td><td>called 8178 times, returned 8178 times</td><td>100.0%</td></tr>
-    <tr><td><a href="#l66">find_jitted_script(zasm_script*) (line 66)</a></td><td>called 184550 times, returned 184550 times</td><td>100.0%</td></tr>
-    <tr><td><a href="#l188">jit_create_script_instance(script_data*, refInfo*) (line 188)</a></td><td>called 184554 times, returned 184554 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l66">find_jitted_script(zasm_script*) (line 66)</a></td><td>called 183996 times, returned 183996 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l188">jit_create_script_instance(script_data*, refInfo*) (line 188)</a></td><td>called 184000 times, returned 184000 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l55">jit_error(char const*, ...) (line 55)</a></td><td>not called</td><td>0.0%</td></tr>
-    <tr><td><a href="#l133">jit_is_enabled() (line 133)</a></td><td>called 75883921 times, returned 75883921 times</td><td>100.0%</td></tr>
-    <tr><td><a href="#l178">jit_is_use_cached_regs_enabled() (line 178)</a></td><td>called 928838 times, returned 928838 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l133">jit_is_enabled() (line 133)</a></td><td>called 75938170 times, returned 75938170 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l178">jit_is_use_cached_regs_enabled() (line 178)</a></td><td>called 928928 times, returned 928928 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l155">jit_log_is_enabled() (line 155)</a></td><td>not called</td><td>0.0%</td></tr>
-    <tr><td><a href="#l43">jit_printf(char const*, ...) (line 43)</a></td><td>called 1886612 times, returned 1886612 times</td><td>75.0%</td></tr>
+    <tr><td><a href="#l43">jit_printf(char const*, ...) (line 43)</a></td><td>called 1886550 times, returned 1886550 times</td><td>75.0%</td></tr>
     <tr><td><a href="#l144">jit_set_enabled(bool) (line 144)</a></td><td>called 807 times, returned 807 times</td><td>100.0%</td></tr>
-    <tr><td><a href="#l183">jit_should_precompile() (line 183)</a></td><td>called 8177 times, returned 8177 times</td><td>100.0%</td></tr>
-    <tr><td><a href="#l297">jit_shutdown() (line 297)</a></td><td>called 1943 times, returned 1943 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l183">jit_should_precompile() (line 183)</a></td><td>called 8175 times, returned 8175 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l297">jit_shutdown() (line 297)</a></td><td>called 1945 times, returned 1945 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l207">jit_startup(bool) (line 207)</a></td><td>called 850 times, returned 850 times</td><td>72.0%</td></tr>
     <tr><td><a href="#l275">jit_startup(bool)::$_0::operator()(zasm_script*, JittedScript*) const (line 275)</a></td><td>not called</td><td>0.0%</td></tr>
   </table>
@@ -298,7 +298,7 @@
       <td class="lineno"><a id="l28" href="#l28">28</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">910</td>
+      <td class="linecount coveredLine">913</td>
       <td class="src coveredLine"><span class="k">static</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">map</span><span class="o">&lt;</span><span class="n">zasm_script_id</span><span class="p">,</span><span class="w"> </span><span class="n">JittedScript</span><span class="o">*&gt;</span><span class="w"> </span><span class="n">compiled_scripts</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
@@ -410,7 +410,7 @@
       <td class="lineno"><a id="l43" href="#l43">43</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">1886612</td>
+      <td class="linecount coveredLine">1886550</td>
       <td class="src coveredLine"><span class="kt">void</span><span class="w"> </span><span class="nf">jit_printf</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">format</span><span class="p">,</span><span class="w"> </span><span class="p">...)</span></td>
     </tr>
     <tr class="source-line">
@@ -427,11 +427,11 @@
         <summary class="linebranchSummary">1/2</summary>
         <div class="linebranchContents">
           <div class="notTakenBranch">&cross; Branch 0 not taken.</div>
-          <div class="takenBranch">&check; Branch 1 taken 1886612 times.</div>
+          <div class="takenBranch">&check; Branch 1 taken 1886550 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">1886612</td>
+      <td class="linecount partialCoveredLine">1886550</td>
       <td class="src partialCoveredLine"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">jit_log_enabled</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -466,28 +466,28 @@
       <td class="lineno"><a id="l50" href="#l50">50</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">1886612</td>
+      <td class="linecount coveredLine">1886550</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">va_start</span><span class="p">(</span><span class="n">argList</span><span class="p">,</span><span class="w"> </span><span class="n">format</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l51" href="#l51">51</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">1886612</td>
+      <td class="linecount coveredLine">1886550</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">vsnprintf</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">buffer</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">format</span><span class="p">,</span><span class="w"> </span><span class="n">argList</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l52" href="#l52">52</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">1886612</td>
+      <td class="linecount coveredLine">1886550</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">al_trace</span><span class="p">(</span><span class="s">&quot;%s&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">buffer</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l53" href="#l53">53</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">1886612</td>
+      <td class="linecount coveredLine">1886550</td>
       <td class="src coveredLine"><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
@@ -578,7 +578,7 @@
       <td class="lineno"><a id="l66" href="#l66">66</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">184550</td>
+      <td class="linecount coveredLine">183996</td>
       <td class="src coveredLine"><span class="k">static</span><span class="w"> </span><span class="n">JittedScript</span><span class="o">*</span><span class="w"> </span><span class="nf">find_jitted_script</span><span class="p">(</span><span class="n">zasm_script</span><span class="o">*</span><span class="w"> </span><span class="n">script</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -613,14 +613,14 @@
       <td class="lineno"><a id="l71" href="#l71">71</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">184550</td>
+      <td class="linecount coveredLine">183996</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">al_lock_mutex</span><span class="p">(</span><span class="n">compiled_scripts_mutex</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l72" href="#l72">72</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">184550</td>
+      <td class="linecount coveredLine">183996</td>
       <td class="src coveredLine"><span class="w">	</span><span class="k">auto</span><span class="w"> </span><span class="n">it</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">compiled_scripts</span><span class="p">.</span><span class="n">find</span><span class="p">(</span><span class="n">script</span><span class="o">-&gt;</span><span class="n">id</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
@@ -630,11 +630,11 @@
         <summary class="linebranchSummary">2/2</summary>
         <div class="linebranchContents">
           <div class="takenBranch">&check; Branch 0 taken 182048 times.</div>
-          <div class="takenBranch">&check; Branch 1 taken 2502 times.</div>
+          <div class="takenBranch">&check; Branch 1 taken 1948 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount coveredLine">184550</td>
+      <td class="linecount coveredLine">183996</td>
       <td class="src coveredLine"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">it</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">compiled_scripts</span><span class="p">.</span><span class="n">end</span><span class="p">())</span></td>
     </tr>
     <tr class="source-line">
@@ -683,21 +683,21 @@
       <td class="lineno"><a id="l80" href="#l80">80</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">2502</td>
+      <td class="linecount coveredLine">1948</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">al_unlock_mutex</span><span class="p">(</span><span class="n">compiled_scripts_mutex</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l81" href="#l81">81</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">2502</td>
+      <td class="linecount coveredLine">1948</td>
       <td class="src coveredLine"><span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="k">nullptr</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l82" href="#l82">82</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">184550</td>
+      <td class="linecount coveredLine">183996</td>
       <td class="src coveredLine"><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
@@ -1191,7 +1191,7 @@
       <td class="lineno"><a id="l133" href="#l133">133</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">75883921</td>
+      <td class="linecount coveredLine">75938170</td>
       <td class="src coveredLine"><span class="kt">bool</span><span class="w"> </span><span class="n">jit_is_enabled</span><span class="p">()</span></td>
     </tr>
     <tr class="source-line">
@@ -1240,7 +1240,7 @@
       <td class="lineno"><a id="l140" href="#l140">140</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">75883921</td>
+      <td class="linecount coveredLine">75938170</td>
       <td class="src coveredLine"><span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="n">is_enabled</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
@@ -1506,7 +1506,7 @@
       <td class="lineno"><a id="l178" href="#l178">178</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">928838</td>
+      <td class="linecount coveredLine">928928</td>
       <td class="src coveredLine"><span class="kt">bool</span><span class="w"> </span><span class="n">jit_is_use_cached_regs_enabled</span><span class="p">()</span></td>
     </tr>
     <tr class="source-line">
@@ -1520,7 +1520,7 @@
       <td class="lineno"><a id="l180" href="#l180">180</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">928838</td>
+      <td class="linecount coveredLine">928928</td>
       <td class="src coveredLine"><span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="n">jit_use_cached_regs_enabled</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
@@ -1541,7 +1541,7 @@
       <td class="lineno"><a id="l183" href="#l183">183</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">8177</td>
+      <td class="linecount coveredLine">8175</td>
       <td class="src coveredLine"><span class="kt">bool</span><span class="w"> </span><span class="n">jit_should_precompile</span><span class="p">()</span></td>
     </tr>
     <tr class="source-line">
@@ -1555,7 +1555,7 @@
       <td class="lineno"><a id="l185" href="#l185">185</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">8177</td>
+      <td class="linecount coveredLine">8175</td>
       <td class="src coveredLine"><span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="n">jit_precompile</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
@@ -1576,7 +1576,7 @@
       <td class="lineno"><a id="l188" href="#l188">188</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">184554</td>
+      <td class="linecount coveredLine">184000</td>
       <td class="src coveredLine"><span class="n">JittedScriptInstance</span><span class="o">*</span><span class="w"> </span><span class="n">jit_create_script_instance</span><span class="p">(</span><span class="n">script_data</span><span class="o">*</span><span class="w"> </span><span class="n">script</span><span class="p">,</span><span class="w"> </span><span class="n">refInfo</span><span class="o">*</span><span class="w"> </span><span class="n">ri</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -1599,12 +1599,12 @@
         <details class="linebranchDetails">
         <summary class="linebranchSummary">2/2</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 184550 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 183996 times.</div>
           <div class="takenBranch">&check; Branch 1 taken 4 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount coveredLine">184554</td>
+      <td class="linecount coveredLine">184000</td>
       <td class="src coveredLine"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">compiled_scripts_mutex</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -1625,7 +1625,7 @@
       <td class="lineno"><a id="l194" href="#l194">194</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">184550</td>
+      <td class="linecount coveredLine">183996</td>
       <td class="src coveredLine"><span class="w">	</span><span class="k">auto</span><span class="w"> </span><span class="n">j_script</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">find_jitted_script</span><span class="p">(</span><span class="n">script</span><span class="o">-&gt;</span><span class="n">zasm_script</span><span class="p">.</span><span class="n">get</span><span class="p">());</span></td>
     </tr>
     <tr class="source-line">
@@ -1634,12 +1634,12 @@
         <details class="linebranchDetails">
         <summary class="linebranchSummary">2/2</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 2502 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 1948 times.</div>
           <div class="takenBranch">&check; Branch 1 taken 182048 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount coveredLine">184550</td>
+      <td class="linecount coveredLine">183996</td>
       <td class="src coveredLine"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">j_script</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -1667,14 +1667,14 @@
       <td class="lineno"><a id="l199" href="#l199">199</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">2502</td>
+      <td class="linecount coveredLine">1948</td>
       <td class="src coveredLine"><span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="k">nullptr</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l200" href="#l200">200</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">184554</td>
+      <td class="linecount coveredLine">184000</td>
       <td class="src coveredLine"><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
@@ -2536,7 +2536,7 @@
       <td class="lineno"><a id="l297" href="#l297">297</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">1943</td>
+      <td class="linecount coveredLine">1945</td>
       <td class="src coveredLine"><span class="kt">void</span><span class="w"> </span><span class="n">jit_shutdown</span><span class="p">()</span></td>
     </tr>
     <tr class="source-line">
@@ -2553,18 +2553,18 @@
         <summary class="linebranchSummary">2/2</summary>
         <div class="linebranchContents">
           <div class="takenBranch">&check; Branch 0 taken 1633 times.</div>
-          <div class="takenBranch">&check; Branch 1 taken 310 times.</div>
+          <div class="takenBranch">&check; Branch 1 taken 312 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount coveredLine">1943</td>
+      <td class="linecount coveredLine">1945</td>
       <td class="src coveredLine"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">is_enabled</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l300" href="#l300">300</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">310</td>
+      <td class="linecount coveredLine">312</td>
       <td class="src coveredLine"><span class="w">		</span><span class="k">return</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
@@ -2620,7 +2620,7 @@
       <td class="lineno"><a id="l307" href="#l307">307</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">1943</td>
+      <td class="linecount coveredLine">1945</td>
       <td class="src coveredLine"><span class="p">}</span></td>
     </tr>
     <tr class="source-line">

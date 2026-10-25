@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2026-10-25 01:23:00</td>
+      <td>2026-10-25 23:17:05</td>
     </tr>
   </table>
 </div>
@@ -122,7 +122,7 @@
     <tr><td><a href="#l498">open_quest(char const*) (line 498)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l1415">readonezdoorset(PACKFILE*, int) (line 1415)</a></td><td>called 1 time, returned 1 time</td><td>58.0%</td></tr>
     <tr><td><a href="#l1219">readzdoorsets(PACKFILE*, int, int, int) (line 1219)</a></td><td>not called</td><td>0.0%</td></tr>
-    <tr><td><a href="#l577">should_open_as_readonly(std::basic_string_view&lt;char, std::char_traits&lt;char&gt; &gt;) (line 577)</a></td><td>called 32 times, returned 32 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l577">should_open_as_readonly(std::basic_string_view&lt;char, std::char_traits&lt;char&gt; &gt;) (line 577)</a></td><td>called 36 times, returned 36 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l1370">writeonezdoorset(PACKFILE*, int) (line 1370)</a></td><td>called 2 times, returned 2 times</td><td>55.0%</td></tr>
     <tr><td><a href="#l1306">writezdoorsets(PACKFILE*, int, int) (line 1306)</a></td><td>not called</td><td>0.0%</td></tr>
   </table>
@@ -4175,7 +4175,7 @@
       <td class="lineno"><a id="l577" href="#l577">577</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">32</td>
+      <td class="linecount coveredLine">36</td>
       <td class="src coveredLine"><span class="kt">bool</span><span class="w"> </span><span class="nf">should_open_as_readonly</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string_view</span><span class="w"> </span><span class="n">path</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -4189,7 +4189,7 @@
       <td class="lineno"><a id="l579" href="#l579">579</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">32</td>
+      <td class="linecount coveredLine">36</td>
       <td class="src coveredLine"><span class="w">	</span><span class="k">return</span></td>
     </tr>
     <tr class="source-line">
@@ -4198,12 +4198,12 @@
         <details class="linebranchDetails">
         <summary class="linebranchSummary">1/2</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 32 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 36 times.</div>
           <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">32</td>
+      <td class="linecount partialCoveredLine">36</td>
       <td class="src partialCoveredLine"><span class="w">		</span><span class="n">path</span><span class="p">.</span><span class="n">find</span><span class="p">(</span><span class="s">&quot;backups&quot;</span><span class="p">)</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">::</span><span class="n">npos</span><span class="w"> </span><span class="o">||</span></td>
     </tr>
     <tr class="source-line">
@@ -4212,19 +4212,19 @@
         <details class="linebranchDetails">
         <summary class="linebranchSummary">1/2</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 32 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 36 times.</div>
           <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">32</td>
+      <td class="linecount partialCoveredLine">36</td>
       <td class="src partialCoveredLine"><span class="w">		</span><span class="n">path</span><span class="p">.</span><span class="n">find</span><span class="p">(</span><span class="s">&quot;.tmp/database&quot;</span><span class="p">)</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">::</span><span class="n">npos</span><span class="w"> </span><span class="o">||</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l582" href="#l582">582</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">32</td>
+      <td class="linecount coveredLine">36</td>
       <td class="src coveredLine"><span class="w">		</span><span class="n">path</span><span class="p">.</span><span class="n">find</span><span class="p">(</span><span class="s">&quot;.tmp</span><span class="se">\\</span><span class="s">database&quot;</span><span class="p">)</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">::</span><span class="n">npos</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">

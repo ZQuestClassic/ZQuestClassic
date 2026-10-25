@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2026-10-25 01:23:00</td>
+      <td>2026-10-25 23:17:05</td>
     </tr>
   </table>
 </div>
@@ -74,14 +74,14 @@
       <th>Block coverage</th>
     </tr>
     <tr><td><a href="#l1244">combo_trigger::clear() (line 1244)</a></td><td>not called</td><td>0.0%</td></tr>
-    <tr><td><a href="#l1239">combo_trigger::is_blank() const (line 1239)</a></td><td>called 8155908 times, returned 8155908 times</td><td>50.0%</td></tr>
+    <tr><td><a href="#l1239">combo_trigger::is_blank() const (line 1239)</a></td><td>called 8156388 times, returned 8156388 times</td><td>50.0%</td></tr>
     <tr><td><a href="#l65">combo_trigger::summarize[abi:cxx11](newcombo const&amp;) const (line 65)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l1263">from_json(nlohmann::json_abi_v3_11_3::basic_json&lt;std::map, std::vector, std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt;, bool, long, unsigned long, double, std::allocator, nlohmann::json_abi_v3_11_3::adl_serializer, std::vector&lt;unsigned char, std::allocator&lt;unsigned char&gt; &gt;, void&gt; const&amp;, combo_trigger&amp;) (line 1263)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l19">get_sign[abi:cxx11](combo_trigger const&amp;, unsigned long, unsigned long) (line 19)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l1501">is_push_flag(int, std::optional&lt;int&gt;) (line 1501)</a></td><td>called 2091908 times, returned 2091908 times</td><td>61.0%</td></tr>
     <tr><td><a href="#l1394">newcombo::advpaste(newcombo const&amp;, bitstring const&amp;) (line 1394)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l1367">newcombo::can_cycle() const (line 1367)</a></td><td>called 8924723941 times, returned 8924723941 times</td><td>83.0%</td></tr>
-    <tr><td><a href="#l1284">newcombo::clear() (line 1284)</a></td><td>called 113118171 times, returned 113118171 times</td><td>50.0%</td></tr>
+    <tr><td><a href="#l1284">newcombo::clear() (line 1284)</a></td><td>called 113721543 times, returned 113721543 times</td><td>50.0%</td></tr>
     <tr><td><a href="#l1376">newcombo::each_tile(std::function&lt;bool (int)&gt;) const (line 1376)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l1289">newcombo::is_blank(bool) const (line 1289)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l1278">newcombo::set_tile(int) (line 1278)</a></td><td>not called</td><td>0.0%</td></tr>
@@ -8774,7 +8774,7 @@
       <td class="lineno"><a id="l1239" href="#l1239">1239</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">8155908</td>
+      <td class="linecount coveredLine">8156388</td>
       <td class="src coveredLine"><span class="kt">bool</span><span class="w"> </span><span class="nf">combo_trigger::is_blank</span><span class="p">()</span><span class="w"> </span><span class="k">const</span></td>
     </tr>
     <tr class="source-line">
@@ -8790,12 +8790,12 @@
         <details class="linebranchDetails">
         <summary class="linebranchSummary">1/2</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 8155908 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 8156388 times.</div>
           <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">8155908</td>
+      <td class="linecount partialCoveredLine">8156388</td>
       <td class="src partialCoveredLine"><span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="o">*</span><span class="k">this</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">combo_trigger</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
@@ -9096,7 +9096,7 @@
       <td class="lineno"><a id="l1284" href="#l1284">1284</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">113118171</td>
+      <td class="linecount coveredLine">113721543</td>
       <td class="src coveredLine"><span class="kt">void</span><span class="w"> </span><span class="nf">newcombo::clear</span><span class="p">()</span></td>
     </tr>
     <tr class="source-line">
@@ -9112,19 +9112,19 @@
         <details class="linebranchDetails">
         <summary class="linebranchSummary">1/2</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 113118171 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 113721543 times.</div>
           <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">113118171</td>
+      <td class="linecount partialCoveredLine">113721543</td>
       <td class="src partialCoveredLine"><span class="w">	</span><span class="o">*</span><span class="k">this</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">newcombo</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1287" href="#l1287">1287</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">113118171</td>
+      <td class="linecount coveredLine">113721543</td>
       <td class="src coveredLine"><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
