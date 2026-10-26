@@ -24,6 +24,9 @@ std::string console_path;
 extern byte monochrome_console;
 
 io_manager* ConsoleWrite;
+// Where console text goes when it can't be sent through ConsoleWrite. In linked mode stdout is
+// the pipe to the parent, so this is stderr there.
+static FILE* console_fallback_out = stdout;
 
 extern uint32_t zscript_failcode;
 extern bool zscript_error_out;
@@ -94,7 +97,7 @@ void _console_print(char const* str, int32_t code)
 		ConsoleWrite->write(&code, sizeof(int32_t));
 		ConsoleWrite->read(&code, sizeof(int32_t));
 	}
-	else printf("%s\n", str);
+	else fprintf(console_fallback_out, "%s\n", str);
 }
 void zconsole_db(const char *format,...)
 {
@@ -283,6 +286,8 @@ int32_t main(int32_t argc, char **argv)
 		}
 		else return 1;
 	}
+	if(linked)
+		console_fallback_out = stderr;
 	if(used_switch(argc, argv, "-ignore_cassert"))
 		delay_asserts = ignore_asserts = true;
 	else if(used_switch(argc, argv, "-delay_cassert"))
@@ -314,7 +319,6 @@ int32_t main(int32_t argc, char **argv)
 		zasm_out = argv[zasm_out_index + 1];
 	
 	child_process_handler* cph = (linked ? new child_process_handler() : nullptr);
-	ConsoleWrite = cph;
 
 	if (!zscript_load_base_config("base_config/zscript.cfg"))
 	{
@@ -365,6 +369,11 @@ int32_t main(int32_t argc, char **argv)
 	
 	if(linked)
 	{
+		// Only send console messages to the parent from here on. It reads this first value
+		// without replying, so a message sent before it (like an error above) would leave both
+		// processes waiting on each other. Earlier errors go to stderr, and the parent sees
+		// this process exit.
+		ConsoleWrite = cph;
 		cph->write(&syncthing, sizeof(int32_t));
 	}
 
