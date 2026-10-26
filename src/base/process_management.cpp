@@ -7,6 +7,7 @@
 #include <sstream>
 
 #ifndef _WIN32
+	#include <cerrno>
 	#include <csignal>
 	#include <sys/types.h>
 	#include <sys/wait.h>
@@ -256,7 +257,13 @@ bool child_process_handler::init()
 	in = GetStdHandle(STD_INPUT_HANDLE);
 	return (out != INVALID_HANDLE_VALUE && in != INVALID_HANDLE_VALUE);
 #else
+#ifdef __EMSCRIPTEN__
+	// The web build runs zscript in the page (see web/main.js), with no parent process on the
+	// other end of stdin to reply.
+	read_handle = -1;
+#else
 	read_handle = fileno(stdin);
+#endif
 	write_handle = fileno(stdout);
 	return true;
 #endif
@@ -270,10 +277,22 @@ bool child_process_handler::read(void* buf, uint32_t bytes_to_read, uint32_t* by
 		return ReadFile((HANDLE)in, (LPVOID)buf, (DWORD)bytes_to_read, (LPDWORD)bytes_read, NULL);
 	return false;
 #else
-	if(!read_handle) return false;
-	size_t ret = ::read(read_handle, buf, bytes_to_read);
-	if(bytes_read) *bytes_read = ret;
-	return ret>0;
+	// stdin is fd 0, so a check for 0 here would skip every read.
+	if(read_handle < 0) return false;
+	// A read that returns early (ex: interrupted by a signal) must not count as the parent's
+	// reply, or every later message is out of step with it.
+	uint32_t total = 0;
+	while(total < bytes_to_read)
+	{
+		ssize_t ret = ::read(read_handle, (char*)buf + total, bytes_to_read - total);
+		if(ret < 0 && errno == EINTR)
+			continue;
+		if(ret <= 0)
+			break;
+		total += ret;
+	}
+	if(bytes_read) *bytes_read = total;
+	return total==bytes_to_read;
 #endif
 }
 
@@ -286,9 +305,18 @@ bool child_process_handler::write(void* buf, uint32_t bytes_to_write, uint32_t* 
 	return false;
 #else
 	if(!write_handle) return false;
-	size_t ret = ::write(write_handle, buf, bytes_to_write);
-	if(bytes_written) *bytes_written = ret;
-	return ret==bytes_to_write;
+	uint32_t total = 0;
+	while(total < bytes_to_write)
+	{
+		ssize_t ret = ::write(write_handle, (const char*)buf + total, bytes_to_write - total);
+		if(ret < 0 && errno == EINTR)
+			continue;
+		if(ret < 0)
+			break;
+		total += ret;
+	}
+	if(bytes_written) *bytes_written = total;
+	return total==bytes_to_write;
 #endif
 }
 
