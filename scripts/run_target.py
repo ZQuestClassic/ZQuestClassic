@@ -341,6 +341,9 @@ def run(target_name: str, args: list, build_folder: Optional[Path] = None, **kwa
         ],
         capture_output=True,
         encoding='utf-8',
+        # Targets can print bytes that aren't UTF-8, such as file names from older Windows
+        # code pages or text from older quests. Keep them visible instead of failing.
+        errors='backslashreplace',
         **kwargs,
     )
 

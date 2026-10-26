@@ -92,6 +92,9 @@ void zplayer_handle_commands()
 		extern TestResults test_parse_user_path(bool);
 		if (!run_tests(test_parse_user_path, "test_parse_user_path", verbose)) success = false;
 
+		extern TestResults test_zcmusic(bool);
+		if (!run_tests(test_zcmusic, "test_zcmusic", verbose)) success = false;
+
 #ifndef __EMSCRIPTEN__
 		extern TestResults test_debugger(bool);
 		if (!run_tests(test_debugger, "test_debugger", verbose)) success = false;

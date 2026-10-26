@@ -105,6 +105,7 @@ src/zc/zasm_utils.cpp
 src/zc/wasm_compiler.cpp
 
 src/test_runner/test_runner.cpp
+src/components/sound/zcmusic_test.cpp
 src/zc/debugger/debugger_test.cpp
 src/zc/lightbeam_test.cpp
 src/zc/saves_test.cpp
