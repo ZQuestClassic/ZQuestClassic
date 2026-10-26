@@ -15,6 +15,7 @@
 #endif
 #include <cstdint>
 #include <string>
+#include <vector>
 
 #ifdef __EMSCRIPTEN__
 #include <SDL2/SDL_mixer.h>
@@ -57,6 +58,8 @@ enum ZCM_Error
 	ZCM_E_ERROR, // Other error
 };
 ZCM_EXTERN std::pair<ZCMUSIC*,ZCM_Error> zcmusic_load_for_quest(const char* filename, const char* quest_path);
+// The paths zcmusic_load_for_quest tries for a music file, in order. Empty if there are none.
+ZCM_EXTERN std::vector<std::string> zcmusic_find_for_quest(const char* filename, const char* quest_path);
 
 ZCM_EXTERN bool zcmusic_init(int32_t flags = -1);
 ZCM_EXTERN bool zcmusic_poll(int32_t flags = -1);
