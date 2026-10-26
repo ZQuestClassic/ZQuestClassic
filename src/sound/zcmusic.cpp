@@ -21,6 +21,7 @@
 
 #include "base/zsys.h"
 #include "base/util.h"
+#include "base/win_encoding.h"
 #include "sound/zcmusic.h"
 #include <filesystem>
 #include <stdlib.h>
@@ -80,28 +81,8 @@ std::filesystem::path resolve_case_insensitive(const std::filesystem::path& base
 	return exact_path;
 }
 
-} // end namespace
-
-char const * zcmusic_types = "it;mod;mp3;ogg;s3m;spc;gym;nsf;gbs;vgm;xm";
-
-pair<ZCMUSIC*,ZCM_Error> zcmusic_load_for_quest(const char* filename, const char* quest_path)
+std::vector<std::string> find_for_quest_impl(const std::string& filename, const char* quest_path)
 {
-	if (!al_is_audio_installed())
-	{
-		static bool logged_no_audio;
-		if (!logged_no_audio)
-		{
-			logged_no_audio = true;
-			al_trace("Not loading music: audio is not installed\n");
-		}
-		return make_pair(nullptr, ZCM_E_NO_AUDIO);
-	}
-
-	// An empty filename resolves to the search directories themselves, which of
-	// course exist - don't go looking for (and fail to load) a directory.
-	if (!filename || !filename[0])
-		return make_pair(nullptr, ZCM_E_NOT_FOUND);
-
     char exe_path[PATH_MAX];
     get_executable_name(exe_path, PATH_MAX);
     auto exe_dir = std::filesystem::path(exe_path).parent_path();
@@ -141,33 +122,79 @@ pair<ZCMUSIC*,ZCM_Error> zcmusic_load_for_quest(const char* filename, const char
 		add_dir(entry.path());
 	}
 
-	bool any_existed = false;
-
+	std::vector<std::string> paths;
 	for (const auto& dir : dirs)
 	{
 		auto path = resolve_case_insensitive(dir, filename);
-		if (!std::filesystem::exists(path))
-			continue;
-
-		any_existed = true;
-
-		ZCMUSIC *newzcmusic = zcmusic_load_file(path.string().c_str());
-		if (newzcmusic)
-			return make_pair(newzcmusic, ZCM_E_OK);
+		if (std::filesystem::exists(path))
+			paths.push_back(path.string());
 	}
 
-	if (any_existed)
+	if (paths.empty())
 	{
-		al_trace("Music file '%s' was found, but failed to load (quest: '%s')\n", filename, quest_path);
-	}
-	else
-	{
-		al_trace("Music file '%s' not found in any music folder (quest: '%s'). Searched:\n", filename, quest_path);
+		al_trace("Music file '%s' not found in any music folder (quest: '%s'). Searched:\n", filename.c_str(), quest_path);
 		for (const auto& dir : dirs)
 			al_trace("    %s\n", dir.string().c_str());
 	}
 
-    return make_pair(nullptr, any_existed ? ZCM_E_ERROR : ZCM_E_NOT_FOUND);
+	return paths;
+}
+
+} // end namespace
+
+char const * zcmusic_types = "it;mod;mp3;ogg;s3m;spc;gym;nsf;gbs;vgm;xm";
+
+std::vector<std::string> zcmusic_find_for_quest(const char* filename, const char* quest_path)
+{
+	// An empty filename resolves to the search directories themselves, which of
+	// course exist - don't go looking for (and fail to load) a directory.
+	if (!filename || !filename[0])
+		return {};
+
+	// A quest saved on Windows before src/windows.manifest can have its music filenames in the
+	// ANSI code page, which std::filesystem::path would throw on.
+	std::string name = filename;
+	util::legacy_path_to_utf8(name);
+
+	try
+	{
+		return find_for_quest_impl(name, quest_path);
+	}
+	// std::filesystem::path throws for a string it can't convert, which can still happen before
+	// Windows 10 1903 (no UTF-8 code page there).
+	catch (const std::system_error& e)
+	{
+		al_trace("Music file '%s' not found (quest: '%s'): %s\n", name.c_str(), quest_path, e.what());
+		return {};
+	}
+}
+
+pair<ZCMUSIC*,ZCM_Error> zcmusic_load_for_quest(const char* filename, const char* quest_path)
+{
+	if (!al_is_audio_installed())
+	{
+		static bool logged_no_audio;
+		if (!logged_no_audio)
+		{
+			logged_no_audio = true;
+			al_trace("Not loading music: audio is not installed\n");
+		}
+		return make_pair(nullptr, ZCM_E_NO_AUDIO);
+	}
+
+	auto paths = zcmusic_find_for_quest(filename, quest_path);
+	if (paths.empty())
+		return make_pair(nullptr, ZCM_E_NOT_FOUND);
+
+	for (const auto& path : paths)
+	{
+		ZCMUSIC *newzcmusic = zcmusic_load_file(path.c_str());
+		if (newzcmusic)
+			return make_pair(newzcmusic, ZCM_E_OK);
+	}
+
+	al_trace("Music file '%s' was found, but failed to load (quest: '%s')\n", filename, quest_path);
+	return make_pair(nullptr, ZCM_E_ERROR);
 }
 
 // used for allegro streamed music (ogg, mp3)
