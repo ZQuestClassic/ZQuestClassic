@@ -386,7 +386,6 @@ int32_t main(int32_t argc, char **argv)
 		zasm_out = argv[zasm_out_index + 1];
 	
 	child_process_handler* cph = (linked ? new child_process_handler() : nullptr);
-	ConsoleWrite = cph;
 
 	if (ZScript::is_test())
 	{
@@ -458,6 +457,11 @@ int32_t main(int32_t argc, char **argv)
 	
 	if(linked)
 	{
+		// Only send console messages to the parent from here on. It reads this first value
+		// without replying, so a message sent before it (like an error above) would leave both
+		// processes waiting on each other. Earlier errors go to stderr, and the parent sees
+		// this process exit.
+		ConsoleWrite = cph;
 		cph->write(&syncthing, sizeof(int32_t));
 	}
 
