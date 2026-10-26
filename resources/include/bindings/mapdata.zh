@@ -840,6 +840,9 @@ class mapdata {
 	// Resizable array of data for scripts to use. All changes are saved to the
 	// save file.
 	//
+	// Belongs to the map screen, so it is the same array as [screendata::Data]
+	// for this screen, on any DMap.
+	//
 	// @zasm_var MAPDATASCRDATA
 	internal untyped Data[];
 

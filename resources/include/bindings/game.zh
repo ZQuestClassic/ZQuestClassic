@@ -925,12 +925,27 @@ class Game {
 	//   SETR SPRITEMAXITEM D2
 	internal void MaxItemsprites(int value);
 
+	// Returns the value at index `register` of [screendata::D] for a screen of
+	// the current DMap.
+	//
+	// `screen` is the screen's index within the DMap: for DMaps that are not
+	// overworlds, that is the map screen minus the DMap's [dmapdata::Offset].
+	//
 	// @zasm
 	//   POP D1
 	//   POP D0
 	//   SETR D2 SDDD
 	internal untyped GetScreenD(int screen, int register);
 
+	// Sets the value at index `register` of [screendata::D] for a screen of
+	// the current DMap.
+	//
+	// `screen` is the screen's index within the DMap: for DMaps that are not
+	// overworlds, that is the map screen minus the DMap's [dmapdata::Offset].
+	//
+	// `value` is stored as a number: unlike assigning to [screendata::D], this doesn't
+	// keep an object alive.
+	//
 	// @zasm
 	//   POP D6
 	//   POP D1
@@ -938,6 +953,12 @@ class Game {
 	//   SETR SDDD D6
 	internal void SetScreenD(int screen, int register, untyped value);
 
+	// Returns the value at index `register` of [screendata::D] for a screen of
+	// the given DMap.
+	//
+	// `screen` is the screen's index within the DMap: for DMaps that are not
+	// overworlds, that is the map screen minus the DMap's [dmapdata::Offset].
+	//
 	// @zasm
 	//   POP D2
 	//   POP D1
@@ -945,6 +966,15 @@ class Game {
 	//   SETR D2 SDDDD
 	internal untyped GetDMapScreenD(int dmap, int screen, int register);
 
+	// Sets the value at index `register` of [screendata::D] for a screen of
+	// the given DMap.
+	//
+	// `screen` is the screen's index within the DMap: for DMaps that are not
+	// overworlds, that is the map screen minus the DMap's [dmapdata::Offset].
+	//
+	// `value` is stored as a number: unlike assigning to [screendata::D], this doesn't
+	// keep an object alive.
+	//
 	// @zasm
 	//   POP D6
 	//   POP D2
