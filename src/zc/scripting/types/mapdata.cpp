@@ -1586,6 +1586,7 @@ static ArrayRegistrar MAPDATAMISCD_registrar(MAPDATAMISCD, []{
 	);
 	impl.compatSetDefaultValue(-10000);
 	impl.setMul10000(true);
+	impl.setNoObjects();
 	return &impl;
 }());
 

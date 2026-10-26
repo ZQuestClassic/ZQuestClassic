@@ -32,6 +32,7 @@ using std::shared_ptr;
 #define FUNCFLAG_CONSTEXPR          0x00008000 //Function is constexpr
 #define FUNCFLAG_MAY_SET_OBJECT     0x00010000 //Function is a setter, and may or may not retain an object reference
 #define FUNCFLAG_NONSTATIC          0x00020000 //'FUNCFLAG_STATIC' should be removed if was auto-applied
+#define FUNCFLAG_NO_OBJECTS         0x00040000 //Function is a setter of an untyped array that can't hold objects (@no_objects)
 
 #define IFUNCFLAG_SKIPPOINTER	      0x01
 #define IFUNCFLAG_REASSIGNPTR	      0x02

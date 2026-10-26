@@ -31,6 +31,15 @@ garbage_collection_engine_storage.zs Line 130 @ Columns 3-10 - Warning S094: Var
 
 
 INFO: mapdata->D[] has never worked!
+garbage_collection_engine_storage.zs Line 138 @ Columns 17-24 - Warning S094: Variable 'mapdata->D' is deprecated, and should not be used.
+
+136    // Storing an object in mapdata->D[] is a compile error, but an array pointer
+137    // can still reach it. The object isn't retained (and an error is logged).
+138    untyped d[] = same->D;
+                     ^~~~~~~
+
+
+INFO: mapdata->D[] has never worked!
 Pass 5: Checking code paths
 Pass 6: Generating object code
 Pass 7: Assembling
@@ -83,12 +92,26 @@ stdout:
       },
       "severity": 2,
       "message": "S094: Variable 'mapdata->D' is deprecated, and should not be used.\nmapdata->D[] has never worked!"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 137,
+          "character": 16
+        },
+        "end": {
+          "line": 137,
+          "character": 23
+        }
+      },
+      "severity": 2,
+      "message": "S094: Variable 'mapdata->D' is deprecated, and should not be used.\nmapdata->D[] has never worked!"
     }
   ],
   "metadata": {
-    "currentFileSymbols": 19,
-    "symbols": 54,
-    "identifiers": 202,
+    "currentFileSymbols": 21,
+    "symbols": 56,
+    "identifiers": 213,
     "elided": true
   }
 }
@@ -149,22 +172,22 @@ SETR D2 GENDATARUNNING
 COMPAREV D2 0
 GOTOCMP 59 ==; Test 'while'
 PUSHR D4; while() Body Start
-CALLFUNC 0.0734; UsrFunc[void DrawLabel()] Call
+CALLFUNC 0.0764; UsrFunc[void DrawLabel()] Call
 POP D4
 WAITFRAME; InlineFunc[void Waitframe()] Body AND while() Body End
 GOTO 48; while() End
-CALLFUNC 0.0643; UsrFunc[void End()] Call AND [Opt:NeverRet]
+CALLFUNC 0.0673; UsrFunc[void End()] Call AND [Opt:NeverRet]
 REF_REMOVE 0.0002; [Opt:NeverRet] AND void run() Body End
-PUSHARGSV 0 0.0005; void run() Body Start
+PUSHARGSV 0 0.0007; void run() Body Start
 SETR D4 SP2
 PUSHR D4
 PUSHV 0; UsrFunc[void Init(int)] Params
-CALLFUNC 0.0621; UsrFunc[void Init(int)] Call
+CALLFUNC 0.0651; UsrFunc[void Init(int)] Call
 POP D4
 PUSHR CLASS_THISKEY
 PUSHR D4
 PUSHV 1; ClassFunc[GCESNode GCESNode::GCESNode(int)] Params
-CALLFUNC 0.0563; ClassFunc[GCESNode GCESNode::GCESNode(int)] Constructor Call
+CALLFUNC 0.0593; ClassFunc[GCESNode GCESNode::GCESNode(int)] Constructor Call
 POP D4
 POP CLASS_THISKEY
 PUSHR D2
@@ -184,7 +207,7 @@ PUSHV 0.0001
 ALLOCATEMEMV D2 20 0
 WRITEPODSTRING D2 "Screen->D: RefCount"
 PUSHR D2; UsrFunc[void AssertEqual(long, long, char32[])] Params End
-CALLFUNC 0.0650; UsrFunc[void AssertEqual(long, long, char32[])] Call
+CALLFUNC 0.0680; UsrFunc[void AssertEqual(long, long, char32[])] Call
 POP D4
 PUSHV 5; InlineFunc[void hero::Warp(int, int)] Params Start
 SETV D2 1; InlineFunc[void hero::Warp(int, int)] Params End
@@ -205,7 +228,7 @@ PUSHV 0
 ALLOCATEMEMV D2 41 0
 WRITEPODSTRING D2 "Screen->D: object kept on another screen"
 PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
-CALLFUNC 0.0678; UsrFunc[void AssertEqual(int, int, char32[])] Call
+CALLFUNC 0.0708; UsrFunc[void AssertEqual(int, int, char32[])] Call
 POP D4
 PUSHV 5; InlineFunc[void hero::Warp(int, int)] Params Start
 SETV D2 0; InlineFunc[void hero::Warp(int, int)] Params End
@@ -216,27 +239,27 @@ SETV D2 0
 PUSHR D2
 POP D0
 SETR D2 SDD
-STORE_OBJECT D2 0.0004
+STORE_OBJECT D2 0.0006
 PUSHR D4
-LOAD D2 0.0004; UsrFunc[void AssertEqual(int, int, char32[])] Params Start
+LOAD D2 0.0006; UsrFunc[void AssertEqual(int, int, char32[])] Params Start
 ZCLASS_READ D2 0
 PUSHR D2
 PUSHV 1
 ALLOCATEMEMV D2 34 0
 WRITEPODSTRING D2 "Screen->D: object after returning"
 PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
-CALLFUNC 0.0678; UsrFunc[void AssertEqual(int, int, char32[])] Call
+CALLFUNC 0.0708; UsrFunc[void AssertEqual(int, int, char32[])] Call
 PEEK D4
-LOAD D2 0.0004; InlineFunc[long RefCount(untyped)] Params AND UsrFunc[void AssertEqual(long, long, char32[])] Params Start
+LOAD D2 0.0006; InlineFunc[long RefCount(untyped)] Params AND UsrFunc[void AssertEqual(long, long, char32[])] Params Start
 REF_COUNT D2; InlineFunc[long RefCount(untyped)] Body
 PUSHR D2
 PUSHV 0.0002
 ALLOCATEMEMV D2 36 0
 WRITEPODSTRING D2 "Screen->D: RefCount after returning"
 PUSHR D2; UsrFunc[void AssertEqual(long, long, char32[])] Params End
-CALLFUNC 0.0650; UsrFunc[void AssertEqual(long, long, char32[])] Call
+CALLFUNC 0.0680; UsrFunc[void AssertEqual(long, long, char32[])] Call
 POP D4
-REF_REMOVE 0.0004
+REF_REMOVE 0.0006
 SETV D2 5
 PUSHR D2
 SETV D2 0
@@ -250,12 +273,12 @@ PUSHV 1
 ALLOCATEMEMV D2 37 0
 WRITEPODSTRING D2 "Screen->D: released when overwritten"
 PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
-CALLFUNC 0.0678; UsrFunc[void AssertEqual(int, int, char32[])] Call
+CALLFUNC 0.0708; UsrFunc[void AssertEqual(int, int, char32[])] Call
 POP D4
 PUSHR CLASS_THISKEY
 PUSHR D4
 PUSHV 2; ClassFunc[GCESNode GCESNode::GCESNode(int)] Params
-CALLFUNC 0.0563; ClassFunc[GCESNode GCESNode::GCESNode(int)] Constructor Call
+CALLFUNC 0.0593; ClassFunc[GCESNode GCESNode::GCESNode(int)] Constructor Call
 POP D4
 POP CLASS_THISKEY
 PUSHR D2
@@ -276,7 +299,7 @@ PUSHV 2
 ALLOCATEMEMV D2 34 0
 WRITEPODSTRING D2 "Screen->D: released by SetScreenD"
 PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
-CALLFUNC 0.0678; UsrFunc[void AssertEqual(int, int, char32[])] Call
+CALLFUNC 0.0708; UsrFunc[void AssertEqual(int, int, char32[])] Call
 PEEK D4
 SETV D2 1; UsrFunc[void AssertEqual(untyped, untyped, char32[])] Params Start
 PUSHR D2
@@ -286,12 +309,12 @@ PUSHV 6
 ALLOCATEMEMV D2 28 0
 WRITEPODSTRING D2 "Screen->D: SetScreenD value"
 PUSHR D2; UsrFunc[void AssertEqual(untyped, untyped, char32[])] Params End
-CALLFUNC 0.0706; UsrFunc[void AssertEqual(untyped, untyped, char32[])] Call
+CALLFUNC 0.0736; UsrFunc[void AssertEqual(untyped, untyped, char32[])] Call
 POP D4
 PUSHR CLASS_THISKEY
 PUSHR D4
 PUSHV 3; ClassFunc[GCESNode GCESNode::GCESNode(int)] Params
-CALLFUNC 0.0563; ClassFunc[GCESNode GCESNode::GCESNode(int)] Constructor Call
+CALLFUNC 0.0593; ClassFunc[GCESNode GCESNode::GCESNode(int)] Constructor Call
 POP D4
 POP CLASS_THISKEY
 PUSHR D2
@@ -316,7 +339,7 @@ PUSHV 2
 ALLOCATEMEMV D2 27 0
 WRITEPODSTRING D2 "Screen->D: self-assignment"
 PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
-CALLFUNC 0.0678; UsrFunc[void AssertEqual(int, int, char32[])] Call
+CALLFUNC 0.0708; UsrFunc[void AssertEqual(int, int, char32[])] Call
 POP D4
 SETV D2 0
 PUSHR D2
@@ -331,7 +354,7 @@ PUSHV 3
 ALLOCATEMEMV D2 42 0
 WRITEPODSTRING D2 "Screen->D: released after self-assignment"
 PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
-CALLFUNC 0.0678; UsrFunc[void AssertEqual(int, int, char32[])] Call
+CALLFUNC 0.0708; UsrFunc[void AssertEqual(int, int, char32[])] Call
 POP D4
 SETV D2 2
 PUSHR D2
@@ -340,7 +363,7 @@ SETR SCREENSCRDATASIZE D2
 PUSHR CLASS_THISKEY
 PUSHR D4
 PUSHV 4; ClassFunc[GCESNode GCESNode::GCESNode(int)] Params
-CALLFUNC 0.0563; ClassFunc[GCESNode GCESNode::GCESNode(int)] Constructor Call
+CALLFUNC 0.0593; ClassFunc[GCESNode GCESNode::GCESNode(int)] Constructor Call
 POP D4
 POP CLASS_THISKEY
 PUSHR D2
@@ -353,35 +376,35 @@ PUSHR CURMAP; InlineFunc[mapdata Game::LoadMapData(int, int)] Params Start
 SETR D1 CURSCR; InlineFunc[mapdata Game::LoadMapData(int, int)] Params End
 POP D0; InlineFunc[mapdata Game::LoadMapData(int, int)] Body Start
 SETR D2 LOADMAPDATA; InlineFunc[mapdata Game::LoadMapData(int, int)] Body End
-STORE D2 0.0004
-LOAD D2 0.0004
+STORE D2 0.0006
+LOAD D2 0.0006
 PUSHR D2
 SETV D2 1
 PUSHR D2
 POP D0
 POP REFMAPDATA
 SETR D2 MAPDATASCRDATA
-STORE_OBJECT D2 0.0003
+STORE_OBJECT D2 0.0005
 PUSHR D4
-LOAD D2 0.0003; UsrFunc[void AssertEqual(int, int, char32[])] Params Start
+LOAD D2 0.0005; UsrFunc[void AssertEqual(int, int, char32[])] Params Start
 ZCLASS_READ D2 0
 PUSHR D2
 PUSHV 4
 ALLOCATEMEMV D2 35 0
 WRITEPODSTRING D2 "Screen->Data: read through mapdata"
 PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
-CALLFUNC 0.0678; UsrFunc[void AssertEqual(int, int, char32[])] Call
+CALLFUNC 0.0708; UsrFunc[void AssertEqual(int, int, char32[])] Call
 PEEK D4
-LOAD D2 0.0003; InlineFunc[long RefCount(untyped)] Params AND UsrFunc[void AssertEqual(long, long, char32[])] Params Start
+LOAD D2 0.0005; InlineFunc[long RefCount(untyped)] Params AND UsrFunc[void AssertEqual(long, long, char32[])] Params Start
 REF_COUNT D2; InlineFunc[long RefCount(untyped)] Body
 PUSHR D2
 PUSHV 0.0002
 ALLOCATEMEMV D2 37 0
 WRITEPODSTRING D2 "Screen->Data: one reference for both"
 PUSHR D2; UsrFunc[void AssertEqual(long, long, char32[])] Params End
-CALLFUNC 0.0650; UsrFunc[void AssertEqual(long, long, char32[])] Call
+CALLFUNC 0.0680; UsrFunc[void AssertEqual(long, long, char32[])] Call
 POP D4
-REF_REMOVE 0.0003
+REF_REMOVE 0.0005
 GC; InlineFunc[void GC()] Body
 PUSHR D4
 PUSHR GD2; UsrFunc[void AssertEqual(int, int, char32[])] Params Start
@@ -389,7 +412,7 @@ PUSHV 3
 ALLOCATEMEMV D2 32 0
 WRITEPODSTRING D2 "Screen->Data: object kept by GC"
 PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
-CALLFUNC 0.0678; UsrFunc[void AssertEqual(int, int, char32[])] Call
+CALLFUNC 0.0708; UsrFunc[void AssertEqual(int, int, char32[])] Call
 POP D4
 SETV D2 1
 PUSHR D2
@@ -401,7 +424,7 @@ PUSHV 4
 ALLOCATEMEMV D2 35 0
 WRITEPODSTRING D2 "Screen->Data: released when shrunk"
 PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
-CALLFUNC 0.0678; UsrFunc[void AssertEqual(int, int, char32[])] Call
+CALLFUNC 0.0708; UsrFunc[void AssertEqual(int, int, char32[])] Call
 POP D4
 SETV D2 2
 PUSHR D2
@@ -416,17 +439,17 @@ PUSHV 0
 ALLOCATEMEMV D2 40 0
 WRITEPODSTRING D2 "Screen->Data: empty after growing again"
 PUSHR D2; UsrFunc[void AssertEqual(long, long, char32[])] Params End
-CALLFUNC 0.0650; UsrFunc[void AssertEqual(long, long, char32[])] Call
+CALLFUNC 0.0680; UsrFunc[void AssertEqual(long, long, char32[])] Call
 POP D4
 ALLOCATEMEMV D2 34 0; InlineFunc[int Game::GetGenericScript(char32[])] Params Start AND InlineFunc[genericdata Game::LoadGenericData(int)] Params Start
 WRITEPODSTRING D2 "garbage_collection_engine_storage"; InlineFunc[int Game::GetGenericScript(char32[])] Params End
 GETGENERICSCRIPT D2; InlineFunc[int Game::GetGenericScript(char32[])] Body AND InlineFunc[genericdata Game::LoadGenericData(int)] Params End
 LOADGENERICDATA D2; InlineFunc[genericdata Game::LoadGenericData(int)] Body Start
 SETR D2 REFGENERICDATA; InlineFunc[genericdata Game::LoadGenericData(int)] Body End
-STORE D2 0.0003
+STORE D2 0.0005
 SETV D2 1
 PUSHR D2
-LOAD D2 0.0003
+LOAD D2 0.0005
 POP D3
 PUSHR D2
 PUSHR D3
@@ -436,11 +459,11 @@ SETR GENDATASIZE D2
 PUSHR CLASS_THISKEY
 PUSHR D4
 PUSHV 5; ClassFunc[GCESNode GCESNode::GCESNode(int)] Params
-CALLFUNC 0.0563; ClassFunc[GCESNode GCESNode::GCESNode(int)] Constructor Call
+CALLFUNC 0.0593; ClassFunc[GCESNode GCESNode::GCESNode(int)] Constructor Call
 POP D4
 POP CLASS_THISKEY
 PUSHR D2
-LOAD D2 0.0003
+LOAD D2 0.0005
 POP D3
 PUSHR D2
 PUSHR D3
@@ -457,11 +480,11 @@ PUSHV 4
 ALLOCATEMEMV D2 37 0
 WRITEPODSTRING D2 "genericdata->Data: object kept by GC"
 PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
-CALLFUNC 0.0678; UsrFunc[void AssertEqual(int, int, char32[])] Call
+CALLFUNC 0.0708; UsrFunc[void AssertEqual(int, int, char32[])] Call
 POP D4
 SETV D2 0
 PUSHR D2
-LOAD D2 0.0003
+LOAD D2 0.0005
 POP D3
 PUSHR D2
 PUSHR D3
@@ -474,12 +497,12 @@ PUSHV 5
 ALLOCATEMEMV D2 40 0
 WRITEPODSTRING D2 "genericdata->Data: released when shrunk"
 PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
-CALLFUNC 0.0678; UsrFunc[void AssertEqual(int, int, char32[])] Call
+CALLFUNC 0.0708; UsrFunc[void AssertEqual(int, int, char32[])] Call
 POP D4
 PUSHR CLASS_THISKEY
 PUSHR D4
 PUSHV 6; ClassFunc[GCESNode GCESNode::GCESNode(int)] Params
-CALLFUNC 0.0563; ClassFunc[GCESNode GCESNode::GCESNode(int)] Constructor Call
+CALLFUNC 0.0593; ClassFunc[GCESNode GCESNode::GCESNode(int)] Constructor Call
 POP D4
 POP CLASS_THISKEY
 PUSHR D2
@@ -489,8 +512,8 @@ POP D0
 POP D2
 SET_OBJECT SDD D2 0.0008
 ALLOCATEMEMV D2 8 0.0010
-STORE_OBJECT D2 0.0002
-LOAD D2 0.0002; InlineFunc[void ArrayCopy(untyped[], untyped[])] Params Start
+STORE_OBJECT D2 0.0004
+LOAD D2 0.0004; InlineFunc[void ArrayCopy(untyped[], untyped[])] Params Start
 PUSHR D2
 LOAD_INTERNAL_ARRAY_REF D2 @SDD REFSCREEN
 SETR D3 D2; InlineFunc[void ArrayCopy(untyped[], untyped[])] Params End
@@ -509,9 +532,9 @@ PUSHV 5
 ALLOCATEMEMV D2 35 0
 WRITEPODSTRING D2 "ArrayCopy: copy retains the object"
 PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
-CALLFUNC 0.0678; UsrFunc[void AssertEqual(int, int, char32[])] Call
+CALLFUNC 0.0708; UsrFunc[void AssertEqual(int, int, char32[])] Call
 PEEK D4
-LOAD D2 0.0002; UsrFunc[void AssertEqual(int, int, char32[])] Params Start
+LOAD D2 0.0004; UsrFunc[void AssertEqual(int, int, char32[])] Params Start
 PUSHR D2
 POP D0
 READPODARRAYV D2 3
@@ -521,7 +544,7 @@ PUSHV 6
 ALLOCATEMEMV D2 25 0
 WRITEPODSTRING D2 "ArrayCopy: copied object"
 PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
-CALLFUNC 0.0678; UsrFunc[void AssertEqual(int, int, char32[])] Call
+CALLFUNC 0.0708; UsrFunc[void AssertEqual(int, int, char32[])] Call
 POP D4
 PUSHV 1; InlineFunc[void hero::Warp(int, int)] Params Start
 SETV D2 0; InlineFunc[void hero::Warp(int, int)] Params End
@@ -532,10 +555,10 @@ PUSHR CURMAP; InlineFunc[mapdata Game::LoadMapData(int, int)] Params Start
 SETR D1 CURSCR; InlineFunc[mapdata Game::LoadMapData(int, int)] Params End
 POP D0; InlineFunc[mapdata Game::LoadMapData(int, int)] Body Start
 SETR D2 LOADMAPDATA; InlineFunc[mapdata Game::LoadMapData(int, int)] Body End
-STORE D2 0.0001
+STORE D2 0.0003
 SETV D2 3
 PUSHR D2
-LOAD D2 0.0001
+LOAD D2 0.0003
 POP D3
 PUSHR D2
 PUSHR D3
@@ -554,12 +577,12 @@ PUSHV 0.0003
 ALLOCATEMEMV D2 43 0
 WRITEPODSTRING D2 "mapdata->D: same storage as Screen->D here"
 PUSHR D2; UsrFunc[void AssertEqual(long, long, char32[])] Params End
-CALLFUNC 0.0650; UsrFunc[void AssertEqual(long, long, char32[])] Call
+CALLFUNC 0.0680; UsrFunc[void AssertEqual(long, long, char32[])] Call
 POP D4
 PUSHR CLASS_THISKEY
 PUSHR D4
 PUSHV 7; ClassFunc[GCESNode GCESNode::GCESNode(int)] Params
-CALLFUNC 0.0563; ClassFunc[GCESNode GCESNode::GCESNode(int)] Constructor Call
+CALLFUNC 0.0593; ClassFunc[GCESNode GCESNode::GCESNode(int)] Constructor Call
 POP D4
 POP CLASS_THISKEY
 PUSHR D2
@@ -570,7 +593,7 @@ POP D2
 SET_OBJECT SDD D2 0.0008
 SETV D2 2
 PUSHR D2
-LOAD D2 0.0001
+LOAD D2 0.0003
 POP D3
 PUSHR D2
 PUSHR D3
@@ -586,7 +609,7 @@ PUSHV 6
 ALLOCATEMEMV D2 45 0
 WRITEPODSTRING D2 "mapdata->D: released the object it overwrote"
 PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
-CALLFUNC 0.0678; UsrFunc[void AssertEqual(int, int, char32[])] Call
+CALLFUNC 0.0708; UsrFunc[void AssertEqual(int, int, char32[])] Call
 POP D4
 GC; InlineFunc[void GC()] Body
 SETV D2 0
@@ -602,12 +625,40 @@ PUSHV 6
 ALLOCATEMEMV D2 30 0
 WRITEPODSTRING D2 "mapdata->D: no double release"
 PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
-CALLFUNC 0.0678; UsrFunc[void AssertEqual(int, int, char32[])] Call
+CALLFUNC 0.0708; UsrFunc[void AssertEqual(int, int, char32[])] Call
+POP D4
+LOAD D2 0.0003
+PUSHR D2
+POP REFMAPDATA
+LOAD_INTERNAL_ARRAY_REF D2 @MAPDATAMISCD REFMAPDATA
+STORE_OBJECT D2 0.0002
+PUSHR CLASS_THISKEY
+PUSHR D4
+PUSHV 8; ClassFunc[GCESNode GCESNode::GCESNode(int)] Params
+CALLFUNC 0.0593; ClassFunc[GCESNode GCESNode::GCESNode(int)] Constructor Call
+POP D4
+POP CLASS_THISKEY
+STORE_OBJECT D2 0.0001
+LOAD D2 0.0001
+PUSHR D2
+LOAD D2 0.0002
+SETR D0 D2
+POP D2
+WRITEPODARRAYVR 5 D2 0.0008
+PUSHR D4
+LOAD D2 0.0001; InlineFunc[long RefCount(untyped)] Params AND UsrFunc[void AssertEqual(long, long, char32[])] Params Start
+REF_COUNT D2; InlineFunc[long RefCount(untyped)] Body
+PUSHR D2
+PUSHV 0.0001
+ALLOCATEMEMV D2 32 0
+WRITEPODSTRING D2 "mapdata->D: object not retained"
+PUSHR D2; UsrFunc[void AssertEqual(long, long, char32[])] Params End
+CALLFUNC 0.0680; UsrFunc[void AssertEqual(long, long, char32[])] Call
 POP D4
 PUSHR CLASS_THISKEY
 PUSHR D4
 PUSHV 9; ClassFunc[GCESSticky GCESSticky::GCESSticky(int)] Params
-CALLFUNC 0.0587; ClassFunc[GCESSticky GCESSticky::GCESSticky(int)] Constructor Call
+CALLFUNC 0.0617; ClassFunc[GCESSticky GCESSticky::GCESSticky(int)] Constructor Call
 POP D4
 POP CLASS_THISKEY
 PUSHR D2
@@ -636,7 +687,7 @@ PUSHV 9
 ALLOCATEMEMV D2 41 0
 WRITEPODSTRING D2 "Screen->D: object stored by a destructor"
 PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
-CALLFUNC 0.0678; UsrFunc[void AssertEqual(int, int, char32[])] Call
+CALLFUNC 0.0708; UsrFunc[void AssertEqual(int, int, char32[])] Call
 PEEK D4
 LOAD D2 0; InlineFunc[long RefCount(untyped)] Params AND UsrFunc[void AssertEqual(long, long, char32[])] Params Start
 REF_COUNT D2; InlineFunc[long RefCount(untyped)] Body
@@ -645,7 +696,7 @@ PUSHV 0.0002
 ALLOCATEMEMV D2 53 0
 WRITEPODSTRING D2 "Screen->D: object stored by a destructor is retained"
 PUSHR D2; UsrFunc[void AssertEqual(long, long, char32[])] Params End
-CALLFUNC 0.0650; UsrFunc[void AssertEqual(long, long, char32[])] Call
+CALLFUNC 0.0680; UsrFunc[void AssertEqual(long, long, char32[])] Call
 POP D4
 REF_REMOVE 0
 SETV D2 0
@@ -655,9 +706,11 @@ PUSHR D2
 POP D0
 POP D2
 SETR SDD D2
-CALLFUNC 0.0643; UsrFunc[void End()] Call AND [Opt:NeverRet]
-REF_REMOVE 0.0002; [Opt:NeverRet] AND void run() Body End
-SETV D2 0.0581; Func[GCESNode GCESNode::GCESNode(int)] Body Start
+CALLFUNC 0.0673; UsrFunc[void End()] Call AND [Opt:NeverRet]
+REF_REMOVE 0.0004
+REF_REMOVE 0.0002
+REF_REMOVE 0.0001; [Opt:NeverRet] AND void run() Body End
+SETV D2 0.0611; Func[GCESNode GCESNode::GCESNode(int)] Body Start
 SETR CLASS_THISKEY2 CLASS_THISKEY
 ZCLASS_CONSTRUCT CLASS_THISKEY {0.0001}
 REF_INC -0.0001
@@ -681,7 +734,7 @@ SETR D2 GD2
 ADDV D2 1
 SETR GD2 D2
 RETURNFUNC; Func[void ~GCESNode::GCESNode()] Body End
-SETV D2 0.0605; Func[GCESSticky GCESSticky::GCESSticky(int)] Body Start
+SETV D2 0.0635; Func[GCESSticky GCESSticky::GCESSticky(int)] Body Start
 SETR CLASS_THISKEY2 CLASS_THISKEY
 ZCLASS_CONSTRUCT CLASS_THISKEY {0.0002}
 REF_INC -0.0001
@@ -703,7 +756,7 @@ STARTDESTRUCTOR "GCESSticky"; Func[void ~GCESSticky::GCESSticky()] Body Start
 SETR D4 SP2
 ZCLASS_READ CLASS_THISKEY 0.0001; if() Test
 COMPAREV D2 0
-GOTOCMP 620 !=; Test 'if' AND return (Void) AND if() Body
+GOTOCMP 650 !=; Test 'if' AND return (Void) AND if() Body
 NOP
 SETV D2 1
 ZCLASS_WRITE CLASS_THISKEY 0.0001
@@ -728,7 +781,7 @@ LOAD D2 0; if() Test
 COMPAREV D2 0
 SETCMP D2 I!=
 COMPAREV D2 0
-GOTOCMP 640 ==; Test 'if'
+GOTOCMP 670 ==; Test 'if'
 PUSHV 5; InlineFunc[void hero::Warp(int, int)] Params Start AND if() Body Start
 LOAD D2 0; InlineFunc[void hero::Warp(int, int)] Params End
 POP D3; InlineFunc[void hero::Warp(int, int)] Body Start
@@ -754,7 +807,7 @@ POP D3
 COMPARER D3 D2
 SETCMP D2 I!=
 COMPAREV D2 0
-GOTOCMP 674 ==; Test 'if'
+GOTOCMP 704 ==; Test 'if'
 ALLOCATEMEMV D2 53 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start AND if() Body Start
 WRITEPODSTRING D2 "[Test] failed assertion: expected %d but got %d. %s\n"
 PUSHR D2
@@ -782,7 +835,7 @@ POP D3
 COMPARER D3 D2
 SETCMP D2 I!=
 COMPAREV D2 0
-GOTOCMP 702 ==; Test 'if'
+GOTOCMP 732 ==; Test 'if'
 ALLOCATEMEMV D2 53 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start AND if() Body Start
 WRITEPODSTRING D2 "[Test] failed assertion: expected %d but got %d. %s\n"
 PUSHR D2
@@ -810,7 +863,7 @@ POP D3
 COMPARER D3 D2
 SETCMP D2 I!=
 COMPAREV D2 0
-GOTOCMP 730 ==; Test 'if'
+GOTOCMP 760 ==; Test 'if'
 ALLOCATEMEMV D2 53 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start AND if() Body Start
 WRITEPODSTRING D2 "[Test] failed assertion: expected %d but got %d. %s\n"
 PUSHR D2
@@ -831,7 +884,7 @@ RETURNFUNC; Func[void AssertEqual(untyped, untyped, char32[])] Body End
 SETR D4 SP2; Func[void DrawLabel()] Body Start
 SETR D2 GD1; unless() Test
 COMPAREV D2 0
-GOTOCMP 752 ==; Test 'unless' AND return (Void) AND unless() Body
+GOTOCMP 782 ==; Test 'unless' AND return (Void) AND unless() Body
 NOP
 SETV D2 0.0001
 PUSHR D2

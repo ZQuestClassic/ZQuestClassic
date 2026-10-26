@@ -495,8 +495,10 @@ void RegBaseVisitor::initInternalVar(ASTDataDeclList* node)
 					fn2->setFlag(FUNCFLAG_DEPRECATED);
 					fn2->setInfo(*deprecated);
 				}
+				// An untyped internal array retains objects stored in it, unless the
+				// binding says it can't hold them (`@no_objects`).
 				if (var_type->isUntyped())
-					fn2->setFlag(FUNCFLAG_MAY_SET_OBJECT);
+					fn2->setFlag(parsed_comment.contains_tag("no_objects") ? FUNCFLAG_NO_OBJECTS : FUNCFLAG_MAY_SET_OBJECT);
 			}
 			else if (var_type == &DataType::BOOL)
 			{

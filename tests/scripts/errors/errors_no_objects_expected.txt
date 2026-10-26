@@ -1,0 +1,184 @@
+stderr:
+
+Compiling 'errors_no_objects.zs'
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+Pass 4: Analyzing Code
+errors_no_objects.zs Line 11 @ Columns 3-8 - Warning S094: Variable 'mapdata->D' is deprecated, and should not be used.
+
+ 9    {
+10        mapdata md = Game->LoadMapData(1, 0);
+11        md->D[0] = new NoObjectsFoo(); // Error.
+          ^~~~~
+
+
+INFO: mapdata->D[] has never worked!
+errors_no_objects.zs Line 12 @ Columns 3-8 - Warning S094: Variable 'mapdata->D' is deprecated, and should not be used.
+
+10    mapdata md = Game->LoadMapData(1, 0);
+11    md->D[0] = new NoObjectsFoo(); // Error.
+12    md->D[1] = 5; // OK.
+      ^~~~~
+
+
+INFO: mapdata->D[] has never worked!
+errors_no_objects.zs Line 14 @ Columns 3-8 - Warning S094: Variable 'mapdata->D' is deprecated, and should not be used.
+
+12    md->D[1] = 5; // OK.
+13    untyped u = new NoObjectsFoo();
+14    md->D[2] = u; // OK: an untyped value is not retained, so isn't an object here.
+      ^~~~~
+
+
+INFO: mapdata->D[] has never worked!
+Pass 5: Checking code paths
+Pass 6: Generating object code
+errors_no_objects.zs Line 11 @ Columns 3-8 - Error S109: md->D[0] can only hold numbers, not objects
+
+ 9    {
+10        mapdata md = Game->LoadMapData(1, 0);
+11        md->D[0] = new NoObjectsFoo(); // Error.
+          ^~~~~
+
+
+Pass 7: Assembling
+Success!
+Compile finished with exit code '0' (success)
+
+stdout:
+
+{
+  "success": true,
+  "diagnostics": [
+    {
+      "range": {
+        "start": {
+          "line": 10,
+          "character": 2
+        },
+        "end": {
+          "line": 10,
+          "character": 7
+        }
+      },
+      "severity": 2,
+      "message": "S094: Variable 'mapdata->D' is deprecated, and should not be used.\nmapdata->D[] has never worked!"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 11,
+          "character": 2
+        },
+        "end": {
+          "line": 11,
+          "character": 7
+        }
+      },
+      "severity": 2,
+      "message": "S094: Variable 'mapdata->D' is deprecated, and should not be used.\nmapdata->D[] has never worked!"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 13,
+          "character": 2
+        },
+        "end": {
+          "line": 13,
+          "character": 7
+        }
+      },
+      "severity": 2,
+      "message": "S094: Variable 'mapdata->D' is deprecated, and should not be used.\nmapdata->D[] has never worked!"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 10,
+          "character": 2
+        },
+        "end": {
+          "line": 10,
+          "character": 7
+        }
+      },
+      "severity": 1,
+      "message": "S109: md->D[0] can only hold numbers, not objects"
+    }
+  ],
+  "metadata": {
+    "currentFileSymbols": 6,
+    "symbols": 10,
+    "identifiers": 19,
+    "elided": true
+  }
+}
+
+zasm:
+
+QUIT; void run() Body
+PUSHARGSV 0 0.0002; void run() Body Start
+SETR D4 SP2
+PUSHV 1; InlineFunc[mapdata Game::LoadMapData(int, int)] Params Start
+SETV D1 0; InlineFunc[mapdata Game::LoadMapData(int, int)] Params End
+POP D0; InlineFunc[mapdata Game::LoadMapData(int, int)] Body Start
+SETR D2 LOADMAPDATA; InlineFunc[mapdata Game::LoadMapData(int, int)] Body End
+STORE D2 0.0001
+PUSHR CLASS_THISKEY
+PUSHR D4
+CALLFUNC 0.0053; ClassFunc[NoObjectsFoo NoObjectsFoo::NoObjectsFoo()] Constructor Call
+POP D4
+POP CLASS_THISKEY
+PUSHR D2
+LOAD D2 0.0001
+POP D3
+PUSHR D2
+PUSHR D3
+SETV D2 0
+PUSHR D2
+SETV D2 5
+PUSHR D2
+LOAD D2 0.0001
+POP D3
+PUSHR D2
+PUSHR D3
+SETV D2 1
+PUSHR D2
+POP D0
+POP D2
+POP REFMAPDATA
+SETR MAPDATAMISCD D2
+PUSHR CLASS_THISKEY
+PUSHR D4
+CALLFUNC 0.0053; ClassFunc[NoObjectsFoo NoObjectsFoo::NoObjectsFoo()] Constructor Call
+POP D4
+POP CLASS_THISKEY
+STORE D2 0
+LOAD D2 0
+PUSHR D2
+LOAD D2 0.0001
+POP D3
+PUSHR D2
+PUSHR D3
+SETV D2 2
+PUSHR D2
+POP D0
+POP D2
+POP REFMAPDATA
+SETR MAPDATAMISCD D2
+POPARGS D5 0.0002
+RETURNFUNC; void run() Body End
+SETV D2 0; Func[NoObjectsFoo NoObjectsFoo::NoObjectsFoo()] Body Start
+SETR CLASS_THISKEY2 CLASS_THISKEY
+ZCLASS_CONSTRUCT CLASS_THISKEY {0}
+REF_INC -0.0001
+SETR D4 SP2
+PUSHR CLASS_THISKEY2
+NOP
+REF_AUTORELEASE CLASS_THISKEY
+REF_DEC -0.0001
+SETR D2 CLASS_THISKEY
+POP CLASS_THISKEY
+RETURNFUNC; Func[NoObjectsFoo NoObjectsFoo::NoObjectsFoo()] Body End

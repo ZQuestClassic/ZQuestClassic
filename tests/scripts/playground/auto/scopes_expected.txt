@@ -4078,37 +4078,37 @@ RETURNFUNC; Func[bool lweapon::MakeAngular()] Body End                          
 POP D2; Func[bool lweapon::MakeDirectional()] Body Start                        | 4049 resources/include/bindings/lweapon.zh:425
 LWPNMAKEDIRECTIONAL D2                                                          | 4050 resources/include/bindings/lweapon.zh:425
 RETURNFUNC; Func[bool lweapon::MakeDirectional()] Body End                      | 4051 resources/include/bindings/lweapon.zh:425
-POP D1; Func[bool mapdata::isSolid(int, int)] Body Start                        | 4052 resources/include/bindings/mapdata.zh:925
-POP D0                                                                          | 4053 resources/include/bindings/mapdata.zh:925
-POP REFMAPDATA                                                                  | 4054 resources/include/bindings/mapdata.zh:925
-MAPDATAISSOLID D2                                                               | 4055 resources/include/bindings/mapdata.zh:925
-RETURNFUNC; Func[bool mapdata::isSolid(int, int)] Body End                      | 4056 resources/include/bindings/mapdata.zh:925
-POP D2; Func[bool mapdata::isSolidLayer(int, int, int)] Body Start              | 4057 resources/include/bindings/mapdata.zh:935
-POP D1                                                                          | 4058 resources/include/bindings/mapdata.zh:935
-POP D0                                                                          | 4059 resources/include/bindings/mapdata.zh:935
-POP REFMAPDATA                                                                  | 4060 resources/include/bindings/mapdata.zh:935
-MAPDATAISSOLIDLYR D2                                                            | 4061 resources/include/bindings/mapdata.zh:935
-RETURNFUNC; Func[bool mapdata::isSolidLayer(int, int, int)] Body End            | 4062 resources/include/bindings/mapdata.zh:935
-POP D1; Func[untyped mapdata::GetFFCInitD(int, int)] Body Start                 | 4063 resources/include/bindings/mapdata.zh:948
-POP D0                                                                          | 4064 resources/include/bindings/mapdata.zh:948
-POP REFMAPDATA                                                                  | 4065 resources/include/bindings/mapdata.zh:948
-SETR D2 MAPDATAINTID                                                            | 4066 resources/include/bindings/mapdata.zh:948
-RETURNFUNC; Func[untyped mapdata::GetFFCInitD(int, int)] Body End               | 4067 resources/include/bindings/mapdata.zh:948
-POP D6; Func[void mapdata::SetFFCInitD(int, int, untyped)] Body Start           | 4068 resources/include/bindings/mapdata.zh:962
-POP D1                                                                          | 4069 resources/include/bindings/mapdata.zh:962
-POP D0                                                                          | 4070 resources/include/bindings/mapdata.zh:962
-POP REFMAPDATA                                                                  | 4071 resources/include/bindings/mapdata.zh:962
-SETR MAPDATAINTID D6                                                            | 4072 resources/include/bindings/mapdata.zh:962
-RETURNFUNC; Func[void mapdata::SetFFCInitD(int, int, untyped)] Body End         | 4073 resources/include/bindings/mapdata.zh:962
-PEEKATV REFMAPDATA 0.0002; Func[bool mapdata::GetExDoor(int, int)] Body Start   | 4074 resources/include/bindings/mapdata.zh:970
-SETR D2 MAPDATAEXDOOR                                                           | 4075 resources/include/bindings/mapdata.zh:970
-POPARGS D5 0.0003                                                               | 4076 resources/include/bindings/mapdata.zh:970
-RETURNFUNC; Func[bool mapdata::GetExDoor(int, int)] Body End                    | 4077 resources/include/bindings/mapdata.zh:970
-POP D2; Func[void mapdata::SetExDoor(int, int, bool)] Body Start                | 4078 resources/include/bindings/mapdata.zh:979
-PEEKATV REFMAPDATA 0.0002                                                       | 4079 resources/include/bindings/mapdata.zh:979
-SETR MAPDATAEXDOOR D2                                                           | 4080 resources/include/bindings/mapdata.zh:979
-POPARGS D5 0.0003                                                               | 4081 resources/include/bindings/mapdata.zh:979
-RETURNFUNC; Func[void mapdata::SetExDoor(int, int, bool)] Body End              | 4082 resources/include/bindings/mapdata.zh:979
+POP D1; Func[bool mapdata::isSolid(int, int)] Body Start                        | 4052 resources/include/bindings/mapdata.zh:928
+POP D0                                                                          | 4053 resources/include/bindings/mapdata.zh:928
+POP REFMAPDATA                                                                  | 4054 resources/include/bindings/mapdata.zh:928
+MAPDATAISSOLID D2                                                               | 4055 resources/include/bindings/mapdata.zh:928
+RETURNFUNC; Func[bool mapdata::isSolid(int, int)] Body End                      | 4056 resources/include/bindings/mapdata.zh:928
+POP D2; Func[bool mapdata::isSolidLayer(int, int, int)] Body Start              | 4057 resources/include/bindings/mapdata.zh:938
+POP D1                                                                          | 4058 resources/include/bindings/mapdata.zh:938
+POP D0                                                                          | 4059 resources/include/bindings/mapdata.zh:938
+POP REFMAPDATA                                                                  | 4060 resources/include/bindings/mapdata.zh:938
+MAPDATAISSOLIDLYR D2                                                            | 4061 resources/include/bindings/mapdata.zh:938
+RETURNFUNC; Func[bool mapdata::isSolidLayer(int, int, int)] Body End            | 4062 resources/include/bindings/mapdata.zh:938
+POP D1; Func[untyped mapdata::GetFFCInitD(int, int)] Body Start                 | 4063 resources/include/bindings/mapdata.zh:951
+POP D0                                                                          | 4064 resources/include/bindings/mapdata.zh:951
+POP REFMAPDATA                                                                  | 4065 resources/include/bindings/mapdata.zh:951
+SETR D2 MAPDATAINTID                                                            | 4066 resources/include/bindings/mapdata.zh:951
+RETURNFUNC; Func[untyped mapdata::GetFFCInitD(int, int)] Body End               | 4067 resources/include/bindings/mapdata.zh:951
+POP D6; Func[void mapdata::SetFFCInitD(int, int, untyped)] Body Start           | 4068 resources/include/bindings/mapdata.zh:965
+POP D1                                                                          | 4069 resources/include/bindings/mapdata.zh:965
+POP D0                                                                          | 4070 resources/include/bindings/mapdata.zh:965
+POP REFMAPDATA                                                                  | 4071 resources/include/bindings/mapdata.zh:965
+SETR MAPDATAINTID D6                                                            | 4072 resources/include/bindings/mapdata.zh:965
+RETURNFUNC; Func[void mapdata::SetFFCInitD(int, int, untyped)] Body End         | 4073 resources/include/bindings/mapdata.zh:965
+PEEKATV REFMAPDATA 0.0002; Func[bool mapdata::GetExDoor(int, int)] Body Start   | 4074 resources/include/bindings/mapdata.zh:973
+SETR D2 MAPDATAEXDOOR                                                           | 4075 resources/include/bindings/mapdata.zh:973
+POPARGS D5 0.0003                                                               | 4076 resources/include/bindings/mapdata.zh:973
+RETURNFUNC; Func[bool mapdata::GetExDoor(int, int)] Body End                    | 4077 resources/include/bindings/mapdata.zh:973
+POP D2; Func[void mapdata::SetExDoor(int, int, bool)] Body Start                | 4078 resources/include/bindings/mapdata.zh:982
+PEEKATV REFMAPDATA 0.0002                                                       | 4079 resources/include/bindings/mapdata.zh:982
+SETR MAPDATAEXDOOR D2                                                           | 4080 resources/include/bindings/mapdata.zh:982
+POPARGS D5 0.0003                                                               | 4081 resources/include/bindings/mapdata.zh:982
+RETURNFUNC; Func[void mapdata::SetExDoor(int, int, bool)] Body End              | 4082 resources/include/bindings/mapdata.zh:982
 POP D3; Func[void messagedata::Get(char32[])] Body Start                        | 4083 resources/include/bindings/messagedata.zh:343
 POP REFMSGDATA                                                                  | 4084 resources/include/bindings/messagedata.zh:343
 MESSAGEDATAGETSTRINGR D3                                                        | 4085 resources/include/bindings/messagedata.zh:343

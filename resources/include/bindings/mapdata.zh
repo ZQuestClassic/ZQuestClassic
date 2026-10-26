@@ -877,7 +877,10 @@ class mapdata {
 	//
 	// Screen->D is not bound to layermap.
 	//
+	// It can only hold numbers: storing an object in it is an error.
+	//
 	// @deprecated mapdata->D[] has never worked!
+	// @no_objects
 	// @zasm_var MAPDATAMISCD
 	internal untyped D[];
 

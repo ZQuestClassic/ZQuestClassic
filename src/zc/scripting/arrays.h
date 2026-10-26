@@ -326,6 +326,11 @@ public:
 	void setReadOnly() { m_readOnly = true; }
 	bool readOnly() { return m_readOnly; }
 
+	// For untyped arrays whose storage can't hold an object pointer (the compiler
+	// rejects storing objects in them, see `@no_objects`).
+	void setNoObjects() { m_noObjects = true; }
+	bool noObjects() const { return m_noObjects; }
+
 	// For arrays backed by engine storage that outlives scripts (see engine_object_slot):
 	// which storage (and key) a ref's elements are slots of, and how many there are - or
 	// nullopt if the ref is invalid. Must not log errors (the array access does).
@@ -359,6 +364,7 @@ protected:
 	bool m_boundSetterIndex;
 	std::function<std::optional<int>(int)> m_valueTransform;
 	ObjectSlotsFunc m_objectSlots;
+	bool m_noObjects = false;
 
 	template <typename T_Element>
 	std::optional<int> transformValue(int value) const

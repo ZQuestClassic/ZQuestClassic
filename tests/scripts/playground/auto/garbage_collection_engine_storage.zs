@@ -133,6 +133,13 @@ generic script garbage_collection_engine_storage
 		Screen->D[6] = 0;
 		Test::AssertEqual(gces_dtors, 6, "mapdata->D: no double release");
 
+		// Storing an object in mapdata->D[] is a compile error, but an array pointer
+		// can still reach it. The object isn't retained (and an error is logged).
+		untyped d[] = same->D;
+		GCESNode unretained = new GCESNode(8);
+		d[5] = unretained;
+		Test::AssertEqual(RefCount(unretained), 1L, "mapdata->D: object not retained");
+
 		// A destructor run by overwriting a slot can store an object in that same slot.
 		// The overwrite used to happen after the destructor, clobbering the object.
 		Screen->D[4] = new GCESSticky(9);

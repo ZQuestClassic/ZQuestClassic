@@ -141,6 +141,13 @@ public:
 				return false;
 			}
 
+			// Reachable through an array pointer, which the compiler can't check.
+			if (type != script_object_type::none && impl->noObjects())
+			{
+				scripting_log_error_with_context("This array can't hold objects");
+				type = script_object_type::none;
+			}
+
 			if (impl->hasObjectSlots())
 			{
 				auto write = [&]{ return impl->setElement(ref, index, value); };

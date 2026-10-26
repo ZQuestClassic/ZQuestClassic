@@ -4949,6 +4949,13 @@ void LValBOHelper::caseExprArrow(ASTExprArrow &host, void *param)
 			}
 		}
 
+		if (setting_type && setting_type->isObject() && host.writeFunction->getFlag(FUNCFLAG_NO_OBJECTS))
+		{
+			program.errorHandler->handleError(CompileError::Error(&host, fmt::format(
+				"{} can only hold numbers, not objects", host.asString())));
+			return;
+		}
+
 		// Some internal variables (untyped arrays like sprite::Misc[]) may set objects. For those,
 		// use SET_OBJECT instead of SETR.
 		bool sets_object = setting_type && setting_type->isObject() && host.writeFunction->getFlag(FUNCFLAG_MAY_SET_OBJECT);
