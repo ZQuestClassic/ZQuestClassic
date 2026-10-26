@@ -238,8 +238,12 @@ bool do_compile_and_slots(int assign_mode, bool delay)
 					pm->is_alive() ? "Unknown cause." : "Parser process died or crashed.")).show();
 				break;
 			case zc_io_exception::IO_DEAD:
-				InfoDialog("Dead Parser","The parser process died unexpectedly.").show();
+			{
+				std::string msg = fmt::format("The parser process died unexpectedly: " ZSCRIPT_FILE " {}.", pm->describe_exit());
+				zprint2("%s\n", msg.c_str());
+				InfoDialog("Dead Parser", msg).show();
 				break;
+			}
 			default:
 				InfoDialog("Error","An unknown error occurred while compiling").show();
 				break;
