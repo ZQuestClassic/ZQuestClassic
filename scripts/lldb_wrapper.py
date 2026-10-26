@@ -41,22 +41,53 @@ process = target.Launch(
     stdout_f,
     stderr_f,
     os.getcwd(),
-    0,
+    lldb.eLaunchFlagStopAtEntry,
     False,
     err,
 )
+
+def format_thread(thread):
+    return '\n'.join([str(thread), *[f'    {frame}' for frame in thread.frames], ''])
+
+
+def print_thread(thread):
+    print(format_thread(thread), file=sys.stderr)
+
+
+# lldb passes SIGPIPE through without stopping, so a process it kills dies with no backtrace.
+# Stopping on it also stops for a SIGPIPE the process ignores (it then gets EPIPE and goes on), so
+# keep the backtrace, pass the signal on, and only print it if the process dies from it.
+sigpipe_backtrace = None
+if process.IsValid():
+    signals = process.GetUnixSignals()
+    sigpipe = signals.GetSignalNumberFromName('SIGPIPE')
+    signals.SetShouldStop(sigpipe, True)
+    process.Continue()
+    while process.GetState() == lldb.eStateStopped:
+        thread = process.GetSelectedThread()
+        if (
+            thread.GetStopReason() != lldb.eStopReasonSignal
+            or thread.GetStopReasonDataAtIndex(0) != sigpipe
+        ):
+            break
+        sigpipe_backtrace = format_thread(thread)
+        process.Continue()
 sys.stdout.write(Path(stdout_f).read_text())
 sys.stderr.write(Path(stderr_f).read_text())
 os.unlink(stdout_f)
 os.unlink(stderr_f)
 
-
-def print_thread(thread):
-    print(thread, file=sys.stderr)
-    for frame in thread.frames:
-        print('   ', frame, file=sys.stderr)
-    print(file=sys.stderr)
-
+if (
+    sigpipe_backtrace
+    and process.GetState() == lldb.eStateExited
+    and 'signal' in (process.GetExitDescription() or '')
+):
+    print(
+        f'\nprocess was killed by SIGPIPE ({process.GetExitDescription()})',
+        file=sys.stderr,
+    )
+    print('printing backtrace of the thread that got it\n', file=sys.stderr)
+    print(sigpipe_backtrace, file=sys.stderr)
 
 if process.exit_state < 0:
     state = lldb.SBDebugger.StateAsCString(process.GetState())
