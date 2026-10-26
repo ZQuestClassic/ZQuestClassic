@@ -9,6 +9,7 @@
 #ifndef _WIN32
 	#include <cerrno>
 	#include <csignal>
+	#include <cstring>
 	#include <sys/types.h>
 	#include <sys/wait.h>
 	#include <spawn.h>
@@ -39,6 +40,30 @@ void process_killer::init_process(int32_t pr_id)
 	if(pid)
 		kill();
 	pid = pr_id;
+	reaped = false;
+	wait_status = 0;
+}
+
+void process_killer::reap(bool block) const
+{
+	if(reaped || !pid)
+		return;
+	int status = 0;
+	pid_t ret;
+	do
+		ret = waitpid(pid, &status, block ? 0 : WNOHANG);
+	while(ret == -1 && errno == EINTR);
+	if(ret == pid)
+	{
+		reaped = true;
+		wait_status = status;
+	}
+	else if(ret == -1 && errno == ECHILD)
+	{
+		// Already waited on elsewhere, so the exit status is gone.
+		reaped = true;
+		wait_status = -1;
+	}
 }
 #endif
 bool process_killer::is_alive() const
@@ -46,7 +71,9 @@ bool process_killer::is_alive() const
 #ifdef _WIN32
 	return process_handle && WaitForSingleObject(process_handle,0) == WAIT_TIMEOUT;
 #else
-	waitpid(pid, nullptr, WNOHANG);
+	reap(false);
+	if(reaped)
+		return false;
 	if(::kill(pid,0) == -1)
 	{
 		if(errno != ESRCH)
@@ -75,8 +102,16 @@ bool process_killer::kill()
 {
 	if(pid)
 	{
+		reap(false);
+		if(reaped)
+		{
+			pid = 0;
+			return true;
+		}
 		if(::kill(pid,SIGKILL) == 0)
 		{
+			// Reap it, so it doesn't linger as a zombie.
+			reap(true);
 			pid = 0;
 			return true;
 		}
@@ -85,6 +120,40 @@ bool process_killer::kill()
 	return true;
 }
 #endif
+
+std::string process_killer::describe_exit() const
+{
+#ifdef _WIN32
+	if(!process_handle)
+		return "was killed";
+	if(WaitForSingleObject(process_handle, 2000) != WAIT_OBJECT_0)
+		return "is still running";
+	DWORD code = 0;
+	if(!GetExitCodeProcess(process_handle, &code))
+		return "exited for an unknown reason";
+	return fmt::format("exited with code {} (0x{:08X})", (int32_t)code, code);
+#else
+	if(!pid)
+		return "was killed";
+	// A closed pipe usually means the process is exiting, but it may not have finished yet.
+	for(int i = 0; i < 200 && !reaped; i++)
+	{
+		reap(false);
+		if(!reaped)
+			usleep(10 * 1000);
+	}
+	if(!reaped)
+		return "is still running";
+	if(WIFSIGNALED(wait_status))
+	{
+		int sig = WTERMSIG(wait_status);
+		return fmt::format("was killed by signal {} ({})", sig, strsignal(sig));
+	}
+	if(WIFEXITED(wait_status))
+		return fmt::format("exited with code {}", WEXITSTATUS(wait_status));
+	return "exited for an unknown reason";
+#endif
+}
 
 //
 
@@ -191,6 +260,11 @@ process_manager::~process_manager()
 		CloseHandle(re_2);
 		re_2 = NULL;
 	}
+#else
+	if(write_handle > 0)
+		close(write_handle);
+	if(read_handle > 0)
+		close(read_handle);
 #endif
 	if(kill_on_destructor)
 		kill();
@@ -215,13 +289,23 @@ bool process_manager::read(void* buf, uint32_t bytes_to_read, uint32_t* bytes_re
 	return ret;
 #else
 	if(!read_handle) return false;
-	// if(!is_alive())
-		// throw zc_io_exception::dead();
-	size_t ret = ::read(read_handle, buf, bytes_to_read); //!TODO handle timeouts
-	if(bytes_read) *bytes_read = ret;
-	// if(!is_alive())
-		// throw zc_io_exception::dead();
-	return ret>0;
+	// The pipe only reaches EOF once the child has closed its end, which is to say it exited
+	// (or crashed). Callers would otherwise go on with whatever was already in buf.
+	uint32_t total = 0;
+	while(total < bytes_to_read)
+	{
+		ssize_t ret = ::read(read_handle, (char*)buf + total, bytes_to_read - total); //!TODO handle timeouts
+		if(ret < 0 && errno == EINTR)
+			continue;
+		if(ret <= 0)
+		{
+			if(bytes_read) *bytes_read = total;
+			throw zc_io_exception::dead();
+		}
+		total += ret;
+	}
+	if(bytes_read) *bytes_read = total;
+	return true;
 #endif
 }
 
@@ -238,13 +322,26 @@ bool process_manager::write(void* buf, uint32_t bytes_to_write, uint32_t* bytes_
 	return ret;
 #else
 	if(!write_handle) return false;
-	// if(!is_alive())
-		// throw zc_io_exception::dead();
-	size_t ret = ::write(write_handle, buf, bytes_to_write); //!TODO handle timeouts
-	if(bytes_written) *bytes_written = ret;
-	// if(!is_alive())
-		// throw zc_io_exception::dead();
-	return ret==bytes_to_write;
+	// Writing to a pipe whose reader is gone raises SIGPIPE, which would kill this process
+	// instead of letting it report that the child died. Ignore it, so the write fails with
+	// EPIPE instead. That alone doesn't mean the child failed (it may have finished without
+	// waiting for this), so it is left to the next read to find out.
+	struct sigaction ignore_action = {}, old_action;
+	ignore_action.sa_handler = SIG_IGN;
+	sigaction(SIGPIPE, &ignore_action, &old_action);
+	uint32_t total = 0;
+	while(total < bytes_to_write)
+	{
+		ssize_t ret = ::write(write_handle, (const char*)buf + total, bytes_to_write - total); //!TODO handle timeouts
+		if(ret < 0 && errno == EINTR)
+			continue;
+		if(ret < 0)
+			break;
+		total += ret;
+	}
+	sigaction(SIGPIPE, &old_action, nullptr);
+	if(bytes_written) *bytes_written = total;
+	return total==bytes_to_write;
 #endif
 }
 

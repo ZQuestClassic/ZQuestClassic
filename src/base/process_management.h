@@ -50,7 +50,7 @@ public:
 	{}
 	static zc_io_exception dead()
 	{
-		return zc_io_exception("Error: Process Dead",IO_TIMEOUT);
+		return zc_io_exception("Error: Process Dead",IO_DEAD);
 	}
 	static zc_io_exception timeout()
 	{
@@ -83,6 +83,16 @@ struct process_killer
 	process_killer(int32_t pr_id) : pid(pr_id) {}
 	process_killer() : pid(0) {}
 	bool is_alive() const;
+	#endif
+	// How the process ended (ex: "exited with code 1", "was killed by signal 11 (Segmentation
+	// fault: 11)"), waiting briefly for it to end if it hasn't yet.
+	std::string describe_exit() const;
+private:
+	#ifndef _WIN32
+	// Set once the process has been waited on, after which the pid may belong to another process.
+	mutable bool reaped = false;
+	mutable int wait_status = 0;
+	void reap(bool block) const;
 	#endif
 };
 
@@ -128,9 +138,9 @@ struct process_manager : public io_manager, public process_killer
 	//}
 	#else
 	//{ Unix
-	int write_handle;
-	int read_handle;
-	
+	int write_handle = 0;
+	int read_handle = 0;
+
 	process_manager() : io_manager(), process_killer(),
 		kill_on_destructor(true)
 	{}
