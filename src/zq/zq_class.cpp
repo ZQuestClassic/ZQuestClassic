@@ -4855,7 +4855,7 @@ void zmap::update_combo_cycling()
     int32_t x;
     int32_t newdata[176];
     int32_t newcset[176];
-    bool restartanim[MAXCOMBOS] = {0};
+	std::set<uint16_t> restartanim;
     
     for(int32_t i=0; i<176; i++)
     {
@@ -4865,9 +4865,7 @@ void zmap::update_combo_cycling()
         x=prvscr.data[i];
         
         //time to restart
-        if((combobuf[x].aclk>=combobuf[x].speed) &&
-                (combobuf[x].tile-combobuf[x].frames>=combobuf[x].o_tile-1) &&
-                combobuf[x].can_cycle())
+        if (combobuf[x].should_cycle())
         {
 			bool cycle_under = (combobuf[x].animflags & AF_CYCLEUNDERCOMBO);
             newdata[i] = cycle_under ? prvscr.undercombo : combobuf[x].nextcombo;
@@ -4877,9 +4875,7 @@ void zmap::update_combo_cycling()
             int32_t c = newdata[i];
             
             if(combobuf[c].animflags & AF_CYCLE)
-            {
-                restartanim[c]=true;
-            }
+				restartanim.insert(c);
         }
     }
     
@@ -4888,9 +4884,7 @@ void zmap::update_combo_cycling()
         x=prvscr.data[i];
         
         //time to restart
-        if((combobuf[x].aclk>=combobuf[x].speed) &&
-                (combobuf[x].tile-combobuf[x].frames>=combobuf[x].o_tile-1) &&
-                combobuf[x].can_cycle())
+        if (combobuf[x].should_cycle())
         {
 			bool cycle_under = (combobuf[x].animflags & AF_CYCLEUNDERCOMBO);
             newdata[i] = cycle_under ? prvscr.undercombo : combobuf[x].nextcombo;
@@ -4900,9 +4894,7 @@ void zmap::update_combo_cycling()
             int32_t c = newdata[i];
             
             if(combobuf[c].animflags & AF_CYCLE)
-            {
-                restartanim[c]=true;
-            }
+				restartanim.insert(c);
         }
     }
     
@@ -4923,9 +4915,7 @@ void zmap::update_combo_cycling()
         newcombo const& cmb = combobuf[ffc.data];
         
         //time to restart
-        if((cmb.aclk>=cmb.speed) &&
-                (cmb.tile-cmb.frames>=cmb.o_tile-1) &&
-                cmb.can_cycle())
+        if (cmb.should_cycle())
         {
 			bool cycle_under = (cmb.animflags & AF_CYCLEUNDERCOMBO);
             ffc.data = cycle_under ? prvscr.undercombo : cmb.nextcombo;
@@ -4934,9 +4924,7 @@ void zmap::update_combo_cycling()
 				newcset[i] = cycle_under ? prvscr.undercset : cmb.nextcset;
             
             if(combobuf[ffc.data].animflags & AF_CYCLE)
-            {
-                restartanim[ffc.data]=true;
-            }
+				restartanim.insert(ffc.data);
 			prvscr.ffcs[i].data = ffc.data;
 			prvscr.ffcs[i].cset=ffc.cset;
         }
@@ -4958,9 +4946,7 @@ void zmap::update_combo_cycling()
                 x=(prvlayers[j]).data[i];
                 
                 //time to restart
-                if((combobuf[x].aclk>=combobuf[x].speed) &&
-                        (combobuf[x].tile-combobuf[x].frames>=combobuf[x].o_tile-1)	&&
-                        combobuf[x].can_cycle())
+                if (combobuf[x].should_cycle())
                 {
 					bool cycle_under = (combobuf[x].animflags & AF_CYCLEUNDERCOMBO);
 					newdata[i] = cycle_under ? prvscr.undercombo : combobuf[x].nextcombo;
@@ -4970,9 +4956,7 @@ void zmap::update_combo_cycling()
                     int32_t c = newdata[i];
                     
                     if(combobuf[c].animflags & AF_CYCLE)
-                    {
-                        restartanim[c]=true;
-                    }
+						restartanim.insert(c);
                 }
             }
             
@@ -4981,9 +4965,7 @@ void zmap::update_combo_cycling()
                 x=(prvlayers[j]).data[i];
                 
                 //time to restart
-                if((combobuf[x].aclk>=combobuf[x].speed) &&
-                        (combobuf[x].tile-combobuf[x].frames>=combobuf[x].o_tile-1) &&
-                        combobuf[x].can_cycle())
+                if (combobuf[x].should_cycle())
                 {
 					bool cycle_under = (combobuf[x].animflags & AF_CYCLEUNDERCOMBO);
 					newdata[i] = cycle_under ? prvscr.undercombo : combobuf[x].nextcombo;
@@ -4993,9 +4975,7 @@ void zmap::update_combo_cycling()
                     int32_t c = newdata[i];
                     
                     if(combobuf[c].animflags & AF_CYCLE)
-                    {
-                        restartanim[c]=true;
-                    }
+						restartanim.insert(c);
                 }
             }
             
@@ -5011,15 +4991,8 @@ void zmap::update_combo_cycling()
         }
     }
     
-    for(int32_t i=0; i<MAXCOMBOS; i++)
-    {
-        if(restartanim[i])
-        {
-            combobuf[i].tile = combobuf[i].o_tile;
-			combobuf[i].cur_frame=0;
-            combobuf[i].aclk = 0;
-        }
-    }
+    for (auto i : restartanim)
+		combobuf[i].reset_animation();
 }
 
 // Mirrors ffc_wrapped in zc/maps.cpp - see the comment there.
