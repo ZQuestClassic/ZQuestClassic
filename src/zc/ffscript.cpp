@@ -2214,7 +2214,7 @@ int32_t ArrayH::setArray(const int32_t ptr, string const& s2)
 	}
 	
 	for (size_t i = 0; i < count; i++)
-		am.set(i, s2[i] * 10000);
+		am.set(i, byte(s2[i]) * 10000);
 	am.set(count, '\0');
 	
 	return ret;
@@ -15794,7 +15794,7 @@ void FFScript::do_LowerToUpper([[maybe_unused]] const bool v)
 	string strA;
 	ArrayH::getString(arrayptr_a, strA);
 	for (char& c : strA)
-		c = std::toupper(c); 
+		c = std::toupper(byte(c));
 	ArrayH::setArray(arrayptr_a, strA);
 	set_register(sarg1, 10000); // used to return 0 if string was empty.
 }
@@ -15805,7 +15805,7 @@ void FFScript::do_UpperToLower([[maybe_unused]] const bool v)
 	string strA;
 	ArrayH::getString(arrayptr_a, strA);
 	for (char& c : strA)
-		c = std::tolower(c); 
+		c = std::tolower(byte(c));
 	ArrayH::setArray(arrayptr_a, strA);
 	set_register(sarg1, 10000); // used to return 0 if string was empty.
 }

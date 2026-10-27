@@ -180,7 +180,7 @@ void do_file_readchars()
 		}
 		if(count < 0 || unsigned(count) > sz-pos) count = sz-pos;
 		int32_t limit = pos+count;
-		char c;
+		int32_t c;
 		word q;
 		for(q = pos; q < limit; ++q)
 		{
@@ -272,7 +272,7 @@ void do_file_readstring()
 		if (am.size() <= 0)
 			return;
 		for (size_t q = 0; q < line.size(); ++q)
-			am.set(q, line[q] * 10000L);
+			am.set(q, byte(line[q]) * 10000L);
 		am.set(line.size(), 0); //Force null-termination
 		SET_D(rEXP1, line.size() * 10000L); //Don't count nullchar towards length
 		check_file_error(GET_REF(fileref));
