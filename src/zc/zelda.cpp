@@ -5476,7 +5476,7 @@ void quit_game()
 	
 	al_trace("Freeing Data: \n");
 	
-	free(game);
+	delete game;
 	game = NULL;
 		
 	if(fontsdata) unload_datafile(fontsdata);
