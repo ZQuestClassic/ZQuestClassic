@@ -802,6 +802,7 @@ if(WANT_ZC_TESTS)
 		src/base/process_management_test.cpp
 		src/base/win_encoding_test.cpp
 		src/zalleg/lzss_test.cpp
+		src/zalleg/unicode_test.cpp
 		src/core/msgstr_test.cpp
 		src/core/msgstr.cpp
 		src/zc/wasm_structurer_test.cpp

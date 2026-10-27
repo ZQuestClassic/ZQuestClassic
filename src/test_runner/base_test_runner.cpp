@@ -23,6 +23,7 @@ int32_t main(int32_t argc, char* argv[])
 	extern TestResults test_util(bool);
 	extern TestResults test_wasm_structurer(bool);
 	extern TestResults test_lzss(bool);
+	extern TestResults test_unicode(bool);
 	extern TestResults test_process_management(bool);
 	extern TestResults test_win_encoding(bool);
 
@@ -34,6 +35,7 @@ int32_t main(int32_t argc, char* argv[])
 	success &= run_tests(test_util, "test_util", verbose);
 	success &= run_tests(test_wasm_structurer, "test_wasm_structurer", verbose);
 	success &= run_tests(test_lzss, "test_lzss", verbose);
+	success &= run_tests(test_unicode, "test_unicode", verbose);
 	success &= run_tests(test_process_management, "test_process_management", verbose);
 	success &= run_tests(test_win_encoding, "test_win_encoding", verbose);
 
