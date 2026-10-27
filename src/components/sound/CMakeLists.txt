@@ -12,6 +12,16 @@ if(EMSCRIPTEN)
 	set(GME_BUILD_SHARED OFF CACHE BOOL "" FORCE)
 endif()
 FetchContent_MakeAvailable(gme_external)
+# gme links its shared library with -Wl,-no-undefined (on Linux). A sanitized
+# shared library leaves the sanitizer runtime's symbols undefined on purpose
+# (they resolve against the executable at load time), so that flag fails the
+# Asan link. Move it out of the plain LINK_FLAGS string into a per-config option.
+get_target_property(gme_link_flags gme LINK_FLAGS)
+if(gme_link_flags MATCHES "-Wl,-no-undefined")
+	string(REPLACE " -Wl,-no-undefined" "" gme_link_flags "${gme_link_flags}")
+	set_target_properties(gme PROPERTIES LINK_FLAGS "${gme_link_flags}")
+	target_link_options(gme PRIVATE "$<$<NOT:$<CONFIG:Asan>>:-Wl,-no-undefined>")
+endif()
 add_library(gme_headers INTERFACE)
 target_include_directories(gme_headers INTERFACE ${gme_external_SOURCE_DIR}/gme)
 target_link_libraries(gme_headers INTERFACE ZLIB::ZLIB)
