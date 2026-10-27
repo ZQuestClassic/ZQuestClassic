@@ -11,6 +11,7 @@ void zq_set_screen_never_freeze(bool value);
 void zq_push_unfrozen_dialogs(size_t value);
 void zq_pop_unfrozen_dialogs();
 void render_zq();
+ALLEGRO_BITMAP* render_zq_capture();
 
 
 #endif

@@ -3580,8 +3580,12 @@ int32_t onGUISnapshot()
 		sprintf(buf, "%szc_screen%05d.%s", get_snap_str(), ++num, snapshotformat_str[SnapshotFormat][1]);
 	}
 	while(num<99999 && exists(buf));
-	
-	if (!al_save_bitmap(buf, al_get_backbuffer(all_get_display())))
+
+	ALLEGRO_BITMAP* bitmap = render_zc_capture();
+	bool saved = bitmap && al_save_bitmap(buf, bitmap);
+	if (bitmap)
+		al_destroy_bitmap(bitmap);
+	if (!saved)
 		InfoDialog("Error", "Failed to save snapshot").show();
 	
 	return D_O_K;
