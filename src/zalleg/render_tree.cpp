@@ -408,10 +408,13 @@ static void render_tree_draw_item(RenderTreeItem* rti, bool do_a4_only)
 			}
 			else
 			{
+				// The pass draws into whatever target its caller set - not always the
+				// backbuffer (see render_tree_capture).
+				ALLEGRO_BITMAP* target = al_get_target_bitmap();
 				al_set_target_bitmap(rti->bitmap);
 				al_clear_to_color(al_map_rgba(0, 0, 0, 0));
 				rti->render(size_changed);
-				al_set_target_backbuffer(all_get_display());
+				al_set_target_bitmap(target);
 			}
 			if (bakes_children(rti))
 				render_tree_bake_children(rti);
@@ -827,6 +830,41 @@ void render_tree_present(RenderTreeItem* root, ALLEGRO_COLOR clear_color, const 
 
 	screen = tmp;
 	al_restore_state(&oldstate);
+}
+
+ALLEGRO_BITMAP* render_tree_capture(RenderTreeItem* root, ALLEGRO_COLOR clear_color, const std::function<void()>& configure)
+{
+	if (is_headless())
+		return nullptr;
+
+	ALLEGRO_DISPLAY* display = all_get_display();
+	ALLEGRO_STATE oldstate;
+	al_store_state(&oldstate, ALLEGRO_STATE_TARGET_BITMAP | ALLEGRO_STATE_NEW_BITMAP_PARAMETERS);
+	set_bitmap_create_flags(true);
+	ALLEGRO_BITMAP* bitmap = al_create_bitmap(al_get_display_width(display), al_get_display_height(display));
+	if (!bitmap)
+	{
+		al_restore_state(&oldstate);
+		return nullptr;
+	}
+
+	BITMAP* tmp = screen;
+	if (zqdialog_bg_bmp)
+		screen = zqdialog_bg_bmp;
+
+	configure();
+	al_set_target_bitmap(bitmap);
+	al_clear_to_color(clear_color);
+	render_tree_draw(root);
+
+	screen = tmp;
+	al_restore_state(&oldstate);
+
+	// The draw above consumed any pending redraws, which the next present would otherwise
+	// take as "nothing changed" and skip.
+	render_mark_dirty();
+
+	return bitmap;
 }
 
 void RenderTreeItem::prepare() {}

@@ -405,13 +405,21 @@ static void configure_overlay()
 	rti_overlay.visible = !overlay_lines_left.empty() || !overlay_lines_right.empty();
 }
 
+static void configure_zc()
+{
+	init_render_tree();
+	configure_render_tree();
+	configure_overlay();
+}
+
 void render_zc()
 {
-	render_tree_present(&rti_root, al_map_rgb_f(0, 0, 0), [] {
-		init_render_tree();
-		configure_render_tree();
-		configure_overlay();
-	});
+	render_tree_present(&rti_root, al_map_rgb_f(0, 0, 0), configure_zc);
+}
+
+ALLEGRO_BITMAP* render_zc_capture()
+{
+	return render_tree_capture(&rti_root, al_map_rgb_f(0, 0, 0), configure_zc);
 }
 
 void zq_push_unfrozen_dialogs(size_t){}

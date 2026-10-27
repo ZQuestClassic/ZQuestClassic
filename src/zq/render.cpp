@@ -141,13 +141,22 @@ void zq_freeze_all_rti(RenderTreeItem* rti)
 	}
 }
 
+static void configure_zq()
+{
+	init_render_tree();
+	configure_render_tree();
+}
+
 void render_zq()
 {
 	ALLEGRO_COLOR clear_color = al_map_rgb(RAMpal[0].r, RAMpal[0].g, RAMpal[0].b);
-	render_tree_present(&rti_root, clear_color, [] {
-		init_render_tree();
-		configure_render_tree();
-	});
+	render_tree_present(&rti_root, clear_color, configure_zq);
+}
+
+ALLEGRO_BITMAP* render_zq_capture()
+{
+	ALLEGRO_COLOR clear_color = al_map_rgb(RAMpal[0].r, RAMpal[0].g, RAMpal[0].b);
+	return render_tree_capture(&rti_root, clear_color, configure_zq);
 }
 
 void clear_tooltip()

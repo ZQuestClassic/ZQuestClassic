@@ -305,6 +305,11 @@ Transform letterbox_transform(int resx, int resy, int w, int h, float xscale, fl
 // overlay when that is enabled, otherwise via render_tree_draw_and_flip so unchanged
 // frames are skipped.
 void render_tree_present(RenderTreeItem* root, ALLEGRO_COLOR clear_color, const std::function<void()>& configure);
+// Draws one frame of an app's render tree (set up the same way as render_tree_present)
+// into a new display-sized bitmap, which the caller destroys. Use this to capture what is
+// on screen - the backbuffer can't be read back for that, since its contents are undefined
+// after a flip and an unchanged frame is never drawn to it at all.
+ALLEGRO_BITMAP* render_tree_capture(RenderTreeItem* root, ALLEGRO_COLOR clear_color, const std::function<void()>& configure);
 
 void _init_render(int fmt);
 uint32_t get_backend_a5_col(RGB const& c);

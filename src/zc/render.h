@@ -25,5 +25,6 @@ void restore_info_bmp();
 void start_info_bmp();
 void end_info_bmp();
 void render_zc();
+ALLEGRO_BITMAP* render_zc_capture();
 
 #endif

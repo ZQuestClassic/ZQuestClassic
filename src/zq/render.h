@@ -12,5 +12,6 @@ void zq_push_unfrozen_dialogs(size_t value);
 void zq_pop_unfrozen_dialogs();
 void zq_freeze_all_rti(RenderTreeItem* rti = nullptr);
 void render_zq();
+ALLEGRO_BITMAP* render_zq_capture();
 
 #endif
