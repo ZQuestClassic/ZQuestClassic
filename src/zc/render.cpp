@@ -304,18 +304,8 @@ void end_info_bmp()
 	al_restore_state(&infobmp_old_state);
 }
 
-void render_zc()
+static void configure_zc()
 {
-	if (is_headless())
-		return;
-
-	ALLEGRO_STATE oldstate;
-	al_store_state(&oldstate, ALLEGRO_STATE_TARGET_BITMAP);
-	
-	BITMAP* tmp = screen;
-	if(zqdialog_bg_bmp)
-		screen = zqdialog_bg_bmp;
-	
 	init_render_tree();
 	configure_render_tree();
 	
@@ -367,7 +357,23 @@ void render_zc()
 	ALLEGRO_DISPLAY* display = all_get_display();
 	rti_overlay.set_size(al_get_display_width(display), al_get_display_height(display));
 	rti_overlay.visible = !overlay_lines_left.empty() || !overlay_lines_right.empty();
+}
 
+void render_zc()
+{
+	if (is_headless())
+		return;
+
+	ALLEGRO_STATE oldstate;
+	al_store_state(&oldstate, ALLEGRO_STATE_TARGET_BITMAP);
+	
+	BITMAP* tmp = screen;
+	if(zqdialog_bg_bmp)
+		screen = zqdialog_bg_bmp;
+	
+	configure_zc();
+
+	ALLEGRO_DISPLAY* display = all_get_display();
 	ALLEGRO_COLOR clear_color = al_map_rgb_f(0, 0, 0);
 
 	if (render_get_debug())
@@ -388,6 +394,11 @@ void render_zc()
 
 	screen = tmp;
 	al_restore_state(&oldstate);
+}
+
+ALLEGRO_BITMAP* render_zc_capture()
+{
+	return render_tree_capture(&rti_root, al_map_rgb_f(0, 0, 0), configure_zc);
 }
 
 void zq_push_unfrozen_dialogs(size_t){}
