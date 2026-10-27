@@ -851,9 +851,6 @@ int32_t onMenuSnapshot()
 	auto last = children.back();
 	children.pop_back();
 	
-	render_zq();
-	render_zq(); // Need to draw a second time for Mac, for some reason.
-	
 	onSnapshot();
 	
 	children.push_back(last);
@@ -863,7 +860,11 @@ int32_t onMenuSnapshot()
 
 int32_t onSnapshot()
 {
-	if (!al_save_bitmap(getSnapName(), al_get_backbuffer(all_get_display())))
+	ALLEGRO_BITMAP* bitmap = render_zq_capture();
+	bool saved = bitmap && al_save_bitmap(getSnapName(), bitmap);
+	if (bitmap)
+		al_destroy_bitmap(bitmap);
+	if (!saved)
 		InfoDialog("Error", "Failed to save snapshot").show();
 
 	return D_O_K;

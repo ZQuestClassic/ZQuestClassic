@@ -278,6 +278,12 @@ void render_tree_draw_debug(RenderTreeItem* rti);
 void render_set_debug(bool debug);
 bool render_get_debug();
 
+// Draws one frame of an app's render tree (set up by `configure`, as for presenting) into
+// a new display-sized bitmap, which the caller destroys. Use this to capture what is on
+// screen - the backbuffer can't be read back for that, since its contents are undefined
+// after a flip and an unchanged frame is never drawn to it at all.
+ALLEGRO_BITMAP* render_tree_capture(RenderTreeItem* root, ALLEGRO_COLOR clear_color, const std::function<void()>& configure);
+
 void _init_render(int fmt);
 uint32_t get_backend_a5_col(RGB const& c);
 uint32_t repl_a5_backend_alpha(uint32_t back_col, unsigned char a);
