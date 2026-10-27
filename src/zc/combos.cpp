@@ -637,11 +637,7 @@ static void trigger_cswitch_block(const combined_handle_t& handle)
 
 	int newcid = handle.data();
 	if(combobuf[newcid].animflags & AF_CYCLE)
-	{
-		combobuf[newcid].tile = combobuf[newcid].o_tile;
-		combobuf[newcid].cur_frame=0;
-		combobuf[newcid].aclk = 0;
-	}
+		combobuf[newcid].reset_animation();
 	
 	auto rpos = ffc ? COMBOPOS_REGION_B(ffc->x+8, ffc->y+8) : rpos_t(handle.id());
 	auto skip_layer = ffc ? -1 : handle.get_rpos().layer;
@@ -662,11 +658,7 @@ static void trigger_cswitch_block(const combined_handle_t& handle)
 		screen_combo_modify_postroutine(rpos_handle);
 		int newcid2 = rpos_handle.data();
 		if(combobuf[newcid2].animflags & AF_CYCLE)
-		{
-			combobuf[newcid2].tile = combobuf[newcid2].o_tile;
-			combobuf[newcid2].cur_frame=0;
-			combobuf[newcid2].aclk = 0;
-		}
+			combobuf[newcid2].reset_animation();
 	}
 	if (cmb.usrflags&cflag11)
 	{
@@ -684,11 +676,7 @@ static void trigger_cswitch_block(const combined_handle_t& handle)
 				screen_combo_modify_postroutine(ffc_handle);
 				int32_t newcid2 = ffc_handle.data();
 				if(combobuf[newcid2].animflags & AF_CYCLE)
-				{
-					combobuf[newcid2].tile = combobuf[newcid2].o_tile;
-					combobuf[newcid2].cur_frame=0;
-					combobuf[newcid2].aclk = 0;
-				}
+					combobuf[newcid2].reset_animation();
 			}
 		});
 	}
@@ -2156,12 +2144,7 @@ void do_ex_trigger(const combined_handle_t& handle, size_t idx)
 	}
 	
 	if (trig.trigger_flags.get(TRIGFLAG_RESETANIM))
-	{
-		auto& rcmb = combobuf[handle.data()];
-		rcmb.tile = rcmb.o_tile;
-		rcmb.cur_frame = 0;
-		rcmb.aclk = 0;
-	}
+		combobuf[handle.data()].reset_animation();
 
 	if (is_active_screen && trig.trigcopycat) //has a copycat set
 		trig_copycat(cid, handle, trig.trigcopycat);
@@ -2914,12 +2897,7 @@ static void handle_trigger_results(const combined_handle_t& handle, combo_trigge
 	if (is_active_screen)
 	{
 		if (trig.trigger_flags.get(TRIGFLAG_RESETANIM))
-		{
-			newcombo& rcmb = combobuf[handle.data()];
-			rcmb.tile = rcmb.o_tile;
-			rcmb.cur_frame = 0;
-			rcmb.aclk = 0;
-		}
+			combobuf[handle.data()].reset_animation();
 
 		if (trig.trigcopycat) //has a copycat set
 		{

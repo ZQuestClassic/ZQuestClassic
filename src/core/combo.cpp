@@ -1364,6 +1364,30 @@ bool newcombo::is_blank(bool ignoreEff) const
 	return true;
 }
 
+
+//Returns true if 'tile' is the LAST tile in the animation defined by the other parameters.
+static bool combo_end_check(const newcombo& cdata)
+{
+	if (get_qr(qr_BROKEN_ASKIP_Y_FRAMES) && !get_qr(qr_NEW_COMBO_ANIMATION))
+	{
+		//This is the old calculation for this, which is just wrong.
+		return (cdata.tile-(cdata.frames+((cdata.frames-1)*cdata.skipanim)+(cdata.skipanimy*TILES_PER_ROW)) >=cdata.o_tile-1);
+	}
+	//New calculation, which actually works properly
+	int32_t temp = cdata.o_tile;
+	for (int32_t q = 1; q < cdata.frames; ++q)
+	{
+		int32_t temp2 = temp;
+		temp += 1+cdata.skipanim;
+		
+		if ((temp/TILES_PER_ROW)!=(temp2/TILES_PER_ROW))
+			temp+=cdata.skipanimy*TILES_PER_ROW;
+		if (cdata.tile<temp)
+			return false;
+	}
+	return true;
+}
+
 bool newcombo::can_cycle() const
 {
 	if(nextcombo != 0)
@@ -1371,6 +1395,66 @@ bool newcombo::can_cycle() const
 	if(animflags & AF_CYCLEUNDERCOMBO)
 		return true;
 	return false;
+}
+bool newcombo::should_cycle() const
+{
+	if (!can_cycle())
+		return false;
+	if (aclk < speed)
+		return false;
+	return combo_end_check(*this);
+}
+
+void newcombo::reset_animation()
+{
+	tile = o_tile;
+	cur_frame = 0;
+	aclk = 0;
+}
+
+bool newcombo::animate(bool force_next_frame)
+{
+	if (aclk >= speed || force_next_frame)
+	{
+		if (get_qr(qr_NEW_COMBO_ANIMATION))
+		{
+			if (++cur_frame >= frames)
+				reset_animation();
+			else
+			{
+				tile = o_tile + ((1+skipanim)*cur_frame);
+				if (int32_t rowoffset = TILEROW(tile)-TILEROW(o_tile))
+					tile += skipanimy * rowoffset * TILES_PER_ROW;
+			}
+		}
+		else
+		{
+			if (combo_end_check(*this))
+				reset_animation();
+			else
+			{
+				int32_t temp=tile;
+				tile += 1+(skipanim);
+				
+				if (temp/TILES_PER_ROW!=tile/TILES_PER_ROW)
+					tile+=TILES_PER_ROW*skipanimy;
+			}
+		}
+		aclk = 0;
+		return true;
+	}
+	else
+	{
+		if (get_qr(qr_NEW_COMBO_ANIMATION))
+		{
+			tile = o_tile + ((1+skipanim)*cur_frame);
+			
+			if (int32_t rowoffset = TILEROW(tile)-TILEROW(o_tile))
+				tile += skipanimy * rowoffset * TILES_PER_ROW;
+		}
+		++aclk;
+		return false;
+	}
 }
 
 int newcombo::each_tile(std::function<bool(int32_t)> proc) const

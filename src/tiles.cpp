@@ -189,99 +189,59 @@ word count_combos()
 
 void setup_combo_animations()
 {
-    memset(animated_combo_table, 0, MAXCOMBOS*2*2);
-    memset(animated_combo_table4, 0, MAXCOMBOS*2*2);
-    int32_t y=0;
-    
-    for(word x=0; x<MAXCOMBOS; ++x)
-    {
-        animated_combo_table[x][0]=y;
-        
-        if((combobuf[x].frames>1 || combobuf[x].nextcombo != 0)&&!(combobuf[x].animflags &	AF_FRESH))
-        {
-            animated_combo_table4[y][0]=x;
-            animated_combo_table4[y][1]=0;
-			combobuf[x].aclk = 0;
-			combobuf[x].cur_frame = 0;
-            ++y;
-        }
-    }
-    
-    animated_combos=y;
+	memset(animated_combo_table, 0, MAXCOMBOS*2*2);
+	memset(animated_combo_table4, 0, MAXCOMBOS*2*2);
+	int32_t y=0;
+	
+	for(word x=0; x<MAXCOMBOS; ++x)
+	{
+		animated_combo_table[x][0]=y;
+		
+		if((combobuf[x].frames>1 || combobuf[x].nextcombo != 0)&&!(combobuf[x].animflags &	AF_FRESH))
+		{
+			animated_combo_table4[y][0]=x;
+			animated_combo_table4[y][1]=0;
+			combobuf[x].reset_animation();
+			++y;
+		}
+	}
+	
+	animated_combos=y;
 }
 
 void setup_combo_animations2()
 {
-    memset(animated_combo_table2, 0, MAXCOMBOS*2*2);
-    memset(animated_combo_table24, 0, MAXCOMBOS*2*2);
-    int32_t y=0;
-    
-    for(word x=0; x<MAXCOMBOS; ++x)
-    {
-        animated_combo_table2[x][0]=y;
-        animated_combo_table2[x][1]=combobuf[x].tile;
-        
-        if((combobuf[x].frames>1 || combobuf[x].nextcombo != 0)&&combobuf[x].animflags & AF_FRESH)
-        {
-            animated_combo_table24[y][0]=x;
-            animated_combo_table24[y][1]=0;
-			combobuf[x].aclk = 0;
-			combobuf[x].cur_frame = 0;
-            ++y;
-        }
-    }
-    
-    animated_combos2=y;
-}
-
-void reset_combo_animation(newcombo &cmb)
-{
-	cmb.tile = cmb.o_tile;
-	cmb.cur_frame = 0;
-	cmb.aclk = 0;
-
-	// this fn is only used in editor ...
-#ifdef IS_PLAYER
-	assert(false);
-#endif
-}
-
-void reset_combo_animation(int32_t c)
-{
-    for(word x=0; x<animated_combos; ++x)
-    {
-        int32_t y=animated_combo_table4[x][0];                      //combo number
-        
-        if(y==c)
-        {
-            combobuf[y].tile=combobuf[y].o_tile;        //reset tile
-			combobuf[y].cur_frame=0;
-            combobuf[y].aclk=0;                        //reset clock
-            return;
-        }
-    }
+	memset(animated_combo_table2, 0, MAXCOMBOS*2*2);
+	memset(animated_combo_table24, 0, MAXCOMBOS*2*2);
+	int32_t y=0;
+	
+	for(word x=0; x<MAXCOMBOS; ++x)
+	{
+		animated_combo_table2[x][0]=y;
+		animated_combo_table2[x][1]=combobuf[x].tile;
+		
+		if((combobuf[x].frames>1 || combobuf[x].nextcombo != 0)&&combobuf[x].animflags & AF_FRESH)
+		{
+			animated_combo_table24[y][0]=x;
+			animated_combo_table24[y][1]=0;
+			combobuf[x].reset_animation();
+			++y;
+		}
+	}
+	
+	animated_combos2=y;
 }
 
 void reset_combo_animations()
 {
-    for(word x=0; x<animated_combos; ++x)
-    {
-		int32_t y = animated_combo_table4[x][0];
-		combobuf[y].tile = combobuf[y].o_tile;
-		combobuf[y].aclk = 0;
-		combobuf[y].cur_frame = 0;
-    }
+	for(word x = 0; x < animated_combos; ++x)
+		combobuf[animated_combo_table4[x][0]].reset_animation();
 }
 
 void reset_combo_animations2()
 {
-    for(word x=0; x<animated_combos; ++x)
-    {
-		int32_t y = animated_combo_table24[x][0];
-		combobuf[y].tile = combobuf[y].o_tile;
-		combobuf[y].aclk = 0;
-		combobuf[y].cur_frame = 0;
-    }
+	for (word x = 0; x < animated_combos; ++x)
+		combobuf[animated_combo_table24[x][0]].reset_animation();
 }
 
 void reset_all_combo_animations()
@@ -290,97 +250,22 @@ void reset_all_combo_animations()
 	reset_combo_animations2();
 }
 
-//Returns true if 'tile' is the LAST tile in the animation defined by the other parameters.
-bool combocheck(const newcombo& cdata)
-{
-	if(get_qr(qr_BROKEN_ASKIP_Y_FRAMES) && !get_qr(qr_NEW_COMBO_ANIMATION))
-	{
-		//This is the old calculation for this, which is just wrong.
-		return (cdata.tile-(cdata.frames+((cdata.frames-1)*cdata.skipanim)+(cdata.skipanimy*TILES_PER_ROW)) >=cdata.o_tile-1);
-	}
-	//New calculation, which actually works properly
-    int32_t temp = cdata.o_tile;
-    for(int32_t q = 1; q < cdata.frames; ++q)
-    {
-        int32_t temp2 = temp;
-        temp += 1+cdata.skipanim;
-        
-        if((temp/TILES_PER_ROW)!=(temp2/TILES_PER_ROW))
-            temp+=cdata.skipanimy*TILES_PER_ROW;
-        if(cdata.tile<temp) return false;
-    }
-    return true;
-}
-
-void animate(newcombo& cdata, bool forceNextFrame, [[maybe_unused]] word cid)
-{
-	if(cdata.aclk>=cdata.speed || forceNextFrame)      //time to animate
-	{
-		if(get_qr(qr_NEW_COMBO_ANIMATION))
-		{
-			if(++cdata.cur_frame>=cdata.frames)
-			{
-				cdata.tile=cdata.o_tile;        //reset tile
-				cdata.cur_frame=0;
-			}
-			else
-			{
-				cdata.tile = cdata.o_tile + ((1+cdata.skipanim)*cdata.cur_frame);
-				if(int32_t rowoffset = TILEROW(cdata.tile)-TILEROW(cdata.o_tile))
-				{
-					cdata.tile += cdata.skipanimy * rowoffset * TILES_PER_ROW;
-				}
-			}
-		}
-		else
-		{
-			if(combocheck(cdata))
-			{
-				cdata.tile=cdata.o_tile;        //reset tile
-				cdata.cur_frame=0;
-			}
-			else
-			{
-				int32_t temp=cdata.tile;
-				cdata.tile+=1+(cdata.skipanim); //increment tile
-				
-				if(temp/TILES_PER_ROW!=cdata.tile/TILES_PER_ROW)
-					cdata.tile+=TILES_PER_ROW*cdata.skipanimy;
-			}
-		}
-		cdata.aclk=0;                        //reset clock
-
-	}
-	else
-	{
-		if(get_qr(qr_NEW_COMBO_ANIMATION))
-		{
-			cdata.tile = cdata.o_tile + ((1+cdata.skipanim)*cdata.cur_frame);
-			if(int32_t rowoffset = TILEROW(cdata.tile)-TILEROW(cdata.o_tile))
-			{
-				cdata.tile += cdata.skipanimy * rowoffset * TILES_PER_ROW;
-			}
-		}
-		++cdata.aclk;                        //increment clock
-	}
-}
-
 void animate_combos()
 {
     update_combo_cycling();
     
-    for(word x=0; x<animated_combos; ++x)
+    for(word x = 0; x < animated_combos; ++x)
     {
-        int32_t y=animated_combo_table4[x][0];                      //combo number
+        int32_t cid = animated_combo_table4[x][0];
         
-		animate(combobuf[y], false, y);
+		combobuf[cid].animate();
     }
     
-    for(word x=0; x<animated_combos2; ++x)
+    for(word x = 0; x < animated_combos2; ++x)
     {
-        int32_t y=animated_combo_table24[x][0];                      //combo number
+        int32_t cid = animated_combo_table24[x][0];
         
-        animate(combobuf[y], false, y);
+        combobuf[cid].animate();
     }
 }
 

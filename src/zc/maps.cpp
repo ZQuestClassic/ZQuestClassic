@@ -2420,11 +2420,8 @@ void update_combo_cycling()
 		{
 			x=scr->data[i];
 			newcombo const& cmb = combobuf[x];
-			if (!cmb.can_cycle())
-				continue;
 			
-			//time to restart
-			if ((cmb.aclk>=cmb.speed) && combocheck(cmb))
+			if (cmb.should_cycle())
 			{
 				bool cycle_under = (cmb.animflags & AF_CYCLEUNDERCOMBO);
 				auto c = cycle_under ? scr->undercombo : cmb.nextcombo;
@@ -2433,9 +2430,7 @@ void update_combo_cycling()
 					newcset[i] = cycle_under ? scr->undercset : cmb.nextcset;
 				
 				if(combobuf[c].animflags & AF_CYCLE)
-				{
 					restartanim.insert(c);
-				}
 			}
 		}
 		
@@ -2462,11 +2457,8 @@ void update_combo_cycling()
 		{
 			ffcdata& ffc = scr->ffcs[i];
 			newcombo const& cmb = combobuf[ffc.data];
-			if (!cmb.can_cycle())
-				continue;
 			
-			//time to restart
-			if ((cmb.aclk>=cmb.speed) && combocheck(cmb))
+			if (cmb.should_cycle())
 			{
 				bool cycle_under = (cmb.animflags & AF_CYCLEUNDERCOMBO);
 				auto c = cycle_under ? scr->undercombo : cmb.nextcombo;
@@ -2475,9 +2467,7 @@ void update_combo_cycling()
 					ffc.cset = cycle_under ? scr->undercset : cmb.nextcset;
 
 				if(combobuf[ffc.data].animflags & AF_CYCLE)
-				{
 					restartanim.insert(ffc.data);
-				}
 			}
 		}
 		
@@ -2493,11 +2483,8 @@ void update_combo_cycling()
 				{
 					x=layer_scr->data[i];
 					newcombo const& cmb = combobuf[x];
-					if (!cmb.can_cycle())
-						continue;
 					
-					//time to restart
-					if ((cmb.aclk>=cmb.speed) && combocheck(cmb))
+					if (cmb.should_cycle())
 					{
 						bool cycle_under = (cmb.animflags & AF_CYCLEUNDERCOMBO);
 						auto c = cycle_under ? layer_scr->undercombo : cmb.nextcombo;
@@ -2507,9 +2494,7 @@ void update_combo_cycling()
 						else newcset[i] = layer_scr->cset[i];
 						
 						if(combobuf[c].animflags & AF_CYCLE)
-						{
 							restartanim.insert(c);
-						}
 					}
 				}
 				
@@ -2529,11 +2514,7 @@ void update_combo_cycling()
 	});
 
 	for (auto i : restartanim)
-	{
-		combobuf[i].tile = combobuf[i].o_tile;
-		combobuf[i].cur_frame=0;
-		combobuf[i].aclk = 0;
-	}
+		combobuf[i].reset_animation();
 }
 
 bool iswater_type(int32_t type)
@@ -8058,11 +8039,7 @@ void toggle_switches(dword flags, bool entry, const screen_handles_t& screen_han
 				}
 				int32_t cmbid = scr->data[pos];
 				if(combobuf[cmbid].animflags & AF_CYCLE)
-				{
-					combobuf[cmbid].tile = combobuf[cmbid].o_tile;
-					combobuf[cmbid].cur_frame=0;
-					combobuf[cmbid].aclk = 0;
-				}
+					combobuf[cmbid].reset_animation();
 				if(is_active_screen && !entry) screen_combo_modify_postroutine(get_rpos_handle_for_screen(screen, lyr, pos));
 				togglegrid[pos] |= (1<<lyr); //Mark this pos toggled for this layer
 				if(cmb.type == cCSWITCH) return; //Switches don't toggle other layers
@@ -8104,11 +8081,7 @@ void toggle_switches(dword flags, bool entry, const screen_handles_t& screen_han
 					}
 					int32_t cmbid2 = scr_2->data[pos];
 					if(combobuf[cmbid2].animflags & AF_CYCLE)
-					{
-						combobuf[cmbid2].tile = combobuf[cmbid2].o_tile;
-						combobuf[cmbid2].cur_frame=0;
-						combobuf[cmbid2].aclk = 0;
-					}
+						combobuf[cmbid2].reset_animation();
 					if(is_active_screen && !entry) screen_combo_modify_postroutine(get_rpos_handle_for_screen(screen, lyr2, pos));
 					togglegrid[pos] |= (1<<lyr2); //Mark this pos toggled for this layer
 				}
@@ -8130,11 +8103,7 @@ void toggle_switches(dword flags, bool entry, const screen_handles_t& screen_han
 				mblock2.cs = (mblock2.cs + csofs) & 15;
 				int32_t cmbid = mblock2.bcombo;
 				if(combobuf[cmbid].animflags & AF_CYCLE)
-				{
-					combobuf[cmbid].tile = combobuf[cmbid].o_tile;
-					combobuf[cmbid].cur_frame=0;
-					combobuf[cmbid].aclk = 0;
-				}
+					combobuf[cmbid].reset_animation();
 			}
 		}
 	}
@@ -8228,11 +8197,7 @@ void toggle_gswitches(bool* states, bool entry, const screen_handles_t& screen_h
 					}
 					int32_t cmbid = scr->data[pos];
 					if(combobuf[cmbid].animflags & AF_CYCLE)
-					{
-						combobuf[cmbid].tile = combobuf[cmbid].o_tile;
-						combobuf[cmbid].cur_frame=0;
-						combobuf[cmbid].aclk = 0;
-					}
+						combobuf[cmbid].reset_animation();
 					if(is_active_screen && !entry) screen_combo_modify_postroutine(get_rpos_handle_for_screen(screen, lyr, pos));
 					togglegrid[pos] |= (1<<lyr); //Mark this pos toggled for this layer
 					if(cmb.type == cCSWITCH) continue; //Switches don't toggle other layers
@@ -8273,11 +8238,7 @@ void toggle_gswitches(bool* states, bool entry, const screen_handles_t& screen_h
 						}
 						int32_t cmbid2 = scr_2->data[pos];
 						if(combobuf[cmbid2].animflags & AF_CYCLE)
-						{
-							combobuf[cmbid2].tile = combobuf[cmbid2].o_tile;
-							combobuf[cmbid2].cur_frame=0;
-							combobuf[cmbid2].aclk = 0;
-						}
+							combobuf[cmbid2].reset_animation();
 						if(is_active_screen && !entry) screen_combo_modify_postroutine(get_rpos_handle_for_screen(screen, lyr2, pos));
 						togglegrid[pos] |= (1<<lyr2); //Mark this pos toggled for this layer
 					}
@@ -8301,11 +8262,7 @@ void toggle_gswitches(bool* states, bool entry, const screen_handles_t& screen_h
 				mblock2.cs = (mblock2.cs + csofs) & 15;
 				int32_t cmbid = mblock2.bcombo;
 				if(combobuf[cmbid].animflags & AF_CYCLE)
-				{
-					combobuf[cmbid].tile = combobuf[cmbid].o_tile;
-					combobuf[cmbid].cur_frame=0;
-					combobuf[cmbid].aclk = 0;
-				}
+					combobuf[cmbid].reset_animation();
 			}
 		}
 	}
