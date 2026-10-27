@@ -150,6 +150,12 @@ void zq_pop_unfrozen_dialogs()
 	unfrozen_dialogs.pop_back();
 }
 
+static void configure_zq()
+{
+	init_render_tree();
+	configure_render_tree();
+}
+
 void render_zq()
 {
 	if (is_headless())
@@ -162,8 +168,7 @@ void render_zq()
 	if(zqdialog_bg_bmp)
 		screen = zqdialog_bg_bmp;
 	
-	init_render_tree();
-	configure_render_tree();
+	configure_zq();
 
 	ALLEGRO_COLOR clear_color = al_map_rgb_f(0, 0, 0);
 	if (render_get_debug())
@@ -184,6 +189,11 @@ void render_zq()
 
 	screen = tmp;
 	al_restore_state(&oldstate);
+}
+
+ALLEGRO_BITMAP* render_zq_capture()
+{
+	return render_tree_capture(&rti_root, al_map_rgb_f(0, 0, 0), configure_zq);
 }
 
 void clear_tooltip()
