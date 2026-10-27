@@ -18,8 +18,8 @@ stdout:
   "diagnostics": [],
   "metadata": {
     "currentFileSymbols": 6,
-    "symbols": 20,
-    "identifiers": 65,
+    "symbols": 22,
+    "identifiers": 77,
     "elided": true
   }
 }
@@ -79,17 +79,17 @@ SETR D2 GENDATARUNNING
 COMPAREV D2 0
 GOTOCMP 58 ==; Test 'while'
 PUSHR D4; while() Body Start
-CALLFUNC 0.0347; UsrFunc[void DrawLabel()] Call
+CALLFUNC 0.0421; UsrFunc[void DrawLabel()] Call
 POP D4
 WAITFRAME; InlineFunc[void Waitframe()] Body AND while() Body End
 GOTO 47; while() End
-CALLFUNC 0.0296; UsrFunc[void End()] Call AND [Opt:NeverRet]
+CALLFUNC 0.0370; UsrFunc[void End()] Call AND [Opt:NeverRet]
 REF_REMOVE 0.0002; [Opt:NeverRet] AND void run() Body End
 PUSHARGSV 0 0.0004; void run() Body Start
 SETR D4 SP2
 PUSHR D4
 PUSHV 0; UsrFunc[void Init(int)] Params
-CALLFUNC 0.0274; UsrFunc[void Init(int)] Call
+CALLFUNC 0.0348; UsrFunc[void Init(int)] Call
 POP D4
 ALLOCATEMEMV D2 4 0
 WRITEPODSTRING D2 "a\xc3\xa9"
@@ -101,7 +101,7 @@ POP D0
 READPODARRAYV D2 0
 PUSHR D2
 PUSHV 97; UsrFunc[void AssertEqual(char32, char32)] Params End
-CALLFUNC 0.0303; UsrFunc[void AssertEqual(char32, char32)] Call
+CALLFUNC 0.0377; UsrFunc[void AssertEqual(char32, char32)] Call
 PEEK D4
 LOAD D2 0.0003; UsrFunc[void AssertEqual(char32, char32)] Params Start
 PUSHR D2
@@ -109,7 +109,7 @@ POP D0
 READPODARRAYV D2 1
 PUSHR D2
 PUSHV 195; UsrFunc[void AssertEqual(char32, char32)] Params End
-CALLFUNC 0.0303; UsrFunc[void AssertEqual(char32, char32)] Call
+CALLFUNC 0.0377; UsrFunc[void AssertEqual(char32, char32)] Call
 PEEK D4
 LOAD D2 0.0003; UsrFunc[void AssertEqual(char32, char32)] Params Start
 PUSHR D2
@@ -117,7 +117,7 @@ POP D0
 READPODARRAYV D2 2
 PUSHR D2
 PUSHV 169; UsrFunc[void AssertEqual(char32, char32)] Params End
-CALLFUNC 0.0303; UsrFunc[void AssertEqual(char32, char32)] Call
+CALLFUNC 0.0377; UsrFunc[void AssertEqual(char32, char32)] Call
 POP D4
 LOAD D2 0.0003; InlineFunc[void ltou(char32[])] Params Start
 SETR D3 D2; InlineFunc[void ltou(char32[])] Params End
@@ -129,7 +129,7 @@ POP D0
 READPODARRAYV D2 0
 PUSHR D2
 PUSHV 65; UsrFunc[void AssertEqual(char32, char32)] Params End
-CALLFUNC 0.0303; UsrFunc[void AssertEqual(char32, char32)] Call
+CALLFUNC 0.0377; UsrFunc[void AssertEqual(char32, char32)] Call
 PEEK D4
 LOAD D2 0.0003; UsrFunc[void AssertEqual(char32, char32)] Params Start
 PUSHR D2
@@ -137,7 +137,7 @@ POP D0
 READPODARRAYV D2 1
 PUSHR D2
 PUSHV 195; UsrFunc[void AssertEqual(char32, char32)] Params End
-CALLFUNC 0.0303; UsrFunc[void AssertEqual(char32, char32)] Call
+CALLFUNC 0.0377; UsrFunc[void AssertEqual(char32, char32)] Call
 PEEK D4
 LOAD D2 0.0003; UsrFunc[void AssertEqual(char32, char32)] Params Start
 PUSHR D2
@@ -145,7 +145,7 @@ POP D0
 READPODARRAYV D2 2
 PUSHR D2
 PUSHV 169; UsrFunc[void AssertEqual(char32, char32)] Params End
-CALLFUNC 0.0303; UsrFunc[void AssertEqual(char32, char32)] Call
+CALLFUNC 0.0377; UsrFunc[void AssertEqual(char32, char32)] Call
 POP D4
 LOAD D2 0.0003; InlineFunc[void utol(char32[])] Params Start
 SETR D3 D2; InlineFunc[void utol(char32[])] Params End
@@ -157,7 +157,7 @@ POP D0
 READPODARRAYV D2 0
 PUSHR D2
 PUSHV 97; UsrFunc[void AssertEqual(char32, char32)] Params End
-CALLFUNC 0.0303; UsrFunc[void AssertEqual(char32, char32)] Call
+CALLFUNC 0.0377; UsrFunc[void AssertEqual(char32, char32)] Call
 PEEK D4
 LOAD D2 0.0003; UsrFunc[void AssertEqual(char32, char32)] Params Start
 PUSHR D2
@@ -165,7 +165,7 @@ POP D0
 READPODARRAYV D2 1
 PUSHR D2
 PUSHV 195; UsrFunc[void AssertEqual(char32, char32)] Params End
-CALLFUNC 0.0303; UsrFunc[void AssertEqual(char32, char32)] Call
+CALLFUNC 0.0377; UsrFunc[void AssertEqual(char32, char32)] Call
 PEEK D4
 LOAD D2 0.0003; UsrFunc[void AssertEqual(char32, char32)] Params Start
 PUSHR D2
@@ -173,7 +173,81 @@ POP D0
 READPODARRAYV D2 2
 PUSHR D2
 PUSHV 169; UsrFunc[void AssertEqual(char32, char32)] Params End
-CALLFUNC 0.0303; UsrFunc[void AssertEqual(char32, char32)] Call
+CALLFUNC 0.0377; UsrFunc[void AssertEqual(char32, char32)] Call
+PEEK D4
+ALLOCATEMEMV D2 3 0; InlineFunc[int stricmp(char32[], char32[])] Params Start AND UsrFunc[void AssertEqual(int, int)] Params Start
+WRITEPODSTRING D2 "\xc3\xa9"
+PUSHR D2
+ALLOCATEMEMV D2 2 0
+WRITEPODSTRING D2 "a"
+SETR D1 D2; InlineFunc[int stricmp(char32[], char32[])] Params End
+POP D0; InlineFunc[int stricmp(char32[], char32[])] Body Start
+STRINGICOMPARE D2; InlineFunc[int stricmp(char32[], char32[])] Body End
+PUSHR D2
+PUSHV 1; UsrFunc[void AssertEqual(int, int)] Params End
+CALLFUNC 0.0399; UsrFunc[void AssertEqual(int, int)] Call
+PEEK D4
+ALLOCATEMEMV D2 2 0; InlineFunc[int stricmp(char32[], char32[])] Params Start AND UsrFunc[void AssertEqual(int, int)] Params Start
+WRITEPODSTRING D2 "a"
+PUSHR D2
+ALLOCATEMEMV D2 3 0
+WRITEPODSTRING D2 "\xc3\xa9"
+SETR D1 D2; InlineFunc[int stricmp(char32[], char32[])] Params End
+POP D0; InlineFunc[int stricmp(char32[], char32[])] Body Start
+STRINGICOMPARE D2; InlineFunc[int stricmp(char32[], char32[])] Body End
+PUSHR D2
+PUSHV -1; UsrFunc[void AssertEqual(int, int)] Params End
+CALLFUNC 0.0399; UsrFunc[void AssertEqual(int, int)] Call
+PEEK D4
+ALLOCATEMEMV D2 3 0; InlineFunc[int stricmp(char32[], char32[])] Params Start AND UsrFunc[void AssertEqual(int, int)] Params Start
+WRITEPODSTRING D2 "\xc3\x89"
+PUSHR D2
+ALLOCATEMEMV D2 3 0
+WRITEPODSTRING D2 "\xc3\xa9"
+SETR D1 D2; InlineFunc[int stricmp(char32[], char32[])] Params End
+POP D0; InlineFunc[int stricmp(char32[], char32[])] Body Start
+STRINGICOMPARE D2; InlineFunc[int stricmp(char32[], char32[])] Body End
+PUSHR D2
+PUSHV 0; UsrFunc[void AssertEqual(int, int)] Params End
+CALLFUNC 0.0399; UsrFunc[void AssertEqual(int, int)] Call
+PEEK D4
+ALLOCATEMEMV D2 3 0; InlineFunc[int strnicmp(char32[], char32[], int)] Params Start AND UsrFunc[void AssertEqual(int, int)] Params Start
+WRITEPODSTRING D2 "\xc3\x89"
+PUSHR D2
+ALLOCATEMEMV D2 3 0
+WRITEPODSTRING D2 "\xc3\xa9"
+PUSHR D2
+SETV D1 1; InlineFunc[int strnicmp(char32[], char32[], int)] Params End
+POP D0; InlineFunc[int strnicmp(char32[], char32[], int)] Body Start
+POP D3
+STRINGNICOMPARE D2; InlineFunc[int strnicmp(char32[], char32[], int)] Body End
+PUSHR D2
+PUSHV 0; UsrFunc[void AssertEqual(int, int)] Params End
+CALLFUNC 0.0399; UsrFunc[void AssertEqual(int, int)] Call
+PEEK D4
+ALLOCATEMEMV D2 4 0; InlineFunc[int stricmp(char32[], char32[])] Params Start AND UsrFunc[void AssertEqual(int, int)] Params Start
+WRITEPODSTRING D2 "ABC"
+PUSHR D2
+ALLOCATEMEMV D2 4 0
+WRITEPODSTRING D2 "abc"
+SETR D1 D2; InlineFunc[int stricmp(char32[], char32[])] Params End
+POP D0; InlineFunc[int stricmp(char32[], char32[])] Body Start
+STRINGICOMPARE D2; InlineFunc[int stricmp(char32[], char32[])] Body End
+PUSHR D2
+PUSHV 0; UsrFunc[void AssertEqual(int, int)] Params End
+CALLFUNC 0.0399; UsrFunc[void AssertEqual(int, int)] Call
+PEEK D4
+ALLOCATEMEMV D2 2 0; InlineFunc[int stricmp(char32[], char32[])] Params Start AND UsrFunc[void AssertEqual(int, int)] Params Start
+WRITEPODSTRING D2 "_"
+PUSHR D2
+ALLOCATEMEMV D2 2 0
+WRITEPODSTRING D2 "a"
+SETR D1 D2; InlineFunc[int stricmp(char32[], char32[])] Params End
+POP D0; InlineFunc[int stricmp(char32[], char32[])] Body Start
+STRINGICOMPARE D2; InlineFunc[int stricmp(char32[], char32[])] Body End
+PUSHR D2
+PUSHV -1; UsrFunc[void AssertEqual(int, int)] Params End
+CALLFUNC 0.0399; UsrFunc[void AssertEqual(int, int)] Call
 POP D4
 ALLOCATEMEMV D2 31 0; InlineFunc[file file::file(char32[], char32[])] Params Start
 WRITEPODSTRING D2 "bug_string_non_ascii_chars.txt"
@@ -210,7 +284,7 @@ POP REFFILE
 FILEREADCHARS D2 D3; InlineFunc[int file::ReadChars(char32[], int, int)] Body End
 PUSHR D2
 PUSHV 4; UsrFunc[void AssertEqual(int, int)] Params End
-CALLFUNC 0.0325; UsrFunc[void AssertEqual(int, int)] Call
+CALLFUNC 0.0399; UsrFunc[void AssertEqual(int, int)] Call
 PEEK D4
 LOAD D2 0.0001; UsrFunc[void AssertEqual(char32, char32)] Params Start
 PUSHR D2
@@ -218,7 +292,7 @@ POP D0
 READPODARRAYV D2 0
 PUSHR D2
 PUSHV 97; UsrFunc[void AssertEqual(char32, char32)] Params End
-CALLFUNC 0.0303; UsrFunc[void AssertEqual(char32, char32)] Call
+CALLFUNC 0.0377; UsrFunc[void AssertEqual(char32, char32)] Call
 PEEK D4
 LOAD D2 0.0001; UsrFunc[void AssertEqual(char32, char32)] Params Start
 PUSHR D2
@@ -226,7 +300,7 @@ POP D0
 READPODARRAYV D2 1
 PUSHR D2
 PUSHV 195; UsrFunc[void AssertEqual(char32, char32)] Params End
-CALLFUNC 0.0303; UsrFunc[void AssertEqual(char32, char32)] Call
+CALLFUNC 0.0377; UsrFunc[void AssertEqual(char32, char32)] Call
 PEEK D4
 LOAD D2 0.0001; UsrFunc[void AssertEqual(char32, char32)] Params Start
 PUSHR D2
@@ -234,7 +308,7 @@ POP D0
 READPODARRAYV D2 2
 PUSHR D2
 PUSHV 169; UsrFunc[void AssertEqual(char32, char32)] Params End
-CALLFUNC 0.0303; UsrFunc[void AssertEqual(char32, char32)] Call
+CALLFUNC 0.0377; UsrFunc[void AssertEqual(char32, char32)] Call
 PEEK D4
 LOAD D2 0.0001; UsrFunc[void AssertEqual(char32, char32)] Params Start
 PUSHR D2
@@ -242,7 +316,7 @@ POP D0
 READPODARRAYV D2 3
 PUSHR D2
 PUSHV 10; UsrFunc[void AssertEqual(char32, char32)] Params End
-CALLFUNC 0.0303; UsrFunc[void AssertEqual(char32, char32)] Call
+CALLFUNC 0.0377; UsrFunc[void AssertEqual(char32, char32)] Call
 POP D4
 LOAD D2 0.0002; InlineFunc[void file::Rewind()] Params Start
 SETR REFFILE D2; InlineFunc[void file::Rewind()] Params End
@@ -257,7 +331,7 @@ POP REFFILE; InlineFunc[int file::ReadString(char32[])] Body Start
 FILEREADSTR D2; InlineFunc[int file::ReadString(char32[])] Body End
 PUSHR D2
 PUSHV 4; UsrFunc[void AssertEqual(int, int)] Params End
-CALLFUNC 0.0325; UsrFunc[void AssertEqual(int, int)] Call
+CALLFUNC 0.0399; UsrFunc[void AssertEqual(int, int)] Call
 PEEK D4
 LOAD D2 0; UsrFunc[void AssertEqual(char32, char32)] Params Start
 PUSHR D2
@@ -265,7 +339,7 @@ POP D0
 READPODARRAYV D2 0
 PUSHR D2
 PUSHV 97; UsrFunc[void AssertEqual(char32, char32)] Params End
-CALLFUNC 0.0303; UsrFunc[void AssertEqual(char32, char32)] Call
+CALLFUNC 0.0377; UsrFunc[void AssertEqual(char32, char32)] Call
 PEEK D4
 LOAD D2 0; UsrFunc[void AssertEqual(char32, char32)] Params Start
 PUSHR D2
@@ -273,7 +347,7 @@ POP D0
 READPODARRAYV D2 1
 PUSHR D2
 PUSHV 195; UsrFunc[void AssertEqual(char32, char32)] Params End
-CALLFUNC 0.0303; UsrFunc[void AssertEqual(char32, char32)] Call
+CALLFUNC 0.0377; UsrFunc[void AssertEqual(char32, char32)] Call
 PEEK D4
 LOAD D2 0; UsrFunc[void AssertEqual(char32, char32)] Params Start
 PUSHR D2
@@ -281,7 +355,7 @@ POP D0
 READPODARRAYV D2 2
 PUSHR D2
 PUSHV 169; UsrFunc[void AssertEqual(char32, char32)] Params End
-CALLFUNC 0.0303; UsrFunc[void AssertEqual(char32, char32)] Call
+CALLFUNC 0.0377; UsrFunc[void AssertEqual(char32, char32)] Call
 PEEK D4
 LOAD D2 0; UsrFunc[void AssertEqual(char32, char32)] Params Start
 PUSHR D2
@@ -289,12 +363,12 @@ POP D0
 READPODARRAYV D2 3
 PUSHR D2
 PUSHV 10; UsrFunc[void AssertEqual(char32, char32)] Params End
-CALLFUNC 0.0303; UsrFunc[void AssertEqual(char32, char32)] Call
+CALLFUNC 0.0377; UsrFunc[void AssertEqual(char32, char32)] Call
 POP D4
 LOAD D2 0.0002; InlineFunc[bool file::Remove()] Params Start
 SETR REFFILE D2; InlineFunc[bool file::Remove()] Params End
 FILEREMOVE; InlineFunc[bool file::Remove()] Body
-CALLFUNC 0.0296; UsrFunc[void End()] Call AND [Opt:NeverRet]
+CALLFUNC 0.0370; UsrFunc[void End()] Call AND [Opt:NeverRet]
 REF_REMOVE 0.0001
 REF_REMOVE 0.0002
 REF_REMOVE 0
@@ -312,7 +386,7 @@ LOAD D2 0; if() Test
 COMPAREV D2 0
 SETCMP D2 I!=
 COMPAREV D2 0
-GOTOCMP 293 ==; Test 'if'
+GOTOCMP 367 ==; Test 'if'
 PUSHV 5; InlineFunc[void hero::Warp(int, int)] Params Start AND if() Body Start
 LOAD D2 0; InlineFunc[void hero::Warp(int, int)] Params End
 POP D3; InlineFunc[void hero::Warp(int, int)] Body Start
@@ -336,7 +410,7 @@ POP D3
 COMPARER D3 D2
 SETCMP D2 I!=
 COMPAREV D2 0
-GOTOCMP 322 ==; Test 'if'
+GOTOCMP 396 ==; Test 'if'
 ALLOCATEMEMV D2 49 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start AND if() Body Start
 WRITEPODSTRING D2 "[Test] failed assertion: expected %d but got %d\n"
 PUSHR D2
@@ -358,7 +432,7 @@ POP D3
 COMPARER D3 D2
 SETCMP D2 I!=
 COMPAREV D2 0
-GOTOCMP 344 ==; Test 'if'
+GOTOCMP 418 ==; Test 'if'
 ALLOCATEMEMV D2 49 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start AND if() Body Start
 WRITEPODSTRING D2 "[Test] failed assertion: expected %d but got %d\n"
 PUSHR D2
@@ -375,7 +449,7 @@ RETURNFUNC; Func[void AssertEqual(int, int)] Body End
 SETR D4 SP2; Func[void DrawLabel()] Body Start
 SETR D2 GD1; unless() Test
 COMPAREV D2 0
-GOTOCMP 365 ==; Test 'unless' AND return (Void) AND unless() Body
+GOTOCMP 439 ==; Test 'unless' AND return (Void) AND unless() Body
 NOP
 SETV D2 0.0001
 PUSHR D2

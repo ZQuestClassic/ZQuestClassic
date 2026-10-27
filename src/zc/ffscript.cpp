@@ -15785,7 +15785,7 @@ void FFScript::do_stricmp()
 	string strB;
 	ArrayH::getString(arrayptr_a, strA);
 	ArrayH::getString(arrayptr_b, strB);
-	set_register(sarg1, (vbound(stricmp(strA.c_str(), strB.c_str()), -1, 1) * 10000));
+	set_register(sarg1, (vbound(ustricmp(strA.c_str(), strB.c_str()), -1, 1) * 10000));
 }
 
 void FFScript::do_LowerToUpper([[maybe_unused]] const bool v)
