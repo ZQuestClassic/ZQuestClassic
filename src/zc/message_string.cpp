@@ -1376,6 +1376,14 @@ msg_tick_result msg_tick(bool play_sfx, bool burst_mode)
 		{
 			bool one_frame_command_delay = !replay_version_check(41);
 			std::string text = parsemsgcode2(cur_iterator->command);
+			// A command can dismiss the message (ex: a warp). Then the iterator is
+			// gone, and all that is left is the end-of-string work.
+			if (!cur_iterator)
+			{
+				if (do_end_str)
+					msg_tick_end();
+				return msg_tick_exit;
+			}
 			if (wait_advance || do_end_str)
 				break;
 			if (do_run_menu)
@@ -1472,7 +1480,7 @@ void msg_tick_end(bool disappear)
 			while (cur_iterator->state == MsgStr::iterator::COMMAND)
 			{
 				parsemsgcode2(cur_iterator->command);
-				if (do_end_str)
+				if (do_end_str || !cur_iterator)
 					break;
 				cur_iterator->next();
 			}
