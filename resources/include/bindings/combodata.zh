@@ -134,6 +134,12 @@ class combodata {
 	// @zasm_var COMBODASPEED
 	internal int ASpeed;
 
+	// The combo animation starting delay, in frames.
+	//
+	// @versionadded 3.0
+	// @zasm_var COMBODATA_DELAY
+	internal int Delay;
+
 	// How to flip (or rotate) the combo.
 	//
 	// @value [TransformationType|TransformationType (FLIP_ or ROT_)]

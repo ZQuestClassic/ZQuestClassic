@@ -1046,6 +1046,12 @@ int32_t readcombo_loop(PACKFILE* f, word s_version, newcombo& temp_combo, zquest
 			
 			if(!p_getc(&temp_combo.animflags,f))
 				return qe_invalid;
+			
+			if (s_version >= 73)
+			{
+				if (!p_igetw(&temp_combo.delay,f))
+					return qe_invalid;
+			}
 		}
 		if(combo_has_flags&CHAS_ATTRIB)
 		{
@@ -1743,7 +1749,7 @@ int32_t writecombo_loop(PACKFILE *f, newcombo const& tmp_cmb)
 		combo_has_flags |= CHAS_FLAG;
 	if(tmp_cmb.frames || tmp_cmb.speed || tmp_cmb.nextcombo
 		|| tmp_cmb.nextcset || tmp_cmb.skipanim || tmp_cmb.skipanimy
-		|| tmp_cmb.animflags)
+		|| tmp_cmb.animflags || tmp_cmb.delay)
 		combo_has_flags |= CHAS_ANIM;
 	if (!tmp_cmb.scrconfig.empty() || tmp_cmb.label.size())
 		combo_has_flags |= CHAS_SCRIPT;
@@ -1823,6 +1829,9 @@ int32_t writecombo_loop(PACKFILE *f, newcombo const& tmp_cmb)
 
 		if(!p_putc(tmp_cmb.animflags,f))
 			return 19;
+
+		if (!p_iputw(tmp_cmb.delay,f))
+			return 100;
 	}
 	if(combo_has_flags&CHAS_ATTRIB)
 	{

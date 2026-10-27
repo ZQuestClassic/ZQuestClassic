@@ -1,5 +1,6 @@
 #include "combo.h"
 #include "base/general.h"
+#include "core/qrs.h"
 #include "mapscr.h"
 #include "zinfo.h"
 #include "new_subscr.h"
@@ -1358,6 +1359,8 @@ bool newcombo::is_blank(bool ignoreEff) const
 	if(z_step_height) return false;
 	if(dive_under_level) return false;
 	
+	if (delay) return false;
+	
 	if(!triggers.empty()) return false;
 	if(!misc_weap_data.get().is_blank()) return false;
 	if(!lift_weap_data.get().is_blank_lifting()) return false;
@@ -1400,7 +1403,7 @@ bool newcombo::should_cycle() const
 {
 	if (!can_cycle())
 		return false;
-	if (aclk < speed)
+	if (aclk < speed + (cur_frame ? 0 : delay))
 		return false;
 	return combo_end_check(*this);
 }
@@ -1414,7 +1417,7 @@ void newcombo::reset_animation()
 
 bool newcombo::animate(bool force_next_frame)
 {
-	if (aclk >= speed || force_next_frame)
+	if (aclk >= speed + (cur_frame ? 0 : delay) || force_next_frame)
 	{
 		if (get_qr(qr_NEW_COMBO_ANIMATION))
 		{

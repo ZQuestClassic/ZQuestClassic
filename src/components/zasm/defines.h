@@ -3530,6 +3530,8 @@ enum ASM_DEFINE
 #define NPCFIRESFXSECONDARY                   0x171F
 #define NPCDATAFIRESFXSECONDARY               0x1720
 
+#define COMBODATA_DELAY                       0x1721
+
 // fill in gap here
 
 #define SCRIPT_INST_VARS(d)      ((0x1800) + d) // 256; 0x1800 -> 0x1900

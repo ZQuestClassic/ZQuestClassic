@@ -19,7 +19,7 @@ int32_t tile_anim_proc(int32_t msg,DIALOG *d, [[maybe_unused]] int32_t c)
 	int32_t &clk = data[TileFrame::tfr_aclk];
 	int32_t &flashclk = data[TileFrame::tfr_flash_clk];
 	int32_t &frm = data[TileFrame::tfr_aframe];
-	int32_t delay = -data[TileFrame::tfr_delay] * data[TileFrame::tfr_speed];
+	int32_t delay = -data[TileFrame::tfr_delay];
 	switch(msg)
 	{
 		case MSG_START:
@@ -180,7 +180,7 @@ void TileFrame::setSpeed(int32_t value)
 
 void TileFrame::setDelay(int32_t value)
 {
-	data[tfr_delay] = vbound(value,0,255);
+	data[tfr_delay] = vbound(value,0,65535);
 	pendDraw();
 }
 

@@ -54,6 +54,7 @@ void UnderComboDialog::refresh_layer(int layer)
 		prev_widg.setCSet2(cmb.csets);
 		prev_widg.setFrames(cmb.frames);
 		prev_widg.setSpeed(cmb.speed);
+		prev_widg.setDelay(cmb.delay);
 		prev_widg.setSkipX(cmb.skipanim);
 		prev_widg.setSkipY(cmb.skipanimy);
 		prev_widg.setFlip(cmb.flip);
