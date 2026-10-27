@@ -32,11 +32,11 @@ void TileRefPtr10k::forEach(std::function<void(int32_t)> proc) const
 void TileRefCombo::forEach(std::function<void(int32_t)> proc) const
 {
 	BaseTileRef::forEach(proc);
-	reset_combo_animation(*combo);
+	combo->reset_animation();
 	do
 	{
 		proc(combo->tile);
-		animate(*combo, true);
+		combo->animate(true);
 	}
 	while(combo->tile != combo->o_tile);
 }

@@ -5782,10 +5782,10 @@ int32_t move_intersection_ss(newcombo &cmb, int32_t selection_first, int32_t sel
 	do
 	{
 		cmb_last = cmb.tile;
-		animate(cmb, true);
+		cmb.animate(true);
 	}
 	while(cmb.tile != cmb.o_tile);
-	reset_combo_animation(cmb);
+	cmb.reset_animation();
 	cmb_first += offset;
 	cmb_last += offset;
 	
@@ -5798,13 +5798,13 @@ int32_t move_intersection_ss(newcombo &cmb, int32_t selection_first, int32_t sel
 	{
 		if(cmb.tile+offset >= selection_first && cmb.tile+offset <= selection_last)
 		{
-			reset_combo_animation(cmb);
+			cmb.reset_animation();
 			return ti_broken; //contained, but non-encompassing.
 		}
-		animate(cmb, true);
+		cmb.animate(true);
 	}
 	while(cmb.tile != cmb.o_tile);
-	reset_combo_animation(cmb);
+	cmb.reset_animation();
 	return ti_none;
 }
 int32_t move_intersection_ss(int32_t check_first, int32_t check_last, int32_t selection_first, int32_t selection_last)
@@ -5873,10 +5873,10 @@ int32_t move_intersection_sr(newcombo &cmb, int32_t selection_left, int32_t sele
 		do
 		{
 			cmb_last = cmb.tile;
-			animate(cmb, true);
+			cmb.animate(true);
 		}
 		while(cmb.tile != cmb.o_tile);
-		reset_combo_animation(cmb);
+		cmb.reset_animation();
 		cmb_first += offset;
 		cmb_last += offset;
 		
@@ -5906,13 +5906,13 @@ int32_t move_intersection_sr(newcombo &cmb, int32_t selection_left, int32_t sele
 				{
 					if(TILECOL(cmb.tile) >= selection_left && TILECOL(cmb.tile) <= selection_left+selection_width)
 					{
-						reset_combo_animation(cmb);
+						cmb.reset_animation();
 						return ti_broken;
 					}
-					animate(cmb, true);
+					cmb.animate(true);
 				}
 				while(cmb.tile != cmb.o_tile);
-				reset_combo_animation(cmb);
+				cmb.reset_animation();
 				return ti_none;
 			}
 		}
@@ -5927,7 +5927,7 @@ int32_t move_intersection_sr(newcombo &cmb, int32_t selection_left, int32_t sele
 					//This row isn't in the selection; skip to next row
 					do
 					{
-						animate(cmb,true);
+						cmb.animate(true);
 						if(cmb.tile == cmb.o_tile) return ti_none; //reached end
 					}
 					while(TILEROW(cmb.tile) == row);
@@ -5940,10 +5940,10 @@ int32_t move_intersection_sr(newcombo &cmb, int32_t selection_left, int32_t sele
 				{
 					if(TILECOL(cmb.tile) >= selection_left && TILECOL(cmb.tile) <= selection_left+selection_width-1)
 					{
-						reset_combo_animation(cmb);
+						cmb.reset_animation();
 						return ti_broken;
 					}
-					animate(cmb, true);
+					cmb.animate(true);
 					if(cmb.tile == cmb.o_tile) return ti_none; //reached end
 				}
 				while(TILEROW(cmb.tile) == row);

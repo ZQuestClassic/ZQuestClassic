@@ -202,6 +202,10 @@ struct newcombo
 	void clear();
 	bool is_blank(bool ignoreEff = false) const;
 	bool can_cycle() const;
+	bool should_cycle() const;
+	
+	void reset_animation();
+	bool animate(bool force_next_frame = false);
 	
 	int each_tile(std::function<bool(int32_t)> proc) const;
 	
