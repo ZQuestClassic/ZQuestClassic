@@ -17,6 +17,7 @@ public:
 	void setTile(int32_t value);
 	void setCSet(int32_t value);
 	void setCSet2(int32_t value);
+	void setCSet2FlashDuration(int32_t value);
 	void setFrames(int32_t value);
 	void setSpeed(int32_t value);
 	void setDelay(int32_t value);
@@ -36,8 +37,8 @@ private:
 	enum {
 		tfr_tile, tfr_cset, tfr_frames, tfr_speed, tfr_delay,
 		tfr_aclk, tfr_aframe, tfr_skipx, tfr_skipy, tfr_flip,
-		tfr_cset2, tfr_dosized, tfr_flash_cs, tfr_flash_clk,
-		tfr_tw, tfr_th, tfr_MAX
+		tfr_cset2, tfr_cs2flashduration, tfr_flash_cs, tfr_flash_clk,
+		tfr_dosized, tfr_tw, tfr_th, tfr_MAX
 	};
 	int32_t data[tfr_MAX];
 	DialogRef alDialog;

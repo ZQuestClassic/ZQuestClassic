@@ -104,6 +104,7 @@ int32_t combodata_get_register(int32_t reg)
 			}
 			break;
 		}
+		case COMBODATA_CSET2_FLASH_DURATION: GET_COMBO_VAR_BYTE(cs2_flash_duration); break;
 		case COMBODCSET2FLAGS:
 		{
 			if(checkComboRef())
@@ -812,6 +813,7 @@ void combodata_set_register(int32_t reg, int32_t value)
 			screen_combo_modify_post(GET_REF(combodataref));
 			break;
 		}
+		case COMBODATA_CSET2_FLASH_DURATION: SET_COMBO_VAR_BYTE(cs2_flash_duration); break;
 		case COMBODCSET2FLAGS:
 		{
 			if (!checkComboRef()) break;

@@ -3531,6 +3531,7 @@ enum ASM_DEFINE
 #define NPCDATAFIRESFXSECONDARY               0x1720
 
 #define COMBODATA_DELAY                       0x1721
+#define COMBODATA_CSET2_FLASH_DURATION        0x1722
 
 // fill in gap here
 

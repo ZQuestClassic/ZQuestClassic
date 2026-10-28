@@ -1360,6 +1360,7 @@ bool newcombo::is_blank(bool ignoreEff) const
 	if(dive_under_level) return false;
 	
 	if (delay) return false;
+	if (cs2_flash_duration) return false;
 	
 	if(!triggers.empty()) return false;
 	if(!misc_weap_data.get().is_blank()) return false;
@@ -1406,6 +1407,16 @@ bool newcombo::should_cycle() const
 	if (aclk < speed + (cur_frame ? 0 : delay))
 		return false;
 	return combo_end_check(*this);
+}
+bool newcombo::using_cs2() const
+{
+	if (!(csets & 0xF0))
+		return false;
+	if (!(csets & 0x0F))
+		return false;
+	if (cs2_flash_duration && (global_frame % (cs2_flash_duration*2)) < cs2_flash_duration)
+		return false;
+	return true;
 }
 
 void newcombo::reset_animation()
@@ -1488,7 +1499,10 @@ void newcombo::advpaste(newcombo const& other, bitstring const& flags)
 		flip = other.flip;
 	}
 	if(flags.get(CMB_ADVP_CSET2))
+	{
 		csets = other.csets;
+		cs2_flash_duration = other.cs2_flash_duration;
+	}
 	if(flags.get(CMB_ADVP_SOLIDITY))
 		walk = (walk&0xF0) | (other.walk&0x0F);
 	if(flags.get(CMB_ADVP_ANIM))
