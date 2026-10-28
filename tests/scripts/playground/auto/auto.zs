@@ -18,6 +18,7 @@
 #include "auto/bug_string_16bit_index.zs"
 #include "auto/bug_string_non_ascii_chars.zs"
 #include "auto/bug_subscr_gauge_percent_div0.zs"
+#include "auto/bug_text_latin1_bytes.zs"
 #include "auto/bug_trig_group_count_script_change.zs"
 #include "auto/bug_unused_var_bad_opt.zs"
 #include "auto/bug_water_edge_scroll.zs"
