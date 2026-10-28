@@ -309,6 +309,99 @@ static int unicode_isok(int c)
 
 
 
+/* local edit: a byte that doesn't start a valid UTF-8 sequence is read as a
+ * character of its own, instead of '^'.
+ *
+ * Before 2.55-alpha-117 ZC drew all text with U_ASCII, so quests have text with
+ * bytes 128-255 meaning Latin-1 letters (é) or font glyphs (the Zelda NES
+ * font's symbols). Such a byte reads as U+DC80-U+DCFF (as in Python's
+ * "surrogateescape"), which valid UTF-8 can't produce, and the font code draws
+ * it with the glyph for the byte's value (see _mono_find_glyph). Writing that
+ * character back gives the original byte, so copying a string through
+ * ugetx/usetc keeps its exact bytes and size; reading it as U+0080-U+00FF
+ * would grow each byte to two when written back. Valid UTF-8 still decodes
+ * normally. The original functions are kept below, in #if 0.
+ */
+
+/* utf8_seq_len:
+ *  Returns the length of the valid UTF-8 sequence at s, or 0 if s doesn't
+ *  start one. A lone ASCII byte is a sequence of length 1.
+ */
+static int utf8_seq_len(AL_CONST char *s, int *value)
+{
+   static AL_CONST int min_value[] = { 0, 0, 0x80, 0x800, 0x10000, 0x200000, 0x4000000 };
+   int c = *((unsigned char *)s);
+   int n, i, t;
+
+   if (!(c & 0x80)) {
+      *value = c;
+      return 1;
+   }
+
+   /* 10xxxxxx is a continuation byte, and 1111111x isn't used */
+   if (!(c & 0x40) || c >= 0xFE)
+      return 0;
+
+   n = 2;
+   while (c & (0x80>>n))
+      n++;
+
+   c &= (1<<(7-n))-1;
+
+   for (i=1; i<n; i++) {
+      t = *((unsigned char *)(s+i));
+
+      if ((t & 0xC0) != 0x80)
+	 return 0;
+
+      c = (c<<6) | (t&0x3F);
+   }
+
+   /* overlong encodings (such as C0 80 for 0) and surrogates aren't valid */
+   if (c < min_value[n] || (c >= 0xD800 && c <= 0xDFFF))
+      return 0;
+
+   *value = c;
+   return n;
+}
+
+
+
+/* utf8_getc:
+ *  Reads a character from a UTF-8 string.
+ */
+static int utf8_getc(AL_CONST char *s)
+{
+   int c;
+
+   if (utf8_seq_len(s, &c))
+      return c;
+
+   return AL_UTF8_ESCAPE(*((unsigned char *)s));
+}
+
+
+
+/* utf8_getx:
+ *  Reads a character from a UTF-8 string, advancing the pointer position.
+ */
+static int utf8_getx(char **s)
+{
+   int c;
+   int n = utf8_seq_len(*s, &c);
+
+   if (!n) {
+      c = AL_UTF8_ESCAPE(*((unsigned char *)*s));
+      n = 1;
+   }
+
+   *s += n;
+   return c;
+}
+
+
+
+#if 0 /* local edit: original */
 /* utf8_getc:
  *  Reads a character from a UTF-8 string.
  */
@@ -368,6 +461,7 @@ static int utf8_getx(char **s)
 
    return c;
 }
+#endif
 
 
 
@@ -377,6 +471,12 @@ static int utf8_getx(char **s)
 static int utf8_setc(char *s, int c)
 {
    int size, bits, b, i;
+
+   /* local edit: an escaped byte is written back as itself (see utf8_getc) */
+   if (AL_UTF8_IS_ESCAPED(c)) {
+      *s = AL_UTF8_UNESCAPE(c);
+      return 1;
+   }
 
    if (c < 128) {
       *s = c;
@@ -416,6 +516,21 @@ static int utf8_setc(char *s, int c)
  */
 static int utf8_width(AL_CONST char *s)
 {
+   /* local edit: matches utf8_getx, which reads an invalid byte on its own */
+   int c;
+   int n = utf8_seq_len(s, &c);
+
+   return n ? n : 1;
+}
+
+
+
+#if 0 /* local edit: original */
+/* utf8_width:
+ *  Returns the width of a UTF-8 character.
+ */
+static int utf8_width(AL_CONST char *s)
+{
    int c = *((unsigned char *)s);
    int n = 1;
 
@@ -426,6 +541,7 @@ static int utf8_width(AL_CONST char *s)
 
    return n;
 }
+#endif
 
 
 
@@ -435,6 +551,10 @@ static int utf8_width(AL_CONST char *s)
 static int utf8_cwidth(int c)
 {
    int size, bits, b;
+
+   /* local edit: an escaped byte is written back as itself (see utf8_getc) */
+   if (AL_UTF8_IS_ESCAPED(c))
+      return 1;
 
    if (c < 128)
       return 1;

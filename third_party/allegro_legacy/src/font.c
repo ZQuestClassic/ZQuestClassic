@@ -477,6 +477,10 @@ static int length(AL_CONST FONT* f, AL_CONST char* text)
  */
 FONT_GLYPH* _mono_find_glyph(AL_CONST FONT* f, int ch)
 {
+    /* local edit: a byte that isn't valid UTF-8 draws as the glyph for its
+       value (see utf8_getc) */
+    if(AL_UTF8_IS_ESCAPED(ch)) ch = AL_UTF8_UNESCAPE(ch);
+
     FONT_MONO_DATA* mf = (FONT_MONO_DATA*)(f->data);
 
     while(mf) {
@@ -862,6 +866,10 @@ static int mono_transpose_font(FONT* f, int drange)
  */
 BITMAP* _color_find_glyph(AL_CONST FONT* f, int ch)
 {
+    /* local edit: a byte that isn't valid UTF-8 draws as the glyph for its
+       value (see utf8_getc) */
+    if(AL_UTF8_IS_ESCAPED(ch)) ch = AL_UTF8_UNESCAPE(ch);
+
     FONT_COLOR_DATA* cf = (FONT_COLOR_DATA*)(f->data);
 
     while(cf) {
