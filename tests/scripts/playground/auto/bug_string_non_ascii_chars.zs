@@ -27,6 +27,15 @@ generic script bug_string_non_ascii_chars
 		Test::AssertEqual(s[1], 0xC3);
 		Test::AssertEqual(s[2], 0xA9);
 
+		// stricmp compared signed bytes on some platforms and unsigned bytes on
+		// others. It now matches strnicmp, which folds the case of "É".
+		Test::AssertEqual(stricmp("é", "a"), 1);
+		Test::AssertEqual(stricmp("a", "é"), -1);
+		Test::AssertEqual(stricmp("É", "é"), 0);
+		Test::AssertEqual(strnicmp("É", "é", 1), 0);
+		Test::AssertEqual(stricmp("ABC", "abc"), 0);
+		Test::AssertEqual(stricmp("_", "a"), -1);
+
 		file f;
 		Test::Assert(f->OpenMode("bug_string_non_ascii_chars.txt", "w+b"));
 		f->WriteString("aé\n");
