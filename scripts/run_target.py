@@ -31,6 +31,17 @@ def describe_signal(signum: int):
     return f'was killed by {name} (signal {signum})'
 
 
+def describe_windows_exception(code: int):
+    names = {
+        0xC0000005: 'an access violation',
+        0xC00000FD: 'a stack overflow',
+        0xC0000374: 'heap corruption',
+        0xC0000409: 'a stack buffer overrun or fail fast',
+    }
+    name = names.get(code, 'an exception')
+    return f'crashed with {name} (0x{code:08X})'
+
+
 def get_debug_method(warn_if_none=True):
     if 'ZC_DISABLE_DEBUG' in os.environ:
         return {'method': DEBUG_METHOD_NONE}
@@ -376,4 +387,11 @@ if __name__ == '__main__':
     # 128 + signal convention instead (139 for SIGSEGV).
     if p.returncode < 0:
         sys.exit(128 - p.returncode)
+    # On Windows, exit codes are unsigned, so a crash (an exception code like 0xC0000005)
+    # or a negative exit code (zscript exits with -1 on compile errors) is too big for
+    # sys.exit, which exits with -1 instead. Pass on the same 32 bits as a signed int.
+    if p.returncode > 0x7FFFFFFF:
+        if p.returncode >> 28 == 0xC:
+            print_run_target(f'process {describe_windows_exception(p.returncode)}\n')
+        sys.exit(p.returncode - 0x100000000)
     sys.exit(p.returncode)
