@@ -4150,17 +4150,25 @@ static void allocate_crap()
 	}
 }
 
-void do_load_and_quit_command(const char* quest_path)
+// Sets up what loading a quest needs, for commands that quit before the rest of startup.
+static void init_for_quest_load_command()
 {
-	// We need to init some stuff before loading a quest file will work.
-	int fake_errno = 0;
-	allegro_errno = &fake_errno;
+	// On Windows, Allegro registers its datafile loaders only when it is installed (elsewhere
+	// a constructor function does it at startup). Without them, the samples in sfx.dat
+	// load as raw bytes, and loading a quest reads the sound data as pointers.
+	if (!al_init() || allegro_init() != 0)
+		Z_error_fatal("Failed Init!");
 	get_qst_buffers();
 	allocate_crap();
 	if ((sfxdata=load_datafile("sfx.dat"))==NULL)
 	{
 		Z_error_fatal("failed to load sfx_dat");
 	}
+}
+
+void do_load_and_quit_command(const char* quest_path)
+{
+	init_for_quest_load_command();
 
 	byte skip_flags[] = {0, 0, 0, 0};
 	int ret = loadquest(quest_path,&QHeader,&QMisc,tunes+ZC_MIDI_COUNT,false,skip_flags,false,false,0xFF);
@@ -4293,15 +4301,7 @@ int main(int argc, char **argv)
 
 		set_headless_mode();
 
-		// We need to init some stuff before loading a quest file will work.
-		int fake_errno = 0;
-		allegro_errno = &fake_errno;
-		get_qst_buffers();
-		allocate_crap();
-		if ((sfxdata=load_datafile("sfx.dat"))==NULL)
-		{
-			Z_error_fatal("failed to load sfx_dat");
-		}
+		init_for_quest_load_command();
 
 		gamedata* new_game = new gamedata();
 		new_game->header.name = "hiro";
