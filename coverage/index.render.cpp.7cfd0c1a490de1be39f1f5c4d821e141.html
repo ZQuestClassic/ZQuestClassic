@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2026-10-25 23:17:05</td>
+      <td>2026-10-28 05:20:48</td>
     </tr>
   </table>
 </div>
@@ -42,20 +42,20 @@
     <tr>
       <th scope="row">Lines:</th>
       <td>12</td>
-      <td>85</td>
-      <td class="coverage-low">14.1%</td>
+      <td>90</td>
+      <td class="coverage-low">13.3%</td>
     </tr>
     <tr>
       <th scope="row">Functions:</th>
       <td>3</td>
-      <td>17</td>
-      <td class="coverage-low">17.6%</td>
+      <td>18</td>
+      <td class="coverage-low">16.7%</td>
     </tr>
     <tr>
       <th scope="row">Branches:</th>
       <td>7</td>
-      <td>40</td>
-      <td class="coverage-low">17.5%</td>
+      <td>42</td>
+      <td class="coverage-low">16.7%</td>
     </tr>
   </table>
 </div>
@@ -73,14 +73,15 @@
       <th>Call count</th>
       <th>Block coverage</th>
     </tr>
-    <tr><td><a href="#l153">clear_tooltip() (line 153)</a></td><td>not called</td><td>0.0%</td></tr>
+    <tr><td><a href="#l162">clear_tooltip() (line 162)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l61">configure_render_tree() (line 61)</a></td><td>not called</td><td>0.0%</td></tr>
+    <tr><td><a href="#l144">configure_zq() (line 144)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l99">get_root_rti() (line 99)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l109">get_screen_rti() (line 109)</a></td><td>called 1 time, returned 1 time</td><td>100.0%</td></tr>
     <tr><td><a href="#l18">gui_mouse_target() (line 18)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l40">init_render_tree() (line 40)</a></td><td>not called</td><td>0.0%</td></tr>
-    <tr><td><a href="#l144">render_zq() (line 144)</a></td><td>called 1 time, returned 1 time</td><td>50.0%</td></tr>
-    <tr><td><a href="#l147">render_zq()::$_0::operator()() const (line 147)</a></td><td>not called</td><td>0.0%</td></tr>
+    <tr><td><a href="#l150">render_zq() (line 150)</a></td><td>called 1 time, returned 1 time</td><td>50.0%</td></tr>
+    <tr><td><a href="#l156">render_zq_capture() (line 156)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l104">set_center_root_rti(bool) (line 104)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l34">use_linear_bitmaps() (line 34)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l25">window_mouse_x() (line 25)</a></td><td>not called</td><td>0.0%</td></tr>
@@ -1141,8 +1142,8 @@
       <td class="lineno"><a id="l144" href="#l144">144</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">1</td>
-      <td class="src coveredLine"><span class="kt">void</span><span class="w"> </span><span class="nf">render_zq</span><span class="p">()</span></td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="k">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">configure_zq</span><span class="p">()</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l145" href="#l145">145</a></td>
@@ -1155,11 +1156,53 @@
       <td class="lineno"><a id="l146" href="#l146">146</a></td>
       <td class="linebranch">
       </td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">	</span><span class="n">init_render_tree</span><span class="p">();</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l147" href="#l147">147</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">	</span><span class="n">configure_render_tree</span><span class="p">();</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l148" href="#l148">148</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="p">}</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l149" href="#l149">149</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l150" href="#l150">150</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount coveredLine">1</td>
+      <td class="src coveredLine"><span class="kt">void</span><span class="w"> </span><span class="nf">render_zq</span><span class="p">()</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l151" href="#l151">151</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="p">{</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l152" href="#l152">152</a></td>
+      <td class="linebranch">
+      </td>
       <td class="linecount coveredLine">1</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">ALLEGRO_COLOR</span><span class="w"> </span><span class="n">clear_color</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">al_map_rgb</span><span class="p">(</span><span class="n">RAMpal</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">r</span><span class="p">,</span><span class="w"> </span><span class="n">RAMpal</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">g</span><span class="p">,</span><span class="w"> </span><span class="n">RAMpal</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">b</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l147" href="#l147">147</a></td>
+      <td class="lineno"><a id="l153" href="#l153">153</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">1/2</summary>
@@ -1170,80 +1213,101 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">1</td>
-      <td class="src partialCoveredLine"><span class="w">	</span><span class="n">render_tree_present</span><span class="p">(</span><span class="o">&amp;</span><span class="n">rti_root</span><span class="p">,</span><span class="w"> </span><span class="n">clear_color</span><span class="p">,</span><span class="w"> </span><span class="p">[]</span><span class="w"> </span><span class="p">{</span></td>
+      <td class="src partialCoveredLine"><span class="w">	</span><span class="n">render_tree_present</span><span class="p">(</span><span class="o">&amp;</span><span class="n">rti_root</span><span class="p">,</span><span class="w"> </span><span class="n">clear_color</span><span class="p">,</span><span class="w"> </span><span class="n">configure_zq</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l148" href="#l148">148</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">		</span><span class="n">init_render_tree</span><span class="p">();</span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l149" href="#l149">149</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">		</span><span class="n">configure_render_tree</span><span class="p">();</span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l150" href="#l150">150</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">	</span><span class="p">});</span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l151" href="#l151">151</a></td>
+      <td class="lineno"><a id="l154" href="#l154">154</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">1</td>
       <td class="src coveredLine"><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l152" href="#l152">152</a></td>
+      <td class="lineno"><a id="l155" href="#l155">155</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l153" href="#l153">153</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="kt">void</span><span class="w"> </span><span class="nf">clear_tooltip</span><span class="p">()</span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l154" href="#l154">154</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="p">{</span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l155" href="#l155">155</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">	</span><span class="n">ttip_uninstall_all</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l156" href="#l156">156</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="p">}</span></td>
+      <td class="src uncoveredLine"><span class="n">ALLEGRO_BITMAP</span><span class="o">*</span><span class="w"> </span><span class="nf">render_zq_capture</span><span class="p">()</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l157" href="#l157">157</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="p">{</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l158" href="#l158">158</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">	</span><span class="n">ALLEGRO_COLOR</span><span class="w"> </span><span class="n">clear_color</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">al_map_rgb</span><span class="p">(</span><span class="n">RAMpal</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">r</span><span class="p">,</span><span class="w"> </span><span class="n">RAMpal</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">g</span><span class="p">,</span><span class="w"> </span><span class="n">RAMpal</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">b</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l159" href="#l159">159</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="n">render_tree_capture</span><span class="p">(</span><span class="o">&amp;</span><span class="n">rti_root</span><span class="p">,</span><span class="w"> </span><span class="n">clear_color</span><span class="p">,</span><span class="w"> </span><span class="n">configure_zq</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l160" href="#l160">160</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="p">}</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l161" href="#l161">161</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l162" href="#l162">162</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="kt">void</span><span class="w"> </span><span class="nf">clear_tooltip</span><span class="p">()</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l163" href="#l163">163</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="p">{</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l164" href="#l164">164</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">	</span><span class="n">ttip_uninstall_all</span><span class="p">();</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l165" href="#l165">165</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="p">}</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l166" href="#l166">166</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l167" href="#l167">167</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
