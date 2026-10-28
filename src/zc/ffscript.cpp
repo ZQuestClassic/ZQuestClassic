@@ -2329,7 +2329,7 @@ public:
 		}
 		
 		for (size_t i = 0; i < count; i++)
-			am.set(i, s2[i] * 10000);
+			am.set(i, byte(s2[i]) * 10000);
 		am.set(count, '\0');
 		
 		return ret;
@@ -40988,7 +40988,7 @@ void FFScript::do_file_readchars()
 		}
 		if(count < 0 || unsigned(count) > sz-pos) count = sz-pos;
 		int32_t limit = pos+count;
-		char c;
+		int32_t c;
 		word q;
 		ri->d[rEXP1] = 0;
 		for(q = pos; q < limit; ++q)
@@ -41080,7 +41080,7 @@ void FFScript::do_file_readstring()
 		if (am.size() <= 0)
 			return;
 		for (size_t q = 0; q < line.size(); ++q)
-			am.set(q, line[q] * 10000L);
+			am.set(q, byte(line[q]) * 10000L);
 		am.set(line.size(), 0); //Force null-termination
 		ri->d[rEXP1] = line.size() * 10000L; //Don't count nullchar towards length
 		check_file_error(ri->fileref);
