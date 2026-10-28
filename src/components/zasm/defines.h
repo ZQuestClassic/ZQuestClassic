@@ -3547,6 +3547,7 @@ enum ASM_DEFINE
 #define DMAPDATA_VIEWPORT_RECENTER_DELAY      0x172E
 
 #define COMBODATA_DELAY                       0x172F
+#define COMBODATA_CSET2_FLASH_DURATION        0x1730
 
 // fill in gap here
 

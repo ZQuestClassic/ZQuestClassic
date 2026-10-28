@@ -1339,6 +1339,7 @@ void FFCListerDialog::update(bool startup)
 		newcombo const& cmb = combobuf[ffc.data];
 		widgPrev->setTile(cmb.tile);
 		widgPrev->setCSet2(cmb.csets);
+		widgPrev->setCSet2FlashDuration(cmb.cs2_flash_duration);
 		widgPrev->setFrames(cmb.frames);
 		widgPrev->setSpeed(cmb.speed);
 		widgPrev->setSkipX(cmb.skipanim);

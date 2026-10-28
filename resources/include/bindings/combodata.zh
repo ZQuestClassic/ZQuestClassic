@@ -172,6 +172,14 @@ class combodata {
 	// @zasm_var COMBODCSET
 	internal int CSet2;
 
+	// The CSet2 flash duration. If 0, the CSet2 is constant;
+	// if >0, the CSet2 flashes on for this many frames, then
+	// off for the same number of frames.
+	//
+	// @versionadded 3.0
+	// @zasm_var COMBODATA_CSET2_FLASH_DURATION
+	internal int CSet2FlashDuration;
+
 	// Bitwise access to the 4 corners of the cset2 square.
 	// TODO: Untested!
 	//

@@ -19122,7 +19122,6 @@ void anim_hw_screen()
 void custom_vsync()
 {
 	anim_hw_screen();
-	++global_frame;
 }
 
 void switch_out()
@@ -21876,6 +21875,7 @@ void update_hw_screen()
 		return;
 
 	framecnt = framecnt + 1;
+	++global_frame;
 
 	zalleg_process_display_events();
 	if (update_hw_pal)
