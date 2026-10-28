@@ -25,6 +25,7 @@
 #include "auto/bug_script_weapon_bomb_door.zs"
 #include "auto/bug_shopdata_invalid_pointer.zs"
 #include "auto/bug_string_16bit_index.zs"
+#include "auto/bug_string_non_ascii_chars.zs"
 #include "auto/bug_subscr_gauge_percent_div0.zs"
 #include "auto/bug_subscreen_count_resize.zs"
 #include "auto/bug_trig_group_count_script_change.zs"
