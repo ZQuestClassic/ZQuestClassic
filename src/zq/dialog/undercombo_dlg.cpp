@@ -52,6 +52,7 @@ void UnderComboDialog::refresh_layer(int layer)
 		prev_widg.setTile(cmb.tile);
 		prev_widg.setCSet(cs);
 		prev_widg.setCSet2(cmb.csets);
+		prev_widg.setCSet2FlashDuration(cmb.cs2_flash_duration);
 		prev_widg.setFrames(cmb.frames);
 		prev_widg.setSpeed(cmb.speed);
 		prev_widg.setDelay(cmb.delay);
@@ -146,6 +147,7 @@ shared_ptr<GUI::Widget> UnderComboDialog::view()
 						tile = cmb.tile,
 						cset = m->undercset,
 						cset2 = cmb.csets,
+						cs2_flash_duration = cmb.cs2_flash_duration,
 						frames = cmb.frames,
 						speed = cmb.speed,
 						skipx = cmb.skipanim,
