@@ -19,7 +19,8 @@ int32_t tile_anim_proc(int32_t msg,DIALOG *d, [[maybe_unused]] int32_t c)
 	int32_t &clk = data[TileFrame::tfr_aclk];
 	int32_t &flashclk = data[TileFrame::tfr_flash_clk];
 	int32_t &frm = data[TileFrame::tfr_aframe];
-	int32_t delay = -data[TileFrame::tfr_delay] * data[TileFrame::tfr_speed];
+	int32_t delay = -data[TileFrame::tfr_delay];
+	int32_t cs2_flash_duration = data[TileFrame::tfr_cs2flashduration];
 	switch(msg)
 	{
 		case MSG_START:
@@ -32,8 +33,10 @@ int32_t tile_anim_proc(int32_t msg,DIALOG *d, [[maybe_unused]] int32_t c)
 		{
 			if(d->flags & D_DISABLED)
 				break; //Disable animation
-			flashclk = (flashclk+1)&0xF; //checking (flashclk&8) is on half the time
-			if(data[TileFrame::tfr_flash_cs] > -1 && !(flashclk%8))
+			flashclk = (flashclk+1); //checking (flashclk&8) is on half the time
+			if (data[TileFrame::tfr_flash_cs] > -1 && !(flashclk%8))
+				d->flags |= D_DIRTY; //mark for redraw
+			else if (cs2_flash_duration && !(flashclk % cs2_flash_duration))
 				d->flags |= D_DIRTY; //mark for redraw
 			if(data[TileFrame::tfr_frames] < 2)
 				break; //nothing to animate
@@ -85,9 +88,11 @@ int32_t tile_anim_proc(int32_t msg,DIALOG *d, [[maybe_unused]] int32_t c)
 				//
 				int32_t cset = data[TileFrame::tfr_cset];
 				int32_t flashcs = data[TileFrame::tfr_flash_cs];
-				if(flashcs > -1 && (flashclk&8))
-					cset = flashcs;
 				int32_t cs2 = data[TileFrame::tfr_cset2];
+				if (flashcs > -1 && (flashclk&8))
+					cset = flashcs;
+				if (cs2_flash_duration && (flashclk % (cs2_flash_duration*2)) < cs2_flash_duration)
+					cs2 = 0;
 				for(auto tx = 0; tx < tw; ++tx)
 				{
 					for(auto ty = 0; ty < th; ++ty)
@@ -166,6 +171,12 @@ void TileFrame::setCSet2(int32_t value)
 	pendDraw();
 }
 
+void TileFrame::setCSet2FlashDuration(int32_t value)
+{
+	data[tfr_cs2flashduration] = value;
+	pendDraw();
+}
+
 void TileFrame::setFrames(int32_t value)
 {
 	data[tfr_frames] = std::max(1,value);
@@ -180,7 +191,7 @@ void TileFrame::setSpeed(int32_t value)
 
 void TileFrame::setDelay(int32_t value)
 {
-	data[tfr_delay] = vbound(value,0,255);
+	data[tfr_delay] = vbound(value,0,65535);
 	pendDraw();
 }
 

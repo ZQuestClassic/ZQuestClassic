@@ -84,6 +84,7 @@ private:
 	
 	
 	std::shared_ptr<GUI::Widget> ANIM_FIELD_IMPL(byte* data, byte min, byte max);
+	std::shared_ptr<GUI::Widget> ANIM_FIELD_IMPL_W(word* data, word min, word max);
 	friend bool call_combo_editor(int32_t index);
 	friend bool call_trigger_editor(ComboEditorDialog& dlg, size_t index);
 	friend class ComboWizardDialog;

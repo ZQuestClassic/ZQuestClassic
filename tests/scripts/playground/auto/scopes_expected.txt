@@ -3712,10 +3712,10 @@ POP D2; Func[void bottleshopdata::SetName(char32[])] Body Start                 
 POP REFBOTTLESHOP                                                               | 3683 resources/include/bindings/bottleshopdata.zh:50
 BSHOPNAMESET D2                                                                 | 3684 resources/include/bindings/bottleshopdata.zh:50
 RETURNFUNC; Func[void bottleshopdata::SetName(char32[])] Body End               | 3685 resources/include/bindings/bottleshopdata.zh:50
-POP D2; Func[combotrigger combodata::GetTrigger(char32[])] Body Start           | 3686 resources/include/bindings/combodata.zh:417
-POP REFCOMBOTRIGGER                                                             | 3687 resources/include/bindings/combodata.zh:417
-COMBOD_GET_TRIGGER D2                                                           | 3688 resources/include/bindings/combodata.zh:417
-RETURNFUNC; Func[combotrigger combodata::GetTrigger(char32[])] Body End         | 3689 resources/include/bindings/combodata.zh:417
+POP D2; Func[combotrigger combodata::GetTrigger(char32[])] Body Start           | 3686 resources/include/bindings/combodata.zh:431
+POP REFCOMBOTRIGGER                                                             | 3687 resources/include/bindings/combodata.zh:431
+COMBOD_GET_TRIGGER D2                                                           | 3688 resources/include/bindings/combodata.zh:431
+RETURNFUNC; Func[combotrigger combodata::GetTrigger(char32[])] Body End         | 3689 resources/include/bindings/combodata.zh:431
 PEEKATV REFCOMBOTRIGGER 0.0002; Func[int combotrigger::GetReqExDoor(int, int)] Body Start | 3690 resources/include/bindings/combotrigger.zh:714
 SETR D2 CMBTRIG_REQ_SCREXDOOR                                                   | 3691 resources/include/bindings/combotrigger.zh:714
 POPARGS D5 0.0003                                                               | 3692 resources/include/bindings/combotrigger.zh:714
@@ -6647,6 +6647,8 @@ debug data:
       - int CSet @ Reg[COMBODCSET] <DEPRECATED>
       - int CSet2 @ Reg[COMBODCSET]
       - int CSet2Flags @ Reg[COMBODCSET2FLAGS]
+      - int CSet2FlashDuration @ Reg[COMBODATA_CSET2_FLASH_DURATION]
+      - int Delay @ Reg[COMBODATA_DELAY]
       - int DiveUnderLevel @ Reg[COMBOD_DIVE_UNDER_LEVEL]
       - int Effect @ Reg[COMBODEFFECT]
       - int Flag @ Reg[COMBODFLAG]

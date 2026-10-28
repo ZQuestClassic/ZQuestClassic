@@ -63,6 +63,8 @@ constexpr EngineSubsystem getEngineSubsystemForRegister(int reg)
 		case COMBODNUMTRIGGERS:
 		case COMBODONLYGEN:
 		case COMBODOTILE:
+		case COMBODATA_DELAY:
+		case COMBODATA_CSET2_FLASH_DURATION:
 		case COMBODSKIPANIM:
 		case COMBODTILE:
 		case COMBODTRIGBOSSPAL:

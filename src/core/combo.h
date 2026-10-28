@@ -198,10 +198,18 @@ struct newcombo
 	
 	byte large_combo_dirs;
 	
+	word delay;
+	byte cs2_flash_duration;
+	
 	void set_tile(int32_t newtile);
 	void clear();
 	bool is_blank(bool ignoreEff = false) const;
 	bool can_cycle() const;
+	bool should_cycle() const;
+	bool using_cs2() const;
+	
+	void reset_animation();
+	bool animate(bool force_next_frame = false);
 	
 	int each_tile(std::function<bool(int32_t)> proc) const;
 	

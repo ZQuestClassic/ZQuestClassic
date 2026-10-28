@@ -2175,10 +2175,12 @@ void ComboEditorDialog::updateAnimation()
 {
 	updateCSet();
 	animFrame->setCSet2(local_comboref.csets);
+	animFrame->setCSet2FlashDuration(local_comboref.cs2_flash_duration);
 	animFrame->setFrames(local_comboref.frames);
 	animFrame->setSkipX(local_comboref.skipanim);
 	animFrame->setSkipY(local_comboref.skipanimy);
 	animFrame->setSpeed(local_comboref.speed);
+	animFrame->setDelay(local_comboref.delay);
 	animFrame->setTile(local_comboref.tile);
 	animFrame->setFlip(local_comboref.flip);
 	tswatch->setFlip(local_comboref.flip);
@@ -2248,8 +2250,27 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::ANIM_FIELD_IMPL(byte* data, byte
 		}
 	);
 }
+std::shared_ptr<GUI::Widget> ComboEditorDialog::ANIM_FIELD_IMPL_W(word* data, word min, word max)
+{
+	using namespace GUI::Builder;
+	using namespace GUI::Props;
+	
+	return TextField(
+		type = GUI::TextField::type::INT_DECIMAL,
+		maxLength = 5,
+		val = *data,
+		bounds = {min, max},
+		fitParent = true,
+		onValChangedFunc = [&, data](GUI::TextField::type,std::string_view,int32_t val)
+		{
+			*data = val;
+			updateAnimation();
+		}
+	);
+}
 
 #define ANIM_FIELD(member, _min, _max) ANIM_FIELD_IMPL(&local_comboref.member, _min, _max)
+#define ANIM_FIELD_W(member, _min, _max) ANIM_FIELD_IMPL_W(&local_comboref.member, _min, _max)
 
 #define IBTN(info) \
 Button( \
@@ -2501,12 +2522,21 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 								updateAnimation();
 							}),
 						INFOBTN("This much is added to the cset in all corners selected in the 'CSet2' box."),
+						Label(text = "CSet2 Flash Duration:", hAlign = 1.0),
+						ANIM_FIELD(cs2_flash_duration, 0, 255),
+						INFOBTN("If >0, the CSet2 will only apply half of the time, flashing on and off"
+							" every this many frames. Flashing uses the global flash timer, and if this is"
+							" set to 8, it will flash in time with flashing items."),
 						Label(text = "A. Frames:", hAlign = 1.0),
 						ANIM_FIELD(frames, 0, 255),
 						INFOBTN("Animation is this many tiles long. 0 is treated the same as 1."),
 						Label(text = "A. Speed:", hAlign = 1.0),
 						ANIM_FIELD(speed, 0, 255),
 						INFOBTN("This many frames pass between each tile change of the animation."),
+						Label(text = "A. Delay:", hAlign = 1.0),
+						ANIM_FIELD_W(delay, 0, 65535),
+						INFOBTN("This many frames pass before the animation starts."
+							"\nNote that this is different from item animation delay."),
 						Label(text = "A. SkipX:", hAlign = 1.0),
 						ANIM_FIELD(skipanim, 0, 255),
 						INFOBTN("When the tile changes, skip this many extra tiles."),
@@ -2578,8 +2608,10 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 								tile = local_comboref.tile,
 								cset = CSet,
 								cset2 = local_comboref.csets,
+								cs2_flash_duration = local_comboref.cs2_flash_duration,
 								frames = local_comboref.frames,
 								speed = local_comboref.speed,
+								delay = local_comboref.delay,
 								skipx = local_comboref.skipanim,
 								skipy = local_comboref.skipanimy,
 								flip = local_comboref.flip

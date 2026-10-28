@@ -1,5 +1,6 @@
 #include "combo.h"
 #include "base/general.h"
+#include "core/qrs.h"
 #include "mapscr.h"
 #include "zinfo.h"
 #include "new_subscr.h"
@@ -1358,9 +1359,36 @@ bool newcombo::is_blank(bool ignoreEff) const
 	if(z_step_height) return false;
 	if(dive_under_level) return false;
 	
+	if (delay) return false;
+	if (cs2_flash_duration) return false;
+	
 	if(!triggers.empty()) return false;
 	if(!misc_weap_data.get().is_blank()) return false;
 	if(!lift_weap_data.get().is_blank_lifting()) return false;
+	return true;
+}
+
+
+//Returns true if 'tile' is the LAST tile in the animation defined by the other parameters.
+static bool combo_end_check(const newcombo& cdata)
+{
+	if (get_qr(qr_BROKEN_ASKIP_Y_FRAMES) && !get_qr(qr_NEW_COMBO_ANIMATION))
+	{
+		//This is the old calculation for this, which is just wrong.
+		return (cdata.tile-(cdata.frames+((cdata.frames-1)*cdata.skipanim)+(cdata.skipanimy*TILES_PER_ROW)) >=cdata.o_tile-1);
+	}
+	//New calculation, which actually works properly
+	int32_t temp = cdata.o_tile;
+	for (int32_t q = 1; q < cdata.frames; ++q)
+	{
+		int32_t temp2 = temp;
+		temp += 1+cdata.skipanim;
+		
+		if ((temp/TILES_PER_ROW)!=(temp2/TILES_PER_ROW))
+			temp+=cdata.skipanimy*TILES_PER_ROW;
+		if (cdata.tile<temp)
+			return false;
+	}
 	return true;
 }
 
@@ -1371,6 +1399,76 @@ bool newcombo::can_cycle() const
 	if(animflags & AF_CYCLEUNDERCOMBO)
 		return true;
 	return false;
+}
+bool newcombo::should_cycle() const
+{
+	if (!can_cycle())
+		return false;
+	if (aclk < speed + (cur_frame ? 0 : delay))
+		return false;
+	return combo_end_check(*this);
+}
+bool newcombo::using_cs2() const
+{
+	if (!(csets & 0xF0))
+		return false;
+	if (!(csets & 0x0F))
+		return false;
+	if (cs2_flash_duration && (global_frame % (cs2_flash_duration*2)) < cs2_flash_duration)
+		return false;
+	return true;
+}
+
+void newcombo::reset_animation()
+{
+	tile = o_tile;
+	cur_frame = 0;
+	aclk = 0;
+}
+
+bool newcombo::animate(bool force_next_frame)
+{
+	if (aclk >= speed + (cur_frame ? 0 : delay) || force_next_frame)
+	{
+		if (get_qr(qr_NEW_COMBO_ANIMATION))
+		{
+			if (++cur_frame >= frames)
+				reset_animation();
+			else
+			{
+				tile = o_tile + ((1+skipanim)*cur_frame);
+				if (int32_t rowoffset = TILEROW(tile)-TILEROW(o_tile))
+					tile += skipanimy * rowoffset * TILES_PER_ROW;
+			}
+		}
+		else
+		{
+			if (combo_end_check(*this))
+				reset_animation();
+			else
+			{
+				int32_t temp=tile;
+				tile += 1+(skipanim);
+				
+				if (temp/TILES_PER_ROW!=tile/TILES_PER_ROW)
+					tile+=TILES_PER_ROW*skipanimy;
+			}
+		}
+		aclk = 0;
+		return true;
+	}
+	else
+	{
+		if (get_qr(qr_NEW_COMBO_ANIMATION))
+		{
+			tile = o_tile + ((1+skipanim)*cur_frame);
+			
+			if (int32_t rowoffset = TILEROW(tile)-TILEROW(o_tile))
+				tile += skipanimy * rowoffset * TILES_PER_ROW;
+		}
+		++aclk;
+		return false;
+	}
 }
 
 int newcombo::each_tile(std::function<bool(int32_t)> proc) const
@@ -1401,7 +1499,10 @@ void newcombo::advpaste(newcombo const& other, bitstring const& flags)
 		flip = other.flip;
 	}
 	if(flags.get(CMB_ADVP_CSET2))
+	{
 		csets = other.csets;
+		cs2_flash_duration = other.cs2_flash_duration;
+	}
 	if(flags.get(CMB_ADVP_SOLIDITY))
 		walk = (walk&0xF0) | (other.walk&0x0F);
 	if(flags.get(CMB_ADVP_ANIM))

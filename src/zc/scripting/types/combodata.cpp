@@ -59,6 +59,18 @@ int32_t combodata_get_register(int32_t reg)
 		} \
 	} \
 
+	#define	GET_COMBO_VAR_WORD(member) \
+	{ \
+		if(!checkComboRef()) \
+		{ \
+			ret = -10000; \
+		} \
+		else \
+		{ \
+			ret = (combobuf[GET_REF(combodataref)].member *10000); \
+		} \
+	} \
+
 	#define	GET_COMBO_VAR_DWORD(member) \
 	{ \
 		if(!checkComboRef()) \
@@ -92,6 +104,7 @@ int32_t combodata_get_register(int32_t reg)
 			}
 			break;
 		}
+		case COMBODATA_CSET2_FLASH_DURATION: GET_COMBO_VAR_BYTE(cs2_flash_duration); break;
 		case COMBODCSET2FLAGS:
 		{
 			if(checkComboRef())
@@ -272,6 +285,7 @@ int32_t combodata_get_register(int32_t reg)
 			break;
 		}
 		case COMBODOTILE:		GET_COMBO_VAR_DWORD(o_tile); break;			//word
+		case COMBODATA_DELAY:		GET_COMBO_VAR_WORD(delay); break;			//word
 		case COMBODSKIPANIM:		GET_COMBO_VAR_BYTE(skipanim); break;				//C
 		case COMBODTILE:		GET_COMBO_VAR_DWORD(tile); break;					//word
 		case COMBODTRIGBOSSPAL:
@@ -771,6 +785,16 @@ void combodata_set_register(int32_t reg, int32_t value)
 		} \
 	} \
 
+	#define	SET_COMBO_VAR_WORD(member) \
+	{ \
+		if(checkComboRef()) \
+		{ \
+			screen_combo_modify_pre(GET_REF(combodataref)); \
+			combobuf[GET_REF(combodataref)].member = vbound((value / 10000),0,65535); \
+			screen_combo_modify_post(GET_REF(combodataref)); \
+		} \
+	} \
+
 	switch (reg)
 	{
 		case COMBODACLK:		SET_COMBO_VAR_BYTE(aclk); break;				//char
@@ -789,6 +813,7 @@ void combodata_set_register(int32_t reg, int32_t value)
 			screen_combo_modify_post(GET_REF(combodataref));
 			break;
 		}
+		case COMBODATA_CSET2_FLASH_DURATION: SET_COMBO_VAR_BYTE(cs2_flash_duration); break;
 		case COMBODCSET2FLAGS:
 		{
 			if (!checkComboRef()) break;
@@ -965,6 +990,7 @@ void combodata_set_register(int32_t reg, int32_t value)
 			}
 			break;
 		}
+		case COMBODATA_DELAY: SET_COMBO_VAR_WORD(delay); break;
 		case COMBODSKIPANIM:	SET_COMBO_VAR_BYTE(skipanim); break;					//C
 		case COMBODTILE:	SET_COMBO_VAR_INT(tile); break;						//word
 		case COMBODTRIGBOSSPAL:
