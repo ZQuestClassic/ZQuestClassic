@@ -297,6 +297,13 @@ AL_LEGACY_VAR(FONT_VTABLE *, font_vtable_trans);
 AL_LEGACY_FUNC(FONT_GLYPH *, _mono_find_glyph, (AL_CONST FONT *f, int ch));
 AL_LEGACY_FUNC(BITMAP *, _color_find_glyph, (AL_CONST FONT *f, int ch));
 
+/* local edit: U_UTF8 reads a byte that isn't valid UTF-8 as U+DC80-U+DCFF,
+ * and fonts draw it with the glyph for the byte's value. See utf8_getc.
+ */
+#define AL_UTF8_ESCAPE(byte)       (0xDC00 | (byte))
+#define AL_UTF8_IS_ESCAPED(c)      ((c) >= 0xDC80 && (c) <= 0xDCFF)
+#define AL_UTF8_UNESCAPE(c)        ((c) & 0xFF)
+
 typedef struct FONT_MONO_DATA
 {
    int begin, end;                  /* first char and one-past-the-end char */

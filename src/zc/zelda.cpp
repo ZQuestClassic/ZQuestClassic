@@ -4255,6 +4255,8 @@ int main(int argc, char **argv)
 		success &= run_tests(test_util, "test_util", verbose);
 		extern TestResults test_win_encoding(bool);
 		success &= run_tests(test_win_encoding, "test_win_encoding", verbose);
+		extern TestResults test_unicode(bool);
+		success &= run_tests(test_unicode, "test_unicode", verbose);
 		extern TestResults test_process_management(bool);
 		success &= run_tests(test_process_management, "test_process_management", verbose);
 		extern TestResults test_control_scheme(bool);
