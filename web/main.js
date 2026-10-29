@@ -457,7 +457,8 @@ async function renderQuestList() {
     const questPrefix = `${ZC.dataOrigin}/${quest.id}`;
 
     document.querySelector('.quest-list__entry.selected')?.classList.remove('selected');
-    document.querySelector(`.quest-list__entry[data-quest-index="${quests.indexOf(quest)}"]`).classList.add('selected');
+    // Not in the list if linked to with ?quest= but not approved.
+    document.querySelector(`.quest-list__entry[data-quest-index="${quests.indexOf(quest)}"]`)?.classList.add('selected');
 
     const contentEl = questListCurrentTemplate.content.cloneNode(true).children[0];
 
@@ -583,7 +584,7 @@ async function renderQuestList() {
   }
 
   const qsQuest = new URLSearchParams(location.search).get('quest');
-  const qsQuestId = qsQuest ? qsQuest.match(/(quests\/purezc\/\d+)/)?.[0] : '';
+  const qsQuestId = qsQuest ? qsQuest.match(/quests\/[^/]+\/[^/?#]+/)?.[0] : '';
   const initialSelectedQuest = (qsQuestId && quests.find(q => q.id == qsQuestId)) || quests.find(q => ['auto', true].includes(q.approval));
   if (initialSelectedQuest) showQuest(initialSelectedQuest);
 }
