@@ -4447,6 +4447,7 @@ int main(int argc, char **argv)
 		Z_error_fatal(allegro_error);
 	}
 	
+	zapp_check_x11_display();
 	// Don't drive physical keyboard LEDs when headless: allegro's LED updates
 	// go through X11 and crash without a usable display.
 	if (is_headless())

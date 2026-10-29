@@ -28,6 +28,10 @@ float zapp_osx_get_main_screen_scale_factor(void);
 #include <SDL.h>
 #endif
 
+#ifdef ALLEGRO_WITH_XWINDOWS
+#include <allegro5/allegro_x.h>
+#endif
+
 namespace fs = std::filesystem;
 
 #ifdef HAS_SENTRY
@@ -258,6 +262,29 @@ void set_headless_mode()
 bool is_headless()
 {
 	return headless;
+}
+
+void zapp_check_x11_display()
+{
+#ifdef ALLEGRO_WITH_XWINDOWS
+	// When XOpenDisplay fails, allegro carries on in a "headless" mode that
+	// segfaults the first time it touches X11 (install_keyboard). Make the same
+	// check and explain instead. Not Z_error_fatal: there's no display for its
+	// message box, and this isn't a crash worth reporting.
+	if (!is_headless())
+	{
+		Display* x_display = XOpenDisplay(nullptr);
+		if (!x_display)
+		{
+			const char* display = getenv("DISPLAY");
+			Z_error("Could not connect to an X11 display (DISPLAY=%s). An X11 server or "
+				"XWayland is required. From a remote shell, set DISPLAY to the "
+				"session's display (ex: DISPLAY=:0).\n", display && display[0] ? display : "not set");
+			exit(1);
+		}
+		XCloseDisplay(x_display);
+	}
+#endif
 }
 
 // If (saved_width, saved_height) is >0, ensures that fits in the primary monitor. If neither are true, fall
