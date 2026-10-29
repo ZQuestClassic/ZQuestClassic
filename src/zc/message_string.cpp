@@ -504,9 +504,7 @@ bool parsemsgcode(const StringCommand& command)
 			int32_t screen =     args[1];
 			int32_t reg =     args[2];
 			int32_t val =     args[3].getZLong();
-			engine_object_slot_overwrite({engine_object_storage::screen_d, (uint32_t)(screen + dmap*128), (uint32_t)reg}, [&]{
-				FFCore.set_screen_d(screen + dmap*128, reg, val);
-			});
+			FFCore.set_screen_d(screen + dmap*128, reg, val);
 			return true;
 		}
 		case MSGC_SETCURRENTSCREEND:
@@ -515,9 +513,7 @@ bool parsemsgcode(const StringCommand& command)
 			int32_t screen =  cur_screen;
 			int32_t reg =     args[0];
 			int32_t val =     args[1].getZLong();
-			engine_object_slot_overwrite({engine_object_storage::screen_d, (uint32_t)(screen + dmap*128), (uint32_t)reg}, [&]{
-				FFCore.set_screen_d(screen + dmap*128, reg, val);
-			});
+			FFCore.set_screen_d(screen + dmap*128, reg, val);
 			return true;
 		}
 		case MSGC_TAKEITEM:

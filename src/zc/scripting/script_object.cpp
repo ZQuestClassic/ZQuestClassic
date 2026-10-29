@@ -88,34 +88,58 @@ static std::vector<uint32_t> objects_being_destructed;
 static bool gc_in_progress;
 static std::vector<uint32_t> ids_freed_during_gc;
 
-// The engine storage slots holding objects (see engine_object_slot_write).
+// The engine storage slots holding objects (see engine_object_slot_set).
 static std::map<engine_object_slot, script_object_type> engine_object_slots;
 
 // The value in a slot, or nullptr if the slot doesn't exist (ex. a saved slot that the
 // storage, as loaded, is too small for).
-static int32_t* engine_object_slot_ptr(engine_object_slot slot)
+static const int32_t* engine_object_slot_ptr(engine_object_slot slot)
 {
-	auto element = [&](auto& container) -> int32_t* {
+	auto element = [&](const auto& container) -> const int32_t* {
 		return slot.index < container.size() ? &container[slot.index] : nullptr;
 	};
 
 	switch (slot.storage)
 	{
 		case engine_object_storage::screen_d:
-			return slot.key < game->screen_d.size() ? element(game->screen_d[slot.key]) : nullptr;
+		{
+			const auto& storage = std::as_const(game->screen_d);
+			return slot.key < storage.size() ? element(storage[slot.key]) : nullptr;
+		}
 		case engine_object_storage::screen_data:
-			return slot.key < game->screen_data.size() ? element(game->screen_data[slot.key]) : nullptr;
+		{
+			const auto& storage = std::as_const(game->screen_data);
+			return slot.key < storage.size() ? element(storage[slot.key]) : nullptr;
+		}
 		case engine_object_storage::generic_data:
 			if (slot.key < 1 || slot.key >= NUMSCRIPTSGENERIC)
 				return nullptr;
-			return element(user_genscript::get(slot.key).data);
+			return element(std::as_const(user_genscript::get(slot.key).data));
+	}
+	return nullptr;
+}
+
+// Like engine_object_slot_ptr, for writing.
+static int32_t* engine_object_slot_mut_ptr(engine_object_slot slot)
+{
+	if (!engine_object_slot_ptr(slot))
+		return nullptr;
+
+	switch (slot.storage)
+	{
+		case engine_object_storage::screen_d:
+			return &game->screen_d[slot.key][slot.index];
+		case engine_object_storage::screen_data:
+			return &game->screen_data[slot.key][slot.index];
+		case engine_object_storage::generic_data:
+			return &user_genscript::get(slot.key).data[slot.index];
 	}
 	return nullptr;
 }
 
 static int32_t engine_object_slot_get(engine_object_slot slot)
 {
-	int32_t* value = engine_object_slot_ptr(slot);
+	const int32_t* value = engine_object_slot_ptr(slot);
 	return value ? *value : 0;
 }
 
@@ -124,7 +148,7 @@ static void restore_engine_object_slots(const std::vector<std::pair<engine_objec
 {
 	for (auto [slot, type] : slots)
 	{
-		int32_t* value = engine_object_slot_ptr(slot);
+		int32_t* value = engine_object_slot_mut_ptr(slot);
 		if (!value)
 			continue;
 
@@ -700,6 +724,22 @@ std::set<uint32_t> find_script_objects_reachable_from_global_roots()
 	return live_object_ids;
 }
 
+// Every registered slot must still hold a live object of its recorded type. If not, some
+// write to the storage bypassed engine_object_slot_set & co.
+static void check_engine_object_slots()
+{
+#ifdef DCHECK_IS_ON
+	for (auto [slot, type] : engine_object_slots)
+	{
+		const int32_t* value = engine_object_slot_ptr(slot);
+		DCHECK(value && *value);
+		auto it = script_objects.find(*value);
+		DCHECK(it != script_objects.end());
+		DCHECK(it->second->type == type && it->second->ref_count > 0);
+	}
+#endif
+}
+
 // Find unreachable objects via mark-and-sweep, and destroy them.
 // This handles cyclical objects.
 // It should not be called very often as it can be expensive.
@@ -707,6 +747,8 @@ std::set<uint32_t> find_script_objects_reachable_from_global_roots()
 // (when ref_count is zero in script_object_ref_dec).
 void run_gc()
 {
+	check_engine_object_slots();
+
 	// Park ids freed during the collection (a nested run_gc, triggered by an
 	// allocating destructor, keeps the outer collection's parking in effect).
 	bool was_gc_in_progress = gc_in_progress;
@@ -792,25 +834,32 @@ void run_gc()
 	deallocations_since_last_gc = 0;
 }
 
-bool engine_object_slot_write(engine_object_slot slot, int32_t value, script_object_type type, const std::function<bool()>& write)
+bool engine_object_slot_set(engine_object_slot slot, int32_t value, script_object_type type)
 {
+	int32_t* ptr = engine_object_slot_mut_ptr(slot);
+	if (!ptr)
+		return false;
+
 	if (!ZScriptVersion::gc())
-		return write();
+	{
+		*ptr = value;
+		return true;
+	}
 
 	auto it = engine_object_slots.find(slot);
 	bool held_object = it != engine_object_slots.end();
-	int32_t previous = held_object ? engine_object_slot_get(slot) : 0;
-	if (!write())
-		return false;
+	int32_t previous = *ptr;
+	*ptr = value;
 
 	bool is_object = type != script_object_type::none;
 	if (is_object)
 		engine_object_slots[slot] = type;
 	else if (held_object)
-		engine_object_slots.erase(slot);
+		engine_object_slots.erase(it);
 
 	// Increase, then decrease, to handle the case where a slot (holding the only
-	// reference to an object) is assigned its own object.
+	// reference to an object) is assigned its own object. Release last, after the write,
+	// so the write can't clobber an object the released object's destructor stores here.
 	if (is_object)
 		script_object_ref_inc(value);
 	if (held_object)
@@ -826,7 +875,7 @@ static std::vector<uint32_t> take_engine_object_slots(decltype(engine_object_slo
 	std::vector<uint32_t> ids;
 	for (auto it = first; it != last; it++)
 	{
-		if (int32_t* value = engine_object_slot_ptr(it->first))
+		if (int32_t* value = engine_object_slot_mut_ptr(it->first))
 		{
 			ids.push_back(*value);
 			*value = 0;
@@ -840,16 +889,6 @@ static void release_engine_object_slot_ids(const std::vector<uint32_t>& ids)
 {
 	for (auto id : ids)
 		script_object_ref_dec(id);
-}
-
-void engine_object_slot_overwrite(engine_object_slot slot, const std::function<void()>& write)
-{
-	std::vector<uint32_t> ids;
-	if (auto it = engine_object_slots.find(slot); it != engine_object_slots.end())
-		ids = take_engine_object_slots(it, std::next(it));
-	// Write before releasing, so the write can't clobber an object a destructor stores here.
-	write();
-	release_engine_object_slot_ids(ids);
 }
 
 void engine_object_storage_resize(engine_object_storage storage, uint32_t key, int32_t size)
@@ -874,11 +913,26 @@ void engine_object_storage_resize(engine_object_storage storage, uint32_t key, i
 	release_engine_object_slot_ids(ids);
 }
 
-void engine_object_slots_cleared(engine_object_storage storage)
+void engine_object_storage_clear(engine_object_storage storage)
 {
-	release_engine_object_slot_ids(take_engine_object_slots(
+	auto ids = take_engine_object_slots(
 		engine_object_slots.lower_bound({storage, 0, 0}),
-		engine_object_slots.upper_bound({storage, UINT32_MAX, UINT32_MAX})));
+		engine_object_slots.upper_bound({storage, UINT32_MAX, UINT32_MAX}));
+	// Clear before releasing, so a destructor can't store into the storage being cleared.
+	switch (storage)
+	{
+		case engine_object_storage::screen_d:
+			game->screen_d.clear();
+			break;
+		case engine_object_storage::screen_data:
+			game->screen_data.clear();
+			break;
+		case engine_object_storage::generic_data:
+			for (int i = 1; i < NUMSCRIPTSGENERIC; i++)
+				user_genscript::get(i).data.clear();
+			break;
+	}
+	release_engine_object_slot_ids(ids);
 }
 
 void engine_object_slots_reset()

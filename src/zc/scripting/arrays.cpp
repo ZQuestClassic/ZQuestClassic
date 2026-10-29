@@ -150,11 +150,10 @@ public:
 
 			if (impl->hasObjectSlots())
 			{
-				auto write = [&]{ return impl->setElement(ref, index, value); };
 				if (auto slot = resolveObjectSlot(impl, ref, index))
-					return engine_object_slot_write(*slot, value, type, write);
+					return engine_object_slot_set(*slot, value, type);
 				// Invalid ref or index - the write fails (and logs why).
-				return write();
+				return impl->setElement(ref, index, value);
 			}
 
 			bool is_object = type != script_object_type::none;

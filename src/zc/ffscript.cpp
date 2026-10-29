@@ -14537,8 +14537,7 @@ bool FFScript::set_screen_d(int32_t index1, int32_t index2, int32_t val)
 		return false;
 	}
 	
-	game->screen_d[index1][index2] = val;
-	return true;
+	return engine_object_slot_set({engine_object_storage::screen_d, (uint32_t)index1, (uint32_t)index2}, val);
 }
 
 void FFScript::do_zapout()

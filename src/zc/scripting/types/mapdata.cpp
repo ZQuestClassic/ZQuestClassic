@@ -1397,8 +1397,7 @@ static ArrayRegistrar MAPDATASCRDATA_registrar(MAPDATASCRDATA, []{
 			int mapindex = get_ref_map_index(ref);
 			if (mapindex < 0) return false;
 
-			game->screen_data[mapindex][index] = value;
-			return true;
+			return engine_object_slot_set({engine_object_storage::screen_data, (uint32_t)mapindex, (uint32_t)index}, value);
 		}
 	);
 	impl.setMul10000(false);
@@ -1579,9 +1578,7 @@ static ArrayRegistrar MAPDATAMISCD_registrar(MAPDATAMISCD, []{
 
 			// This can't hold an object (it stores value/10000), but it shares storage with
 			// Screen->D[] (map M here is dmap M there), so it can overwrite one.
-			engine_object_slot_overwrite({engine_object_storage::screen_d, (uint32_t)mi, (uint32_t)index}, [&]{
-				game->screen_d[mi][index] = value;
-			});
+			FFScript::set_screen_d(mi, index, value);
 		}
 	);
 	impl.compatSetDefaultValue(-10000);

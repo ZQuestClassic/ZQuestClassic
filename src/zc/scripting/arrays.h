@@ -334,6 +334,9 @@ public:
 	// For arrays backed by engine storage that outlives scripts (see engine_object_slot):
 	// which storage (and key) a ref's elements are slots of, and how many there are - or
 	// nullopt if the ref is invalid. Must not log errors (the array access does).
+	//
+	// A write to a valid slot goes straight to engine_object_slot_set, so the array's own
+	// setter only runs for an invalid ref or index, to fail the write and log why.
 	struct ObjectSlots
 	{
 		engine_object_storage storage;

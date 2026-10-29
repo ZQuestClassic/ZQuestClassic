@@ -70,22 +70,21 @@ void run_gc();
 // objects must be tracked per slot of the actual storage, rather than per array: for
 // example, Screen->D[] is a different slot on each screen.
 //
-// Writes `value` to the slot via `write` (which returns false if it couldn't), retaining
-// `value` if `type` says it is an object and releasing any object the slot held.
-bool engine_object_slot_write(engine_object_slot slot, int32_t value, script_object_type type, const std::function<bool()>& write);
-// Engine code writing a non-object value directly to a slot must do it via `write` here,
-// to release any object the slot held.
-void engine_object_slot_overwrite(engine_object_slot slot, const std::function<void()>& write);
+// Once script objects are restored, change the storage only with these functions.
+//
+// Writes `value` to the slot, retaining it if `type` says it is an object and releasing
+// any object the slot held. Returns false (writing nothing) if the slot doesn't exist;
+// callers validate the slot first, to log a helpful error.
+bool engine_object_slot_set(engine_object_slot slot, int32_t value, script_object_type type = script_object_type::none);
 // Resizes a key's storage (Screen->DataSize, genericdata->DataSize), releasing the objects
 // held by the slots it drops.
 void engine_object_storage_resize(engine_object_storage storage, uint32_t key, int32_t size);
+// Clears every slot of the storage, releasing their objects.
+void engine_object_storage_clear(engine_object_storage storage);
 // The type of object the slot holds, or none.
 script_object_type engine_object_slot_type(engine_object_slot slot);
 // The slots that hold objects, for saving.
 std::vector<std::pair<engine_object_slot, script_object_type>> get_engine_object_slots();
-// Releases (and forgets) every slot of the storage that holds an object, for when the
-// storage itself is about to be cleared.
-void engine_object_slots_cleared(engine_object_storage storage);
 // Forgets every slot, without releasing anything - for when all objects are deleted.
 void engine_object_slots_reset();
 void maybe_run_gc();

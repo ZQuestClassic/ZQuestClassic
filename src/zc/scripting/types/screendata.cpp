@@ -1272,8 +1272,7 @@ static ArrayRegistrar SCREENSCRDATA_registrar(SCREENSCRDATA, []{
 			int mapindex = map_screen_index(cur_map, ref);
 			if (mapindex < 0) return false;
 
-			game->screen_data[mapindex][index] = value;
-			return true;
+			return engine_object_slot_set({engine_object_storage::screen_data, (uint32_t)mapindex, (uint32_t)index}, value);
 		}
 	);
 	impl.setMul10000(false);

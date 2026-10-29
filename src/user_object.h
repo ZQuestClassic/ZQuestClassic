@@ -41,7 +41,7 @@ enum class engine_object_storage : uint8_t
 
 // A slot of engine_object_storage. Like a global variable, a slot holding an object
 // retains it, is a GC root, and is saved along with the object.
-// See engine_object_slot_write.
+// See engine_object_slot_set.
 struct engine_object_slot
 {
 	engine_object_storage storage;

@@ -41,6 +41,8 @@ struct user_genscript
 {
 	//Saved vars
 	byte _doscript;
+	// genericdata->Data[]. Can hold objects: write only via engine_object_slot_set & co.
+	// (see engine_object_slot).
 	bounded_map<dword,int32_t> data;
 	word exitState;
 	word reloadState;

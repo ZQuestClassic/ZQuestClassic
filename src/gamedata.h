@@ -94,7 +94,9 @@ struct gamedata
 	bounded_map<dword,bounded_map<byte,byte>> ffcpos_states {MAXSCRSNORMAL, {MAXFFCS, 0}};
 	bounded_vec<dword,byte> guys {MAXSCRSNORMAL, 0}; // guy counts (enemy kill progress)
 	bitstring item_messages_played;
-	bounded_map<dword,bounded_vec<byte,int32_t>> screen_d {MAX_MI, {8, 0}}; // script-controlled screen variables
+	// Script-controlled screen variables. Can hold objects: write only via
+	// engine_object_slot_set & co. (see engine_object_slot).
+	bounded_map<dword,bounded_vec<byte,int32_t>> screen_d {MAX_MI, {8, 0}};
 	int32_t global_d[MAX_GLOBAL_VARIABLES]; // script-controlled global variables
 	script_object_type global_d_types[MAX_GLOBAL_VARIABLES];
 	
@@ -134,6 +136,8 @@ struct gamedata
 	// Replaced by script_objects for newer saves.
 	std::vector<saved_user_object> compat_saved_user_objects;
 
+	// Screen->Data[] and mapdata->Data[]. Can hold objects: write only via
+	// engine_object_slot_set & co. (see engine_object_slot).
 	bounded_map<dword,bounded_map<dword,int32_t>> screen_data {MAXSCRS, {0, 0}};
 	
 	size_t scriptDataSize(int32_t indx) const

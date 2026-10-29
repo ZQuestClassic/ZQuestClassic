@@ -1951,8 +1951,7 @@ int32_t init_game()
 	
 	if(firstplay) //Move up here, so that arrays are initialised before we run Hero's Init script.
 	{
-		engine_object_slots_cleared(engine_object_storage::screen_d);
-		game->screen_d.clear();
+		engine_object_storage_clear(engine_object_storage::screen_d);
 		if(!get_qr(qr_OLD_INIT_SCRIPT_TIMING))
 		{
 			ZScriptVersion::RunScript(ScriptType::Global, GLOBAL_SCRIPT_INIT, GLOBAL_SCRIPT_INIT);
@@ -2182,8 +2181,7 @@ int32_t init_game()
 	{
 		if(firstplay)
 		{
-			engine_object_slots_cleared(engine_object_storage::screen_d);
-			game->screen_d.clear();
+			engine_object_storage_clear(engine_object_storage::screen_d);
 			ZScriptVersion::RunScript(ScriptType::Global, GLOBAL_SCRIPT_INIT, GLOBAL_SCRIPT_INIT);
 			if(!get_qr(qr_DO_NOT_DEALLOCATE_INIT_AND_SAVELOAD_ARRAYS) ) FFCore.deallocateAllScriptOwned(ScriptType::Global, GLOBAL_SCRIPT_INIT); //Deallocate LOCAL arrays declared in the init script. This function does NOT deallocate global arrays.
 		}

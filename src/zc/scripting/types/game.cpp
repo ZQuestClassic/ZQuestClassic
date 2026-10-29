@@ -912,19 +912,13 @@ void game_set_register(int32_t reg, int32_t value)
 		case SDDD:
 		{
 			int32_t di = (GET_D(rINDEX))/10000 + ((get_currdmap())<<7);
-			int32_t reg = GET_D(rINDEX2)/10000;
-			engine_object_slot_overwrite({engine_object_storage::screen_d, (uint32_t)di, (uint32_t)reg}, [&]{
-				FFScript::set_screen_d(di, reg, value);
-			});
+			FFScript::set_screen_d(di, GET_D(rINDEX2)/10000, value);
 			break;
 		}
 		case SDDDD:
 		{
 			int32_t di = GET_D(rINDEX2)/10000 + ((GET_D(rINDEX)/10000)<<7);
-			int32_t reg = GET_D(rEXP1)/10000;
-			engine_object_slot_overwrite({engine_object_storage::screen_d, (uint32_t)di, (uint32_t)reg}, [&]{
-				FFScript::set_screen_d(di, reg, value);
-			});
+			FFScript::set_screen_d(di, GET_D(rEXP1)/10000, value);
 			break;
 		}
 		case SPRITEMAXLWPN:
