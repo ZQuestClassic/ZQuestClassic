@@ -451,7 +451,7 @@ async function renderQuestList() {
   }
 
   questListEntriesEl.addEventListener('keyup', (e) => {
-    if (e.keyCode === 38) {
+    if (e.keyCode === 38 && e.target.previousElementSibling) {
       const questIndex = Number(e.target.previousElementSibling.getAttribute('data-quest-index'));
       const quest = quests[questIndex];
       showQuest(quest);
