@@ -123,6 +123,10 @@ generic script global_objects
 			Game->Reload();
 		}
 
+		// Every load above happens within one frame (reloading relaunches this script right
+		// away, since it was running when saved). A replay stops once it reaches its last
+		// frame, so end on a later one, or replaying would cut off those loads.
+		Waitframe();
 		Test::End();
 	}
 }

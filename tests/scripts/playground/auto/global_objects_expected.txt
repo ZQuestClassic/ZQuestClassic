@@ -18,8 +18,8 @@ stdout:
   "diagnostics": [],
   "metadata": {
     "currentFileSymbols": 22,
-    "symbols": 50,
-    "identifiers": 227,
+    "symbols": 51,
+    "identifiers": 228,
     "elided": true
   }
 }
@@ -106,11 +106,11 @@ SETR D2 GENDATARUNNING
 COMPAREV D2 0
 GOTOCMP 85 ==; Test 'while'
 PUSHR D4; while() Body Start
-CALLFUNC 0.0869; UsrFunc[void DrawLabel()] Call
+CALLFUNC 0.0870; UsrFunc[void DrawLabel()] Call
 POP D4
 WAITFRAME; InlineFunc[void Waitframe()] Body AND while() Body End
 GOTO 74; while() End
-CALLFUNC 0.0671; UsrFunc[void End()] Call AND [Opt:NeverRet]
+CALLFUNC 0.0672; UsrFunc[void End()] Call AND [Opt:NeverRet]
 REF_REMOVE 0.0002; [Opt:NeverRet] AND void run() Body End
 PUSHARGSV 0 0.0002; void run() Body Start
 SETR D4 SP2
@@ -123,7 +123,7 @@ COMPAREV D2 0
 GOTOCMP 100 ==; Test 'if'
 PUSHR D4; if() Body Start
 PUSHV 0; UsrFunc[void Init(int)] Params
-CALLFUNC 0.0649; UsrFunc[void Init(int)] Call
+CALLFUNC 0.0650; UsrFunc[void Init(int)] Call
 POP D4; if() Body End
 NOP
 SETR D2 GD5
@@ -139,17 +139,17 @@ PUSHR D2
 ALLOCATEMEMV D2 10 0
 WRITEPODSTRING D2 "firstTime"
 PUSHR D2; UsrFunc[void Assert(bool, char32[])] Params End
-CALLFUNC 0.0801; UsrFunc[void Assert(bool, char32[])] Call
+CALLFUNC 0.0802; UsrFunc[void Assert(bool, char32[])] Call
 POP D4
 PUSHR CLASS_THISKEY
 PUSHR D4
-CALLFUNC 0.0624; ClassFunc[Thing Thing::Thing()] Constructor Call
+CALLFUNC 0.0625; ClassFunc[Thing Thing::Thing()] Constructor Call
 POP D4
 POP CLASS_THISKEY
 SET_OBJECT GD6 D2 0.0008
 PUSHR CLASS_THISKEY
 PUSHR D4
-CALLFUNC 0.0624; ClassFunc[Thing Thing::Thing()] Constructor Call
+CALLFUNC 0.0625; ClassFunc[Thing Thing::Thing()] Constructor Call
 POP D4
 POP CLASS_THISKEY
 PUSHR D2
@@ -159,7 +159,7 @@ POP D2
 ZCLASS_WRITE D3 0
 PUSHR CLASS_THISKEY
 PUSHR D4
-CALLFUNC 0.0637; ClassFunc[Counter Counter::Counter()] Constructor Call
+CALLFUNC 0.0638; ClassFunc[Counter Counter::Counter()] Constructor Call
 POP D4
 POP CLASS_THISKEY
 PUSHR D2
@@ -170,7 +170,7 @@ POP D2
 WRITEPODARRAYVR 0 D2 0.0008
 PUSHR CLASS_THISKEY
 PUSHR D4
-CALLFUNC 0.0637; ClassFunc[Counter Counter::Counter()] Constructor Call
+CALLFUNC 0.0638; ClassFunc[Counter Counter::Counter()] Constructor Call
 POP D4
 POP CLASS_THISKEY
 PUSHR D2
@@ -236,7 +236,7 @@ POP D2
 ZCLASS_WRITE D3 0.0001
 PUSHR CLASS_THISKEY
 PUSHR D4
-CALLFUNC 0.0637; ClassFunc[Counter Counter::Counter()] Constructor Call
+CALLFUNC 0.0638; ClassFunc[Counter Counter::Counter()] Constructor Call
 POP D4
 POP CLASS_THISKEY
 PUSHR D2
@@ -253,7 +253,7 @@ POP D2
 ZCLASS_WRITE D3 0
 PUSHR CLASS_THISKEY
 PUSHR D4
-CALLFUNC 0.0624; ClassFunc[Thing Thing::Thing()] Constructor Call
+CALLFUNC 0.0625; ClassFunc[Thing Thing::Thing()] Constructor Call
 POP D4
 POP CLASS_THISKEY
 SET_OBJECT GD7 D2 0.0008
@@ -265,13 +265,13 @@ POP D2
 WRITEPODARRAYVR 0 D2 0.0008
 PUSHR CLASS_THISKEY
 PUSHR D4
-CALLFUNC 0.0624; ClassFunc[Thing Thing::Thing()] Constructor Call
+CALLFUNC 0.0625; ClassFunc[Thing Thing::Thing()] Constructor Call
 POP D4
 POP CLASS_THISKEY
 STORE_OBJECT D2 0
 PUSHR CLASS_THISKEY
 PUSHR D4
-CALLFUNC 0.0624; ClassFunc[Thing Thing::Thing()] Constructor Call
+CALLFUNC 0.0625; ClassFunc[Thing Thing::Thing()] Constructor Call
 POP D4
 POP CLASS_THISKEY
 PUSHR D2
@@ -281,7 +281,7 @@ POP D2
 ZCLASS_WRITE D3 0
 PUSHR CLASS_THISKEY
 PUSHR D4
-CALLFUNC 0.0637; ClassFunc[Counter Counter::Counter()] Constructor Call
+CALLFUNC 0.0638; ClassFunc[Counter Counter::Counter()] Constructor Call
 POP D4
 POP CLASS_THISKEY
 PUSHR D2
@@ -292,7 +292,7 @@ POP D2
 WRITEPODARRAYVR 0 D2 0.0008
 PUSHR CLASS_THISKEY
 PUSHR D4
-CALLFUNC 0.0637; ClassFunc[Counter Counter::Counter()] Constructor Call
+CALLFUNC 0.0638; ClassFunc[Counter Counter::Counter()] Constructor Call
 POP D4
 POP CLASS_THISKEY
 PUSHR D2
@@ -308,13 +308,13 @@ LOAD D2 0; InlineFunc[void GlobalObject(untyped)] Params
 ZCLASS_GLOBALIZE D2; InlineFunc[void GlobalObject(untyped)] Body
 PUSHR CLASS_THISKEY
 PUSHR D4
-CALLFUNC 0.0624; ClassFunc[Thing Thing::Thing()] Constructor Call
+CALLFUNC 0.0625; ClassFunc[Thing Thing::Thing()] Constructor Call
 POP D4
 POP CLASS_THISKEY
 STORE_OBJECT D2 0
 PUSHR CLASS_THISKEY
 PUSHR D4
-CALLFUNC 0.0624; ClassFunc[Thing Thing::Thing()] Constructor Call
+CALLFUNC 0.0625; ClassFunc[Thing Thing::Thing()] Constructor Call
 POP D4
 POP CLASS_THISKEY
 PUSHR D2
@@ -324,7 +324,7 @@ POP D2
 ZCLASS_WRITE D3 0
 PUSHR CLASS_THISKEY
 PUSHR D4
-CALLFUNC 0.0637; ClassFunc[Counter Counter::Counter()] Constructor Call
+CALLFUNC 0.0638; ClassFunc[Counter Counter::Counter()] Constructor Call
 POP D4
 POP CLASS_THISKEY
 PUSHR D2
@@ -335,7 +335,7 @@ POP D2
 WRITEPODARRAYVR 0 D2 0.0008
 PUSHR CLASS_THISKEY
 PUSHR D4
-CALLFUNC 0.0637; ClassFunc[Counter Counter::Counter()] Constructor Call
+CALLFUNC 0.0638; ClassFunc[Counter Counter::Counter()] Constructor Call
 POP D4
 POP CLASS_THISKEY
 PUSHR D2
@@ -394,7 +394,7 @@ PUSHR GD5
 ALLOCATEMEMV D2 36 0
 WRITEPODSTRING D2 "globalThing->someCounters[0]->field"
 PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
-CALLFUNC 0.0678; UsrFunc[void AssertEqual(int, int, char32[])] Call
+CALLFUNC 0.0679; UsrFunc[void AssertEqual(int, int, char32[])] Call
 PEEK D4
 SETR D2 GD6; UsrFunc[void AssertEqual(int, int, char32[])] Params Start
 ZCLASS_READ D2 0
@@ -410,7 +410,7 @@ PUSHR D2
 ALLOCATEMEMV D2 48 0
 WRITEPODSTRING D2 "globalThing->otherThing->someCounters[0]->field"
 PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
-CALLFUNC 0.0678; UsrFunc[void AssertEqual(int, int, char32[])] Call
+CALLFUNC 0.0679; UsrFunc[void AssertEqual(int, int, char32[])] Call
 POP D4
 SETR D2 GD3
 ZCLASS_READ D2 0.0003
@@ -458,7 +458,7 @@ PUSHR GD5
 ALLOCATEMEMV D2 47 0
 WRITEPODSTRING D2 "untypedThingGlobalized->someCounters[0]->field"
 PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
-CALLFUNC 0.0678; UsrFunc[void AssertEqual(int, int, char32[])] Call
+CALLFUNC 0.0679; UsrFunc[void AssertEqual(int, int, char32[])] Call
 PEEK D4
 SETR D2 GD3; UsrFunc[void AssertEqual(int, int, char32[])] Params Start
 ZCLASS_READ D2 0
@@ -474,7 +474,7 @@ PUSHR D2
 ALLOCATEMEMV D2 59 0
 WRITEPODSTRING D2 "untypedThingGlobalized->otherThing->someCounters[0]->field"
 PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
-CALLFUNC 0.0678; UsrFunc[void AssertEqual(int, int, char32[])] Call
+CALLFUNC 0.0679; UsrFunc[void AssertEqual(int, int, char32[])] Call
 PEEK D4
 SETR D2 GD6; UsrFunc[void AssertEqual(bool, bool, char32[])] Params Start
 ZCLASS_READ D2 0.0001
@@ -486,7 +486,7 @@ PUSHR D2
 ALLOCATEMEMV D2 30 0
 WRITEPODSTRING D2 "globalThing->a_bitmap != NULL"
 PUSHR D2; UsrFunc[void AssertEqual(bool, bool, char32[])] Params End
-CALLFUNC 0.0706; UsrFunc[void AssertEqual(bool, bool, char32[])] Call
+CALLFUNC 0.0707; UsrFunc[void AssertEqual(bool, bool, char32[])] Call
 PEEK D4
 SETR D2 GD9; UsrFunc[void AssertEqual(bool, bool, char32[])] Params Start
 PUSHR D2
@@ -500,7 +500,7 @@ PUSHR D2
 ALLOCATEMEMV D2 31 0
 WRITEPODSTRING D2 "globalUntypedThings[3] != NULL"
 PUSHR D2; UsrFunc[void AssertEqual(bool, bool, char32[])] Params End
-CALLFUNC 0.0706; UsrFunc[void AssertEqual(bool, bool, char32[])] Call
+CALLFUNC 0.0707; UsrFunc[void AssertEqual(bool, bool, char32[])] Call
 PEEK D4
 SETR D2 GD4; InlineFunc[bool IsValidArray(Counter[])] Params Start AND UsrFunc[void AssertEqual(bool, bool, char32[])] Params Start
 ZCLASS_READ D2 0.0003; InlineFunc[bool IsValidArray(Counter[])] Params End
@@ -511,7 +511,7 @@ PUSHR D2
 ALLOCATEMEMV D2 63 0
 WRITEPODSTRING D2 "IsValidArray(<Thing>(untypedThingNotGlobalized)->someCounters)"
 PUSHR D2; UsrFunc[void AssertEqual(bool, bool, char32[])] Params End
-CALLFUNC 0.0706; UsrFunc[void AssertEqual(bool, bool, char32[])] Call
+CALLFUNC 0.0707; UsrFunc[void AssertEqual(bool, bool, char32[])] Call
 PEEK D4
 SETR D2 GD6; UsrFunc[void Assert(bool, char32[])] Params Start
 ZCLASS_READ D2 0.0002
@@ -521,13 +521,13 @@ PUSHR D2
 ALLOCATEMEMV D2 36 0
 WRITEPODSTRING D2 "globalThing->not_globalized != NULL"
 PUSHR D2; UsrFunc[void Assert(bool, char32[])] Params End
-CALLFUNC 0.0801; UsrFunc[void Assert(bool, char32[])] Call
+CALLFUNC 0.0802; UsrFunc[void Assert(bool, char32[])] Call
 PEEK D4
 PUSHR GD6; UsrFunc[void Assert(Thing, char32[])] Params Start
 ALLOCATEMEMV D2 12 0
 WRITEPODSTRING D2 "globalThing"
 PUSHR D2; UsrFunc[void Assert(Thing, char32[])] Params End
-CALLFUNC 0.0814; UsrFunc[void Assert(Thing, char32[])] Call
+CALLFUNC 0.0815; UsrFunc[void Assert(Thing, char32[])] Call
 PEEK D4
 SETR D2 GD8; UsrFunc[void Assert(Thing, char32[])] Params Start
 PUSHR D2
@@ -537,7 +537,7 @@ PUSHR D2
 ALLOCATEMEMV D2 16 0
 WRITEPODSTRING D2 "globalThings[0]"
 PUSHR D2; UsrFunc[void Assert(Thing, char32[])] Params End
-CALLFUNC 0.0814; UsrFunc[void Assert(Thing, char32[])] Call
+CALLFUNC 0.0815; UsrFunc[void Assert(Thing, char32[])] Call
 PEEK D4
 SETR D2 GD9; UsrFunc[void Assert(untyped, char32[])] Params Start
 PUSHR D2
@@ -547,7 +547,7 @@ PUSHR D2
 ALLOCATEMEMV D2 23 0
 WRITEPODSTRING D2 "globalUntypedThings[0]"
 PUSHR D2; UsrFunc[void Assert(untyped, char32[])] Params End
-CALLFUNC 0.0830; UsrFunc[void Assert(untyped, char32[])] Call
+CALLFUNC 0.0831; UsrFunc[void Assert(untyped, char32[])] Call
 PEEK D4
 SETR D2 GD9; UsrFunc[void Assert(untyped, char32[])] Params Start
 PUSHR D2
@@ -557,7 +557,7 @@ PUSHR D2
 ALLOCATEMEMV D2 23 0
 WRITEPODSTRING D2 "globalUntypedThings[1]"
 PUSHR D2; UsrFunc[void Assert(untyped, char32[])] Params End
-CALLFUNC 0.0830; UsrFunc[void Assert(untyped, char32[])] Call
+CALLFUNC 0.0831; UsrFunc[void Assert(untyped, char32[])] Call
 PEEK D4
 SETR D2 GD9; UsrFunc[void AssertEqual(untyped, untyped, char32[])] Params Start
 PUSHR D2
@@ -568,13 +568,13 @@ PUSHV 1337
 ALLOCATEMEMV D2 23 0
 WRITEPODSTRING D2 "globalUntypedThings[2]"
 PUSHR D2; UsrFunc[void AssertEqual(untyped, untyped, char32[])] Params End
-CALLFUNC 0.0734; UsrFunc[void AssertEqual(untyped, untyped, char32[])] Call
+CALLFUNC 0.0735; UsrFunc[void AssertEqual(untyped, untyped, char32[])] Call
 PEEK D4
 PUSHR GD7; UsrFunc[void Assert(Thing, char32[])] Params Start
 ALLOCATEMEMV D2 19 0
 WRITEPODSTRING D2 "thingNotGlobalized"
 PUSHR D2; UsrFunc[void Assert(Thing, char32[])] Params End
-CALLFUNC 0.0814; UsrFunc[void Assert(Thing, char32[])] Call
+CALLFUNC 0.0815; UsrFunc[void Assert(Thing, char32[])] Call
 PEEK D4
 SETR D2 GD10; UsrFunc[void Assert(Thing, char32[])] Params Start
 PUSHR D2
@@ -584,7 +584,7 @@ PUSHR D2
 ALLOCATEMEMV D2 23 0
 WRITEPODSTRING D2 "thingsNotGlobalized[0]"
 PUSHR D2; UsrFunc[void Assert(Thing, char32[])] Params End
-CALLFUNC 0.0814; UsrFunc[void Assert(Thing, char32[])] Call
+CALLFUNC 0.0815; UsrFunc[void Assert(Thing, char32[])] Call
 PEEK D4
 SETR D2 GD8; InlineFunc[long RefCount(untyped)] Params Start AND UsrFunc[void AssertEqual(long, long, char32[])] Params Start
 PUSHR D2
@@ -596,7 +596,7 @@ PUSHV 0.0003
 ALLOCATEMEMV D2 26 0
 WRITEPODSTRING D2 "RefCount(globalThings[0])"
 PUSHR D2; UsrFunc[void AssertEqual(long, long, char32[])] Params End
-CALLFUNC 0.0762; UsrFunc[void AssertEqual(long, long, char32[])] Call
+CALLFUNC 0.0763; UsrFunc[void AssertEqual(long, long, char32[])] Call
 PEEK D4
 SETR D2 GD9; InlineFunc[long RefCount(untyped)] Params Start AND UsrFunc[void AssertEqual(long, long, char32[])] Params Start
 PUSHR D2
@@ -608,7 +608,7 @@ PUSHV 0.0003
 ALLOCATEMEMV D2 33 0
 WRITEPODSTRING D2 "RefCount(globalUntypedThings[0])"
 PUSHR D2; UsrFunc[void AssertEqual(long, long, char32[])] Params End
-CALLFUNC 0.0762; UsrFunc[void AssertEqual(long, long, char32[])] Call
+CALLFUNC 0.0763; UsrFunc[void AssertEqual(long, long, char32[])] Call
 PEEK D4
 SETR D2 GD9; InlineFunc[long RefCount(untyped)] Params Start AND UsrFunc[void AssertEqual(long, long, char32[])] Params Start
 PUSHR D2
@@ -620,7 +620,7 @@ PUSHV -0.0001
 ALLOCATEMEMV D2 33 0
 WRITEPODSTRING D2 "RefCount(globalUntypedThings[2])"
 PUSHR D2; UsrFunc[void AssertEqual(long, long, char32[])] Params End
-CALLFUNC 0.0762; UsrFunc[void AssertEqual(long, long, char32[])] Call
+CALLFUNC 0.0763; UsrFunc[void AssertEqual(long, long, char32[])] Call
 POP D4
 LOAD D2 0.0001; if() Test
 COMPAREV D2 0
@@ -636,7 +636,7 @@ ISVALIDARRAY D2; InlineFunc[bool IsValidArray(int[])] Body
 COMPAREV D2 0
 SETCMP D2 I==
 PUSHR D2; UsrFunc[void Assert(bool)] Params End
-CALLFUNC 0.0790; UsrFunc[void Assert(bool)] Call
+CALLFUNC 0.0791; UsrFunc[void Assert(bool)] Call
 POP D4; if() Else End
 NOP
 SETR D2 GD5; if() Test
@@ -647,7 +647,8 @@ GOTOCMP 621 ==; Test 'if'
 SAVE; InlineFunc[void Game::Save()] Body AND if() Body Start
 GAMERELOAD; InlineFunc[void Game::Reload()] Body AND if() Body End
 NOP
-CALLFUNC 0.0671; UsrFunc[void End()] Call AND [Opt:NeverRet]
+WAITFRAME; InlineFunc[void Waitframe()] Body
+CALLFUNC 0.0672; UsrFunc[void End()] Call AND [Opt:NeverRet]
 REF_REMOVE 0; [Opt:NeverRet] AND void run() Body End
 SETV D2 0; Func[Thing Thing::Thing()] Body Start
 SETR CLASS_THISKEY2 CLASS_THISKEY
@@ -687,7 +688,7 @@ LOAD D2 0; if() Test
 COMPAREV D2 0
 SETCMP D2 I!=
 COMPAREV D2 0
-GOTOCMP 668 ==; Test 'if'
+GOTOCMP 669 ==; Test 'if'
 PUSHV 5; InlineFunc[void hero::Warp(int, int)] Params Start AND if() Body Start
 LOAD D2 0; InlineFunc[void hero::Warp(int, int)] Params End
 POP D3; InlineFunc[void hero::Warp(int, int)] Body Start
@@ -713,7 +714,7 @@ POP D3
 COMPARER D3 D2
 SETCMP D2 I!=
 COMPAREV D2 0
-GOTOCMP 702 ==; Test 'if'
+GOTOCMP 703 ==; Test 'if'
 ALLOCATEMEMV D2 53 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start AND if() Body Start
 WRITEPODSTRING D2 "[Test] failed assertion: expected %d but got %d. %s\n"
 PUSHR D2
@@ -741,7 +742,7 @@ POP D3
 COMPARER D3 D2
 SETCMP D2 BI!=
 COMPAREV D2 0
-GOTOCMP 730 ==; Test 'if'
+GOTOCMP 731 ==; Test 'if'
 ALLOCATEMEMV D2 53 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start AND if() Body Start
 WRITEPODSTRING D2 "[Test] failed assertion: expected %d but got %d. %s\n"
 PUSHR D2
@@ -769,7 +770,7 @@ POP D3
 COMPARER D3 D2
 SETCMP D2 I!=
 COMPAREV D2 0
-GOTOCMP 758 ==; Test 'if'
+GOTOCMP 759 ==; Test 'if'
 ALLOCATEMEMV D2 53 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start AND if() Body Start
 WRITEPODSTRING D2 "[Test] failed assertion: expected %d but got %d. %s\n"
 PUSHR D2
@@ -797,7 +798,7 @@ POP D3
 COMPARER D3 D2
 SETCMP D2 I!=
 COMPAREV D2 0
-GOTOCMP 786 ==; Test 'if'
+GOTOCMP 787 ==; Test 'if'
 ALLOCATEMEMV D2 53 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start AND if() Body Start
 WRITEPODSTRING D2 "[Test] failed assertion: expected %d but got %d. %s\n"
 PUSHR D2
@@ -818,11 +819,11 @@ RETURNFUNC; Func[void AssertEqual(long, long, char32[])] Body End
 SETR D4 SP2; Func[void Assert(bool)] Body Start
 LOAD D2 0; unless() Test
 COMPAREV D2 0
-GOTOCMP 798 !=; Test 'unless'
+GOTOCMP 799 !=; Test 'unless'
 ALLOCATEMEMV D2 1 0; UsrFunc[void Fail(char32[])] Params Start AND unless() Body Start
 WRITEPODSTRING D2 ""
 PUSHR D2; UsrFunc[void Fail(char32[])] Params End
-CALLFUNC 0.0843; UsrFunc[void Fail(char32[])] Call AND [Opt:NeverRet] AND unless() Body End
+CALLFUNC 0.0844; UsrFunc[void Fail(char32[])] Call AND [Opt:NeverRet] AND unless() Body End
 NOP
 POP D5
 RETURNFUNC; Func[void Assert(bool)] Body End
@@ -831,10 +832,10 @@ MARK_TYPE_STACK 0.0009 0
 REF_INC 0
 LOAD D2 0.0001; unless() Test
 COMPAREV D2 0
-GOTOCMP 810 !=; Test 'unless'
+GOTOCMP 811 !=; Test 'unless'
 LOAD D2 0; UsrFunc[void Fail(char32[])] Params Start AND unless() Body Start
 PUSHR D2; UsrFunc[void Fail(char32[])] Params End
-CALLFUNC 0.0843; UsrFunc[void Fail(char32[])] Call AND [Opt:NeverRet] AND unless() Body End
+CALLFUNC 0.0844; UsrFunc[void Fail(char32[])] Call AND [Opt:NeverRet] AND unless() Body End
 NOP
 REF_REMOVE 0
 POPARGS D5 0.0002
@@ -846,10 +847,10 @@ MARK_TYPE_STACK 0.0009 0
 REF_INC 0
 LOAD D2 0.0001; unless() Test
 COMPAREV D2 0
-GOTOCMP 825 !=; Test 'unless'
+GOTOCMP 826 !=; Test 'unless'
 LOAD D2 0; UsrFunc[void Fail(char32[])] Params Start AND unless() Body Start
 PUSHR D2; UsrFunc[void Fail(char32[])] Params End
-CALLFUNC 0.0843; UsrFunc[void Fail(char32[])] Call AND [Opt:NeverRet] AND unless() Body End
+CALLFUNC 0.0844; UsrFunc[void Fail(char32[])] Call AND [Opt:NeverRet] AND unless() Body End
 NOP
 REF_REMOVE 0.0001
 REF_REMOVE 0
@@ -860,10 +861,10 @@ MARK_TYPE_STACK 0.0009 0
 REF_INC 0
 LOAD D2 0.0001; unless() Test
 COMPAREV D2 0
-GOTOCMP 839 !=; Test 'unless'
+GOTOCMP 840 !=; Test 'unless'
 LOAD D2 0; UsrFunc[void Fail(char32[])] Params Start AND unless() Body Start
 PUSHR D2; UsrFunc[void Fail(char32[])] Params End
-CALLFUNC 0.0843; UsrFunc[void Fail(char32[])] Call AND [Opt:NeverRet] AND unless() Body End
+CALLFUNC 0.0844; UsrFunc[void Fail(char32[])] Call AND [Opt:NeverRet] AND unless() Body End
 NOP
 REF_REMOVE 0
 POPARGS D5 0.0002
@@ -877,7 +878,7 @@ STRINGLENGTH D2 D3; InlineFunc[int strlen(char32[])] Body
 COMPAREV D2 0
 SETCMP D2 I>
 COMPAREV D2 0
-GOTOCMP 862 ==; Test 'if'
+GOTOCMP 863 ==; Test 'if'
 ALLOCATEMEMV D2 24 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start AND if() Body Start
 WRITEPODSTRING D2 "[Test] failed test: %s\n"
 PUSHR D2
@@ -886,7 +887,7 @@ PUSHVARGR D2
 MARK_TYPE_VARG 0.0009; InlineFunc[void printf(char32[], ...untyped[])] Params End
 PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
 POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
-GOTO 867; if() Body End
+GOTO 868; if() Body End
 ALLOCATEMEMV D2 20 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start AND if() Else Start
 WRITEPODSTRING D2 "[Test] failed test\n"
 PUSHR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
@@ -897,7 +898,7 @@ GAMEEXIT; InlineFunc[void Game::Exit()] Body AND [Opt:NeverRet] AND Func[void Fa
 SETR D4 SP2; Func[void DrawLabel()] Body Start
 SETR D2 GD1; unless() Test
 COMPAREV D2 0
-GOTOCMP 887 ==; Test 'unless' AND return (Void) AND unless() Body
+GOTOCMP 888 ==; Test 'unless' AND return (Void) AND unless() Body
 NOP
 SETV D2 0.0001
 PUSHR D2

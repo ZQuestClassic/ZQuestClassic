@@ -72,8 +72,7 @@ generic script garbage_collection_save_load
 			gcsl_stack->PushBack(123);
 
 			// Objects held only by engine storage that is saved: the screen's D[] and
-			// Data[]. (A generic script's Data[] is too, but saves in test mode don't
-			// include generic script state.)
+			// Data[], and a generic script's Data[].
 			GCSLNode screenD = new GCSLNode();
 			screenD->tag = 21;
 			Screen->D[4] = screenD;
@@ -82,6 +81,12 @@ generic script garbage_collection_save_load
 			Screen->DataSize = 1;
 			Screen->Data[0] = screenData;
 			Screen->D[5] = new bitmap(); // non-restorable object in engine storage
+			genericdata gd = Game->LoadGenericData(Game->GetGenericScript("garbage_collection_save_load"));
+			gd->DataSize = 2;
+			GCSLNode genericData = new GCSLNode();
+			genericData->tag = 23;
+			gd->Data[0] = genericData;
+			gd->Data[1] = 5;
 
 			gcsl_phase = 1;
 			Game->Save();
@@ -90,6 +95,12 @@ generic script garbage_collection_save_load
 		}
 		else
 		{
+			// Like a new object, an object restored on load is held by the autorelease
+			// pool until a reference to it is restored, or until the first script to run
+			// after loading yields. Reloading relaunches this script right away (it was
+			// running when saved), so yield before checking the floater's RefCount.
+			Waitframe();
+
 			// Object graph structure and identity.
 			Test::AssertEqual(gcsl_a->tag, 7, "gcsl_a->tag");
 			Test::AssertEqual(gcsl_a->next->tag, 8, "gcsl_a->next->tag");
@@ -144,6 +155,14 @@ generic script garbage_collection_save_load
 			Test::AssertEqual(screenData->tag, 22, "Screen->Data object tag");
 			Test::AssertEqual(RefCount(screenData), 2L, "RefCount(Screen->Data object)");
 			Test::AssertEqual(<int>(Screen->D[5]), 0, "bitmap in Screen->D zeroed");
+			// Saves made while saving to disk is off (replays, test mode) used to leave out
+			// generic script state, so Reload restored a stale Data[].
+			genericdata gd = Game->LoadGenericData(Game->GetGenericScript("garbage_collection_save_load"));
+			Test::AssertEqual(gd->DataSize, 2, "genericdata->DataSize");
+			Test::AssertEqual(gd->Data[1], 5, "genericdata->Data number");
+			GCSLNode genericData = gd->Data[0];
+			Test::AssertEqual(genericData->tag, 23, "genericdata->Data object tag");
+			Test::AssertEqual(RefCount(genericData), 2L, "RefCount(genericdata->Data object)");
 
 			// A full GC does not delete anything restored.
 			GC();
@@ -152,6 +171,7 @@ generic script garbage_collection_save_load
 			Test::AssertEqual((<GCSLNode>gcsl_launder)->tag, 9, "post-GC floater tag");
 			Test::AssertEqual((<GCSLNode>(gcsl_stack->Get(1L)))->tag, 11, "post-GC stack-held node tag");
 			Test::AssertEqual((<GCSLNode>(Screen->D[4]))->tag, 21, "post-GC Screen->D object tag");
+			Test::AssertEqual((<GCSLNode>(gd->Data[0]))->tag, 23, "post-GC genericdata->Data object tag");
 
 			Test::End();
 		}
