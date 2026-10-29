@@ -1,5 +1,5 @@
 import { configureMount, renderSettingsPanel, setupSettingsPanel } from "./settings.js";
-import { createElement, createUrlString, fetchWithProgress, formatBytes, fsExists, fsReadAllFiles } from "./utils.js";
+import { createElement, createUrlString, fetchWithProgress, formatBytes, fsExists, fsReadAllFiles, sanitizeHtml } from "./utils.js";
 import { handleFileLaunch } from "./file_launch.js";
 import { compileScriptWasmModule, compileScriptWasmModuleBatch, createScriptWasmHandle, pollScriptWasmHandle, destroyScriptWasmHandle, destroyAllScriptWasmHandles, destroyScriptWasmModule } from "./zasm.js";
 
@@ -497,11 +497,11 @@ async function renderQuestList() {
       contentEl.querySelector('._rating').remove();
     }
 
-    if (quest.informationHtml) contentEl.querySelector('.information').innerHTML = quest.informationHtml;
-    if (quest.descriptionHtml) contentEl.querySelector('.description').innerHTML = quest.descriptionHtml;
-    if (quest.storyHtml) contentEl.querySelector('.story').innerHTML = quest.storyHtml;
-    if (quest.tipsAndCheatsHtml) contentEl.querySelector('.tips').innerHTML = quest.tipsAndCheatsHtml;
-    if (quest.creditsHtml) contentEl.querySelector('.credits').innerHTML = quest.creditsHtml;
+    if (quest.informationHtml) contentEl.querySelector('.information').append(sanitizeHtml(quest.informationHtml));
+    if (quest.descriptionHtml) contentEl.querySelector('.description').append(sanitizeHtml(quest.descriptionHtml));
+    if (quest.storyHtml) contentEl.querySelector('.story').append(sanitizeHtml(quest.storyHtml));
+    if (quest.tipsAndCheatsHtml) contentEl.querySelector('.tips').append(sanitizeHtml(quest.tipsAndCheatsHtml));
+    if (quest.creditsHtml) contentEl.querySelector('.credits').append(sanitizeHtml(quest.creditsHtml));
 
     function setCurImage(image) {
       const imgEl = document.createElement('img');

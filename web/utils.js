@@ -101,6 +101,61 @@ export function createElement(tagName, className, textContent) {
   return el;
 }
 
+const allowedHtmlTags = new Set([
+  'a', 'b', 'blockquote', 'br', 'code', 'del', 'div', 'em', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
+  'hr', 'i', 'li', 'ol', 'p', 'pre', 's', 'span', 'strong', 'sub', 'sup', 'u', 'ul',
+]);
+// Dropped along with their contents, rather than unwrapped.
+const droppedHtmlTags = new Set([
+  'button', 'embed', 'form', 'iframe', 'input', 'math', 'noscript', 'object', 'script',
+  'select', 'style', 'svg', 'template', 'textarea',
+]);
+
+/**
+ * Parses untrusted HTML (quest descriptions scraped from other sites) into a fragment
+ * that only has basic formatting tags and safe links.
+ */
+export function sanitizeHtml(html) {
+  const doc = new DOMParser().parseFromString(html, 'text/html');
+
+  function clean(parent) {
+    for (const node of [...parent.childNodes]) {
+      if (node.nodeType === Node.TEXT_NODE) continue;
+      if (node.nodeType !== Node.ELEMENT_NODE) {
+        node.remove();
+        continue;
+      }
+
+      const tag = node.localName;
+      if (droppedHtmlTags.has(tag)) {
+        node.remove();
+        continue;
+      }
+
+      clean(node);
+      if (!allowedHtmlTags.has(tag)) {
+        node.replaceWith(...node.childNodes);
+        continue;
+      }
+
+      const href = tag === 'a' ? node.getAttribute('href') : null;
+      for (const attr of [...node.attributes]) {
+        if (attr.name !== 'class') node.removeAttribute(attr.name);
+      }
+      if (href && /^(https?|mailto):/i.test(href.trim())) {
+        node.setAttribute('href', href.trim());
+        node.setAttribute('target', '_blank');
+        node.setAttribute('rel', 'noopener noreferrer nofollow');
+      }
+    }
+  }
+
+  clean(doc.body);
+  const fragment = document.createDocumentFragment();
+  fragment.append(...doc.body.childNodes);
+  return fragment;
+}
+
 export const getFsHandles = async (dirHandle) => {
   const handles = [];
 
