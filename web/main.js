@@ -472,7 +472,7 @@ async function renderQuestList() {
     fillOrDelete('.name', quest.name);
     fillOrDelete('.author', quest.authors.map(a => a.name).join(', '));
     fillOrDelete('.genre', quest.genre);
-    fillOrDelete('.version', quest.version);
+    fillOrDelete('.version', quest.zcVersion);
 
     if (quest.projectUrl) {
       contentEl.querySelector('.purezc-link').href = quest.projectUrl;
