@@ -423,6 +423,11 @@ const projectSiteNames = {
   'www.zcland.net': 'ZC Land',
 };
 
+// 0 for quests with no rating, or a rating without any votes.
+function getRatingVotes(quest) {
+  return quest.rating?.distribution?.reduce((a, b) => a + b, 0) ?? 0;
+}
+
 async function renderQuestList() {
   const questListEl = document.querySelector('.quest-list');
   const questListEntriesEl = questListEl.querySelector('.quest-list__entries-list');
@@ -490,9 +495,10 @@ async function renderQuestList() {
       projectLinkEl.remove();
     }
 
-    if (quest.rating) {
+    const ratingVotes = getRatingVotes(quest);
+    if (ratingVotes) {
       contentEl.querySelector('.rating').textContent = quest.rating.score;
-      contentEl.querySelector('.rating-votes').textContent = quest.rating.distribution.reduce((a, b) => a + b, 0);
+      contentEl.querySelector('.rating-votes').textContent = ratingVotes;
     } else {
       contentEl.querySelector('._rating').remove();
     }
@@ -569,32 +575,33 @@ async function renderQuestList() {
     showQuest(quest);
   });
 
-  for (const el of document.querySelectorAll('.quest-list__sort-option')) {
-    el.addEventListener('click', () => {
-      const field = el.textContent;
+  function sortEntries(field) {
+    for (const el of document.querySelectorAll('.quest-list__sort-option')) {
+      el.classList.toggle('selected', el.textContent === field);
+    }
 
-      let sortBy;
-      if (field === 'Name') {
-        sortBy = (a, b) => {
-          return a.textContent.localeCompare(b.textContent);
-        };
-      } else if (field === 'Rating') {
-        sortBy = (a, b) => {
-          const score_a = a.quest.rating?.score || 0;
-          const score_b = b.quest.rating?.score || 0;
-          return score_b - score_a;
-        };
-      }
+    const byName = (a, b) => a.textContent.localeCompare(b.textContent);
 
-      [...questListEntriesEl.children]
-        .sort(sortBy)
-        .forEach(node => questListEntriesEl.appendChild(node));
-    });
+    let sortBy = byName;
+    if (field === 'Rating') {
+      // Unrated quests go last.
+      const score = (quest) => getRatingVotes(quest) ? quest.rating.score : -Infinity;
+      sortBy = (a, b) => (score(b.quest) - score(a.quest)) || byName(a, b);
+    }
+
+    [...questListEntriesEl.children]
+      .sort(sortBy)
+      .forEach(node => questListEntriesEl.appendChild(node));
   }
+
+  for (const el of document.querySelectorAll('.quest-list__sort-option')) {
+    el.addEventListener('click', () => sortEntries(el.textContent));
+  }
+  sortEntries('Rating');
 
   const qsQuest = new URLSearchParams(location.search).get('quest');
   const qsQuestId = qsQuest ? qsQuest.match(/quests\/[^/]+\/[^/?#]+/)?.[0] : '';
-  const initialSelectedQuest = (qsQuestId && quests.find(q => q.id == qsQuestId)) || quests.find(q => ['auto', true].includes(q.approval));
+  const initialSelectedQuest = (qsQuestId && quests.find(q => q.id == qsQuestId)) || questListEntriesEl.firstElementChild?.quest;
   if (initialSelectedQuest) showQuest(initialSelectedQuest);
 }
 

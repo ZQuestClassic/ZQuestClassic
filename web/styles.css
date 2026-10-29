@@ -87,6 +87,10 @@ button:active {
   margin: 0 10px;
 }
 
+.quest-list__sort-option.selected {
+  color: gold;
+}
+
 .quest-list__entry {
   max-width: 20vw;
   margin: 5px;
