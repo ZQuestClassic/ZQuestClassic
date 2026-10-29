@@ -18,7 +18,7 @@ Website: [zquestclassic.com](https://zquestclassic.com)
 
 - **Windows**: Windows 7 or newer (x64 and x86). A native arm64 build is also available for Windows on ARM.
 - **macOS**: 12 or newer (universal binary, Intel and Apple Silicon).
-- **Linux**: x86-64 and AArch64, with glibc 2.35 or newer (Ubuntu 22.04, Debian 12, Fedora 36, SteamOS 3, or newer). Requires GTK 3 and OpenSSL 3. Also available as a [Flatpak](https://flathub.org/en/apps/com.zquestclassic.ZQuest) (currently 2.55 releases only), which has no system requirements beyond Flatpak itself.
+- **Linux**: x86-64 and AArch64, with glibc 2.35 or newer (Ubuntu 22.04, Debian 12, Fedora 36, SteamOS 3, or newer). Requires an X11 session (or XWayland) with OpenGL, GTK 3, OpenSSL 3, libcurl 4, PulseAudio and ALSA client libraries, D-Bus, and libuuid; desktop installs of these distros already have them. Also available as a [Flatpak](https://flathub.org/en/apps/com.zquestclassic.ZQuest) (currently 2.55 releases only), which has no system requirements beyond Flatpak itself.
 - **Web**: an experimental [web version](https://zquestclassic.com/play/) that can also be played on mobile devices.
 
 ## Development

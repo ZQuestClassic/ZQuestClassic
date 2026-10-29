@@ -317,6 +317,27 @@ void zalleg_setup_allegro(App id, int argc, char **argv)
 		Z_error_fatal("Failed to init allegro: %s\n%s\n", "allegro_init", allegro_error);
 	}
 
+#ifdef ALLEGRO_WITH_XWINDOWS
+	// When XOpenDisplay fails, allegro carries on in a "headless" mode that
+	// segfaults the first time it touches X11 (install_keyboard). Make the same
+	// check and explain instead. Not Z_error_fatal: there's no display for its
+	// message box, and this isn't a crash worth reporting.
+	if (!is_headless())
+	{
+		Display* x_display = XOpenDisplay(nullptr);
+		if (!x_display)
+		{
+			const char* display = getenv("DISPLAY");
+			Z_error("Could not connect to an X11 display (DISPLAY=%s). An X11 server or "
+				"XWayland is required. From a remote shell, set DISPLAY to the "
+				"session's display (ex: DISPLAY=:0), or pass -headless for commands "
+				"that need no window.\n", display && display[0] ? display : "not set");
+			exit(1);
+		}
+		XCloseDisplay(x_display);
+	}
+#endif
+
 	// Merge old a4 config into a5 system config.
 	ALLEGRO_CONFIG *tempcfg = al_load_config_file(get_config_file_name());
 	if (tempcfg) {
