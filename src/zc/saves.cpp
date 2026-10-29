@@ -2029,6 +2029,9 @@ static bool do_save_games(std::string& err)
 	if (currgame >= 0)
 	{
 		saves[currgame].game->Copy(*game);
+		// Also done when the save is written to disk (see write_save), but saves aren't
+		// written in replays and test mode.
+		save_genscript(*saves[currgame].game);
 		update_icon(&saves[currgame]);
 	}
 
