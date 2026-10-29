@@ -102,14 +102,36 @@ export function createElement(tagName, className, textContent) {
 }
 
 const allowedHtmlTags = new Set([
-  'a', 'b', 'blockquote', 'br', 'code', 'del', 'div', 'em', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
-  'hr', 'i', 'li', 'ol', 'p', 'pre', 's', 'span', 'strong', 'sub', 'sup', 'u', 'ul',
+  'a', 'b', 'blockquote', 'br', 'code', 'del', 'details', 'div', 'em', 'h1', 'h2', 'h3', 'h4',
+  'h5', 'h6', 'hr', 'i', 'li', 'ol', 'p', 'pre', 's', 'span', 'strong', 'sub', 'summary', 'sup',
+  'u', 'ul',
 ]);
 // Dropped along with their contents, rather than unwrapped.
 const droppedHtmlTags = new Set([
   'button', 'embed', 'form', 'iframe', 'input', 'math', 'noscript', 'object', 'script',
   'select', 'style', 'svg', 'template', 'textarea',
 ]);
+
+/**
+ * PureZC spoilers need PureZC's scripts to open, so turn them into <details>:
+ *
+ *   <div class="bbc_spoiler"><span class="spoiler_title">Title</span>
+ *   <input type="button" class="bbc_spoiler_show" value="Show">
+ *   <div class="bbc_spoiler_wrapper"><div class="bbc_spoiler_content">...</div></div></div>
+ */
+function convertSpoilers(root) {
+  // Reverse document order handles nested spoilers before the ones containing them.
+  for (const spoiler of [...root.querySelectorAll('div.bbc_spoiler')].reverse()) {
+    const content = spoiler.querySelector(':scope > .bbc_spoiler_wrapper > .bbc_spoiler_content');
+    if (!content) continue;
+
+    const summary = document.createElement('summary');
+    summary.textContent = spoiler.querySelector(':scope > .spoiler_title')?.textContent.trim() || 'Spoiler';
+    const details = document.createElement('details');
+    details.append(summary, ...content.childNodes);
+    spoiler.replaceWith(details);
+  }
+}
 
 /**
  * Parses untrusted HTML (quest descriptions scraped from other sites) into a fragment
@@ -150,6 +172,7 @@ export function sanitizeHtml(html) {
     }
   }
 
+  convertSpoilers(doc.body);
   clean(doc.body);
   const fragment = document.createDocumentFragment();
   fragment.append(...doc.body.childNodes);

@@ -104,6 +104,17 @@ button:active {
   margin: 10px;
 }
 
+/* Spoilers: indent the contents under the title. */
+.quest-list__current details {
+  margin: 5px 0;
+  padding-left: 1em;
+}
+
+.quest-list__current summary {
+  margin-left: -1em;
+  cursor: pointer;
+}
+
 .top-section {
   display: flex;
   justify-content: space-between;
