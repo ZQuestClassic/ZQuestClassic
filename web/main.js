@@ -417,6 +417,12 @@ function scheduleDisplayResize() {
   }, 100);
 }
 
+// Sites a quest's project page may be on. Others are labeled by hostname.
+const projectSiteNames = {
+  'www.purezc.net': 'PureZC',
+  'www.zcland.net': 'ZC Land',
+};
+
 async function renderQuestList() {
   const questListEl = document.querySelector('.quest-list');
   const questListEntriesEl = questListEl.querySelector('.quest-list__entries-list');
@@ -475,10 +481,13 @@ async function renderQuestList() {
     fillOrDelete('.genre', quest.genre);
     fillOrDelete('.version', quest.zcVersion);
 
+    const projectLinkEl = contentEl.querySelector('.project-link');
     if (quest.projectUrl) {
-      contentEl.querySelector('.purezc-link').href = quest.projectUrl;
+      const host = new URL(quest.projectUrl).hostname;
+      projectLinkEl.href = quest.projectUrl;
+      projectLinkEl.textContent = `View on ${projectSiteNames[host] ?? host}`;
     } else {
-      contentEl.querySelector('.purezc-link').remove();
+      projectLinkEl.remove();
     }
 
     if (quest.rating) {
