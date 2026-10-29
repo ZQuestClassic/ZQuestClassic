@@ -86,6 +86,8 @@ static void render_launcher();
 
 int32_t main(int32_t argc, char* argv[])
 {
+	register_trace_handler(zc_trace_handler);
+	al_register_trace_handler([](const char* str){zc_trace_handler(str);});
 	common_main_setup(App::launcher, argc, argv);
 
 	zapp_set_crash_cb([](){
@@ -124,6 +126,7 @@ int32_t main(int32_t argc, char* argv[])
 		al_destroy_config(tempcfg);
 	}
 
+	zapp_check_x11_display();
 	if(install_timer() < 0
 		|| install_keyboard() < 0
 		|| install_mouse() < 0)

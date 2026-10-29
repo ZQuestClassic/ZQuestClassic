@@ -24,6 +24,8 @@ bool is_web();
 bool is_ci();
 void set_headless_mode();
 bool is_headless();
+// Call before install_keyboard. Exits with an explanation if there's no X11 display.
+void zapp_check_x11_display();
 std::pair<int, int> zc_get_default_display_size(int base_width, int base_height, int saved_width, int saved_height, int max_scale = 3);
 // Repaints the display. Set by each app to its own render function, so that
 // zc_process_display_events can put a frame up as soon as the window is resized.
