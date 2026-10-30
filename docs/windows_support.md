@@ -7,6 +7,11 @@ unnecessary, so it can be removed when that minimum goes up.
 When adding a workaround for an older Windows version, list it here and mention this file in a
 comment at the workaround.
 
+Windows 7 won't start an exe that imports a function it doesn't have, and says only "The
+application was unable to start correctly". `scripts/check_windows_imports.py` fails the Windows
+x64 and x86 packaging in CI when a package imports an OS function that isn't in
+`scripts/windows7_imports.txt`.
+
 ## Windows 8 minimum
 
 - sentry-native's `_WIN32_WINNT` (root `CMakeLists.txt`): set to Windows 7, because sentry

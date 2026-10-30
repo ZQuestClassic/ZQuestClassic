@@ -728,6 +728,12 @@ def package(ctx: CiContext, args):
     shutil.move(target_file, dest_path)
     logger.info(f"Moved {target_file.name} to {dest_path}")
 
+    # Windows 7 can't start an exe that imports a function it doesn't have. There is no arm64
+    # Windows 7.
+    if ctx.is_windows and ctx.arch != 'arm64':
+        logger.info("Checking that the package's OS imports exist on Windows 7...")
+        run_python_cmd([root_dir / "scripts/check_windows_imports.py", dest_path])
+
     logger.info("Packaging complete.")
 
 
