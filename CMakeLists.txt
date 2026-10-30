@@ -1073,6 +1073,19 @@ if(WANT_SENTRY)
 	set(SENTRY_BUILD_SHARED_LIBS OFF CACHE INTERNAL "")
 	FetchContent_MakeAvailable(sentry)
 
+	if(WIN32)
+		# sentry-native targets the Windows version CMake runs on, so it imports WaitOnAddress
+		# (Windows 8+), and no exe linking it starts on Windows 7. Target Windows 7 instead; sentry
+		# falls back to polling there. See docs/windows_support.md.
+		get_target_property(sentry_defs sentry COMPILE_DEFINITIONS)
+		list(TRANSFORM sentry_defs REPLACE "^_WIN32_WINNT=.*" "_WIN32_WINNT=0x0601")
+		if(NOT "_WIN32_WINNT=0x0601" IN_LIST sentry_defs)
+			message(FATAL_ERROR "sentry no longer defines _WIN32_WINNT on its target. Update the Windows 7 override.")
+		endif()
+		set_target_properties(sentry PROPERTIES COMPILE_DEFINITIONS "${sentry_defs}")
+		unset(sentry_defs)
+	endif()
+
 	foreach(target IN LISTS zc_targets)
 		target_link_libraries(${target} PRIVATE sentry)
 		target_compile_definitions(${target} PRIVATE HAS_SENTRY)
