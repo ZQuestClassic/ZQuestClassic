@@ -160,7 +160,6 @@ jobs:
           --repo "${{ github.repository }}"
           ${{ inputs.official && '--official' || '' }}
           ${{ inputs.test-runner && '--test-runner' || '' }}
-          ${{ inputs.sentry && '--sentry' || '' }}
           ${{ !inputs.cache && '--no-cache' || '' }}
 
       # Every save is a new key, so saves from other branches would evict main's
