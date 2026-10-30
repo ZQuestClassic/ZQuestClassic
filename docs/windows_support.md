@@ -9,6 +9,10 @@ comment at the workaround.
 
 ## Windows 8 minimum
 
+- sentry-native's `_WIN32_WINNT` (root `CMakeLists.txt`): set to Windows 7, because sentry
+  targets the Windows version CMake runs on and then imports `WaitOnAddress`. Drop the
+  override.
+
 - `io_manager::ProcessReadFile` (`src/base/process_management.cpp`): loads
   `GetOverlappedResultEx` (Windows 8+) at runtime, and without it falls back to a blocking
   `ReadFile` with no timeout. Call `GetOverlappedResultEx` directly and drop the fallback.
