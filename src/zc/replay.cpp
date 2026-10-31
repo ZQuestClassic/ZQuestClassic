@@ -1676,13 +1676,16 @@ void replay_poll()
     {
         if (mode != ReplayMode::Assert)
         {
-            Throttlefps = true;
-            Paused = true;
             replay_forget_input();
             replay_stop();
-            enter_sys_pal();
-            jwin_alert("Recording", "Replaying stopped at requested frame", NULL, NULL, "OK", NULL, 13, 27, get_zc_font(font_lfont));
-            exit_sys_pal();
+            if (!is_headless())
+            {
+                Throttlefps = true;
+                Paused = true;
+                enter_sys_pal();
+                jwin_alert("Recording", "Replaying stopped at requested frame", NULL, NULL, "OK", NULL, 13, 27, get_zc_font(font_lfont));
+                exit_sys_pal();
+            }
         }
     }
 
@@ -1731,13 +1734,16 @@ void replay_poll()
         {
             if (mode == ReplayMode::Record) replay_save();
 
-            Throttlefps = true;
-            Paused = true;
             replay_forget_input();
             replay_stop();
-            enter_sys_pal();
-            jwin_alert(replay_mode_to_string(mode).c_str(), "Stopped at requested frame", NULL, NULL, "OK", NULL, 13, 27, get_zc_font(font_lfont));
-            exit_sys_pal();
+            if (!is_headless())
+            {
+                Throttlefps = true;
+                Paused = true;
+                enter_sys_pal();
+                jwin_alert(replay_mode_to_string(mode).c_str(), "Stopped at requested frame", NULL, NULL, "OK", NULL, 13, 27, get_zc_font(font_lfont));
+                exit_sys_pal();
+            }
             return;
         }
     }
