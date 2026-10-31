@@ -35,6 +35,10 @@ void replay_continue(std::filesystem::path path);
 void replay_poll();
 bool replay_add_snapshot_frame(std::string frames_shorthand);
 void replay_peek_quit();
+// True when playback should end the current session itself. See handle_session_seam.
+bool replay_should_end_session();
+void replay_on_init_game();
+void replay_on_game_saved();
 void replay_peek_input();
 void replay_do_cheats();
 void replay_do_qrs(bool frame_start);

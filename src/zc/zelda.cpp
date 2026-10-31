@@ -1662,6 +1662,7 @@ int32_t init_game()
 		}
 	}
 
+	replay_on_init_game();
 	replay_step_comment("init_game");
 	replay_forget_input();
 

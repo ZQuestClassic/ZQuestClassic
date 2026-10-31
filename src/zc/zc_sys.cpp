@@ -4022,6 +4022,7 @@ void advanceframe(bool allowwavy, bool sfxcleanup, bool allowF6Script)
 
 	updatescr(allowwavy);
 
+	int quit_on_entry = Quit;
 	Advance=false;
 	while(Paused && !Advance && !Quit)
 	{
@@ -4042,7 +4043,13 @@ void advanceframe(bool allowwavy, bool sfxcleanup, bool allowF6Script)
 	}
 	
 	if(Quit)
+	{
+		// The user quit while paused. Record it, so replays of save files know when this
+		// session ended.
+		if (!quit_on_entry)
+			replay_step_quit(Quit);
 		return;
+	}
 	
 	if(Playing && game->get_time()<unsigned(get_qr(qr_GREATER_MAX_TIME) ? MAXTIME : OLDMAXTIME))
 		game->change_time(1);
@@ -4094,15 +4101,22 @@ void advanceframe(bool allowwavy, bool sfxcleanup, bool allowF6Script)
 	cheats_execute_queued();
 
 	if (replay_is_replaying())
+	{
 		replay_peek_quit();
+		if (!Quit && replay_should_end_session())
+		{
+			// Not qQUIT, which would open the continue screen. Playback turns this into a reload.
+			Quit = qEXIT;
+		}
+	}
 	if (GameFlags & GAMEFLAG_TRYQUIT)
 		replay_step_quit(0);
 	if(allowF6Script)
-	{
 		FFCore.runF6Engine();
-		if (Quit)
-			replay_step_quit(Quit);
-	}
+	// Quit was zero on entry (see above), so any quit happened this frame. Record it even when the
+	// F6 script is blocked, so quitting from a menu ends the session in replays of save files.
+	if (Quit)
+		replay_step_quit(Quit);
 
 	if(sfxcleanup)
 		sfx_cleanup();

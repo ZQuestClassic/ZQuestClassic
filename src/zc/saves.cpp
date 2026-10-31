@@ -2380,6 +2380,7 @@ static bool do_save_games(std::string& err)
 
 bool saves_write()
 {
+	replay_on_game_saved();
 	Saving = true;
 	if (!is_headless())
 		render_zc();
