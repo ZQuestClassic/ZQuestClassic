@@ -296,17 +296,17 @@ class TestReplays(unittest.TestCase):
         self.assertEqual(result.name, 'failing.zplay')
         self.assertEqual(result.success, False)
         self.assertEqual(result.stopped, True)
-        # This is the frame it stops at because of the loadscr check failing.
-        self.assertEqual(result.frame, 634)
+        # This is the frame it stops at because of the loadscr check failing: the
+        # screen load expected on frame 90 never happens, and it stops 60 frames later.
+        self.assertEqual(result.frame, 152)
         self.assertEqual(result.failing_frame, 1)
         # The screen is static (all input was removed), so snapshots are driven
-        # by the frames where the replay recorded a gfx change - capped by the
-        # per-segment snapshot limit, even though the segment runs to the end.
-        self.assertEqual(len(result.unexpected_gfx_frames), 157)
+        # by the frames where the replay recorded a gfx change.
+        self.assertEqual(len(result.unexpected_gfx_frames), 110)
         self.assertEqual(result.unexpected_gfx_frames[0], 1)
-        self.assertEqual(result.unexpected_gfx_frames[-1], 301)
-        self.assertEqual(result.unexpected_gfx_segments, [[1, 634]])
-        self.assertEqual(result.unexpected_gfx_segments_limited, [[1, 301]])
+        self.assertEqual(result.unexpected_gfx_frames[-1], 152)
+        self.assertEqual(result.unexpected_gfx_segments, [[1, 152]])
+        self.assertEqual(result.unexpected_gfx_segments_limited, [[1, 152]])
         snapshots = get_snapshots()
         self.assertEqual(
             snapshots,

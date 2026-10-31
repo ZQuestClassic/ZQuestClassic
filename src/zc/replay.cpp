@@ -1444,6 +1444,14 @@ void replay_on_game_saved()
 	rs.last_save_frame = rs.frame_count;
 }
 
+// The frame the next screen load is expected on, or the last frame if there are no more.
+static int next_expected_loadscr_frame()
+{
+    if (rs.loadscr_count >= rs.expected_loadscr_frame_count.size())
+        return get_frame(replay_log.back());
+    return rs.expected_loadscr_frame_count[rs.loadscr_count];
+}
+
 static void do_replaying_poll()
 {
     while (rs.replay_log_current_index < replay_log.size() && get_frame(replay_log[rs.replay_log_current_index]) == rs.frame_count)
@@ -1889,10 +1897,7 @@ void replay_poll()
         // loop forever. Only record 60 more frames at this point.
         if (rs.has_assert_failed && rs.failed_loadscr_count_frame == -1)
         {
-            int expected_frame = rs.loadscr_count + 1 >= rs.expected_loadscr_frame_count.size() ?
-                get_frame(replay_log.back()) :
-                rs.expected_loadscr_frame_count[rs.loadscr_count + 1];
-            if (rs.frame_count > expected_frame)
+            if (rs.frame_count > next_expected_loadscr_frame())
                 rs.failed_loadscr_count_frame = rs.frame_count;
         }
         if (rs.has_assert_failed && rs.failed_loadscr_count_frame != -1 && rs.frame_count - rs.failed_loadscr_count_frame > 60)
@@ -1905,10 +1910,7 @@ void replay_poll()
     // Updating should never modify when screens are loaded.
     if (rs.mode == ReplayMode::Update)
     {
-        int expected_frame = rs.loadscr_count + 1 >= rs.expected_loadscr_frame_count.size() ?
-            get_frame(replay_log.back()) :
-            rs.expected_loadscr_frame_count[rs.loadscr_count + 1];
-        if (rs.frame_count > expected_frame)
+        if (rs.frame_count > next_expected_loadscr_frame())
         {
             rs.failed_loadscr_count_frame = rs.frame_count;
             replay_stop();
