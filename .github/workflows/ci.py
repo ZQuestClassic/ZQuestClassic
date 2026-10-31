@@ -605,8 +605,8 @@ def build(ctx: CiContext, args):
             "-DRELEASE_CHANNEL=3",
             f"-DREPO={ctx.repo}",
             # Every build links Sentry, like the releases, so CI covers it (for example, the
-            # Windows 7 import check in package). Only official builds start it, and only
-            # release builds upload debug info (build.yml's `sentry` input).
+            # Windows 7 import check in package). Only official (release) builds start it or
+            # upload debug info.
             "-DWANT_SENTRY=true",
             f"-DWANT_ZC_TESTS={wants_tests}",
         ]

@@ -13,10 +13,6 @@ on:
           - stable
         required: true
         default: nightly
-      sentry:
-        type: boolean
-        description: Perform a sentry release
-        default: true
       version-override:
         type: string
         description: "Version Override: (! USE VERSION TYPE INSTEAD !) Only use this to publish a specific version, or republish an existing one. For emergency use only."
@@ -43,16 +39,13 @@ jobs:
 
       - name: Setup Sentry CLI
         uses: mathieu-bour/setup-sentry-cli@ff4fff773f5e628fa214ebd19e46fb7289454ee2 # v3.0.0
-        if: inputs.sentry
         with:
           version: '2.58.6'
           token: ${{ secrets.SENTRY_TOKEN }}
           organization: zeldaclassic
           project: zelda-classic
       - run: sentry-cli --version
-        if: inputs.sentry
       - run: sentry-cli --log-level=DEBUG releases new 'zelda-classic@${{ steps.make-vars.outputs.release-version }}'
-        if: inputs.sentry
 
   build-release:
     needs: ["create-tag"]
@@ -63,17 +56,14 @@ jobs:
             arch: x64
             compiler: msvc
             config: RelWithDebInfo
-            sentry: ${{ inputs.sentry }}
           - runs-on: windows-2022
             arch: win32
             compiler: msvc
             config: RelWithDebInfo
-            sentry: ${{ inputs.sentry }}
           - runs-on: windows-11-arm
             arch: arm64
             compiler: msvc
             config: RelWithDebInfo
-            sentry: ${{ inputs.sentry }}
           # Builds a universal (arm64 + x86_64) bundle: the native arm64 build
           # is merged with a second x86_64 build via lipo. See the `build`
           # command in ci.py.
@@ -81,17 +71,14 @@ jobs:
             arch: universal
             compiler: clang
             config: RelWithDebInfo
-            sentry: ${{ inputs.sentry }}
           - runs-on: ubuntu-22.04
             arch: x64
             compiler: clang
             config: RelWithDebInfo
-            sentry: ${{ inputs.sentry }}
           - runs-on: ubuntu-22.04-arm
             arch: aarch64
             compiler: clang
             config: RelWithDebInfo
-            sentry: ${{ inputs.sentry }}
       fail-fast: false
     # See https://github.com/community/community/discussions/40777
     # uses: ./.github/workflows/build.yml
@@ -102,7 +89,6 @@ jobs:
       compiler: ${{ matrix.compiler }}
       config: ${{ matrix.config }}
       official: true
-      sentry: ${{ matrix.sentry }}
       release-version: ${{ needs.create-tag.outputs.release-version }}
       release-name: ${{ needs.create-tag.outputs.release-name }}
       cache: false
@@ -157,7 +143,6 @@ jobs:
             })
 
       - name: Setup Sentry CLI
-        if: inputs.sentry
         uses: mathieu-bour/setup-sentry-cli@ff4fff773f5e628fa214ebd19e46fb7289454ee2 # v3.0.0
         with:
           version: '2.58.6'
@@ -165,7 +150,6 @@ jobs:
           organization: zeldaclassic
           project: zelda-classic
       - name: Finalize sentry
-        if: inputs.sentry
         run: |
           sentry-cli --log-level=DEBUG releases set-commits 'zelda-classic@${{ needs.create-tag.outputs.release-version }}' --auto --ignore-missing
           sentry-cli --log-level=DEBUG releases finalize 'zelda-classic@${{ needs.create-tag.outputs.release-version }}'
