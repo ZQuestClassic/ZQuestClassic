@@ -37,6 +37,10 @@ void replay_peek_quit();
 // True when playback should end the current session itself. See handle_session_seam.
 bool replay_should_end_session();
 void replay_on_init_game();
+bool replay_init_game_in_new_process();
+// Playback turns a quit to the desktop into a reload; this notes that the reloaded game was
+// loaded in a new process when it was recorded.
+void replay_on_program_exit();
 void replay_on_game_saved();
 void replay_peek_input();
 void replay_do_cheats();
