@@ -198,6 +198,8 @@ struct newcombo
 	
 	byte large_combo_dirs;
 	
+	word delay;
+	
 	void set_tile(int32_t newtile);
 	void clear();
 	bool is_blank(bool ignoreEff = false) const;
