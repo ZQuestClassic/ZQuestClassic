@@ -269,7 +269,6 @@ extern bool screenscrolling;
 extern int32_t jwin_pal[jcMAX];
 extern int32_t gui_colorset;
 extern int32_t fullscreen;
-extern byte zc_vsync;
 extern byte console_enabled;
 
 extern PALETTE tempbombpal;

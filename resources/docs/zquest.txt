@@ -2889,7 +2889,6 @@ Brings up the ZQuest preferences pane. Page 1 has these options:
  -- Mouse scroll: Allows you to use the mouse to scroll through the combo selector.
  -- Save paths: Makes ZQuest remember what directory you were in when you loaded a quest, saved it, grabbed tiles, imported/exported stuff, etc. 
  -- Palette cycle: Allows you to see palette cycling effects in ZQuest. 
- -- Vsync: Makes it so that it waits for the monitor to stop drawing before doing graphics work. This can help eliminate flicker. 
  -- Show Frames Per Second: Tells you how many frames there are per second. 
  -- Combo Brush: Makes the cursor resemble the current combo being used. 
  -- Floating Brush: In combination with the combo brush, makes the cursor cast a shadow.
