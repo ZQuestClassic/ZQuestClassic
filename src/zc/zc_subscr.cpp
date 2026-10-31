@@ -113,6 +113,9 @@ void dosubscr()
 	int h = is_extended_height_mode() ? 240 : 176;
 	std::unique_ptr<BITMAP, decltype(&destroy_bitmap)> subscr_scrolling_bitmap_owner(create_bitmap(256, h), destroy_bitmap);
 	BITMAP* subscr_scrolling_bitmap = subscr_scrolling_bitmap_owner.get();
+	// The copy below can come up short (ex: the playing field is offset by a quake), so
+	// clear it to not leave uninitialized rows.
+	clear_bitmap(subscr_scrolling_bitmap);
 
 	// Copy the complete frame.
 	// Go see the long comment in game_loop about drawPassiveSubscreenSeparate.
