@@ -78,9 +78,24 @@ static std::vector<int> snapshot_frames;
 static std::vector<int> expected_loadscr_frame_count;
 static int loadscr_count;
 static int failed_loadscr_count_frame;
+// Frame the game was last initialized on. See handle_session_seam.
+static int init_game_frame = -1;
+struct SessionSeam
+{
+	int wait_start_frame;
+	// Frame of the last step before the seam.
+	int last_step_frame;
+};
+// Set while playback waits to end a session that has no recorded quit.
+static std::optional<SessionSeam> seam;
+// Frame the game was last saved on.
+static int last_save_frame = -1;
 static size_t replay_log_current_index;
 static size_t replay_log_current_quit_index;
 static size_t replay_log_current_state_index;
+// Index after the last meta step that peek_meta_steps ran. Steps can be peeked more
+// than once, since handle_session_seam pushes them back a frame at a time.
+static size_t replay_log_current_meta_index;
 static size_t assert_current_index;
 static size_t manual_takeover_start_index;
 static bool has_assert_failed;
@@ -1023,6 +1038,7 @@ static bool load_replay(std::string& buffer, std::map<std::string, std::string>&
     replay_log_current_index = 0;
     replay_log_current_quit_index = 0;
     replay_log_current_state_index = 0;
+    replay_log_current_meta_index = 0;
     if (!set_version())
     {
         fprintf(stderr, "invalid version in replay file: %s\n", path.string().c_str());
@@ -1200,6 +1216,77 @@ static void save_history_snapshots()
 			entry.frame = -1;
 		}
 	}
+}
+
+// A save file's replay spans every play session: each time the save is loaded, the
+// recording continues with an "init_game" step. Usually the previous session ended with a
+// recorded quit, which playback applies so the game reloads right on time. But a session
+// can end without one (ex: the program was killed, or the replay was recorded by an older
+// version), and then playback carries on with the old session using the next session's
+// inputs.
+//
+// So when playback reaches an "init_game" step while the game is still playing, push the
+// rest of the replay back a frame at a time and end the session (see
+// replay_should_end_session). The updated replay records that quit, so it plays back
+// exactly from then on.
+static void handle_session_seam()
+{
+	if (!seam)
+	{
+		if (init_game_frame == frame_count)
+			return;
+
+		bool found_init_game = false;
+		for (size_t i = replay_log_current_index; i < replay_log.size() && get_frame(replay_log[i]) == frame_count; i++)
+		{
+			if (get_type(replay_log[i]) == TypeComment && std::get<CommentReplayStep>(replay_log[i]).comment == "init_game")
+			{
+				found_init_game = true;
+				break;
+			}
+		}
+		if (!found_init_game)
+			return;
+
+		int last_step_frame = replay_log_current_index > 0 ? get_frame(replay_log[replay_log_current_index - 1]) : 0;
+		seam = SessionSeam{frame_count, last_step_frame};
+		zprint2("[replay] session ended without a recorded quit at frame %d, ending it once it has saved\n", frame_count);
+	}
+
+	// Every step from here on is for the next session.
+	int from_frame = frame_count;
+	for (size_t i = replay_log_current_index; i < replay_log.size(); i++)
+		std::visit([](auto& s) { s.frame += 1; }, replay_log[i]);
+	for (int& frame : expected_loadscr_frame_count)
+	{
+		if (frame >= from_frame)
+			frame += 1;
+	}
+}
+
+bool replay_should_end_session()
+{
+	if (!seam)
+		return false;
+
+	// The session may have saved after its last input - ex: the save menu flashes for a
+	// while before saving - so wait for that, but give up after a few seconds since the
+	// session may not have saved at all.
+	return last_save_frame >= seam->last_step_frame || frame_count - seam->wait_start_frame >= 60*5;
+}
+
+void replay_on_init_game()
+{
+	if (!replay_is_replaying())
+		return;
+
+	init_game_frame = frame_count;
+	seam.reset();
+}
+
+void replay_on_game_saved()
+{
+	last_save_frame = frame_count;
 }
 
 static void do_replaying_poll()
@@ -1414,7 +1501,7 @@ static void peek_meta_steps()
 	if (!replay_is_replaying())
 		return;
 
-	size_t i = replay_log_current_index;
+	size_t i = std::max(replay_log_current_index, replay_log_current_meta_index);
 	while (i < replay_log.size() && get_frame(replay_log[i]) == frame_count)
 	{
 		if (get_type(replay_log[i]) == TypeMeta)
@@ -1424,6 +1511,7 @@ static void peek_meta_steps()
 				replay_step_meta(std::string(meta_step.key), std::string(meta_step.value));
 			else
 				run_step(replay_log[i]);
+			replay_log_current_meta_index = i + 1;
 		}
 		i++;
 	}
@@ -1448,6 +1536,9 @@ bool replay_start(ReplayMode mode_, std::filesystem::path path, int frame)
     unexpected_gfx_segments.clear();
     unexpected_gfx_segments_limited.clear();
     loadscr_count = 0;
+    init_game_frame = -1;
+    seam.reset();
+    last_save_frame = -1;
     failed_loadscr_count_frame = -1;
     has_rng_desynced = false;
     gfx_got_mismatch = false;
@@ -1532,6 +1623,9 @@ void replay_continue(std::filesystem::path path)
     mode = ReplayMode::Record;
     frame_arg = -1;
 	zc_version_created.reset();
+    init_game_frame = -1;
+    seam.reset();
+    last_save_frame = -1;
     prev_mouse_state = {0, 0, 0, 0};
     current_mouse_state = {0, 0, 0, 0};
     replay_forget_input();
@@ -1549,7 +1643,28 @@ void replay_continue(std::filesystem::path path)
 	}
 
     record_log = std::move(replay_log);
-    frame_count = get_frame(record_log.back()) + 1;
+    replay_log.clear();
+
+    // Continue right after the previous session ended. Usually its last step is the quit
+    // that ended it. But if the program was closed without saving the replay, the replay is
+    // as it was when the game was last saved, and that save can come well after the last
+    // input (ex: the save menu flashes for a while first). "frames" is the frame count when
+    // the replay was saved, so continue after that too - otherwise playback would reload
+    // the game before it was saved.
+    int last_frame = get_frame(record_log.back());
+    bool ended_with_quit = false;
+    for (auto it = record_log.rbegin(); it != record_log.rend() && get_frame(*it) == last_frame; it++)
+    {
+        if (get_type(*it) != TypeQuit)
+            continue;
+
+        int quit_state = std::get<QuitReplayStep>(*it).quit_state;
+        if (quit_state == qQUIT || quit_state == qEXIT || quit_state == qRESET)
+            ended_with_quit = true;
+    }
+    frame_count = last_frame + 1;
+    if (!ended_with_quit)
+        frame_count = std::max(frame_count, replay_get_meta_int("frames", 0) + 1);
 
 	// Not certain if really old replays (prior to TypeKeyMap) can be updated.
 	if (version >= 5 && version != VERSION)
@@ -1630,16 +1745,19 @@ void replay_poll()
         do_recording_poll();
         break;
     case ReplayMode::Replay:
+        handle_session_seam();
         do_replaying_poll();
         if (replay_log_current_index == replay_log.size())
             replay_stop();
         break;
     case ReplayMode::Assert:
+        handle_session_seam();
         do_replaying_poll();
         do_recording_poll();
         check_assert();
         break;
     case ReplayMode::Update:
+        handle_session_seam();
         do_replaying_poll();
         do_recording_poll();
         if (frame_count == get_frame(replay_log.back()))
@@ -2280,8 +2398,16 @@ bool replay_has_meta(std::string key)
 
 void replay_step_quit(int quit_state)
 {
-	if (replay_is_recording())
-		record_log.emplace_back(std::in_place_type<QuitReplayStep>, frame_count, quit_state);
+	if (!replay_is_recording())
+		return;
+
+	// A quit in a menu with its own frame loop (ex: a save menu) is recorded by that loop's
+	// advanceframe, and again by whatever opened the menu.
+	if (!record_log.empty() && get_type(record_log.back()) == TypeQuit && get_frame(record_log.back()) == frame_count &&
+		std::get<QuitReplayStep>(record_log.back()).quit_state == quit_state)
+		return;
+
+	record_log.emplace_back(std::in_place_type<QuitReplayStep>, frame_count, quit_state);
 }
 
 void replay_step_cheat(Cheat cheat, int arg1, int arg2, std::string arg3)
