@@ -35,6 +35,7 @@
 #ifdef ALLEGRO_MACOSX
 void zalleg_osx_bring_window_to_foreground(ALLEGRO_DISPLAY* display);
 void zalleg_osx_disable_app_nap(void);
+void zalleg_osx_tell_dock(void);
 void zalleg_osx_get_main_screen_usable_size(int* w, int* h);
 float zalleg_osx_get_main_screen_scale_factor(void);
 #endif
@@ -318,6 +319,15 @@ void zalleg_setup_allegro(App id, int argc, char **argv)
 	{
 		Z_error_fatal("Failed to init allegro: %s\n", "al_init");
 	}
+#ifdef ALLEGRO_MACOSX
+	// allegro5.cfg stops allegro from making the process a foreground app (with a Dock
+	// icon and menu) during system init, because doing so also activates it: every
+	// headless replay would take keyboard and mouse focus from whatever the user is
+	// doing. Apps with a window still need it before their display is created, or a
+	// fullscreen launch shows the title bar.
+	if (!is_headless())
+		zalleg_osx_tell_dock();
+#endif
 	if (allegro_init() != 0)
 	{
 		Z_error_fatal("Failed to init allegro: %s\n%s\n", "allegro_init", allegro_error);

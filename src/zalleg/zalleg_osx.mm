@@ -24,6 +24,15 @@ void zalleg_osx_disable_app_nap(void)
 	(void)activity;
 }
 
+extern "C" void _al_osx_tell_dock(void);
+
+// Promote the process to a foreground app with a Dock icon and menu, and activate
+// it. Does nothing when running from an app bundle.
+void zalleg_osx_tell_dock(void)
+{
+	_al_osx_tell_dock();
+}
+
 // The HiDPI scale factor (1.0 or 2.0) of the main screen. Used to size a window
 // before any display exists.
 float zalleg_osx_get_main_screen_scale_factor(void)
