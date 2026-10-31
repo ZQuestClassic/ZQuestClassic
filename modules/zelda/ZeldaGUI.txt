@@ -10,6 +10,7 @@ src/zc/ending.cpp
 src/zc/matrix.cpp
 src/pal.cpp
 src/zc/title.cpp
+src/zc/title_halloween.cpp
 src/hero_tiles.cpp
 
 src/zc_list_data.cpp

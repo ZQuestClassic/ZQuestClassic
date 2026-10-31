@@ -32,6 +32,7 @@
 #include "pal.h"
 #include "zalleg/gui.h"
 #include "zc/title.h"
+#include "zc/title_scene.h"
 #include "zc/ffscript.h"
 #include "zc/saves.h"
 #include "zc/render.h"
@@ -1630,6 +1631,20 @@ static void select_game(bool skip = false)
 	saveslot = -1;
 }
 
+// The backdrop for the launcher's "Title Screen" setting, or null for the standard blue.
+static std::unique_ptr<TitleScene> create_title_scene(int w, int h)
+{
+	TitleTheme theme = title_theme_from_name(zc_get_config("zeldadx", "title_screen", "seasonal"));
+	if (theme == TitleTheme::Seasonal && is_halloween_today())
+		theme = TitleTheme::Halloween;
+
+	switch (theme)
+	{
+		case TitleTheme::Halloween: return create_halloween_title_scene(w, h);
+		default: return nullptr;
+	}
+}
+
 static void actual_titlescreen()
 {
 	if (is_headless())
@@ -1655,6 +1670,21 @@ static void actual_titlescreen()
 	// The select screen normally loads these, but that happens after this screen - and with
 	// no sounds loaded, the chimes here (sword impact, skipping with a keypress) are muted.
 	ensure_default_sfx();
+
+	std::unique_ptr<TitleScene> holiday_scene = create_title_scene(framebuf->w, framebuf->h);
+	auto draw_backdrop = [&]()
+	{
+		if (holiday_scene)
+		{
+			holiday_scene->update();
+			holiday_scene->draw(framebuf);
+		}
+		else
+		{
+			// Deep blue rather than black - the logo crawl reads much better against it.
+			clear_to_color(framebuf, vc(1));
+		}
+	};
 
 	auto logo = get_logo();
 	if (logo->bitmap)
@@ -1805,8 +1835,10 @@ static void actual_titlescreen()
 			}
 		}
 
-		// Deep blue rather than black - the logo crawl reads much better against it.
-		clear_to_color(framebuf, vc(1));
+		// The intro lasts until the sword's swoosh lands, or without it, the logo's crawl ends.
+		if (holiday_scene)
+			holiday_scene->set_intro_playing(counter < (sword_intro ? sword_hit : duration));
+		draw_backdrop();
 		if (show_text)
 		{
 			int w = text_length(get_zc_font(font_zfont), "PRESS ANYTHING TO START");
@@ -1830,7 +1862,9 @@ static void actual_titlescreen()
 			sword_sfx.stop();  // skipped mid-thrust
 	}
 
-	clear_to_color(framebuf, vc(1));
+	// However the intro ended, it's over now.
+	if (holiday_scene)
+		holiday_scene->set_intro_playing(false);
 
 	starting_y = logo->get_transform().y;
 	final_y = 0;
@@ -1844,6 +1878,8 @@ static void actual_titlescreen()
 		auto t = logo->get_transform();
 		t.y = starting_y + (final_y - starting_y) * ratio;
 		logo->set_transform(t);
+
+		draw_backdrop();
 
 		counter++;
 		advanceframe(true);

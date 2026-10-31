@@ -4,6 +4,7 @@
 #include "base/version.h"
 #include "zalleg/zalleg.h"
 #include "launcher/launcher_dialog.h"
+#include "core/title_theme.h"
 #include "core/zdefs.h"
 #include "dialog/common.h"
 #include "dialog/alert.h"
@@ -125,6 +126,14 @@ namespace GUI::Lists
 		{ "Keyboard", 0 },
 		{ "Letter Grid", 1 },
 		{ "Extended Letter Grid", 2 }
+	};
+
+	// Values match TitleTheme, and are saved as its names.
+	static const ListData titleScreenList
+	{
+		{ "Seasonal", 0 },
+		{ "Standard", 1 },
+		{ "Halloween", 2 }
 	};
 
 	// Values match CrtFilterMode; labels match the player's Options > CRT Filter menu.
@@ -616,6 +625,21 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 						CONFIG_DROPDOWN_I("Snapshot Format:", App::zelda,"zeldadx","snapshot_format",3,snapshotFormatList,"The format of snapshots"),
 						CONFIG_DROPDOWN_I("Snapshot Scale:", App::zelda,"zeldadx","snapshot_scale",2,snapshotScaleList,"The scale of snapshots"),
 						CONFIG_DROPDOWN_I("Name Entry Mode:", App::zelda,"zeldadx","name_entry_mode",0,nameEntryList,"The entry method of save file names."),
+						Label(text = "Title Screen:", hAlign = 1.0),
+						DropDownList(data = titleScreenList,
+							fitParent = true,
+							minwidth = CONFIG_DROPDOWN_MINWIDTH,
+							selectedValue = (int)title_theme_from_name(zc_get_config("zeldadx", "title_screen", "seasonal", App::zelda)),
+							onSelectFunc = [&](int32_t val)
+							{
+								if (val > -1)
+									zc_set_config("zeldadx", "title_screen", title_theme_names[val], App::zelda);
+							}),
+						Button(forceFitH = true, text = "?",
+							onPressFunc = [&]()
+							{
+								InfoDialog("Info", "The title screen's look. Seasonal dresses it up for holidays (Halloween) and is standard the rest of the year.").show();
+							}),
 						CONFIG_TEXTFIELD_I("Window Width:",App::zelda,"zeldadx","window_width", -1, -1, 3000, "The width of the ZC window, for windowed mode. If -1 the largest possible window will be made without distorting the pixel content."),
 						CONFIG_TEXTFIELD_I("Window Height:",App::zelda,"zeldadx","window_height", -1, -1, 2250, "The height of the ZC window, for windowed mode. If -1 the largest possible window will be made without distorting the pixel content."),
 						CONFIG_TEXTFIELD_I("Saved Window X:",App::zelda,"zeldadx","window_x", 0, 0, rightmost, "The top-left corner of the ZQuest Window, for manual positioning and also used by 'Save Window Position'. If 0, uses the default position."),
