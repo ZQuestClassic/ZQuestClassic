@@ -318,6 +318,137 @@ class TestReplays(unittest.TestCase):
             ],
         )
 
+    def write_modified_replay(self, replay_path: Path, name: str, edit_steps) -> Path:
+        """Copies a replay into tmp_dir, with its steps (not its meta) changed by edit_steps."""
+        lines = replay_path.read_text().splitlines()
+        num_meta = next(i for i, l in enumerate(lines) if not l.startswith('M '))
+        meta, steps = lines[:num_meta], lines[num_meta:]
+        # Its files are relative to the replay.
+        for i, line in enumerate(meta):
+            key, _, value = line[2:].partition(' ')
+            if key in ('qst', 'sav'):
+                meta[i] = f'M {key} {replay_path.parent / value}'
+
+        tmp_dir.mkdir(parents=True, exist_ok=True)
+        path = tmp_dir / name
+        path.write_text('\n'.join(meta + edit_steps(steps)) + '\n')
+        return path
+
+    def run_replay_mode(self, mode: str, path: Path, frame: int) -> dict:
+        p = run_target.run(
+            'zplayer',
+            [
+                '-headless',
+                '-v0',
+                '-replay-exit-when-done',
+                f'-{mode}',
+                path,
+                '-frame',
+                str(frame),
+            ],
+        )
+        result_path = path.with_name(f'{path.name}.result.txt')
+        if not result_path.exists():
+            raise Exception(f'no result.txt\n{p.stdout}\n{p.stderr}')
+        result = {}
+        for line in result_path.read_text().splitlines():
+            key, _, value = line.partition(': ')
+            result[key] = value
+        result['stdout'] = p.stdout
+        return result
+
+    # A save file's replay may end a session without recording the quit (ex: replays from
+    # older versions). Playback should end that session itself and continue in sync.
+    def test_session_ended_without_recorded_quit(self):
+        if 'CI' in os.environ and os.environ.get('CXX') == 'gcc':
+            raise unittest.SkipTest('skipping test because gcc')
+
+        # The player quits to the desktop on frame 123, and continues the save next session.
+        original_path = (
+            root_dir / 'tests/replays/final_fantasy/final_fantasy_2_of_2.zplay'
+        )
+        quit_step = 'Q 123 3'
+        init_game_step = 'C 124 init_game'
+        # A newer version continuing the save would record its version here. This one
+        # keeps the same version, so it changes nothing.
+        version_step = 'M 124 version 31'
+        frame_limit = 2000
+
+        def remove_quit(steps):
+            self.assertIn(quit_step, steps)
+            steps = [s for s in steps if s != quit_step]
+            steps.insert(steps.index(init_game_step), version_step)
+            return steps
+
+        path = self.write_modified_replay(original_path, 'seam.zplay', remove_quit)
+        result = self.run_replay_mode('update', path, frame_limit)
+        self.assertEqual(result['success'], 'true', result['stdout'])
+
+        def steps_from_next_session(steps):
+            index = next(
+                i
+                for i, s in enumerate(steps)
+                if s.endswith(' init_game') and not s.startswith('C 0 ')
+            )
+            return steps[index:]
+
+        def get_frame(step):
+            return int(step.split(' ')[1])
+
+        # Nothing saved after the last input of the session, so playback gave up waiting
+        # for a save after 300 frames and ended it then.
+        steps = [l for l in path.read_text().splitlines() if not l.startswith('M ')]
+        updated = steps_from_next_session(steps)
+        shift = get_frame(updated[0]) - 124
+        self.assertEqual(shift, 301)
+        self.assertIn(f'Q {123 + shift} 3', steps)
+        meta_steps = [
+            l for l in path.read_text().splitlines() if re.match(r'M \d+ version ', l)
+        ]
+        self.assertEqual(meta_steps, [version_step])
+
+        # The next session plays exactly as recorded, just later.
+        original_steps = [
+            l for l in original_path.read_text().splitlines() if not l.startswith('M ')
+        ]
+        expected = [
+            s
+            for s in steps_from_next_session(original_steps)
+            if get_frame(s) + shift < frame_limit
+        ]
+
+        def unshift(step):
+            type, frame, rest = step.split(' ', 2)
+            return f'{type} {int(frame) - shift} {rest}'
+
+        self.assertEqual([unshift(s) for s in updated], expected)
+
+        result = self.run_replay_mode('assert', path, frame_limit)
+        self.assertEqual(result['success'], 'true', result['stdout'])
+
+    # Updating a replay must stop as soon as a screen isn't loaded when expected, since
+    # the rest of the replay would be played on the wrong screen.
+    def test_update_stops_at_missed_screen_load(self):
+        if 'CI' in os.environ and os.environ.get('CXX') == 'gcc':
+            raise unittest.SkipTest('skipping test because gcc')
+
+        # Expect a screen load 3 frames before it actually happens.
+        original_path = root_dir / 'tests/replays/classic_1st_lvl1.zplay'
+        load_step = 'C 572 scr=119'
+
+        def move_load_earlier(steps):
+            self.assertIn(load_step, steps)
+            steps = [s for s in steps if s != load_step]
+            index = next(i for i, s in enumerate(steps) if int(s.split(' ')[1]) > 569)
+            return steps[:index] + ['C 569 scr=119'] + steps[index:]
+
+        path = self.write_modified_replay(
+            original_path, 'missed_load.zplay', move_load_earlier
+        )
+        result = self.run_replay_mode('update', path, 700)
+        self.assertEqual(result['success'], 'false', result['stdout'])
+        self.assertEqual(result['frame'], '570')
+
     def test_recording(self):
         replay_path = tmp_dir / 'recorded.zplay'
         if replay_path.exists():
