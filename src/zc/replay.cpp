@@ -90,6 +90,11 @@ struct SessionSeam
 static std::optional<SessionSeam> seam;
 // Frame the game was last saved on.
 static int last_save_frame = -1;
+// Whether the current game was loaded in a new process when it was recorded, because the
+// program was exited after the previous game. Not known for the first game of a replay
+// (ex: a replay split into parts starts from a save made mid-recording).
+static bool init_game_in_new_process;
+static bool next_init_game_in_new_process;
 static size_t replay_log_current_index;
 static size_t replay_log_current_quit_index;
 static size_t replay_log_current_state_index;
@@ -1281,6 +1286,18 @@ void replay_on_init_game()
 
 	init_game_frame = frame_count;
 	seam.reset();
+	init_game_in_new_process = next_init_game_in_new_process;
+	next_init_game_in_new_process = false;
+}
+
+bool replay_init_game_in_new_process()
+{
+	return init_game_in_new_process;
+}
+
+void replay_on_program_exit()
+{
+	next_init_game_in_new_process = true;
 }
 
 void replay_on_game_saved()
@@ -1496,6 +1513,8 @@ bool replay_start(ReplayMode mode_, std::filesystem::path path, int frame)
     init_game_frame = -1;
     seam.reset();
     last_save_frame = -1;
+    init_game_in_new_process = false;
+    next_init_game_in_new_process = false;
     failed_loadscr_count_frame = -1;
     has_rng_desynced = false;
     gfx_got_mismatch = false;
@@ -1582,6 +1601,8 @@ void replay_continue(std::filesystem::path path)
     init_game_frame = -1;
     seam.reset();
     last_save_frame = -1;
+    init_game_in_new_process = false;
+    next_init_game_in_new_process = false;
     prev_mouse_state = {0, 0, 0, 0};
     current_mouse_state = {0, 0, 0, 0};
     replay_forget_input();
