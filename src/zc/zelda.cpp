@@ -52,6 +52,7 @@
 #include "zc/rendertarget.h"
 #include "zc/replay_upload.h"
 #include "zc/replay.h"
+#include "zc/replay_compat.h"
 #include "zc/saves.h"
 #include "zc/script_debug.h"
 #include "zc/scripting/script_object.h"
@@ -1676,6 +1677,9 @@ int32_t init_game()
 	replay_register_rng(&drunk_rng);
 	zc_game_srand(initial_seed);
 	zc_game_srand(initial_seed, &drunk_rng);
+
+	if (replay_init_game_in_new_process() && replay_compat_unequip_a_button_on_load_bug() && game->forced_awpn == -1)
+		game->awpn = 255;
 
 	int32_t ret = load_quest(game);
 	if(ret != qe_OK)
@@ -4822,6 +4826,7 @@ reload_for_replay_file:
 			}
 			else if (replay_get_mode() != ReplayMode::Record && Quit == qEXIT)
 			{
+				replay_on_program_exit();
 				replay_poll();
 				Quit = qQUIT;
 			}

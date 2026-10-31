@@ -128,6 +128,17 @@ bool replay_compat_region_enemies_first_load_bug()
 	return !replay_version_check(69);
 }
 
+// Loading a save in a new process unequipped the A button (unless a script had forced it),
+// because the button items were checked before the quest was loaded - while the quest rules
+// were still the defaults, which can't select an A button item. Fixed in 9806fb8abd.
+bool replay_compat_unequip_a_button_on_load_bug()
+{
+	if (check_2_55(11))
+		return true;
+
+	return !replay_version_check(43);
+}
+
 // Trig, inverse trig, and log/pow switched from libm (and the replay-only Q15
 // trig) to the deterministic tables in zc_math.cpp in replay version 59 /
 // ZC 2.55.15. This owns the entire mode policy so zc_math.cpp needs no

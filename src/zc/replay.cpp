@@ -126,6 +126,11 @@ struct ReplayState
 	std::optional<SessionSeam> seam;
 	// Frame the game was last saved on.
 	int last_save_frame = -1;
+	// Whether the current game was loaded in a new process when it was recorded, because the
+	// program was exited after the previous game. Not known for the first game of a replay
+	// (ex: a replay split into parts starts from a save made mid-recording).
+	bool init_game_in_new_process = false;
+	bool next_init_game_in_new_process = false;
 	size_t replay_log_current_index = 0;
 	size_t replay_log_current_quit_index = 0;
 	size_t replay_log_current_state_index = 0;
@@ -1437,6 +1442,18 @@ void replay_on_init_game()
 
 	rs.init_game_frame = rs.frame_count;
 	rs.seam.reset();
+	rs.init_game_in_new_process = rs.next_init_game_in_new_process;
+	rs.next_init_game_in_new_process = false;
+}
+
+bool replay_init_game_in_new_process()
+{
+	return rs.init_game_in_new_process;
+}
+
+void replay_on_program_exit()
+{
+	rs.next_init_game_in_new_process = true;
 }
 
 void replay_on_game_saved()
