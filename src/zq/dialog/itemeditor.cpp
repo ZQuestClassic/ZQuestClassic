@@ -1986,6 +1986,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 								{
 									local_itemref.speed = val;
 									animFrame->setSpeed(val);
+									animFrame->setDelay(val * local_itemref.delay);
 								}
 							),
 							DummyWidget(),
@@ -1997,10 +1998,16 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 								{
 									local_itemref.delay = val;
-									animFrame->setDelay(val);
+									animFrame->setDelay(val * local_itemref.speed);
 								}
 							),
-							DummyWidget(),
+							INFOBTN_T("Initial Delay",
+								"This many frames *times the animation speed* will pass"
+								" before the animation starts each time. So an Animation"
+								" Speed of 8 and an Initial Delay of 8 will result in 64 frames,"
+								" or just over 1 second, of the item being paused on the first frame"
+								" of the animation."
+							),
 							Label(text = "Hero Tile Modifier:", hAlign = 1.0),
 							TextField(
 								val = local_itemref.ltm, rightPadding = 0_px,
@@ -2011,18 +2018,12 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 									local_itemref.ltm = val;
 								}
 							),
-							Button(
-								width = 1.5_em, leftPadding = 0_px, forceFitH = true,
-								text = "?", hAlign = 1.0, onPressFunc = [&]()
-								{
-									InfoDialog("Tile Modifiers",
-										"The tile modifiers of the highest level item owned from each itemclass"
-										" are added up, and the total is added to the Hero's tile.\n"
-										"If the Hero is a Bunny, then only items which have the 'Usable as a Bunny'"
-										" flag checked will have their tile modifiers count, but the 'Bunny Tile Mod'"
-										" found in Init Data is also added."
-									).show();
-								}
+							INFOBTN_T("Tile Modifiers",
+								"The tile modifiers of the highest level item owned from each itemclass"
+								" are added up, and the total is added to the Hero's tile.\n"
+								"If the Hero is a Bunny, then only items which have the 'Usable as a Bunny'"
+								" flag checked will have their tile modifiers count, but the 'Bunny Tile Mod'"
+								" found in Init Data is also added."
 							)
 						),
 						Column(
@@ -2081,7 +2082,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 								cset = (local_itemref.csets & 0xF),
 								frames = local_itemref.frames,
 								speed = local_itemref.speed,
-								delay = local_itemref.delay,
+								delay = local_itemref.delay * local_itemref.speed,
 								skipx = (local_itemref.overrideFLAGS & OVERRIDE_TILE_WIDTH)
 									? local_itemref.tilew-1 : 0,
 								skipy = (local_itemref.overrideFLAGS & OVERRIDE_TILE_HEIGHT)

@@ -368,7 +368,7 @@ void ItemListerDialog::update(bool)
 		widgPrev->setCSet(itm.csets&0xF);
 		widgPrev->setFrames(itm.frames);
 		widgPrev->setSpeed(itm.speed);
-		widgPrev->setDelay(itm.delay);
+		widgPrev->setDelay(itm.delay * itm.speed);
 		widgPrev->setSkipX((itm.overrideFLAGS & OVERRIDE_TILE_WIDTH)
 			? itm.tilew-1 : 0);
 		widgPrev->setSkipY((itm.overrideFLAGS & OVERRIDE_TILE_HEIGHT)

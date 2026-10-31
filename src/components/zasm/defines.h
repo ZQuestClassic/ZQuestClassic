@@ -3546,6 +3546,8 @@ enum ASM_DEFINE
 #define DMAPDATA_VIEWPORT_RECENTER_SPEED      0x172D
 #define DMAPDATA_VIEWPORT_RECENTER_DELAY      0x172E
 
+#define COMBODATA_DELAY                       0x172F
+
 // fill in gap here
 
 #define SCRIPT_INST_VARS(d)      ((0x1800) + d) // 256; 0x1800 -> 0x1900
