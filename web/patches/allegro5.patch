@@ -2,15 +2,16 @@ diff --git a/addons/audio/sdl_audio.c b/addons/audio/sdl_audio.c
 index 777324259..636d7d381 100644
 --- a/addons/audio/sdl_audio.c
 +++ b/addons/audio/sdl_audio.c
-@@ -76,8 +76,10 @@ static int sdl_allocate_voice(ALLEGRO_VOICE *voice)
+@@ -76,8 +76,11 @@ static int sdl_allocate_voice(ALLEGRO_VOICE *voice)
     want.freq = voice->frequency;
     want.format = allegro_format_to_sdl(voice->depth);
     want.channels = al_get_channel_count(voice->chan_conf);
-+   // The a5 SDL audio system hardcodes a value for # samples that is too high. Until I can upstream a patch to make this
-+   // configurable, just manually change it here!
++   // 4096 adds a lot of latency to sound effects. But on the web, SDL plays this many samples
++   // per ScriptProcessorNode buffer, and Chrome on Android plays one smaller than 1024 with
++   // gaps (it pulls audio in larger chunks there), which crackles.
     // TODO: Should make this configurable somehow
 -   want.samples = 4096;
-+   want.samples = 512;
++   want.samples = 1024;
     want.callback = audio_callback;
     want.userdata = sv;
  
