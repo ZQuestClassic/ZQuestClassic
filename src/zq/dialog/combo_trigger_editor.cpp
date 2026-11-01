@@ -632,9 +632,9 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 							TRIGFLAG(TRIGFLAG_PLAYERLANDHERE, "Land Here->"),
 							IBTN("Triggered when the player lands from the air (anywhere on the screen)"),
 							TRIGFLAG(TRIGFLAG_PLAYERLANDANYWHERE, "Land Anywhere->"),
-							IBTN("Triggered when a pushblock is about to click into place at this combo's position, on any layer."),
-							TRIGFLAG(TRIGFLAG_BLOCK_TRIGGER_SAME_LAYER,"Block (Same Layer)->"),
 							IBTN("Triggered when a pushblock is about to click into place replacing this combo."),
+							TRIGFLAG(TRIGFLAG_BLOCK_TRIGGER_SAME_LAYER,"Block (Same Layer)->"),
+							IBTN("Triggered when a pushblock is about to click into place at this combo's position, on any layer."),
 							TRIGFLAG(TRIGFLAG_BLOCK_TRIGGER_ANY_LAYER,"Block (Any Layer)->"),
 							IBTN("Triggers when all enemies are defeated"),
 							TRIGFLAG(TRIGFLAG_ENEMIESKILLED, "Enemies->")
