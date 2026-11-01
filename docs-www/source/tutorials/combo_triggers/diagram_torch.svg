@@ -1,0 +1,66 @@
+<svg class="ct-diagram" viewBox="0 0 680 476" role="img" aria-labelledby="ct-diagram_torch-title ct-diagram_torch-desc" xmlns="http://www.w3.org/2000/svg">
+<title id="ct-diagram_torch-title">Torch puzzle triggers</title>
+<desc id="ct-diagram_torch-desc">Three combos: the unlit torch, the waiting lit torch, and the done lit torch. Normal Fire changes an unlit torch into the waiting lit torch. Unlit torches count toward trigger group 0, and once that count is below 1 the waiting lit torch triggers secrets and changes into the done lit torch. Both lit torches ignite passing arrows and boomerangs.</desc>
+<defs><marker id="ct-arrow-diagram_torch" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+<rect class="ct-card" x="40" y="40" width="180" height="272" rx="10"/>
+<text class="ct-title" x="130" y="62" text-anchor="middle" dominant-baseline="central">Unlit torch</text>
+<rect class="ct-card" x="250" y="40" width="180" height="272" rx="10"/>
+<text class="ct-title" x="340" y="62" text-anchor="middle" dominant-baseline="central">Lit torch (waiting)</text>
+<rect class="ct-card" x="460" y="40" width="180" height="272" rx="10"/>
+<text class="ct-title" x="550" y="62" text-anchor="middle" dominant-baseline="central">Lit torch (done)</text>
+<g class="ct-chip ct-cause"><rect x="52" y="84" width="156" height="28" rx="14"/>
+<text class="ct-label" x="130" y="98" text-anchor="middle" dominant-baseline="central">Normal Fire</text>
+</g>
+<path class="ct-line" d="M130 114 L130 126" marker-end="url(#ct-arrow-diagram_torch)"/>
+<g class="ct-chip ct-effect"><rect x="52" y="128" width="156" height="28" rx="4"/>
+<text class="ct-label" x="130" y="142" text-anchor="middle" dominant-baseline="central">Combo Change +1</text>
+</g>
+<line class="ct-divider" x1="56" y1="172" x2="204" y2="172"/>
+<g class="ct-chip ct-plain"><rect x="52" y="188" width="156" height="28" rx="4"/>
+<text class="ct-label" x="130" y="202" text-anchor="middle" dominant-baseline="central">Contributes: group 0</text>
+</g>
+<g class="ct-chip ct-cause"><rect x="262" y="84" width="156" height="28" rx="14"/>
+<text class="ct-label" x="340" y="98" text-anchor="middle" dominant-baseline="central">Arrow or Boomerang</text>
+</g>
+<path class="ct-line" d="M340 114 L340 126" marker-end="url(#ct-arrow-diagram_torch)"/>
+<g class="ct-chip ct-effect"><rect x="262" y="128" width="156" height="28" rx="4"/>
+<text class="ct-label" x="340" y="142" text-anchor="middle" dominant-baseline="central">Ignite Weapon (Normal)</text>
+</g>
+<line class="ct-divider" x1="266" y1="172" x2="414" y2="172"/>
+<g class="ct-chip ct-cause"><rect x="262" y="188" width="156" height="28" rx="14"/>
+<text class="ct-label" x="340" y="202" text-anchor="middle" dominant-baseline="central">↻ TrigGroup 0 &lt; 1</text>
+</g>
+<path class="ct-line" d="M340 218 L340 230" marker-end="url(#ct-arrow-diagram_torch)"/>
+<g class="ct-chip ct-effect"><rect x="262" y="232" width="156" height="28" rx="4"/>
+<text class="ct-label" x="340" y="246" text-anchor="middle" dominant-baseline="central">Triggers Secrets</text>
+</g>
+<g class="ct-chip ct-effect"><rect x="262" y="268" width="156" height="28" rx="4"/>
+<text class="ct-label" x="340" y="282" text-anchor="middle" dominant-baseline="central">Combo Change +1</text>
+</g>
+<g class="ct-chip ct-cause"><rect x="472" y="84" width="156" height="28" rx="14"/>
+<text class="ct-label" x="550" y="98" text-anchor="middle" dominant-baseline="central">Arrow or Boomerang</text>
+</g>
+<path class="ct-line" d="M550 114 L550 126" marker-end="url(#ct-arrow-diagram_torch)"/>
+<g class="ct-chip ct-effect"><rect x="472" y="128" width="156" height="28" rx="4"/>
+<text class="ct-label" x="550" y="142" text-anchor="middle" dominant-baseline="central">Ignite Weapon (Normal)</text>
+</g>
+<path class="ct-line" d="M210 142 L248 142" marker-end="url(#ct-arrow-diagram_torch)"/>
+<path class="ct-line" d="M420 282 L458 282" marker-end="url(#ct-arrow-diagram_torch)"/>
+<g class="ct-chip ct-state"><rect x="100" y="340" width="230" height="52" rx="4"/>
+<text class="ct-label ct-strong" x="215" y="358" text-anchor="middle" dominant-baseline="central">Trigger group 0</text>
+<text class="ct-label" x="215" y="376" text-anchor="middle" dominant-baseline="central">Counts the unlit torches</text>
+</g>
+<path class="ct-line ct-dash" d="M130 218 L130 336" marker-end="url(#ct-arrow-diagram_torch)"/>
+<path class="ct-line ct-dash" d="M235 338 L235 202 L258 202" marker-end="url(#ct-arrow-diagram_torch)"/>
+<g class="ct-chip ct-cause"><rect x="40" y="420" width="36" height="20" rx="10"/></g>
+<text class="ct-sub" x="84" y="430" text-anchor="start" dominant-baseline="central">Cause</text>
+<g class="ct-chip ct-effect"><rect x="147.0" y="420" width="36" height="20" rx="4"/></g>
+<text class="ct-sub" x="191" y="430" text-anchor="start" dominant-baseline="central">Effect</text>
+<g class="ct-chip ct-state"><rect x="260.6" y="420" width="36" height="20" rx="4"/></g>
+<text class="ct-sub" x="304.6" y="430" text-anchor="start" dominant-baseline="central">Count or saved state</text>
+<text class="ct-sub" x="466.6" y="430" text-anchor="start" dominant-baseline="central">↻ Keeps firing</text>
+<path class="ct-line" d="M40 460 L76 460" marker-end="url(#ct-arrow-diagram_torch)"/>
+<text class="ct-sub" x="84" y="460" text-anchor="start" dominant-baseline="central">Changes into</text>
+<path class="ct-line ct-dash" d="M193.2 460 L229.2 460" marker-end="url(#ct-arrow-diagram_torch)"/>
+<text class="ct-sub" x="237.2" y="460" text-anchor="start" dominant-baseline="central">Writes or reads a count or state</text>
+</svg>

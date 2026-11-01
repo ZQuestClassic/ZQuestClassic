@@ -2946,7 +2946,12 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 												InfoDialog(title, from_clipboard->summarize(local_comboref, index)).set_text_align(0).show();
 											}
 										})
-								)
+								),
+								Button(text = "Combo Triggers Guide",
+									onPressFunc = []()
+									{
+										util::open_web_link("https://docs.zquestclassic.com/tutorials/combo_triggers");
+									})
 							)
 						)
 					)

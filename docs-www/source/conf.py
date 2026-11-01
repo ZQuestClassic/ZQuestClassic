@@ -86,6 +86,10 @@ rst_prolog = """
 .. role:: comment_header
     :class: comment-header
 
+.. Version badge for an option that not every version has, e.g. :since:`3.0, 2.55.18+`.
+.. role:: since
+    :class: sd-badge sd-outline-info sd-text-info
+
 .. default-role:: zs
 """
 

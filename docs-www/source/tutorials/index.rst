@@ -11,6 +11,8 @@ Editor
 
    /tutorials/using_a_tileset
    /tutorials/message_strings
+   /tutorials/combo_triggers
+   /tutorials/combo_triggers_reference
    /tutorials/z3_user_guide
    /tutorials/wieldable_bow
 
