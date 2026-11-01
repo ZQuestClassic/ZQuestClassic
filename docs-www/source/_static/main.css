@@ -260,3 +260,78 @@ html[data-theme="light"] code.literal {
 	text-decoration: underline;
 	font-size: var(--pst-font-size-h3);
 }
+
+/* Click-to-enlarge images, see setupLightbox in main.js */
+img.lightbox {
+	cursor: zoom-in;
+}
+dialog.lightbox-dialog {
+	padding: 0;
+	border: none;
+	background: none;
+	max-width: none;
+	max-height: none;
+	overflow: hidden;
+	cursor: zoom-out;
+}
+dialog.lightbox-dialog::backdrop {
+	background: rgba(0, 0, 0, 0.85);
+}
+dialog.lightbox-dialog img {
+	display: block;
+	/* Most images on this site are pixel art */
+	image-rendering: pixelated;
+}
+
+/* Combo trigger diagrams (docs-www/source/tutorials/combo_triggers/diagram_*.svg), inlined so
+   they follow the light/dark theme. Cause = purple pill, condition = amber dashed chip,
+   effect = teal chip, saved state or count = gray box. */
+svg.ct-diagram {
+	--ct-line: #888780;
+	--ct-card: #b4b2a9;
+	--ct-cause-fill: #eeedfe; --ct-cause-stroke: #534ab7; --ct-cause-text: #3c3489;
+	--ct-cond-fill: #faeeda; --ct-cond-stroke: #854f0b; --ct-cond-text: #633806;
+	--ct-effect-fill: #e1f5ee; --ct-effect-stroke: #0f6e56; --ct-effect-text: #085041;
+	--ct-plain-fill: #f1efe8; --ct-plain-stroke: #5f5e5a; --ct-plain-text: #444441;
+	display: block;
+	width: 100%;
+	max-width: 680px;
+	height: auto;
+	margin: 1.5em auto;
+	color: var(--ct-line);
+	font-family: var(--pst-font-family-base);
+}
+html[data-theme="dark"] svg.ct-diagram {
+	--ct-line: #b4b2a9;
+	--ct-card: #5f5e5a;
+	--ct-cause-fill: #3c3489; --ct-cause-stroke: #afa9ec; --ct-cause-text: #cecbf6;
+	--ct-cond-fill: #633806; --ct-cond-stroke: #ef9f27; --ct-cond-text: #fac775;
+	--ct-effect-fill: #085041; --ct-effect-stroke: #5dcaa5; --ct-effect-text: #9fe1cb;
+	--ct-plain-fill: #444441; --ct-plain-stroke: #b4b2a9; --ct-plain-text: #d3d1c7;
+}
+svg.ct-diagram text { font-size: 12px; }
+svg.ct-diagram .ct-title { font-size: 14px; font-weight: 600; fill: var(--pst-color-text-base); }
+svg.ct-diagram .ct-sub { fill: var(--pst-color-text-muted); }
+svg.ct-diagram .ct-card { fill: none; stroke: var(--ct-card); stroke-width: 1; }
+svg.ct-diagram .ct-divider { stroke: var(--ct-card); stroke-width: 0.5; }
+svg.ct-diagram .ct-line { fill: none; stroke: var(--ct-line); stroke-width: 1.2; }
+svg.ct-diagram .ct-dash { stroke-dasharray: 4 3; }
+svg.ct-diagram .ct-dot { stroke-dasharray: 1 3; stroke-linecap: round; }
+svg.ct-diagram .ct-chip rect { stroke-width: 0.75; }
+svg.ct-diagram .ct-cause rect { fill: var(--ct-cause-fill); stroke: var(--ct-cause-stroke); }
+svg.ct-diagram .ct-cause text { fill: var(--ct-cause-text); }
+svg.ct-diagram .ct-cond rect { fill: var(--ct-cond-fill); stroke: var(--ct-cond-stroke); stroke-dasharray: 5 2; }
+svg.ct-diagram .ct-cond text { fill: var(--ct-cond-text); }
+svg.ct-diagram .ct-effect rect { fill: var(--ct-effect-fill); stroke: var(--ct-effect-stroke); }
+svg.ct-diagram .ct-effect text { fill: var(--ct-effect-text); }
+svg.ct-diagram .ct-plain rect, svg.ct-diagram .ct-state rect { fill: var(--ct-plain-fill); stroke: var(--ct-plain-stroke); }
+svg.ct-diagram .ct-state rect { stroke-width: 1.5; }
+svg.ct-diagram .ct-plain text, svg.ct-diagram .ct-state text { fill: var(--ct-plain-text); }
+svg.ct-diagram .ct-strong { font-size: 14px; font-weight: 600; }
+
+/* The animation at the top of the combo triggers guide: pixel art, scaled up to the page width */
+img.ct-header {
+	width: 100%;
+	max-width: 1032px;
+	image-rendering: pixelated;
+}

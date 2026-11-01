@@ -1,0 +1,55 @@
+<svg class="ct-diagram" viewBox="0 0 680 400" role="img" aria-labelledby="ct-diagram_floor_switch-title ct-diagram_floor_switch-desc" xmlns="http://www.w3.org/2000/svg">
+<title id="ct-diagram_floor_switch-title">Floor switch triggers</title>
+<desc id="ct-diagram_floor_switch-desc">A floor switch trigger with a Step-&gt; cause and two conditions, the player being within 16 pixels and standing. Its effects activate copycat 1 and change it into the pressed switch. Copycat 1 fires the trigger of the two shooters, which fire a shot. After 300 frames the pressed switch changes into the next combo.</desc>
+<defs><marker id="ct-arrow-diagram_floor_switch" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+<rect class="ct-card" x="40" y="40" width="220" height="248" rx="10"/>
+<text class="ct-title" x="150" y="62" text-anchor="middle" dominant-baseline="central">Floor switch</text>
+<g class="ct-chip ct-cause"><rect x="52" y="84" width="196" height="28" rx="14"/>
+<text class="ct-label" x="150" y="98" text-anchor="middle" dominant-baseline="central">↻ Step-&gt; (Sensitive)</text>
+</g>
+<path class="ct-line" d="M150 114 L150 126" marker-end="url(#ct-arrow-diagram_floor_switch)"/>
+<g class="ct-chip ct-cond"><rect x="52" y="128" width="196" height="28" rx="4"/>
+<text class="ct-label" x="150" y="142" text-anchor="middle" dominant-baseline="central">if within 16 px</text>
+</g>
+<g class="ct-chip ct-cond"><rect x="52" y="164" width="196" height="28" rx="4"/>
+<text class="ct-label" x="150" y="178" text-anchor="middle" dominant-baseline="central">if standing</text>
+</g>
+<path class="ct-line" d="M150 194 L150 206" marker-end="url(#ct-arrow-diagram_floor_switch)"/>
+<g class="ct-chip ct-effect"><rect x="52" y="208" width="196" height="28" rx="4"/>
+<text class="ct-label" x="150" y="222" text-anchor="middle" dominant-baseline="central">Copycat 1</text>
+</g>
+<g class="ct-chip ct-effect"><rect x="52" y="244" width="196" height="28" rx="4"/>
+<text class="ct-label" x="150" y="258" text-anchor="middle" dominant-baseline="central">Combo Change +1</text>
+</g>
+<rect class="ct-card" x="420" y="40" width="220" height="128" rx="10"/>
+<text class="ct-title" x="530" y="62" text-anchor="middle" dominant-baseline="central">Shooter (2 on screen)</text>
+<g class="ct-chip ct-cause"><rect x="432" y="84" width="196" height="28" rx="14"/>
+<text class="ct-label" x="530" y="98" text-anchor="middle" dominant-baseline="central">Copycat 1</text>
+</g>
+<path class="ct-line" d="M530 114 L530 126" marker-end="url(#ct-arrow-diagram_floor_switch)"/>
+<g class="ct-chip ct-effect"><rect x="432" y="128" width="196" height="28" rx="4"/>
+<text class="ct-label" x="530" y="142" text-anchor="middle" dominant-baseline="central">-&gt;ComboType Effects (shoot)</text>
+</g>
+<rect class="ct-card" x="420" y="184" width="220" height="130" rx="10"/>
+<text class="ct-title" x="530" y="206" text-anchor="middle" dominant-baseline="central">Pressed switch</text>
+<g class="ct-chip ct-cause"><rect x="432" y="228" width="196" height="28" rx="14"/>
+<text class="ct-label" x="530" y="242" text-anchor="middle" dominant-baseline="central">Timer (300 frames)</text>
+</g>
+<path class="ct-line" d="M530 258 L530 270" marker-end="url(#ct-arrow-diagram_floor_switch)"/>
+<g class="ct-chip ct-effect"><rect x="432" y="272" width="196" height="28" rx="4"/>
+<text class="ct-label" x="530" y="286" text-anchor="middle" dominant-baseline="central">Combo Change +1</text>
+</g>
+<path class="ct-line ct-dot" d="M250 222 L340 222 L340 98 L430 98" marker-end="url(#ct-arrow-diagram_floor_switch)"/>
+<path class="ct-line" d="M250 258 L418 258" marker-end="url(#ct-arrow-diagram_floor_switch)"/>
+<g class="ct-chip ct-cause"><rect x="40" y="336" width="36" height="20" rx="10"/></g>
+<text class="ct-sub" x="84" y="346" text-anchor="start" dominant-baseline="central">Cause</text>
+<g class="ct-chip ct-cond"><rect x="147.0" y="336" width="36" height="20" rx="4"/></g>
+<text class="ct-sub" x="191" y="346" text-anchor="start" dominant-baseline="central">Condition</text>
+<g class="ct-chip ct-effect"><rect x="280.4" y="336" width="36" height="20" rx="4"/></g>
+<text class="ct-sub" x="324.4" y="346" text-anchor="start" dominant-baseline="central">Effect</text>
+<text class="ct-sub" x="394" y="346" text-anchor="start" dominant-baseline="central">↻ Keeps firing</text>
+<path class="ct-line" d="M40 376 L76 376" marker-end="url(#ct-arrow-diagram_floor_switch)"/>
+<text class="ct-sub" x="84" y="376" text-anchor="start" dominant-baseline="central">Changes into</text>
+<path class="ct-line ct-dot" d="M193.2 376 L229.2 376" marker-end="url(#ct-arrow-diagram_floor_switch)"/>
+<text class="ct-sub" x="237.2" y="376" text-anchor="start" dominant-baseline="central">Fires every combo with that copycat</text>
+</svg>

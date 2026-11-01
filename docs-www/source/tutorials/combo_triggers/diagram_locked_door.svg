@@ -1,0 +1,54 @@
+<svg class="ct-diagram" viewBox="0 0 680 466" role="img" aria-labelledby="ct-diagram_locked_door-title ct-diagram_locked_door-desc" xmlns="http://www.w3.org/2000/svg">
+<title id="ct-diagram_locked_door-title">Locked door triggers</title>
+<desc id="ct-diagram_locked_door-desc">A locked door trigger with two causes, Push-&gt; or ExDoor Right 1 being set, and a condition of at least one key. Its effects set ExDoor Right 1, play a sound, use a key and change it into the open door. The saved ExDoor is also the second cause, so the door opens again when the player comes back.</desc>
+<defs><marker id="ct-arrow-diagram_locked_door" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+<rect class="ct-card" x="40" y="40" width="250" height="338" rx="10"/>
+<text class="ct-title" x="165" y="62" text-anchor="middle" dominant-baseline="central">Locked door</text>
+<g class="ct-chip ct-cause"><rect x="52" y="84" width="226" height="28" rx="14"/>
+<text class="ct-label" x="165" y="98" text-anchor="middle" dominant-baseline="central">↻ Push-&gt; (every 8 frames)</text>
+</g>
+<text class="ct-sub" x="165" y="124" text-anchor="middle" dominant-baseline="central">or</text>
+<g class="ct-chip ct-cause"><rect x="52" y="136" width="226" height="28" rx="14"/>
+<text class="ct-label" x="165" y="150" text-anchor="middle" dominant-baseline="central">ExDoor Right 1 is set</text>
+</g>
+<path class="ct-line" d="M165 166 L165 178" marker-end="url(#ct-arrow-diagram_locked_door)"/>
+<g class="ct-chip ct-cond"><rect x="52" y="180" width="226" height="28" rx="4"/>
+<text class="ct-label" x="165" y="194" text-anchor="middle" dominant-baseline="central">if Keys ≥ 1</text>
+</g>
+<path class="ct-line" d="M165 210 L165 222" marker-end="url(#ct-arrow-diagram_locked_door)"/>
+<g class="ct-chip ct-effect"><rect x="52" y="226" width="226" height="28" rx="4"/>
+<text class="ct-label" x="165" y="240" text-anchor="middle" dominant-baseline="central">Sets ExDoor Right 1</text>
+</g>
+<g class="ct-chip ct-effect"><rect x="52" y="262" width="226" height="28" rx="4"/>
+<text class="ct-label" x="165" y="276" text-anchor="middle" dominant-baseline="central">SFX: Shutter</text>
+</g>
+<g class="ct-chip ct-effect"><rect x="52" y="298" width="226" height="28" rx="4"/>
+<text class="ct-label" x="165" y="312" text-anchor="middle" dominant-baseline="central">Consume 1 Key</text>
+</g>
+<g class="ct-chip ct-effect"><rect x="52" y="334" width="226" height="28" rx="4"/>
+<text class="ct-label" x="165" y="348" text-anchor="middle" dominant-baseline="central">Combo Change +2</text>
+</g>
+<g class="ct-chip ct-state"><rect x="360" y="84" width="200" height="52" rx="4"/>
+<text class="ct-label ct-strong" x="460" y="102" text-anchor="middle" dominant-baseline="central">ExDoor Right 1</text>
+<text class="ct-label" x="460" y="120" text-anchor="middle" dominant-baseline="central">Saved with the screen</text>
+</g>
+<path class="ct-line ct-dash" d="M280 240 L460 240 L460 140" marker-end="url(#ct-arrow-diagram_locked_door)"/>
+<path class="ct-line ct-dash" d="M358 110 L320 110 L320 150 L282 150" marker-end="url(#ct-arrow-diagram_locked_door)"/>
+<rect class="ct-card" x="460" y="318" width="180" height="60" rx="10"/>
+<text class="ct-title" x="550" y="340" text-anchor="middle" dominant-baseline="central">Open door</text>
+<text class="ct-sub" x="550" y="358" text-anchor="middle" dominant-baseline="central">No triggers</text>
+<path class="ct-line" d="M280 348 L458 348" marker-end="url(#ct-arrow-diagram_locked_door)"/>
+<g class="ct-chip ct-cause"><rect x="40" y="396" width="36" height="20" rx="10"/></g>
+<text class="ct-sub" x="84" y="406" text-anchor="start" dominant-baseline="central">Cause</text>
+<g class="ct-chip ct-cond"><rect x="147.0" y="396" width="36" height="20" rx="4"/></g>
+<text class="ct-sub" x="191" y="406" text-anchor="start" dominant-baseline="central">Condition</text>
+<g class="ct-chip ct-effect"><rect x="280.4" y="396" width="36" height="20" rx="4"/></g>
+<text class="ct-sub" x="324.4" y="406" text-anchor="start" dominant-baseline="central">Effect</text>
+<g class="ct-chip ct-state"><rect x="394.0" y="396" width="36" height="20" rx="4"/></g>
+<text class="ct-sub" x="438" y="406" text-anchor="start" dominant-baseline="central">Saved state</text>
+<path class="ct-line" d="M40 436 L76 436" marker-end="url(#ct-arrow-diagram_locked_door)"/>
+<text class="ct-sub" x="84" y="436" text-anchor="start" dominant-baseline="central">Changes into</text>
+<path class="ct-line ct-dash" d="M193.2 436 L229.2 436" marker-end="url(#ct-arrow-diagram_locked_door)"/>
+<text class="ct-sub" x="237.2" y="436" text-anchor="start" dominant-baseline="central">Writes or reads saved state</text>
+<text class="ct-sub" x="445.4" y="436" text-anchor="start" dominant-baseline="central">↻ Keeps firing</text>
+</svg>
