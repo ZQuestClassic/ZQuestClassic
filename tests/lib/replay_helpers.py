@@ -34,7 +34,8 @@ def read_replay_meta(path: Path):
             line = f.readline()
             if not line.startswith('M'):
                 break
-            _, key, value = line.strip().split(' ', 2)
+            # Not stripped: a meta line may have an empty value ("M qst_title ").
+            _, key, value = line.rstrip('\r\n').split(' ', 2)
             meta[key] = value
 
     if not meta:
