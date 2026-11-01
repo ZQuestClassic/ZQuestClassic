@@ -111,7 +111,15 @@ build/Release/zplayer -headless -dump-screen /abs/path/quest.qst 6 50 | jq .
 ```
 
 Each FFC entry also carries its script id, InitD and velocity, so a script placement can
-be located by dumping screens and filtering on `script`.
+be located by dumping screens and filtering on `script`. It also has the FFC's flags by
+name (changers included), and both its `effect_width/height` (the editor's "Combo W./H.",
+the pixel area where its combo type acts) and its drawn `tile_width/height` - a mismatch
+there is the usual cause of "my FFC doesn't hurt / isn't solid".
+
+`combo_triggers` holds a readable summary of the triggers on every combo the screen uses
+(positions, FFCs, secret combos), keyed by combo id. A screen that keeps doing something
+on its own (say, replaying the secret sound every frame) is often a trigger that fires
+without a weapon, like a trigger-group condition that is always true.
 
 `-dump-dmaps <qst>` prints one line per dmap (`index map=N level=N type=N xoff=N name=...`),
 which is how to find the dmap to start a test-mode replay on for a given map.

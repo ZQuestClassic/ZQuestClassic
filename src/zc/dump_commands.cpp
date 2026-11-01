@@ -1,6 +1,7 @@
 // Read-only inspection commands for quest files.
 
 #include "zc/commands.h"
+#include "base/util.h"
 #include "base/zapp.h"
 #include "core/dmap.h"
 #include "core/mapscr.h"
@@ -13,6 +14,7 @@
 #include "zalleg/zalleg.h"
 #include "zinfo.h"
 #include <fmt/format.h>
+#include <set>
 #include <nlohmann/json.hpp>
 
 using json = nlohmann::json;
@@ -98,6 +100,35 @@ static json dump_combo_position(const mapscr& scr, int pos)
 	return j;
 }
 
+static json ffc_flag_names(uint32_t flags)
+{
+	static const std::pair<uint32_t, const char*> names[] = {
+		{ffc_overlay, "overlay"}, {ffc_trans, "trans"}, {ffc_solid, "solid"},
+		{ffc_carryover, "carryover"}, {ffc_stationary, "stationary"}, {ffc_changer, "changer"},
+		{ffc_preload, "preload"}, {ffc_lensvis, "lensvis"}, {ffc_scriptreset, "scriptreset"},
+		{ffc_ethereal, "ethereal"}, {ffc_ignoreholdup, "ignoreholdup"},
+		{ffc_ignorechanger, "ignorechanger"}, {ffc_imprecisionchanger, "imprecisionchanger"},
+		{ffc_lensinvis, "lensinvis"}, {ffc_platform, "platform"}, {ffc_cmb_solid, "cmb_solid"},
+		{ffc_changespeed, "changespeed"}, {ffc_changethis, "changethis"},
+		{ffc_changeprev, "changeprev"}, {ffc_changenext, "changenext"},
+		{ffc_swapprev, "swapprev"}, {ffc_swapnext, "swapnext"},
+	};
+
+	json j = json::array();
+	for (auto [flag, name] : names)
+	{
+		if (flags & flag)
+		{
+			j.push_back(name);
+			flags &= ~flag;
+		}
+	}
+	// Bits with no name, so nothing set goes unreported.
+	if (flags)
+		j.push_back(fmt::format("0x{:x}", flags));
+	return j;
+}
+
 void do_dump_screen_command(const char* quest_path, int map, int screen)
 {
 	load_quest_for_inspection(quest_path);
@@ -180,21 +211,61 @@ void do_dump_screen_command(const char* quest_path, int map, int screen)
 	for (word i = 0; i < scr.numFFC(); i++)
 	{
 		ffcdata& ffc = scr.getFFC(i);
-		if (!ffc.data)
+		// A changer can be placed with no combo, so keep any ffc with flags set.
+		if (!ffc.data && !ffc.flags)
 			continue;
 
+		const newcombo& cmb = combobuf[ffc.data];
 		j["ffcs"].push_back({
 			{"index", i},
 			{"combo", ffc.data},
 			{"cset", ffc.cset},
+			{"type", cmb.type},
+			{"type_name", ZI.getComboTypeName(cmb.type)},
+			{"flags", ffc_flag_names(ffc.flags)},
 			{"x", ffc.x.getInt()},
 			{"y", ffc.y.getInt()},
-			{"vx", ffc.vx.getInt()},
-			{"vy", ffc.vy.getInt()},
+			{"vx", ffc.vx.getFloat()},
+			{"vy", ffc.vy.getFloat()},
+			{"ax", ffc.ax.getFloat()},
+			{"ay", ffc.ay.getFloat()},
+			// The editor's "Combo W./H." - the area, in pixels, where the combo type
+			// takes effect (damage, solidity, ...). Separate from the drawn tile size.
+			{"effect_width", scr.ffEffectWidth(i)},
+			{"effect_height", scr.ffEffectHeight(i)},
+			{"tile_width", scr.ffTileWidth(i)},
+			{"tile_height", scr.ffTileHeight(i)},
+			{"delay", ffc.delay},
+			{"link", ffc.link},
 			{"layer", ffc.layer},
 			{"script", ffc.scrconfig.script},
 			{"initd", ffc.scrconfig.run_args},
 		});
+	}
+
+	// Triggers of every combo the screen uses, keyed by combo id. Triggers can act on
+	// their own every frame (trigger groups, timers, ...), so they explain a lot of
+	// "this screen does something odd" reports.
+	std::set<int> cids;
+	for (int pos = 0; pos < 176; pos++)
+		cids.insert(scr.data[pos]);
+	for (int i = 0; i < 128; i++)
+		cids.insert(scr.secretcombo[i]);
+	for (word i = 0; i < scr.numFFC(); i++)
+		cids.insert(scr.getFFC(i).data);
+	cids.insert(scr.undercombo);
+
+	j["combo_triggers"] = json::object();
+	for (int cid : cids)
+	{
+		const newcombo& cmb = combobuf[cid];
+		if (!cid || cmb.triggers.empty())
+			continue;
+
+		json triggers = json::array();
+		for (const auto& trig : cmb.triggers)
+			triggers.push_back(util::split(trig.summarize(cmb), "\n"));
+		j["combo_triggers"][std::to_string(cid)] = triggers;
 	}
 
 	printf("%s\n", j.dump(2).c_str());
