@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2026-11-01 17:31:32</td>
+      <td>2026-11-02 19:23:47</td>
     </tr>
   </table>
 </div>
@@ -90,14 +90,14 @@
     <tr><td><a href="#l238">zcm_extract_name(char const*, char*, unsigned long, int) (line 238)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l854">zcmusic_change_track(ZCMUSIC*, int) (line 854)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l661">zcmusic_correct_pause_drift(ZCMUSIC*) (line 661)</a></td><td>called 2 times, returned 2 times</td><td>15.0%</td></tr>
-    <tr><td><a href="#l346">zcmusic_exit() (line 346)</a></td><td>called 805 times, returned 805 times</td><td>91.0%</td></tr>
+    <tr><td><a href="#l346">zcmusic_exit() (line 346)</a></td><td>called 808 times, returned 808 times</td><td>91.0%</td></tr>
     <tr><td><a href="#l143">zcmusic_find_for_quest[abi:cxx11](char const*, char const*) (line 143)</a></td><td>called 3 times, returned 3 times</td><td>33.0%</td></tr>
     <tr><td><a href="#l900">zcmusic_get_curpos(ZCMUSIC*) (line 900)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l945">zcmusic_get_length(ZCMUSIC*) (line 945)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l894">zcmusic_get_track_name[abi:cxx11](ZCMUSIC*, int) (line 894)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l825">zcmusic_get_tracks(ZCMUSIC*) (line 825)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l977">zcmusic_get_type(ZCMUSIC*) (line 977)</a></td><td>not called</td><td>0.0%</td></tr>
-    <tr><td><a href="#l267">zcmusic_init(int) (line 267)</a></td><td>called 811 times, returned 811 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l267">zcmusic_init(int) (line 267)</a></td><td>called 814 times, returned 814 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l381">zcmusic_load_file(char const*) (line 381)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l168">zcmusic_load_for_quest(char const*, char const*) (line 168)</a></td><td>called 1127 times, returned 1127 times</td><td>22.0%</td></tr>
     <tr><td><a href="#l598">zcmusic_pause(ZCMUSIC*, int) (line 598)</a></td><td>called 68 times, returned 68 times</td><td>13.0%</td></tr>
@@ -107,8 +107,8 @@
     <tr><td><a href="#l961">zcmusic_set_loop(ZCMUSIC*, double, double) (line 961)</a></td><td>called 3 times, returned 3 times</td><td>37.0%</td></tr>
     <tr><td><a href="#l929">zcmusic_set_speed(ZCMUSIC*, int) (line 929)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l744">zcmusic_set_volume(ZCMUSIC*, int) (line 744)</a></td><td>not called</td><td>0.0%</td></tr>
-    <tr><td><a href="#l712">zcmusic_stop(ZCMUSIC*) (line 712)</a></td><td>called 10295 times, returned 10295 times</td><td>23.0%</td></tr>
-    <tr><td><a href="#l778">zcmusic_unload_file(ZCMUSIC*&amp;) (line 778)</a></td><td>called 11094 times, returned 11094 times</td><td>20.0%</td></tr>
+    <tr><td><a href="#l712">zcmusic_stop(ZCMUSIC*) (line 712)</a></td><td>called 10305 times, returned 10305 times</td><td>23.0%</td></tr>
+    <tr><td><a href="#l778">zcmusic_unload_file(ZCMUSIC*&amp;) (line 778)</a></td><td>called 11107 times, returned 11107 times</td><td>20.0%</td></tr>
   </table>
 </details>
 
@@ -2326,7 +2326,7 @@
       <td class="lineno"><a id="l267" href="#l267">267</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">811</td>
+      <td class="linecount coveredLine">814</td>
       <td class="src coveredLine"><span class="kt">bool</span><span class="w"> </span><span class="nf">zcmusic_init</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">flags</span><span class="p">)</span><span class="w">                              </span><span class="cm">/* = -1 */</span></td>
     </tr>
     <tr class="source-line">
@@ -2343,11 +2343,11 @@
         <summary class="linebranchSummary">1/2</summary>
         <div class="linebranchContents">
           <div class="notTakenBranch">&cross; Branch 0 not taken.</div>
-          <div class="takenBranch">&check; Branch 1 taken 811 times.</div>
+          <div class="takenBranch">&check; Branch 1 taken 814 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">811</td>
+      <td class="linecount partialCoveredLine">814</td>
       <td class="src partialCoveredLine"><span class="w">	</span><span class="k">if</span><span class="p">(</span><span class="n">flags</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">ZCMF_DUH</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -2361,14 +2361,14 @@
       <td class="lineno"><a id="l271" href="#l271">271</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">811</td>
+      <td class="linecount coveredLine">814</td>
       <td class="src coveredLine"><span class="w">		</span><span class="n">libflags</span><span class="w"> </span><span class="o">|=</span><span class="w"> </span><span class="n">ZCMF_DUH</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l272" href="#l272">272</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">811</td>
+      <td class="linecount coveredLine">814</td>
       <td class="src coveredLine"><span class="w">	</span><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
@@ -2385,11 +2385,11 @@
         <summary class="linebranchSummary">1/2</summary>
         <div class="linebranchContents">
           <div class="notTakenBranch">&cross; Branch 0 not taken.</div>
-          <div class="takenBranch">&check; Branch 1 taken 811 times.</div>
+          <div class="takenBranch">&check; Branch 1 taken 814 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">811</td>
+      <td class="linecount partialCoveredLine">814</td>
       <td class="src partialCoveredLine"><span class="w">	</span><span class="k">if</span><span class="p">(</span><span class="n">flags</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">ZCMF_OGG</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -2403,14 +2403,14 @@
       <td class="lineno"><a id="l276" href="#l276">276</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">811</td>
+      <td class="linecount coveredLine">814</td>
       <td class="src coveredLine"><span class="w">		</span><span class="n">libflags</span><span class="w"> </span><span class="o">|=</span><span class="w"> </span><span class="n">ZCMF_OGG</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l277" href="#l277">277</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">811</td>
+      <td class="linecount coveredLine">814</td>
       <td class="src coveredLine"><span class="w">	</span><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
@@ -2427,11 +2427,11 @@
         <summary class="linebranchSummary">1/2</summary>
         <div class="linebranchContents">
           <div class="notTakenBranch">&cross; Branch 0 not taken.</div>
-          <div class="takenBranch">&check; Branch 1 taken 811 times.</div>
+          <div class="takenBranch">&check; Branch 1 taken 814 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">811</td>
+      <td class="linecount partialCoveredLine">814</td>
       <td class="src partialCoveredLine"><span class="w">	</span><span class="k">if</span><span class="p">(</span><span class="n">flags</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">ZCMF_MP3</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -2445,14 +2445,14 @@
       <td class="lineno"><a id="l281" href="#l281">281</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">811</td>
+      <td class="linecount coveredLine">814</td>
       <td class="src coveredLine"><span class="w">		</span><span class="n">libflags</span><span class="w"> </span><span class="o">|=</span><span class="w"> </span><span class="n">ZCMF_MP3</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l282" href="#l282">282</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">811</td>
+      <td class="linecount coveredLine">814</td>
       <td class="src coveredLine"><span class="w">	</span><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
@@ -2469,11 +2469,11 @@
         <summary class="linebranchSummary">1/2</summary>
         <div class="linebranchContents">
           <div class="notTakenBranch">&cross; Branch 0 not taken.</div>
-          <div class="takenBranch">&check; Branch 1 taken 811 times.</div>
+          <div class="takenBranch">&check; Branch 1 taken 814 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">811</td>
+      <td class="linecount partialCoveredLine">814</td>
       <td class="src partialCoveredLine"><span class="w">	</span><span class="k">if</span><span class="p">(</span><span class="n">flags</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">ZCMF_GME</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -2487,14 +2487,14 @@
       <td class="lineno"><a id="l286" href="#l286">286</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">811</td>
+      <td class="linecount coveredLine">814</td>
       <td class="src coveredLine"><span class="w">		</span><span class="n">libflags</span><span class="w"> </span><span class="o">|=</span><span class="w"> </span><span class="n">ZCMF_GME</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l287" href="#l287">287</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">811</td>
+      <td class="linecount coveredLine">814</td>
       <td class="src coveredLine"><span class="w">	</span><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
@@ -2510,19 +2510,19 @@
         <details class="linebranchDetails">
         <summary class="linebranchSummary">2/2</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 807 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 810 times.</div>
           <div class="takenBranch">&check; Branch 1 taken 4 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount coveredLine">811</td>
+      <td class="linecount coveredLine">814</td>
       <td class="src coveredLine"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">playlistmutex</span><span class="p">)</span><span class="w"> </span><span class="n">playlistmutex</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">al_create_mutex</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l290" href="#l290">290</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">811</td>
+      <td class="linecount coveredLine">814</td>
       <td class="src coveredLine"><span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
@@ -2921,7 +2921,7 @@
       <td class="lineno"><a id="l346" href="#l346">346</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">805</td>
+      <td class="linecount coveredLine">808</td>
       <td class="src coveredLine"><span class="kt">void</span><span class="w"> </span><span class="nf">zcmusic_exit</span><span class="p">()</span></td>
     </tr>
     <tr class="source-line">
@@ -2935,14 +2935,14 @@
       <td class="lineno"><a id="l348" href="#l348">348</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">805</td>
+      <td class="linecount coveredLine">808</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">al_lock_mutex</span><span class="p">(</span><span class="n">playlistmutex</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l349" href="#l349">349</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">805</td>
+      <td class="linecount coveredLine">808</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">ZCMUSIC</span><span class="o">*&gt;::</span><span class="n">iterator</span><span class="w"> </span><span class="n">b</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">playlist</span><span class="p">.</span><span class="n">begin</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
@@ -2958,12 +2958,12 @@
         <details class="linebranchDetails">
         <summary class="linebranchSummary">1/2</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 805 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 808 times.</div>
           <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">805</td>
+      <td class="linecount partialCoveredLine">808</td>
       <td class="src partialCoveredLine"><span class="w">	</span><span class="k">while</span><span class="p">(</span><span class="n">b</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">playlist</span><span class="p">.</span><span class="n">end</span><span class="p">())</span></td>
     </tr>
     <tr class="source-line">
@@ -3005,14 +3005,14 @@
       <td class="lineno"><a id="l357" href="#l357">357</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">805</td>
+      <td class="linecount coveredLine">808</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">playlist</span><span class="p">.</span><span class="n">clear</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l358" href="#l358">358</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">805</td>
+      <td class="linecount coveredLine">808</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">al_unlock_mutex</span><span class="p">(</span><span class="n">playlistmutex</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
@@ -3029,11 +3029,11 @@
         <summary class="linebranchSummary">1/2</summary>
         <div class="linebranchContents">
           <div class="notTakenBranch">&cross; Branch 0 not taken.</div>
-          <div class="takenBranch">&check; Branch 1 taken 805 times.</div>
+          <div class="takenBranch">&check; Branch 1 taken 808 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">805</td>
+      <td class="linecount partialCoveredLine">808</td>
       <td class="src partialCoveredLine"><span class="w">	</span><span class="k">if</span><span class="p">(</span><span class="n">libflags</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">ZCMF_DUH</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -3047,14 +3047,14 @@
       <td class="lineno"><a id="l362" href="#l362">362</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">805</td>
+      <td class="linecount coveredLine">808</td>
       <td class="src coveredLine"><span class="w">		</span><span class="n">libflags</span><span class="w"> </span><span class="o">^=</span><span class="w"> </span><span class="n">ZCMF_DUH</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l363" href="#l363">363</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">805</td>
+      <td class="linecount coveredLine">808</td>
       <td class="src coveredLine"><span class="w">	</span><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
@@ -3071,11 +3071,11 @@
         <summary class="linebranchSummary">1/2</summary>
         <div class="linebranchContents">
           <div class="notTakenBranch">&cross; Branch 0 not taken.</div>
-          <div class="takenBranch">&check; Branch 1 taken 805 times.</div>
+          <div class="takenBranch">&check; Branch 1 taken 808 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">805</td>
+      <td class="linecount partialCoveredLine">808</td>
       <td class="src partialCoveredLine"><span class="w">	</span><span class="k">if</span><span class="p">(</span><span class="n">libflags</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">ZCMF_OGG</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -3089,14 +3089,14 @@
       <td class="lineno"><a id="l367" href="#l367">367</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">805</td>
+      <td class="linecount coveredLine">808</td>
       <td class="src coveredLine"><span class="w">		</span><span class="n">libflags</span><span class="w"> </span><span class="o">^=</span><span class="w"> </span><span class="n">ZCMF_OGG</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l368" href="#l368">368</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">805</td>
+      <td class="linecount coveredLine">808</td>
       <td class="src coveredLine"><span class="w">	</span><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
@@ -3113,11 +3113,11 @@
         <summary class="linebranchSummary">1/2</summary>
         <div class="linebranchContents">
           <div class="notTakenBranch">&cross; Branch 0 not taken.</div>
-          <div class="takenBranch">&check; Branch 1 taken 805 times.</div>
+          <div class="takenBranch">&check; Branch 1 taken 808 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">805</td>
+      <td class="linecount partialCoveredLine">808</td>
       <td class="src partialCoveredLine"><span class="w">	</span><span class="k">if</span><span class="p">(</span><span class="n">libflags</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">ZCMF_MP3</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -3131,14 +3131,14 @@
       <td class="lineno"><a id="l372" href="#l372">372</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">805</td>
+      <td class="linecount coveredLine">808</td>
       <td class="src coveredLine"><span class="w">		</span><span class="n">libflags</span><span class="w"> </span><span class="o">^=</span><span class="w"> </span><span class="n">ZCMF_MP3</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l373" href="#l373">373</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">805</td>
+      <td class="linecount coveredLine">808</td>
       <td class="src coveredLine"><span class="w">	</span><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
@@ -3155,11 +3155,11 @@
         <summary class="linebranchSummary">1/2</summary>
         <div class="linebranchContents">
           <div class="notTakenBranch">&cross; Branch 0 not taken.</div>
-          <div class="takenBranch">&check; Branch 1 taken 805 times.</div>
+          <div class="takenBranch">&check; Branch 1 taken 808 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">805</td>
+      <td class="linecount partialCoveredLine">808</td>
       <td class="src partialCoveredLine"><span class="w">	</span><span class="k">if</span><span class="p">(</span><span class="n">libflags</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">ZCMF_GME</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -3173,21 +3173,21 @@
       <td class="lineno"><a id="l377" href="#l377">377</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">805</td>
+      <td class="linecount coveredLine">808</td>
       <td class="src coveredLine"><span class="w">		</span><span class="n">libflags</span><span class="w"> </span><span class="o">^=</span><span class="w"> </span><span class="n">ZCMF_GME</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l378" href="#l378">378</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">805</td>
+      <td class="linecount coveredLine">808</td>
       <td class="src coveredLine"><span class="w">	</span><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l379" href="#l379">379</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">805</td>
+      <td class="linecount coveredLine">808</td>
       <td class="src coveredLine"><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
@@ -5532,7 +5532,7 @@
       <td class="lineno"><a id="l712" href="#l712">712</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">10295</td>
+      <td class="linecount coveredLine">10305</td>
       <td class="src coveredLine"><span class="kt">bool</span><span class="w"> </span><span class="nf">zcmusic_stop</span><span class="p">(</span><span class="n">ZCMUSIC</span><span class="o">*</span><span class="w"> </span><span class="n">zcm</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -5563,11 +5563,11 @@
         <summary class="linebranchSummary">1/2</summary>
         <div class="linebranchContents">
           <div class="notTakenBranch">&cross; Branch 0 not taken.</div>
-          <div class="takenBranch">&check; Branch 1 taken 10295 times.</div>
+          <div class="takenBranch">&check; Branch 1 taken 10305 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">10295</td>
+      <td class="linecount partialCoveredLine">10305</td>
       <td class="src partialCoveredLine"><span class="w">	</span><span class="k">if</span><span class="p">(</span><span class="n">zcm</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="nb">NULL</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">FALSE</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
@@ -5749,7 +5749,7 @@
       <td class="lineno"><a id="l742" href="#l742">742</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">10295</td>
+      <td class="linecount coveredLine">10305</td>
       <td class="src coveredLine"><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
@@ -6001,7 +6001,7 @@
       <td class="lineno"><a id="l778" href="#l778">778</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">11094</td>
+      <td class="linecount coveredLine">11107</td>
       <td class="src coveredLine"><span class="kt">void</span><span class="w"> </span><span class="nf">zcmusic_unload_file</span><span class="p">(</span><span class="n">ZCMUSIC</span><span class="o">*</span><span class="w"> </span><span class="o">&amp;</span><span class="n">zcm</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -6039,11 +6039,11 @@
         <summary class="linebranchSummary">1/2</summary>
         <div class="linebranchContents">
           <div class="notTakenBranch">&cross; Branch 0 not taken.</div>
-          <div class="takenBranch">&check; Branch 1 taken 11094 times.</div>
+          <div class="takenBranch">&check; Branch 1 taken 11107 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">11094</td>
+      <td class="linecount partialCoveredLine">11107</td>
       <td class="src partialCoveredLine"><span class="w">	</span><span class="k">if</span><span class="p">(</span><span class="n">zcm</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="nb">NULL</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
@@ -6323,7 +6323,7 @@
       <td class="lineno"><a id="l823" href="#l823">823</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">11094</td>
+      <td class="linecount coveredLine">11107</td>
       <td class="src coveredLine"><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
