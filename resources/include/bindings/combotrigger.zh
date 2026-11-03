@@ -405,6 +405,16 @@ enum ComboTriggerFlag
 	//
 	// @versionadded 3.0
 	TRIGFLAG_TRIGGERED_BY_LARGE_COMBO_COPYCAT,
+	// Weapon Effects->Once Per Weapon - Once a weapon has fired this trigger, that weapon
+	// doesn't fire it again. The combo's other triggers aren't affected. Without it, a weapon
+	// fires the trigger every frame it touches the combo, unless one of the combo's triggers
+	// triggers secrets, changes the combo or its CSet, changes a LevelState or GlobalState,
+	// has a copycat or large combo copycat, or uses [TRIGFLAG_CTYPE_EFFECTS] on a Generic
+	// combo or a combo type with an effect of its own (a chest, bush, lock block, switch, step,
+	// warp, sign, ...).
+	//
+	// @versionadded 3.0
+	TRIGFLAG_ONCE_PER_WEAPON,
 
 	TRIGFLAG_MAX
 };

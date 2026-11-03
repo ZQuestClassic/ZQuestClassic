@@ -265,6 +265,8 @@ std::string combo_trigger::summarize(newcombo const& cmb) const
 		vector<std::string> fx;
 		if (trigger_flags.get(TRIGFLAG_KILLWPN))
 			fx.emplace_back("Kill Triggering Weapon");
+		if (trigger_flags.get(TRIGFLAG_ONCE_PER_WEAPON))
+			fx.emplace_back("Once Per Weapon");
 		string ignite = trigger_flags.get(TRIGFLAG_UNIGNITE_WEAPONS) ? "Unignite" : "Ignite";
 		if (trigger_flags.get(TRIGFLAG_IGNITE_ANYFIRE))
 			fx.emplace_back(fmt::format("{} Any Fire", ignite));

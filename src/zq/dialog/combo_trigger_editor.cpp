@@ -228,7 +228,7 @@ void ComboTriggerDialog::updateWarnings()
 		TRIGFLAG_IGNITE_ANYFIRE,TRIGFLAG_IGNITE_STRONGFIRE,
 		TRIGFLAG_IGNITE_MAGICFIRE,TRIGFLAG_IGNITE_DIVINEFIRE
 	});
-	if(has_ignite || local_ref.trigger_flags.any({TRIGFLAG_KILLWPN,TRIGFLAG_SEPARATEWEAPON}))
+	if(has_ignite || local_ref.trigger_flags.any({TRIGFLAG_KILLWPN,TRIGFLAG_SEPARATEWEAPON,TRIGFLAG_ONCE_PER_WEAPON}))
 	{
 		if(!has_weapon_cause(local_ref))
 			warnings.emplace_back("Trigger has weapon-specific 'Effect'(s), but no weapon-based causes!");
@@ -432,6 +432,15 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 							Rows<2>(hAlign = 0.0,
 								IBTN("Destroy the triggering weapon"),
 								TRIGFLAG(TRIGFLAG_KILLWPN, "Kill Triggering Weapon"),
+								IBTN("Once a weapon has fired this trigger, that weapon won't fire it again."
+									" The combo's other triggers aren't affected."
+									"\nWithout this, a weapon fires the trigger every frame it touches the combo,"
+									" unless one of the combo's triggers triggers secrets, changes the combo or"
+									" its CSet, changes a LevelState or GlobalState, has a copycat or"
+									" '->Large Copycat', or uses '->ComboType Effects' on a Generic combo or a"
+									" combo type with an effect of its own (a chest, bush, lock block, switch,"
+									" step, warp, sign, ...)."),
+								TRIGFLAG(TRIGFLAG_ONCE_PER_WEAPON, "Once Per Weapon"),
 								IBTN("Light the triggering weapon on fire, making it trigger 'Normal Fire' triggers."),
 								TRIGFLAG(TRIGFLAG_IGNITE_ANYFIRE, "Ignite Weapon (Normal)"),
 								IBTN("Light the triggering weapon on fire, making it trigger 'Strong Fire' triggers."),
