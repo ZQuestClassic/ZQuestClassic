@@ -453,11 +453,15 @@ static void MatchComboTrigger2(weapon *w, int32_t bx, int32_t by, int32_t layer 
 					do
 					{
 						trig_idx = FindComboTriggerMatch(w, cid, trig_idx + 1);
-						if(trig_idx >= 0)
-							if(do_trigger_combo(ffc_handle, trig_idx, 0, w))
-								if(combobuf[cid].triggers[trig_idx].trigger_flags.get(TRIGFLAG_CANCEL_TRIGGER))
-									break;
-					} while(ffc_handle.data() == cid && trig_idx >= 0);
+						if(trig_idx < 0)
+							break;
+						// Each trigger runs at most once a frame; a later look reuses whether it fired.
+						auto [it, first] = w->ffc_triggers_this_frame.try_emplace({ffc_handle.ffc, cid, trig_idx}, false);
+						if(first)
+							it->second = do_trigger_combo(ffc_handle, trig_idx, 0, w);
+						if(it->second && combobuf[cid].triggers[trig_idx].trigger_flags.get(TRIGFLAG_CANCEL_TRIGGER))
+							break;
+					} while(ffc_handle.data() == cid);
 				}
 			});
 		}
@@ -474,13 +478,15 @@ static void MatchComboTrigger2(weapon *w, int32_t bx, int32_t by, int32_t layer 
 	do
 	{
 		trig_idx = FindComboTriggerMatch(w, cid, trig_idx + 1);
-		if(trig_idx >= 0)
-		{
-			if(do_trigger_combo(rpos_handle, trig_idx, 0, w))
-				if(combobuf[cid].triggers[trig_idx].trigger_flags.get(TRIGFLAG_CANCEL_TRIGGER))
-					break;
-		}
-	} while(rpos_handle.data() == cid && trig_idx >= 0);
+		if(trig_idx < 0)
+			break;
+		// Each trigger runs at most once a frame; a later look reuses whether it fired.
+		auto [it, first] = w->rpos_triggers_this_frame.try_emplace({layer, rpos_handle.rpos, cid, trig_idx}, false);
+		if(first)
+			it->second = do_trigger_combo(rpos_handle, trig_idx, 0, w);
+		if(it->second && combobuf[cid].triggers[trig_idx].trigger_flags.get(TRIGFLAG_CANCEL_TRIGGER))
+			break;
+	} while(rpos_handle.data() == cid);
 }
 
 static bool triggerfire(int x, int y, weapon* w, bool setflag, bool any, bool strong, bool magic, bool divine)
@@ -3468,6 +3474,8 @@ void weapon::limited_animate()
 bool weapon::animate([[maybe_unused]] int32_t index)
 {
 	update_current_screen();
+	rpos_triggers_this_frame.clear();
+	ffc_triggers_this_frame.clear();
 	if(weapon_start_frame)
 	{
 		if(get_qr(qr_WEAPONS_EXTRA_SPAWN_FRAME))

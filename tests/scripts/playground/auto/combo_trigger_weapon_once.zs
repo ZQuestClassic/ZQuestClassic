@@ -45,9 +45,8 @@ generic script combo_trigger_weapon_once
 		Screen->ComboD[Test::pos(10, 5)] = CMB;
 		Waitframe();
 
-		int fired = holdWeapon(10);
-		printf("no copycat: fired %d times\n", fired);
-		Test::Assert(fired > 1, "without a copycat, the trigger fires every frame");
+		// The weapon's hitbox has 4 corners on the same combo, but only triggers it once a frame.
+		Test::AssertEqual(holdWeapon(10), 10, "the trigger fires once every frame");
 
 		trig->Copycat = UNUSED_COPYCAT;
 		trig->Flags[TRIGFLAG_NO_COPYCAT_CAUSE] = true;
