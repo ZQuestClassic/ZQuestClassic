@@ -4,6 +4,7 @@
 #include "zc/debugger/debugger.h"
 #include "zc/zelda.h"
 #include "zc/maps.h"
+#include "zc/combo_trigger_log.h"
 #include "sprite.h"
 #include "zc/guys.h"
 #include "iter.h"
@@ -28,6 +29,8 @@ LegacyBitmapRTI rti_gui("gui");
 // that differs only in the overlay presents because of that pending redraw.
 static RenderTreeItem rti_overlay("overlay");
 static std::vector<std::string> overlay_lines_left, overlay_lines_right;
+// The latest lines of the trigger log (see the Show Trigger Log cheat), with how opaque each is.
+static std::vector<std::pair<std::string, float>> overlay_trigger_lines;
 static ALLEGRO_FONT* overlay_font;
 static int overlay_font_scale = 1;
 
@@ -105,6 +108,17 @@ static void init_render_tree()
 	rti_overlay.render_cb = [](RenderTreeItem* rti, bool) {
 		render_text_lines(rti->bitmap, overlay_font, overlay_lines_left, TextJustify::left, TextAlignment::bottom, overlay_font_scale);
 		render_text_lines(rti->bitmap, overlay_font, overlay_lines_right, TextJustify::right, TextAlignment::bottom, overlay_font_scale);
+
+		// Smaller than the other text, since the lines are long. Newest at the bottom.
+		int scale = std::max(1, overlay_font_scale / 2);
+		int line_height = scale * al_get_font_line_height(overlay_font) + 3;
+		int y = al_get_bitmap_height(rti->bitmap) * 0.04;
+		for (auto const& [text, alpha] : overlay_trigger_lines)
+		{
+			render_text(rti->bitmap, overlay_font, text, 5, y, scale,
+				al_map_rgba_f(alpha, alpha, alpha, alpha), al_map_rgba_f(0, 0, 0, 0.6f * alpha));
+			y += line_height;
+		}
 	};
 
 	al_set_new_bitmap_flags(0);
@@ -389,20 +403,37 @@ static void configure_overlay()
 		});
 	}
 
+	std::vector<std::pair<std::string, float>> trigger_lines;
+	if (show_trigger_log && Playing)
+	{
+		// Fade out over the last second, in a few steps: each step redraws the layer, and a
+		// change every frame would keep the game from ever skipping a present.
+		constexpr int FADE_STEPS = 6;
+		int frame = trigger_log_current_frame();
+		for (auto const& line : trigger_log_screen_lines())
+		{
+			int frames_left = TRIGGER_LOG_SCREEN_LINE_FRAMES - (frame - line.frame);
+			float alpha = std::ceil(std::clamp(frames_left / 60.0f, 0.0f, 1.0f) * FADE_STEPS) / FADE_STEPS;
+			trigger_lines.emplace_back(line.text, alpha);
+		}
+	}
+
 	// The layer only needs redrawing when the text itself changes - marking it every frame
 	// would force a present every frame for as long as anything is shown, which would keep
 	// a paused game (a static "PAUSED") from ever skipping.
 	if (lines_left != overlay_lines_left || lines_right != overlay_lines_right ||
+		trigger_lines != overlay_trigger_lines ||
 		a5font != overlay_font || font_scale != overlay_font_scale)
 	{
 		overlay_lines_left = lines_left;
 		overlay_lines_right = lines_right;
+		overlay_trigger_lines = trigger_lines;
 		overlay_font = a5font;
 		overlay_font_scale = font_scale;
 		rti_overlay.dirty = true;
 	}
 	rti_overlay.set_size(rti_root.width, rti_root.height);
-	rti_overlay.visible = !overlay_lines_left.empty() || !overlay_lines_right.empty();
+	rti_overlay.visible = !overlay_lines_left.empty() || !overlay_lines_right.empty() || !overlay_trigger_lines.empty();
 }
 
 static void configure_zc()

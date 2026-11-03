@@ -613,6 +613,7 @@ control_scheme::control_scheme()
 	cheatkeys[Cheat::ShowPushblock][0] = KEY_P;
 	cheatkeys[Cheat::ShowHitbox][0] = KEY_C;
 	cheatkeys[Cheat::ShowFFCScripts][0] = KEY_F;
+	cheatkeys[Cheat::ShowTriggerLog][0] = KEY_T;
 	
 	// Like btns, sticks follow the gamepad model, where stick 0 is the dpad:
 	// move with the left thumb stick, and read each stick's Y from its second

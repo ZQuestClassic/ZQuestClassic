@@ -51,6 +51,7 @@ static const std::vector<std::string> CheatStrings = {
 	"ShowFFCScripts",
 	"ShowInfoOpacity",
 	"HeroPosition",
+	"ShowTriggerLog",
 	"Last",
 };
 
@@ -142,6 +143,8 @@ std::string cheat_help(Cheat cheat)
 			return "Select the opacity of debug info, 0-255";
 		case HeroPosition:
 			return "Set Hero position on screen";
+		case ShowTriggerLog:
+			return "Toggle logging what combo triggers do";
 	}
 	return "";
 }
@@ -423,6 +426,11 @@ static void cheats_execute(Cheat cheat, int arg1, int arg2, std::string arg3)
 		Hero.y = zslongToFix(arg2);
 	}
 	break;
+	case ShowTriggerLog:
+	{
+		onShowTriggerLog();
+	}
+	break;
 
     case None:
     case Last:
@@ -451,6 +459,7 @@ static bool instant_exec(Cheat cheat)
 		case ShowHitbox:
 		case ShowFFCScripts:
 		case ShowInfoOpacity:
+		case ShowTriggerLog:
 			return true;
 	}
 	return false;

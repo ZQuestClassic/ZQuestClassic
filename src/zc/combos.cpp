@@ -16,6 +16,7 @@
 #include "sprite.h"
 #include "zc/decorations.h"
 #include "zc/combos.h"
+#include "zc/combo_trigger_log.h"
 #include "zc/maps.h"
 #include "items.h"
 #include "zc/ffscript.h"
@@ -27,6 +28,11 @@
 #include "iter.h"
 #include "zc/zscriptversion.h"
 #include "advanced_music.h"
+#include "zinfo.h"
+#include "zc_list_data.h"
+#include <bit>
+#include <fmt/format.h>
+#include <map>
 
 extern sprite_list items, decorations;
 
@@ -135,10 +141,16 @@ TriggerData& TriggerData::set_side_fx(std::function<void(combo_trigger const&, b
 	side_fx = new_side_fx;
 	return *this;
 }
+TriggerData& TriggerData::set_cause(const char* new_cause)
+{
+	cause = new_cause;
+	return *this;
+}
 bool TriggerData::execute(const combined_handle_t& comb_handle) const
 {
 	if (!trig_cond_a && !trig_cond_b)
 		return false;
+	TriggerLogCause log_cause([&]{ return std::string(cause ? cause : ""); });
 	auto cid = comb_handle.data();
 	auto& cmb = comb_handle.combo();
 	bool ret = false;
@@ -166,7 +178,7 @@ static bool _ctype_causes_trig_cond(combo_trigger const& trig)
 	return trig.trigger_flags.get(TRIGFLAG_CMBTYPECAUSES);
 }
 
-const TriggerData ctype_causes_trigger(_ctype_causes_trig_cond);
+const TriggerData ctype_causes_trigger = TriggerData(_ctype_causes_trig_cond).set_cause("ComboType Causes->");
 
 // TODO: remove unused params?
 static void do_generic_combo2(int32_t bx, [[maybe_unused]] int32_t by, int32_t cid, [[maybe_unused]] int32_t flag, [[maybe_unused]] int32_t flag2, int32_t ft, const rpos_handle_t& rpos_handle, [[maybe_unused]] bool single16)
@@ -2026,6 +2038,7 @@ void trig_copycat(byte copyid)
 	static TriggerData copycat_trigger([](combo_trigger const& trig){
 		return trig.trigcopycat == copycat_id && !trig.trigger_flags.get(TRIGFLAG_NO_COPYCAT_CAUSE);
 	});
+	TriggerLogCause log_cause([&]{ return fmt::format("Copycat {}", copyid); });
 
 	for_every_rpos([&](const rpos_handle_t& cc_rpos_handle) {
 		if (cc_rpos_handle.layer == copycat_skip_lyr && cc_rpos_handle.rpos == copycat_skip_rpos)
@@ -2091,7 +2104,7 @@ static bool handle_large_combo_copycat(const combined_handle_t& handle, combo_tr
 		large_copycat_ids[identifier].push_back(id);
 		TriggerData large_copy_trigger = TriggerData([&, id](combo_trigger const& trig){
 			return trig.large_combo_copycat == id && trig.trigger_flags.get(TRIGFLAG_TRIGGERED_BY_LARGE_COMBO_COPYCAT);
-		}).set_weapon(w);
+		}).set_weapon(w).set_cause("Large Combo Copycat");
 		for (auto const& large_handle : handles)
 		{
 			large_copy_trigger.execute(large_handle);
@@ -2313,13 +2326,24 @@ static bool check_dark_trigger_conditional(bool is_active_screen, mapscr* scr, b
 	return expect_lit == lit;
 }
 
+// Why the last check of a trigger's conditions failed, for the trigger log, and the values
+// behind it, which are only worked out while the log is on.
+static const char* trig_cond_fail_reason;
+static std::string trig_cond_fail_detail;
+#define TRIG_COND_FAIL(reason) do { trig_cond_fail_reason = reason; trig_cond_fail_detail.clear(); return false; } while (false)
+#define TRIG_COND_FAIL_DETAIL(reason, ...) do { \
+		trig_cond_fail_reason = reason; \
+		trig_cond_fail_detail = show_trigger_log ? fmt::format(__VA_ARGS__) : ""; \
+		return false; \
+	} while (false)
+
 static bool handle_trigger_conditionals(combined_handle_t const& comb_handle, size_t idx, bool& hasitem, bool side_effects = true)
 {
 	auto& cmb = comb_handle.combo();
-	if(cmb.triggers.size() <= idx) return false;
+	if(cmb.triggers.size() <= idx) TRIG_COND_FAIL("invalid trigger");
 
 	auto& trig = cmb.triggers[idx];
-	if (trig.trigger_flags.get(g_is_map_view  ? TRIGFLAG_MAPVIEW_NEVER : TRIGFLAG_MAPVIEW_ONLY)) return false;
+	if (trig.trigger_flags.get(g_is_map_view  ? TRIGFLAG_MAPVIEW_NEVER : TRIGFLAG_MAPVIEW_ONLY)) TRIG_COND_FAIL("the map view setting");
 	auto [combo_x, combo_y] = comb_handle.xy();
 	auto [center_x, center_y] = comb_handle.center_xy();
 	zfix hero_x = Hero.getX(), hero_y = Hero.getY();
@@ -2344,14 +2368,14 @@ static bool handle_trigger_conditionals(combined_handle_t const& comb_handle, si
 		bool on_screen = trig.trigger_flags.get(TRIGFLAG_VIEWPORT_REQ_ONSCREEN);
 		bool off_screen = trig.trigger_flags.get(TRIGFLAG_VIEWPORT_REQ_OFFSCREEN);
 		if (on_screen && off_screen)
-			return false;
+			TRIG_COND_FAIL("both 'On Screen' and 'Off Screen' are required");
 		if (on_screen || off_screen)
 		{
 			rect_t rect = rect_t(viewport);
 			rect.expand(trig.viewport_cond_range);
 			bool inside = rect.intersects_with(comb_handle.get_rect(false));
 			if (on_screen != inside)
-				return false;
+				TRIG_COND_FAIL("the viewport position");
 		}
 	}
 
@@ -2361,9 +2385,11 @@ static bool handle_trigger_conditionals(combined_handle_t const& comb_handle, si
 			&& checkbunny(trig.triggeritem);
 		if(trig.trigger_flags.get(TRIGFLAG_INVERTITEM))
 		{
-			if(hasitem) return false;
+			if(hasitem) TRIG_COND_FAIL_DETAIL("Req Item (inverted)", "the player has {} (#{})",
+				itemsbuf[trig.triggeritem].get_name(), trig.triggeritem);
 		}
-		else if(!hasitem) return false;
+		else if(!hasitem) TRIG_COND_FAIL_DETAIL("Req Item", "the player doesn't have {} (#{})",
+			itemsbuf[trig.triggeritem].get_name(), trig.triggeritem);
 	}
 	if(trig.trigprox) //Proximity requirement
 	{
@@ -2380,13 +2406,15 @@ static bool handle_trigger_conditionals(combined_handle_t const& comb_handle, si
 			d = dist(hx, hy, center_x, center_y).getInt();
 		if(trig.trigger_flags.get(TRIGFLAG_INVERTPROX)) //trigger outside the radius
 		{
-			if(d < trig.trigprox || !is_active_screen) //inside, cancel
-				return false;
+			if(!is_active_screen)
+				TRIG_COND_FAIL_DETAIL("Proximity (inverted)", "the combo isn't on the player's screen");
+			if(d < trig.trigprox) //inside, cancel
+				TRIG_COND_FAIL_DETAIL("Proximity (inverted)", "the player is {}px away, needs {}px or more", d, trig.trigprox);
 		}
 		else //trigger inside the radius
 		{
 			if(d >= trig.trigprox && is_active_screen) //outside, cancel
-				return false;
+				TRIG_COND_FAIL_DETAIL("Proximity", "the player is {}px away, needs less than {}px", d, trig.trigprox);
 		}
 	}
 	
@@ -2405,63 +2433,63 @@ static bool handle_trigger_conditionals(combined_handle_t const& comb_handle, si
 		if(trig.trigger_flags.get(TRIGFLAG_REQ_X_LE))
 		{
 			if(hero_x > targ_x)
-				return false;
+				TRIG_COND_FAIL_DETAIL("Player X", "the player's X is {}, needs {} or less", hero_x.str_trim(), targ_x.str_trim());
 		}
 		if(trig.trigger_flags.get(TRIGFLAG_REQ_X_GE))
 		{
 			if(hero_x < targ_x)
-				return false;
+				TRIG_COND_FAIL_DETAIL("Player X", "the player's X is {}, needs {} or more", hero_x.str_trim(), targ_x.str_trim());
 		}
 		
 		if(trig.trigger_flags.get(TRIGFLAG_REQ_Y_LE))
 		{
 			if(hero_y > targ_y)
-				return false;
+				TRIG_COND_FAIL_DETAIL("Player Y", "the player's Y is {}, needs {} or less", hero_y.str_trim(), targ_y.str_trim());
 		}
 		if(trig.trigger_flags.get(TRIGFLAG_REQ_Y_GE))
 		{
 			if(hero_y < targ_y)
-				return false;
+				TRIG_COND_FAIL_DETAIL("Player Y", "the player's Y is {}, needs {} or more", hero_y.str_trim(), targ_y.str_trim());
 		}
 		
 		if(trig.trigger_flags.get(TRIGFLAG_REQ_JUMP_LE))
 		{
 			if(Hero.getJump() > trig.req_player_jump)
-				return false;
+				TRIG_COND_FAIL_DETAIL("Player Jump", "the player's jump is {}, needs {} or less", Hero.getJump().str_trim(), trig.req_player_jump.str_trim());
 		}
 		if(trig.trigger_flags.get(TRIGFLAG_REQ_JUMP_GE))
 		{
 			if(Hero.getJump() < trig.req_player_jump)
-				return false;
+				TRIG_COND_FAIL_DETAIL("Player Jump", "the player's jump is {}, needs {} or more", Hero.getJump().str_trim(), trig.req_player_jump.str_trim());
 		}
 	}
 	
 	if(trig.trigger_flags.get(TRIGFLAG_INVERT_PLAYER_Z))
 	{
 		if(Hero.z >= trig.req_player_z)
-			return false;
+			TRIG_COND_FAIL_DETAIL("Player Z (inverted)", "the player's Z is {}, needs less than {}", Hero.z.str_trim(), trig.req_player_z.str_trim());
 	}
 	else
 	{
 		if(Hero.z < trig.req_player_z)
-			return false;
+			TRIG_COND_FAIL_DETAIL("Player Z", "the player's Z is {}, needs {} or more", Hero.z.str_trim(), trig.req_player_z.str_trim());
 	}
 	
 	if(trig.req_player_dir && !(trig.req_player_dir & (1 << Hero.dir)))
-		return false;
+		TRIG_COND_FAIL_DETAIL("Player Dir", "the player faces {}", dirstr_proper[Hero.dir & 7]);
 	
 	if(trig.trigger_flags.get(TRIGFLAG_PLAYER_STANDING))
 		if(!Hero.isStanding(true))
-			return false;
+			TRIG_COND_FAIL("Player is standing");
 	if(trig.trigger_flags.get(TRIGFLAG_PLAYER_NOTSTANDING))
 		if(Hero.isStanding(true))
-			return false;
+			TRIG_COND_FAIL("Player is not standing");
 	if(trig.trigger_flags.get(TRIGFLAG_COND_DARK))
 		if(!check_dark_trigger_conditional(is_active_screen, scr, false))
-			return false;
+			TRIG_COND_FAIL("Dark");
 	if(trig.trigger_flags.get(TRIGFLAG_COND_NODARK))
 		if(!check_dark_trigger_conditional(is_active_screen, scr, true))
-			return false;
+			TRIG_COND_FAIL("Not Dark");
 
 	mapscr* state_scr = scr;
 	if (trig.trigstatemap > 0)
@@ -2469,7 +2497,7 @@ static bool handle_trigger_conditionals(combined_handle_t const& comb_handle, si
 		if (trig.trigstatemap > map_count)
 		{
 			Z_error("Combo trigger expected map '%d', but map count is '%d'\n", trig.trigstatemap, map_count);
-			return false;
+			TRIG_COND_FAIL("the state map doesn't exist");
 		}
 		state_scr = &TheMaps[(trig.trigstatemap-1) * MAPSCRS + trig.trigstatescreen];
 	}
@@ -2477,17 +2505,17 @@ static bool handle_trigger_conditionals(combined_handle_t const& comb_handle, si
 		for (int q = 0; q < mMAXIND; ++q)
 		{
 			if (trig.req_screen_state.get(q) && !getmapflag(state_scr, 1 << q))
-				return false;
+				TRIG_COND_FAIL_DETAIL("Req States", "{} isn't set", GUI::ZCListData::screenstate().getText(q));
 			if (trig.unreq_screen_state.get(q) && getmapflag(state_scr, 1 << q))
-				return false;
+				TRIG_COND_FAIL_DETAIL("Unreq States", "{} is set", GUI::ZCListData::screenstate().getText(q));
 		}
 	if (!(trig.req_screen_ex_state.empty() && trig.unreq_screen_ex_state.empty()))
 		for (int q = 0; q < 32; ++q)
 		{
 			if(trig.req_screen_ex_state.get(q) && !getxmapflag(state_scr, 1 << q))
-				return false;
+				TRIG_COND_FAIL_DETAIL("Req ExStates", "ExState {} isn't set", q);
 			if(trig.unreq_screen_ex_state.get(q) && getxmapflag(state_scr, 1 << q))
-				return false;
+				TRIG_COND_FAIL_DETAIL("Unreq ExStates", "ExState {} is set", q);
 		}
 	for (int dir = 0; dir < 4; ++dir)
 	{
@@ -2495,9 +2523,9 @@ static bool handle_trigger_conditionals(combined_handle_t const& comb_handle, si
 			for (int q = 0; q < 8; ++q)
 			{
 				if (trig.req_screen_ex_door[dir].get(q) && !getxdoor(state_scr, dir, q))
-					return false;
+					TRIG_COND_FAIL_DETAIL("Req ExDoors", "ExDoor {} {} isn't set", dirstr_proper[dir], q);
 				if (trig.unreq_screen_ex_door[dir].get(q) && getxdoor(state_scr, dir, q))
-					return false;
+					TRIG_COND_FAIL_DETAIL("Unreq ExDoors", "ExDoor {} {} is set", dirstr_proper[dir], q);
 			}
 	}
 	
@@ -2505,14 +2533,14 @@ static bool handle_trigger_conditionals(combined_handle_t const& comb_handle, si
 		bool req = trig.trigger_flags.get(TRIGFLAG_COMBOPOSSTATE_REQ);
 		bool unreq = trig.trigger_flags.get(TRIGFLAG_COMBOPOSSTATE_UNREQ);
 		if (req && unreq)
-			return false;
+			TRIG_COND_FAIL("both req and unreq Position State");
 		if (req || unreq)
 		{
 			auto& pos_states = comb_handle.is_ffc() ? game->ffcpos_states : game->pos_states;
 			auto mi = mapind(scr);
 			byte posstate = pos_states.get(mi).get(comb_handle.local_id());
 			if (req != bool(posstate & (1 << trig.combopos_state)))
-				return false;
+				TRIG_COND_FAIL_DETAIL("Position State", "PosState {} {}", trig.combopos_state, req ? "isn't set" : "is set");
 		}
 	}
 
@@ -2521,29 +2549,29 @@ static bool handle_trigger_conditionals(combined_handle_t const& comb_handle, si
 		auto dmap_level = trig.trigdmlevel > -1 ? trig.trigdmlevel : dlevel;
 		if(trig.trigger_flags.get(TRIGFLAG_LITEM_COND))
 			if((trig.trig_levelitems & game->lvlitems.get(dmap_level)) != trig.trig_levelitems)
-				return false;
+				TRIG_COND_FAIL("Req Level Items");
 		if(trig.trigger_flags.get(TRIGFLAG_LITEM_REVCOND))
 			if((trig.trig_levelitems & game->lvlitems.get(dmap_level)) == trig.trig_levelitems)
-				return false;
-		if((trig.req_level_state & game->lvlswitches.get(dmap_level)) != trig.req_level_state)
-			return false; // missing at least 1 required state
-		if(trig.unreq_level_state & game->lvlswitches.get(dmap_level))
-			return false; // has at least 1 un-required state
+				TRIG_COND_FAIL("Unreq Level Items");
+		if(auto missing = trig.req_level_state & ~game->lvlswitches.get(dmap_level))
+			TRIG_COND_FAIL_DETAIL("Req LevelStates", "LevelState {} isn't set for level {}", std::countr_zero(unsigned(missing)), dmap_level); // missing at least 1 required state
+		if(auto extra = trig.unreq_level_state & game->lvlswitches.get(dmap_level))
+			TRIG_COND_FAIL_DETAIL("Unreq LevelStates", "LevelState {} is set for level {}", std::countr_zero(unsigned(extra)), dmap_level); // has at least 1 un-required state
 		for(int q = 0; q < 256; ++q)
 		{
 			if(trig.req_global_state.get(q) && !game->gswitch_timers.get(q))
-				return false;
+				TRIG_COND_FAIL_DETAIL("Req GlobalStates", "GlobalState {} isn't set", q);
 			if(trig.unreq_global_state.get(q) && game->gswitch_timers.get(q))
-				return false;
+				TRIG_COND_FAIL_DETAIL("Unreq GlobalStates", "GlobalState {} is set", q);
 		}
 	}
 	
 	if (trig.chance_numerator < trig.chance_denominator || !trig.chance_numerator)
 	{
 		if (trig.chance_numerator <= 0 || trig.chance_denominator <= 0)
-			return false; // sanity check / account for '0 in N'
+			TRIG_COND_FAIL("Chance (0 in N)"); // sanity check / account for '0 in N'
 		if (zc_rand(trig.chance_denominator - 1) >= trig.chance_numerator)
-			return false; // random roll failed (1 in 5 -> pick(0 <= n < 5) < 1 -> fail on >=)
+			TRIG_COND_FAIL_DETAIL("Chance", "the {} in {} roll missed", trig.chance_numerator, trig.chance_denominator); // random roll failed (1 in 5 -> pick(0 <= n < 5) < 1 -> fail on >=)
 	}
 
 	// Everything checking for 'side_effects' should be below here
@@ -2565,17 +2593,21 @@ static bool handle_trigger_conditionals(combined_handle_t const& comb_handle, si
 		if(trig.trigger_flags.get(TRIGFLAG_COUNTERGE))
 		{
 			if(ctrval < ctrcost && !inf_ctr)
-				return false;
+				TRIG_COND_FAIL_DETAIL("Counter: Require >=", "{} is {}, needs {} or more", ZI.getCtrName(trig.trigctr), ctrval.str_trim(), ctrcost.str_trim());
 		}
 		if(trig.trigger_flags.get(TRIGFLAG_COUNTERLT))
 		{
 			if(ctrval >= ctrcost || inf_ctr)
-				return false;
+				TRIG_COND_FAIL_DETAIL("Counter: Require <", "{} is {}, needs less than {}", ZI.getCtrName(trig.trigctr),
+					inf_ctr ? std::string("infinite") : ctrval.str_trim(), ctrcost.str_trim());
 		}
 	}
 
 	return true;
 }
+
+#undef TRIG_COND_FAIL
+#undef TRIG_COND_FAIL_DETAIL
 
 static void handle_trigger_results(const combined_handle_t& handle, combo_trigger const& trig, size_t idx,
 	bool& hasitem, bool& used_bit, int32_t special, cpos_info& timer, int32_t cid, int32_t ocs, weapon* w)
@@ -3002,7 +3034,9 @@ static void set_weapon_fired_once(weapon* w, const combined_handle_t& handle, in
 	}
 }
 
-static bool _do_trigger_combo(const combined_handle_t& handle, size_t idx, int32_t special, weapon* w)
+// `outcome` says what the trigger did, for the trigger log. It's left null when nothing
+// happened worth logging.
+static bool _do_trigger_combo(const combined_handle_t& handle, size_t idx, int32_t special, weapon* w, trig_outcome const*& outcome)
 {
 	if (handle.is_ffc() && get_qr(qr_OLD_FFC_FUNCTIONALITY)) return false;
 	auto& cmb = handle.combo();
@@ -3036,6 +3070,7 @@ static bool _do_trigger_combo(const combined_handle_t& handle, size_t idx, int32
 		if (once_per_weapon)
 			set_weapon_fired_once(w, handle, cid, idx);
 		do_weapon_fx(w,trig);
+		outcome = &TRIG_FIRED_WEAPON_EFFECTS;
 		return true;
 	}
 	
@@ -3075,10 +3110,14 @@ static bool _do_trigger_combo(const combined_handle_t& handle, size_t idx, int32
 		}
 	}
 	if(force_ex_ret)
+	{
+		outcome = &TRIG_REAPPLIED;
 		return true;
+	}
 	
 	if(!handle_trigger_conditionals(handle, idx, hasitem))
 	{
+		outcome = &TRIG_FAILED_CONDITION;
 		trigger_string(trig, false, handle.get_screen());
 		return false;
 	}
@@ -3160,7 +3199,10 @@ static bool _do_trigger_combo(const combined_handle_t& handle, size_t idx, int32
 						
 					case cSTEP: case cSTEPSAME: case cSTEPALL:
 						if(!trigger_step(handle))
+						{
+							outcome = &TRIG_FAILED_COMBO_TYPE;
 							return false;
+						}
 						break;
 					
 					case cSTAIR: case cSTAIRB: case cSTAIRC: case cSTAIRD: case cSTAIRR:
@@ -3174,16 +3216,25 @@ static bool _do_trigger_combo(const combined_handle_t& handle, size_t idx, int32
 					
 					case cCHEST: case cLOCKEDCHEST: case cBOSSCHEST:
 						if(!trigger_chest(handle))
+						{
+							outcome = &TRIG_FAILED_COMBO_TYPE;
 							return false;
+						}
 						break;
 					case cLOCKBLOCK: case cBOSSLOCKBLOCK:
 						if(!trigger_lockblock(handle))
+						{
+							outcome = &TRIG_FAILED_COMBO_TYPE;
 							return false;
+						}
 						break;
 					
 					case cARMOS: case cBSGRAVE: case cGRAVE:
 						if(!trigger_armos_grave(handle))
+						{
+							outcome = &TRIG_FAILED_COMBO_TYPE;
 							return false;
+						}
 						break;
 					
 					case cDAMAGE1: case cDAMAGE2: case cDAMAGE3: case cDAMAGE4:
@@ -3200,12 +3251,18 @@ static bool _do_trigger_combo(const combined_handle_t& handle, size_t idx, int32
 					
 					case cSWITCHHOOK:
 						if(!trigger_switchhookblock(handle))
+						{
+							outcome = &TRIG_FAILED_COMBO_TYPE;
 							return false;
+						}
 						break;
 					
 					case cSHOOTER:
 						if(!trigger_shooter(handle))
+						{
+							outcome = &TRIG_FAILED_COMBO_TYPE;
 							return false;
+						}
 						break;
 					case cSAVE: case cSAVE2:
 						trigger_save(cmb, base_scr);
@@ -3243,20 +3300,35 @@ static bool _do_trigger_combo(const combined_handle_t& handle, size_t idx, int32
 			FFCore.runGenericFrozenEngine(trig.trig_genscr);
 		trigger_string(trig, true, handle.get_screen());
 	}
+	// A weapon touching a combo it already triggered isn't worth logging.
+	if (!dorun)
+		outcome = &TRIG_COOLDOWN;
+	else if (!check_bit)
+		outcome = &TRIG_FIRED;
 	return true;
 }
 // Triggers a combo at a given position (including ffcs)
 bool do_trigger_combo(const combined_handle_t& handle, size_t idx, int32_t special, weapon* w)
 {
+	// Taken before the trigger runs, since it can change the combo.
+	int cid = handle.data();
+	trig_outcome const* outcome = nullptr;
+	auto log_run = trigger_log_begin_run();
+	bool ret = false;
 	if (get_qr(qr_BROKEN_SELF_TRIGGERING_TRIGGERS))
-		return _do_trigger_combo(handle, idx, special, w);
-	
-	// Don't let a trigger trigger itself via it's own effects
-	active_trigger_data data(handle, idx);
-	if (active_triggers.contains(data)) return false;
-	active_triggers.emplace(data);
-	auto ret = _do_trigger_combo(handle, idx, special, w);
-	active_triggers.erase(data);
+		ret = _do_trigger_combo(handle, idx, special, w, outcome);
+	else
+	{
+		// Don't let a trigger trigger itself via it's own effects
+		active_trigger_data data(handle, idx);
+		if (!active_triggers.contains(data)) // else leaves the log slot empty
+		{
+			active_triggers.emplace(data);
+			ret = _do_trigger_combo(handle, idx, special, w, outcome);
+			active_triggers.erase(data);
+		}
+	}
+	trigger_log_end_run(log_run, handle, cid, idx, w, outcome, trig_cond_fail_reason, trig_cond_fail_detail);
 	return ret;
 }
 
@@ -3550,6 +3622,8 @@ void trig_trigger_groups()
 			{
 				auto& trig = cmb.triggers[idx];
 				bool ok = false;
+				if(show_trigger_log && trig.trigger_flags.any({TRIGFLAG_TGROUP_LESS, TRIGFLAG_TGROUP_GREATER}))
+					trigger_log_group_count(trig);
 				if(trig.trigger_flags.get(TRIGFLAG_TGROUP_LESS))
 					ok = cpos_trig_group_count(trig.trig_group) < trig.trig_group_val;
 				if(!ok && trig.trigger_flags.get(TRIGFLAG_TGROUP_GREATER))
@@ -3557,6 +3631,10 @@ void trig_trigger_groups()
 				if(!ok) continue;
 
 				bool earlyret = false;
+				TriggerLogCause log_cause([&]{
+					bool less = cpos_trig_group_count(trig.trig_group) < trig.trig_group_val;
+					return fmt::format("Trigger Group {} {} {}", trig.trig_group, less ? "<" : ">", trig.trig_group_val);
+				});
 				if(do_trigger_combo(handle, idx))
 					if(trig.trigger_flags.get(TRIGFLAG_CANCEL_TRIGGER))
 						earlyret = true;
@@ -3786,6 +3864,7 @@ void cpos_update() //updates with side-effects
 						if(++trig_info.clk >= trig.trigtimer)
 						{
 							trig_info.clk = 0;
+							TriggerLogCause log_cause([&]{ return fmt::format("Timed ({} frames)", trig.trigtimer); });
 							if(do_trigger_combo(rpos_handle, idx))
 								if(trig.trigger_flags.get(TRIGFLAG_CANCEL_TRIGGER))
 									break;
@@ -3859,6 +3938,7 @@ void cpos_update() //updates with side-effects
 						if (++trig_info.clk >= trig.trigtimer)
 						{
 							trig_info.clk = 0;
+							TriggerLogCause log_cause([&]{ return fmt::format("Timed ({} frames)", trig.trigtimer); });
 							if(do_trigger_combo(ffc_handle, idx))
 								if(trig.trigger_flags.get(TRIGFLAG_CANCEL_TRIGGER))
 									break;

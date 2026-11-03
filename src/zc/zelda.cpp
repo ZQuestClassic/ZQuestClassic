@@ -40,6 +40,7 @@
 #include "zalleg/zsys.h"
 #include "zc/cheats.h"
 #include "zc/combos.h"
+#include "zc/combo_trigger_log.h"
 #include "zc/commands.h"
 #include "zc/debugger/debugger.h"
 #include "zc/ffscript.h"
@@ -298,7 +299,7 @@ bool palette_user_tinted = false;
 
 bool show_layers[7] = {true,true,true,true,true,true,true};
      //oveheard combos     //pushblocks
-bool show_layer_over=true, show_layer_push=true, show_sprites=true, show_ffcs=true, show_hitboxes=false, show_walkflags=false, show_ff_scripts=false, show_effectflags = false, show_trigger_prox = false, show_viewport_follow = false;
+bool show_layer_over=true, show_layer_push=true, show_sprites=true, show_ffcs=true, show_hitboxes=false, show_walkflags=false, show_ff_scripts=false, show_effectflags = false, show_trigger_prox = false, show_trigger_log = false, show_viewport_follow = false;
 
 
 bool Throttlefps = true, MenuOpen = false, ClickToFreeze=false, Paused=false, Saving=false,
@@ -756,6 +757,16 @@ void hit_close_button()
 extern ScriptType curScriptType;
 extern word curScriptNum;
 
+static void Z_eventlog_v(const char *format, va_list ap)
+{
+	char buf[2048];
+	vsnprintf(buf, 2048, format, ap);
+	al_trace("%s",buf);
+
+	if ( console_enabled ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_INTENSITY | 
+		CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"%s",buf); }
+}
+
 void Z_eventlog(const char *format,...)
 {
 	if (!Playing)
@@ -763,17 +774,19 @@ void Z_eventlog(const char *format,...)
 
     if(get_qr(qr_LOG) || DEVLEVEL > 0)
     {
-        char buf[2048];
-        
         va_list ap;
         va_start(ap, format);
-        vsnprintf(buf, 2048, format, ap);
+        Z_eventlog_v(format, ap);
         va_end(ap);
-        al_trace("%s",buf);
-        
-		if ( console_enabled ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_INTENSITY | 
-			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"%s",buf); }
     }
+}
+
+void Z_eventlog_force(const char *format,...)
+{
+	va_list ap;
+	va_start(ap, format);
+	Z_eventlog_v(format, ap);
+	va_end(ap);
 }
 
 // TODO: callers should always end with a newline otherwise the log will render poorly in the console / allegro.log.
@@ -1482,7 +1495,7 @@ void init_game_vars(bool is_cont_game = false)
 		cheat=0;
 		show_layers[0]=show_layers[1]=show_layers[2]=show_layers[3]=show_layers[4]=show_layers[5]=show_layers[6]=true;
 		show_layer_over=show_layer_push=show_sprites=show_ffcs=true;
-		cheat_superman=cheats_execute_light=cheats_execute_goto=show_walkflags=show_effectflags=show_ff_scripts=show_hitboxes=show_trigger_prox=show_viewport_follow=gofast=false;
+		cheat_superman=cheats_execute_light=cheats_execute_goto=show_walkflags=show_effectflags=show_ff_scripts=show_hitboxes=show_trigger_prox=show_trigger_log=show_viewport_follow=gofast=false;
 
 		sprite::reset_uid_counter();
 		ResetSaveScreenSettings();
@@ -3028,6 +3041,7 @@ void game_loop()
 			if ( !FFCore.system_suspend[susptSCRIPDRAWCLEAR] ) script_drawing_commands.Clear();
 		}
 		FFCore.runGenericPassiveEngine(SCR_TIMING_START_FRAME);
+		trigger_log_start_frame();
 		
 		if(fadeclk>=0 && !freeze_message)
 		{

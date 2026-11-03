@@ -44,6 +44,7 @@ enum Cheat
 	ShowFFCScripts,
 	ShowInfoOpacity,
 	HeroPosition,
+	ShowTriggerLog,
 	Last,
 };
 
