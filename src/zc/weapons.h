@@ -5,6 +5,7 @@
 #include "sprite.h"
 #include "base/zfix.h"
 #include <set>
+#include <tuple>
 
 /**************************************/
 /***********  Weapon Class  ***********/
@@ -90,7 +91,22 @@ public:
 	byte wscreengrid[22];
 	byte wscreengrid_layer[6][22];
 	byte wscreengrid_ffc[MAXFFCS/8];
-	
+	// The combos this weapon set off this frame. Each point of the hitbox finds a combo, and
+	// the weapon can look for combos again later in the frame, so without this a combo
+	// triggers several times a frame.
+	//
+	// animate() clears these and looks with findcombotriggers(), then can look again
+	// in the same animate(): through collision_check() when gravity lands it with
+	// WFLAG_BREAK_WHEN_LANDING, and with findcombotriggers() when its move hits something
+	// solid with WFLAG_BREAK_ON_SOLID or WFLAG_STOP_WHEN_HIT_SOLID.
+	//
+	// A combo the weapon didn't set off (say, a ground-only one while it was in the air)
+	// isn't here, so a later look in the same frame can still set it off.
+	// (layer, pos, combo)
+	std::set<std::tuple<int, int, int>> combos_triggered_this_frame;
+	// (ffc, combo)
+	std::set<std::pair<int, int>> ffcs_triggered_this_frame;
+
 	int16_t death_spawnitem;
 	int16_t death_spawndropset;
 	int32_t death_item_pflags;
