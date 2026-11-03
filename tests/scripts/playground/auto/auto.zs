@@ -62,6 +62,7 @@
 #include "auto/call_limit.zs"
 #include "auto/camera_effect.zs"
 #include "auto/classes.zs"
+#include "auto/combo_trigger_weapon_once.zs"
 #include "auto/compat_hammer_charge_turn.zs"
 #include "auto/compat_qrs.zs"
 #include "auto/defense_outcomes.zs"
