@@ -207,6 +207,9 @@ struct newcombo
 	bool can_cycle() const;
 	bool should_cycle() const;
 	bool using_cs2() const;
+	// Whether '->ComboType Effects' run the Generic combo effects: a Generic combo, or a
+	// Script 1-10 combo with its 'Engine' flag.
+	bool runs_generic_effects() const;
 	
 	void reset_animation();
 	bool animate(bool force_next_frame = false);
@@ -515,6 +518,18 @@ enum //cCRUMBLE types
 extern std::vector<newcombo> combobuf;
 
 bool is_push_flag(int flag, optional<int> dir = nullopt);
+
+// Whether '->ComboType Effects' do something on a combo of this type, other than the Generic
+// combo effects. These are the effects the runtime runs in _do_trigger_combo, and they mark
+// the weapon that triggered them, so it skips the combo afterwards.
+bool combo_type_has_trigger_effects(int type);
+// Whether a combo of this type runs its '->ComboType Effects' whenever a trigger fires, checked or
+// not. A Custom Block kills the triggering weapon (but not a sword or hammer).
+bool alwaysCTypeEffects(int32_t type);
+
+// The trigger causes that fire every frame for as long as they're true, with their names in
+// the Combo Trigger Editor.
+extern const std::vector<std::pair<int, const char*>> every_frame_trigger_causes;
 
 #endif
 

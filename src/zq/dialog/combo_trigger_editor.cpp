@@ -109,25 +109,30 @@ Button( \
 )
 //}
 
+static const std::vector<int> weapon_cause_flags = {
+	TRIGFLAG_SWORD,TRIGFLAG_SWORDBEAM,TRIGFLAG_BRANG,TRIGFLAG_BOMB,TRIGFLAG_SBOMB,
+	TRIGFLAG_LITBOMB,TRIGFLAG_LITSBOMB,TRIGFLAG_ARROW,TRIGFLAG_FIRE,TRIGFLAG_WHISTLE,
+	TRIGFLAG_BAIT,TRIGFLAG_WAND,TRIGFLAG_MAGIC,TRIGFLAG_WIND,TRIGFLAG_REFMAGIC,
+	TRIGFLAG_REFFIREBALL,TRIGFLAG_REFROCK,TRIGFLAG_HAMMER,TRIGFLAG_EWFIREBALL,
+	TRIGFLAG_HOOKSHOT,TRIGFLAG_SPARKLE,TRIGFLAG_BYRNA,TRIGFLAG_REFBEAM,TRIGFLAG_STOMP,
+	TRIGFLAG_SCRIPT01,TRIGFLAG_SCRIPT02,TRIGFLAG_SCRIPT03,TRIGFLAG_SCRIPT04,TRIGFLAG_SCRIPT05,
+	TRIGFLAG_SCRIPT06,TRIGFLAG_SCRIPT07,TRIGFLAG_SCRIPT08,TRIGFLAG_SCRIPT09,TRIGFLAG_SCRIPT10,
+	TRIGFLAG_EWARROW,TRIGFLAG_EWBRANG,TRIGFLAG_EWSWORD,TRIGFLAG_EWROCK,
+	TRIGFLAG_EWSCRIPT01,TRIGFLAG_EWSCRIPT02,TRIGFLAG_EWSCRIPT03,TRIGFLAG_EWSCRIPT04,TRIGFLAG_EWSCRIPT05,
+	TRIGFLAG_EWSCRIPT06,TRIGFLAG_EWSCRIPT07,TRIGFLAG_EWSCRIPT08,TRIGFLAG_EWSCRIPT09,TRIGFLAG_EWSCRIPT10,
+	TRIGFLAG_EWMAGIC,TRIGFLAG_EWBBLAST,TRIGFLAG_EWSBBLAST,TRIGFLAG_EWLITBOMB,TRIGFLAG_EWLITSBOMB,
+	TRIGFLAG_EWFIRETRAIL,TRIGFLAG_EWFLAME,TRIGFLAG_EWWIND,TRIGFLAG_EWFLAME2,
+	TRIGFLAG_THROWN,TRIGFLAG_QUAKESTUN,TRIGFLAG_SQUAKESTUN,TRIGFLAG_ANYFIRE,
+	TRIGFLAG_STRONGFIRE,TRIGFLAG_MAGICFIRE,TRIGFLAG_DIVINEFIRE,
+	TRIGFLAG_LWREFARROW,TRIGFLAG_LWREFFIRE,TRIGFLAG_LWREFFIRE2};
+static const std::vector<int> burning_cause_flags = {
+	TRIGFLAG_ANYFIRE,TRIGFLAG_STRONGFIRE,TRIGFLAG_MAGICFIRE,TRIGFLAG_DIVINEFIRE};
+static const std::vector<int> weapon_effect_flags = {
+	TRIGFLAG_KILLWPN,TRIGFLAG_IGNITE_ANYFIRE,TRIGFLAG_IGNITE_STRONGFIRE,TRIGFLAG_IGNITE_MAGICFIRE,
+	TRIGFLAG_IGNITE_DIVINEFIRE,TRIGFLAG_UNIGNITE_WEAPONS,TRIGFLAG_ONCE_PER_WEAPON,TRIGFLAG_SEPARATEWEAPON};
 static bool has_weapon_cause(combo_trigger const& trig)
 {
-	if (trig.trigger_flags.any({
-		TRIGFLAG_SWORD,TRIGFLAG_SWORDBEAM,TRIGFLAG_BRANG,TRIGFLAG_BOMB,TRIGFLAG_SBOMB,
-		TRIGFLAG_LITBOMB,TRIGFLAG_LITSBOMB,TRIGFLAG_ARROW,TRIGFLAG_FIRE,TRIGFLAG_WHISTLE,
-		TRIGFLAG_BAIT,TRIGFLAG_WAND,TRIGFLAG_MAGIC,TRIGFLAG_WIND,TRIGFLAG_REFMAGIC,
-		TRIGFLAG_REFFIREBALL,TRIGFLAG_REFROCK,TRIGFLAG_HAMMER,TRIGFLAG_EWFIREBALL,
-		TRIGFLAG_HOOKSHOT,TRIGFLAG_SPARKLE,TRIGFLAG_BYRNA,TRIGFLAG_REFBEAM,TRIGFLAG_STOMP,
-		TRIGFLAG_SCRIPT01,TRIGFLAG_SCRIPT02,TRIGFLAG_SCRIPT03,TRIGFLAG_SCRIPT04,TRIGFLAG_SCRIPT05,
-		TRIGFLAG_SCRIPT06,TRIGFLAG_SCRIPT07,TRIGFLAG_SCRIPT08,TRIGFLAG_SCRIPT09,TRIGFLAG_SCRIPT10,
-		TRIGFLAG_EWARROW,TRIGFLAG_EWBRANG,TRIGFLAG_EWSWORD,TRIGFLAG_EWROCK,
-		TRIGFLAG_EWSCRIPT01,TRIGFLAG_EWSCRIPT02,TRIGFLAG_EWSCRIPT03,TRIGFLAG_EWSCRIPT04,TRIGFLAG_EWSCRIPT05,
-		TRIGFLAG_EWSCRIPT06,TRIGFLAG_EWSCRIPT07,TRIGFLAG_EWSCRIPT08,TRIGFLAG_EWSCRIPT09,TRIGFLAG_EWSCRIPT10,
-		TRIGFLAG_EWMAGIC,TRIGFLAG_EWBBLAST,TRIGFLAG_EWSBBLAST,TRIGFLAG_EWLITBOMB,TRIGFLAG_EWLITSBOMB,
-		TRIGFLAG_EWFIRETRAIL,TRIGFLAG_EWFLAME,TRIGFLAG_EWWIND,TRIGFLAG_EWFLAME2,
-		TRIGFLAG_THROWN,TRIGFLAG_QUAKESTUN,TRIGFLAG_SQUAKESTUN,TRIGFLAG_ANYFIRE,
-		TRIGFLAG_STRONGFIRE,TRIGFLAG_MAGICFIRE,TRIGFLAG_DIVINEFIRE,
-		TRIGFLAG_LWREFARROW,TRIGFLAG_LWREFFIRE,TRIGFLAG_LWREFFIRE2})) return true;
-	return false;
+	return trig.trigger_flags.any(weapon_cause_flags);
 }
 static bool has_trigger_cause(combo_trigger const& trig)
 {
@@ -211,12 +216,111 @@ static bool has_trigger_effect(combo_trigger const& trig)
 	return false;
 }
 
-void ComboTriggerDialog::updateWarnings()
+// The effects that are a problem when they happen every frame. 'for_weapons' leaves out the
+// effects that already stop a weapon from triggering the combo again.
+static std::vector<std::string> repeating_effects(combo_trigger const& trig, bool for_weapons)
 {
-	warnings.clear();
-	bool cause = has_trigger_cause(local_ref);
-	bool effect = has_trigger_effect(local_ref);
-	bool tgroup = local_ref.trigger_flags.get(TRIGFLAG_TGROUP_CONTRIB);
+	std::vector<std::string> fx;
+	if (trig.trigsfx && !trig.trigger_flags.any({TRIGFLAG_SFX_NO_RESTART, TRIGFLAG_SFX_KILL}))
+		fx.emplace_back("its SFX");
+	if (trig.spawnitem)
+		fx.emplace_back("'Spawn Item'");
+	if (trig.spawnenemy)
+		fx.emplace_back("'Spawn Enemy'");
+	if (trig.trigger_flags.get(TRIGFLAG_COUNTEREAT) && trig.trigctramnt)
+		fx.emplace_back("the counter change");
+	if (!for_weapons)
+	{
+		if (trig.trigger_flags.get(TRIGFLAG_SECRETS))
+			fx.emplace_back("'Triggers Secrets' (and the secret sound, unless the secrets replace this combo)");
+		if (trig.trigger_flags.get(TRIGFLAG_LEVELSTATE))
+			fx.emplace_back("'->LevelState'");
+		if (trig.trigger_flags.get(TRIGFLAG_GLOBALSTATE) && !trig.trig_statetime)
+			fx.emplace_back("'->GlobalState'");
+	}
+	return fx;
+}
+
+// Whether a trigger of the combo reacts to a state, which makes every trigger of the combo
+// only reapply its change once the state is set.
+static bool combo_reacts_to_state(newcombo const& cmb)
+{
+	for (auto const& t : cmb.triggers)
+	{
+		if (t.exstate > -1 && !t.trigger_flags.get(TRIGFLAG_UNSETEXSTATE))
+			return true;
+		if (t.exdoor_dir > -1 && !t.trigger_flags.get(TRIGFLAG_UNSETEXDOOR))
+			return true;
+		if (t.trigger_flags.get(TRIGFLAG_COMBOPOSSTATE_CAUSE))
+			return true;
+	}
+	return false;
+}
+
+// Whether something can stop a trigger from firing again: a cooldown, changing into another
+// combo (directly, or through combo type effects like a switch toggling), setting an ExState or
+// ExDoor (once it's set, the combo only reapplies its change), or a condition that the combo's
+// triggers might make false.
+static bool can_stop_repeating(combo_trigger const& trig, newcombo const& cmb)
+{
+	// A condition on the player's height or footing, when a trigger of the combo moves the
+	// player up or down.
+	if (trig.req_player_z || trig.trigger_flags.any({TRIGFLAG_PLAYER_STANDING, TRIGFLAG_PLAYER_NOTSTANDING,
+		TRIGFLAG_REQ_JUMP_GE, TRIGFLAG_REQ_JUMP_LE}))
+	{
+		for (auto const& t : cmb.triggers)
+			if (t.player_bounce || t.dest_player_z || t.trigger_flags.get(TRIGFLAG_SETPLAYER_Z_ABS))
+				return true;
+	}
+	if (trig.trigcooldown)
+		return true;
+	if (trig.trigchange || trig.trigger_flags.get(TRIGFLAG_CMB_CHANGE_ABSOLUTE))
+		return true;
+	if (trig.trigger_flags.get(TRIGFLAG_CMBTYPEFX) && combo_type_has_trigger_effects(cmb.type))
+		return true;
+	// A Generic combo's effects (or a Script combo's, with its 'Engine' flag) can change it into
+	// the next combo, the undercombo or a secret combo. See do_generic_combo2.
+	if (trig.trigger_flags.get(TRIGFLAG_CMBTYPEFX) && cmb.runs_generic_effects()
+		&& (cmb.usrflags & (cflag4 | cflag7)))
+		return true;
+	if (combo_reacts_to_state(cmb))
+		return true;
+	if (trig.req_level_state || trig.unreq_level_state)
+		return true;
+	if (!trig.req_global_state.empty() || !trig.unreq_global_state.empty())
+		return true;
+	if (!trig.req_screen_state.empty() || !trig.unreq_screen_state.empty())
+		return true;
+	if (!trig.req_screen_ex_state.empty() || !trig.unreq_screen_ex_state.empty())
+		return true;
+	for (int dir = 0; dir < 4; ++dir)
+		if (!trig.req_screen_ex_door[dir].empty() || !trig.unreq_screen_ex_door[dir].empty())
+			return true;
+	if (trig.trigger_flags.any({TRIGFLAG_COMBOPOSSTATE_REQ, TRIGFLAG_COMBOPOSSTATE_UNREQ,
+		TRIGFLAG_COUNTERGE, TRIGFLAG_COUNTERLT, TRIGFLAG_LITEM_COND, TRIGFLAG_LITEM_REVCOND}))
+		return true;
+	if (trig.triggeritem && trig.trigger_flags.get(TRIGFLAG_CONSUMEITEM))
+		return true;
+	return false;
+}
+
+static bool quest_has_spotlight(newcombo const& editing)
+{
+	if (editing.type == cSPOTLIGHT)
+		return true;
+	for (int q = 0; q < MAXCOMBOS; ++q)
+		if (combobuf[q].type == cSPOTLIGHT)
+			return true;
+	return false;
+}
+
+// The problems the Warnings button lists for a trigger of the combo `cmb`.
+static std::vector<std::string> get_combo_trigger_warnings(combo_trigger const& trig, newcombo const& cmb)
+{
+	std::vector<std::string> warnings;
+	bool cause = has_trigger_cause(trig);
+	bool effect = has_trigger_effect(trig);
+	bool tgroup = trig.trigger_flags.get(TRIGFLAG_TGROUP_CONTRIB);
 	if(!tgroup || (cause != effect))
 	{
 		if(!cause)
@@ -224,42 +328,112 @@ void ComboTriggerDialog::updateWarnings()
 		if(!effect)
 			warnings.emplace_back("Trigger has no 'Effect', and will do nothing!");
 	}
-	bool has_ignite = local_ref.trigger_flags.any({
+	bool has_ignite = trig.trigger_flags.any({
 		TRIGFLAG_IGNITE_ANYFIRE,TRIGFLAG_IGNITE_STRONGFIRE,
 		TRIGFLAG_IGNITE_MAGICFIRE,TRIGFLAG_IGNITE_DIVINEFIRE
 	});
-	if(has_ignite || local_ref.trigger_flags.any({TRIGFLAG_KILLWPN,TRIGFLAG_SEPARATEWEAPON,TRIGFLAG_ONCE_PER_WEAPON}))
+	if(has_ignite || trig.trigger_flags.any({TRIGFLAG_KILLWPN,TRIGFLAG_SEPARATEWEAPON,TRIGFLAG_ONCE_PER_WEAPON}))
 	{
-		if(!has_weapon_cause(local_ref))
+		if(!has_weapon_cause(trig))
 			warnings.emplace_back("Trigger has weapon-specific 'Effect'(s), but no weapon-based causes!");
 	}
-	if(!has_ignite && local_ref.trigger_flags.get(TRIGFLAG_UNIGNITE_WEAPONS))
+	if(!has_ignite && trig.trigger_flags.get(TRIGFLAG_UNIGNITE_WEAPONS))
 		warnings.emplace_back("Trigger has '...Unignite' flag, but no 'Ignite' flags are used!");
-	if (local_ref.trigger_flags.all({ TRIGFLAG_SET_GRAVITY, TRIGFLAG_REVERT_GRAVITY }))
+	if (trig.trigger_flags.all({ TRIGFLAG_SET_GRAVITY, TRIGFLAG_REVERT_GRAVITY }))
 		warnings.emplace_back("'Set Gravity' does nothing when 'Revert Gravity' is checked!");
-	if(local_ref.trigger_flags.get(TRIGFLAG_UNSETEXSTATE) && local_ref.exstate < 0)
+	if(trig.trigger_flags.get(TRIGFLAG_UNSETEXSTATE) && trig.exstate < 0)
 		warnings.emplace_back("Can't unset ExState -1!");
-	if(local_ref.trigger_flags.get(TRIGFLAG_UNSETEXDOOR) && local_ref.exdoor_dir < 0)
+	if(trig.trigger_flags.get(TRIGFLAG_UNSETEXDOOR) && trig.exdoor_dir < 0)
 		warnings.emplace_back("Can't unset ExDoor '(None)' dir!");
-	if (local_ref.trigger_flags.get(TRIGFLAG_VIEWPORT_REQ_ONSCREEN) && local_ref.trigger_flags.get(TRIGFLAG_VIEWPORT_REQ_OFFSCREEN))
+	if (trig.trigger_flags.get(TRIGFLAG_VIEWPORT_REQ_ONSCREEN) && trig.trigger_flags.get(TRIGFLAG_VIEWPORT_REQ_OFFSCREEN))
 		warnings.emplace_back("Combo cannot be on-screen and off-screen at the same time!");
-	if (local_ref.chance_numerator > local_ref.chance_denominator)
-		warnings.emplace_back(fmt::format("{} in {} chance is >100%", local_ref.chance_numerator, local_ref.chance_denominator));
-	if (local_ref.sfx_pan > -1 || local_ref.sfx_volume != 100 || local_ref.sfx_frequency > -1 ||
-		local_ref.trigger_flags.get(TRIGFLAG_SFX_LOOP) || local_ref.trigger_flags.get(TRIGFLAG_SFX_NO_RESTART))
+	if (trig.chance_numerator > trig.chance_denominator)
+		warnings.emplace_back(fmt::format("{} in {} chance is >100%", trig.chance_numerator, trig.chance_denominator));
+	if (trig.sfx_pan > -1 || trig.sfx_volume != 100 || trig.sfx_frequency > -1 ||
+		trig.trigger_flags.get(TRIGFLAG_SFX_LOOP) || trig.trigger_flags.get(TRIGFLAG_SFX_NO_RESTART))
 	{
-		if (local_ref.trigsfx <= 0)
+		if (trig.trigsfx <= 0)
 			warnings.emplace_back("No sfx set, modified sfx pan/volume/frequency/etc will have no effect.");
-		else if (local_ref.trigger_flags.get(TRIGFLAG_SFX_KILL))
+		else if (trig.trigger_flags.get(TRIGFLAG_SFX_KILL))
 			warnings.emplace_back("SFX is being killed, modified pan/volume/frequency/etc will have no effect.");
 	}
-	else if (local_ref.trigger_flags.get(TRIGFLAG_SFX_KILL) && local_ref.trigsfx <= 0)
+	else if (trig.trigger_flags.get(TRIGFLAG_SFX_KILL) && trig.trigsfx <= 0)
 		warnings.emplace_back("Kill SFX flag set, but no SFX selected to kill.");
-	if (local_ref.trigger_flags.get(TRIGFLAG_CMB_CHANGE_ABSOLUTE) && local_ref.trigchange < 0)
+	if (trig.trigger_flags.get(TRIGFLAG_CMB_CHANGE_ABSOLUTE) && trig.trigchange < 0)
 		warnings.emplace_back("Changing to a negative combo is invalid.");
-	if (local_ref.trigger_flags.get(TRIGFLAG_CSET_CHANGE_ABSOLUTE) && local_ref.trigcschange < 0)
+	if (trig.trigger_flags.get(TRIGFLAG_CSET_CHANGE_ABSOLUTE) && trig.trigcschange < 0)
 		warnings.emplace_back("Changing to a negative cset is invalid.");
-	
+
+	bool separate_weapon = trig.trigger_flags.get(TRIGFLAG_SEPARATEWEAPON);
+	// With this rule, the burning causes run the trigger without a weapon. Quakes never have one.
+	bool burning_isnt_weapon = get_qr(qr_FIRE_LEVEL_TRIGGERS_ARENT_WEAPONS);
+	// Whether a weapon can trigger this, and the trigger without those causes or without its
+	// weapon effects.
+	bool weapon_cause = false;
+	combo_trigger no_weapon_causes = trig;
+	for (int flag : weapon_cause_flags)
+	{
+		bool burning = std::find(burning_cause_flags.begin(), burning_cause_flags.end(), flag) != burning_cause_flags.end();
+		if ((burning && burning_isnt_weapon) || flag == TRIGFLAG_QUAKESTUN || flag == TRIGFLAG_SQUAKESTUN)
+			continue;
+		weapon_cause |= trig.trigger_flags.get(flag);
+		no_weapon_causes.trigger_flags.set(flag, false);
+	}
+	combo_trigger no_weapon_effects = trig;
+	for (int flag : weapon_effect_flags)
+		no_weapon_effects.trigger_flags.set(flag, false);
+
+	if (!can_stop_repeating(trig, cmb))
+	{
+		for (auto [flag, name] : every_frame_trigger_causes)
+		{
+			if (!trig.trigger_flags.get(flag))
+				continue;
+			auto fx = repeating_effects(trig, false);
+			if (!fx.empty())
+				warnings.emplace_back(fmt::format("'{}' fires every frame for as long as it's true, so {} will"
+					" happen every frame. To stop it repeating, add a Cooldown, a Combo Change, or a condition"
+					" the trigger turns off.", name, fmt::join(fx, ", ")));
+			break;
+		}
+	}
+
+	// 'Kill Triggering Weapon' doesn't kill swords or hammers. A Custom Block kills the weapon
+	// the same way, whether or not '->ComboType Effects' is checked.
+	bool kills_weapon = (trig.trigger_flags.get(TRIGFLAG_KILLWPN) || alwaysCTypeEffects(cmb.type))
+		&& !trig.trigger_flags.any({TRIGFLAG_SWORD, TRIGFLAG_HAMMER});
+	// A Generic combo's effects (or a Script combo's, with its 'Engine' flag) also make the
+	// weapon skip the combo afterwards, whatever they do. See do_generic_combo.
+	bool ctype_marks = trig.trigger_flags.get(TRIGFLAG_CMBTYPEFX)
+		&& (combo_type_has_trigger_effects(cmb.type) || cmb.runs_generic_effects());
+	if (weapon_cause && !separate_weapon && !trig.trigcooldown && !kills_weapon && !ctype_marks
+		&& !combo_reacts_to_state(cmb)
+		&& !trig.trigger_flags.any({TRIGFLAG_ONCE_PER_WEAPON, TRIGFLAG_SECRETS,
+			TRIGFLAG_LEVELSTATE, TRIGFLAG_GLOBALSTATE, TRIGFLAG_CMB_CHANGE_ABSOLUTE,
+			TRIGFLAG_CSET_CHANGE_ABSOLUTE, TRIGFLAG_TRIGGER_LARGE_COMBO_COPYCAT})
+		&& !trig.trigchange && !trig.trigcschange && !trig.trigcopycat)
+	{
+		auto fx = repeating_effects(trig, true);
+		if (!fx.empty())
+			warnings.emplace_back(fmt::format("A weapon triggers this every frame it touches the combo,"
+				" so {} will happen every frame. Check 'Once Per Weapon' in 'Weapon Effects' to fire once"
+				" per weapon.", fmt::join(fx, ", ")));
+	}
+
+	if (trig.trigger_flags.any({TRIGFLAG_LIGHTON, TRIGFLAG_LIGHTOFF}) && !quest_has_spotlight(cmb))
+		warnings.emplace_back("No combo in the quest is a Spotlight, so nothing is ever lit:"
+			" 'Light Off->' fires every frame and 'Light On->' never fires.");
+
+	if (separate_weapon && weapon_cause && !has_trigger_cause(no_weapon_causes) && has_trigger_effect(no_weapon_effects))
+		warnings.emplace_back("With 'Weapon Separate Triggers', weapons only run the 'Weapon Effects',"
+			" and this trigger has no other cause, so its other effects never happen.");
+
+	return warnings;
+}
+
+void ComboTriggerDialog::updateWarnings()
+{
+	warnings = get_combo_trigger_warnings(local_ref, parent_comboref);
 	warnbtn->setDisabled(warnings.empty());
 }
 
