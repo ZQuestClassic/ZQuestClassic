@@ -2533,6 +2533,16 @@ struct active_trigger_data
 };
 static std::set<active_trigger_data> active_triggers;
 
+// 'Once Per Weapon': whether the weapon already fired combo `cid`'s trigger here.
+static bool weapon_fired_once(weapon* w, int32_t lyr, int32_t pos, int32_t cid)
+{
+	return w->combos_triggered_once.contains({lyr, pos, cid});
+}
+static bool weapon_fired_once_ffc(weapon* w, int32_t pos, int32_t cid)
+{
+	return w->ffcs_triggered_once.contains({pos, cid});
+}
+
 //Triggers a combo at a given position
 bool _do_trigger_combo(int32_t lyr, int32_t pos, int32_t special, weapon* w)
 {
@@ -2545,8 +2555,15 @@ bool _do_trigger_combo(int32_t lyr, int32_t pos, int32_t special, weapon* w)
 	int32_t cy = COMBOY(pos);
 	newcombo const& cmb = combobuf[cid];
 	bool hasitem = false;
+	// A weapon that already fired a 'Once Per Weapon' trigger doesn't run any of it again,
+	// not even its weapon effects.
+	bool once_per_weapon = w && (cmb.triggerflags[5] & combotriggerONCE_PER_WEAPON);
+	if(once_per_weapon && weapon_fired_once(w, lyr, pos, cid))
+		return false;
 	if(w && (cmb.triggerflags[3] & combotriggerSEPARATEWEAPON))
 	{
+		if(once_per_weapon)
+			w->combos_triggered_once.insert({lyr, pos, cid});
 		do_weapon_fx(w,cmb);
 		return true;
 	}
@@ -2931,6 +2948,8 @@ bool _do_trigger_combo(int32_t lyr, int32_t pos, int32_t special, weapon* w)
 		{
 			set_bit(grid,(((cx>>4) + cy)),1);
 		}
+		if(once_per_weapon)
+			w->combos_triggered_once.insert({lyr, pos, cid});
 	}
 	
 	if(w)
@@ -2955,8 +2974,15 @@ bool _do_trigger_combo_ffc(int32_t pos, int32_t special, weapon* w)
 	int32_t cy = ffc.y;
 	newcombo const& cmb = combobuf[cid];
 	bool hasitem = false;
+	// A weapon that already fired a 'Once Per Weapon' trigger doesn't run any of it again,
+	// not even its weapon effects.
+	bool once_per_weapon = w && (cmb.triggerflags[5] & combotriggerONCE_PER_WEAPON);
+	if(once_per_weapon && weapon_fired_once_ffc(w, pos, cid))
+		return false;
 	if(w && (cmb.triggerflags[3] & combotriggerSEPARATEWEAPON))
 	{
+		if(once_per_weapon)
+			w->ffcs_triggered_once.insert({pos, cid});
 		do_weapon_fx(w,cmb);
 		return true;
 	}
@@ -3338,6 +3364,8 @@ bool _do_trigger_combo_ffc(int32_t pos, int32_t special, weapon* w)
 		{
 			set_bit(grid,pos,1);
 		}
+		if(once_per_weapon)
+			w->ffcs_triggered_once.insert({pos, cid});
 	}
 	
 	if(w)

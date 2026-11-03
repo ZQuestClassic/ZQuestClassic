@@ -279,6 +279,9 @@ struct newcombo
 
 #define combotriggerONLY_GROUND_WPN     0x40000000
 
+//triggerflags[5]
+#define combotriggerONCE_PER_WEAPON     0x02000000
+
 #define ctrigNONE                       0x00
 #define ctrigIGNORE_SIGN                0x01
 #define ctrigSECRETS                    0x02
