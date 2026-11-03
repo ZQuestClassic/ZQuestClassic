@@ -192,10 +192,8 @@ void killgenwpn(weapon* w)
 void do_generic_combo(const rpos_handle_t& rpos_handle, weapon *w, [[maybe_unused]] int32_t wid, 
 	int32_t cid, [[maybe_unused]] int32_t flag, [[maybe_unused]] int32_t flag2, int32_t ft, [[maybe_unused]] bool single16) //WID currently is unused; if you add code relating to it, make sure to check if it's greater than 0
 {
-	if ( combobuf[cid].type < cTRIGGERGENERIC && !(combobuf[cid].usrflags&cflag9 )  )  //Script combos need an 'Engine' flag
-	{ 
+	if (!combobuf[cid].runs_generic_effects())
 		return;
-	}
 
 	int32_t pos = rpos_handle.pos;
 	int32_t layer = rpos_handle.layer;
@@ -327,10 +325,8 @@ void do_generic_combo(const rpos_handle_t& rpos_handle, weapon *w, [[maybe_unuse
 
 void do_generic_combo_ffc(weapon *w, const ffc_handle_t& ffc_handle, int32_t cid, int32_t ft)
 {
-	if ( combobuf[cid].type < cTRIGGERGENERIC && !(combobuf[cid].usrflags&cflag9 )  )  //Script combos need an 'Engine' flag
-	{ 
+	if (!combobuf[cid].runs_generic_effects())
 		return;
-	} 
 	ft = vbound(ft, minSECRET_TYPE, maxSECRET_TYPE); //sanity guard to legal secret types. 44 to 127 are unused
 	ffcdata* ffc = ffc_handle.ffc;
 	if ( !w->ffcs_checked.contains(ffc) || (combobuf[cid].usrflags&cflag5) ) 

@@ -1,4 +1,5 @@
 #include "base/general.h"
+#include "base/check.h"
 #include "base/util.h"
 #include "base/zc_math.h"
 #include "core/combo.h"
@@ -167,23 +168,11 @@ static bool _ctype_causes_trig_cond(combo_trigger const& trig)
 
 const TriggerData ctype_causes_trigger(_ctype_causes_trig_cond);
 
-bool alwaysCTypeEffects(int32_t type)
-{
-	switch(type)
-	{
-		case cCUSTOMBLOCK:
-			return true;
-	}
-	return false;
-}
-
 // TODO: remove unused params?
 static void do_generic_combo2(int32_t bx, [[maybe_unused]] int32_t by, int32_t cid, [[maybe_unused]] int32_t flag, [[maybe_unused]] int32_t flag2, int32_t ft, const rpos_handle_t& rpos_handle, [[maybe_unused]] bool single16)
 {
-	if ( combobuf[cid].type < cTRIGGERGENERIC && !(combobuf[cid].usrflags&cflag9 )  )  //Script combos need an 'Engine' flag
-	{ 
+	if (!combobuf[cid].runs_generic_effects())
 		return;
-	}
 
 	mapscr* scr = rpos_handle.scr;
 	int pos = rpos_handle.pos;
@@ -310,10 +299,8 @@ static void do_generic_combo2(int32_t bx, [[maybe_unused]] int32_t by, int32_t c
 
 void do_generic_combo_ffc2(const ffc_handle_t& ffc_handle, int32_t cid, int32_t ft)
 {
-	if ( combobuf[cid].type < cTRIGGERGENERIC && !(combobuf[cid].usrflags&cflag9 )  )  //Script combos need an 'Engine' flag
-	{ 
-		return;
-	} 
+	if (!combobuf[cid].runs_generic_effects())
+		return; 
 	ft = vbound(ft, minSECRET_TYPE, maxSECRET_TYPE); //sanity guard to legal secret types. 44 to 127 are unused
 	ffcdata* ffc = ffc_handle.ffc;
 	mapscr* scr = ffc_handle.scr;
@@ -3138,7 +3125,8 @@ static bool _do_trigger_combo(const combined_handle_t& handle, size_t idx, int32
 						sfx(cmb.c_attributes[8].getTrunc());
 					break;
 			}
-			if(!check_bit)
+			// The editor's repeat warnings rely on this list too.
+			if(!check_bit && combo_type_has_trigger_effects(cmb.type))
 			{
 				used_bit = true;
 				switch(cmb.type)
@@ -3226,7 +3214,8 @@ static bool _do_trigger_combo(const combined_handle_t& handle, size_t idx, int32
 						awaken_spinning_tile(handle, false);
 						break;
 					default:
-						used_bit = false;
+						// Missing a case for a type combo_type_has_trigger_effects lists.
+						DCHECK(false);
 				}
 			}
 		}

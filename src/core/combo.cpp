@@ -1429,6 +1429,19 @@ void newcombo::reset_animation()
 	aclk = 0;
 }
 
+bool newcombo::runs_generic_effects() const
+{
+	switch (type)
+	{
+		case cTRIGGERGENERIC:
+			return true;
+		case cSCRIPT1: case cSCRIPT2: case cSCRIPT3: case cSCRIPT4: case cSCRIPT5:
+		case cSCRIPT6: case cSCRIPT7: case cSCRIPT8: case cSCRIPT9: case cSCRIPT10:
+			return usrflags & cflag9;
+	}
+	return false;
+}
+
 bool newcombo::animate(bool force_next_frame)
 {
 	if (aclk >= speed + (cur_frame ? 0 : delay) || force_next_frame)
@@ -1623,3 +1636,49 @@ bool is_push_flag(int flag, optional<int> dir)
 	}
 	return false;
 }
+
+bool combo_type_has_trigger_effects(int type)
+{
+	switch (type)
+	{
+		case cCUTSCENEEFFECT: case cCUTSCENETRIG: case cCSWITCH: case cCSWITCHBLOCK: case cSIGNPOST:
+		case cSLASH: case cSLASHITEM: case cBUSH: case cFLOWERS: case cTALLGRASS:
+		case cTALLGRASSNEXT: case cSLASHNEXT: case cSLASHNEXTITEM: case cBUSHNEXT:
+		case cSLASHTOUCHY: case cSLASHITEMTOUCHY: case cBUSHTOUCHY: case cFLOWERSTOUCHY:
+		case cTALLGRASSTOUCHY: case cSLASHNEXTTOUCHY: case cSLASHNEXTITEMTOUCHY: case cBUSHNEXTTOUCHY:
+		case cSTEP: case cSTEPSAME: case cSTEPALL:
+		case cSTAIR: case cSTAIRB: case cSTAIRC: case cSTAIRD: case cSTAIRR:
+		case cSWIMWARP: case cSWIMWARPB: case cSWIMWARPC: case cSWIMWARPD:
+		case cDIVEWARP: case cDIVEWARPB: case cDIVEWARPC: case cDIVEWARPD:
+		case cPIT: case cPITB: case cPITC: case cPITD: case cPITR:
+		case cAWARPA: case cAWARPB: case cAWARPC: case cAWARPD: case cAWARPR:
+		case cSWARPA: case cSWARPB: case cSWARPC: case cSWARPD: case cSWARPR:
+		case cCHEST: case cLOCKEDCHEST: case cBOSSCHEST: case cLOCKBLOCK: case cBOSSLOCKBLOCK:
+		case cARMOS: case cBSGRAVE: case cGRAVE:
+		case cDAMAGE1: case cDAMAGE2: case cDAMAGE3: case cDAMAGE4: case cDAMAGE5: case cDAMAGE6: case cDAMAGE7:
+		case cSTEPSFX: case cSWITCHHOOK: case cSHOOTER: case cSAVE: case cSAVE2: case cSPINTILE1:
+			return true;
+	}
+	return false;
+}
+
+bool alwaysCTypeEffects(int32_t type)
+{
+	switch(type)
+	{
+		case cCUSTOMBLOCK:
+			return true;
+	}
+	return false;
+}
+
+const std::vector<std::pair<int, const char*>> every_frame_trigger_causes = {
+	{ TRIGFLAG_AUTOMATIC, "Always Triggered" },
+	{ TRIGFLAG_STEP, "Step->" }, { TRIGFLAG_STEPSENS, "Step-> (Sensitive)" },
+	{ TRIGFLAG_SWIMTRIG, "Swim->" }, { TRIGFLAG_SWIMSENSTRIG, "Swim-> (Sensitive)" },
+	{ TRIGFLAG_DIVETRIG, "Dive->" }, { TRIGFLAG_DIVESENSTRIG, "Dive-> (Sensitive)" },
+	{ TRIGFLAG_ENEMIESKILLED, "Enemies->" },
+	{ TRIGFLAG_TGROUP_LESS, "TrigGroup Less->" }, { TRIGFLAG_TGROUP_GREATER, "TrigGroup Greater->" },
+	{ TRIGFLAG_LIGHTON, "Light On->" }, { TRIGFLAG_LIGHTOFF, "Light Off->" },
+	{ TRIGFLAG_LENSON, "Lens On->" }, { TRIGFLAG_LENSOFF, "Lens Off->" },
+};
