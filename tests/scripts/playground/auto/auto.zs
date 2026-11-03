@@ -27,6 +27,7 @@
 #include "auto/bug_whirlwind_shallow_liquid.zs"
 #include "auto/classes.zs"
 #include "auto/combo_script_owned_clear.zs"
+#include "auto/combo_trigger_weapon_once.zs"
 #include "auto/compat_hammer_charge_turn.zs"
 #include "auto/ffc_script_runner.zs"
 #include "auto/init_scripts.zs"

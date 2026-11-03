@@ -602,6 +602,8 @@ static void MatchComboTrigger2(weapon *w, int32_t bx, int32_t by, int32_t layer 
 				{
 					ffcdata& ffc = tmpscr->ffcs[i];
 					if(!MatchComboTrigger(w, ffc.data)) continue;
+					if (!w->ffcs_triggered_this_frame.insert({i, ffc.data}).second)
+						continue;
 					do_trigger_combo_ffc(i, 0, w);
 				}
 			}
@@ -612,6 +614,8 @@ static void MatchComboTrigger2(weapon *w, int32_t bx, int32_t by, int32_t layer 
 	by=vbound(by, 0, 175) & 0xF0;
 	int32_t cid = (layer) ? MAPCOMBOL(layer,bx,by) : MAPCOMBO(bx,by);
 	if(!MatchComboTrigger(w, cid)) return;
+	if (!w->combos_triggered_this_frame.insert({layer, COMBOPOS(bx,by), cid}).second)
+		return;
 	do_trigger_combo(layer, COMBOPOS(bx,by), 0, w);
 }
 
@@ -3809,6 +3813,8 @@ void weapon::limited_animate()
 }
 bool weapon::animate(int32_t index)
 {
+	combos_triggered_this_frame.clear();
+	ffcs_triggered_this_frame.clear();
 	if(weapon_start_frame)
 	{
 		if(get_qr(qr_WEAPONS_EXTRA_SPAWN_FRAME))
