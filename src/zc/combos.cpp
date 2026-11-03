@@ -2994,6 +2994,27 @@ struct active_trigger_data
 };
 static std::set<active_trigger_data> active_triggers;
 
+// 'Once Per Weapon': whether the weapon already fired trigger `idx` of combo `cid` here. It
+// only stops that trigger, not the combo's others.
+static bool weapon_fired_once(weapon* w, const combined_handle_t& handle, int cid, size_t idx)
+{
+	if (handle.is_ffc())
+		return w->ffc_triggers_once.contains({handle.get_ffc().ffc, cid, int(idx)});
+	auto const& rpos_handle = handle.get_rpos();
+	return w->rpos_triggers_once.contains({rpos_handle.layer, rpos_handle.rpos, cid, int(idx)});
+}
+
+static void set_weapon_fired_once(weapon* w, const combined_handle_t& handle, int cid, size_t idx)
+{
+	if (handle.is_ffc())
+		w->ffc_triggers_once.insert({handle.get_ffc().ffc, cid, int(idx)});
+	else
+	{
+		auto const& rpos_handle = handle.get_rpos();
+		w->rpos_triggers_once.insert({rpos_handle.layer, rpos_handle.rpos, cid, int(idx)});
+	}
+}
+
 static bool _do_trigger_combo(const combined_handle_t& handle, size_t idx, int32_t special, weapon* w)
 {
 	if (handle.is_ffc() && get_qr(qr_OLD_FFC_FUNCTIONALITY)) return false;
@@ -3018,8 +3039,15 @@ static bool _do_trigger_combo(const combined_handle_t& handle, size_t idx, int32
 
 	mapscr* base_scr = handle.base_scr();
 	bool hasitem = false;
+	// A weapon that already fired a 'Once Per Weapon' trigger doesn't run any of it again: not
+	// its weapon effects, and it doesn't count as firing for 'Cancel Trigger'.
+	bool once_per_weapon = w && trig.trigger_flags.get(TRIGFLAG_ONCE_PER_WEAPON);
+	if (once_per_weapon && weapon_fired_once(w, handle, cid, idx))
+		return false;
 	if(w && trig.trigger_flags.get(TRIGFLAG_SEPARATEWEAPON))
 	{
+		if (once_per_weapon)
+			set_weapon_fired_once(w, handle, cid, idx);
 		do_weapon_fx(w,trig);
 		return true;
 	}
@@ -3213,6 +3241,8 @@ static bool _do_trigger_combo(const combined_handle_t& handle, size_t idx, int32
 			else if(rpos_handle)
 				w->rposes_checked.insert({rpos_handle->layer, rpos_handle->rpos});
 		}
+		if (once_per_weapon)
+			set_weapon_fired_once(w, handle, cid, idx);
 	}
 	
 	if(w)

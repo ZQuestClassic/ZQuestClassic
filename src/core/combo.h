@@ -493,6 +493,9 @@ enum ComboTriggerFlag
 	// have with [TRIGFLAG_TRIGGER_LARGE_COMBO_COPYCAT] set, and the same
 	// [combotrigger::LargeComboCopycatID].
 	TRIGFLAG_TRIGGERED_BY_LARGE_COMBO_COPYCAT,
+	// Trigger weapon effect: once a weapon has fired this trigger, that weapon doesn't fire it
+	// again. The combo's other triggers aren't affected.
+	TRIGFLAG_ONCE_PER_WEAPON,
 
 	TRIGFLAG_MAX
 };

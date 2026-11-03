@@ -3719,32 +3719,32 @@ POP D2; Func[combotrigger combodata::GetTrigger(char32[])] Body Start           
 POP REFCOMBOTRIGGER                                                             | 3690 resources/include/bindings/combodata.zh:431
 COMBOD_GET_TRIGGER D2                                                           | 3691 resources/include/bindings/combodata.zh:431
 RETURNFUNC; Func[combotrigger combodata::GetTrigger(char32[])] Body End         | 3692 resources/include/bindings/combodata.zh:431
-PEEKATV REFCOMBOTRIGGER 0.0002; Func[int combotrigger::GetReqExDoor(int, int)] Body Start | 3693 resources/include/bindings/combotrigger.zh:714
-SETR D2 CMBTRIG_REQ_SCREXDOOR                                                   | 3694 resources/include/bindings/combotrigger.zh:714
-POPARGS D5 0.0003                                                               | 3695 resources/include/bindings/combotrigger.zh:714
-RETURNFUNC; Func[int combotrigger::GetReqExDoor(int, int)] Body End             | 3696 resources/include/bindings/combotrigger.zh:714
-POP D2; Func[void combotrigger::SetReqExDoor(int, int, bool)] Body Start        | 3697 resources/include/bindings/combotrigger.zh:723
-PEEKATV REFCOMBOTRIGGER 0.0002                                                  | 3698 resources/include/bindings/combotrigger.zh:723
-SETR CMBTRIG_REQ_SCREXDOOR D2                                                   | 3699 resources/include/bindings/combotrigger.zh:723
-POPARGS D5 0.0003                                                               | 3700 resources/include/bindings/combotrigger.zh:723
-RETURNFUNC; Func[void combotrigger::SetReqExDoor(int, int, bool)] Body End      | 3701 resources/include/bindings/combotrigger.zh:723
-PEEKATV REFCOMBOTRIGGER 0.0002; Func[int combotrigger::GetUnreqExDoor(int, int)] Body Start | 3702 resources/include/bindings/combotrigger.zh:731
-SETR D2 CMBTRIG_UNREQ_SCREXDOOR                                                 | 3703 resources/include/bindings/combotrigger.zh:731
-POPARGS D5 0.0003                                                               | 3704 resources/include/bindings/combotrigger.zh:731
-RETURNFUNC; Func[int combotrigger::GetUnreqExDoor(int, int)] Body End           | 3705 resources/include/bindings/combotrigger.zh:731
-POP D2; Func[void combotrigger::SetUnreqExDoor(int, int, bool)] Body Start      | 3706 resources/include/bindings/combotrigger.zh:740
-PEEKATV REFCOMBOTRIGGER 0.0002                                                  | 3707 resources/include/bindings/combotrigger.zh:740
-SETR CMBTRIG_UNREQ_SCREXDOOR D2                                                 | 3708 resources/include/bindings/combotrigger.zh:740
-POPARGS D5 0.0003                                                               | 3709 resources/include/bindings/combotrigger.zh:740
-RETURNFUNC; Func[void combotrigger::SetUnreqExDoor(int, int, bool)] Body End    | 3710 resources/include/bindings/combotrigger.zh:740
-POP D2; Func[void combotrigger::GetLabel(char32[])] Body Start                  | 3711 resources/include/bindings/combotrigger.zh:1005
-POP REFCOMBOTRIGGER                                                             | 3712 resources/include/bindings/combotrigger.zh:1005
-CMBTRIG_GET_LABEL D2                                                            | 3713 resources/include/bindings/combotrigger.zh:1005
-RETURNFUNC; Func[void combotrigger::GetLabel(char32[])] Body End                | 3714 resources/include/bindings/combotrigger.zh:1005
-POP D2; Func[void combotrigger::SetLabel(char32[])] Body Start                  | 3715 resources/include/bindings/combotrigger.zh:1013
-POP REFCOMBOTRIGGER                                                             | 3716 resources/include/bindings/combotrigger.zh:1013
-CMBTRIG_SET_LABEL D2                                                            | 3717 resources/include/bindings/combotrigger.zh:1013
-RETURNFUNC; Func[void combotrigger::SetLabel(char32[])] Body End                | 3718 resources/include/bindings/combotrigger.zh:1013
+PEEKATV REFCOMBOTRIGGER 0.0002; Func[int combotrigger::GetReqExDoor(int, int)] Body Start | 3693 resources/include/bindings/combotrigger.zh:724
+SETR D2 CMBTRIG_REQ_SCREXDOOR                                                   | 3694 resources/include/bindings/combotrigger.zh:724
+POPARGS D5 0.0003                                                               | 3695 resources/include/bindings/combotrigger.zh:724
+RETURNFUNC; Func[int combotrigger::GetReqExDoor(int, int)] Body End             | 3696 resources/include/bindings/combotrigger.zh:724
+POP D2; Func[void combotrigger::SetReqExDoor(int, int, bool)] Body Start        | 3697 resources/include/bindings/combotrigger.zh:733
+PEEKATV REFCOMBOTRIGGER 0.0002                                                  | 3698 resources/include/bindings/combotrigger.zh:733
+SETR CMBTRIG_REQ_SCREXDOOR D2                                                   | 3699 resources/include/bindings/combotrigger.zh:733
+POPARGS D5 0.0003                                                               | 3700 resources/include/bindings/combotrigger.zh:733
+RETURNFUNC; Func[void combotrigger::SetReqExDoor(int, int, bool)] Body End      | 3701 resources/include/bindings/combotrigger.zh:733
+PEEKATV REFCOMBOTRIGGER 0.0002; Func[int combotrigger::GetUnreqExDoor(int, int)] Body Start | 3702 resources/include/bindings/combotrigger.zh:741
+SETR D2 CMBTRIG_UNREQ_SCREXDOOR                                                 | 3703 resources/include/bindings/combotrigger.zh:741
+POPARGS D5 0.0003                                                               | 3704 resources/include/bindings/combotrigger.zh:741
+RETURNFUNC; Func[int combotrigger::GetUnreqExDoor(int, int)] Body End           | 3705 resources/include/bindings/combotrigger.zh:741
+POP D2; Func[void combotrigger::SetUnreqExDoor(int, int, bool)] Body Start      | 3706 resources/include/bindings/combotrigger.zh:750
+PEEKATV REFCOMBOTRIGGER 0.0002                                                  | 3707 resources/include/bindings/combotrigger.zh:750
+SETR CMBTRIG_UNREQ_SCREXDOOR D2                                                 | 3708 resources/include/bindings/combotrigger.zh:750
+POPARGS D5 0.0003                                                               | 3709 resources/include/bindings/combotrigger.zh:750
+RETURNFUNC; Func[void combotrigger::SetUnreqExDoor(int, int, bool)] Body End    | 3710 resources/include/bindings/combotrigger.zh:750
+POP D2; Func[void combotrigger::GetLabel(char32[])] Body Start                  | 3711 resources/include/bindings/combotrigger.zh:1015
+POP REFCOMBOTRIGGER                                                             | 3712 resources/include/bindings/combotrigger.zh:1015
+CMBTRIG_GET_LABEL D2                                                            | 3713 resources/include/bindings/combotrigger.zh:1015
+RETURNFUNC; Func[void combotrigger::GetLabel(char32[])] Body End                | 3714 resources/include/bindings/combotrigger.zh:1015
+POP D2; Func[void combotrigger::SetLabel(char32[])] Body Start                  | 3715 resources/include/bindings/combotrigger.zh:1023
+POP REFCOMBOTRIGGER                                                             | 3716 resources/include/bindings/combotrigger.zh:1023
+CMBTRIG_SET_LABEL D2                                                            | 3717 resources/include/bindings/combotrigger.zh:1023
+RETURNFUNC; Func[void combotrigger::SetLabel(char32[])] Body End                | 3718 resources/include/bindings/combotrigger.zh:1023
 POP D2; Func[directory directory::directory(char32[])] Body Start               | 3719 resources/include/bindings/directory.zh:9
 LOADDIRECTORYR D2                                                               | 3720 resources/include/bindings/directory.zh:9
 RETURNFUNC; Func[directory directory::directory(char32[])] Body End             | 3721 resources/include/bindings/directory.zh:9
@@ -6936,7 +6936,8 @@ debug data:
       - const ComboTriggerFlag TRIGFLAG_COMBOPOSSTATE_UNSET @ Constant[1820000]
       - const ComboTriggerFlag TRIGFLAG_TRIGGER_LARGE_COMBO_COPYCAT @ Constant[1830000]
       - const ComboTriggerFlag TRIGFLAG_TRIGGERED_BY_LARGE_COMBO_COPYCAT @ Constant[1840000]
-      - const ComboTriggerFlag TRIGFLAG_MAX @ Constant[1850000]
+      - const ComboTriggerFlag TRIGFLAG_ONCE_PER_WEAPON @ Constant[1850000]
+      - const ComboTriggerFlag TRIGFLAG_MAX @ Constant[1860000]
     [CLASS] combotrigger <IDX:160>
       - int BossPal @ Reg[CMBTRIGBOSSPAL]
       - int Bunny @ Reg[CMBTRIGBUNNY]

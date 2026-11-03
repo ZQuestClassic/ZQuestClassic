@@ -93,6 +93,10 @@ public:
 	// again and repeat its failure effects. A trigger on Cooldown counts as fired.
 	std::map<std::tuple<int, rpos_t, int, int>, bool> rpos_triggers_this_frame;
 	std::map<std::tuple<ffcdata*, int, int>, bool> ffc_triggers_this_frame;
+	// The 'Once Per Weapon' triggers this weapon has fired, by where they are, their combo and
+	// their index.
+	std::set<std::tuple<int, rpos_t, int, int>> rpos_triggers_once;
+	std::set<std::tuple<ffcdata*, int, int>> ffc_triggers_once;
 	
 	int16_t death_spawnitem;
 	int16_t death_spawndropset;
