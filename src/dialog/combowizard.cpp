@@ -138,6 +138,18 @@ size_t ComboWizardDialog::getRadio(size_t rs)
 #define RESET(member) (local_ref.member = src_ref.member)
 #define ZERO(member) (local_ref.member = 0)
 #define RESET_ZERO(member,flag) (local_ref.member = (flag ? 0 : src_ref.member))
+
+// Says who a weapon of the chosen type can hit, since an LWeapon and an
+// EWeapon of the same kind ("L Arrow" vs "E Arrow") behave very differently.
+static std::string weapon_type_tooltip(int weap_type, bool lw)
+{
+	if (weap_type <= 0)
+		return "";
+	if (lw)
+		return "This is an LWeapon (a player weapon), which means only enemies will be hit by the weapon - never the Hero.";
+	return "This is an EWeapon (an enemy weapon), which means only the Hero will be hit by the weapon - never enemies.";
+}
+
 void ComboWizardDialog::update(bool first)
 {
 	switch(local_ref.type)
@@ -222,6 +234,7 @@ void ComboWizardDialog::update(bool first)
 			bool lw = weap_type < wEnemyWeapons;
 			if(weap_type >= wScript1 && weap_type <= wScript10)
 				lw = (local_ref.usrflags&cflag5)!=0;
+			ddls[1]->setTooltip(weapon_type_tooltip(weap_type, lw));
 			if(first || (!(flags&1) != !lw)) //init or lw status changed
 			{
 				switcher[0]->switchTo(lw?0:1);
@@ -238,6 +251,11 @@ void ComboWizardDialog::update(bool first)
 		{
 			grids[0]->setDisabled(!(local_ref.usrflags&cflag1));
 			grids[1]->setDisabled(!(local_ref.usrflags&cflag1));
+			int weap_type = local_ref.attribytes[1];
+			bool lw = weap_type < wEnemyWeapons;
+			if(weap_type >= wScript1 && weap_type <= wScript10)
+				lw = (local_ref.usrflags&cflag2)!=0;
+			ddls[2]->setTooltip(weapon_type_tooltip(weap_type, lw));
 			break;
 		}
 		case cCHEST: case cLOCKEDCHEST: case cBOSSCHEST:
