@@ -66,6 +66,7 @@
 #include "base/util.h"
 #include "zc/ending.h"
 #include "zc/combos.h"
+#include "zc/combo_trigger_log.h"
 #include "drawing.h"
 #include "zalleg/colors.h"
 #include "pal.h"
@@ -12585,6 +12586,7 @@ int32_t run_script_int(JittedScriptInstance* j_instance)
 					break;
 				}
 
+				TriggerLogCause log_cause([]{ return std::string("a script"); });
 				set_register(sarg1, do_trigger_combo(get_rpos_handle(rpos, lyr), 0) ? 10000 : 0);
 				break;
 			}
@@ -12597,6 +12599,7 @@ int32_t run_script_int(JittedScriptInstance* j_instance)
 				if (BC::checkComboRpos(rpos) != SH::_NoError)
 					break;
 
+				TriggerLogCause log_cause([]{ return std::string("a script"); });
 				set_register(sarg1, do_trigger_combo(get_rpos_handle(rpos, lyr), idx) ? 10000 : 0);
 				break;
 			}
@@ -12604,6 +12607,7 @@ int32_t run_script_int(JittedScriptInstance* j_instance)
 			{
 				int32_t idx = get_register(sarg1) / 10000;
 				ffcdata* ffc = ResolveFFC(GET_REF(ffcref));
+				TriggerLogCause log_cause([]{ return std::string("a script"); });
 				if (ffc)
 					set_register(sarg1, do_trigger_combo(get_ffc_handle(ffc), idx) ? 10000 : 0);
 				else

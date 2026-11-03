@@ -218,6 +218,8 @@ static std::string cheatName(Cheat c)
 			return "Change Debug Opacity";
 		case Cheat::HeroPosition:
 			return "Hero Position";
+		case Cheat::ShowTriggerLog:
+			return "Toggle Trigger Log";
 		default:
 			return cheat_to_string(c);
 	}

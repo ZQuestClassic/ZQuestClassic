@@ -37,6 +37,7 @@ using std::set;
 #include "zc/ffscript.h"
 #include "drawing.h"
 #include "zc/combos.h"
+#include "zc/combo_trigger_log.h"
 #include "zc/replay.h"
 #include "slopes.h"
 #include "particles.h"
@@ -1666,7 +1667,7 @@ static void _handle_screen_load_trigger(const combined_handle_t& handle)
 		done = true; // don't loop again unless something changes
 		TriggerData([](combo_trigger const& trig){
 			return trig.trigger_flags.get(TRIGFLAG_SCREENLOAD);
-		}).execute(handle);
+		}).set_cause("On screen load").execute(handle);
 		if(handle.data() != cid)
 		{
 			cid = handle.data();
@@ -1708,7 +1709,7 @@ static void _handle_screen_unload_trigger(const combined_handle_t& handle)
 		done = true; // don't loop again unless something changes
 		TriggerData([](combo_trigger const& trig){
 			return trig.trigger_flags.get(TRIGFLAG_SCREENUNLOAD);
-		}).execute(handle);
+		}).set_cause("On screen unload").execute(handle);
 		if(handle.data() != cid)
 		{
 			cid = handle.data();
@@ -3429,7 +3430,7 @@ void trigger_secrets_for_screen_internal(const screen_handles_t& screen_handles,
 		for_every_combo_in_screen(screen_handles, [&](const auto& handle) {
 			TriggerData([](combo_trigger const& trig){
 				return trig.trigger_flags.get(TRIGFLAG_SECRETSTR);
-			}).set_special(ctrigSECRETS).execute(handle);
+			}).set_special(ctrigSECRETS).set_cause("Secrets->").execute(handle);
 		});
 	}
 
@@ -4834,6 +4835,32 @@ static void do_trigger_prox_ranges()
 	end_info_bmp();
 }
 
+// Show trigger log cheat: outline the combos whose triggers recently fired (yellow) or failed a
+// condition (red), fading out over TRIGGER_LOG_HIGHLIGHT_FRAMES. The log itself goes to the
+// console and allegro.log, and its latest lines to the screen (see render.cpp).
+static void do_trigger_log_highlights()
+{
+	if (!show_trigger_log || !info_bmp_enabled())
+		return;
+
+	start_info_bmp();
+
+	int frame = trigger_log_current_frame();
+	for (auto const& [_, h] : trigger_log_highlights())
+	{
+		float x = h.x - viewport.x + 0.5f;
+		float y = h.y + playing_field_offset - viewport.y + 0.5f;
+		float alpha = (info_opacity / 255.0f) * (1 - (frame - h.frame) / float(TRIGGER_LOG_HIGHLIGHT_FRAMES + 1));
+		// Premultiplied, like everything drawn with the default blender.
+		ALLEGRO_COLOR col = h.fired
+			? al_map_rgba_f(alpha, alpha, 0, alpha)
+			: al_map_rgba_f(alpha, alpha * 0.25f, alpha * 0.25f, alpha);
+		al_draw_rectangle(x, y, x + h.width - 1, y + h.height - 1, col, 1);
+	}
+
+	end_info_bmp();
+}
+
 // Show viewport follow cheat: draw the follow state, so quest makers can see the deadzone box
 // and watch the lookahead offset build, hold and ease.
 //   - cyan box: the deadzone, centered on the viewport's focus (white cross). The aim point
@@ -5502,6 +5529,9 @@ void draw_screen(bool showhero, bool runGeneric, bool drawPassiveSubscreenSepara
 
 	// Show trigger proximity cheat
 	do_trigger_prox_ranges();
+
+	// Show trigger log cheat
+	do_trigger_log_highlights();
 
 	// Show viewport follow cheat
 	do_viewport_follow_overlay();
@@ -6597,7 +6627,7 @@ void openshutters(mapscr* scr)
 			return;
 		TriggerData([](combo_trigger const& trig){
 			return trig.trigger_flags.get(TRIGFLAG_SHUTTER);
-		}).execute(handle);
+		}).set_cause("Shutter->").execute(handle);
 	});
 
 	if(opened_door)
@@ -8036,7 +8066,7 @@ void toggle_switches(dword flags, bool entry, const screen_handles_t& screen_han
 	if(!flags) return; //No flags to toggle
 	TriggerData level_trigger = TriggerData([&](combo_trigger const& trig){
 		return trig.trigger_flags.get(TRIGFLAG_TRIGLEVELSTATE) && trig.trig_lstate < 32 && (flags&(1<<trig.trig_lstate));
-	}).set_special(ctrigSWITCHSTATE);
+	}).set_special(ctrigSWITCHSTATE).set_cause("LevelState toggles");
 
 	mapscr* m = screen_handles[0].base_scr;
 	int screen = m->screen;
@@ -8180,7 +8210,7 @@ void toggle_gswitches(bool* states, bool entry, const screen_handles_t& screen_h
 	if(!states) return;
 	TriggerData global_trigger = TriggerData([&](combo_trigger const& trig){
 		return trig.trigger_flags.get(TRIGFLAG_TRIGGLOBALSTATE) && states[trig.trig_gstate];
-	}).set_special(ctrigSWITCHSTATE);
+	}).set_special(ctrigSWITCHSTATE).set_cause("GlobalState toggles");
 
 	mapscr* base_scr = screen_handles[0].base_scr;
 	int screen = base_scr->screen;

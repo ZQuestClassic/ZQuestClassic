@@ -3731,6 +3731,14 @@ int32_t onShowTriggerProx()
 	show_trigger_prox=!show_trigger_prox;
 	return D_O_K;
 }
+int32_t onShowTriggerLog()
+{
+	show_trigger_log=!show_trigger_log;
+	// The log goes to the console.
+	if (show_trigger_log && !console_enabled)
+		FFCore.ZScriptConsole(true);
+	return D_O_K;
+}
 int32_t onShowViewportFollow()
 {
 	show_viewport_follow=!show_viewport_follow;
@@ -5444,6 +5452,7 @@ enum
 	MENUID_SHOW_HITBOX,
 	MENUID_SHOW_EFFECT,
 	MENUID_SHOW_TRIGGER_PROX,
+	MENUID_SHOW_TRIGGER_LOG,
 	MENUID_SHOW_VIEWPORT_FOLLOW,
 };
 static NewMenu show_menu
@@ -5466,6 +5475,7 @@ static NewMenu show_menu
 	{ "Hitboxes", onShowHitboxes, MENUID_SHOW_HITBOX },
 	{ "Effects", onShowLayerE, MENUID_SHOW_EFFECT },
 	{ "Trigger Proximity", onShowTriggerProx, MENUID_SHOW_TRIGGER_PROX },
+	{ "Trigger Log", onShowTriggerLog, MENUID_SHOW_TRIGGER_LOG },
 	{ "Viewport Follow", onShowViewportFollow, MENUID_SHOW_VIEWPORT_FOLLOW },
 	{ "Info Opacity", onShowInfoOpacity },
 };
@@ -5949,6 +5959,7 @@ void System()
 			show_menu.select_uid(MENUID_SHOW_HITBOX, show_hitboxes);
 			show_menu.select_uid(MENUID_SHOW_EFFECT, show_effectflags);
 			show_menu.select_uid(MENUID_SHOW_TRIGGER_PROX, show_trigger_prox);
+			show_menu.select_uid(MENUID_SHOW_TRIGGER_LOG, show_trigger_log);
 			show_menu.select_uid(MENUID_SHOW_VIEWPORT_FOLLOW, show_viewport_follow);
 			
 			settings_menu.select_uid(MENUID_SETTINGS_HEARTBEEP, heart_beep);

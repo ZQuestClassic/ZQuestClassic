@@ -9914,9 +9914,9 @@ heroanimate_skip_liftwpn:;
 	// Global Combo Effects (AUTO STUFF)
 	bool awarp = false;
 	
-	TriggerData auto_trigger([](combo_trigger const& trig){
+	TriggerData auto_trigger = TriggerData([](combo_trigger const& trig){
 		return trig.trigger_flags.get(TRIGFLAG_AUTOMATIC);
-	});
+	}).set_cause("Always");
 	for_some_rpos([&](const rpos_handle_t& rpos_handle) {
 		if (!get_qr(qr_AUTOCOMBO_ANY_LAYER))
 		{
@@ -10777,9 +10777,9 @@ void HeroClass::land_on_ground()
 		played_land_sfx = true;
 	}
 
-	TriggerData land_here_trigger([](combo_trigger const& trig){
+	TriggerData land_here_trigger = TriggerData([](combo_trigger const& trig){
 		return trig.trigger_flags.get(TRIGFLAG_PLAYERLANDHERE);
-	});
+	}).set_cause("Land Here->");
 	for_each_rpos_stood_on([&](const rpos_handle_t& handle)
 		{
 			auto& cmb = handle.combo();
@@ -10795,9 +10795,9 @@ void HeroClass::land_on_ground()
 	if(!played_land_sfx && QMisc.miscsfx[sfxHERO_LANDS])
 		sfx(QMisc.miscsfx[sfxHERO_LANDS], pan(x));
 	
-	TriggerData land_anywhere_trigger([](combo_trigger const& trig){
+	TriggerData land_anywhere_trigger = TriggerData([](combo_trigger const& trig){
 		return trig.trigger_flags.get(TRIGFLAG_PLAYERLANDANYWHERE);
-	});
+	}).set_cause("Land Anywhere->");
 	for_some_rpos([&](const rpos_handle_t& rpos_handle) {
 		land_anywhere_trigger.execute(rpos_handle);
 		return true;
@@ -13071,7 +13071,7 @@ bool HeroClass::doattack()
 							if(!trig.trigger_flags.any(trigflags)) return false;
 							return (trig.trigger_flags.get(TRIGFLAG_INVERTMINMAX)
 								? hmrlvl <= trig.triggerlevel : hmrlvl >= trig.triggerlevel);
-						}).execute(handle);
+						}).set_cause("Quake Hammer").execute(handle);
 					});
 				}
 			}
@@ -13193,9 +13193,9 @@ bool isRaftFlag(int32_t flag)
 void handle_lens_triggers(int32_t l_id)
 {
 	bool enabled = valid_item_id(l_id) && (itemsbuf.get(l_id).flags & item_flag6);
-	TriggerData lens_trigger([&](combo_trigger const& trig){
+	TriggerData lens_trigger = TriggerData([&](combo_trigger const& trig){
 		return trig.trigger_flags.get(enabled ? TRIGFLAG_LENSON : TRIGFLAG_LENSOFF);
-	});
+	}).set_cause(enabled ? "Lens On->" : "Lens Off->");
 	for_every_combo([&](const auto& handle) {
 		if (handle.combo().triggers.empty())
 			return;
@@ -21792,10 +21792,10 @@ void HeroClass::checkgenpush(rpos_t rpos)
 	if (rpos == rpos_t::None)
 		return;
 
-	TriggerData push_trigger([&](combo_trigger const& trig){
+	TriggerData push_trigger = TriggerData([&](combo_trigger const& trig){
 		if(!trig.trigger_flags.get(TRIGFLAG_PUSH)) return false;
 		return pushing && !(pushing % zc_max(1,trig.trig_pushtime));
-	});
+	}).set_cause("Push->");
 	for (int layer = 0; layer < 7; ++layer)
 	{
 		auto rpos_handle = get_rpos_handle(rpos, layer);
@@ -21842,10 +21842,10 @@ void HeroClass::checkgenpush()
 
 	if (!get_qr(qr_OLD_FFC_FUNCTIONALITY))
 	{
-		TriggerData push_trigger([&](combo_trigger const& trig){
+		TriggerData push_trigger = TriggerData([&](combo_trigger const& trig){
 			if(!trig.trigger_flags.get(TRIGFLAG_PUSH)) return false;
 			return pushing && !(pushing % zc_max(1,trig.trig_pushtime));
-		});
+		}).set_cause("Push->");
 		for_some_ffcs([&](const ffc_handle_t& ffc_handle) {
 			if (ffcIsAt(ffc_handle, bx, by) || ffcIsAt(ffc_handle, bx2, by2))
 			{
@@ -22107,7 +22107,7 @@ endsigns:
 		// Eat inputs only after trigger succeeds, or plays failure string
 		if (success || trig.fail_msgstr)
 			inputs_to_eat |= trig.triggerbtn;
-	}).execute(comb_handle);
+	}).set_cause("Button press").execute(comb_handle);
 	
 	if (inputs_to_eat)
 		getIntBtnInput(inputs_to_eat, INPUT_PRESS | INPUT_DRUNK);
@@ -22829,7 +22829,7 @@ void HeroClass::handleSpotlights()
 				int32_t trigflag = lbeam_flag(trig.triglbeam);
 				bool trigged = (beam_world.istrig[(int)rpos_handle.rpos]&trigflag);
 				return trig.trigger_flags.get(trigged ? TRIGFLAG_LIGHTON : TRIGFLAG_LIGHTOFF);
-			}).execute(rpos_handle);
+			}).set_cause("Light beam").execute(rpos_handle);
 		}
 	});
 
@@ -22871,7 +22871,7 @@ void HeroClass::handleSpotlights()
 				int32_t trigflag = lbeam_flag(trig.triglbeam);
 				bool trigged = (beam_world.istrig[(int)rpos]&trigflag);
 				return trig.trigger_flags.get(trigged ? TRIGFLAG_LIGHTON : TRIGFLAG_LIGHTOFF);
-			}).execute(ffc_handle);
+			}).set_cause("Light beam").execute(ffc_handle);
 		}
 	});
 
@@ -23129,9 +23129,9 @@ int32_t HeroClass::nextflag(int32_t cx, int32_t cy, int32_t cdir, bool comboflag
 void HeroClass::checkspecial()
 {
     checktouchblk();
-	static TriggerData enemies_dead_trigger([](combo_trigger const& trig){
+	static TriggerData enemies_dead_trigger = TriggerData([](combo_trigger const& trig){
 		return trig.trigger_flags.get(TRIGFLAG_ENEMIESKILLED);
-	});
+	}).set_cause("Enemies->");
 
 	for_every_base_screen_in_region([&](mapscr* scr, unsigned int region_scr_x, unsigned int region_scr_y) {
 		int screen = scr->screen;
@@ -23840,24 +23840,24 @@ void HeroClass::checkspecial2(int32_t *ls)
 		int32_t yPoses[4] = {ty + 4, ty + 11, ty+(bigHitbox?0:8), ty + 15};
 		
 		bool foundNonStep = false;
-		TriggerData any_step_or_swim_trigger([](combo_trigger const& trig){
+		TriggerData any_step_or_swim_trigger = TriggerData([](combo_trigger const& trig){
 			return trig.trigger_flags.any({TRIGFLAG_STEP,TRIGFLAG_STEPSENS,TRIGFLAG_SWIMTRIG,TRIGFLAG_SWIMSENSTRIG});
-		});
-		TriggerData any_step_trigger([](combo_trigger const& trig){
+		}).set_cause("Step-> or Swim->");
+		TriggerData any_step_trigger = TriggerData([](combo_trigger const& trig){
 			return trig.trigger_flags.any({TRIGFLAG_STEP,TRIGFLAG_STEPSENS});
-		});
-		TriggerData sens_step_or_swim_trigger([](combo_trigger const& trig){
+		}).set_cause("Step->");
+		TriggerData sens_step_or_swim_trigger = TriggerData([](combo_trigger const& trig){
 			return trig.trigger_flags.any({TRIGFLAG_STEPSENS,TRIGFLAG_SWIMSENSTRIG});
-		});
-		TriggerData sens_step_trigger([](combo_trigger const& trig){
+		}).set_cause("Step-> or Swim-> (Sensitive)");
+		TriggerData sens_step_trigger = TriggerData([](combo_trigger const& trig){
 			return trig.trigger_flags.any({TRIGFLAG_STEPSENS});
-		});
-		TriggerData nonsens_step_or_swim_trigger([](combo_trigger const& trig){
+		}).set_cause("Step-> (Sensitive)");
+		TriggerData nonsens_step_or_swim_trigger = TriggerData([](combo_trigger const& trig){
 			return trig.trigger_flags.any({TRIGFLAG_STEP,TRIGFLAG_SWIMTRIG});
-		});
-		TriggerData nonsens_step_trigger([](combo_trigger const& trig){
+		}).set_cause("Step-> or Swim->");
+		TriggerData nonsens_step_trigger = TriggerData([](combo_trigger const& trig){
 			return trig.trigger_flags.any({TRIGFLAG_STEP});
-		});
+		}).set_cause("Step->");
 		bool swim_triggers = isSwimming();
 		for (auto [rpos, lyrbits] : stepRposes)
 		{
@@ -23946,12 +23946,12 @@ void HeroClass::checkspecial2(int32_t *ls)
 		int yposes[] = {y1,y2,y1,y2};
 		auto rposes = getRposes(x1,y1,x2,y2);
 		bool hit_center_bridge = false;
-		TriggerData dive_trigger([](combo_trigger const& trig){
+		TriggerData dive_trigger = TriggerData([](combo_trigger const& trig){
 			return trig.trigger_flags.get(TRIGFLAG_DIVETRIG);
-		});
-		TriggerData dive_sens_trigger([](combo_trigger const& trig){
+		}).set_cause("Dive->");
+		TriggerData dive_sens_trigger = TriggerData([](combo_trigger const& trig){
 			return trig.trigger_flags.get(TRIGFLAG_DIVESENSTRIG);
-		});
+		}).set_cause("Dive-> (Sensitive)");
 		for(auto lyr = 6; lyr >= 0; --lyr)
 		{
 			auto rpos_handle = get_rpos_handle(crpos, lyr);

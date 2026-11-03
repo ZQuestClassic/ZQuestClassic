@@ -69,6 +69,9 @@ void set_debug(bool d);
 
 ZC_FORMAT_PRINTF(1, 2)
 void Z_eventlog(const char *format, ...);
+// Like Z_eventlog, but even when the quest doesn't log game events, or no game is playing.
+ZC_FORMAT_PRINTF(1, 2)
+void Z_eventlog_force(const char *format, ...);
 ZC_FORMAT_PRINTF(1, 2)
 void Z_scripterrlog(const char * const format, ...);
 ZC_FORMAT_PRINTF(1, 2)
@@ -355,7 +358,7 @@ extern byte SnapshotScale;
 extern int32_t add_asparkle, add_bsparkle;
 
 extern bool show_layers[7];
-extern bool show_layer_over, show_layer_push, show_sprites, show_ffcs, show_hitboxes, show_walkflags, show_ff_scripts, show_effectflags, show_trigger_prox, show_viewport_follow;
+extern bool show_layer_over, show_layer_push, show_sprites, show_ffcs, show_hitboxes, show_walkflags, show_ff_scripts, show_effectflags, show_trigger_prox, show_trigger_log, show_viewport_follow;
 
 extern int32_t    cheat_goto_dmap, cheat_goto_screen;
 extern int32_t  visited[6];

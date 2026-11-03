@@ -817,12 +817,12 @@ bool movingblock::animate(int32_t)
 			Z_message("Push block error: destination screen does not exist. Check the screen's layers.\n");
 		}
 
-		TriggerData same_layer_block_trigger([](combo_trigger const& trig){
+		TriggerData same_layer_block_trigger = TriggerData([](combo_trigger const& trig){
 			return trig.trigger_flags.get(TRIGFLAG_BLOCK_TRIGGER_SAME_LAYER);
-		});
-		TriggerData any_layer_block_trigger([](combo_trigger const& trig){
+		}).set_cause("Block (Same Layer)");
+		TriggerData any_layer_block_trigger = TriggerData([](combo_trigger const& trig){
 			return trig.trigger_flags.get(TRIGFLAG_BLOCK_TRIGGER_ANY_LAYER);
-		});
+		}).set_cause("Block (Any Layer)");
 		if(new_block)
 		{
 			clk = 0;
@@ -1266,7 +1266,7 @@ bool movingblock::animate(int32_t)
 		}
 		TriggerData([](combo_trigger const& trig){
 			return trig.trigger_flags.get(TRIGFLAG_PUSHEDTRIG);
-		}).execute(end_rpos_handle);
+		}).set_cause("Pushed->").execute(end_rpos_handle);
 		clear();
 	}
 	return false;

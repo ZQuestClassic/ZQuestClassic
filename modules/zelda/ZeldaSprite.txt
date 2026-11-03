@@ -8,6 +8,7 @@ src/zc/zc_sprite.cpp
 src/zc/guys.cpp
 src/zc/weapons.cpp
 src/zc/combos.cpp
+src/zc/combo_trigger_log.cpp
 src/zc/hero.cpp
 src/zc/lightbeam.cpp
 src/particles.cpp
