@@ -589,6 +589,8 @@ GUI::ListData GUI::ZCListData::weaptypes(bool numbered)
 		string module_str = ZI.getWeapName(q);
 		if(q >= wEnemyWeapons)
 			module_str = fmt::format("E {}", module_str);
+		else if(q < wScript1 || q > wScript10) // script weapons can be either
+			module_str = fmt::format("L {}", module_str);
 		if(numbered)
 			ls.add(fmt::format("{} ({:03})", module_str, q), q);
 		else ls.add(module_str, q);
