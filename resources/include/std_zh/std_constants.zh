@@ -3636,6 +3636,7 @@ enum ComboTrigFlag
 	
 	//
 	TRIGFLAG_ONLY_GROUNDED_WEAPONS = 126, //Weapons->Other->'Only Grounded Weapons' - weapons with Z > 0 won't trigger the combo
+	TRIGFLAG_ONCE_PER_WEAPON = 185, //Weapons->Weapon Effects->'Once Per Weapon' - once a weapon has triggered the combo, that weapon doesn't trigger it again
 	
 	TRIGFLAG_MAX_IN_USE,
 	TRIGFLAG_MAX = 32*6

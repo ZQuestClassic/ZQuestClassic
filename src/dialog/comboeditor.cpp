@@ -2793,6 +2793,13 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 								Rows<2>(hAlign = 0.0,
 									IBTN("Destroy the triggering weapon"),
 									TRIGFLAG(30, "Kill Triggering Weapon"),
+									IBTN("Once a weapon has triggered this, that weapon won't trigger this combo again."
+										"\nWithout this, a weapon triggers the combo again every frame it touches it,"
+										" unless the trigger triggers secrets, changes the combo or its CSet,"
+										" changes a LevelState or GlobalState, or uses '->ComboType Effects' on a"
+										" Generic combo or a combo type with an effect of its own (a chest, bush,"
+										" lock block, switch, step, warp, sign, ...)."),
+									TRIGFLAG(185, "Once Per Weapon"),
 									IBTN("Light the triggering weapon on fire, making it trigger 'Normal Fire' triggers."),
 									TRIGFLAG(104, "Ignite Weapon (Normal)"),
 									IBTN("Light the triggering weapon on fire, making it trigger 'Strong Fire' triggers."),

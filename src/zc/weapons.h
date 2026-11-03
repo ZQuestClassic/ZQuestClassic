@@ -106,6 +106,11 @@ public:
 	std::set<std::tuple<int, int, int>> combos_triggered_this_frame;
 	// (ffc, combo)
 	std::set<std::pair<int, int>> ffcs_triggered_this_frame;
+	// The 'Once Per Weapon' combos this weapon has fired.
+	// (layer, pos, combo)
+	std::set<std::tuple<int, int, int>> combos_triggered_once;
+	// (ffc, combo)
+	std::set<std::pair<int, int>> ffcs_triggered_once;
 
 	int16_t death_spawnitem;
 	int16_t death_spawndropset;
