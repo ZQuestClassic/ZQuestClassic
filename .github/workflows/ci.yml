@@ -37,8 +37,7 @@ jobs:
             arch: x64
             compiler: msvc
             num-shards: 5
-            # We currently can't show backtraces on crash for windows in CI, so no need for debug info yet.
-            config: Release
+            config: RelWithDebInfo
           - runs-on: windows-2022
             arch: win32
             compiler: msvc
@@ -49,7 +48,7 @@ jobs:
             arch: arm64
             compiler: msvc
             num-shards: 5
-            config: Release
+            config: RelWithDebInfo
           - runs-on: macos-15-intel
             arch: intel
             compiler: clang
