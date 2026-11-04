@@ -1,5 +1,6 @@
 #include "gamedata.h"
 #include "test_runner/test_runner.h"
+#include "zalleg/packfile.h"
 #include "zc/saves.h"
 #include <cstring>
 #include <fstream>
@@ -360,6 +361,27 @@ TestResults test_saves([[maybe_unused]] bool verbose)
 		if (!loaded || good_slots != 1 || bad_slots != 1)
 		{
 			printf("failed unreadable save test: loaded %d, good %d, bad %d, err: %s\n", loaded, good_slots, bad_slots, err.c_str());
+			tr.failed++;
+		}
+	}
+
+	// A save from a newer version should say so, instead of a generic read error.
+	tr.total++;
+	{
+		auto path = fs::temp_directory_path() / "zc_saves_test_too_new.sav";
+		PACKFILE* f = pack_fopen(path.string().c_str(), F_WRITE_PACKED);
+		bool wrote = f && p_mputl(ID_SAVEGAME, f) && p_iputw(V_SAVEGAME + 1, f);
+		if (f)
+			pack_fclose(f);
+
+		save_t too_new;
+		std::string load_err;
+		bool loaded = wrote && _load_from_save_file_expect_one(ReadMode::Header, path, too_new, load_err);
+		fs::remove(path);
+
+		if (!wrote || loaded || load_err.find("newer version") == std::string::npos)
+		{
+			printf("failed too-new save test: wrote %d, loaded %d, err: %s\n", wrote, loaded, load_err.c_str());
 			tr.failed++;
 		}
 	}

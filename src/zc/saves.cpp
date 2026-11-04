@@ -148,7 +148,9 @@ static fs::path create_path_for_new_save(gamedata_header* header)
 	return util::create_new_file_path(get_save_folder_path(), filename_prefix, ".sav").string();
 }
 
-static int32_t read_saves(ReadMode read_mode, PACKFILE* f, std::vector<save_t>& out_saves, int* out_count = nullptr)
+// Returns 0 on success, or a number saying which read failed. When the failure has a
+// qe_ reason (like qe_version for a file from a newer version), it goes in out_qe_error.
+static int32_t read_saves(ReadMode read_mode, PACKFILE* f, std::vector<save_t>& out_saves, int* out_count = nullptr, int32_t* out_qe_error = nullptr)
 {
 	if (read_mode == ReadMode::Size)
 		assert(out_count);
@@ -177,7 +179,11 @@ static int32_t read_saves(ReadMode read_mode, PACKFILE* f, std::vector<save_t>& 
 		return 2;
 
 	if (section_version > V_SAVEGAME)
-		return qe_version;
+	{
+		if (out_qe_error)
+			*out_qe_error = qe_version;
+		return 2;
+	}
 	
 	if(!read_deprecated_section_cversion(f))
 		return 3;
@@ -1883,10 +1889,14 @@ static bool load_from_save_file(ReadMode read_mode, fs::path filename, std::vect
 		}
 
 		int count;
-		ret = read_saves(read_mode, pf, out_saves, &count);
+		int32_t qe_error = qe_OK;
+		ret = read_saves(read_mode, pf, out_saves, &count, &qe_error);
 		if (ret)
 		{
-			error = fmt::format("failed reading (code {})", ret);
+			if (qe_error == qe_version)
+				error = "This save was made by a newer version of ZQuest Classic, so this version can't open it.";
+			else
+				error = fmt::format("failed reading (code {})", ret);
 			goto cantopen;
 		}
 

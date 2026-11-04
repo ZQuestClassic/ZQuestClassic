@@ -19,9 +19,9 @@ struct save_t
 	// If loaded is false, this is null.
 	// If loaded is true and `game` is null, this memory is owned by save_t.
 	// If loaded is true and `game` is not null, this points to the header field in `game`.
-	gamedata_header* header;
+	gamedata_header* header = nullptr;
 	// May be null - we do not keep every save's gamedata in memory at all times.
-	gamedata* game;
+	gamedata* game = nullptr;
 
 	save_t() = default;
 	save_t(save_t&& other) noexcept
