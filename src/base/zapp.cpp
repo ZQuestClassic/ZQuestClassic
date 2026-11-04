@@ -1,6 +1,7 @@
 #include "base/zapp.h"
 
 #include "base/about.h"
+#include "base/crash_backtrace.h"
 #include "base/version.h"
 #include "base/win_encoding.h"
 #include "fmt/ranges.h"
@@ -273,6 +274,11 @@ void common_main_setup(App id, int argc_, char **argv_)
 #ifdef ZC_SENTRY_REPORTING
 	init_sentry(id);
 #endif
+
+	// Sentry is off on CI, and on Windows there's no debugger for scripts/run_target.py to re-run
+	// a crashed program under, so this is the only way to know where it crashed.
+	if (is_ci())
+		install_crash_backtrace_handler();
 
 	// Helps to test crash reporting.
 	if (zapp_check_switch("-crash"))

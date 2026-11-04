@@ -4,6 +4,7 @@ import shutil
 import signal
 import subprocess
 import sys
+import tempfile
 
 from pathlib import Path
 from typing import Optional
@@ -186,14 +187,33 @@ def _run(target_name: str, args: list, build_folder: Optional[str] = None):
     # library's symbols, ~30s per launch on CI's mac runners), so run the target
     # plainly and only re-run it under the debugger if it crashed.
     if 'ZC_RUN_TARGET_LAZY_DEBUGGER' in os.environ:
+        # There's no debugger to re-run under on Windows. Instead, on CI the target writes
+        # its own backtrace to this file when it crashes (see src/base/crash_backtrace.cpp).
+        env = None
+        backtrace_path = None
+        if platform.system() == 'Windows':
+            fd, backtrace_path = tempfile.mkstemp(prefix='zc_crash_', suffix='.txt')
+            os.close(fd)
+            env = {**os.environ, 'ZC_CRASH_BACKTRACE_FILE': backtrace_path}
+
         p = subprocess.Popen(
             args,
             cwd=build_folder,
             encoding='utf-8',
             stdout=sys.stdout,
             stderr=sys.stderr,
+            env=env,
         )
         p.wait()
+
+        if backtrace_path:
+            backtrace = Path(backtrace_path).read_text(
+                encoding='utf-8', errors='backslashreplace'
+            )
+            os.unlink(backtrace_path)
+            if backtrace:
+                sys.stderr.write(f'\n{backtrace}\n')
+
         if p.returncode >= 0:
             return p
 

@@ -145,6 +145,21 @@ if(NOT EMSCRIPTEN)
 		# zlib1.dll vorbisfile.dll vorbis.dll ogg.dll libcurl.dll
 		zc_install_targets_windows("${ZC_INSTALL_TARGETS}")
 
+		# CI's test packages keep the .pdb files, so a crash can print a readable backtrace
+		# (see src/base/crash_backtrace.cpp). Release builds may not write one at all.
+		foreach(app ${ZC_INSTALL_TARGETS})
+			get_target_property(type ${app} TYPE)
+			if(NOT type STREQUAL "EXECUTABLE" AND NOT type STREQUAL "SHARED_LIBRARY")
+				continue()
+			endif()
+
+			install(CODE "
+				if(ZC_KEEP_SYMBOLS AND EXISTS \"$<TARGET_PDB_FILE:${app}>\")
+					file(INSTALL \"$<TARGET_PDB_FILE:${app}>\" DESTINATION \"$<INSTALL_PREFIX>/${INSTALL_BIN_DIR}\")
+				endif()
+			")
+		endforeach()
+
 		# Ship the MSVC runtime (msvcp140.dll, vcruntime140.dll, ...) next to the executables.
 		# The install command above deliberately skips anything found in system32, which is
 		# where the build machine's copy lives. But binaries built with VS 2022 17.10+ need

@@ -738,6 +738,7 @@ set(base_sources
 	src/base/about.cpp
 	src/base/check.cpp
 	src/base/containers.cpp
+	src/base/crash_backtrace.cpp
 	src/base/general.cpp
 	src/base/md5.cpp
 	src/base/process_management.cpp
