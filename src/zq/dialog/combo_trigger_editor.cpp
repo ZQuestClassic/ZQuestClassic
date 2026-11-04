@@ -1062,7 +1062,7 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 										{
 											local_ref.sfx_pan = (int16_t)val;
 										}),
-									IBTN_T("SFX Pan","If -1, pans based on combo position relative to the player."
+									IBTN_T("SFX Pan","If -1, pans based on the combo's position on the screen."
 										" Otherwise, specifies the pan value (0-255) - 128 is centered, lower is left, higher is right."),
 									Label(text = "Volume:", hAlign = 1.0),
 									TextField(
@@ -1760,7 +1760,7 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 							{
 								local_ref.trigbosspalette = val;
 							}),
-						IBTN("Loads the specified level palette over the current boss palette."
+						IBTN("Loads the specified extra sprite palette (0-29) into the boss CSet (CSet 14)."
 							" '-1' for 'none'.")
 					)),
 					Frame(title = "VFX", fitParent = true, Rows<3>(
