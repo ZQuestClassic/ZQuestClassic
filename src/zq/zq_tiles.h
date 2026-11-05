@@ -108,6 +108,8 @@ int32_t onCmb_dlg_h();
 int32_t onCmb_dlg_v();
 int32_t onCmb_dlg_r();
 bool edit_combo(int32_t c,bool freshen,int32_t cs);
+// Opens the combo editor on its Triggers tab, and trigger `trigger` (if not -1) in it.
+bool edit_combo_triggers(int32_t c, int32_t trigger);
 int32_t d_itile_proc(int32_t msg,DIALOG *d,int32_t c);
 int32_t onIcons();
 void center_zq_tiles_dialogs();

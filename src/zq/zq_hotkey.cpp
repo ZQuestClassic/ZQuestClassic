@@ -6,6 +6,7 @@
 #include "zq/zq_misc.h"
 #include "zq/zq_hotkey.h"
 #include "zq/zq_class.h"
+#include "zq/dialog/screen_triggers.h"
 #include "zq/dialog/zqhotkeys.h"
 #include "dialog/info.h"
 #include "dialog/externs.h"
@@ -277,6 +278,7 @@ char const* get_hotkey_name(uint hkey)
 		case ZQKEY_BIND_HOTKEYS: return "Rebind Hotkeys";
 		case ZQKEY_SCREEN_NOTES: return "Screen Notes";
 		case ZQKEY_BROWSE_SCREEN_NOTES: return "Browse Notes";
+		case ZQKEY_SCREEN_TRIGGERS: return "Combo Triggers";
 		case ZQKEY_SAVE_MENUS: return "Save Menus";
 	}
 	return "ZQ_NIL_KEY";
@@ -507,6 +509,7 @@ char const* get_hotkey_cfg_name(uint hkey)
 		case ZQKEY_BIND_HOTKEYS: return "ZQKEY_BIND_HOTKEYS";
 		case ZQKEY_SCREEN_NOTES: return "ZQKEY_SCREEN_NOTES";
 		case ZQKEY_BROWSE_SCREEN_NOTES: return "ZQKEY_BROWSE_SCREEN_NOTES";
+		case ZQKEY_SCREEN_TRIGGERS: return "ZQKEY_SCREEN_TRIGGERS";
 		case ZQKEY_SAVE_MENUS: return "ZQKEY_SAVE_MENUS";
 	}
 	return "ZQ_NIL_KEY";
@@ -946,6 +949,8 @@ char const* get_hotkey_helptext(uint hkey)
 			return "Opens the notes for the current screen.";
 		case ZQKEY_BROWSE_SCREEN_NOTES:
 			return "Opens the notes browsing menu.";
+		case ZQKEY_SCREEN_TRIGGERS:
+			return "Opens a diagram of how the current screen's combo triggers link up.";
 		case ZQKEY_SAVE_MENUS:
 			return "Opens the save menu list.";
 	}
@@ -1190,6 +1195,7 @@ void default_hotkeys()
 	zq_hotkeys[ZQKEY_BIND_HOTKEYS].setval(0, 0, 0, 0);
 	zq_hotkeys[ZQKEY_SCREEN_NOTES].setval(0, 0, 0, 0);
 	zq_hotkeys[ZQKEY_BROWSE_SCREEN_NOTES].setval(0, 0, 0, 0);
+	zq_hotkeys[ZQKEY_SCREEN_TRIGGERS].setval(0, 0, 0, 0);
 	zq_hotkeys[ZQKEY_SAVE_MENUS].setval(0, 0, 0, 0);
 }
 
@@ -1840,6 +1846,9 @@ int run_hotkey(uint hkey)
 			break;
 		case ZQKEY_BROWSE_SCREEN_NOTES:
 			browse_screen_notes();
+			break;
+		case ZQKEY_SCREEN_TRIGGERS:
+			call_screen_triggers_dialog();
 			break;
 		case ZQKEY_SAVE_MENUS:
 			onSaveMenus();

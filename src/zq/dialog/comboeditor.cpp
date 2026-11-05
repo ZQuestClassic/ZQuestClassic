@@ -101,6 +101,21 @@ static bool edited = false;
 #if DEVLEVEL > 0
 static int32_t force_wizard = 0;
 #endif
+// The trigger call_combo_editor_triggers() opens once the dialog is up, or -1.
+static int32_t open_trigger = -1;
+
+bool call_combo_editor_triggers(int32_t index, int32_t trigger)
+{
+	// Opens on the "Triggers" tab, without making it the tab the next combo edit opens on.
+	size_t old_tab = cmb_tabs[0];
+	cmb_tabs[0] = 2;
+	open_trigger = trigger;
+	bool ret = call_combo_editor(index);
+	open_trigger = -1;
+	cmb_tabs[0] = old_tab;
+	return ret;
+}
+
 bool call_combo_editor(int32_t index)
 {
 	combo_use_script_data = zc_get_config("zquest","show_comboscript_meta_attribs",1)?true:false;
@@ -179,7 +194,21 @@ ComboEditorDialog::ComboEditorDialog(newcombo const& ref, int32_t index):
 
 ComboEditorDialog::ComboEditorDialog(int32_t index):
 	ComboEditorDialog(combobuf[index], index)
-{}
+{
+	if (open_trigger >= 0 && size_t(open_trigger) < local_comboref.triggers.size())
+		trigger_index = open_trigger;
+}
+
+void ComboEditorDialog::post_realize()
+{
+	if (open_trigger < 0 || size_t(open_trigger) >= local_comboref.triggers.size())
+		return;
+	size_t trigger = open_trigger;
+	// Only once: editing the trigger rebuilds this dialog.
+	open_trigger = -1;
+	if (call_trigger_editor(*this, trigger))
+		refresh_dlg();
+}
 
 //{ Help Strings
 static const char *combotype_help_string[cMAX] =

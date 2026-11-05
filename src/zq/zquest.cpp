@@ -78,6 +78,7 @@
 #include "zq/dialog/inst_var_remap.h"
 #include "zq/script_slot_remap.h"
 #include "zq/dialog/screen_enemies.h"
+#include "zq/dialog/screen_triggers.h"
 #include "zq/dialog/enemypattern.h"
 #include "zq/dialog/sfxdata.h"
 #include "zq/dialog/mapstyles.h"
@@ -1501,6 +1502,7 @@ static NewMenu data_menu
 	{ "&Palette", onScreenPalette },
 	{},
 	{ "&Room Data", onRoom },
+	{ "Combo Tri&ggers", call_screen_triggers_dialog },
 	{ "&Notes", onScreenNotes },
 	{ "&Browse Notes", browse_screen_notes },
 };
@@ -9269,6 +9271,15 @@ int32_t scrollto_cmb(int32_t cid)
 	int32_t res = vbound(cid-(sqr.w*sqr.h/2),0,MAXCOMBOS-(sqr.w*sqr.h));
 	res -= res%sqr.w;
 	return res;
+}
+
+void select_combo_for_drawing(int32_t cid, int32_t cs)
+{
+	Combo = cid;
+	CSet = cs;
+	if(AutoBrush)
+		BrushWidth = BrushHeight = 1;
+	First[current_combolist] = scrollto_cmb(cid);
 }
 int32_t scrollto_alias(int32_t alid)
 {

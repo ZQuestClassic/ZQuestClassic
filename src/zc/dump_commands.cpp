@@ -277,55 +277,7 @@ void do_dump_screen_command(const char* quest_path, int map, int screen)
 		if (scr.layermap[i] && scr.layermap[i] <= map_count)
 			layers[i + 1] = &TheMaps[(scr.layermap[i] - 1) * MAPSCRS + scr.layerscreen[i]];
 	auto graph = build_trigger_graph(layers);
-	json jgraph;
-	jgraph["hubs"] = json::array();
-	for (auto const& hub : graph.hubs)
-		jgraph["hubs"].push_back(hub.name());
-	jgraph["cards"] = json::array();
-	for (auto const& card : graph.cards)
-	{
-		const newcombo& cmb = combobuf[card.cid];
-		json jcard = {
-			{"combo", card.cid},
-			{"type_name", ZI.getComboTypeName(cmb.type)},
-			{"label", cmb.label},
-			{"count", card.count},
-			{"placements", json::array()},
-			{"triggers", json::array()},
-		};
-		for (auto const& p : card.placements)
-		{
-			if (p.pos < 0)
-				jcard["placements"].push_back({{"ffc", p.ffc}});
-			else
-				jcard["placements"].push_back({{"layer", p.layer}, {"pos", p.pos}});
-		}
-		for (auto const& t : card.triggers)
-		{
-			json jt = {
-				{"label", t.label},
-				{"causes", t.causes},
-				{"conditions", t.conditions},
-				{"effects", t.effects},
-				{"keeps_firing", t.keeps_firing},
-				{"changes_to", t.changes_to},
-				{"links", json::array()},
-			};
-			if (!t.weapon_causes.empty() || !t.weapon_effects.empty())
-			{
-				jt["weapon_causes"] = t.weapon_causes;
-				jt["weapon_effects"] = t.weapon_effects;
-			}
-			if (!t.notes.empty())
-				jt["notes"] = t.notes;
-			for (auto const& link : t.links)
-				jt["links"].push_back({{"hub", link.hub}, {"writes", link.writes}, {"reads", link.reads}});
-			jcard["triggers"].push_back(jt);
-		}
-		jgraph["cards"].push_back(jcard);
-	}
-	jgraph["chains"] = graph.chains;
-	j["trigger_graph"] = jgraph;
+	j["trigger_graph"] = trigger_graph_json(graph);
 
 	printf("%s\n", j.dump(2).c_str());
 	zapp_exit(0);
