@@ -110,6 +110,7 @@ src/zc/debugger/debugger_test.cpp
 src/zc/lightbeam_test.cpp
 src/zc/saves_test.cpp
 src/zc/title_test.cpp
+src/zc/trigger_graph_test.cpp
 src/zc/zconfig_test.cpp
 src/zc/scripting/arrays_test.cpp
 src/zc/scripting/common_test.cpp

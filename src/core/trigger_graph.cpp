@@ -1,14 +1,19 @@
-// Builds a trigger_graph from a screen: the model behind -dump-screen's "trigger_graph" and the
-// editor's Screen > Combo Triggers diagram (zq/gui/trigger_diagram.cpp).
+// Builds a trigger_graph from a screen, or the screens of a scrolling region: the model behind
+// -dump-screen's and -dump-region's "trigger_graph" and the editor's Screen > Combo Triggers
+// diagram (zq/gui/trigger_diagram.cpp).
 //
-// build_trigger_graph() runs three steps:
+// build_trigger_graph() runs these steps:
 //
-// 1. add_cards: every combo with triggers on the screen, its layers and its FFCs becomes a card
-//    (changer FFCs never fire, so they're left out). Then the combo changes are followed to the
-//    combos they lead to, placed or not, until MAX_CARDS. Each trigger's text comes from
-//    combo_trigger::summarize_parts(), split into one line per item, so the graph words a
-//    trigger exactly as the Combo Editor's Summarize does. Its links to hubs (copycats, trigger
-//    groups, states, secrets) are read from the trigger's fields, not from that text.
+// 1. add_cards: every combo with triggers on the screens, their layers and their FFCs becomes a
+//    card, one per combo and screen (changer FFCs never fire, so they're left out). Then the
+//    combo changes are followed to the combos they lead to, placed or not, until MAX_CARDS;
+//    such a card belongs to the screen of the combo that changes into it. Each trigger's text
+//    comes from combo_trigger::summarize_parts(), split into one line per item, so the graph
+//    words a trigger exactly as the Combo Editor's Summarize does. Its links to hubs (copycats,
+//    trigger groups, states, secrets) are read from the trigger's fields, not from that text.
+//    Copycats and trigger groups reach a whole region, and level and global states further
+//    still, so every screen shares those hubs. Secrets, ExStates and ExDoors are a screen's
+//    own: with cards from more than one screen, each screen gets its own of those hubs.
 //
 // 2. make_chains: cards linked by combo changes are grouped (union-find) into chains, each
 //    ordered from a combo nothing changes into. A chain is a row of the diagram.
@@ -18,10 +23,13 @@
 //    diagram shows "x8" and "Copycats 1-8" instead of eight copies. Two chains match when
 //    chain_signature() is the same: their trigger lines with each hub's name swapped for its
 //    kind and the order it first comes up in, so numbers don't matter but how the hubs are
-//    shared does. The kept card's lines name the first setup's numbers ("Copycat 1"), found by
-//    how summarize_parts() prints them (summary_name()), and are renamed to the merged hub
-//    ("Copycats 1-8"). Then hubs of the same kind that share an id are merged, and the folded
+//    shared does, and which screen's own hubs they use. The kept card's lines name the first
+//    setup's numbers ("Copycat 1"), found by how summarize_parts() prints them
+//    (summary_name()), and are renamed to the merged hub ("Copycats 1-8"). Then hubs of the same kind that share an id are merged, and the folded
 //    away cards and the hubs nothing links to are dropped (merge_overlapping_hubs, compact).
+//
+// 4. add_elsewhere: for a graph of one screen of a region, notes on its copycats and trigger
+//    groups how many combos on each other screen use them, and how (hub::elsewhere).
 //
 // Nothing here runs the triggers: the graph is what their settings say. A condition on a state
 // is only linked when it's about this screen or level; another screen's ExState isn't set by
@@ -36,8 +44,10 @@
 #include <algorithm>
 #include <fmt/format.h>
 #include <fmt/ranges.h>
+#include <functional>
 #include <map>
 #include <numeric>
+#include <set>
 
 using hub_kind = trigger_graph::hub_kind;
 
@@ -76,7 +86,7 @@ static std::string summary_name(hub_kind kind, int id)
 	return "";
 }
 
-std::string trigger_graph::hub::name() const
+std::string trigger_graph::hub::line_name() const
 {
 	if (kind == hub_kind::secrets)
 		return "Secrets";
@@ -92,6 +102,13 @@ std::string trigger_graph::hub::name() const
 	// "Copycat 0" -> "Copycats 1-8"
 	auto name = summary_name(kind, 0);
 	return fmt::format("{}s {}", name.substr(0, name.rfind(' ')), ids_str(ids));
+}
+
+std::string trigger_graph::hub::name() const
+{
+	if (screen >= 0)
+		return fmt::format("{} (0x{:02X})", line_name(), screen);
+	return line_name();
 }
 
 // Replaces `from` in `line` where it's the whole name: not followed by another digit, so
@@ -155,54 +172,152 @@ static int change_target(int cid, combo_trigger const& trig)
 	return target;
 }
 
+// Whether each screen of the region has its own of this kind of hub, rather than sharing it.
+static bool per_screen(hub_kind kind)
+{
+	return kind == hub_kind::exstate || kind == hub_kind::exdoor || kind == hub_kind::secrets;
+}
+
+static bool has_triggers(int cid)
+{
+	return cid > 0 && cid < int(combobuf.size()) && !combobuf[cid].triggers.empty();
+}
+
+// Calls `fn(cid, placement)` for each combo with triggers placed on the screen, its layers and
+// its FFCs. Changer FFCs never fire their triggers, so they're left out.
+static void for_each_placed(trigger_graph_screen const& s, std::function<void(int, trigger_graph::placement)> const& fn)
+{
+	for (int layer = 0; layer < 7; layer++)
+	{
+		mapscr* scr = s.layers[layer];
+		if (!scr)
+			continue;
+		for (int pos = 0; pos < 176; pos++)
+			if (has_triggers(scr->data[pos]))
+				fn(scr->data[pos], {s.screen, layer, pos});
+		if (layer == 0)
+		{
+			for (word i = 0; i < scr->numFFC(); i++)
+			{
+				auto const& ffc = scr->ffcs[i];
+				if (has_triggers(ffc.data) && !(ffc.flags & ffc_changer))
+					fn(ffc.data, {s.screen, 0, -1, i});
+			}
+		}
+	}
+}
+
+// What a trigger links to, before there are hubs.
+struct raw_link
+{
+	hub_kind kind;
+	int id;
+	bool writes, reads;
+};
+
+static std::vector<raw_link> trigger_links(int cid, combo_trigger const& trig)
+{
+	std::vector<raw_link> links;
+	auto add = [&](hub_kind kind, int id, bool writes, bool reads) {
+		if (writes || reads)
+			links.push_back({kind, id, writes, reads});
+	};
+	auto const& f = trig.trigger_flags;
+	if (trig.trigcopycat)
+	{
+		// The copycat is activated whenever something else fires the trigger.
+		combo_trigger other_causes = trig;
+		other_causes.trigcopycat = 0;
+		auto other = other_causes.summarize_parts(combobuf[cid]);
+		bool has_other_cause = !other.causes.empty() || !other.weapon_causes.empty();
+		add(hub_kind::copycat, trig.trigcopycat, has_other_cause, !f.get(TRIGFLAG_NO_COPYCAT_CAUSE));
+	}
+	if (f.get(TRIGFLAG_TGROUP_CONTRIB) || f.get(TRIGFLAG_TGROUP_LESS) || f.get(TRIGFLAG_TGROUP_GREATER))
+		add(hub_kind::trigger_group, trig.trig_group, f.get(TRIGFLAG_TGROUP_CONTRIB),
+			f.get(TRIGFLAG_TGROUP_LESS) || f.get(TRIGFLAG_TGROUP_GREATER));
+	if (trig.exstate > -1)
+		add(hub_kind::exstate, trig.exstate, true, !f.get(TRIGFLAG_UNSETEXSTATE));
+	if (trig.exdoor_dir > -1)
+		add(hub_kind::exdoor, trig.exdoor_dir * 256 + trig.exdoor_ind, true, !f.get(TRIGFLAG_UNSETEXDOOR));
+	add(hub_kind::level_state, trig.trig_lstate, f.get(TRIGFLAG_LEVELSTATE), f.get(TRIGFLAG_TRIGLEVELSTATE));
+	add(hub_kind::global_state, trig.trig_gstate, f.get(TRIGFLAG_GLOBALSTATE), f.get(TRIGFLAG_TRIGGLOBALSTATE));
+	add(hub_kind::secrets, 0, f.get(TRIGFLAG_SECRETS), f.get(TRIGFLAG_SECRETSTR));
+
+	// Conditions read states too, when they're about this screen and level.
+	for (int q = 0; q < 256; q++)
+		if (trig.req_global_state.get(q) || trig.unreq_global_state.get(q))
+			add(hub_kind::global_state, q, false, true);
+	if (trig.trigdmlevel < 0)
+	{
+		for (int q = 0; q < 32; q++)
+			if ((trig.req_level_state | trig.unreq_level_state) & (1 << q))
+				add(hub_kind::level_state, q, false, true);
+	}
+	if (trig.trigstatemap <= 0)
+	{
+		for (int q = 0; q < 32; q++)
+			if (trig.req_screen_ex_state.get(q) || trig.unreq_screen_ex_state.get(q))
+				add(hub_kind::exstate, q, false, true);
+		for (int dir = 0; dir < 4; dir++)
+			for (int q = 0; q < 8; q++)
+				if (trig.req_screen_ex_door[dir].get(q) || trig.unreq_screen_ex_door[dir].get(q))
+					add(hub_kind::exdoor, dir * 256 + q, false, true);
+	}
+	return links;
+}
+
 namespace {
 
 struct builder
 {
 	trigger_graph g;
-	std::map<int, size_t> card_of_cid;
-	std::map<std::pair<hub_kind, std::vector<int>>, size_t> hub_of;
+	// Keyed by combo and screen.
+	std::map<std::pair<int, int>, size_t> card_of;
+	std::map<std::tuple<hub_kind, std::vector<int>, int>, size_t> hub_of;
+	// Whether the cards come from more than one screen, so a screen's own hubs need its number.
+	bool many_screens = false;
 
-	size_t get_hub(hub_kind kind, std::vector<int> ids)
+	size_t get_hub(hub_kind kind, std::vector<int> ids, int screen)
 	{
 		std::sort(ids.begin(), ids.end());
 		ids.erase(std::unique(ids.begin(), ids.end()), ids.end());
-		auto [it, inserted] = hub_of.try_emplace({kind, ids}, g.hubs.size());
+		if (!many_screens || !per_screen(kind))
+			screen = -1;
+		auto [it, inserted] = hub_of.try_emplace({kind, ids, screen}, g.hubs.size());
 		if (inserted)
-			g.hubs.push_back({kind, ids});
+			g.hubs.push_back({kind, ids, screen});
 		return it->second;
 	}
 
-	size_t get_card(int cid)
+	size_t get_card(int cid, int screen)
 	{
-		auto [it, inserted] = card_of_cid.try_emplace(cid, g.cards.size());
+		auto [it, inserted] = card_of.try_emplace({cid, screen}, g.cards.size());
 		if (inserted)
 		{
 			trigger_graph::card card;
 			card.cid = cid;
+			card.screen = screen;
 			g.cards.push_back(card);
 		}
 		return it->second;
 	}
 
-	void add_link(trigger_graph::trigger& t, hub_kind kind, int id, bool writes, bool reads)
+	void add_link(trigger_graph::trigger& t, raw_link const& raw, int screen)
 	{
-		if (!writes && !reads)
-			return;
-		size_t hub = get_hub(kind, {id});
+		size_t hub = get_hub(raw.kind, {raw.id}, screen);
 		for (auto& link : t.links)
 		{
 			if (link.hub == hub)
 			{
-				link.writes |= writes;
-				link.reads |= reads;
+				link.writes |= raw.writes;
+				link.reads |= raw.reads;
 				return;
 			}
 		}
-		t.links.push_back({hub, writes, reads});
+		t.links.push_back({hub, raw.writes, raw.reads, g.hubs[hub].line_name()});
 	}
 
-	trigger_graph::trigger make_trigger(int cid, combo_trigger const& trig)
+	trigger_graph::trigger make_trigger(int cid, int screen, combo_trigger const& trig)
 	{
 		newcombo const& cmb = combobuf[cid];
 		trigger_graph::trigger t;
@@ -220,90 +335,37 @@ struct builder
 		if (trig.trigger_flags.get(TRIGFLAG_TGROUP_CONTRIB))
 			t.notes.push_back(fmt::format("Contributes to Trigger Group {}", trig.trig_group));
 		t.keeps_firing = keeps_firing(trig);
-
-		auto const& f = trig.trigger_flags;
-		if (trig.trigcopycat)
-		{
-			// The copycat is activated whenever something else fires the trigger.
-			combo_trigger other_causes = trig;
-			other_causes.trigcopycat = 0;
-			auto other = other_causes.summarize_parts(cmb);
-			bool has_other_cause = !other.causes.empty() || !other.weapon_causes.empty();
-			add_link(t, hub_kind::copycat, trig.trigcopycat, has_other_cause,
-				!f.get(TRIGFLAG_NO_COPYCAT_CAUSE));
-		}
-		if (f.get(TRIGFLAG_TGROUP_CONTRIB) || f.get(TRIGFLAG_TGROUP_LESS) || f.get(TRIGFLAG_TGROUP_GREATER))
-			add_link(t, hub_kind::trigger_group, trig.trig_group, f.get(TRIGFLAG_TGROUP_CONTRIB),
-				f.get(TRIGFLAG_TGROUP_LESS) || f.get(TRIGFLAG_TGROUP_GREATER));
-		if (trig.exstate > -1)
-			add_link(t, hub_kind::exstate, trig.exstate, true, !f.get(TRIGFLAG_UNSETEXSTATE));
-		if (trig.exdoor_dir > -1)
-			add_link(t, hub_kind::exdoor, trig.exdoor_dir * 256 + trig.exdoor_ind, true,
-				!f.get(TRIGFLAG_UNSETEXDOOR));
-		add_link(t, hub_kind::level_state, trig.trig_lstate, f.get(TRIGFLAG_LEVELSTATE),
-			f.get(TRIGFLAG_TRIGLEVELSTATE));
-		add_link(t, hub_kind::global_state, trig.trig_gstate, f.get(TRIGFLAG_GLOBALSTATE),
-			f.get(TRIGFLAG_TRIGGLOBALSTATE));
-		add_link(t, hub_kind::secrets, 0, f.get(TRIGFLAG_SECRETS), f.get(TRIGFLAG_SECRETSTR));
-
-		// Conditions read states too, when they're about this screen and level.
-		for (int q = 0; q < 256; q++)
-			if (trig.req_global_state.get(q) || trig.unreq_global_state.get(q))
-				add_link(t, hub_kind::global_state, q, false, true);
-		if (trig.trigdmlevel < 0)
-		{
-			for (int q = 0; q < 32; q++)
-				if ((trig.req_level_state | trig.unreq_level_state) & (1 << q))
-					add_link(t, hub_kind::level_state, q, false, true);
-		}
-		if (trig.trigstatemap <= 0)
-		{
-			for (int q = 0; q < 32; q++)
-				if (trig.req_screen_ex_state.get(q) || trig.unreq_screen_ex_state.get(q))
-					add_link(t, hub_kind::exstate, q, false, true);
-			for (int dir = 0; dir < 4; dir++)
-				for (int q = 0; q < 8; q++)
-					if (trig.req_screen_ex_door[dir].get(q) || trig.unreq_screen_ex_door[dir].get(q))
-						add_link(t, hub_kind::exdoor, dir * 256 + q, false, true);
-		}
+		for (auto const& raw : trigger_links(cid, trig))
+			add_link(t, raw, screen);
 		return t;
 	}
 
-	void add_cards(std::array<mapscr*, 7> const& layers)
+	void add_cards(std::vector<trigger_graph_screen> const& screens, int focus)
 	{
-		auto has_triggers = [](int cid) {
-			return cid > 0 && cid < int(combobuf.size()) && !combobuf[cid].triggers.empty();
-		};
-		for (int layer = 0; layer < 7; layer++)
+		for (auto const& s : screens)
 		{
-			mapscr* scr = layers[layer];
-			if (!scr)
-				continue;
-			for (int pos = 0; pos < 176; pos++)
-				if (has_triggers(scr->data[pos]))
-					g.cards[get_card(scr->data[pos])].placements.push_back({layer, pos});
-			if (layer == 0)
+			if (focus < 0 || s.screen == focus)
 			{
-				for (word i = 0; i < scr->numFFC(); i++)
-				{
-					auto const& ffc = scr->ffcs[i];
-					// Changers never fire their triggers.
-					if (has_triggers(ffc.data) && !(ffc.flags & ffc_changer))
-						g.cards[get_card(ffc.data)].placements.push_back({0, -1, i});
-				}
+				for_each_placed(s, [&](int cid, trigger_graph::placement p) {
+					g.cards[get_card(cid, s.screen)].placements.push_back(p);
+				});
 			}
 		}
+		std::set<int> card_screens;
+		for (auto const& card : g.cards)
+			card_screens.insert(card.screen);
+		many_screens = card_screens.size() > 1;
 
 		// Follow the combo changes to the combos they lead to, even ones not on the screen. The
 		// cards they add are walked too.
 		for (size_t i = 0; i < g.cards.size(); i++)
 		{
-			int cid = g.cards[i].cid;
+			int cid = g.cards[i].cid, screen = g.cards[i].screen;
 			for (auto const& trig : combobuf[cid].triggers)
 			{
 				int target = change_target(cid, trig);
-				if (target >= 0 && (card_of_cid.contains(target) || g.cards.size() < MAX_CARDS))
-					get_card(target);
+				if (target >= 0 && (card_of.contains({target, screen}) || g.cards.size() < MAX_CARDS))
+					get_card(target, screen);
 			}
 		}
 
@@ -312,10 +374,10 @@ struct builder
 			newcombo const& cmb = combobuf[card.cid];
 			for (auto const& trig : cmb.triggers)
 			{
-				auto t = make_trigger(card.cid, trig);
+				auto t = make_trigger(card.cid, card.screen, trig);
 				int target = change_target(card.cid, trig);
-				if (target >= 0 && card_of_cid.contains(target))
-					t.changes_to = card_of_cid[target];
+				if (target >= 0 && card_of.contains({target, card.screen}))
+					t.changes_to = card_of[{target, card.screen}];
 				card.triggers.push_back(std::move(t));
 			}
 		}
@@ -421,7 +483,8 @@ struct builder
 				auto it = std::find(chain.begin(), chain.end(), size_t(t.changes_to));
 				sig += fmt::format("[changes to {}]", t.changes_to < 0 ? -1 : int(it - chain.begin()));
 				for (auto const& link : t.links)
-					sig += fmt::format("[{}#{} {} {}]", int(g.hubs[link.hub].kind), ordinal[link.hub], link.writes, link.reads);
+					sig += fmt::format("[{}#{} {} {} {}]", int(g.hubs[link.hub].kind), ordinal[link.hub],
+						g.hubs[link.hub].screen, link.writes, link.reads);
 			}
 		}
 		return sig;
@@ -454,7 +517,10 @@ struct builder
 			for (size_t k = 0; k < chain.size(); k++)
 			{
 				auto& card = g.cards[chain[k]];
-				card.count = group.size();
+				std::set<int> cids;
+				for (size_t m : group)
+					cids.insert(g.cards[g.chains[m][k]].cid);
+				card.count = cids.size();
 				for (size_t m = 1; m < group.size(); m++)
 				{
 					auto& other = g.cards[g.chains[group[m]][k]];
@@ -491,12 +557,13 @@ struct builder
 							auto const& other_ids = g.hubs[other.hub].ids;
 							ids.insert(ids.end(), other_ids.begin(), other_ids.end());
 						}
-						int own_id = own.ids[0];
+						int own_id = own.ids[0], own_screen = own.screen;
 						hub_kind kind = own.kind;
-						t.links[li].hub = get_hub(kind, ids);
+						t.links[li].hub = get_hub(kind, ids, own_screen);
 						// The lines name the first setup's number; name them all.
 						auto from = summary_name(kind, own_id);
-						auto to = g.hubs[t.links[li].hub].name();
+						auto to = g.hubs[t.links[li].hub].line_name();
+						t.links[li].name = to;
 						for (auto* lines : {&t.causes, &t.conditions, &t.effects, &t.weapon_causes, &t.weapon_effects, &t.fail_effects, &t.notes})
 							for (auto& line : *lines)
 								replace_name(line, from, to);
@@ -529,7 +596,7 @@ struct builder
 			{
 				auto const& ia = g.hubs[a].ids;
 				auto const& ib = g.hubs[b].ids;
-				if (g.hubs[a].kind == g.hubs[b].kind
+				if (g.hubs[a].kind == g.hubs[b].kind && g.hubs[a].screen == g.hubs[b].screen
 					&& std::find_first_of(ia.begin(), ia.end(), ib.begin(), ib.end()) != ia.end())
 					parent[find(a)] = find(b);
 			}
@@ -545,7 +612,7 @@ struct builder
 		for (size_t h = 0; h < n; h++)
 		{
 			hub_kind kind = g.hubs[h].kind;
-			to[h] = get_hub(kind, ids[find(h)]);
+			to[h] = get_hub(kind, ids[find(h)], g.hubs[h].screen);
 		}
 
 		for (auto& card : g.cards)
@@ -609,16 +676,96 @@ struct builder
 		g.cards = std::move(cards);
 		g.hubs = std::move(hubs);
 	}
+
+	// Notes the combos on the screens that aren't cards on the copycats and trigger groups they
+	// share with the cards, the hubs that reach the whole region.
+	void add_elsewhere(std::vector<trigger_graph_screen> const& screens, int focus)
+	{
+		// What a combo, and the combos it changes into, link to.
+		std::map<int, std::vector<raw_link>> links_of;
+		auto get_links = [&](int cid) -> std::vector<raw_link> const& {
+			if (auto it = links_of.find(cid); it != links_of.end())
+				return it->second;
+			std::vector<raw_link> links;
+			std::set<int> seen;
+			std::vector<int> todo = {cid};
+			while (!todo.empty() && seen.size() < MAX_CARDS)
+			{
+				int c = todo.back();
+				todo.pop_back();
+				if (!seen.insert(c).second)
+					continue;
+				for (auto const& trig : combobuf[c].triggers)
+				{
+					for (auto const& raw : trigger_links(c, trig))
+						if (raw.kind == hub_kind::copycat || raw.kind == hub_kind::trigger_group)
+							links.push_back(raw);
+					if (int target = change_target(c, trig); target >= 0)
+						todo.push_back(target);
+				}
+			}
+			return links_of[cid] = std::move(links);
+		};
+
+		for (auto const& s : screens)
+		{
+			if (s.screen == focus)
+				continue;
+			std::map<size_t, trigger_graph::elsewhere> found;
+			for_each_placed(s, [&](int cid, trigger_graph::placement) {
+				std::set<size_t> counted;
+				for (auto const& raw : get_links(cid))
+				{
+					for (size_t h = 0; h < g.hubs.size(); h++)
+					{
+						auto const& hub = g.hubs[h];
+						if (hub.kind != raw.kind || !util::contains(hub.ids, raw.id))
+							continue;
+						auto& e = found.try_emplace(h, trigger_graph::elsewhere{s.screen, 0, false, false}).first->second;
+						if (counted.insert(h).second)
+							e.count++;
+						e.writes |= raw.writes;
+						e.reads |= raw.reads;
+					}
+				}
+			});
+			for (auto const& [h, e] : found)
+				g.hubs[h].elsewhere.push_back(e);
+		}
+	}
 };
 
 } // namespace
 
-trigger_graph build_trigger_graph(std::array<mapscr*, 7> const& layers)
+std::vector<trigger_graph_screen> trigger_graph_region(int map, int screen)
+{
+	std::vector<int> screens;
+	if (screen < MAPSCRSNORMAL && Regions[map].get_region_id(screen))
+		Regions[map].for_each_screen(screen, [&](int s) { screens.push_back(s); });
+	else
+		screens.push_back(screen);
+
+	std::vector<trigger_graph_screen> result;
+	for (int s : screens)
+	{
+		mapscr* scr = &TheMaps[map * MAPSCRS + s];
+		trigger_graph_screen ts = {s, {scr}};
+		for (int i = 0; i < 6; i++)
+			if (scr->layermap[i] && scr->layermap[i] <= map_count && scr->layerscreen[i] < MAPSCRS)
+				ts.layers[i + 1] = &TheMaps[(scr->layermap[i] - 1) * MAPSCRS + scr->layerscreen[i]];
+		result.push_back(ts);
+	}
+	return result;
+}
+
+trigger_graph build_trigger_graph(std::vector<trigger_graph_screen> const& screens, int focus)
 {
 	builder b;
-	b.add_cards(layers);
+	b.add_cards(screens, focus);
 	b.make_chains();
 	b.fold();
+	if (focus >= 0)
+		b.add_elsewhere(screens, focus);
 	return std::move(b.g);
 }
 
@@ -628,12 +775,18 @@ nlohmann::json trigger_graph_json(trigger_graph const& graph)
 	jgraph["hubs"] = nlohmann::json::array();
 	for (auto const& hub : graph.hubs)
 		jgraph["hubs"].push_back(hub.name());
+	jgraph["elsewhere"] = nlohmann::json::array();
+	for (size_t h = 0; h < graph.hubs.size(); h++)
+		for (auto const& e : graph.hubs[h].elsewhere)
+			jgraph["elsewhere"].push_back({{"hub", h}, {"screen", e.screen}, {"count", e.count},
+				{"writes", e.writes}, {"reads", e.reads}});
 	jgraph["cards"] = nlohmann::json::array();
 	for (auto const& card : graph.cards)
 	{
 		const newcombo& cmb = combobuf[card.cid];
 		nlohmann::json jcard = {
 			{"combo", card.cid},
+			{"screen", card.screen},
 			{"type_name", ZI.getComboTypeName(cmb.type)},
 			{"label", cmb.label},
 			{"count", card.count},
@@ -643,9 +796,9 @@ nlohmann::json trigger_graph_json(trigger_graph const& graph)
 		for (auto const& p : card.placements)
 		{
 			if (p.pos < 0)
-				jcard["placements"].push_back({{"ffc", p.ffc}});
+				jcard["placements"].push_back({{"screen", p.screen}, {"ffc", p.ffc}});
 			else
-				jcard["placements"].push_back({{"layer", p.layer}, {"pos", p.pos}});
+				jcard["placements"].push_back({{"screen", p.screen}, {"layer", p.layer}, {"pos", p.pos}});
 		}
 		for (auto const& t : card.triggers)
 		{

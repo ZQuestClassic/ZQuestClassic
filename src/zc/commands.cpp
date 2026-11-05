@@ -109,6 +109,9 @@ void zplayer_handle_commands()
 		extern TestResults test_lightbeam(bool);
 		if (!run_tests(test_lightbeam, "test_lightbeam", verbose)) success = false;
 
+		extern TestResults test_trigger_graph(bool);
+		if (!run_tests(test_trigger_graph, "test_trigger_graph", verbose)) success = false;
+
 		extern TestResults test_qst_cfg_header(bool);
 		if (!run_tests(test_qst_cfg_header, "test_qst_cfg_header", verbose)) success = false;
 
@@ -190,6 +193,15 @@ void zplayer_handle_commands()
 		int map = zapp_get_arg_int(dump_screen_arg + 2);
 		int screen = zapp_get_arg_int(dump_screen_arg + 3);
 		do_dump_screen_command(path.c_str(), map, screen);
+	}
+
+	int dump_region_arg = zapp_check_switch("-dump-region", {"qst", "map", "screen"});
+	if (dump_region_arg > 0)
+	{
+		std::string path = zapp_get_arg_string(dump_region_arg + 1);
+		int map = zapp_get_arg_int(dump_region_arg + 2);
+		int screen = zapp_get_arg_int(dump_region_arg + 3);
+		do_dump_region_command(path.c_str(), map, screen);
 	}
 
 	int extract_zasm_arg = zapp_check_switch("-extract-zasm", {"qst"});

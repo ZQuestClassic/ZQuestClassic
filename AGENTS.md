@@ -123,6 +123,11 @@ there is the usual cause of "my FFC doesn't hurt / isn't solid".
 on its own (say, replaying the secret sound every frame) is often a trigger that fires
 without a weapon, like a trigger-group condition that is always true.
 
+`-dump-region <qst> <map> <screen>` prints the `trigger_graph` of every screen in that
+screen's scrolling region, the same as the editor's Combo Triggers diagram with `Whole Region`.
+`-dump-screen`'s `trigger_graph` is just its own screen, with an `elsewhere` list of the combos
+on the region's other screens that share its copycats and trigger groups.
+
 `-dump-dmaps <qst>` prints one line per dmap (`index map=N level=N type=N xoff=N name=...`),
 which is how to find the dmap to start a test-mode replay on for a given map.
 

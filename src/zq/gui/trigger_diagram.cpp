@@ -694,7 +694,7 @@ void TriggerDiagram::layout()
 			change_y[c].push_back(chip_mentioning("Change combo"));
 			link_y[c].emplace_back();
 			for (auto const& link : t.links)
-				link_y[c].back().push_back(chip_mentioning(graph.hubs[link.hub].name()));
+				link_y[c].back().push_back(chip_mentioning(link.name));
 		}
 		L.rect.w = CARD_W;
 		L.rect.h = y + PAD - CHIP_GAP;
