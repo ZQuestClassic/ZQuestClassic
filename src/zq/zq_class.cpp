@@ -2509,7 +2509,7 @@ void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32
         {  77,   78,   224,   80 }  // right
     };
 
-    int dcs_index = (screens ? screens[cursor.screen].door_combo_set : 0);
+    int dcs_index = basescr->door_combo_set;
     if (dcs_index >= MAXDOORCOMBOSETS) dcs_index = 0;
 	auto& door_set = DoorComboSets[dcs_index];
 	bool walk_trans = get_bit(door_set.flags, df_walktrans);
