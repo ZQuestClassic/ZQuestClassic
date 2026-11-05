@@ -863,6 +863,7 @@ set(core_sources
 	src/core/qst_tiles.cpp
 	src/core/qst_weapons.cpp
 	src/core/qst.cpp
+	src/core/trigger_graph.cpp
 	src/core/weapon_data.cpp
 	src/core/zdefs.cpp
 )

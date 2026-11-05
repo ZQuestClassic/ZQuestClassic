@@ -67,7 +67,26 @@ enum
 	CMB_ADVP_SZ
 };
 
+// How trigger summaries name the things that triggers share. The trigger graph finds these
+// names in the summary's lines, to rename them when it folds setups together, so a line about
+// one of them must name it through these. Conditions are the exception: they list several
+// states at once ("Level states [1, 2] enabled"), so the graph doesn't find those there.
+std::string trigger_copycat_name(int id);
+std::string trigger_group_name(int group);
+std::string trigger_exstate_name(int state);
+std::string trigger_exdoor_name(int dir, int index);
+std::string trigger_level_state_name(int state);
+std::string trigger_global_state_name(int state);
+
 struct newcombo;
+struct combo_trigger_summary
+{
+	// When set, the weapon causes and effects are listed on their own, and the other
+	// parts don't include them.
+	bool separate_weapon;
+	std::string weapon_causes, weapon_effects, causes, conditions, effects, fail_effects;
+};
+
 struct combo_trigger
 {
 	string label;
@@ -134,6 +153,9 @@ struct combo_trigger
 	
 	byte large_combo_copycat;
 	
+	// Each part of summarize(): lines indented by 3 spaces (6 for details of the line
+	// above), with no trailing newline.
+	combo_trigger_summary summarize_parts(newcombo const& cmb) const;
 	std::string summarize(newcombo const& cmb) const;
 	bool is_blank() const;
 	void clear();

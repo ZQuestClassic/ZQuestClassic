@@ -38,6 +38,31 @@ static const char* safe_dirstr(int dir)
 	return dirstr_proper[dir];
 }
 
+string trigger_copycat_name(int id)
+{
+	return fmt::format("Copycat {}", id);
+}
+string trigger_group_name(int group)
+{
+	return fmt::format("Trigger Group {}", group);
+}
+string trigger_exstate_name(int state)
+{
+	return fmt::format("ExState {}", state);
+}
+string trigger_exdoor_name(int dir, int index)
+{
+	return fmt::format("ExDoor {} {}", safe_dirstr(dir), index);
+}
+string trigger_level_state_name(int state)
+{
+	return fmt::format("LevelState {}", state);
+}
+string trigger_global_state_name(int state)
+{
+	return fmt::format("GlobalState {}", state);
+}
+
 static string safe_sfx_name(int sfx)
 {
 	int idx = sfx - 1;
@@ -63,10 +88,10 @@ static const char* safe_neg_ctr_name(int ctr)
 	return icounter_str2[idx];
 }
 
-std::string combo_trigger::summarize(newcombo const& cmb) const
+combo_trigger_summary combo_trigger::summarize_parts(newcombo const& cmb) const
 {
 #define TRIM_TRAILING_CHARS(val) val = val.substr(0, val.find_last_not_of(", \n")+1)
-	std::ostringstream output, wpn_causes, wpn_effects, causes, conditions, effects, fail_effects;
+	std::ostringstream wpn_causes, wpn_effects, causes, conditions, effects, fail_effects;
 	string indent = "   ";
 
 	// lweapon causes
@@ -295,12 +320,12 @@ std::string combo_trigger::summarize(newcombo const& cmb) const
 		bool first = true;
 		if (cause_ex1)
 		{
-			causes << (first ? indent : ", ") << fmt::format("ExState {}", exstate);
+			causes << (first ? indent : ", ") << trigger_exstate_name(exstate);
 			first = false;
 		}
 		if (cause_ex2)
 		{
-			causes << (first ? indent : ", ") << fmt::format("ExDoor {} {}", safe_dirstr(exdoor_dir), exdoor_ind);
+			causes << (first ? indent : ", ") << trigger_exdoor_name(exdoor_dir, exdoor_ind);
 			first = false;
 		}
 		if (cause_ex3)
@@ -396,22 +421,22 @@ std::string combo_trigger::summarize(newcombo const& cmb) const
 		vector<string> misc_cause;
 
 		if (trigcopycat && !trigger_flags.get(TRIGFLAG_NO_COPYCAT_CAUSE))
-			misc_cause.emplace_back(fmt::format("Copycat {}", trigcopycat));
+			misc_cause.emplace_back(trigger_copycat_name(trigcopycat));
 		
 		if (trigger_flags.get(TRIGFLAG_TRIGGERED_BY_LARGE_COMBO_COPYCAT))
 			misc_cause.emplace_back(fmt::format("Large Combo Copycat {}", large_combo_copycat));
 
 		if (trigger_flags.get(TRIGFLAG_TGROUP_LESS))
-			misc_cause.emplace_back(fmt::format("Trigger Group {} < {}", trig_group, trig_group_val));
+			misc_cause.emplace_back(fmt::format("{} < {}", trigger_group_name(trig_group), trig_group_val));
 
 		if (trigger_flags.get(TRIGFLAG_TGROUP_GREATER))
-			misc_cause.emplace_back(fmt::format("Trigger Group {} > {}", trig_group, trig_group_val));
+			misc_cause.emplace_back(fmt::format("{} > {}", trigger_group_name(trig_group), trig_group_val));
 
 		if (trigger_flags.get(TRIGFLAG_TRIGLEVELSTATE))
-			misc_cause.emplace_back(fmt::format("LevelState {} toggles", trig_lstate));
+			misc_cause.emplace_back(fmt::format("{} toggles", trigger_level_state_name(trig_lstate)));
 
 		if (trigger_flags.get(TRIGFLAG_TRIGGLOBALSTATE))
-			misc_cause.emplace_back(fmt::format("GlobalState {} toggles", trig_gstate));
+			misc_cause.emplace_back(fmt::format("{} toggles", trigger_global_state_name(trig_gstate)));
 
 		string light_beam = triglbeam ? fmt::format("Beam {}", triglbeam) : "Any Beam";
 		if (trigtimer)
@@ -938,7 +963,7 @@ std::string combo_trigger::summarize(newcombo const& cmb) const
 		if (trigger_flags.get(TRIGFLAG_CLEAREWEAPONS))
 			misc_effects.emplace_back("Clear all eweapons");
 		if (trigcopycat)
-			misc_effects.emplace_back(fmt::format("Activate Copycat {}", trigcopycat));
+			misc_effects.emplace_back("Activate " + trigger_copycat_name(trigcopycat));
 		if (trigger_flags.get(TRIGFLAG_TRIGGER_LARGE_COMBO_COPYCAT))
 			misc_effects.emplace_back(fmt::format("Activate Large Combo Copycat {}", large_combo_copycat));
 
@@ -1007,7 +1032,7 @@ if (var > -2) \
 		{
 			effects << indent << fmt::format("Spawn enemy #{} ({})\n", spawnenemy, guy_string[spawnenemy]);
 			if (exstate > -1 && enm_ex)
-				effects << indent << fmt::format("Sets ExState {} when spawned enemy is killed\n", exstate);
+				effects << indent << fmt::format("Sets {} when spawned enemy is killed\n", trigger_exstate_name(exstate));
 		}
 		if (spawnitem)
 		{
@@ -1038,22 +1063,22 @@ if (var > -2) \
 				effects << " (instantly collected)";
 			effects << "\n";
 			if (exstate > -1 && itm_ex)
-				effects << indent << fmt::format("Sets ExState {} when spawned item is collected\n", exstate);
+				effects << indent << fmt::format("Sets {} when spawned item is collected\n", trigger_exstate_name(exstate));
 		}
 
 		if (exstate > -1)
 		{
 			if (trigger_flags.get(TRIGFLAG_UNSETEXSTATE))
-				effects << indent << fmt::format("Unsets ExState {}\n", exstate);
+				effects << indent << fmt::format("Unsets {}\n", trigger_exstate_name(exstate));
 			else if (!itm_ex && !enm_ex)
-				effects << indent << fmt::format("Sets ExState {}\n", exstate);
+				effects << indent << fmt::format("Sets {}\n", trigger_exstate_name(exstate));
 		}
 		if (exdoor_dir > -1)
 		{
 			if (trigger_flags.get(TRIGFLAG_UNSETEXDOOR))
-				effects << indent << fmt::format("Unsets ExDoor {} {}\n", safe_dirstr(exdoor_dir), exdoor_ind);
+				effects << indent << fmt::format("Unsets {}\n", trigger_exdoor_name(exdoor_dir, exdoor_ind));
 			else
-				effects << indent << fmt::format("Sets ExDoor {} {}\n", safe_dirstr(exdoor_dir), exdoor_ind);
+				effects << indent << fmt::format("Sets {}\n", trigger_exdoor_name(exdoor_dir, exdoor_ind));
 		}
 		{
 			bool do_set = trigger_flags.get(TRIGFLAG_COMBOPOSSTATE_SET);
@@ -1072,12 +1097,12 @@ if (var > -2) \
 		}
 
 		if (trigger_flags.get(TRIGFLAG_LEVELSTATE))
-			effects << indent << fmt::format("Toggle LevelState {}\n", trig_lstate);
+			effects << indent << fmt::format("Toggle {}\n", trigger_level_state_name(trig_lstate));
 		if (trigger_flags.get(TRIGFLAG_GLOBALSTATE))
 		{
 			if (trig_statetime > 0)
-				effects << indent << fmt::format("Set GlobalState {} Timer = {}\n", trig_gstate, trig_statetime);
-			else effects << indent << fmt::format("Toggle GlobalState {}\n", trig_gstate);
+				effects << indent << fmt::format("Set {} Timer = {}\n", trigger_global_state_name(trig_gstate), trig_statetime);
+			else effects << indent << fmt::format("Toggle {}\n", trigger_global_state_name(trig_gstate));
 		}
 
 		if (triggeritem && trigger_flags.get(TRIGFLAG_CONSUMEITEM))
@@ -1217,27 +1242,42 @@ if (var > -2) \
 	string fail_str = fail_effects.str();
 	TRIM_TRAILING_CHARS(fail_str);
 	
+	return {
+		.separate_weapon = separate_weapon,
+		.weapon_causes = wpn_cause_str,
+		.weapon_effects = wpn_effect_str,
+		.causes = cause_str,
+		.conditions = condition_str,
+		.effects = effect_str,
+		.fail_effects = fail_str,
+	};
+#undef TRIM_TRAILING_CHARS
+}
+
+std::string combo_trigger::summarize(newcombo const& cmb) const
+{
+	auto parts = summarize_parts(cmb);
+	std::ostringstream output;
 	output << fmt::format("Label: {}\n", label);
 	if (trigger_flags.get(TRIGFLAG_TGROUP_CONTRIB))
-		output << fmt::format("Contributes to Trigger Group {}\n", trig_group);
-	if (separate_weapon)
+		output << fmt::format("Contributes to {}\n", trigger_group_name(trig_group));
+	if (parts.separate_weapon)
 	{
 		output << "Weapon causes and effects are separate.\n";
-		output << "Weapon Causes:\n" << wpn_cause_str << "\n";
-		output << "Weapon Effects:\n" << wpn_effect_str << "\n";
+		output << "Weapon Causes:\n" << parts.weapon_causes << "\n";
+		output << "Weapon Effects:\n" << parts.weapon_effects << "\n";
 	}
-	if (!cause_str.empty())
-		output << (separate_weapon ? "Non-Weapon Causes:\n" : "Caused by:\n") << cause_str << "\n";
-	if (!condition_str.empty())
-		output << (separate_weapon ? "Non-Weapon Conditions:\n" : "Conditions:\n") << condition_str << "\n";
-	if (!effect_str.empty())
-		output << (separate_weapon ? "Non-Weapon Effects:\n" : "Effects:\n") << effect_str << "\n";
-	if (!fail_str.empty())
-		output << "Effects on Condition Fail:\n" << fail_str << "\n";
+	if (!parts.causes.empty())
+		output << (parts.separate_weapon ? "Non-Weapon Causes:\n" : "Caused by:\n") << parts.causes << "\n";
+	if (!parts.conditions.empty())
+		output << (parts.separate_weapon ? "Non-Weapon Conditions:\n" : "Conditions:\n") << parts.conditions << "\n";
+	if (!parts.effects.empty())
+		output << (parts.separate_weapon ? "Non-Weapon Effects:\n" : "Effects:\n") << parts.effects << "\n";
+	if (!parts.fail_effects.empty())
+		output << "Effects on Condition Fail:\n" << parts.fail_effects << "\n";
 	auto ret_str = output.str();
-	TRIM_TRAILING_CHARS(ret_str);
+	ret_str = ret_str.substr(0, ret_str.find_last_not_of(", \n")+1);
 	return ret_str;
-#undef TRIM_TRAILING_CHARS
 }
 
 bool combo_trigger::is_blank() const
