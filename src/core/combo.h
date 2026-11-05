@@ -154,9 +154,10 @@ struct combo_trigger
 	byte large_combo_copycat;
 	
 	// Each part of summarize(): lines indented by 3 spaces (6 for details of the line
-	// above), with no trailing newline.
-	combo_trigger_summary summarize_parts(newcombo const& cmb) const;
-	std::string summarize(newcombo const& cmb) const;
+	// above), with no trailing newline. `cid` is the combo's id, which names the combo a
+	// relative combo change leads to; -1 leaves it out.
+	combo_trigger_summary summarize_parts(newcombo const& cmb, int cid = -1) const;
+	std::string summarize(newcombo const& cmb, int cid = -1) const;
 	bool is_blank() const;
 	void clear();
 	bool operator==(combo_trigger const& other) const = default;

@@ -100,6 +100,11 @@ class TestZPlayer(unittest.TestCase):
         self.assertEqual(pressed['placements'], [])
         chain = [graph['cards'].index(switch), graph['cards'].index(pressed)]
         self.assertIn(chain, [c[:2] for c in graph['chains']])
+        # The released switches change back into switches labeled "Step -> CopyCat 1" to "8".
+        # Folded together, the summary can't name one of them.
+        released = graph['cards'][pressed['triggers'][0]['changes_to']]
+        self.assertEqual(released['count'], 8)
+        self.assertEqual(released['triggers'][0]['effects'], ['Change combo by -2'])
         # The locked door sets the ExDoor that also opens it.
         door = card(graph, 5000)
         self.assertEqual(hub_names(graph, door['triggers'][0]), ['ExDoor Right 1'])

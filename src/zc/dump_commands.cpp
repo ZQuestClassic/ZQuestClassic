@@ -265,7 +265,7 @@ void do_dump_screen_command(const char* quest_path, int map, int screen)
 
 		json triggers = json::array();
 		for (const auto& trig : cmb.triggers)
-			triggers.push_back(util::split(trig.summarize(cmb), "\n"));
+			triggers.push_back(util::split(trig.summarize(cmb, cid), "\n"));
 		j["combo_triggers"][std::to_string(cid)] = triggers;
 	}
 

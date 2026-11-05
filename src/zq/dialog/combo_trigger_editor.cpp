@@ -2321,7 +2321,7 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 						string title = "Trigger Summary";
 						if (!local_ref.label.empty())
 							title += fmt::format(" '{}'", local_ref.label);
-						InfoDialog(title, local_ref.summarize(parent_comboref))
+						InfoDialog(title, local_ref.summarize(parent_comboref, parent.index))
 							.set_text_align(0).show();
 					}),
 				warnbtn = Button(

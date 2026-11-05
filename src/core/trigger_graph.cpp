@@ -16,8 +16,9 @@
 // 3. fold: chains that do the same thing with different numbers (eight floor switches, each
 //    with its own copycat) become one, with `count` set and the hubs' ids merged, so the
 //    diagram shows "x8" and "Copycats 1-8" instead of eight copies. Two chains match when
-//    chain_signature() is the same: their triggers summarized with the copycat, state and
-//    group numbers cleared, and the kinds of hubs they link to. The kept card's lines name the first setup's numbers ("Copycat 1"), found by
+//    chain_signature() is the same: their trigger lines with each hub's name swapped for its
+//    kind and the order it first comes up in, so numbers don't matter but how the hubs are
+//    shared does. The kept card's lines name the first setup's numbers ("Copycat 1"), found by
 //    how summarize_parts() prints them (summary_name()), and are renamed to the merged hub
 //    ("Copycats 1-8"). Then hubs of the same kind that share an id are merged, and the folded
 //    away cards and the hubs nothing links to are dropped (merge_overlapping_hubs, compact).
@@ -201,11 +202,12 @@ struct builder
 		t.links.push_back({hub, writes, reads});
 	}
 
-	trigger_graph::trigger make_trigger(newcombo const& cmb, combo_trigger const& trig)
+	trigger_graph::trigger make_trigger(int cid, combo_trigger const& trig)
 	{
+		newcombo const& cmb = combobuf[cid];
 		trigger_graph::trigger t;
 		t.label = trig.label;
-		auto parts = trig.summarize_parts(cmb);
+		auto parts = trig.summarize_parts(cmb, cid);
 		t.causes = split_lines(parts.causes);
 		t.conditions = split_lines(parts.conditions);
 		t.effects = split_lines(parts.effects);
@@ -214,6 +216,7 @@ struct builder
 			t.weapon_causes = split_lines(parts.weapon_causes);
 			t.weapon_effects = split_lines(parts.weapon_effects);
 		}
+		t.fail_effects = split_lines(parts.fail_effects);
 		if (trig.trigger_flags.get(TRIGFLAG_TGROUP_CONTRIB))
 			t.notes.push_back(fmt::format("Contributes to Trigger Group {}", trig.trig_group));
 		t.keeps_firing = keeps_firing(trig);
@@ -309,7 +312,7 @@ struct builder
 			newcombo const& cmb = combobuf[card.cid];
 			for (auto const& trig : cmb.triggers)
 			{
-				auto t = make_trigger(cmb, trig);
+				auto t = make_trigger(card.cid, trig);
 				int target = change_target(card.cid, trig);
 				if (target >= 0 && card_of_cid.contains(target))
 					t.changes_to = card_of_cid[target];
@@ -383,31 +386,42 @@ struct builder
 		});
 	}
 
-	// What a chain does, without the numbers that tell its copycats, states and groups apart.
+	// What a chain does, from its triggers' lines, with each copycat, state and group named by
+	// its kind and the order it first comes up in the chain instead of by its number. Chains
+	// that only differ in those numbers match, but not ones that use them differently (one
+	// copycat shared by two combos, or two copycats; an ExState or an ExDoor).
 	std::string chain_signature(std::vector<size_t> const& chain)
 	{
+		std::map<size_t, int> ordinal;
 		std::string sig;
 		for (size_t c : chain)
 		{
-			newcombo const& cmb = combobuf[g.cards[c].cid];
-			sig += fmt::format("[type {}]", cmb.type);
-			for (size_t i = 0; i < cmb.triggers.size(); i++)
+			sig += fmt::format("[type {}]", combobuf[g.cards[c].cid].type);
+			for (auto const& t : g.cards[c].triggers)
 			{
-				combo_trigger trig = cmb.triggers[i];
-				trig.label.clear();
-				if (trig.trigcopycat)
-					trig.trigcopycat = 1;
-				if (trig.exstate > -1)
-					trig.exstate = 0;
-				if (trig.exdoor_dir > -1)
-					trig.exdoor_ind = 0;
-				trig.trig_lstate = trig.trig_gstate = trig.trig_group = 0;
-				sig += trig.summarize(cmb);
-				auto const& t = g.cards[c].triggers[i];
+				for (auto const& link : t.links)
+					ordinal.try_emplace(link.hub, int(ordinal.size()));
+				for (auto const* lines : {&t.causes, &t.conditions, &t.effects, &t.weapon_causes, &t.weapon_effects, &t.fail_effects, &t.notes})
+				{
+					sig += "[";
+					for (auto line : *lines)
+					{
+						// The combos the setups change into may have different labels.
+						line = line.substr(0, line.find(", into "));
+						for (auto const& link : t.links)
+						{
+							auto const& hub = g.hubs[link.hub];
+							replace_name(line, summary_name(hub.kind, hub.ids[0]),
+								fmt::format("{}#{}", int(hub.kind), ordinal[link.hub]));
+						}
+						sig += line + "|";
+					}
+					sig += "]";
+				}
 				auto it = std::find(chain.begin(), chain.end(), size_t(t.changes_to));
 				sig += fmt::format("[changes to {}]", t.changes_to < 0 ? -1 : int(it - chain.begin()));
 				for (auto const& link : t.links)
-					sig += fmt::format("[{} {} {}]", int(g.hubs[link.hub].kind), link.writes, link.reads);
+					sig += fmt::format("[{}#{} {} {}]", int(g.hubs[link.hub].kind), ordinal[link.hub], link.writes, link.reads);
 			}
 		}
 		return sig;
@@ -450,6 +464,21 @@ struct builder
 				for (size_t ti = 0; ti < card.triggers.size(); ti++)
 				{
 					auto& t = card.triggers[ti];
+					// The combos the setups change into may have different labels.
+					for (size_t e = 0; e < t.effects.size(); e++)
+					{
+						size_t into = t.effects[e].find(", into ");
+						if (into == std::string::npos)
+							continue;
+						for (size_t m : group)
+						{
+							if (g.cards[g.chains[m][k]].triggers[ti].effects[e] != t.effects[e])
+							{
+								t.effects[e].resize(into);
+								break;
+							}
+						}
+					}
 					for (size_t li = 0; li < t.links.size(); li++)
 					{
 						auto const& own = g.hubs[t.links[li].hub];
@@ -468,7 +497,7 @@ struct builder
 						// The lines name the first setup's number; name them all.
 						auto from = summary_name(kind, own_id);
 						auto to = g.hubs[t.links[li].hub].name();
-						for (auto* lines : {&t.causes, &t.conditions, &t.effects, &t.weapon_causes, &t.weapon_effects, &t.notes})
+						for (auto* lines : {&t.causes, &t.conditions, &t.effects, &t.weapon_causes, &t.weapon_effects, &t.fail_effects, &t.notes})
 							for (auto& line : *lines)
 								replace_name(line, from, to);
 						replace_name(t.label, from, to);
