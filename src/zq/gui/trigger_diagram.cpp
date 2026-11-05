@@ -25,11 +25,18 @@
 // Text and bitmaps are drawn at whole pixels (draw_text, draw_bitmap). The font is pixel art,
 // and at a fractional scroll position its glyphs lose rows and columns.
 //
-// Input, in trigger_diagram_proc: the wheel scrolls the list or the diagram. The horizontal
-// wheel has no message, so MSG_IDLE watches mouse_w for it, and also tracks the hover. A left
-// drag pans, and a left click on a list row or the screen picture scrolls to that card, or on
-// a card raises geCLICK with clickedCid and clickedTrigger set, which onEvent() passes to the
-// dialog's click function to open the Combo Editor. A right click opens contextMenu().
+// The picture is of the screen, or every screen of its scrolling region, and has its own zoom
+// and pan (pictureView, in the picture's pixels); toPicture() maps a point of the widget onto
+// it. The card placements the dialog gives are in the picture's pixels too.
+//
+// Input, in trigger_diagram_proc: the wheel scrolls the list or the diagram, or zooms the
+// picture. The horizontal wheel has no message, so MSG_IDLE watches mouse_w for it, and also
+// tracks the hover. A left drag pans the diagram or the picture, and a left click on a list row
+// or the picture scrolls to that card. Clicks that the dialog acts on (a card, to open the
+// Combo Editor; another screen of the region in the picture; a hub's note about the region's
+// other screens) set `action` and raise geCLICK, which onEvent() passes to the dialog's
+// function for it: the proc can't rebuild the dialog it's running in. A right click opens
+// contextMenu().
 
 #include "zq/gui/trigger_diagram.h"
 #include "core/combo.h"
@@ -50,6 +57,7 @@
 #include <allegro5/allegro_primitives.h>
 #include <cmath>
 #include <fmt/format.h>
+#include <fmt/ranges.h>
 
 using hub_kind = trigger_graph::hub_kind;
 using LineStyle = GUI::TriggerDiagram::LineStyle;
@@ -67,10 +75,17 @@ const float HUB_W = 130;
 const float MARGIN = 16;
 const float PREVIEW_W = 256, PREVIEW_H = 176;
 const char* const HINT[] = {
-	"Click the screen or a row to find its",
+	"Click the picture or a row to find its",
 	"combo, or a combo to edit it. Scroll:",
-	"wheel (Shift: sideways), or drag.",
+	"wheel (Shift: sideways), or drag. The",
+	"picture zooms with the wheel, pans with",
+	"a drag or the map. Double-click resets.",
 };
+const float MAX_PICTURE_ZOOM = 4;
+// The most the map of the picture takes up in a corner of its box.
+const float MAP_MAX_W = 64, MAP_MAX_H = 40;
+// Until the picture is first zoomed or panned, hovering it says how.
+bool picture_hint_seen = false;
 
 // The colors of the combo triggers guide's diagrams (docs-www/source/_static/main.css).
 struct Colors
@@ -349,6 +364,33 @@ void draw_legend(Theme const& t, float anchor_x, float y, bool from_right)
 	}
 }
 
+// A hub's note about the combos on the region's other screens that use it.
+std::string elsewhere_text(trigger_graph::hub const& hub)
+{
+	if (hub.elsewhere.empty())
+		return "";
+	int count = 0;
+	bool writes = false, reads = false;
+	std::vector<std::string> screens;
+	for (auto const& e : hub.elsewhere)
+	{
+		count += e.count;
+		writes |= e.writes;
+		reads |= e.reads;
+		screens.push_back(fmt::format("0x{:02X}", e.screen));
+	}
+	bool copycat = hub.kind == hub_kind::copycat;
+	std::string what;
+	if (writes && reads)
+		what = copycat ? "activate it, and it fires them" : "count toward it and check it";
+	else if (writes)
+		what = copycat ? "activate it" : "count toward it";
+	else
+		what = copycat ? "it fires them" : "check it";
+	return fmt::format("Also {} placed combo{} on {} ({})", count, count == 1 ? "" : "s",
+		fmt::join(screens, ", "), what);
+}
+
 } // namespace
 
 int32_t trigger_diagram_proc(int32_t msg, DIALOG* d, int32_t c)
@@ -389,7 +431,12 @@ int32_t trigger_diagram_proc(int32_t msg, DIALOG* d, int32_t c)
 		case MSG_WHEEL:
 		{
 			float step = 3 * line_height() * (c > 0 ? -1 : 1);
-			if (widg->listRect().contains(gui_mouse_x(), gui_mouse_y()))
+			if (widg->previewRect().contains(gui_mouse_x(), gui_mouse_y()))
+			{
+				widg->zoomPicture(c > 0 ? 1.25f : 0.8f, gui_mouse_x(), gui_mouse_y());
+				picture_hint_seen = true;
+			}
+			else if (widg->listRect().contains(gui_mouse_x(), gui_mouse_y()))
 				widg->listScroll += step;
 			else if (key_shifts & KB_SHIFT_FLAG)
 				widg->scrollX += step;
@@ -429,46 +476,88 @@ int32_t trigger_diagram_proc(int32_t msg, DIALOG* d, int32_t c)
 				break;
 			}
 			int start_x = gui_mouse_x(), start_y = gui_mouse_y();
+			// Clicking or dragging on the map pans the picture there.
+			if (widg->mapRect().contains(start_x, start_y))
+			{
+				widg->dragMap();
+				break;
+			}
 			float scroll_x = widg->scrollX, scroll_y = widg->scrollY;
-			bool can_drag = widg->viewRect().contains(start_x, start_y);
+			auto start_view = widg->pictureView;
+			bool in_view = widg->viewRect().contains(start_x, start_y);
+			bool in_preview = widg->previewRect().contains(start_x, start_y);
 			bool dragged = false;
 			while (gui_mouse_b())
 			{
 				int dx = gui_mouse_x() - start_x, dy = gui_mouse_y() - start_y;
 				if (std::abs(dx) + std::abs(dy) > 3)
 					dragged = true;
-				if (dragged && can_drag)
+				if (dragged && in_view)
 				{
 					widg->scrollX = scroll_x - dx;
 					widg->scrollY = scroll_y - dy;
 					widg->clampScroll();
 					widg->markDirty();
 				}
+				else if (dragged && in_preview)
+				{
+					widg->pictureView.x = start_view.x - dx / start_view.zoom;
+					widg->pictureView.y = start_view.y - dy / start_view.zoom;
+					widg->clampPicture();
+					widg->markDirty();
+					picture_hint_seen = true;
+				}
 				update_hw_screen();
 			}
-			int list_card = widg->listCardAt(start_x, start_y);
-			int preview_card = dragged ? -1 : widg->previewCardAt(start_x, start_y);
-			if (!dragged && list_card >= 0)
+			if (dragged)
+				break;
+
+			widg->updateHover(start_x, start_y);
+			if (int card = widg->listCardAt(start_x, start_y); card >= 0)
 			{
-				widg->scrollToCard(list_card);
-				widg->updateHover(start_x, start_y);
+				widg->scrollToCard(card);
 			}
-			else if (preview_card >= 0)
+			else if (in_preview)
 			{
-				widg->scrollToCard(preview_card);
-			}
-			else if (!dragged)
-			{
-				widg->updateHover(start_x, start_y);
-				if (widg->hoverCard >= 0)
+				auto const& pic = widg->picture;
+				int screen = widg->pictureScreenAt(start_x, start_y);
+				if (pic.single && screen >= 0 && screen != pic.screen && widg->onPickScreen)
 				{
-					widg->clickedCid = widg->graph.cards[widg->hoverCard].cid;
-					widg->clickedTrigger = widg->triggerAt(widg->hoverCard, start_y - widg->viewRect().y + widg->scrollY);
+					widg->action = GUI::TriggerDiagram::Action::pick_screen;
+					widg->pickedScreen = screen;
 					GUI_EVENT(d, geCLICK);
 				}
+				else if (int card = widg->previewCardAt(start_x, start_y); card >= 0)
+					widg->scrollToCard(card);
+			}
+			else if (int hub = widg->hubNoteAt(start_x, start_y); hub >= 0)
+			{
+				widg->action = GUI::TriggerDiagram::Action::show_elsewhere;
+				widg->elsewhereHub = hub;
+				GUI_EVENT(d, geCLICK);
+			}
+			else if (widg->hoverCard >= 0)
+			{
+				widg->action = GUI::TriggerDiagram::Action::edit;
+				widg->clickedCid = widg->graph.cards[widg->hoverCard].cid;
+				widg->clickedTrigger = widg->triggerAt(widg->hoverCard, start_y - widg->viewRect().y + widg->scrollY);
+				GUI_EVENT(d, geCLICK);
 			}
 			break;
 		}
+
+		case MSG_DCLICK:
+			if (gui_mouse_b() & 2)
+				break;
+			// A second click on the map soon after the first comes as a double click.
+			if (widg->mapRect().contains(gui_mouse_x(), gui_mouse_y()))
+				widg->dragMap();
+			else if (widg->previewRect().contains(gui_mouse_x(), gui_mouse_y()))
+			{
+				widg->setPictureView({});
+				widg->showPictureScreen();
+			}
+			break;
 	}
 	return D_O_K;
 }
@@ -495,18 +584,26 @@ void TriggerDiagram::freeBitmaps()
 		if (card.icon)
 			al_destroy_bitmap(card.icon);
 	cards.clear();
-	if (screenBmp)
-		al_destroy_bitmap(screenBmp);
-	screenBmp = nullptr;
+	if (picture.bmp)
+		al_destroy_bitmap(picture.bmp);
+	picture.bmp = nullptr;
 }
 
-void TriggerDiagram::setGraph(trigger_graph newGraph, std::vector<CardInfo> newCards, ALLEGRO_BITMAP* screen_bmp)
+void TriggerDiagram::setGraph(trigger_graph newGraph, std::vector<CardInfo> newCards, Picture newPicture)
 {
 	freeBitmaps();
+	bool same_screens = picture.origin == newPicture.origin && picture.cols == newPicture.cols
+		&& picture.rows == newPicture.rows;
 	graph = std::move(newGraph);
 	cards = std::move(newCards);
-	screenBmp = screen_bmp;
-	hoverCard = hoverHub = hoverPos = previewFocus = focusCard = filterHub = -1;
+	picture = newPicture;
+	// Rebuilt after an edit, the picture stays where it was.
+	if (!same_screens || !pictureView.zoom)
+	{
+		pictureView = {};
+		showPictureScreen();
+	}
+	hoverCard = hoverHub = hoverPicX = hoverPicY = previewFocus = focusCard = filterHub = -1;
 	// The wheel may have turned in a dialog opened from here, like the Combo Editor.
 	lastMouseW = mouse_w;
 	layout();
@@ -562,12 +659,153 @@ int TriggerDiagram::listCardAt(int mx, int my) const
 	return row < listRows.size() ? int(listRows[row].first) : -1;
 }
 
-int TriggerDiagram::previewCardAt(int mx, int my)
+std::pair<float, float> TriggerDiagram::toPicture(float mx, float my) const
 {
 	Rect preview = previewRect();
-	if (!preview.contains(mx, my))
+	return {pictureView.x + (mx - preview.x) / pictureView.zoom, pictureView.y + (my - preview.y) / pictureView.zoom};
+}
+
+int TriggerDiagram::pictureScreenAt(int mx, int my) const
+{
+	if (!previewRect().contains(mx, my))
 		return -1;
-	float x = mx - preview.x, y = my - preview.y;
+	auto [x, y] = toPicture(mx, my);
+	int col = std::floor(x / 256), row = std::floor(y / 176);
+	if (col < 0 || row < 0 || col >= picture.cols || row >= picture.rows)
+		return -1;
+	return picture.origin + row * 16 + col;
+}
+
+std::pair<float, float> TriggerDiagram::pictureSize() const
+{
+	return {picture.cols * 256.f, picture.rows * 176.f};
+}
+
+float TriggerDiagram::minPictureZoom() const
+{
+	auto [pw, ph] = pictureSize();
+	float fit = std::min(PREVIEW_W / pw, PREVIEW_H / ph);
+	return std::min(1.f, fit);
+}
+
+std::array<bool, 4> TriggerDiagram::pictureOverflow() const
+{
+	auto const& v = pictureView;
+	float w = PREVIEW_W / v.zoom, h = PREVIEW_H / v.zoom;
+	auto [pw, ph] = pictureSize();
+	// At least a pixel of the box's worth.
+	return {v.x * v.zoom >= 1, v.y * v.zoom >= 1, (pw - v.x - w) * v.zoom >= 1, (ph - v.y - h) * v.zoom >= 1};
+}
+
+TriggerDiagram::Rect TriggerDiagram::mapRect() const
+{
+	auto over = pictureOverflow();
+	if (expanded || !picture.bmp || over == std::array<bool, 4>{})
+		return {0, 0, 0, 0};
+	auto [pw, ph] = pictureSize();
+	float scale = std::min(MAP_MAX_W / pw, MAP_MAX_H / ph);
+	float w = std::round(pw * scale), h = std::round(ph * scale);
+	Rect preview = previewRect();
+	return {preview.x + preview.w - 4 - w, preview.y + preview.h - 4 - h, w, h};
+}
+
+void TriggerDiagram::dragMap()
+{
+	// Panning keeps some of the picture out of view, so the map stays where it is.
+	Rect m = mapRect();
+	auto [pw, ph] = pictureSize();
+	do
+	{
+		pictureView.x = (gui_mouse_x() - m.x) * pw / m.w - PREVIEW_W / pictureView.zoom / 2;
+		pictureView.y = (gui_mouse_y() - m.y) * ph / m.h - PREVIEW_H / pictureView.zoom / 2;
+		clampPicture();
+		markDirty();
+		update_hw_screen();
+	}
+	while (gui_mouse_b());
+	picture_hint_seen = true;
+}
+
+void TriggerDiagram::clampPicture()
+{
+	auto& v = pictureView;
+	v.zoom = std::clamp(v.zoom, minPictureZoom(), MAX_PICTURE_ZOOM);
+	// Centered when it's smaller than the box.
+	auto clamp = [](float& pos, float shown, float size) {
+		pos = shown >= size ? (size - shown) / 2 : std::clamp(pos, 0.f, size - shown);
+	};
+	auto [pw, ph] = pictureSize();
+	clamp(v.x, PREVIEW_W / v.zoom, pw);
+	clamp(v.y, PREVIEW_H / v.zoom, ph);
+}
+
+void TriggerDiagram::setPictureView(PictureView view)
+{
+	pictureView = view;
+	if (!pictureView.zoom)
+		pictureView.zoom = 1;
+	clampPicture();
+	markDirty();
+}
+
+void TriggerDiagram::showPictureScreen()
+{
+	if (!pictureView.zoom)
+		pictureView.zoom = 1;
+	int col = (picture.screen - picture.origin) % 16, row = (picture.screen - picture.origin) / 16;
+	pictureView.x = col * 256 + 128 - PREVIEW_W / pictureView.zoom / 2;
+	pictureView.y = row * 176 + 88 - PREVIEW_H / pictureView.zoom / 2;
+	clampPicture();
+	markDirty();
+}
+
+void TriggerDiagram::zoomPicture(float factor, int mx, int my)
+{
+	// The point under the mouse stays under it.
+	auto [px, py] = toPicture(mx, my);
+	Rect preview = previewRect();
+	pictureView.zoom *= factor;
+	// In quarter steps once it's bigger than the picture's own size, so the pixels stay even.
+	if (pictureView.zoom > 1)
+		pictureView.zoom = std::round(pictureView.zoom * 4) / 4;
+	clampPicture();
+	pictureView.x = px - (mx - preview.x) / pictureView.zoom;
+	pictureView.y = py - (my - preview.y) / pictureView.zoom;
+	clampPicture();
+	markDirty();
+}
+
+void TriggerDiagram::showPicturePlacement(size_t card)
+{
+	if (cards[card].placements.empty())
+		return;
+	auto const& r = cards[card].placements[0];
+	auto const& v = pictureView;
+	float shown_w = PREVIEW_W / v.zoom, shown_h = PREVIEW_H / v.zoom;
+	if (r.x >= v.x && r.y >= v.y && r.x + r.w <= v.x + shown_w && r.y + r.h <= v.y + shown_h)
+		return;
+	pictureView.x = r.x + r.w / 2 - shown_w / 2;
+	pictureView.y = r.y + r.h / 2 - shown_h / 2;
+	clampPicture();
+}
+
+int TriggerDiagram::hubNoteAt(int mx, int my) const
+{
+	Rect view = viewRect();
+	if (!view.contains(mx, my))
+		return -1;
+	float x = mx - view.x + scrollX, y = my - view.y + scrollY;
+	for (size_t h = 0; h < hubNoteRects.size(); h++)
+		if (hubNoteRects[h].contains(x, y))
+			return h;
+	return -1;
+}
+
+int TriggerDiagram::previewCardAt(int mx, int my)
+{
+	if (!previewRect().contains(mx, my))
+		return -1;
+	auto [x, y] = toPicture(mx, my);
 	std::vector<int> found;
 	for (size_t c = 0; c < cards.size(); c++)
 		for (auto const& r : cards[c].placements)
@@ -587,6 +825,7 @@ int TriggerDiagram::previewCardAt(int mx, int my)
 void TriggerDiagram::scrollToCard(size_t card)
 {
 	focusCard = card;
+	showPicturePlacement(card);
 	Rect view = viewRect();
 	auto const& r = cardLayouts[card].rect;
 	scrollX = r.x - std::max(MARGIN, (view.w - r.w) / 2);
@@ -746,6 +985,8 @@ void TriggerDiagram::layout()
 
 	hubRects.assign(nh, {});
 	hubLines.assign(nh, {});
+	hubNotes.assign(nh, {});
+	hubNoteRects.assign(nh, {});
 	// Each hub is level with the first line that leads to it.
 	std::vector<float> want_y(nh, 1e9f);
 	for (size_t c = 0; c < n; c++)
@@ -766,6 +1007,11 @@ void TriggerDiagram::layout()
 		hub_order[h] = h;
 		hubLines[h] = wrap(graph.hubs[h].name(), HUB_W - 12);
 		float hh = hubLines[h].size() * lh + 12;
+		if (auto note = elsewhere_text(graph.hubs[h]); !note.empty())
+		{
+			hubNotes[h] = wrap(note, HUB_W - 12);
+			hh += hubNotes[h].size() * lh + 6;
+		}
 		float cy = want_y[h] < 1e9f ? want_y[h] : MARGIN;
 		hubRects[h] = {MARGIN, cy - hh / 2, HUB_W, hh};
 	}
@@ -775,6 +1021,11 @@ void TriggerDiagram::layout()
 	{
 		hubRects[h].y = std::max(hubRects[h].y, hub_bottom);
 		hub_bottom = hubRects[h].y + hubRects[h].h + 10;
+		if (!hubNotes[h].empty())
+		{
+			float note_h = hubNotes[h].size() * lh + 6;
+			hubNoteRects[h] = {hubRects[h].x, hubRects[h].y + hubRects[h].h - note_h - 3, HUB_W, note_h};
+		}
 	}
 	contentW = right + MARGIN;
 	contentH = std::max(contentH, hub_bottom + MARGIN);
@@ -865,12 +1116,20 @@ void TriggerDiagram::layout()
 
 void TriggerDiagram::updateHover(int mx, int my)
 {
-	int card = -1, hub = -1, pos = -1;
+	int card = -1, hub = -1, pic_x = -1, pic_y = -1;
 	Rect preview = previewRect();
 	Rect view = viewRect();
-	if (preview.contains(mx, my))
+	bool in_preview = preview.contains(mx, my);
+	if (in_preview != hoverPreview)
 	{
-		pos = int(my - preview.y) * 256 + int(mx - preview.x);
+		hoverPreview = in_preview;
+		markDirty();
+	}
+	if (in_preview && !mapRect().contains(mx, my))
+	{
+		auto [x, y] = toPicture(mx, my);
+		pic_x = std::floor(x);
+		pic_y = std::floor(y);
 	}
 	else if (listRect().contains(mx, my))
 	{
@@ -886,11 +1145,12 @@ void TriggerDiagram::updateHover(int mx, int my)
 			if (hubRects[h].contains(x, y))
 				hub = h;
 	}
-	if (card != hoverCard || hub != hoverHub || pos != hoverPos)
+	if (card != hoverCard || hub != hoverHub || pic_x != hoverPicX || pic_y != hoverPicY)
 	{
 		hoverCard = card;
 		hoverHub = hub;
-		hoverPos = pos;
+		hoverPicX = pic_x;
+		hoverPicY = pic_y;
 		markDirty();
 	}
 }
@@ -904,9 +1164,9 @@ bool TriggerDiagram::cardHighlighted(int card) const
 			for (auto const& link : t.links)
 				if (int(link.hub) == hoverHub)
 					return true;
-	if (hoverPos >= 0)
+	if (hoverPicX >= 0)
 		for (auto const& r : cards[card].placements)
-			if (r.contains(hoverPos % 256, hoverPos / 256))
+			if (r.contains(hoverPicX, hoverPicY))
 				return true;
 	return false;
 }
@@ -938,11 +1198,12 @@ bool TriggerDiagram::contextMenu(int mx, int my)
 {
 	updateHover(mx, my);
 	int card = hoverCard, hub = hoverHub;
-	if (card < 0 && hoverPos >= 0)
+	if (card < 0 && hoverPicX >= 0)
 		card = previewCardAt(mx, my);
 	int trigger = card >= 0 && viewRect().contains(mx, my) ? triggerAt(card, my - viewRect().y + scrollY) : -1;
 
-	// What to edit, set by the menu: -2 for nothing, -1 for the combo, else a trigger.
+	// What to edit, set by the menu: -2 for nothing, -1 for the combo, else a trigger. -3 shows
+	// the whole region.
 	int edit = -2;
 	NewMenu menu;
 	if (card >= 0)
@@ -959,6 +1220,8 @@ bool TriggerDiagram::contextMenu(int mx, int my)
 	}
 	if (hub >= 0)
 		menu.add({"Show Only What Links Here", [&]() { filterHub = hub; }});
+	if (hub >= 0 && !graph.hubs[hub].elsewhere.empty() && onShowElsewhere)
+		menu.add({"Show Whole Region", [&]() { edit = -3; }});
 	menu.add({"Show All", [&]() { filterHub = -1; }, nullopt, filterHub < 0 ? MFL_DIS : 0});
 	menu.add_sep();
 	if (devpwd())
@@ -969,6 +1232,13 @@ bool TriggerDiagram::contextMenu(int mx, int my)
 
 	if (edit == -2)
 		return false;
+	if (edit == -3)
+	{
+		action = Action::show_elsewhere;
+		elsewhereHub = hub;
+		return true;
+	}
+	action = Action::edit;
 	clickedCid = graph.cards[card].cid;
 	clickedTrigger = edit;
 	return true;
@@ -1006,10 +1276,10 @@ void TriggerDiagram::exportPng(std::string const& path)
 		al_set_target_bitmap(bmp);
 		al_clear_to_color(t.bg);
 		// Without what the mouse happens to be on.
-		int hover_card = hoverCard, hover_hub = hoverHub, hover_pos = hoverPos, focus = focusCard;
-		hoverCard = hoverHub = hoverPos = focusCard = -1;
+		int hover_card = hoverCard, hover_hub = hoverHub, hover_x = hoverPicX, hover_y = hoverPicY, focus = focusCard;
+		hoverCard = hoverHub = hoverPicX = hoverPicY = focusCard = -1;
 		drawDiagram(0, 0, {0, 0, float(w), float(h)});
-		hoverCard = hover_card, hoverHub = hover_hub, hoverPos = hover_pos, focusCard = focus;
+		hoverCard = hover_card, hoverHub = hover_hub, hoverPicX = hover_x, hoverPicY = hover_y, focusCard = focus;
 		draw_legend(t, MARGIN, h - MARGIN - legend_height(), false);
 		al_save_bitmap(path.c_str(), bmp);
 		al_destroy_bitmap(bmp);
@@ -1151,6 +1421,18 @@ void TriggerDiagram::drawDiagram(float ox, float oy, Rect clip)
 			draw_text(f, t.colors->state_text, x + H.w / 2, yy, ALLEGRO_ALIGN_CENTRE, s.c_str());
 			yy += lh;
 		}
+		// The note about the region's other screens, which shows the whole region when clicked.
+		if (!hubNotes[h].empty())
+		{
+			auto const& N = hubNoteRects[h];
+			al_draw_line(x + 6, N.y + oy + 0.5f, x + H.w - 6, N.y + oy + 0.5f, t.colors->state_stroke, 1);
+			yy = N.y + oy + 4;
+			for (auto const& s : hubNotes[h])
+			{
+				draw_text(f, accent, x + H.w / 2, yy, ALLEGRO_ALIGN_CENTRE, s.c_str());
+				yy += lh;
+			}
+		}
 		if (filterHub >= 0 && int(h) != filterHub)
 			al_draw_filled_rectangle(x, y, x + H.w, y + H.h, fade);
 	}
@@ -1170,31 +1452,115 @@ void TriggerDiagram::render()
 	Rect b = bounds();
 	al_draw_filled_rectangle(b.x, b.y, b.x + b.w, b.y + b.h, t.box);
 
-	// The screen and the list, unless the diagram is expanded.
+	// The picture and the list, unless the diagram is expanded.
 	if (!expanded)
 	{
-		// The screen, with every combo that has triggers outlined.
+		// The screens, with every combo that has triggers outlined.
 		Rect preview = previewRect();
-		if (screenBmp)
-			draw_bitmap(screenBmp, preview.x, preview.y);
-		al_draw_rectangle(preview.x - 0.5f, preview.y - 0.5f, preview.x + preview.w + 0.5f, preview.y + preview.h + 0.5f, line, 1);
+		auto const& v = pictureView;
+		// The picture's top-left, at a whole pixel so its pixels stay even.
+		float px = std::round(preview.x - v.x * v.zoom), py = std::round(preview.y - v.y * v.zoom);
+		al_draw_filled_rectangle(preview.x, preview.y, preview.x + preview.w, preview.y + preview.h, al_map_rgb(0, 0, 0));
 		al_set_clipping_rectangle(preview.x, preview.y, preview.w, preview.h);
+		if (picture.bmp)
+			al_draw_scaled_bitmap(picture.bmp, 0, 0, al_get_bitmap_width(picture.bmp), al_get_bitmap_height(picture.bmp),
+				px, py, al_get_bitmap_width(picture.bmp) * v.zoom, al_get_bitmap_height(picture.bmp) * v.zoom, 0);
+		// With the picture's top-left at (x0, y0) and its screens sw x sh, dims the screens
+		// whose combos aren't cards.
+		auto dim_other_screens = [&](float x0, float y0, float sw, float sh) {
+			if (!picture.single)
+				return;
+			for (int row = 0; row < picture.rows; row++)
+			{
+				for (int col = 0; col < picture.cols; col++)
+				{
+					if (picture.origin + row * 16 + col == picture.screen)
+						continue;
+					float x = x0 + col * sw, y = y0 + row * sh;
+					al_draw_filled_rectangle(x, y, x + sw, y + sh, al_map_rgba(0, 0, 0, 150));
+				}
+			}
+		};
+		if (picture.cols * picture.rows > 1)
+		{
+			float sw = 256 * v.zoom, sh = 176 * v.zoom;
+			dim_other_screens(px, py, sw, sh);
+			int col = (picture.screen - picture.origin) % 16, row = (picture.screen - picture.origin) / 16;
+			float x = px + col * sw, y = py + row * sh;
+			al_draw_rectangle(x + 1, y + 1, x + sw - 1, y + sh - 1, al_map_rgb(0, 0, 0), 3);
+			al_draw_rectangle(x + 1, y + 1, x + sw - 1, y + sh - 1, al_map_rgb(255, 255, 255), 1);
+		}
 		for (size_t c = 0; c < cards.size(); c++)
 		{
 			bool hl = cardHighlighted(c);
 			for (auto const& r : cards[c].placements)
 			{
-				float x = preview.x + r.x, y = preview.y + r.y;
+				float x = px + r.x * v.zoom, y = py + r.y * v.zoom, w = r.w * v.zoom, h = r.h * v.zoom;
 				if (hl)
 				{
-					al_draw_rectangle(x + 1, y + 1, x + r.w - 1, y + r.h - 1, al_map_rgb(255, 255, 255), 3);
-					al_draw_rectangle(x + 1, y + 1, x + r.w - 1, y + r.h - 1, accent, 1.5f);
+					al_draw_rectangle(x + 1, y + 1, x + w - 1, y + h - 1, al_map_rgb(255, 255, 255), 3);
+					al_draw_rectangle(x + 1, y + 1, x + w - 1, y + h - 1, accent, 1.5f);
 				}
 				else if (hoverCard < 0 && hoverHub < 0)
-					al_draw_rectangle(x + 0.5f, y + 0.5f, x + r.w - 0.5f, y + r.h - 0.5f, al_map_rgba(255, 255, 255, 110), 1);
+					al_draw_rectangle(x + 0.5f, y + 0.5f, x + w - 0.5f, y + h - 0.5f, al_map_rgba(255, 255, 255, 110), 1);
 			}
 		}
+
+		// Shade the sides with more of the picture past them, with an arrow pointing that way.
+		auto over = pictureOverflow();
+		float l = preview.x, tp = preview.y, r = preview.x + preview.w, bt = preview.y + preview.h;
+		const int shade = 10;
+		for (int i = 0; i < shade; i++)
+		{
+			ALLEGRO_COLOR c = al_map_rgba(0, 0, 0, 150 * (shade - i) / shade);
+			if (over[0])
+				al_draw_line(l + i + 0.5f, tp, l + i + 0.5f, bt, c, 1);
+			if (over[1])
+				al_draw_line(l, tp + i + 0.5f, r, tp + i + 0.5f, c, 1);
+			if (over[2])
+				al_draw_line(r - i - 0.5f, tp, r - i - 0.5f, bt, c, 1);
+			if (over[3])
+				al_draw_line(l, bt - i - 0.5f, r, bt - i - 0.5f, c, 1);
+		}
+		ALLEGRO_COLOR white = al_map_rgb(255, 255, 255);
+		float mid_x = std::floor((l + r) / 2) + 0.5f, mid_y = std::floor((tp + bt) / 2) + 0.5f;
+		if (over[0])
+			draw_arrowhead(l + 1.5f, mid_y, r, mid_y, white);
+		if (over[1])
+			draw_arrowhead(mid_x, tp + 1.5f, mid_x, bt, white);
+		if (over[2])
+			draw_arrowhead(r - 1.5f, mid_y, l, mid_y, white);
+		if (over[3])
+			draw_arrowhead(mid_x, bt - 1.5f, mid_x, tp, white);
+
+		// The map of the whole picture, with what's in view outlined.
+		if (Rect m = mapRect(); m.w > 0)
+		{
+			// Its width and height are rounded apart, so they scale apart.
+			auto [pw, ph] = pictureSize();
+			float sx = m.w / pw, sy = m.h / ph;
+			al_draw_filled_rectangle(m.x - 2, m.y - 2, m.x + m.w + 2, m.y + m.h + 2, al_map_rgb(0, 0, 0));
+			al_draw_scaled_bitmap(picture.bmp, 0, 0, al_get_bitmap_width(picture.bmp), al_get_bitmap_height(picture.bmp),
+				m.x, m.y, m.w, m.h, 0);
+			dim_other_screens(m.x, m.y, 256 * sx, 176 * sy);
+			al_draw_rectangle(m.x - 1.5f, m.y - 1.5f, m.x + m.w + 1.5f, m.y + m.h + 1.5f, line, 1);
+			float x1 = std::round(m.x + std::max(0.f, v.x) * sx), y1 = std::round(m.y + std::max(0.f, v.y) * sy);
+			float x2 = std::round(m.x + std::min(pw, v.x + PREVIEW_W / v.zoom) * sx);
+			float y2 = std::round(m.y + std::min(ph, v.y + PREVIEW_H / v.zoom) * sy);
+			al_draw_rectangle(x1 + 0.5f, y1 + 0.5f, x2 - 0.5f, y2 - 0.5f, white, 1);
+		}
+
+		// How to zoom and pan, until it's been done once. Under the top's shading and arrow.
+		if (hoverPreview && !picture_hint_seen)
+		{
+			const char* hint = "Wheel to zoom, drag to pan";
+			float w = al_get_text_width(f, hint) + 8, h = lh + 4;
+			float hx = std::round((l + r - w) / 2), hy = tp + 12;
+			al_draw_filled_rectangle(hx, hy, hx + w, hy + h, al_map_rgba(0, 0, 0, 190));
+			draw_text(f, white, hx + 4, hy + 2, 0, hint);
+		}
 		al_reset_clipping_rectangle();
+		al_draw_rectangle(preview.x - 0.5f, preview.y - 0.5f, preview.x + preview.w + 0.5f, preview.y + preview.h + 0.5f, line, 1);
 		// The list of combos.
 		Rect list = listRect();
 		float rh = list_row_height();
@@ -1245,8 +1611,14 @@ void TriggerDiagram::render()
 	float ox = view.x - scrollX, oy = view.y - scrollY;
 
 	if (graph.cards.empty())
-		draw_text(f, fg, view.x + view.w / 2, view.y + view.h / 2 - lh / 2, ALLEGRO_ALIGN_CENTRE,
-			"No combos on this screen have triggers.");
+	{
+		float ty = view.y + view.h / 2 - lh * emptyText.size() / 2;
+		for (auto const& text : emptyText)
+		{
+			draw_text(f, fg, view.x + view.w / 2, ty, ALLEGRO_ALIGN_CENTRE, text.c_str());
+			ty += lh;
+		}
+	}
 
 	drawDiagram(ox, oy, view);
 
@@ -1309,8 +1681,16 @@ void TriggerDiagram::realize(DialogRunner& runner)
 
 int32_t TriggerDiagram::onEvent(int32_t event, MessageDispatcher&)
 {
-	if (event == geCLICK && onClickCard && clickedCid >= 0)
+	if (event != geCLICK)
+		return -1;
+	Action act = action;
+	action = Action::none;
+	if (act == Action::edit && onClickCard && clickedCid >= 0)
 		onClickCard(clickedCid, clickedTrigger);
+	else if (act == Action::pick_screen && onPickScreen)
+		onPickScreen(pickedScreen);
+	else if (act == Action::show_elsewhere && onShowElsewhere && elsewhereHub >= 0)
+		onShowElsewhere(elsewhereHub);
 	return -1;
 }
 
