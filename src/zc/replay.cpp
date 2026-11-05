@@ -1249,7 +1249,10 @@ static void save_replay(std::string filename, const std::vector<ReplayStepVarian
     replay_set_meta("frames", rs.frame_count);
 	replay_set_meta("length", log.size());
 
-    std::ofstream out(filename, std::ios::binary);
+    // Written to a temporary file first, so the replay isn't lost if the program dies while
+    // writing it.
+    std::string tmp_filename = filename + ".tmp";
+    std::ofstream out(tmp_filename, std::ios::binary);
     for (auto it : rs.meta_map)
         out << fmt::format("{} {} {}", TypeMeta, it.first, it.second) << '\n';
     for (size_t i = 0; i < log.size(); i++)
@@ -1292,6 +1295,16 @@ static void save_replay(std::string filename, const std::vector<ReplayStepVarian
         }
     }
     out.close();
+    if (!out)
+    {
+        fprintf(stderr, "[replay] failed to write %s\n", tmp_filename.c_str());
+        return;
+    }
+
+    std::error_code ec;
+    std::filesystem::rename(tmp_filename, filename, ec);
+    if (ec)
+        fprintf(stderr, "[replay] failed to save %s: %s\n", filename.c_str(), ec.message().c_str());
 }
 
 static std::string segments_to_string(const std::vector<std::pair<int, int>>& segments)
@@ -1723,15 +1736,14 @@ void replay_continue(std::filesystem::path path)
 {
     ASSERT(rs.mode == ReplayMode::Off);
     rs = ReplayState{};
-    rs.mode = ReplayMode::Record;
     rs.frame_arg = -1;
     rs.replay_path = path;
     replay_forget_input();
+    // Not recording until the replay has loaded: loading has CHECKs, and if one fails while
+    // recording, the crash handler would save the half-loaded replay over this one.
     if (!load_replay(rs.replay_file_buffer, rs.meta_map, rs.replay_path) || replay_log.empty())
-    {
-        rs.mode = ReplayMode::Off;
         return;
-    }
+    rs.mode = ReplayMode::Record;
 
 	for (auto& step : replay_log)
 	{
@@ -2215,6 +2227,8 @@ void replay_stop(bool aborted)
 	replay_compat_setup_zc_maths();
     rs.frame_count = 0;
     replay_log.clear();
+    // Its steps point into the buffers cleared below.
+    record_log.clear();
     rs.rngs.clear();
     rs.meta_map.clear();
     rs.replay_file_buffer.clear();
@@ -2246,6 +2260,34 @@ void replay_save()
 void replay_save(std::filesystem::path path)
 {
     save_replay(path.string(), record_log);
+}
+
+// Ends the recording as if the program was closed on the frame that crashed, and saves it. A
+// save file's replay then continues after that when the save is next loaded, as it does after
+// the program is closed - the next session starts from the last save either way.
+void replay_save_crash(std::string reason)
+{
+	static bool saving;
+	if (rs.mode != ReplayMode::Record || rs.replay_path.empty() || saving)
+		return;
+	saving = true;
+
+	replay_set_meta_bool("crashed", true);
+
+	// The crash happened in the frame's logic, after replay_poll advanced the frame count. A
+	// quit recorded on that frame would be played back before that logic runs, so record it on
+	// the next frame - playback then runs the crashing frame in full.
+	rs.frame_count++;
+	replay_step_comment(fmt::format("crash {}", reason));
+	replay_step_quit(qEXIT);
+	// On web this only reaches the in-memory filesystem: persisting it needs em_sync_fs, which
+	// isn't safe to call from here.
+	replay_save();
+
+	std::string message = fmt::format("[replay] saved replay of crash to {}", rs.replay_path.string());
+	fprintf(stderr, "%s\n", message.c_str());
+	al_trace("%s\n", message.c_str());
+	zapp_reporting_add_breadcrumb("replay", message.c_str());
 }
 
 void replay_step_comment(std::string comment)

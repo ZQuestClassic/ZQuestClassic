@@ -179,14 +179,6 @@ void zapp_setup_icon()
 #endif
 }
 
-void AllegroCheckFailedHandler(const char* file, int line, const char* func, const char* condition)
-{
-	std::string message = fmt::format("CHECK failed at {}:{} {}: {}", file, line, func, condition);
-	fprintf(stderr, "%s\n", message.c_str());
-	al_trace("%s\n", message.c_str());
-	zapp_reporting_add_breadcrumb("error", message.c_str());
-}
-
 int logged_joystick_generation = -1;
 
 // Names the SDL backend that claimed a joystick, from the driver signature SDL
@@ -245,6 +237,20 @@ void log_joysticks()
 }
 
 } // end namespace
+
+std::string zalleg_log_check_failure(const char* file, int line, const char* func, const char* condition)
+{
+	std::string message = fmt::format("CHECK failed at {}:{} {}: {}", file, line, func, condition);
+	fprintf(stderr, "%s\n", message.c_str());
+	al_trace("%s\n", message.c_str());
+	zapp_reporting_add_breadcrumb("error", message.c_str());
+	return message;
+}
+
+static void AllegroCheckFailedHandler(const char* file, int line, const char* func, const char* condition)
+{
+	zalleg_log_check_failure(file, line, func, condition);
+}
 
 void zalleg_log_joysticks_if_changed()
 {

@@ -82,6 +82,7 @@
 #include <stdlib.h>
 #include <stdlib.h>
 #include <string>
+#include <thread>
 #include <vector>
 
 #ifdef HAS_UUID
@@ -3958,6 +3959,20 @@ int main(int argc, char **argv)
 #endif
 
 	zalleg_setup_allegro(App::zelda, argc, argv);
+	// Save the replay when a CHECK fails, so the crash can be played back. This runs before
+	// abort(), in normal code, so the program's state is still intact.
+	// Real crashes (segfaults, etc.) could do the same from Sentry's crash callback (see
+	// zapp_set_crash_cb), but that was decided against: the heap may be corrupted by then,
+	// which could corrupt the replay file, and a crash inside the allocator would leave its
+	// lock held, so saving would hang and the Sentry report would never be sent.
+	// Only on the main thread: worker threads (ex: the JIT compiling scripts) have CHECKs too,
+	// and the replay is only safe to read from the main thread.
+	static const std::thread::id main_thread_id = std::this_thread::get_id();
+	SetCheckFailedHandler([](const char* file, int line, const char* func, const char* condition) {
+		std::string message = zalleg_log_check_failure(file, line, func, condition);
+		if (std::this_thread::get_id() == main_thread_id)
+			replay_save_crash(message);
+	});
 	allocate_crap();
 	set_should_zprint_cb([]() {
 		return get_qr(qr_SCRIPTERRLOG) || DEVLEVEL > 0;

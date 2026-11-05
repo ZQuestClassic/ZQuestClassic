@@ -52,6 +52,8 @@ void replay_stop(bool aborted = false);
 void replay_quit();
 void replay_save();
 void replay_save(std::filesystem::path path);
+// Called when the program is about to abort. Records the crash and saves the recording.
+void replay_save_crash(std::string reason);
 
 void replay_step_comment(std::string comment);
 void replay_step_comment_loadscr(int screen);

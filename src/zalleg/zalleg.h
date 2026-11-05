@@ -50,6 +50,9 @@ extern DATAFILE *sfxdata;
 extern bool sound_was_installed;
 
 void zalleg_setup_allegro(App id, int argc, char **argv);
+// What the CHECK failure handler zalleg_setup_allegro installs does: logs the failure, and
+// returns the message. An app's own handler can call it.
+std::string zalleg_log_check_failure(const char* file, int line, const char* func, const char* condition);
 void zalleg_create_window(const char* title, int gfx_mode, int v_width, int v_height, int saved_window_width, int saved_window_height, int max_scale = 3);
 // Web only: create the display at this size instead of the virtual screen size. Must be called
 // before zalleg_create_window; 0 means "use the virtual screen size". Used to render at native
