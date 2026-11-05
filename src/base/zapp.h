@@ -41,6 +41,7 @@ void zapp_set_crash_cb(std::function<void()> cb);
 void zapp_reporting_add_breadcrumb(const char* category, const char* message);
 void zapp_reporting_set_tag(const char* key, const char* value);
 void zapp_reporting_set_tag(const char* key, int value);
+void zapp_reporting_set_tag(const char* key, bool value);
 
 bool is_exiting();
 void set_is_exiting();

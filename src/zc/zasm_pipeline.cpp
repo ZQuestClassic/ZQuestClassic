@@ -1,4 +1,5 @@
 #include "zc/zasm_pipeline.h"
+#include "base/zapp.h"
 #include "zc/scripting/jit/jit.h"
 #include "zc/zasm_optimize.h"
 #include "zc/zasm_utils.h"
@@ -66,6 +67,9 @@ static bool pipeline_initialized;
 void zasm_pipeline_init(bool force_precompile)
 {
 	CHECK(!pipeline_initialized);
+
+	zapp_reporting_set_tag("jit", jit_is_enabled());
+	zapp_reporting_set_tag("optimize_zasm", zasm_optimize_is_enabled());
 
 	if (!jit_is_enabled() && !zasm_optimize_is_enabled())
 	{

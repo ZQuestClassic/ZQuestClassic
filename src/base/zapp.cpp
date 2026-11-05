@@ -463,6 +463,13 @@ void zapp_reporting_set_tag([[maybe_unused]] const char* key, [[maybe_unused]] i
 #endif
 }
 
+void zapp_reporting_set_tag([[maybe_unused]] const char* key, [[maybe_unused]] bool value)
+{
+#ifdef HAS_SENTRY
+	sentry_set_tag(key, value ? "true" : "false");
+#endif
+}
+
 static bool g_is_exiting;
 
 bool is_exiting()
