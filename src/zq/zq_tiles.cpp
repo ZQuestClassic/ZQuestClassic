@@ -11649,13 +11649,15 @@ int32_t onCombos()
 }
 
 bool call_combo_editor(int32_t);
-bool edit_combo(int32_t c,bool freshen,[[maybe_unused]] int32_t cs)
+bool call_combo_editor_triggers(int32_t, int32_t);
+
+// Runs a combo editor, with the font and combo animations put back after.
+static bool run_combo_editor(std::function<bool()> const& edit, bool freshen)
 {
 	FONT* ofont = font;
-	//CSet = cs;
 	reset_combo_animations();
 	reset_combo_animations2();
-	bool edited = call_combo_editor(c);
+	bool edited = edit();
 	font = ofont;
 	
 	if(freshen)
@@ -11667,6 +11669,17 @@ bool edit_combo(int32_t c,bool freshen,[[maybe_unused]] int32_t cs)
 	setup_combo_animations2();
 	
 	return edited;
+}
+
+bool edit_combo(int32_t c,bool freshen,[[maybe_unused]] int32_t cs)
+{
+	//CSet = cs;
+	return run_combo_editor([&]() { return call_combo_editor(c); }, freshen);
+}
+
+bool edit_combo_triggers(int32_t c, int32_t trigger)
+{
+	return run_combo_editor([&]() { return call_combo_editor_triggers(c, trigger); }, false);
 }
 
 int32_t d_itile_proc(int32_t msg,DIALOG *d,int32_t)

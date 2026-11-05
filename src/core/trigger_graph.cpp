@@ -31,6 +31,7 @@
 #include "core/combo.h"
 #include "core/mapscr.h"
 #include "ffc.h"
+#include "zinfo.h"
 #include <algorithm>
 #include <fmt/format.h>
 #include <fmt/ranges.h>
@@ -590,4 +591,59 @@ trigger_graph build_trigger_graph(std::array<mapscr*, 7> const& layers)
 	b.make_chains();
 	b.fold();
 	return std::move(b.g);
+}
+
+nlohmann::json trigger_graph_json(trigger_graph const& graph)
+{
+	nlohmann::json jgraph;
+	jgraph["hubs"] = nlohmann::json::array();
+	for (auto const& hub : graph.hubs)
+		jgraph["hubs"].push_back(hub.name());
+	jgraph["cards"] = nlohmann::json::array();
+	for (auto const& card : graph.cards)
+	{
+		const newcombo& cmb = combobuf[card.cid];
+		nlohmann::json jcard = {
+			{"combo", card.cid},
+			{"type_name", ZI.getComboTypeName(cmb.type)},
+			{"label", cmb.label},
+			{"count", card.count},
+			{"placements", nlohmann::json::array()},
+			{"triggers", nlohmann::json::array()},
+		};
+		for (auto const& p : card.placements)
+		{
+			if (p.pos < 0)
+				jcard["placements"].push_back({{"ffc", p.ffc}});
+			else
+				jcard["placements"].push_back({{"layer", p.layer}, {"pos", p.pos}});
+		}
+		for (auto const& t : card.triggers)
+		{
+			nlohmann::json jt = {
+				{"label", t.label},
+				{"causes", t.causes},
+				{"conditions", t.conditions},
+				{"effects", t.effects},
+				{"keeps_firing", t.keeps_firing},
+				{"changes_to", t.changes_to},
+				{"links", nlohmann::json::array()},
+			};
+			if (!t.weapon_causes.empty() || !t.weapon_effects.empty())
+			{
+				jt["weapon_causes"] = t.weapon_causes;
+				jt["weapon_effects"] = t.weapon_effects;
+			}
+			if (!t.fail_effects.empty())
+				jt["fail_effects"] = t.fail_effects;
+			if (!t.notes.empty())
+				jt["notes"] = t.notes;
+			for (auto const& link : t.links)
+				jt["links"].push_back({{"hub", link.hub}, {"writes", link.writes}, {"reads", link.reads}});
+			jcard["triggers"].push_back(jt);
+		}
+		jgraph["cards"].push_back(jcard);
+	}
+	jgraph["chains"] = graph.chains;
+	return jgraph;
 }

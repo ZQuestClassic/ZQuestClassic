@@ -2,6 +2,7 @@
 #define CORE_TRIGGER_GRAPH_H_
 
 #include <array>
+#include <nlohmann/json.hpp>
 #include <string>
 #include <vector>
 
@@ -50,6 +51,8 @@ struct trigger_graph
 		// Only set with 'Weapon Separate Triggers': what happens when a weapon fires it.
 		// `causes` and `effects` are then only the non-weapon ones.
 		std::vector<std::string> weapon_causes, weapon_effects;
+		// What happens when a cause fires it but a condition fails.
+		std::vector<std::string> fail_effects;
 		// Settings that are neither a cause nor an effect, like contributing to a group.
 		std::vector<std::string> notes;
 		// A cause that fires for as long as it's true, or on a schedule (Step->, Timer, ...).
@@ -86,5 +89,8 @@ struct trigger_graph
 // `layers` are the screen and its layers 1 to 6 (nullptr for a missing layer). FFCs are read
 // from layer 0.
 trigger_graph build_trigger_graph(std::array<mapscr*, 7> const& layers);
+
+// The graph as JSON, as -dump-screen prints it and the editor's diagram copies it.
+nlohmann::json trigger_graph_json(trigger_graph const& graph);
 
 #endif
