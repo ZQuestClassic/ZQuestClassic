@@ -69,7 +69,7 @@ static std::string placement_text(trigger_graph::card const& card)
 void ScreenTriggersDialog::refresh()
 {
 	auto layers = screen_layers();
-	auto graph = build_trigger_graph(layers);
+	auto graph = build_trigger_graph({{Map.getCurrScr(), layers}});
 
 	// A combo is pictured in the CSet it's placed with; a combo it changes into, in the CSet
 	// of the first placed combo of its chain.

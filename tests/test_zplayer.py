@@ -122,6 +122,38 @@ class TestZPlayer(unittest.TestCase):
         # A crystal block reads the GlobalState through a condition.
         self.assertEqual(hub_names(graph, card(graph, 5344)['triggers'][0]), ['GlobalState 0'])
 
+    def test_dump_region_trigger_graph(self):
+        # How screens are found in a scrolling region. What links them is covered by the
+        # trigger_graph tests of -test-zc.
+        if 'emscripten' in str(run_target.get_build_folder()):
+            raise unittest.SkipTest('skipping test because emscripten')
+        if platform.system() == 'Windows':
+            raise unittest.SkipTest('zplayer does not print to stdout on Windows')
+
+        qst = root_dir / 'tests/replays/z3/z3.qst'
+
+        def dump(command, screen):
+            p = run_target.check_run(
+                'zplayer', ['-headless', command, str(qst), '1', str(screen)]
+            )
+            return json.loads(p.stdout)
+
+        # Map 1's 4x6 region in the top-left corner, with one chest.
+        region = [x + y * 16 for y in range(6) for x in range(4)]
+        whole = dump('-dump-region', 0x22)
+        self.assertEqual(whole['screens'], region)
+        chest = whole['trigger_graph']['cards'][0]
+        self.assertEqual(chest['combo'], 4032)
+        self.assertEqual(chest['screen'], 0x21)
+        self.assertEqual(chest['placements'][0]['screen'], 0x21)
+        # Of one of its screens, the chest is only there.
+        self.assertEqual(dump('-dump-screen', 0x21)['region'], region)
+        self.assertEqual(len(dump('-dump-screen', 0x21)['trigger_graph']['cards']), 1)
+        self.assertEqual(dump('-dump-screen', 0x22)['trigger_graph']['cards'], [])
+        # A screen in no region is its own.
+        self.assertEqual(dump('-dump-region', 4)['screens'], [4])
+        self.assertNotIn('region', dump('-dump-screen', 4))
+
     def test_non_ascii_quest_path(self):
         # On Windows, narrow-char APIs (argv, fopen, ...) read paths in the process code
         # page, which src/windows.manifest sets to UTF-8. Without it these fail to load:
