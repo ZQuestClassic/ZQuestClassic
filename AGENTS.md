@@ -105,6 +105,8 @@ Three `zplayer` commands dump quest data.
 `-dump-screen <qst> <map> <screen>` prints one screen as JSON: every non-empty position
 with its combo, combo type, screen flag and the combo's *own* inherent flag (all with
 human-readable names), plus screen flags, the secret combo table, layers and FFCs.
+`<map>` counts from 0 (the editor's map 1 is 0), and both numbers are decimal: the editor's
+screen 0x21 is 33 (`0x21` is read as 0).
 
 ```bash
 build/Release/zplayer -headless -dump-screen /abs/path/quest.qst 6 50 | jq .
