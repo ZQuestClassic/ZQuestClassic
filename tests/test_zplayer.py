@@ -4,6 +4,7 @@
 #
 #   python tests/test_zplayer.py
 
+import json
 import os
 import platform
 import shutil
@@ -58,6 +59,63 @@ class TestZPlayer(unittest.TestCase):
                 lines = p.stdout.splitlines()
                 for expected in expected_lines:
                     self.assertIn(expected, lines)
+
+    def test_dump_screen_trigger_graph(self):
+        # The graph the editor's Combo Triggers diagram draws, from the trigger example quest.
+        if 'emscripten' in str(run_target.get_build_folder()):
+            raise unittest.SkipTest('skipping test because emscripten')
+        if platform.system() == 'Windows':
+            raise unittest.SkipTest('zplayer does not print to stdout on Windows')
+
+        qst = root_dir / 'resources/quests/examples/trigger_example.qst'
+
+        def dump(screen):
+            p = run_target.check_run(
+                'zplayer', ['-headless', '-dump-screen', str(qst), '0', str(screen)]
+            )
+            return json.loads(p.stdout)['trigger_graph']
+
+        def card(graph, cid):
+            return next(c for c in graph['cards'] if c['combo'] == cid)
+
+        def hub_names(graph, trigger):
+            return [graph['hubs'][link['hub']] for link in trigger['links']]
+
+        # Screen 02: eight floor switches fire sixteen shooters through copycats 1 to 8. Each
+        # setup only differs in its copycat, so they fold into one switch and one shooter.
+        graph = dump(2)
+        switch = card(graph, 5136)
+        shooter = card(graph, 5172)
+        self.assertEqual(switch['count'], 8)
+        self.assertEqual(shooter['count'], 16)
+        self.assertEqual(hub_names(graph, switch['triggers'][0]), ['Copycats 1-8'])
+        self.assertEqual(hub_names(graph, shooter['triggers'][0]), ['Copycats 1-8'])
+        self.assertTrue(switch['triggers'][0]['links'][0]['writes'])
+        self.assertFalse(shooter['triggers'][0]['links'][0]['writes'])
+        self.assertIn('Activate Copycats 1-8', switch['triggers'][0]['effects'])
+        self.assertTrue(switch['triggers'][0]['keeps_firing'])
+        # The pressed switch isn't placed on the screen, only reached by the combo change.
+        pressed = graph['cards'][switch['triggers'][0]['changes_to']]
+        self.assertEqual(pressed['combo'], 5137)
+        self.assertEqual(pressed['placements'], [])
+        chain = [graph['cards'].index(switch), graph['cards'].index(pressed)]
+        self.assertIn(chain, [c[:2] for c in graph['chains']])
+        # The locked door sets the ExDoor that also opens it.
+        door = card(graph, 5000)
+        self.assertEqual(hub_names(graph, door['triggers'][0]), ['ExDoor Right 1'])
+        link = door['triggers'][0]['links'][0]
+        self.assertTrue(link['writes'] and link['reads'])
+
+        # Screen 12: the torch puzzle, on layer 1.
+        graph = dump(18)
+        unlit = card(graph, 5364)
+        self.assertEqual(unlit['placements'][0]['layer'], 1)
+        self.assertEqual(unlit['triggers'][0]['notes'], ['Contributes to Trigger Group 0'])
+        lit = graph['cards'][unlit['triggers'][1]['changes_to']]
+        self.assertEqual(lit['combo'], 5365)
+        self.assertEqual(hub_names(graph, lit['triggers'][1]), ['Trigger Group 0', 'Secrets'])
+        # A crystal block reads the GlobalState through a condition.
+        self.assertEqual(hub_names(graph, card(graph, 5344)['triggers'][0]), ['GlobalState 0'])
 
     def test_non_ascii_quest_path(self):
         # On Windows, narrow-char APIs (argv, fopen, ...) read paths in the process code
