@@ -78,6 +78,14 @@ static const char* safe_ctr_name(int ctr)
 	return ZI.getCtrName(ctr);
 }
 
+// "Label (id)" for a combo with a label, else `unlabeled`.
+static string combo_name(int cid, string const& unlabeled)
+{
+	if (unsigned(cid) < combobuf.size() && !combobuf[cid].label.empty())
+		return fmt::format("{} ({})", combobuf[cid].label, cid);
+	return unlabeled;
+}
+
 static const char* safe_neg_ctr_name(int ctr)
 {
 	// icounter_str2 has no name for the sscNONE (-1) slot, so its final entry
@@ -88,7 +96,7 @@ static const char* safe_neg_ctr_name(int ctr)
 	return icounter_str2[idx];
 }
 
-combo_trigger_summary combo_trigger::summarize_parts(newcombo const& cmb) const
+combo_trigger_summary combo_trigger::summarize_parts(newcombo const& cmb, int cid) const
 {
 #define TRIM_TRAILING_CHARS(val) val = val.substr(0, val.find_last_not_of(", \n")+1)
 	std::ostringstream wpn_causes, wpn_effects, causes, conditions, effects, fail_effects;
@@ -899,9 +907,19 @@ combo_trigger_summary combo_trigger::summarize_parts(newcombo const& cmb) const
 		}
 
 		if (trigger_flags.get(TRIGFLAG_CMB_CHANGE_ABSOLUTE))
-			effects << indent << "Change combo to combo #" << trigchange << "\n";
+			effects << indent << "Change combo to " << combo_name(trigchange, fmt::format("combo #{}", trigchange)) << "\n";
 		else if (trigchange)
-			effects << indent << "Change combo by " << trigchange << "\n";
+		{
+			effects << indent << "Change combo by " << trigchange;
+			// Name the combo it changes into, when that combo has a label.
+			if (cid >= 0)
+			{
+				string target = combo_name(cid + trigchange, "");
+				if (!target.empty())
+					effects << ", into " << target;
+			}
+			effects << "\n";
+		}
 		if (trigger_flags.get(TRIGFLAG_CSET_CHANGE_ABSOLUTE))
 			effects << indent << "Change cset to CSet " << int(trigcschange) << "\n";
 		else if (trigcschange)
@@ -1020,7 +1038,8 @@ if (var > -2) \
 			effects << indent << fmt::format("Set player Jump to {}\n", player_bounce);
 
 		if (force_ice_combo > -1)
-			effects << indent << fmt::format("Set player forced ice physics to use Combo #{}\n", force_ice_combo);
+			effects << indent << fmt::format("Set player forced ice physics to use {}\n",
+				combo_name(force_ice_combo, fmt::format("Combo #{}", force_ice_combo)));
 		if (trigger_flags.all({ TRIGFLAG_FORCE_ICE_VX, TRIGFLAG_FORCE_ICE_VY }))
 			effects << indent << fmt::format("Force player's ice velocity to {},{}\n", force_ice_vx, force_ice_vy);
 		else if (trigger_flags.get(TRIGFLAG_FORCE_ICE_VX))
@@ -1191,7 +1210,7 @@ if (var > -2) \
 		if (did_btn_cause && prompt_cid)
 		{
 			effects << indent << fmt::format("Show Button Prompt (when in range), combo {}, cset {}, at {},{} relative to the player\n",
-				prompt_cid, prompt_cs, prompt_x, prompt_y);
+				combo_name(prompt_cid, std::to_string(prompt_cid)), prompt_cs, prompt_x, prompt_y);
 		}
 	}
 
@@ -1203,7 +1222,7 @@ if (var > -2) \
 		if (did_btn_cause && fail_prompt_cid)
 		{
 			fail_effects << indent << fmt::format("Show Button Prompt (when in range), combo {}, cset {}, at {},{} relative to the player\n",
-				fail_prompt_cid, fail_prompt_cs, prompt_x, prompt_y);
+				combo_name(fail_prompt_cid, std::to_string(fail_prompt_cid)), fail_prompt_cs, prompt_x, prompt_y);
 		}
 		if (fail_msgstr)
 			fail_effects << indent << "Play message string " << fail_msgstr << "\n";
@@ -1254,9 +1273,9 @@ if (var > -2) \
 #undef TRIM_TRAILING_CHARS
 }
 
-std::string combo_trigger::summarize(newcombo const& cmb) const
+std::string combo_trigger::summarize(newcombo const& cmb, int cid) const
 {
-	auto parts = summarize_parts(cmb);
+	auto parts = summarize_parts(cmb, cid);
 	std::ostringstream output;
 	output << fmt::format("Label: {}\n", label);
 	if (trigger_flags.get(TRIGFLAG_TGROUP_CONTRIB))

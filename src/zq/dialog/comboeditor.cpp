@@ -2793,7 +2793,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 												if (first)
 													first = false;
 												else oss << "\n\n";
-												oss << trig.summarize(local_comboref);
+												oss << trig.summarize(local_comboref, index);
 											}
 											InfoDialog("All Trigger Summary", oss.str()).set_text_align(0).show();
 										}),
@@ -2806,7 +2806,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 											string title = fmt::format("Trigger Summary ({:03})", trigger_index);
 											if (!trig.label.empty())
 												title += fmt::format(" '{}'", trig.label);
-											InfoDialog(title, trig.summarize(local_comboref)).set_text_align(0).show();
+											InfoDialog(title, trig.summarize(local_comboref, index)).set_text_align(0).show();
 										})
 								),
 								triggerList = List(
@@ -2943,7 +2943,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 												string title = "Trigger Summary (Clipboard)";
 												if (!from_clipboard->label.empty())
 													title += fmt::format(" '{}'", from_clipboard->label);
-												InfoDialog(title, from_clipboard->summarize(local_comboref)).set_text_align(0).show();
+												InfoDialog(title, from_clipboard->summarize(local_comboref, index)).set_text_align(0).show();
 											}
 										})
 								)
