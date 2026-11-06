@@ -28432,7 +28432,17 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 	FFCore.ScrollingScreensAll = old_temporary_screens;
 	cur_map = destmap;
 
+	// The sprites were cleared when the scroll started, but scripts that ran since could have made
+	// new ones on the old screens. Remember them, to move them to the new region once it loads.
+	// (loadscr can make sprites too, which already belong to the new region.)
+	std::set<int32_t> old_region_sprite_uids;
+	for_every_sprite([&](sprite& spr) {
+		old_region_sprite_uids.insert(spr.getUID());
+	});
+	int old_origin_screen = cur_screen;
+
 	loadscr(destdmap, dest_screen, scrolldir, overlay);
+	remap_kept_sprites_to_new_region(old_origin_screen, &old_region_sprite_uids);
 	mapscr* oldscr = old_temporary_screens[scrolling_hero_screen * 7];
 	mapscr* newscr = get_scr(destmap, dest_screen);
 

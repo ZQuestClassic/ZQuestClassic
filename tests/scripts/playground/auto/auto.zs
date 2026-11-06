@@ -48,6 +48,7 @@
 #include "auto/bug_screen_combo_setters_stale_cache.zs"
 #include "auto/bug_script_draw_error_logging.zs"
 #include "auto/bug_script_weapon_bomb_door.zs"
+#include "auto/bug_scroll_created_sprite_screen.zs"
 #include "auto/bug_spawn_screen_oob.zs"
 #include "auto/bug_string_16bit_index.zs"
 #include "auto/bug_string_non_ascii_chars.zs"

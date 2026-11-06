@@ -1096,11 +1096,14 @@ mapscr* get_scr(int screen)
 
 // After a warp that kept the sprites, update "screen_spawned" for every sprite left over from the
 // previous region, so it refers to a screen in the new region. The only ffcs left are the new
-// region's, which loadscr already placed (including carryover ffcs), so they are skipped.
-void remap_kept_sprites_to_new_region(int prev_origin_screen)
+// region's, which loadscr already placed (including carryover ffcs), so they are skipped. If
+// `only_uids` is given, only those sprites are updated.
+void remap_kept_sprites_to_new_region(int prev_origin_screen, const std::set<int32_t>* only_uids)
 {
 	for_every_sprite([&](sprite& spr) {
 		if (dynamic_cast<ffcdata*>(&spr))
+			return;
+		if (only_uids && !only_uids->contains(spr.getUID()))
 			return;
 
 		int x = get_region_relative_dx(spr.screen_spawned, prev_origin_screen);

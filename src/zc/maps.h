@@ -2,6 +2,7 @@
 #define MAPS_H_
 
 #include <optional>
+#include <set>
 #include <utility>
 #include "base/compiler.h"
 #include "base/general.h"
@@ -322,7 +323,7 @@ mapscr* get_scr(int map, int screen);
 mapscr* get_scr(int screen);
 mapscr* get_scr_maybe(int map, int screen);
 mapscr* get_scr_if_loaded(int screen);
-void remap_kept_sprites_to_new_region(int prev_origin_screen);
+void remap_kept_sprites_to_new_region(int prev_origin_screen, const std::set<int32_t>* only_uids = nullptr);
 mapscr* get_scr_layer(int map, int screen, int layer);
 mapscr* get_scr_layer(int screen, int layer);
 mapscr* get_scr_layer_valid(int screen, int layer);
