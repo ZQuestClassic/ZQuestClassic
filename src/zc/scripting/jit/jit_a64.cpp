@@ -2213,6 +2213,9 @@ std::optional<JittedFunction> jit_backend_compile_function(zasm_script* script, 
 	jit_create_labels(state, cc, script, fn, start_pc, final_pc);
 
 	auto fnNode = cc.addFunc(FuncSignature::build<int, JittedExecutionContext*>(state.calling_convention));
+	// Push a frame record (x29, x30). Jitted code has no unwind info, so this is the only way for a
+	// crash report's stack to get past a jitted frame (otherwise it guesses by scanning the stack).
+	fnNode->frame().setPreservedFP();
 	state.ptrCtx = cc.newIntPtr("ctx");
 	fnNode->setArg(0, state.ptrCtx);
 

@@ -2425,6 +2425,9 @@ std::optional<JittedFunction> jit_backend_compile_function(zasm_script* script, 
 		resume_annotation->addLabel(label);
 
 	auto fnNode = cc.addFunc(FuncSignature::build<int, JittedExecutionContext*>(state.calling_convention));
+	// Keep rbp as the frame pointer. Jitted code has no unwind info, so this is the only way for a
+	// crash report's stack to get past a jitted frame (otherwise it guesses by scanning the stack).
+	fnNode->frame().setPreservedFP();
 	state.ptrCtx = cc.newIntPtr("ctx");
 	fnNode->setArg(0, state.ptrCtx);
 
