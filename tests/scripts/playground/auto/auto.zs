@@ -19,6 +19,7 @@
 #include "auto/bug_extended_viewport_subscr_no_coolscroll.zs"
 #include "auto/bug_ffc_carryover_handle.zs"
 #include "auto/bug_generic_script_scrolling_action.zs"
+#include "auto/bug_iwarp_kept_sprites.zs"
 #include "auto/bug_jit_class_arrays.zs"
 #include "auto/bug_jit_div_zero_sign.zs"
 #include "auto/bug_jit_mod_pow2_negative.zs"

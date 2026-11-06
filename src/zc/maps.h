@@ -321,6 +321,7 @@ bool is_extended_height_mode();
 mapscr* get_scr(int map, int screen);
 mapscr* get_scr(int screen);
 mapscr* get_scr_maybe(int map, int screen);
+void remap_kept_sprites_to_new_region(int prev_origin_screen);
 mapscr* get_scr_layer(int map, int screen, int layer);
 mapscr* get_scr_layer(int screen, int layer);
 mapscr* get_scr_layer_valid(int screen, int layer);

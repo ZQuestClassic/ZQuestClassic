@@ -1094,6 +1094,23 @@ mapscr* get_scr(int screen)
 	return get_scr(cur_map, screen);
 }
 
+// After a warp that kept the sprites, update "screen_spawned" for every sprite left over from the
+// previous region, so it refers to a screen in the new region. The only ffcs left are the new
+// region's, which loadscr already placed (including carryover ffcs), so they are skipped.
+void remap_kept_sprites_to_new_region(int prev_origin_screen)
+{
+	for_every_sprite([&](sprite& spr) {
+		if (dynamic_cast<ffcdata*>(&spr))
+			return;
+
+		int x = get_region_relative_dx(spr.screen_spawned, prev_origin_screen);
+		int y = get_region_relative_dy(spr.screen_spawned, prev_origin_screen);
+		x = std::clamp(x, 0, cur_region.screen_width - 1);
+		y = std::clamp(y, 0, cur_region.screen_height - 1);
+		spr.screen_spawned = cur_screen + x + y*16;
+	});
+}
+
 // Returns null if active screen does not exist.
 mapscr* get_scr_maybe(int map, int screen)
 {

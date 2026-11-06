@@ -25432,19 +25432,7 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 					get_screen_state(scr->screen).loaded_enemies = true;
 			});
 
-			// Update "screen_spawned" for every sprite left over from the previous region to keep it
-			// valid. The only ffcs left are the new region's, which loadscr already placed (including
-			// carryover ffcs), so they are skipped.
-			for_every_sprite([&](sprite& spr) {
-				if (dynamic_cast<ffcdata*>(&spr))
-					return;
-
-				int x = get_region_relative_dx(spr.screen_spawned, prev_origin_screen);
-				int y = get_region_relative_dy(spr.screen_spawned, prev_origin_screen);
-				x = std::clamp(x, 0, cur_region.screen_width - 1);
-				y = std::clamp(y, 0, cur_region.screen_height - 1);
-				spr.screen_spawned = cur_screen + x + y*16;
-			});
+			remap_kept_sprites_to_new_region(prev_origin_screen);
 		}
 
 		x = hero_scr->warpreturnx[wrindex];

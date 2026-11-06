@@ -8472,16 +8472,13 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmap, int32_t screen, int32
 			warp_setup_new_dmap(dmap, false, DMaps[cur_dmap].color);
 			
 			lightingInstant(); // Also sets naturaldark
-			int prev_screen = Hero.current_screen;
+			int prev_origin_screen = cur_screen;
 			loadscr(cur_dmap, screen + DMaps[cur_dmap].xoff, -1, overlay);
 
-			// In the case where we did not call ALLOFF, preserve the "enemies have spawned"
-			// state for the new screen.
+			// Unlike HeroClass::dowarp, the "enemies have spawned" state isn't carried over to the
+			// new screen: AlloffLimited already cleared it.
 			if (warpFlags&warpFlagDONTCLEARSPRITES)
-			{
-				if (get_screen_state(prev_screen).loaded_enemies)
-					get_screen_state(Hero.current_screen).loaded_enemies = true;
-			}
+				remap_kept_sprites_to_new_region(prev_origin_screen);
 			
 			Hero.x = (zfix)wx;
 			Hero.y = (zfix)wy;
