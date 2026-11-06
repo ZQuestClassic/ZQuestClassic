@@ -33,6 +33,9 @@ static void scripting_log_error_with_context(fmt::format_string<Args...> s, Args
 	scripting_log_error_with_context(text);
 }
 
+// The screen `Screen->` refers to for the running script.
+mapscr* get_script_screen();
+
 #define ZS_BYTE 255
 #define ZS_CHAR 255
 #define ZS_WORD 65535

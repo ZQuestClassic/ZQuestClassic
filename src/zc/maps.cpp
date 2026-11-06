@@ -1111,6 +1111,14 @@ void remap_kept_sprites_to_new_region(int prev_origin_screen)
 	});
 }
 
+// Like get_scr_maybe for the current map, but also returns null for an invalid screen index.
+mapscr* get_scr_if_loaded(int screen)
+{
+	if ((unsigned)screen >= MAPSCRS)
+		return nullptr;
+	return get_scr_maybe(cur_map, screen);
+}
+
 // Returns null if active screen does not exist.
 mapscr* get_scr_maybe(int map, int screen)
 {

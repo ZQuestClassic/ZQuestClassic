@@ -4116,6 +4116,16 @@ bool enemy::dont_draw() const
 #define DRAW_NORMAL 2
 #define DRAW_CLOAKED 1
 #define DRAW_INVIS 0
+
+// The screen an enemy spawned on, for checking its flags while drawing. Falls back to the hero's
+// screen if that one isn't loaded anymore, so a stale screen can't crash every draw.
+static const mapscr* get_spawn_scr_for_draw(int screen)
+{
+	if (const mapscr* scr = get_scr_if_loaded(screen))
+		return scr;
+	return hero_scr;
+}
+
 // base drawing function to be used by all derived classes instead of
 // sprite::draw()
 void enemy::draw(BITMAP *dest)
@@ -4169,7 +4179,7 @@ void enemy::draw(BITMAP *dest)
 		}	
 	}
 	//Room specific
-	mapscr* scr = get_scr(screen_spawned);
+	const mapscr* scr = get_spawn_scr_for_draw(screen_spawned);
 	if (scr->flags3&fINVISROOM)
 	{
 		if (canSee == DRAW_NORMAL && !(current_item(itype_amulet)) && 
@@ -4379,7 +4389,7 @@ void enemy::drawzcboss(BITMAP *dest)
 		cs = getFlashingCSet();
 	}
 
-	mapscr* scr = get_scr(screen_spawned);
+	const mapscr* scr = get_spawn_scr_for_draw(screen_spawned);
 	
 	if((scr->flags3&fINVISROOM) &&
 			!(current_item(itype_amulet)) &&
@@ -4491,7 +4501,7 @@ bool enemy::can_drawshadow() const
 	if(dying)
 		return false;
 	
-	mapscr* scr = get_scr(screen_spawned);
+	const mapscr* scr = get_spawn_scr_for_draw(screen_spawned);
 	if(((scr->flags3&fINVISROOM)&& !(current_item(itype_amulet)))||
 			(darkroom))
 		return false;
@@ -14941,7 +14951,7 @@ void eGleeok::draw2(BITMAP *dest)
 	
 	if(hp > 0 && !dont_draw())
 	{
-		mapscr* scr = get_scr(screen_spawned);
+		const mapscr* scr = get_spawn_scr_for_draw(screen_spawned);
 		if((scr->flags3&fINVISROOM)&& !(current_item(itype_amulet)))
 			sprite::drawcloaked(dest);
 		else
@@ -15229,7 +15239,7 @@ void esGleeok::draw(BITMAP *dest)
 		{
 			for(int32_t i=1; i<dmisc5; i++)                              //draw the neck
 			{
-				mapscr* scr = get_scr(screen_spawned);
+				const mapscr* scr = get_spawn_scr_for_draw(screen_spawned);
 				if(get_qr(qr_NEWENEMYTILES))
 				{
 					if((scr->flags3&fINVISROOM)&& !(current_item(itype_amulet)))

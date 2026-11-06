@@ -34,7 +34,7 @@ int32_t screendata_get_register(int32_t reg)
 	}
 
 	int32_t ret = 0;
-	mapscr* scr = get_scr(GET_REF(screenref));
+	mapscr* scr = get_script_screen();
 
 	#define	GET_SCREENDATA_VAR_INT32(member) \
 	{ \
@@ -353,7 +353,7 @@ void screendata_set_register(int32_t reg, int32_t value)
 			return;
 	}
 
-	mapscr* scr = get_scr(GET_REF(screenref));
+	mapscr* scr = get_script_screen();
 
 	#define	SET_SCREENDATA_VAR_INT32(member, str) \
 	{ \
@@ -505,7 +505,6 @@ void screendata_set_register(int32_t reg, int32_t value)
 		case SCREENDATAITEM:
 		{
 			auto v = vbound((value / 10000),-1,MAXITEMS-1);
-			auto scr = get_scr(GET_REF(screenref));
 			if(v > -1)
 				scr->item = v;
 			scr->hasitem = v > -1;
@@ -521,7 +520,6 @@ void screendata_set_register(int32_t reg, int32_t value)
 		case SCREENDATAOCEANSFX:
 		{
 			int32_t v = vbound(value/10000, 0, MAX_SFX);
-			auto scr = get_scr(GET_REF(screenref));
 			if (scr == hero_scr && scr->oceansfx != v)
 			{
 				stop_sfx(scr->oceansfx);

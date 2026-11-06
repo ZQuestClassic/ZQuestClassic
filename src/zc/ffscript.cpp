@@ -2576,6 +2576,18 @@ screendata* checkScreen(int32_t ref)
 	return (screendata*)get_scr_maybe(cur_map, ref);
 }
 
+mapscr* get_script_screen()
+{
+	int screen = GET_REF(screenref);
+	if (mapscr* scr = get_scr_if_loaded(screen))
+		return scr;
+
+	// The script's screen is no longer loaded, like for a sprite that was kept from a screen that
+	// was since left. Use the current screen, which is what `Screen->` always meant in 2.55.
+	scripting_log_error_with_context("Screen {} is not loaded, so the current screen is used instead", screen);
+	return origin_scr;
+}
+
 bottleshoptype *checkBottleShopData(int32_t ref, bool skipError)
 {
 	if(ref > 0 && ref <= 256)
@@ -4535,7 +4547,7 @@ void do_setsidewarp()
 
 	current_zasm_extra_context = "";
 	
-	mapscr* scr = get_scr(GET_REF(screenref));
+	mapscr* scr = get_script_screen();
 		
 	if(scrn > -1)
 		scr->sidewarpscr[warp] = scrn;
@@ -4572,7 +4584,7 @@ void do_settilewarp()
 
 	current_zasm_extra_context = "";
 
-	mapscr* scr = get_scr(GET_REF(screenref));
+	mapscr* scr = get_script_screen();
 		
 	if(scrn > -1)
 		scr->tilewarpscr[warp] = scrn;
@@ -4594,7 +4606,7 @@ void do_getsidewarpdmap(const bool v)
 		return;
 	}
 	
-	set_register(sarg1, get_scr(GET_REF(screenref))->sidewarpdmap[warp]*10000);
+	set_register(sarg1, get_script_screen()->sidewarpdmap[warp]*10000);
 }
 
 void do_getsidewarpscr(const bool v)
@@ -4607,7 +4619,7 @@ void do_getsidewarpscr(const bool v)
 		return;
 	}
 	
-	set_register(sarg1, get_scr(GET_REF(screenref))->sidewarpscr[warp]*10000);
+	set_register(sarg1, get_script_screen()->sidewarpscr[warp]*10000);
 }
 
 void do_getsidewarptype(const bool v)
@@ -4620,7 +4632,7 @@ void do_getsidewarptype(const bool v)
 		return;
 	}
 	
-	set_register(sarg1, get_scr(GET_REF(screenref))->sidewarptype[warp]*10000);
+	set_register(sarg1, get_script_screen()->sidewarptype[warp]*10000);
 }
 
 void do_gettilewarpdmap(const bool v)
@@ -4633,7 +4645,7 @@ void do_gettilewarpdmap(const bool v)
 		return;
 	}
 	
-	set_register(sarg1, get_scr(GET_REF(screenref))->tilewarpdmap[warp]*10000);
+	set_register(sarg1, get_script_screen()->tilewarpdmap[warp]*10000);
 }
 
 void do_gettilewarpscr(const bool v)
@@ -4646,7 +4658,7 @@ void do_gettilewarpscr(const bool v)
 		return;
 	}
 	
-	set_register(sarg1, get_scr(GET_REF(screenref))->tilewarpscr[warp]*10000);
+	set_register(sarg1, get_script_screen()->tilewarpscr[warp]*10000);
 }
 
 void do_gettilewarptype(const bool v)
@@ -4659,27 +4671,29 @@ void do_gettilewarptype(const bool v)
 		return;
 	}
 	
-	set_register(sarg1, get_scr(GET_REF(screenref))->tilewarptype[warp]*10000);
+	set_register(sarg1, get_script_screen()->tilewarptype[warp]*10000);
 }
 
 void do_layerscreen()
 {
 	int32_t layer = (get_register(sarg2) / 10000) - 1;
+	mapscr* scr = get_script_screen();
 	
-	if(BC::checkBounds(layer, 0, 5) != SH::_NoError || get_scr(GET_REF(screenref))->layermap[layer] == 0)
+	if(BC::checkBounds(layer, 0, 5) != SH::_NoError || scr->layermap[layer] == 0)
 		set_register(sarg1, -10000);
 	else
-		set_register(sarg1, get_scr(GET_REF(screenref))->layerscreen[layer] * 10000);
+		set_register(sarg1, scr->layerscreen[layer] * 10000);
 }
 
 void do_layermap()
 {
 	int32_t layer = (get_register(sarg2) / 10000) - 1;
+	mapscr* scr = get_script_screen();
 	
-	if(BC::checkBounds(layer, 0, 5) != SH::_NoError || get_scr(GET_REF(screenref))->layermap[layer] == 0)
+	if(BC::checkBounds(layer, 0, 5) != SH::_NoError || scr->layermap[layer] == 0)
 		set_register(sarg1, -10000);
 	else
-		set_register(sarg1, get_scr(GET_REF(screenref))->layermap[layer] * 10000);
+		set_register(sarg1, scr->layermap[layer] * 10000);
 }
 
 
@@ -7295,7 +7309,7 @@ void do_message(const bool v)
 		Hero.finishedmsg();
 	}
 	else
-		msgstr::do_new(get_scr(GET_REF(screenref)), ID);
+		msgstr::do_new(get_script_screen(), ID);
 }
 
 INLINE void set_drawing_command_args(const int32_t j, const word numargs)
@@ -12496,7 +12510,7 @@ int32_t run_script_int(JittedScriptInstance* j_instance)
 			
 			case SCREENDOSPAWN:
 			{
-				SET_D(rEXP1, scriptloadenemies(GET_REF(screenref)) ? 10000 : 0);
+				SET_D(rEXP1, scriptloadenemies(get_script_screen()->screen) ? 10000 : 0);
 				break;
 			}
 			
