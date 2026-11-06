@@ -46,6 +46,9 @@ public:
     }
 	void registerUID();
 	void reassignUid(int32_t new_uid);
+	// Unregisters this sprite's uid and returns it, so another sprite can take it over with
+	// reassignUid. Returns 0 if it had none.
+	int32_t takeUID();
 
 	sprite* parent;
 	std::vector<sprite*> children;

@@ -247,6 +247,15 @@ sprite::sprite(zfix X,zfix Y,int32_t T,int32_t CS,int32_t F,int32_t Clk,int32_t 
 	spr_spawn_anim_frm = 0;
 }
 
+// A sprite copied by assignment holds the uid of the sprite it was copied from, without being
+// registered under it, so only forget a uid if it still refers to this sprite.
+static void unregister_uid(int32_t uid, sprite* spr)
+{
+	auto it = all_sprites.find(uid);
+	if (it != all_sprites.end() && it->second == spr)
+		all_sprites.erase(it);
+}
+
 sprite::~sprite()
 {
 	// The order dtors run for globals across translation units is undefined, so to prevent
@@ -256,7 +265,7 @@ sprite::~sprite()
 		return;
 
 	#ifdef IS_PLAYER
-	all_sprites.erase(uid);
+	unregister_uid(uid, this);
 	if (parent)
 		util::remove_if_exists(parent->children, this);
 	for (auto child : children)
@@ -292,9 +301,16 @@ void sprite::registerUID()
 }
 void sprite::reassignUid(int32_t new_uid)
 {
-	all_sprites.erase(uid);
+	unregister_uid(uid, this);
 	uid = new_uid;
 	all_sprites[uid] = this;
+}
+int32_t sprite::takeUID()
+{
+	int32_t taken = uid;
+	unregister_uid(uid, this);
+	uid = 0;
+	return taken;
 }
 
 void sprite::draw2(BITMAP *)                            // top layer for special needs

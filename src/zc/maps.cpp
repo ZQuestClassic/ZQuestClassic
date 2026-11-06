@@ -6606,6 +6606,10 @@ bool is_any_dark()
 }
 
 static mapscr prev_origin_scrs[7];
+// The sprite uids of the previous origin screen's carryover ffcs, taken from the old ffcs so the
+// carried-over copies can have them: script handles to them then stay valid, and deleting the old
+// screen doesn't release what they own.
+static std::vector<int32_t> prev_origin_ffc_uids;
 static std::set<int> loadscr_ffc_script_ids_to_remove;
 
 static void handle_screen_overlay(const std::vector<mapscr*>& screens)
@@ -6718,6 +6722,9 @@ static void load_a_screen_and_layers_init(int screen, bool screen_overlay, bool 
 			if ((previous_scr->ffcs[i].flags&ffc_carryover))
 			{
 				auto& ffc = base_scr->getFFC(i) = previous_scr->ffcs[i];
+				ffc.uid = 0;
+				if (i < prev_origin_ffc_uids.size() && prev_origin_ffc_uids[i])
+					ffc.reassignUid(prev_origin_ffc_uids[i]);
 				ffc.screen_spawned = screen;
 				ffc.current_screen = screen;
 				ffc.update_current_screen();
@@ -6995,6 +7002,17 @@ void loadscr(int32_t destdmap, int32_t screen, int32_t ldir, bool origin_screen_
 					prev_origin_scrs[i] = *prev_scr;
 				else
 					prev_origin_scrs[i] = {};
+			}
+
+			prev_origin_ffc_uids.clear();
+			if (origin_ffc_overlay)
+			{
+				int num_ffcs = origin_scr->numFFC();
+				for (int i = 0; i < num_ffcs; i++)
+				{
+					auto& ffc = origin_scr->ffcs[i];
+					prev_origin_ffc_uids.push_back(ffc.flags&ffc_carryover ? ffc.takeUID() : 0);
+				}
 			}
 		}
 	}
