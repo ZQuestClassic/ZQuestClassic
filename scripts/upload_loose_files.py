@@ -70,7 +70,12 @@ def put_file_contents(url: str, path: Path) -> requests.Response:
     """
     try:
         with open(path, 'rb') as file_data:
-            response = requests.put(url, data=file_data)
+            # The api server rejects uploads without this header.
+            response = requests.put(
+                url,
+                data=file_data,
+                headers={'ZC-Version': 'upload_loose_files.py'},
+            )
         response.raise_for_status()
         print(f"Success: Uploaded to {url} with status code {response.status_code}")
         return response
