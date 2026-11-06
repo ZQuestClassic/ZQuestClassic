@@ -89,6 +89,8 @@
 #include "zc/zscriptversion.h"
 
 #include "pal.h"
+#include "base/zapp.h"
+#include "components/zasm/serialize.h"
 #include "core/zdefs.h"
 #include "zc/rendertarget.h"
 
@@ -9660,6 +9662,35 @@ static void clear_zasm_command_for_compiled_code()
 	current_zasm_command = (ASM_DEFINE)0;
 }
 
+int script_run_depth;
+
+std::string report_running_script_for_crash()
+{
+	if (!script_run_depth || !curscript || !ri)
+		return "";
+
+	std::string name = curscript->name();
+	std::string reg = current_zasm_register ? zasm_var_to_string(current_zasm_register) : "";
+	zapp_reporting_set_tag("script_type", ScriptTypeToString(curScriptType));
+	zapp_reporting_set_tag("script_name", name.c_str());
+	zapp_reporting_set_tag("script_index", curScriptIndex);
+	if (!reg.empty())
+		zapp_reporting_set_tag("script_register", reg.c_str());
+
+	std::string text = fmt::format("Running {} script {} \"{}\" (index {}), pc {}, Screen-> is screen {} (cur_screen {}, cur_map {}{})",
+		ScriptTypeToString(curScriptType), curScriptNum, name, curScriptIndex, ri->pc, ri->screenref(),
+		cur_screen, cur_map, screenscrolling ? ", scrolling" : "");
+	if (!reg.empty())
+		text += fmt::format(", accessing {}", reg);
+	if (auto stack_trace = FFCore.create_stack_trace(ri))
+		text += "\n" + stack_trace->to_string();
+	// Keep the breadcrumb a reasonable size, in case of deep recursion.
+	if (text.size() > 4000)
+		text = text.substr(0, 4000) + "...";
+	zapp_reporting_add_breadcrumb("script", text.c_str());
+	return text;
+}
+
 int32_t run_script(ScriptType type, word script, int32_t i)
 {
 	if(Quit==qRESET || Quit==qEXIT) // In case an earlier script hung
@@ -9676,6 +9707,12 @@ int32_t run_script(ScriptType type, word script, int32_t i)
 		ASM_DEFINE prev = current_zasm_command;
 		~RestoreZasmCommand() { current_zasm_command = prev; }
 	} _restore_zasm_command;
+
+	struct ScriptRunDepthScope
+	{
+		ScriptRunDepthScope() { ++script_run_depth; }
+		~ScriptRunDepthScope() { --script_run_depth; }
+	} _script_run_depth_scope;
 
 	curScriptType=type;
 	curScriptNum=script;

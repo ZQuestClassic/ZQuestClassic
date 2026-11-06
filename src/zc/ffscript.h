@@ -921,6 +921,14 @@ bool is_guarded_script_register(int reg);
 void do_set(int reg, int value);
 
 int32_t run_script(ScriptType type, word script, int32_t i = -1); //Global scripts don't need 'i'
+// How many run_script calls are on the stack. Nested runs (like a frozen generic script started
+// from another script) each count. When zero, the current-script globals (curscript, ri, ...) are
+// leftovers from the last run, not the running code.
+extern int script_run_depth;
+// Adds the running script (type, name, the register being accessed, its stack trace, ...) to the
+// crash report and returns it as text. Does nothing and returns "" if no script is running.
+// Only for the main thread, from a failed CHECK.
+std::string report_running_script_for_crash();
 int32_t ffscript_engine(const bool preload);
 
 sprite* get_own_sprite(ScriptType type);

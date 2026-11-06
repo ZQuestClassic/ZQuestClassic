@@ -3970,8 +3970,23 @@ int main(int argc, char **argv)
 	static const std::thread::id main_thread_id = std::this_thread::get_id();
 	SetCheckFailedHandler([](const char* file, int line, const char* func, const char* condition) {
 		std::string message = zalleg_log_check_failure(file, line, func, condition);
-		if (std::this_thread::get_id() == main_thread_id)
-			replay_save_crash(message);
+		if (std::this_thread::get_id() != main_thread_id)
+			return;
+
+		// Another CHECK can fail while handling this one (ex: building the script stack trace).
+		// Only the first one gets the extra reporting, to avoid recursing.
+		static bool handling;
+		if (handling)
+			return;
+		handling = true;
+
+		std::string script = report_running_script_for_crash();
+		if (!script.empty())
+		{
+			fprintf(stderr, "%s\n", script.c_str());
+			al_trace("%s\n", script.c_str());
+		}
+		replay_save_crash(message);
 	});
 	allocate_crap();
 	set_should_zprint_cb([]() {
