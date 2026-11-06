@@ -54,6 +54,7 @@
 #include "auto/bug_transitive_yield.zs"
 #include "auto/bug_trig_group_count_script_change.zs"
 #include "auto/bug_unused_var_bad_opt.zs"
+#include "auto/bug_warp_kept_sprites_screen.zs"
 #include "auto/bug_whirlwind_shallow_liquid.zs"
 #include "auto/call_limit.zs"
 #include "auto/camera_effect.zs"
