@@ -268,7 +268,7 @@ void zalleg_setup_allegro(App id, int argc, char **argv)
 
 	common_main_setup(id, argc, argv);
 
-	zapp_set_crash_cb([](){
+	zapp_add_crash_cb([](){
 		if (all_get_display())
 			al_save_bitmap(".sentry_native/screenshot.png", al_get_backbuffer(all_get_display()));
 	});

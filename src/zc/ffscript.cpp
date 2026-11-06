@@ -9672,6 +9672,7 @@ std::string report_running_script_for_crash()
 	std::string name = curscript->name();
 	std::string reg = current_zasm_register ? zasm_var_to_string(current_zasm_register) : "";
 	zapp_reporting_set_tag("script_type", ScriptTypeToString(curScriptType));
+	zapp_reporting_set_tag("script_num", curScriptNum);
 	zapp_reporting_set_tag("script_name", name.c_str());
 	zapp_reporting_set_tag("script_index", curScriptIndex);
 	if (!reg.empty())
@@ -9689,6 +9690,22 @@ std::string report_running_script_for_crash()
 		text = text.substr(0, 4000) + "...";
 	zapp_reporting_add_breadcrumb("script", text.c_str());
 	return text;
+}
+
+void report_running_script_at_crash()
+{
+	if (!script_run_depth)
+		return;
+
+	// The script's name isn't reported: reading it means following curscript. Its type and number
+	// identify it in the quest file.
+	if (curScriptType >= ScriptType::First && curScriptType <= ScriptType::Last)
+		zapp_crash_add_tag("script_type", ScriptTypeToString(curScriptType));
+	zapp_crash_add_tag("script_num", curScriptNum);
+	zapp_crash_add_tag("script_index", curScriptIndex);
+	if (auto sv = get_script_variable(current_zasm_register); sv && current_zasm_register)
+		zapp_crash_add_tag("script_register", sv->name);
+	zapp_crash_add_tag("scrolling", screenscrolling ? "true" : "false");
 }
 
 int32_t run_script(ScriptType type, word script, int32_t i)

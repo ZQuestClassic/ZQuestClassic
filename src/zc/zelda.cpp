@@ -3962,7 +3962,7 @@ int main(int argc, char **argv)
 	// Save the replay when a CHECK fails, so the crash can be played back. This runs before
 	// abort(), in normal code, so the program's state is still intact.
 	// Real crashes (segfaults, etc.) could do the same from Sentry's crash callback (see
-	// zapp_set_crash_cb), but that was decided against: the heap may be corrupted by then,
+	// zapp_add_crash_cb), but that was decided against: the heap may be corrupted by then,
 	// which could corrupt the replay file, and a crash inside the allocator would leave its
 	// lock held, so saving would hang and the Sentry report would never be sent.
 	// Only on the main thread: worker threads (ex: the JIT compiling scripts) have CHECKs too,
@@ -3987,6 +3987,11 @@ int main(int argc, char **argv)
 			al_trace("%s\n", script.c_str());
 		}
 		replay_save_crash(message);
+	});
+	zapp_add_crash_cb([]() {
+		// Script state is only meaningful when the main thread crashed.
+		if (std::this_thread::get_id() == main_thread_id)
+			report_running_script_at_crash();
 	});
 	allocate_crap();
 	set_should_zprint_cb([]() {

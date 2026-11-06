@@ -929,6 +929,9 @@ extern int script_run_depth;
 // crash report and returns it as text. Does nothing and returns "" if no script is running.
 // Only for the main thread, from a failed CHECK.
 std::string report_running_script_for_crash();
+// The same for a crash (a segfault, etc.), from a crash callback (see zapp_add_crash_cb): only
+// plain globals are reported, as following a pointer or allocating isn't safe there.
+void report_running_script_at_crash();
 int32_t ffscript_engine(const bool preload);
 
 sprite* get_own_sprite(ScriptType type);

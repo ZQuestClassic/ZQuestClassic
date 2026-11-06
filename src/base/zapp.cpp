@@ -54,7 +54,9 @@ void sentry_atexit()
     sentry_close();
 }
 
-static std::function<void()> crash_cb;
+static std::vector<std::function<void()>> crash_cbs;
+// The event being reported, while the crash callbacks run (see zapp_crash_add_tag).
+static sentry_value_t* crash_event;
 
 static sentry_value_t on_crash_callback(const sentry_ucontext_t *uctx, sentry_value_t event, sentry_hint_t *hint, void *closure)
 {
@@ -62,8 +64,10 @@ static sentry_value_t on_crash_callback(const sentry_ucontext_t *uctx, sentry_va
 	(void)hint;
 	(void)closure;
 
-	if (crash_cb)
-		crash_cb();
+	crash_event = &event;
+	for (auto& cb : crash_cbs)
+		cb();
+	crash_event = nullptr;
 
 	return event;
 }
@@ -215,11 +219,35 @@ static bool is_exe_in_bin_folder()
 	return fs::path(zapp_get_exe_folder_path()).filename() == "bin";
 }
 
-void zapp_set_crash_cb([[maybe_unused]] std::function<void()> cb)
+void zapp_add_crash_cb([[maybe_unused]] std::function<void()> cb)
 {
 #ifdef ZC_SENTRY_REPORTING
-	crash_cb = cb;
+	crash_cbs.push_back(std::move(cb));
 #endif
+}
+
+void zapp_crash_add_tag([[maybe_unused]] const char* key, [[maybe_unused]] const char* value)
+{
+#ifdef ZC_SENTRY_REPORTING
+	if (!crash_event)
+		return;
+
+	sentry_value_t tags = sentry_value_get_by_key(*crash_event, "tags");
+	if (sentry_value_is_null(tags))
+	{
+		tags = sentry_value_new_object();
+		sentry_value_set_by_key(*crash_event, "tags", tags);
+	}
+	sentry_value_set_by_key(tags, key, sentry_value_new_string(value));
+#endif
+}
+
+void zapp_crash_add_tag(const char* key, int value)
+{
+	// Format without allocating.
+	char buf[16];
+	snprintf(buf, sizeof(buf), "%d", value);
+	zapp_crash_add_tag(key, buf);
 }
 
 void common_main_setup(App id, int argc_, char **argv_)

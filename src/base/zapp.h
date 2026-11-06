@@ -37,7 +37,13 @@ bool is_web();
 bool is_ci();
 void set_headless_mode();
 bool is_headless();
-void zapp_set_crash_cb(std::function<void()> cb);
+// Adds a function to run when the program crashes (a segfault, etc.), before the crash is
+// reported. These run in a signal handler / exception filter, possibly after memory was
+// corrupted: don't allocate or follow pointers that could be bad.
+void zapp_add_crash_cb(std::function<void()> cb);
+// For use only from a crash callback: adds a tag to the crash being reported.
+void zapp_crash_add_tag(const char* key, const char* value);
+void zapp_crash_add_tag(const char* key, int value);
 void zapp_reporting_add_breadcrumb(const char* category, const char* message);
 void zapp_reporting_set_tag(const char* key, const char* value);
 void zapp_reporting_set_tag(const char* key, int value);
