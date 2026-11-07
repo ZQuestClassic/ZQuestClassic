@@ -777,9 +777,10 @@ std::string combo_trigger::summarize(newcombo const& cmb) const
 
 	// Other Effects
 	{
-		bool itm_ex = trigger_flags.get(TRIGFLAG_EXSTITEM);
+		// These only hold off the ExState when there's an item or enemy to spawn.
+		bool itm_ex = spawnitem && trigger_flags.get(TRIGFLAG_EXSTITEM);
 		bool specitem = trigger_flags.get(TRIGFLAG_SPCITEM);
-		bool enm_ex = trigger_flags.get(TRIGFLAG_EXSTENEMY);
+		bool enm_ex = spawnenemy && trigger_flags.get(TRIGFLAG_EXSTENEMY);
 		if (trigger_flags.get(TRIGFLAG_CMBTYPEFX))
 		{
 			switch (cmb.type)
