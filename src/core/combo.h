@@ -550,6 +550,13 @@ bool combo_type_has_trigger_effects(int type);
 // not. A Custom Block kills the triggering weapon (but not a sword or hammer).
 bool alwaysCTypeEffects(int32_t type);
 
+// The weapons that can trigger a combo, with their names in the Combo Trigger Editor and the
+// trigger summaries, in the order both list them.
+extern const std::vector<std::pair<int, const char*>> lweapon_trigger_causes;
+extern const std::vector<std::pair<int, const char*>> eweapon_trigger_causes;
+// Weapons burning with a level of fire, lweapons or eweapons, named as the summaries name them.
+extern const std::vector<std::pair<int, const char*>> burning_trigger_causes;
+
 // The trigger causes that fire every frame for as long as they're true, with their names in
 // the Combo Trigger Editor.
 extern const std::vector<std::pair<int, const char*>> every_frame_trigger_causes;
