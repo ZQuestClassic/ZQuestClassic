@@ -991,11 +991,14 @@ if (var > -2) \
 					ips.emplace_back("Triggers Secrets");
 				if (spawnip & ipCANGRAB)
 					ips.emplace_back("Always Grabbable");
-				effects << " (pickup flag(s): ";
-				for (auto const& str : misc_effects)
-					effects << str << ", ";
-				effects.seekp(int(effects.tellp()) - 2);
-				effects << ")";
+				if (!ips.empty())
+				{
+					effects << " (pickup flag(s): ";
+					for (auto const& str : ips)
+						effects << str << ", ";
+					effects.seekp(int(effects.tellp()) - 2);
+					effects << ")";
+				}
 			}
 			if (trigger_flags.get(TRIGFLAG_AUTOGRABITEM))
 				effects << " (instantly collected)";
