@@ -7,6 +7,7 @@
 
 #include "core/combo.h"
 #include "core/mapscr.h"
+#include "core/qst.h"
 #include "core/trigger_graph.h"
 #include "test_runner/test_runner.h"
 #include <fmt/format.h>
@@ -212,6 +213,23 @@ void test_merged_hub_names()
 	expect_eq(switch_card->triggers[0].links[0].name, std::string("Copycats 1, 2"), "switch link name");
 }
 
+// The summary names a generic script by its slot, which genericmap keeps one lower, and
+// doesn't add slots to genericmap.
+void test_summary_generic_script()
+{
+	auto old_map = genericmap;
+	genericmap.clear();
+	genericmap[2].scriptname = "Three";
+	genericmap[3].scriptname = "Four";
+	combo_trigger trig;
+	trig.clear();
+	trig.trig_genscr = 3;
+	auto effects = trig.summarize_parts(combobuf[0]).effects;
+	expect(effects.find("Run generic script 3 (Three)") != std::string::npos, "script name: " + effects);
+	expect_eq(genericmap.size(), size_t(2), "genericmap size");
+	genericmap = old_map;
+}
+
 } // namespace
 
 TestResults test_trigger_graph(bool verbose)
@@ -223,6 +241,7 @@ TestResults test_trigger_graph(bool verbose)
 		{ "screen_states", test_screen_states },
 		{ "fold_across_screens", test_fold_across_screens },
 		{ "merged_hub_names", test_merged_hub_names },
+		{ "summary_generic_script", test_summary_generic_script },
 	};
 
 	auto old_combos = std::move(combobuf);
