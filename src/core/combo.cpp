@@ -860,7 +860,12 @@ combo_trigger_summary combo_trigger::summarize_parts(newcombo const& cmb, int ci
 			}
 		}
 		if (trig_genscr)
-			effects << indent << fmt::format("Run generic script {} ({}) in frozen mode\n", trig_genscr, genericmap[trig_genscr].scriptname);
+		{
+			// genericmap is indexed from 0, but the slot numbers start at 1.
+			auto it = genericmap.find(trig_genscr - 1);
+			string name = it == genericmap.end() ? "" : it->second.scriptname;
+			effects << indent << fmt::format("Run generic script {} ({}) in frozen mode\n", trig_genscr, name);
+		}
 		if (trig_msgstr)
 			effects << indent << "Play message string " << trig_msgstr << "\n";
 		if (trigger_flags.get(TRIGFLAG_REVERT_GRAVITY))
