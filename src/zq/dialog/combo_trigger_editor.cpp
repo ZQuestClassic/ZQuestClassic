@@ -120,86 +120,21 @@ static bool has_weapon_cause(combo_trigger const& trig)
 				return true;
 	return false;
 }
-static bool has_trigger_cause(combo_trigger const& trig)
+// Whether the trigger has a cause, by whether its summary lists one, so a new cause only
+// has to be added to the summary.
+static bool has_trigger_cause(combo_trigger const& trig, newcombo const& cmb)
 {
-	if(trig.triggerbtn && (trig.trigger_flags.any({TRIGFLAG_BTN_TOP,TRIGFLAG_BTN_BOTTOM,
-		TRIGFLAG_BTN_LEFT,TRIGFLAG_BTN_RIGHT}))) return true;
-	if(trig.trigtimer) return true;
-	if(trig.trigger_flags.any({
-		TRIGFLAG_SWORD,TRIGFLAG_SWORDBEAM,TRIGFLAG_BRANG,TRIGFLAG_BOMB,TRIGFLAG_SBOMB,
-		TRIGFLAG_LITBOMB,TRIGFLAG_LITSBOMB,TRIGFLAG_ARROW,TRIGFLAG_FIRE,TRIGFLAG_WHISTLE,
-		TRIGFLAG_BAIT,TRIGFLAG_WAND,TRIGFLAG_MAGIC,TRIGFLAG_WIND,TRIGFLAG_REFMAGIC,
-		TRIGFLAG_REFFIREBALL,TRIGFLAG_REFROCK,TRIGFLAG_HAMMER,TRIGFLAG_STEP,TRIGFLAG_STEPSENS,
-		TRIGFLAG_SHUTTER,TRIGFLAG_EWFIREBALL,
-		TRIGFLAG_HOOKSHOT,TRIGFLAG_SPARKLE,TRIGFLAG_BYRNA,TRIGFLAG_REFBEAM,TRIGFLAG_STOMP,
-		TRIGFLAG_SCRIPT01,TRIGFLAG_SCRIPT02,TRIGFLAG_SCRIPT03,TRIGFLAG_SCRIPT04,TRIGFLAG_SCRIPT05,
-		TRIGFLAG_SCRIPT06,TRIGFLAG_SCRIPT07,TRIGFLAG_SCRIPT08,TRIGFLAG_SCRIPT09,TRIGFLAG_SCRIPT10,
-		TRIGFLAG_AUTOMATIC,TRIGFLAG_LIGHTON,TRIGFLAG_LIGHTOFF,TRIGFLAG_PUSH,TRIGFLAG_LENSON,
-		TRIGFLAG_LENSOFF,TRIGFLAG_EWARROW,TRIGFLAG_EWBRANG,TRIGFLAG_EWSWORD,TRIGFLAG_EWROCK,
-		TRIGFLAG_EWSCRIPT01,TRIGFLAG_EWSCRIPT02,TRIGFLAG_EWSCRIPT03,TRIGFLAG_EWSCRIPT04,TRIGFLAG_EWSCRIPT05,
-		TRIGFLAG_EWSCRIPT06,TRIGFLAG_EWSCRIPT07,TRIGFLAG_EWSCRIPT08,TRIGFLAG_EWSCRIPT09,TRIGFLAG_EWSCRIPT10,
-		TRIGFLAG_EWMAGIC,TRIGFLAG_EWBBLAST,TRIGFLAG_EWSBBLAST,TRIGFLAG_EWLITBOMB,TRIGFLAG_EWLITSBOMB,
-		TRIGFLAG_EWFIRETRAIL,TRIGFLAG_EWFLAME,TRIGFLAG_EWWIND,TRIGFLAG_EWFLAME2,TRIGFLAG_ENEMIESKILLED,
-		TRIGFLAG_SECRETSTR,TRIGFLAG_THROWN,TRIGFLAG_QUAKESTUN,TRIGFLAG_SQUAKESTUN,TRIGFLAG_ANYFIRE,
-		TRIGFLAG_STRONGFIRE,TRIGFLAG_MAGICFIRE,TRIGFLAG_DIVINEFIRE,
-		TRIGFLAG_TRIGLEVELSTATE,TRIGFLAG_TRIGGLOBALSTATE,TRIGFLAG_TGROUP_LESS,TRIGFLAG_TGROUP_GREATER,
-		TRIGFLAG_PUSHEDTRIG,TRIGFLAG_DIVETRIG,TRIGFLAG_DIVESENSTRIG,TRIGFLAG_LWREFARROW,TRIGFLAG_LWREFFIRE,
-		TRIGFLAG_LWREFFIRE2,TRIGFLAG_SCREENLOAD,TRIGFLAG_SCREENUNLOAD,TRIGFLAG_PLAYERLANDHERE,
-		TRIGFLAG_PLAYERLANDANYWHERE,TRIGFLAG_CMBTYPECAUSES,
-		TRIGFLAG_BLOCK_TRIGGER_SAME_LAYER,TRIGFLAG_BLOCK_TRIGGER_ANY_LAYER,
-		TRIGFLAG_SWIMTRIG, TRIGFLAG_SWIMSENSTRIG,TRIGFLAG_COMBOPOSSTATE_CAUSE,
-		TRIGFLAG_TRIGGERED_BY_LARGE_COMBO_COPYCAT,})) return true;
-	if(trig.exstate != -1 && !(trig.trigger_flags.get(TRIGFLAG_UNSETEXSTATE))) return true;
-	if(trig.exdoor_dir != -1 && !(trig.trigger_flags.get(TRIGFLAG_UNSETEXDOOR))) return true;
-	if(trig.trigcopycat) return true;
-	return false;
+	auto parts = trig.summarize_parts(cmb);
+	return !parts.causes.empty() || !parts.weapon_causes.empty();
 }
-static bool has_trigger_effect(combo_trigger const& trig)
+// Whether the trigger has an effect, by whether its summary lists one. 'Once Per Weapon' only
+// changes how the other effects repeat, so it doesn't count.
+static bool has_trigger_effect(combo_trigger const& trig, newcombo const& cmb)
 {
-	if (trig.trigger_flags.any({ TRIGFLAG_RESETANIM,TRIGFLAG_CMBTYPEFX,TRIGFLAG_KILLWPN,
-		TRIGFLAG_CONSUMEITEM,TRIGFLAG_COUNTEREAT,TRIGFLAG_SECRETS,TRIGFLAG_LEVELSTATE,
-		TRIGFLAG_GLOBALSTATE,TRIGFLAG_KILLENEMIES,TRIGFLAG_CLEARENEMIES,TRIGFLAG_CLEARLWEAPONS,
-		TRIGFLAG_CLEAREWEAPONS,TRIGFLAG_IGNITE_ANYFIRE,TRIGFLAG_IGNITE_STRONGFIRE,
-		TRIGFLAG_IGNITE_MAGICFIRE,TRIGFLAG_IGNITE_DIVINEFIRE,TRIGFLAG_TOGGLEDARK,
-		TRIGFLAG_LITEM_SET,TRIGFLAG_LITEM_UNSET,TRIGFLAG_TINT_CLEAR,TRIGFLAG_SETPLAYER_X_ABS,
-		TRIGFLAG_SETPLAYER_X_REL_CMB,TRIGFLAG_SETPLAYER_Y_ABS,
-		TRIGFLAG_SETPLAYER_Y_REL_CMB,TRIGFLAG_SETPLAYER_Z_ABS,
-		TRIGFLAG_FORCE_ICE_VX,TRIGFLAG_FORCE_ICE_VY,TRIGFLAG_CANCEL_TRIGGER,
-		TRIGFLAG_SET_GRAVITY, TRIGFLAG_REVERT_GRAVITY,
-		TRIGFLAG_RESPAWN_HERE, TRIGFLAG_RESET_RESPAWN,
-		TRIGFLAG_CMB_CHANGE_ABSOLUTE, TRIGFLAG_CSET_CHANGE_ABSOLUTE,
-		TRIGFLAG_COMBOPOSSTATE_SET,TRIGFLAG_COMBOPOSSTATE_UNSET,
-		TRIGFLAG_TRIGGER_LARGE_COMBO_COPYCAT,})) return true;
-	if(trig.dest_player_x || trig.dest_player_y || trig.dest_player_z) return true;
-	if(trig.force_ice_combo > -1) return true;
-	if(trig.dest_player_dir > -1) return true;
-	if(trig.trigsfx) return true;
-	if(trig.trigchange) return true;
-	if(trig.trigcschange) return true;
-	if(trig.spawnitem) return true;
-	if(trig.spawnenemy) return true;
-	if(trig.exdoor_dir != -1) return true;
-	if(trig.exstate != -1) return true;
-	if(trig.trigcopycat) return true;
-	if(trig.trigcooldown) return true;
-	if(trig.trig_genscr) return true;
-	if(trig.trigtint[0]) return true;
-	if(trig.trigtint[1]) return true;
-	if(trig.trigtint[2]) return true;
-	if(trig.triglvlpalette != -1) return true;
-	if(trig.trigbosspalette != -1) return true;
-	if(trig.trigwavytime != -1) return true;
-	if(trig.trigquaketime != -1) return true;
-	if(trig.trig_swjinxtime != -2) return true;
-	if(trig.trig_itmjinxtime != -2) return true;
-	if(trig.trig_shieldjinxtime != -2) return true;
-	if(trig.trig_stuntime != -2) return true;
-	if(trig.trig_bunnytime != -2) return true;
-	if(trig.trig_msgstr || trig.fail_msgstr) return true;
-	if(trig.player_bounce) return true;
-	if(trig.play_music != -2) return true;
-	if(trig.set_music_refresh != -1) return true;
-	return false;
+	combo_trigger without_once = trig;
+	without_once.trigger_flags.set(TRIGFLAG_ONCE_PER_WEAPON, false);
+	auto parts = without_once.summarize_parts(cmb);
+	return !parts.effects.empty() || !parts.weapon_effects.empty() || !parts.fail_effects.empty();
 }
 
 // The effects that are a problem when they happen every frame. 'for_weapons' leaves out the
@@ -304,8 +239,8 @@ static bool quest_has_spotlight(newcombo const& editing)
 static std::vector<std::string> get_combo_trigger_warnings(combo_trigger const& trig, newcombo const& cmb)
 {
 	std::vector<std::string> warnings;
-	bool cause = has_trigger_cause(trig);
-	bool effect = has_trigger_effect(trig);
+	bool cause = has_trigger_cause(trig, cmb);
+	bool effect = has_trigger_effect(trig, cmb);
 	bool tgroup = trig.trigger_flags.get(TRIGFLAG_TGROUP_CONTRIB);
 	if(!tgroup || (cause != effect))
 	{
@@ -414,7 +349,7 @@ static std::vector<std::string> get_combo_trigger_warnings(combo_trigger const& 
 		warnings.emplace_back("No combo in the quest is a Spotlight, so nothing is ever lit:"
 			" 'Light Off->' fires every frame and 'Light On->' never fires.");
 
-	if (separate_weapon && weapon_cause && !has_trigger_cause(no_weapon_causes) && has_trigger_effect(no_weapon_effects))
+	if (separate_weapon && weapon_cause && !has_trigger_cause(no_weapon_causes, cmb) && has_trigger_effect(no_weapon_effects, cmb))
 		warnings.emplace_back("With 'Weapon Separate Triggers', weapons only run the 'Weapon Effects',"
 			" and this trigger has no other cause, so its other effects never happen.");
 
