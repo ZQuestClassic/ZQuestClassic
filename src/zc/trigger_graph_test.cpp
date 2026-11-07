@@ -230,6 +230,18 @@ void test_summary_generic_script()
 	genericmap = old_map;
 }
 
+// A spawned item's pickup flags are listed with it, and not the other effects.
+void test_summary_pickup_flags()
+{
+	combo_trigger trig;
+	trig.clear();
+	trig.spawnitem = -1;
+	trig.spawnip = ipHOLDUP | ipTIMER;
+	trig.trigger_flags.set(TRIGFLAG_CLEAREWEAPONS, true);
+	auto effects = trig.summarize_parts(combobuf[0]).effects;
+	expect(effects.find("(pickup flag(s): Hold Up, Disappears)") != std::string::npos, "pickup flags: " + effects);
+}
+
 } // namespace
 
 TestResults test_trigger_graph(bool verbose)
@@ -242,6 +254,7 @@ TestResults test_trigger_graph(bool verbose)
 		{ "fold_across_screens", test_fold_across_screens },
 		{ "merged_hub_names", test_merged_hub_names },
 		{ "summary_generic_script", test_summary_generic_script },
+		{ "summary_pickup_flags", test_summary_pickup_flags },
 	};
 
 	auto old_combos = std::move(combobuf);
