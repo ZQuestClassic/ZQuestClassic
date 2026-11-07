@@ -122,11 +122,11 @@ class CiContext:
         return self.build_folder_base
 
 
-def run_cmd(cmd, env=None, cwd=None, shell=False, retries=0, retry_delay=0):
+def run_cmd(cmd, env=None, cwd=None, shell=False, retry_delays=()):
     """Helper to run a subprocess command with logging and error handling.
 
-    A non-zero exit is retried up to `retries` more times, sleeping `retry_delay`
-    seconds between attempts, before the script exits with the command's code.
+    A non-zero exit is retried once per entry in `retry_delays`, sleeping that
+    many seconds first, before the script exits with the command's code.
     """
     if isinstance(cmd, str) and not shell:
         cmd_str = cmd
@@ -140,17 +140,19 @@ def run_cmd(cmd, env=None, cwd=None, shell=False, retries=0, retry_delay=0):
         cmd_str = str(cmd)
 
     logger.info(f"Running: {cmd_str}")
+    retries = len(retry_delays)
     for attempt in range(retries + 1):
         try:
             subprocess.run(cmd, env=env, cwd=cwd, shell=shell, check=True)
             return
         except subprocess.CalledProcessError as e:
             if attempt < retries:
+                delay = retry_delays[attempt]
                 logger.warning(
                     f"Command failed with exit code {e.returncode}, retrying in "
-                    f"{retry_delay}s ({attempt + 1}/{retries}): {cmd_str}"
+                    f"{delay}s ({attempt + 1}/{retries}): {cmd_str}"
                 )
-                time.sleep(retry_delay)
+                time.sleep(delay)
                 continue
             logger.error(f"Command failed with exit code {e.returncode}: {cmd_str}")
             sys.exit(e.returncode)
@@ -367,11 +369,11 @@ def install_deps(ctx: CiContext, args):
         logger.info("Windows detected. Installing via Chocolatey and vcpkg.")
         # The community Chocolatey feed intermittently answers 503/504, which choco
         # reports as "package not found". Already-installed packages are skipped on
-        # the next attempt, so retrying only re-fetches what failed.
+        # the next attempt, so retrying only re-fetches what failed. Outages have
+        # outlasted two minutes of retries, so back off for ~36 minutes in total.
         run_cmd(
             "choco install .github/dependencies.config -y --allow-downgrade",
-            retries=3,
-            retry_delay=30,
+            retry_delays=[60, 120, 180, 300, 300, 600, 600],
         )
 
         vcpkg_dir = root_dir / "vcpkg"
