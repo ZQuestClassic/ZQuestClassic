@@ -96,6 +96,44 @@ static const char* safe_neg_ctr_name(int ctr)
 	return icounter_str2[idx];
 }
 
+const std::vector<std::pair<int, const char*>> lweapon_trigger_causes = {
+	{ TRIGFLAG_SWORD, "Sword" }, { TRIGFLAG_SWORDBEAM, "Sword Beam" },
+	{ TRIGFLAG_BRANG, "Boomerang" }, { TRIGFLAG_BOMB, "Bomb Boom" },
+	{ TRIGFLAG_SBOMB, "Super Bomb Boom" }, { TRIGFLAG_LITBOMB, "Placed Bomb" },
+	{ TRIGFLAG_LITSBOMB, "Placed Super Bomb" }, { TRIGFLAG_ARROW, "Arrow" },
+	{ TRIGFLAG_FIRE, "Fire" }, { TRIGFLAG_WHISTLE, "Whistle" }, { TRIGFLAG_BAIT, "Bait" },
+	{ TRIGFLAG_WAND, "Wand" }, { TRIGFLAG_MAGIC, "Magic" }, { TRIGFLAG_WIND, "Wind" },
+	{ TRIGFLAG_REFMAGIC, "Refl. Magic" }, { TRIGFLAG_REFFIREBALL, "Refl. Fireball" },
+	{ TRIGFLAG_REFROCK, "Refl. Rock" }, { TRIGFLAG_LWREFARROW, "Refl. Arrow" },
+	{ TRIGFLAG_LWREFFIRE, "Refl. Fire" }, { TRIGFLAG_LWREFFIRE2, "Refl. Fire 2" },
+	{ TRIGFLAG_HAMMER, "Hammer" }, { TRIGFLAG_HOOKSHOT, "Hookshot" }, { TRIGFLAG_SPARKLE, "Sparkle" },
+	{ TRIGFLAG_BYRNA, "Byrna" }, { TRIGFLAG_REFBEAM, "Refl. Beam" }, { TRIGFLAG_STOMP, "Stomp" },
+	{ TRIGFLAG_THROWN, "Thrown" }, { TRIGFLAG_QUAKESTUN, "Quake Hammer" },
+	{ TRIGFLAG_SQUAKESTUN, "S. Quake Hammer" }, { TRIGFLAG_SCRIPT01, "Custom Weapon 1" },
+	{ TRIGFLAG_SCRIPT02, "Custom Weapon 2" }, { TRIGFLAG_SCRIPT03, "Custom Weapon 3" },
+	{ TRIGFLAG_SCRIPT04, "Custom Weapon 4" }, { TRIGFLAG_SCRIPT05, "Custom Weapon 5" },
+	{ TRIGFLAG_SCRIPT06, "Custom Weapon 6" }, { TRIGFLAG_SCRIPT07, "Custom Weapon 7" },
+	{ TRIGFLAG_SCRIPT08, "Custom Weapon 8" }, { TRIGFLAG_SCRIPT09, "Custom Weapon 9" },
+	{ TRIGFLAG_SCRIPT10, "Custom Weapon 10" },
+};
+const std::vector<std::pair<int, const char*>> eweapon_trigger_causes = {
+	{ TRIGFLAG_EWFIREBALL, "Fireball" }, { TRIGFLAG_EWARROW, "Arrow" },
+	{ TRIGFLAG_EWBRANG, "Boomerang" }, { TRIGFLAG_EWSWORD, "Sword" }, { TRIGFLAG_EWROCK, "Rock" },
+	{ TRIGFLAG_EWMAGIC, "Magic" }, { TRIGFLAG_EWBBLAST, "Bomb Blast" },
+	{ TRIGFLAG_EWSBBLAST, "SBomb Blast" }, { TRIGFLAG_EWLITBOMB, "Lit Bomb" },
+	{ TRIGFLAG_EWLITSBOMB, "Lit SBomb" }, { TRIGFLAG_EWFIRETRAIL, "Fire Trail" },
+	{ TRIGFLAG_EWFLAME, "Flame" }, { TRIGFLAG_EWWIND, "Wind" }, { TRIGFLAG_EWFLAME2, "Flame 2" },
+	{ TRIGFLAG_EWSCRIPT01, "Custom Weapon 1" }, { TRIGFLAG_EWSCRIPT02, "Custom Weapon 2" },
+	{ TRIGFLAG_EWSCRIPT03, "Custom Weapon 3" }, { TRIGFLAG_EWSCRIPT04, "Custom Weapon 4" },
+	{ TRIGFLAG_EWSCRIPT05, "Custom Weapon 5" }, { TRIGFLAG_EWSCRIPT06, "Custom Weapon 6" },
+	{ TRIGFLAG_EWSCRIPT07, "Custom Weapon 7" }, { TRIGFLAG_EWSCRIPT08, "Custom Weapon 8" },
+	{ TRIGFLAG_EWSCRIPT09, "Custom Weapon 9" }, { TRIGFLAG_EWSCRIPT10, "Custom Weapon 10" },
+};
+const std::vector<std::pair<int, const char*>> burning_trigger_causes = {
+	{ TRIGFLAG_ANYFIRE, "Any Fire" }, { TRIGFLAG_STRONGFIRE, "Strong Fire" },
+	{ TRIGFLAG_MAGICFIRE, "Magic Fire" }, { TRIGFLAG_DIVINEFIRE, "Divine Fire" },
+};
+
 combo_trigger_summary combo_trigger::summarize_parts(newcombo const& cmb, int cid) const
 {
 #define TRIM_TRAILING_CHARS(val) val = val.substr(0, val.find_last_not_of(", \n")+1)
@@ -105,84 +143,9 @@ combo_trigger_summary combo_trigger::summarize_parts(newcombo const& cmb, int ci
 	// lweapon causes
 	{
 		vector<std::string> lwpns;
-		if (trigger_flags.get(TRIGFLAG_SWORD))
-			lwpns.emplace_back("Sword");
-		if (trigger_flags.get(TRIGFLAG_SWORDBEAM))
-			lwpns.emplace_back("Sword Beam");
-		if (trigger_flags.get(TRIGFLAG_BRANG))
-			lwpns.emplace_back("Boomerang");
-		if (trigger_flags.get(TRIGFLAG_BOMB))
-			lwpns.emplace_back("Bomb Boom");
-		if (trigger_flags.get(TRIGFLAG_SBOMB))
-			lwpns.emplace_back("Super Bomb Boom");
-		if (trigger_flags.get(TRIGFLAG_LITBOMB))
-			lwpns.emplace_back("Placed Bomb");
-		if (trigger_flags.get(TRIGFLAG_LITSBOMB))
-			lwpns.emplace_back("Placed Super Bomb");
-		if (trigger_flags.get(TRIGFLAG_ARROW))
-			lwpns.emplace_back("Arrow");
-		if (trigger_flags.get(TRIGFLAG_FIRE))
-			lwpns.emplace_back("Fire");
-		if (trigger_flags.get(TRIGFLAG_WHISTLE))
-			lwpns.emplace_back("Whistle");
-		if (trigger_flags.get(TRIGFLAG_BAIT))
-			lwpns.emplace_back("Bait");
-		if (trigger_flags.get(TRIGFLAG_WAND))
-			lwpns.emplace_back("Wand");
-		if (trigger_flags.get(TRIGFLAG_MAGIC))
-			lwpns.emplace_back("Magic");
-		if (trigger_flags.get(TRIGFLAG_WIND))
-			lwpns.emplace_back("Wind");
-		if (trigger_flags.get(TRIGFLAG_REFMAGIC))
-			lwpns.emplace_back("Refl. Magic");
-		if (trigger_flags.get(TRIGFLAG_REFFIREBALL))
-			lwpns.emplace_back("Refl. Fireball");
-		if (trigger_flags.get(TRIGFLAG_REFROCK))
-			lwpns.emplace_back("Refl. Rock");
-		if (trigger_flags.get(TRIGFLAG_LWREFARROW))
-			lwpns.emplace_back("Refl. Arrow");
-		if (trigger_flags.get(TRIGFLAG_LWREFFIRE))
-			lwpns.emplace_back("Refl. Fire");
-		if (trigger_flags.get(TRIGFLAG_LWREFFIRE2))
-			lwpns.emplace_back("Refl. Fire 2");
-		if (trigger_flags.get(TRIGFLAG_HAMMER))
-			lwpns.emplace_back("Hammer");
-		if (trigger_flags.get(TRIGFLAG_HOOKSHOT))
-			lwpns.emplace_back("Hookshot");
-		if (trigger_flags.get(TRIGFLAG_SPARKLE))
-			lwpns.emplace_back("Sparkle");
-		if (trigger_flags.get(TRIGFLAG_BYRNA))
-			lwpns.emplace_back("Byrna");
-		if (trigger_flags.get(TRIGFLAG_REFBEAM))
-			lwpns.emplace_back("Refl. Beam");
-		if (trigger_flags.get(TRIGFLAG_STOMP))
-			lwpns.emplace_back("Stomp");
-		if (trigger_flags.get(TRIGFLAG_THROWN))
-			lwpns.emplace_back("Thrown");
-		if (trigger_flags.get(TRIGFLAG_QUAKESTUN))
-			lwpns.emplace_back("Quake Hammer");
-		if (trigger_flags.get(TRIGFLAG_SQUAKESTUN))
-			lwpns.emplace_back("S. Quake Hammer");
-		if (trigger_flags.get(TRIGFLAG_SCRIPT01))
-			lwpns.emplace_back("Custom Weapon 1");
-		if (trigger_flags.get(TRIGFLAG_SCRIPT02))
-			lwpns.emplace_back("Custom Weapon 2");
-		if (trigger_flags.get(TRIGFLAG_SCRIPT03))
-			lwpns.emplace_back("Custom Weapon 3");
-		if (trigger_flags.get(TRIGFLAG_SCRIPT04))
-			lwpns.emplace_back("Custom Weapon 4");
-		if (trigger_flags.get(TRIGFLAG_SCRIPT05))
-			lwpns.emplace_back("Custom Weapon 5");
-		if (trigger_flags.get(TRIGFLAG_SCRIPT06))
-			lwpns.emplace_back("Custom Weapon 6");
-		if (trigger_flags.get(TRIGFLAG_SCRIPT07))
-			lwpns.emplace_back("Custom Weapon 7");
-		if (trigger_flags.get(TRIGFLAG_SCRIPT08))
-			lwpns.emplace_back("Custom Weapon 8");
-		if (trigger_flags.get(TRIGFLAG_SCRIPT09))
-			lwpns.emplace_back("Custom Weapon 9");
-		if (trigger_flags.get(TRIGFLAG_SCRIPT10))
-			lwpns.emplace_back("Custom Weapon 10");
+		for (auto [flag, name] : lweapon_trigger_causes)
+			if (trigger_flags.get(flag))
+				lwpns.emplace_back(name);
 
 		if (!lwpns.empty())
 		{
@@ -205,54 +168,9 @@ combo_trigger_summary combo_trigger::summarize_parts(newcombo const& cmb, int ci
 	// eweapon causes
 	{
 		vector<std::string> ewpns;
-		if (trigger_flags.get(TRIGFLAG_EWFIREBALL))
-			ewpns.emplace_back("Fireball");
-		if (trigger_flags.get(TRIGFLAG_EWARROW))
-			ewpns.emplace_back("Arrow");
-		if (trigger_flags.get(TRIGFLAG_EWBRANG))
-			ewpns.emplace_back("Boomerang");
-		if (trigger_flags.get(TRIGFLAG_EWSWORD))
-			ewpns.emplace_back("Sword");
-		if (trigger_flags.get(TRIGFLAG_EWROCK))
-			ewpns.emplace_back("Rock");
-		if (trigger_flags.get(TRIGFLAG_EWMAGIC))
-			ewpns.emplace_back("Magic");
-		if (trigger_flags.get(TRIGFLAG_EWBBLAST))
-			ewpns.emplace_back("Bomb Blast");
-		if (trigger_flags.get(TRIGFLAG_EWSBBLAST))
-			ewpns.emplace_back("SBomb Blast");
-		if (trigger_flags.get(TRIGFLAG_EWLITBOMB))
-			ewpns.emplace_back("Lit Bomb");
-		if (trigger_flags.get(TRIGFLAG_EWLITSBOMB))
-			ewpns.emplace_back("Lit SBomb");
-		if (trigger_flags.get(TRIGFLAG_EWFIRETRAIL))
-			ewpns.emplace_back("Fire Trail");
-		if (trigger_flags.get(TRIGFLAG_EWFLAME))
-			ewpns.emplace_back("Flame");
-		if (trigger_flags.get(TRIGFLAG_EWWIND))
-			ewpns.emplace_back("Wind");
-		if (trigger_flags.get(TRIGFLAG_EWFLAME2))
-			ewpns.emplace_back("Flame 2");
-		if (trigger_flags.get(TRIGFLAG_EWSCRIPT01))
-			ewpns.emplace_back("Custom Weapon 1");
-		if (trigger_flags.get(TRIGFLAG_EWSCRIPT02))
-			ewpns.emplace_back("Custom Weapon 2");
-		if (trigger_flags.get(TRIGFLAG_EWSCRIPT03))
-			ewpns.emplace_back("Custom Weapon 3");
-		if (trigger_flags.get(TRIGFLAG_EWSCRIPT04))
-			ewpns.emplace_back("Custom Weapon 4");
-		if (trigger_flags.get(TRIGFLAG_EWSCRIPT05))
-			ewpns.emplace_back("Custom Weapon 5");
-		if (trigger_flags.get(TRIGFLAG_EWSCRIPT06))
-			ewpns.emplace_back("Custom Weapon 6");
-		if (trigger_flags.get(TRIGFLAG_EWSCRIPT07))
-			ewpns.emplace_back("Custom Weapon 7");
-		if (trigger_flags.get(TRIGFLAG_EWSCRIPT08))
-			ewpns.emplace_back("Custom Weapon 8");
-		if (trigger_flags.get(TRIGFLAG_EWSCRIPT09))
-			ewpns.emplace_back("Custom Weapon 9");
-		if (trigger_flags.get(TRIGFLAG_EWSCRIPT10))
-			ewpns.emplace_back("Custom Weapon 10");
+		for (auto [flag, name] : eweapon_trigger_causes)
+			if (trigger_flags.get(flag))
+				ewpns.emplace_back(name);
 
 		if (!ewpns.empty())
 		{
@@ -268,14 +186,10 @@ combo_trigger_summary combo_trigger::summarize_parts(newcombo const& cmb, int ci
 	// other weapon causes
 	{
 		vector<std::string> wpns;
-		if (trigger_flags.get(TRIGFLAG_ANYFIRE))
-			wpns.emplace_back("Any Fire");
-		if (trigger_flags.get(TRIGFLAG_STRONGFIRE))
-			wpns.emplace_back("Strong Fire");
-		if (trigger_flags.get(TRIGFLAG_MAGICFIRE))
-			wpns.emplace_back("Magic Fire");
-		if (trigger_flags.get(TRIGFLAG_DIVINEFIRE))
-			wpns.emplace_back("Divine Fire");
+		for (auto [flag, name] : burning_trigger_causes)
+			if (trigger_flags.get(flag))
+				wpns.emplace_back(name);
+
 		if (!wpns.empty())
 		{
 			wpn_causes << indent << "Any weapons matching: ";

@@ -109,30 +109,16 @@ Button( \
 )
 //}
 
-static const std::vector<int> weapon_cause_flags = {
-	TRIGFLAG_SWORD,TRIGFLAG_SWORDBEAM,TRIGFLAG_BRANG,TRIGFLAG_BOMB,TRIGFLAG_SBOMB,
-	TRIGFLAG_LITBOMB,TRIGFLAG_LITSBOMB,TRIGFLAG_ARROW,TRIGFLAG_FIRE,TRIGFLAG_WHISTLE,
-	TRIGFLAG_BAIT,TRIGFLAG_WAND,TRIGFLAG_MAGIC,TRIGFLAG_WIND,TRIGFLAG_REFMAGIC,
-	TRIGFLAG_REFFIREBALL,TRIGFLAG_REFROCK,TRIGFLAG_HAMMER,TRIGFLAG_EWFIREBALL,
-	TRIGFLAG_HOOKSHOT,TRIGFLAG_SPARKLE,TRIGFLAG_BYRNA,TRIGFLAG_REFBEAM,TRIGFLAG_STOMP,
-	TRIGFLAG_SCRIPT01,TRIGFLAG_SCRIPT02,TRIGFLAG_SCRIPT03,TRIGFLAG_SCRIPT04,TRIGFLAG_SCRIPT05,
-	TRIGFLAG_SCRIPT06,TRIGFLAG_SCRIPT07,TRIGFLAG_SCRIPT08,TRIGFLAG_SCRIPT09,TRIGFLAG_SCRIPT10,
-	TRIGFLAG_EWARROW,TRIGFLAG_EWBRANG,TRIGFLAG_EWSWORD,TRIGFLAG_EWROCK,
-	TRIGFLAG_EWSCRIPT01,TRIGFLAG_EWSCRIPT02,TRIGFLAG_EWSCRIPT03,TRIGFLAG_EWSCRIPT04,TRIGFLAG_EWSCRIPT05,
-	TRIGFLAG_EWSCRIPT06,TRIGFLAG_EWSCRIPT07,TRIGFLAG_EWSCRIPT08,TRIGFLAG_EWSCRIPT09,TRIGFLAG_EWSCRIPT10,
-	TRIGFLAG_EWMAGIC,TRIGFLAG_EWBBLAST,TRIGFLAG_EWSBBLAST,TRIGFLAG_EWLITBOMB,TRIGFLAG_EWLITSBOMB,
-	TRIGFLAG_EWFIRETRAIL,TRIGFLAG_EWFLAME,TRIGFLAG_EWWIND,TRIGFLAG_EWFLAME2,
-	TRIGFLAG_THROWN,TRIGFLAG_QUAKESTUN,TRIGFLAG_SQUAKESTUN,TRIGFLAG_ANYFIRE,
-	TRIGFLAG_STRONGFIRE,TRIGFLAG_MAGICFIRE,TRIGFLAG_DIVINEFIRE,
-	TRIGFLAG_LWREFARROW,TRIGFLAG_LWREFFIRE,TRIGFLAG_LWREFFIRE2};
-static const std::vector<int> burning_cause_flags = {
-	TRIGFLAG_ANYFIRE,TRIGFLAG_STRONGFIRE,TRIGFLAG_MAGICFIRE,TRIGFLAG_DIVINEFIRE};
 static const std::vector<int> weapon_effect_flags = {
 	TRIGFLAG_KILLWPN,TRIGFLAG_IGNITE_ANYFIRE,TRIGFLAG_IGNITE_STRONGFIRE,TRIGFLAG_IGNITE_MAGICFIRE,
 	TRIGFLAG_IGNITE_DIVINEFIRE,TRIGFLAG_UNIGNITE_WEAPONS,TRIGFLAG_ONCE_PER_WEAPON,TRIGFLAG_SEPARATEWEAPON};
 static bool has_weapon_cause(combo_trigger const& trig)
 {
-	return trig.trigger_flags.any(weapon_cause_flags);
+	for (auto const* causes : {&lweapon_trigger_causes, &eweapon_trigger_causes, &burning_trigger_causes})
+		for (auto [flag, name] : *causes)
+			if (trig.trigger_flags.get(flag))
+				return true;
+	return false;
 }
 static bool has_trigger_cause(combo_trigger const& trig)
 {
@@ -371,13 +357,17 @@ static std::vector<std::string> get_combo_trigger_warnings(combo_trigger const& 
 	// weapon effects.
 	bool weapon_cause = false;
 	combo_trigger no_weapon_causes = trig;
-	for (int flag : weapon_cause_flags)
+	for (auto const* causes : {&lweapon_trigger_causes, &eweapon_trigger_causes, &burning_trigger_causes})
 	{
-		bool burning = std::find(burning_cause_flags.begin(), burning_cause_flags.end(), flag) != burning_cause_flags.end();
-		if ((burning && burning_isnt_weapon) || flag == TRIGFLAG_QUAKESTUN || flag == TRIGFLAG_SQUAKESTUN)
+		if (causes == &burning_trigger_causes && burning_isnt_weapon)
 			continue;
-		weapon_cause |= trig.trigger_flags.get(flag);
-		no_weapon_causes.trigger_flags.set(flag, false);
+		for (auto [flag, name] : *causes)
+		{
+			if (flag == TRIGFLAG_QUAKESTUN || flag == TRIGFLAG_SQUAKESTUN)
+				continue;
+			weapon_cause |= trig.trigger_flags.get(flag);
+			no_weapon_causes.trigger_flags.set(flag, false);
+		}
 	}
 	combo_trigger no_weapon_effects = trig;
 	for (int flag : weapon_effect_flags)
@@ -447,6 +437,11 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 	using namespace GUI::Key;
 	
 	std::shared_ptr<GUI::Checkbox> cteff_tflag, ctcause_tflag;
+	std::shared_ptr<GUI::Grid> lweapon_grid = Rows<4>(), eweapon_grid = Rows<4>();
+	for (auto [flag, name] : lweapon_trigger_causes)
+		lweapon_grid->add(TRIGFLAG(flag, name));
+	for (auto [flag, name] : eweapon_trigger_causes)
+		eweapon_grid->add(TRIGFLAG(flag, name));
 	
 	window = Window(
 		use_vsync = true,
@@ -502,79 +497,14 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 											l_minmax_trig->setText(state ? maxstr : minstr);
 										})
 								),
-								Rows<4>(
-									TRIGFLAG(TRIGFLAG_SWORD,"Sword"),
-									TRIGFLAG(TRIGFLAG_SWORDBEAM,"Sword Beam"),
-									TRIGFLAG(TRIGFLAG_BRANG,"Boomerang"),
-									TRIGFLAG(TRIGFLAG_BOMB,"Bomb Boom"),
-									TRIGFLAG(TRIGFLAG_SBOMB,"Super Bomb Boom"),
-									TRIGFLAG(TRIGFLAG_LITBOMB,"Placed Bomb"),
-									TRIGFLAG(TRIGFLAG_LITSBOMB,"Placed Super Bomb"),
-									TRIGFLAG(TRIGFLAG_ARROW,"Arrow"),
-									TRIGFLAG(TRIGFLAG_FIRE,"Fire"),
-									TRIGFLAG(TRIGFLAG_WHISTLE,"Whistle"),
-									TRIGFLAG(TRIGFLAG_BAIT,"Bait"),
-									TRIGFLAG(TRIGFLAG_WAND,"Wand"),
-									TRIGFLAG(TRIGFLAG_MAGIC,"Magic"),
-									TRIGFLAG(TRIGFLAG_WIND,"Wind"),
-									TRIGFLAG(TRIGFLAG_REFMAGIC,"Refl. Magic"),
-									TRIGFLAG(TRIGFLAG_REFFIREBALL,"Refl. Fireball"),
-									TRIGFLAG(TRIGFLAG_REFROCK,"Refl. Rock"),
-									TRIGFLAG(TRIGFLAG_LWREFARROW,"Refl. Arrow"),
-									TRIGFLAG(TRIGFLAG_LWREFFIRE,"Refl. Fire"),
-									TRIGFLAG(TRIGFLAG_LWREFFIRE2,"Refl. Fire 2"),
-									TRIGFLAG(TRIGFLAG_HAMMER,"Hammer"),
-									TRIGFLAG(TRIGFLAG_HOOKSHOT,"Hookshot"),
-									TRIGFLAG(TRIGFLAG_SPARKLE,"Sparkle"),
-									TRIGFLAG(TRIGFLAG_BYRNA,"Byrna"),
-									TRIGFLAG(TRIGFLAG_REFBEAM,"Refl. Beam"),
-									TRIGFLAG(TRIGFLAG_STOMP,"Stomp"),
-									TRIGFLAG(TRIGFLAG_THROWN, "Thrown"),
-									TRIGFLAG(TRIGFLAG_QUAKESTUN, "Quake Hammer"),
-									TRIGFLAG(TRIGFLAG_SQUAKESTUN, "S. Quake Hammer"),
-									TRIGFLAG(TRIGFLAG_SCRIPT01,"Custom Weapon 1"),
-									TRIGFLAG(TRIGFLAG_SCRIPT02,"Custom Weapon 2"),
-									TRIGFLAG(TRIGFLAG_SCRIPT03,"Custom Weapon 3"),
-									TRIGFLAG(TRIGFLAG_SCRIPT04,"Custom Weapon 4"),
-									TRIGFLAG(TRIGFLAG_SCRIPT05,"Custom Weapon 5"),
-									TRIGFLAG(TRIGFLAG_SCRIPT06,"Custom Weapon 6"),
-									TRIGFLAG(TRIGFLAG_SCRIPT07,"Custom Weapon 7"),
-									TRIGFLAG(TRIGFLAG_SCRIPT08,"Custom Weapon 8"),
-									TRIGFLAG(TRIGFLAG_SCRIPT09,"Custom Weapon 9"),
-									TRIGFLAG(TRIGFLAG_SCRIPT10,"Custom Weapon 10")
-								)
+								lweapon_grid
 							)
 						)
 					)),
 					TabRef(name = "EWeapons", Row(
 						Frame(title = "EW Types", info = "Triggered by any eweapon matching these types",
 							Column(
-								Rows<4>(
-									TRIGFLAG(TRIGFLAG_EWFIREBALL,"Fireball"),
-									TRIGFLAG(TRIGFLAG_EWARROW,"Arrow"),
-									TRIGFLAG(TRIGFLAG_EWBRANG,"Boomerang"),
-									TRIGFLAG(TRIGFLAG_EWSWORD,"Sword"),
-									TRIGFLAG(TRIGFLAG_EWROCK,"Rock"),
-									TRIGFLAG(TRIGFLAG_EWMAGIC,"Magic"),
-									TRIGFLAG(TRIGFLAG_EWBBLAST,"Bomb Blast"),
-									TRIGFLAG(TRIGFLAG_EWSBBLAST,"SBomb Blast"),
-									TRIGFLAG(TRIGFLAG_EWLITBOMB,"Lit Bomb"),
-									TRIGFLAG(TRIGFLAG_EWLITSBOMB,"Lit SBomb"),
-									TRIGFLAG(TRIGFLAG_EWFIRETRAIL,"Fire Trail"),
-									TRIGFLAG(TRIGFLAG_EWFLAME,"Flame"),
-									TRIGFLAG(TRIGFLAG_EWWIND,"Wind"),
-									TRIGFLAG(TRIGFLAG_EWFLAME2,"Flame 2"),
-									TRIGFLAG(TRIGFLAG_EWSCRIPT01,"Custom Weapon 1"),
-									TRIGFLAG(TRIGFLAG_EWSCRIPT02,"Custom Weapon 2"),
-									TRIGFLAG(TRIGFLAG_EWSCRIPT03,"Custom Weapon 3"),
-									TRIGFLAG(TRIGFLAG_EWSCRIPT04,"Custom Weapon 4"),
-									TRIGFLAG(TRIGFLAG_EWSCRIPT05,"Custom Weapon 5"),
-									TRIGFLAG(TRIGFLAG_EWSCRIPT06,"Custom Weapon 6"),
-									TRIGFLAG(TRIGFLAG_EWSCRIPT07,"Custom Weapon 7"),
-									TRIGFLAG(TRIGFLAG_EWSCRIPT08,"Custom Weapon 8"),
-									TRIGFLAG(TRIGFLAG_EWSCRIPT09,"Custom Weapon 9"),
-									TRIGFLAG(TRIGFLAG_EWSCRIPT10,"Custom Weapon 10")
-								)
+								eweapon_grid
 							)
 						)
 					)),
