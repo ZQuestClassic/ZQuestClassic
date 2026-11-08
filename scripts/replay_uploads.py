@@ -32,7 +32,8 @@
 # to how much of each replay was validated, so everyone runs the same replays even
 # as players upload longer versions of them. To refresh that list (picking up new
 # and re-uploaded replays), run `python scripts/replay_uploads.py --update --update_known_good`
-# (some will fail to update, that is ok) and commit the result.
+# (some will fail to update, that is ok) and commit the result. A known good replay
+# whose newly uploaded part fails to update keeps its previous pin.
 #
 # --update records with the JIT and ZASM optimizer disabled, so the baseline comes from
 # the plain interpreter. --update_known_good then asserts the updated replays with both
@@ -403,6 +404,29 @@ def run_replays():
 
     test_results = run_replays_process([*run_args, *updated_paths])
     passed = get_passed_paths(test_results)
+
+    if args.update_known_good:
+        # A known good replay may fail only in what was uploaded since it was pinned
+        # (ex: a later play session that doesn't play back). Rather than drop it, fall
+        # back to the part that was validated before.
+        previous_known_good = get_known_good_replays()
+        retry_paths = []
+        for key, path in zip(original_keys, updated_paths):
+            pin = previous_known_good.get(key)
+            if path not in passed and pin and pin != read_updated_replay_pin(path):
+                init_updated_replay(key, pin)
+                retry_paths.append(path)
+        if retry_paths:
+            retry_test_results = run_replays_process(
+                [*run_args, *retry_paths], 'replay_uploads_test_results_previous_pin'
+            )
+            retry_passed = get_passed_paths(retry_test_results)
+            passed |= retry_passed
+            print_failing_replays(
+                'These replays failed to update in full, so they keep their previous known good length:',
+                [p for p in retry_paths if p in retry_passed],
+            )
+
     failing_paths = [p for p in updated_paths if p not in passed]
     print_failing_replays(
         'These replays failed (to debug, use `--debug replay/path.zplay`):',
