@@ -82,6 +82,8 @@ static void * a5_mouse_thread_proc(ALLEGRO_THREAD * thread, void * data)
                     _mouse_x = event.mouse.x;
                     _mouse_y = event.mouse.y;
                     _mouse_z = event.mouse.z;
+                    // local edit - pass on the horizontal wheel too. macOS sends Shift + wheel as one.
+                    _mouse_w = event.mouse.w;
 
                     if (prevx != _mouse_x || prevy != _mouse_y || prevz != _mouse_z) {
                         prevx = event.mouse.x;
