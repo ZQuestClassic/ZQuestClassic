@@ -42,15 +42,24 @@ set -e
 # See https://github.com/actions/runner-images/issues/7522
 i=0
 args=("$@")
+
+# Local edit: "hdiutil detach <mount point>" unmounts the volume, then ejects its disk. If the
+# eject fails (busy), the volume is already gone, so retrying with the mount point can only fail
+# with "No such file or directory". Find the disk now, and retry with that.
+if [ "$1" = "detach" ] && [ -d "${!#}" ]; then
+	disk=$(diskutil info "${!#}" | awk -F': *' '/Part of Whole/ {print $2}')
+	if [ -n "$disk" ]; then
+		retry_args=(detach "/dev/$disk")
+	fi
+fi
+
 until
 hdiutil "${args[@]}"
 do
 if [ $i -eq 30 ]; then exit 1; fi
 i=$((i+1))
-# Local edit: a volume can stay busy (Spotlight, XProtect, Finder) for longer than all the
-# retries, so after a few tries force the detach.
-if [ "$1" = "detach" ] && [ $i -eq 5 ]; then
-	args=(detach -force "${@:2}")
+if [ -n "${retry_args+x}" ]; then
+	args=("${retry_args[@]}")
 fi
 sleep 5
 done
