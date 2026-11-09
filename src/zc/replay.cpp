@@ -1360,6 +1360,9 @@ static void save_result(bool stopped = false, bool changed = false)
 		out << fmt::format("unexpected_gfx_segments: {}", segments_to_string(rs.unexpected_gfx_segments)) << '\n';
 	if (rs.has_assert_failed && !rs.unexpected_gfx_segments_limited.empty())
 		out << fmt::format("unexpected_gfx_segments_limited: {}", segments_to_string(rs.unexpected_gfx_segments_limited)) << '\n';
+	// Stopped partway, like by quitting, rather than reaching the end.
+	if (rs.has_aborted)
+		out << "aborted: true\n";
     out << fmt::format("stopped: {}", stopped) << '\n';
 
 	out.close();
