@@ -155,6 +155,28 @@ std::string process_killer::describe_exit() const
 #endif
 }
 
+std::optional<int32_t> process_killer::exit_code() const
+{
+#ifdef _WIN32
+	if(!process_handle || WaitForSingleObject(process_handle, 0) != WAIT_OBJECT_0)
+		return std::nullopt;
+	DWORD code = 0;
+	if(!GetExitCodeProcess(process_handle, &code))
+		return std::nullopt;
+	// A crash ends the process with the exception's code (ex: 0xC0000005), not one it exited with.
+	if(code >= 0xC0000000)
+		return std::nullopt;
+	return (int32_t)code;
+#else
+	if(!pid)
+		return std::nullopt;
+	reap(false);
+	if(!reaped || wait_status == -1 || !WIFEXITED(wait_status))
+		return std::nullopt;
+	return WEXITSTATUS(wait_status);
+#endif
+}
+
 //
 
 #ifdef _WIN32

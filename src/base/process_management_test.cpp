@@ -2,9 +2,11 @@
 #include "test_runner/test_runner.h"
 #include "test_runner/assert.h"
 
+#include <chrono>
 #include <cstdlib>
 #include <filesystem>
 #include <fmt/format.h>
+#include <thread>
 
 namespace fs = std::filesystem;
 
@@ -36,11 +38,40 @@ static void test_non_ascii_args()
 		throw std::runtime_error(fmt::format("expected the path {} in output:\n{}", path, output));
 }
 
+// exit_code() reports a launched process's exit code once it has exited, and nothing before.
+static void test_exit_code()
+{
+	std::string zplayer = locate_zapp_file(ZPLAYER_FILE);
+	if (!fs::exists(fs::path(reinterpret_cast<const char8_t*>(zplayer.c_str()))))
+	{
+		if (std::getenv("CI"))
+			throw std::runtime_error(fmt::format("missing {}", zplayer));
+		fmt::println("  skipping: missing {}", zplayer);
+		return;
+	}
+
+	// zplayer exits with code 1 when it can't load the quest.
+	std::string path = to_utf8(fs::temp_directory_path() / "missing.qst");
+	process_killer process = launch_process(zplayer, {"-headless", "-dump-qrs", path});
+	for (int i = 0; i < 3000 && process.is_alive(); i++)
+		std::this_thread::sleep_for(std::chrono::milliseconds(10));
+	if (process.is_alive())
+	{
+		process.kill();
+		throw std::runtime_error("zplayer didn't exit");
+	}
+
+	auto code = process.exit_code();
+	if (!code || *code != 1)
+		throw std::runtime_error(fmt::format("expected exit code 1, but zplayer {}", process.describe_exit()));
+}
+
 TestResults test_process_management(bool verbose)
 {
 	TestResults tr{};
 	struct { const char* name; void (*fn)(); } tests[] = {
 		{ "non_ascii_args", test_non_ascii_args },
+		{ "exit_code", test_exit_code },
 	};
 
 	for (auto& test : tests)
