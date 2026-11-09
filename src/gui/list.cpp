@@ -11,7 +11,7 @@ namespace GUI
 
 List::List():
 	listData(nullptr), selectedIndex(0), selectedValue(0), message(-1), msg_r(-1), msg_d(-1), isABC(false),
-	scrollPtr(nullptr)
+	scrollPtr(nullptr), multiSelect(false)
 {
 	setPreferredWidth(20_em);
 	setPreferredHeight(12_em);
@@ -23,8 +23,12 @@ void List::setListData(const ::GUI::ListData& newListData)
 {
 	listData = &newListData;
 	jwinListData = newListData.getJWin(&widgFont);
+	// Updating the items in place (same count) keeps what's selected.
+	if(extraSelected.size() != newListData.size())
+		extraSelected.assign(newListData.size(), 0);
 	if(alDialog)
 	{
+		alDialog->dp2 = multiSelect ? extraSelected.data() : nullptr;
 		alDialog.message(MSG_START, 0);
 	}
 }
@@ -122,6 +126,31 @@ void List::setIsABC(bool abc)
 	}
 }
 
+void List::setMultiSelect(bool multi)
+{
+	multiSelect = multi;
+	if(alDialog)
+		alDialog->dp2 = multiSelect ? extraSelected.data() : nullptr;
+}
+
+std::vector<int32_t> List::getSelectedValues() const
+{
+	if(!listData || !listData->size())
+		return {};
+
+	if(!multiSelect)
+		return {getSelectedValue()};
+
+	int32_t current = vbound(alDialog ? alDialog->d1 : selectedIndex, 0, listData->size()-1);
+	std::vector<int32_t> values;
+	for(size_t i = 0; i < listData->size(); ++i)
+	{
+		if(i == current || (i < extraSelected.size() && extraSelected[i]))
+			values.push_back(listData->getValue(i));
+	}
+	return values;
+}
+
 void List::applyVisibility(bool visible)
 {
 	Widget::applyVisibility(visible);
@@ -158,7 +187,7 @@ void List::realize(DialogRunner& runner)
 		0, // key
 		getFlags(), // flags
 		selectedIndex, init_scroll, // d1, d2,
-		&jwinListData, nullptr, nullptr // dp, dp2, dp3
+		&jwinListData, multiSelect ? extraSelected.data() : nullptr, nullptr // dp, dp2, dp3
 	});
 }
 

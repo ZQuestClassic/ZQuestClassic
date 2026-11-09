@@ -5040,6 +5040,59 @@ static void idle_cb()
     broadcast_dialog_message(MSG_IDLE, 0);
 }
 
+/* _handle_jwin_listbox_ctrl_deselect:
+  *  With multi-select, ctrl+click on an item that's already selected
+  *  deselects it. Returns true if it did, in which case the click should
+  *  do nothing else.
+  */
+static bool _handle_jwin_listbox_ctrl_deselect(DIALOG *d)
+{
+    ListData *data = (ListData *)d->dp;
+    char *sel = (char *)d->dp2;
+    if(!sel || !(key_shifts & KB_CTRL_CMD_FLAG) || (key_shifts & KB_SHIFT_FLAG) || (gui_mouse_b() & 2))
+        return false;
+
+    int32_t listsize;
+    data->listFunc(-1, &listsize);
+    int32_t th = text_height(*data->font);
+    int32_t i = d->d2 + MID(0, (gui_mouse_y() - d->y - 4) / th, (d->h-3) / th - 1);
+
+    if(i >= listsize)
+    {
+        // The empty space below the last item: there's nothing to toggle.
+    }
+    else if(i == d->d1)
+    {
+        // The current item always counts as selected, so another selected item
+        // has to become the current one. If there are none, keep it selected.
+        int32_t next = -1;
+        for(int32_t j = 0; j < listsize; j++)
+        {
+            if(sel[j] && j != i && (next == -1 || abs(j - i) < abs(next - i)))
+                next = j;
+        }
+        if(next != -1)
+        {
+            sel[i] = FALSE;
+            sel[next] = FALSE;
+            d->d1 = next;
+            _handle_jwin_scrollable_scroll(d, listsize, &d->d1, &d->d2, *data->font);
+        }
+    }
+    else if(sel[i])
+        sel[i] = FALSE;
+    else
+        return false;
+
+    object_message(d, MSG_DRAW, 0);
+    while(gui_mouse_b())
+    {
+        broadcast_dialog_message(MSG_IDLE, 0);
+        rest(1);
+    }
+    return true;
+}
+
 /* _handle_listbox_click:
   *  Helper to process a click on a listbox, doing hit-testing and moving
   *  the selection.
@@ -5091,7 +5144,13 @@ static bool _handle_jwin_listbox_click(DIALOG *d)
                         sel[j] = TRUE;
                 }
                 else
+                {
+                    // The current item is selected without being flagged, so flag it to
+                    // keep it selected once it is no longer the current item.
+                    if(d->d1 >= 0 && d->d1 < listsize)
+                        sel[d->d1] = TRUE;
                     sel[i] = TRUE;
+                }
             }
         }
         
@@ -5385,6 +5444,12 @@ int32_t jwin_list_proc(int32_t msg, DIALOG *d, int32_t c)
         
         if((!bar) || (gui_mouse_x() < d->x+d->w-18))
         {
+            if(_handle_jwin_listbox_ctrl_deselect(d))
+            {
+                GUI_EVENT(d, geCHANGE_SELECTION);
+                return D_REDRAWME;
+            }
+
             if((sel) && (!(key_shifts & KB_CTRL_CMD_FLAG)))
             {
                 for(i=0; i<listsize; i++)
@@ -5563,8 +5628,20 @@ int32_t jwin_list_proc(int32_t msg, DIALOG *d, int32_t c)
                 else
                     d->d1 += (bottom - d->d2);
             }
+            else if(sel && c == KEY_A && (key_shifts & KB_CTRL_CMD_FLAG))
+            {
+                // Select everything.
+                for(i=0; i<listsize; i++)
+                    sel[i] = TRUE;
+                GUI_EVENT(d, geCHANGE_SELECTION);
+                d->flags |= D_DIRTY;
+                return D_USED_CHAR;
+            }
             else
                 return D_O_K;
+                
+            // Bound the index before it's used to flag a range below.
+            d->d1 = MID(0, d->d1, listsize-1);
                 
             if(sel)
             {
@@ -5582,6 +5659,11 @@ int32_t jwin_list_proc(int32_t msg, DIALOG *d, int32_t c)
                         else
                             sel[i] = TRUE;
                     }
+                }
+                else if(orig >= 0 && orig < listsize)
+                {
+                    // Like ctrl+click, keep the item that was current selected.
+                    sel[orig] = TRUE;
                 }
             }
             

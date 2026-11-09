@@ -330,6 +330,7 @@ ZCGUI_BUILDER_START(List)
 	ZCGUI_ACCEPT_PROP(onSelectFunc, setOnSelectFunc, GUI::function<void(int32_t)>)
 	ZCGUI_ACCEPT_PROP(isABC, setIsABC, bool)
 	ZCGUI_ACCEPT_PROP(scrollPtr, setScrollPtr, size_t*)
+	ZCGUI_ACCEPT_PROP(multiSelect, setMultiSelect, bool)
 
 	ZCGUI_SUGGEST_PROP(onClick, onSelectionChanged)
 ZCGUI_BUILDER_END()
