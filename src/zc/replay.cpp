@@ -1999,12 +1999,18 @@ void replay_stop(bool aborted)
 			mode = ReplayMode::Off;
 			replay_exit(has_assert_failed ? ASSERT_FAILED_EXIT_CODE : 0);
         }
-        else if (has_assert_failed)
+        // Stopping at a requested frame has its own message, and didn't check the whole replay.
+        else if (has_assert_failed || frame_arg == -1)
         {
             enter_sys_pal();
-            jwin_alert("Assert", "Replay has stopped, and the assert failed.", NULL, NULL, "OK", NULL, 13, 27, get_zc_font(font_lfont));
+            if (has_assert_failed)
+                jwin_alert("Assert", "Replay has stopped, and the assert failed.", NULL, NULL, "OK", NULL, 13, 27, get_zc_font(font_lfont));
+            else
+                jwin_alert("Assert", "Replay has stopped, and the assert passed: the quest",
+                    "still plays the same as when it was recorded.", NULL, "OK", NULL, 13, 27, get_zc_font(font_lfont));
             exit_sys_pal();
-			Paused = true;
+            if (has_assert_failed)
+                Paused = true;
         }
     }
 
