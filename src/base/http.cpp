@@ -38,7 +38,9 @@ static expected<http_response, std::string> finish_request(CURL* curl_handle, CU
 	if (res != CURLE_OK)
 	{
 		std::string error = fmt::format("curl: {}", curl_easy_strerror(res));
-		fmt::println(stderr, "{}", error);
+		// Not fmt::println: it throws when the write fails, which it always does for a
+		// Windows GUI program without a console.
+		fprintf(stderr, "%s\n", error.c_str());
 		return make_unexpected(error);
 	}
 
