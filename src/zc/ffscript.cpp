@@ -8355,7 +8355,14 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmap, int32_t screen, int32
 		Z_scripterrlog("Invalid Screen Index (%d) passed to WarpEx(). Aborting.\n", screen);
 		return false;
 	}
-	//Extra sanity guard. 
+	// Small DMaps can have a negative map offset, which moves their left columns
+	// off the edge of the map.
+	if ( ((unsigned)(screen + DMaps[dmap].xoff)) >= MAPSCRS )
+	{
+		Z_scripterrlog("Screen %d of DMap %d passed to WarpEx() is outside its map (DMap offset %d). Aborting.\n", screen, dmap, DMaps[dmap].xoff);
+		return false;
+	}
+	//Extra sanity guard.
 	if ( map_screen_index(DMaps[dmap].map, screen + DMaps[dmap].xoff) >= (int32_t)TheMaps.size() )
 	{
 		Z_scripterrlog("Invalid destination passed to WarpEx(). Aborting.\n");

@@ -24853,7 +24853,32 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 			wscr = home_screen-DMaps[cur_dmap].xoff;
 			break;
 	}
-	
+
+	// Small DMaps can have a negative map offset, so a warp to one of their left
+	// columns lands off the edge of the map. Cancel those. Caves and Cancel Warps
+	// (unless 1.92-style, which turns them into insta-warps) never use the screen.
+	if (wtype != wtCAVE && (wtype != wtNOWARP || get_qr(qr_192b163_WARP)))
+	{
+		int32_t dest_screen = wscr + DMaps[wdmap].xoff;
+		if (unsigned(dest_screen) >= MAPSCRS)
+		{
+			// An auto warp combo tries again every frame, so only log a new destination.
+			static int32_t last_logged_dest = -1;
+			int32_t dest = wdmap * 0x100 + wscr;
+			if (dest != last_logged_dest)
+			{
+				last_logged_dest = dest;
+				Z_error("Warp to screen 0x%02X of DMap %d is outside its map (DMap offset %d). Cancelling the warp.\n",
+					wscr, wdmap, DMaps[wdmap].xoff);
+			}
+			didpit=false;
+			update_subscreens();
+			warp_sound = 0;
+			is_warping = false;
+			return false;
+		}
+	}
+
 	bool intradmap = (wdmap == cur_dmap);
 	int32_t olddmap = cur_dmap;
 	rehydratelake(type!=wtSCROLL);
