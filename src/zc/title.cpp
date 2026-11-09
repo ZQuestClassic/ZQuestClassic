@@ -2075,7 +2075,16 @@ void titlescreen(int32_t lsave)
 		{
 			int slot = lsave - 1;
 			if (auto r = saves_select(slot); !r)
-				Z_error_fatal("Cannot load slot %d, error %s:", slot, r.error().c_str());
+			{
+				// Standalone mode has no file select screen to fall back to.
+				if (standalone_mode)
+					Z_error_fatal("Cannot load slot %d, error %s:", slot, r.error().c_str());
+
+				// A Quickload Slot setting (or -load) can point at a save that was since
+				// deleted, so show the file select screen instead.
+				Z_error("Cannot load slot %d, error %s\n", slot, r.error().c_str());
+				select_game();
+			}
 		}
 	}
 
