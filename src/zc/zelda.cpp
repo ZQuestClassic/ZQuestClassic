@@ -4412,6 +4412,9 @@ reload_for_replay_file:
 		replay_set_meta("starting_dmap", testingqst_dmap);
 		replay_set_meta("starting_scr", testingqst_screen);
 		replay_set_meta("starting_retsqr", testingqst_retsqr);
+		// The name the editor gave the -test-init-data, so it can show which one a recording used.
+		if (auto init_data_name = get_flag_string("-test-init-data-name"))
+			replay_set_meta("init_data_name", *init_data_name);
 		if (used_switch(argc, argv, "-replay-name") > 0)
 			replay_set_meta("name", argv[replay_name_arg + 1]);
 		if (used_switch(argc, argv, "-replay-script-trace") > 0)
