@@ -2158,12 +2158,16 @@ void replay_stop(bool aborted)
 			rs.mode = ReplayMode::Off;
 			zc_exit(rs.has_assert_failed ? ASSERT_FAILED_EXIT_CODE : 0);
         }
-        else if (rs.has_assert_failed && !batch_when_done)
+        // Stopping at a requested frame has its own message, and didn't check the whole replay.
+        else if (!batch_when_done && (rs.has_assert_failed || rs.frame_arg == -1))
         {
             enter_sys_pal();
-            InfoDialog("Assert", "Replay has stopped, and the assert failed.").show();
+            InfoDialog("Assert", rs.has_assert_failed ? "Replay has stopped, and the assert failed." :
+                "Replay has stopped, and the assert passed: the quest still plays the same as when"
+                " it was recorded.").show();
             exit_sys_pal();
-			Paused = true;
+            if (rs.has_assert_failed)
+                Paused = true;
         }
     }
 
