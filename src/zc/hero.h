@@ -330,6 +330,12 @@ public:
 	int32_t extra_jump_count;
 	
 	weapon* lift_wpn;
+	// The lifted weapon whose script is running right now, if any.
+	weapon* lift_wpn_in_script = nullptr;
+	// Set when that weapon was deleted by its own script. See delete_liftwpn.
+	bool lift_wpn_delete_pending = false;
+	void delete_liftwpn();
+	void delete_liftwpn_in_script();
 	weapon* active_wind;
 	byte liftclk;
 	byte tliftclk;

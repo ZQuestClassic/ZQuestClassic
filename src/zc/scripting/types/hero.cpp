@@ -684,11 +684,7 @@ void hero_set_register(int32_t reg, int32_t value)
 			break;
 		case HEROLIFTEDWPN:
 		{
-			if(Hero.lift_wpn)
-			{
-				delete Hero.lift_wpn;
-				Hero.lift_wpn = nullptr;
-			}
+			Hero.delete_liftwpn();
 			if(value)
 			{
 				if(weapon* wpn = checkLWpn(value))

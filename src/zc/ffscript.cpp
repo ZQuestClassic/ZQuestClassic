@@ -15810,10 +15810,9 @@ void FFScript::do_lweapon_delete()
 	if(auto s=checkLWpn(GET_REF(lwpnref)))
 	{
 		if(s==Hero.lift_wpn)
-		{
-			delete s;
-			Hero.lift_wpn = nullptr;
-		}
+			Hero.delete_liftwpn();
+		else if(s==Hero.lift_wpn_in_script)
+			Hero.delete_liftwpn_in_script();
 		else Lwpns.del(s);
 	}
 }

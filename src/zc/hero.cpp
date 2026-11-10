@@ -1939,11 +1939,7 @@ void HeroClass::init()
 	scale = 0;
 	rotation = 0;
 	do_animation = true;
-	if(lift_wpn)
-	{
-		delete lift_wpn;
-		lift_wpn = nullptr;
-	}
+	delete_liftwpn();
 	active_wind = nullptr;
 	clear_platform_ffc();
 	liftclk = 0;
@@ -7752,7 +7748,22 @@ bool HeroClass::animate(int32_t)
 			--lift_wpn->dead;
 		
 		if(get_qr(qr_LIFTED_WEAPONS_RUN_SCRIPTS))
+		{
+			lift_wpn_in_script = lift_wpn;
 			lift_wpn->run_script(MODE_NORMAL);
+			if(lift_wpn_delete_pending)
+			{
+				// In case the script lifted the weapon again after removing it.
+				if(lift_wpn == lift_wpn_in_script)
+					lift_wpn = nullptr;
+				delete lift_wpn_in_script;
+			}
+			lift_wpn_delete_pending = false;
+			lift_wpn_in_script = nullptr;
+			// The script may have removed, released or thrown the weapon.
+			if(!lift_wpn)
+				goto heroanimate_skip_liftwpn;
+		}
 		
 		if(lift_wpn->dead==0)
 		{
@@ -9364,11 +9375,7 @@ heroanimate_skip_liftwpn:;
 					FFCore.setHeroAction(dying);
 					FFCore.deallocateAllScriptOwned(ScriptType::Global, GLOBAL_SCRIPT_GAME);
 					ALLOFF(true,true);
-					if(lift_wpn)
-					{
-						delete lift_wpn;
-						lift_wpn = nullptr;
-					}
+					delete_liftwpn();
 					GameFlags |= GAMEFLAG_NO_F6;
 					if(!debug_enabled)
 					{
@@ -10901,6 +10908,25 @@ bool HeroClass::do_jump(int32_t jumpid, bool passive)
 	}
 	return true;
 }
+// Deletes the lifted weapon. If that weapon's own script is running, it is only let go of
+// here and is deleted once the script returns: the script engine still uses the weapon and
+// its script state on the way out of the script.
+void HeroClass::delete_liftwpn()
+{
+	if(!lift_wpn) return;
+	if(lift_wpn == lift_wpn_in_script)
+		lift_wpn_delete_pending = true;
+	else delete lift_wpn;
+	lift_wpn = nullptr;
+}
+
+// The same, for a weapon whose running script already released or threw it.
+void HeroClass::delete_liftwpn_in_script()
+{
+	Lwpns.remove(lift_wpn_in_script);
+	lift_wpn_delete_pending = true;
+}
+
 void HeroClass::drop_liftwpn()
 {
 	if(!lift_wpn) return;
