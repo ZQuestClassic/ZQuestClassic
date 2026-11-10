@@ -1019,6 +1019,26 @@ std::vector<PasteSanitizeTestCase> get_paste_sanitize_test_cases()
 			"Hello\\\nworld",
 			R"(Hello\ \Newline\ world)"
 		},
+		TC{
+			"Escaped backslash before newline needs no separating space",
+			"Hello\\\\\nworld",
+			R"(Hello\\\Newline\ world)"
+		},
+		TC{
+			"Leading newline",
+			"\nHello",
+			R"(\Newline\ Hello)"
+		},
+		TC{
+			"Only a backslash before newline",
+			"\\\nworld",
+			R"(\ \Newline\ world)"
+		},
+		TC{
+			"Only an escaped backslash before newline",
+			"\\\\\nworld",
+			R"(\\\Newline\ world)"
+		},
 	};
 }
 

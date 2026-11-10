@@ -861,8 +861,9 @@ std::string sanitize_pasted_msg_str_text(std::string_view text)
 
 		if (c == '\n')
 		{
-			// A '\' just before the command would escape its leading slash.
-			if (!result.empty() && result.back() == '\\')
+			// An unescaped '\' just before the command would escape its leading slash.
+			size_t num_slashes = result.size() - (result.find_last_not_of('\\') + 1);
+			if (num_slashes % 2)
 				result += ' ';
 			result += "\\Newline\\ ";
 			continue;
