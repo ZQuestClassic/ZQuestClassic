@@ -878,7 +878,9 @@ LegacyBitmapRTI::LegacyBitmapRTI(std::string name, RenderTreeItem* parent) : Ren
 
 LegacyBitmapRTI::~LegacyBitmapRTI()
 {
-	if (owned && a4_bitmap)
+	// A dialog still open when the program exits has its bitmap set as the `screen`, which
+	// allegro_exit has destroyed by the time this runs for the static render tree.
+	if (owned && a4_bitmap && !is_exiting())
 		destroy_bitmap(a4_bitmap);
 }
 
