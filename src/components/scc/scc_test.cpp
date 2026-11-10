@@ -649,6 +649,38 @@ std::vector<AsciiParserTestCase> get_ascii_parser_test_cases()
 			/*warnings*/ {R"(Error: { and } characters must be escaped: \{ and \})"}
 		},
 		TC{
+			"Text after unescaped { and } is kept",
+			R"(Hello {world} bye)",
+			/*segments*/ {Literal, Invalid, Literal},
+			/*literals*/ {R"(Hello )", R"({world})", R"( bye)"},
+			/*commands*/ {},
+			/*warnings*/ {R"(Error: { and } characters must be escaped: \{ and \})"}
+		},
+		TC{
+			"Command after unescaped { and } is kept",
+			R"({a}\Speed\1\ b)",
+			/*segments*/ {Invalid, Command, Literal},
+			/*literals*/ {R"({a})", R"(b)"},
+			/*commands*/ {Cmd{MSGC_SPEED, 1, {1}}},
+			/*warnings*/ {R"(Error: { and } characters must be escaped: \{ and \})"}
+		},
+		TC{
+			"Escaped slash before the closing }",
+			R"({a\\}b)",
+			/*segments*/ {Invalid, Literal},
+			/*literals*/ {R"({a\\})", R"(b)"},
+			/*commands*/ {},
+			/*warnings*/ {R"(Error: { and } characters must be escaped: \{ and \})"}
+		},
+		TC{
+			"Escaped } inside unescaped { and }",
+			R"({a\}b}c)",
+			/*segments*/ {Invalid, Literal},
+			/*literals*/ {R"({a\}b})", R"(c)"},
+			/*commands*/ {},
+			/*warnings*/ {R"(Error: { and } characters must be escaped: \{ and \})"}
+		},
+		TC{
 			"Error: { and } inside commands",
 			R"(Hello \Color\{world}\)",
 			/*segments*/ {Invalid},

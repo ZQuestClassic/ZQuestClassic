@@ -596,17 +596,20 @@ value_and_warnings<ParsedMsgStr> parse_ascii_msg_str(const std::string& str)
 			cur++;
 			while (cur < str.size())
 			{
-				if (str[cur] == '}' && str[cur - 1] != '\\')
+				// Skip escaped characters, so that neither \} nor the second slash of \\ can
+				// end (or fail to end) the segment.
+				if (str[cur] == '\\' && cur + 1 < str.size())
 				{
-					cur++;
-					break;
+					cur += 2;
+					continue;
 				}
 
-				cur++;
+				if (str[cur++] == '}')
+					break;
 			}
 
 			is_parsing_invalid_segment = true;
-			push_literal(cur++);
+			push_literal(cur);
 			continue;
 		}
 
