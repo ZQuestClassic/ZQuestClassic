@@ -562,6 +562,15 @@ value_and_warnings<ParsedMsgStr> parse_ascii_msg_str(const std::string& str)
 		literal_start_index = std::string_view::npos; 
 	};
 
+	// Helper to push an invalid segment. Invalid segments are serialized as-is, so the preceding
+	// literal is pushed separately to keep its escaping.
+	auto push_invalid = [&](size_t start_index, size_t end_index) {
+		push_literal(start_index);
+		literal_start_index = start_index;
+		is_parsing_invalid_segment = true;
+		push_literal(end_index);
+	};
+
 	while (cur < last)
 	{
 		// If we're not in a literal segment, start one at the current index.
@@ -591,8 +600,7 @@ value_and_warnings<ParsedMsgStr> parse_ascii_msg_str(const std::string& str)
 
 		if (c == '{')
 		{
-			push_literal(cur);
-			literal_start_index = cur;
+			size_t brace_start_index = cur;
 
 			// Consume until next unescaped }
 			cur++;
@@ -610,8 +618,7 @@ value_and_warnings<ParsedMsgStr> parse_ascii_msg_str(const std::string& str)
 					break;
 			}
 
-			is_parsing_invalid_segment = true;
-			push_literal(cur);
+			push_invalid(brace_start_index, cur);
 			continue;
 		}
 
@@ -647,13 +654,8 @@ value_and_warnings<ParsedMsgStr> parse_ascii_msg_str(const std::string& str)
 
 		if (cur + 1 == last)
 		{
-			push_literal(cur);
-
 			warnings.push_back("Unexpected trailing slash (expected either a command or another slash)");
-			is_parsing_invalid_segment = true;
-			literal_start_index = cur;
-			cur++;
-			push_literal(cur);
+			push_invalid(cur, last);
 			break;
 		}
 
@@ -669,8 +671,7 @@ value_and_warnings<ParsedMsgStr> parse_ascii_msg_str(const std::string& str)
 		}
 		else
 		{
-			is_parsing_invalid_segment = true;
-			push_literal(cur);
+			push_invalid(command_start_index, cur);
 		}
 	}
 

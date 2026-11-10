@@ -204,8 +204,8 @@ std::vector<AsciiParserTestCase> get_ascii_parser_test_cases()
 		TC{
 			"Negative command code is ignored and produces warning",
 			R"(Try me: \-2\10\20\)",
-			/*segments*/ {Invalid},
-			/*literals*/ {R"(Try me: \-2\10\20\)"},
+			/*segments*/ {Literal, Invalid},
+			/*literals*/ {R"(Try me: )", R"(\-2\10\20\)"},
 			/*commands*/ {},
 			/*warnings*/ {R"(Ignoring unknown command: \-2\10\20\)"}
 		},
@@ -697,10 +697,18 @@ std::vector<AsciiParserTestCase> get_ascii_parser_test_cases()
 			/*warnings*/ {R"(Error: { and } characters must be escaped: \{ and \})"}
 		},
 		TC{
+			"Escaped { before an invalid command stays escaped",
+			R"(a\{b \2\1)",
+			/*segments*/ {Literal, Literal, Invalid},
+			/*literals*/ {R"(a)", R"({b )", R"(\2\1)"},
+			/*commands*/ {},
+			/*warnings*/ {R"(Expected slash (followed by either space or end of string) at end of command: \2\1)"}
+		},
+		TC{
 			"Error: { and } inside commands",
 			R"(Hello \Color\{world}\)",
-			/*segments*/ {Invalid},
-			/*literals*/ {R"(Hello \Color\{world}\)"},
+			/*segments*/ {Literal, Invalid},
+			/*literals*/ {R"(Hello )", R"(\Color\{world}\)"},
 			/*commands*/ {},
 			/*warnings*/ {R"(Ignoring unknown command: \Color\{world}\)"}
 		},
