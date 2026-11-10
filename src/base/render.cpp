@@ -341,7 +341,9 @@ RenderTreeItem::~RenderTreeItem()
 {
 	if(owned)
 	{
-		if(bitmap)
+		// A dialog still open when the program exits has its bitmap destroyed by allegro_exit
+		// before this runs for the static render tree.
+		if(bitmap && al_is_system_installed())
 			al_destroy_bitmap(bitmap);
 	}
 	if(owned_tint)
@@ -897,7 +899,9 @@ LegacyBitmapRTI::LegacyBitmapRTI(std::string name, RenderTreeItem* parent) : Ren
 
 LegacyBitmapRTI::~LegacyBitmapRTI()
 {
-	if (owned && a4_bitmap)
+	// A dialog still open when the program exits has its bitmap set as the `screen`, which
+	// allegro_exit has destroyed by the time this runs for the static render tree.
+	if (owned && a4_bitmap && system_driver)
 		destroy_bitmap(a4_bitmap);
 }
 
