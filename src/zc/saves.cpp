@@ -1354,7 +1354,6 @@ static int32_t write_save(PACKFILE* f, save_t* save)
 	if(!p_iputw(game.saved_mirror_portal.spr, f))
 		return 70;
 	
-	save_genscript(game); //read the values into the save object
 	if(!p_putbitstr(game.gen_doscript, f))
 		return 72;
 	if(!p_putbmap(game.gen_exitState, f))
@@ -2039,8 +2038,11 @@ static bool do_save_games(std::string& err)
 	if (currgame >= 0)
 	{
 		saves[currgame].game->Copy(*game);
-		// Also done when the save is written to disk (see write_save), but saves aren't
-		// written in replays and test mode.
+		// The generic scripts' runtime state lives outside gamedata, so copy it into
+		// the save being played here. Not when writing saves to disk: that skipped
+		// it in replays and test mode, where saves aren't written, and doing it for
+		// every save written wiped the state of saves that weren't being played
+		// (notably in the save-file split migration, before any game is loaded).
 		save_genscript(*saves[currgame].game);
 		update_icon(&saves[currgame]);
 	}
@@ -2527,6 +2529,15 @@ bool saves_test()
 	game->header.hp_per_heart_container = game->get_hp_per_heart();
 	game->OverrideItems[0] = 0;
 	game->OverrideItems[511] = 511;
+	// Checked below: writing a save must keep its stored generic script state, rather
+	// than replace it with the state of the scripts that are running (none, here).
+	game->gen_doscript.set(1, true);
+	game->gen_exitState[1] = 2;
+	game->gen_reloadState[1] = 3;
+	game->gen_initd[1][0] = 40000;
+	game->gen_eventstate[1] = 5;
+	game->gen_data[1].resize(2);
+	game->gen_data[1][1] = 60000;
 	// Does not persist.
 	// game->header.did_cheat = true;
 
@@ -2549,6 +2560,16 @@ bool saves_test()
 	if (!load_from_save_file_expect_one(ReadMode::All, save.path, save, err))
 	{
 		printf("failed load_from_save_file_expect_one: %s\n", err.c_str());
+		return false;
+	}
+
+	// Not compared against `game`, which a write that takes the running scripts' state
+	// would have changed too.
+	if (!save.game->gen_doscript.get(1) || save.game->gen_exitState[1] != 2 || save.game->gen_reloadState[1] != 3
+		|| save.game->gen_initd[1][0] != 40000 || save.game->gen_eventstate[1] != 5
+		|| save.game->gen_data[1].size() != 2 || save.game->gen_data[1][1] != 60000)
+	{
+		printf("generic script state was not kept by write_save\n");
 		return false;
 	}
 
