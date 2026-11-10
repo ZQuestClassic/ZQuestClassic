@@ -1,5 +1,5 @@
 diff --git a/addons/audio/sdl_audio.c b/addons/audio/sdl_audio.c
-index 777324259..636d7d381 100644
+index 777324259..f4a053d6d 100644
 --- a/addons/audio/sdl_audio.c
 +++ b/addons/audio/sdl_audio.c
 @@ -76,8 +76,11 @@ static int sdl_allocate_voice(ALLEGRO_VOICE *voice)
@@ -36,7 +36,7 @@ index 0d45b556b..f51c60965 100644
  
     /* See comment about unimplemented functions on Android above */
 diff --git a/src/sdl/sdl_display.c b/src/sdl/sdl_display.c
-index 12fc8f14d..afbe4703d 100644
+index b922fddcf..c27bf9e72 100644
 --- a/src/sdl/sdl_display.c
 +++ b/src/sdl/sdl_display.c
 @@ -321,7 +321,7 @@ static void sdl_flip_display(ALLEGRO_DISPLAY *d)
@@ -62,11 +62,98 @@ index 12fc8f14d..afbe4703d 100644
  
     _al_glsl_unuse_shaders();
  
+diff --git a/src/sdl/sdl_keyboard.c b/src/sdl/sdl_keyboard.c
+index 1968fa03b..e755ab81a 100644
+--- a/src/sdl/sdl_keyboard.c
++++ b/src/sdl/sdl_keyboard.c
+@@ -15,6 +15,9 @@
+ #include "allegro5/allegro.h"
+ #include "allegro5/internal/aintern_system.h"
+ #include "allegro5/platform/allegro_internal_sdl.h"
++#ifdef __EMSCRIPTEN__
++#include <emscripten.h>
++#endif
+ 
+ ALLEGRO_DEBUG_CHANNEL("SDL")
+ 
+@@ -32,6 +35,8 @@ typedef struct ALLEGRO_KEYBOARD_SDL
+ 
+ static ALLEGRO_KEYBOARD_DRIVER *vt;
+ static ALLEGRO_KEYBOARD_SDL *keyboard;
++// In a browser on a Mac, the Command key stands in for Ctrl.
++static bool command_is_ctrl;
+ 
+ 
+ static unsigned int get_modifiers(int modifiers)
+@@ -44,8 +49,13 @@ static unsigned int get_modifiers(int modifiers)
+    if (modifiers & KMOD_RCTRL) result |= ALLEGRO_KEYMOD_CTRL;
+    if (modifiers & KMOD_LALT) result |= ALLEGRO_KEYMOD_ALT;
+    if (modifiers & KMOD_RALT) result |= ALLEGRO_KEYMOD_ALT;
+-   if (modifiers & KMOD_LGUI) result |= ALLEGRO_KEYMOD_LWIN;
+-   if (modifiers & KMOD_RGUI) result |= ALLEGRO_KEYMOD_RWIN;
++   if (command_is_ctrl) {
++      if (modifiers & KMOD_GUI) result |= ALLEGRO_KEYMOD_CTRL;
++   }
++   else {
++      if (modifiers & KMOD_LGUI) result |= ALLEGRO_KEYMOD_LWIN;
++      if (modifiers & KMOD_RGUI) result |= ALLEGRO_KEYMOD_RWIN;
++   }
+    if (modifiers & KMOD_NUM) result |= ALLEGRO_KEYMOD_NUMLOCK;
+    if (modifiers & KMOD_CAPS) result |= ALLEGRO_KEYMOD_CAPSLOCK;
+    if (modifiers & KMOD_MODE) result |= ALLEGRO_KEYMOD_ALTGR;
+@@ -107,6 +117,18 @@ void _al_sdl_keyboard_event(SDL_Event *e)
+          event.keyboard.unichar = keyboard->unicode[e->key.keysym.scancode];
+          _al_event_source_emit_event(es, &event);
+       }
++      else if ((event.keyboard.modifiers & ALLEGRO_KEYMOD_CTRL) &&
++            !(event.keyboard.modifiers & (ALLEGRO_KEYMOD_ALT | ALLEGRO_KEYMOD_ALTGR)) &&
++            keyboard->unicode[e->key.keysym.scancode]) {
++         /* No text comes in for a key pressed with Ctrl held, so the press has to make the
++          * character event. Letters get their control code, as on the other platforms. */
++         int keycode = event.keyboard.keycode;
++         event.keyboard.type = ALLEGRO_EVENT_KEY_CHAR;
++         event.keyboard.unichar = keycode >= ALLEGRO_KEY_A && keycode <= ALLEGRO_KEY_Z ?
++            keycode - ALLEGRO_KEY_A + 1 : 0;
++         event.keyboard.repeat = e->key.repeat;
++         _al_event_source_emit_event(es, &event);
++      }
+    }
+    else if (e->type == SDL_KEYUP) {
+       event.keyboard.type = ALLEGRO_EVENT_KEY_UP;
+@@ -114,6 +136,12 @@ void _al_sdl_keyboard_event(SDL_Event *e)
+       event.keyboard.keycode = keyboard->table[e->key.keysym.scancode];
+       event.keyboard.display = _al_sdl_find_display(e->key.windowID);
+       _al_event_source_emit_event(es, &event);
++
++      /* While Command is held, macOS never says that another key was let go. */
++      if (command_is_ctrl &&
++            (e->key.keysym.scancode == SDL_SCANCODE_LGUI || e->key.keysym.scancode == SDL_SCANCODE_RGUI)) {
++         SDL_ResetKeyboard();
++      }
+    }
+ 
+    keyboard->display = event.keyboard.display;
+@@ -361,6 +389,15 @@ static bool sdl_init_keyboard(void)
+    ADD_SAME(RSHIFT, 0);
+    add(SDL_SCANCODE_RALT, ALLEGRO_KEY_ALTGR, 0);
+    add(SDL_SCANCODE_RGUI, ALLEGRO_KEY_RWIN, 0);
++#ifdef __EMSCRIPTEN__
++   command_is_ctrl = EM_ASM_INT({
++      return /Mac|iPhone|iPad/.test(navigator.platform) ? 1 : 0;
++   });
++   if (command_is_ctrl) {
++      keyboard->table[SDL_SCANCODE_LGUI] = ALLEGRO_KEY_LCTRL;
++      keyboard->table[SDL_SCANCODE_RGUI] = ALLEGRO_KEY_RCTRL;
++   }
++#endif
+    add(SDL_SCANCODE_MODE, 0, 0);
+    add(SDL_SCANCODE_AUDIONEXT, 0, 0);
+    add(SDL_SCANCODE_AUDIOPREV, 0, 0);
 diff --git a/src/sdl/sdl_system.c b/src/sdl/sdl_system.c
-index ee7034488..f859e9177 100644
+index 205b6d138..f80545cda 100644
 --- a/src/sdl/sdl_system.c
 +++ b/src/sdl/sdl_system.c
-@@ -132,7 +132,8 @@ static void sdl_heartbeat(void)
+@@ -137,7 +137,8 @@ static void sdl_heartbeat(void)
  #ifdef __EMSCRIPTEN__
     double t = al_get_time();
     double interval = t - s->timer_time;

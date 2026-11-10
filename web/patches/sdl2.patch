@@ -1,8 +1,8 @@
 diff --git a/src/audio/emscripten/SDL_emscriptenaudio.c b/src/audio/emscripten/SDL_emscriptenaudio.c
-index bc2a0e1..2da2000 100644
+index 304cabd..94531a1 100644
 --- a/src/audio/emscripten/SDL_emscriptenaudio.c
 +++ b/src/audio/emscripten/SDL_emscriptenaudio.c
-@@ -352,7 +352,7 @@ EMSCRIPTENAUDIO_Init(SDL_AudioDriverImpl * impl)
+@@ -394,7 +394,7 @@ static SDL_bool EMSCRIPTENAUDIO_Init(SDL_AudioDriverImpl *impl)
      impl->OpenDevice = EMSCRIPTENAUDIO_OpenDevice;
      impl->CloseDevice = EMSCRIPTENAUDIO_CloseDevice;
  
@@ -11,3 +11,17 @@ index bc2a0e1..2da2000 100644
  
      /* no threads here */
      impl->LockDevice = impl->UnlockDevice = EMSCRIPTENAUDIO_LockOrUnlockDeviceWithNoMixerLock;
+diff --git a/src/video/emscripten/SDL_emscriptenevents.c b/src/video/emscripten/SDL_emscriptenevents.c
+index 9957c1a..a29a54f 100644
+--- a/src/video/emscripten/SDL_emscriptenevents.c
++++ b/src/video/emscripten/SDL_emscriptenevents.c
+@@ -838,7 +838,8 @@ static EM_BOOL Emscripten_HandleKey(int eventType, const EmscriptenKeyboardEvent
+         (scancode == SDL_SCANCODE_RIGHT) ||
+         (scancode == SDL_SCANCODE_DOWN) ||
+         IsFunctionKey(scancode) ||
+-        keyEvent->ctrlKey) {
++        keyEvent->ctrlKey ||
++        keyEvent->metaKey) {
+         is_nav_key = SDL_TRUE;
+     }
+ 
