@@ -293,9 +293,9 @@ static bool compareStringsCaseIns(const std::string& str1, const std::string& st
 	if (str1.length() != str2.length())
 		return false;
 
-	for (int i = 0; i < str1.length(); ++i)
+	for (size_t i = 0; i < str1.length(); ++i)
 	{
-		if (tolower(str1[i]) != tolower(str2[i]))
+		if (tolower(static_cast<unsigned char>(str1[i])) != tolower(static_cast<unsigned char>(str2[i])))
 			return false;
 	}
 
@@ -339,7 +339,7 @@ static bool parse_ascii_scc_command(
 	// The source text of the command code, if it erroneously contained a decimal point.
 	std::optional<std::string> decimal_command;
 
-	if (isalpha(str[cur]))
+	if (isalpha(static_cast<unsigned char>(str[cur])))
 	{
 		if (auto r = lookup_string_command(str, cur, warnings))
 			code = *r;
