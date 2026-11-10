@@ -74,6 +74,7 @@ bool TextPromptDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 					return true;
 				}
 			}
+			dest_str = local_str;
 			ret = true;
 			return true;
 		case message::CANCEL:
