@@ -253,7 +253,8 @@ static std::vector<std::string> get_combo_trigger_warnings(combo_trigger const& 
 		TRIGFLAG_IGNITE_ANYFIRE,TRIGFLAG_IGNITE_STRONGFIRE,
 		TRIGFLAG_IGNITE_MAGICFIRE,TRIGFLAG_IGNITE_DIVINEFIRE
 	});
-	if(has_ignite || trig.trigger_flags.any({TRIGFLAG_KILLWPN,TRIGFLAG_SEPARATEWEAPON,TRIGFLAG_ONCE_PER_WEAPON}))
+	// Not 'Once Per Weapon': new triggers have it on, and it's harmless without a weapon.
+	if(has_ignite || trig.trigger_flags.any({TRIGFLAG_KILLWPN,TRIGFLAG_SEPARATEWEAPON}))
 	{
 		if(!has_weapon_cause(trig))
 			warnings.emplace_back("Trigger has weapon-specific 'Effect'(s), but no weapon-based causes!");
