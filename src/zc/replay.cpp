@@ -1858,7 +1858,10 @@ void replay_poll()
         handle_session_seam();
         do_replaying_poll();
         if (rs.replay_log_current_index == replay_log.size())
+        {
             replay_stop();
+            return;
+        }
         break;
     case ReplayMode::Assert:
         handle_session_seam();
@@ -1871,7 +1874,10 @@ void replay_poll()
         do_replaying_poll();
         do_recording_poll();
         if (rs.frame_count == get_frame(replay_log.back()))
+        {
             replay_stop();
+            return;
+        }
         break;
     }
 
