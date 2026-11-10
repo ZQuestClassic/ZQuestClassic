@@ -2244,7 +2244,8 @@ void replay_stop(bool aborted)
     rs.replay_file_buffer.clear();
     rs.string_arena.clear();
 
-	if (exit_when_done)
+	// Someone who stops the replay from the player's window gets to keep playing.
+	if (exit_when_done && !(aborted && !is_headless()))
 	{
 		zc_exit(rs.has_rng_desynced ? 1 : 0);
 	}
@@ -2672,6 +2673,11 @@ bool replay_is_recording()
 void replay_enable_exit_when_done()
 {
 	exit_when_done = true;
+}
+
+bool replay_is_exit_when_done()
+{
+	return exit_when_done;
 }
 
 void replay_enable_batch_when_done()

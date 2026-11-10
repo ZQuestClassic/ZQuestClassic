@@ -4877,6 +4877,14 @@ reload_for_replay_file:
 			if (zapp_check_switch("-test-zc"))
 				return;
 
+			// With -replay-exit-when-done the replay was stopped by hand to keep playing. Now
+			// that's over too, exit rather than start the replay again. (A reset does restart it.)
+			if (replay_is_exit_when_done() && Quit != qRESET)
+			{
+				Quit = qEXIT;
+				continue;
+			}
+
 			// Replay is over, so jump up to load the real saves.
 			Quit = 0;
 			use_testingst_start = false;
