@@ -210,6 +210,22 @@ std::vector<AsciiParserTestCase> get_ascii_parser_test_cases()
 			/*warnings*/ {R"(Ignoring unknown command: \-2\10\20\)"}
 		},
 		TC{
+			"Command code too big to fit does not wrap around to a valid command",
+			R"(\257\1\2\)",
+			/*segments*/ {Invalid},
+			/*literals*/ {R"(\257\1\2\)"},
+			/*commands*/ {},
+			/*warnings*/ {R"(Ignoring unknown command: \257\1\2\)"}
+		},
+		TC{
+			"Negative command code does not wrap around to a valid command",
+			R"(\-255\1\2\)",
+			/*segments*/ {Invalid},
+			/*literals*/ {R"(\-255\1\2\)"},
+			/*commands*/ {},
+			/*warnings*/ {R"(Ignoring unknown command: \-255\1\2\)"}
+		},
+		TC{
 			"Negative arguments",
 			R"(\18\-10\2\-30\4\-50\6\)",
 			/*segments*/ {Command},

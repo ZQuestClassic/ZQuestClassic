@@ -360,9 +360,11 @@ static bool parse_ascii_scc_command(
 	if (!code)
 		consume_until_slash(str, cur);
 
-	cmd.code = code.value_or(0);
-	auto defn_it = scc_commands.find(cmd.code);
+	// Look up the full code before storing it as a byte, so a code that doesn't fit can't wrap
+	// around to a valid one.
+	auto defn_it = scc_commands.find(code.value_or(0));
 	bool is_unknown_command = defn_it == scc_commands.end();
+	cmd.code = is_unknown_command ? 0 : defn_it->first;
 	int min_args = is_unknown_command ? 0 : defn_it->second.min_args;
 	int max_args = is_unknown_command ? 0 : defn_it->second.max_args;
 	int found_num_args = 0;
