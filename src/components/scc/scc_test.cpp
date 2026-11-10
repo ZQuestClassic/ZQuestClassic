@@ -1179,7 +1179,26 @@ TestResults test_scc(bool verbose)
 		test_num++;
 	}
 
-	return TestResults{tests_failed, (int)(all_test_cases.size() + legacy_test_cases.size() + paste_test_cases.size())};
+	// A newline character is a command located at that character.
+	{
+		auto [parsed, warnings] = parse_ascii_msg_str("ab\ncd");
+		bool test_passed = parsed.commands.size() == 1 && parsed.commands[0].start == 2 && parsed.commands[0].length == 1;
+		if (!test_passed)
+		{
+			tests_failed++;
+			std::cerr << "--- Test " << std::setw(2) << test_num << ": Newline character source position ---\n";
+			std::cerr << RED << "  [FAIL] " << RESET << "Expected one command with start 2 and length 1.\n\n";
+		}
+		else if (verbose)
+		{
+			std::cerr << "--- Test " << std::setw(2) << test_num << ": Newline character source position ---\n";
+			std::cerr << GREEN << "  [PASS]" << RESET << "\n\n";
+		}
+
+		test_num++;
+	}
+
+	return TestResults{tests_failed, test_num - 1};
 }
 
 // TODO: make this not needed to compile...

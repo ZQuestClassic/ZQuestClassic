@@ -581,9 +581,11 @@ value_and_warnings<ParsedMsgStr> parse_ascii_msg_str(const std::string& str)
 
 		if (c == '\n')
 		{
-			push_literal(cur++);
+			push_literal(cur);
 
 			auto& cmd = parsed_msg_str.commands.emplace_back();
+			cmd.start = cur++;
+			cmd.length = 1;
 			cmd.code = MSGC_NEWLINE;
 			parsed_msg_str.segment_types.push_back(ParsedMsgStr::SegmentType::Command);
 
