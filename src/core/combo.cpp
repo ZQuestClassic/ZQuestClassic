@@ -212,7 +212,8 @@ combo_trigger_summary combo_trigger::summarize_parts(newcombo const& cmb, int ci
 		vector<std::string> fx;
 		if (trigger_flags.get(TRIGFLAG_KILLWPN))
 			fx.emplace_back("Kill Triggering Weapon");
-		if (trigger_flags.get(TRIGFLAG_ONCE_PER_WEAPON))
+		// New triggers have this on, so it's only worth listing when a weapon can trigger it.
+		if (trigger_flags.get(TRIGFLAG_ONCE_PER_WEAPON) && !wpn_causes.str().empty())
 			fx.emplace_back("Once Per Weapon");
 		string ignite = trigger_flags.get(TRIGFLAG_UNIGNITE_WEAPONS) ? "Unignite" : "Ignite";
 		if (trigger_flags.get(TRIGFLAG_IGNITE_ANYFIRE))

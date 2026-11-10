@@ -2392,10 +2392,15 @@ void ComboEditorDialog::add_combo_trigger(size_t pos, bool copied)
 	
 	if(copied)
 		trig = *from_clipboard;
-	else if(!call_trigger_editor(*this, pos))
+	else
 	{
-		local_comboref.triggers.erase(std::next(local_comboref.triggers.begin(), pos));
-		return;
+		// Weapons usually should trigger a combo once, not every frame they touch it.
+		trig.trigger_flags.set(TRIGFLAG_ONCE_PER_WEAPON, true);
+		if(!call_trigger_editor(*this, pos))
+		{
+			local_comboref.triggers.erase(std::next(local_comboref.triggers.begin(), pos));
+			return;
+		}
 	}
 	trigger_index = pos;
 	refresh_dlg();
