@@ -14,6 +14,10 @@
 #include "core/qst.h"
 #include "gamedata.h"
 
+#ifdef __EMSCRIPTEN__
+#include <emscripten.h>
+#endif
+
 const zasm_meta empty_zasm_meta;
 
 using std::string;
@@ -655,7 +659,14 @@ bool get_al_clipboard(std::string& clipboard)
 }
 void set_al_clipboard(std::string const& clipboard)
 {
+#ifdef __EMSCRIPTEN__
+	// SDL has no clipboard in a browser.
+	EM_ASM({
+		navigator.clipboard.writeText(UTF8ToString($0)).catch(e => console.error(e));
+	}, clipboard.c_str());
+#else
 	al_set_clipboard_text(all_get_display(), clipboard.c_str());
+#endif
 }
 
 bool load_qr_hexstr(string hexstr, byte* dest_ptr)
