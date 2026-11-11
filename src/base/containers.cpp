@@ -35,7 +35,7 @@ void from_json(const json& j, bitstring& b)
 		{
 			byte tmp = 0;
 			char c = s[ind++];
-			if (isdigit(c))
+			if (isdigit(static_cast<unsigned char>(c)))
 				tmp = c - '0';
 			else if (c >= 'A' && c <= 'F')
 				tmp = c - 'A' + 0xA;

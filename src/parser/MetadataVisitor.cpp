@@ -103,7 +103,7 @@ static std::string url_encode(const std::string &value)
         string::value_type c = (*i);
 
         // Keep alphanumeric and other accepted characters intact
-        if (isalnum(c) || c == '-' || c == '_' || c == '.' || c == '~') {
+        if (isalnum((unsigned char) c) || c == '-' || c == '_' || c == '.' || c == '~') {
             escaped << c;
             continue;
         }

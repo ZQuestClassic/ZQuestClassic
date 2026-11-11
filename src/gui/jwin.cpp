@@ -2313,7 +2313,7 @@ int32_t jwin_vedit_proc(int32_t msg, DIALOG *d, int32_t c)
 						break;
 					}
 					// Select the entire SCC text (as long as user double clicks on the name part).
-					if (s[cursor_start] == '\\' && (cursor_start > 0 && !isdigit(s[cursor_start - 1])))
+					if (s[cursor_start] == '\\' && (cursor_start > 0 && !isdigit(static_cast<unsigned char>(s[cursor_start - 1]))))
 						break;
 					if (cursor_start <= cursor_end)
 						--cursor_start;

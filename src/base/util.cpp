@@ -95,13 +95,13 @@ namespace util
 	void upperstr(string& str)
 	{
 		for(int32_t q = str.size() - 1; q >= 0; --q)
-			str[q] = toupper(str[q]);
+			str[q] = toupper(static_cast<unsigned char>(str[q]));
 	}
 
 	void lowerstr(string& str)
 	{
 		for(int32_t q = str.size() - 1; q >= 0; --q)
-			str[q] = tolower(str[q]);
+			str[q] = tolower(static_cast<unsigned char>(str[q]));
 	}
 
 	void trimstr(string& str)
@@ -734,7 +734,7 @@ namespace util
 	bool zc_isalpha(int c)
 	{
 	    if(unsigned(c) > 255) return false;
-	    return isalpha((char)c);
+	    return isalpha(c);
 	}
 	
 	string escape_string(char const* str)
