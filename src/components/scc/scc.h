@@ -128,5 +128,8 @@ value_and_warnings<ParsedMsgStr> parse_legacy_binary_msg_str(const std::string& 
 // Prepares plain text (e.g. from the clipboard) for insertion into an ascii-encoded msg
 // str: strips '\r' and converts '\n' into the \Newline\ command.
 std::string sanitize_pasted_msg_str_text(std::string_view text);
+// Whether the text ends with an unescaped '\', which would escape the leading slash of a command
+// placed right after it.
+bool ends_with_unescaped_slash(std::string_view text);
 
 #endif

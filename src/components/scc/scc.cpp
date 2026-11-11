@@ -849,6 +849,12 @@ value_and_warnings<ParsedMsgStr> parse_legacy_binary_msg_str(const std::string& 
 	return result;
 }
 
+bool ends_with_unescaped_slash(std::string_view text)
+{
+	size_t num_slashes = text.size() - (text.find_last_not_of('\\') + 1);
+	return num_slashes % 2;
+}
+
 std::string sanitize_pasted_msg_str_text(std::string_view text)
 {
 	std::string result;
@@ -861,9 +867,7 @@ std::string sanitize_pasted_msg_str_text(std::string_view text)
 
 		if (c == '\n')
 		{
-			// An unescaped '\' just before the command would escape its leading slash.
-			size_t num_slashes = result.size() - (result.find_last_not_of('\\') + 1);
-			if (num_slashes % 2)
+			if (ends_with_unescaped_slash(result))
 				result += ' ';
 			result += "\\Newline\\ ";
 			continue;

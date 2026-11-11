@@ -236,7 +236,7 @@ std::shared_ptr<GUI::Widget> StringEditorDialog::view()
 							int32_t pos = str_field->get_str_selected_pos();
 							int32_t endpos = str_field->get_str_selected_endpos();
 							size_t len = str_field->get_str_pos();
-							if (pos > 0 && fullstr.size() != 0 && fullstr[pos - 1] == '\\')
+							if (pos > 0 && ends_with_unescaped_slash(std::string_view(fullstr).substr(0, pos)))
 								scc = " " + scc;
 
 							if(endpos>-1)
