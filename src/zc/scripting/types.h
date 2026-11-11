@@ -1,5 +1,4 @@
-#ifndef ZC_SCRIPTING_SCRIPTING_ENGINE_H_
-#define ZC_SCRIPTING_SCRIPTING_ENGINE_H_
+#pragma once
 
 #include "base/check.h"
 #include "base/compiler.h"
@@ -240,5 +239,3 @@ ZC_FORCE_INLINE std::optional<int32_t> scripting_engine_run_command(word command
 
 	return std::nullopt;
 }
-
-#endif

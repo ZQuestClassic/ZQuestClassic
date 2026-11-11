@@ -1,5 +1,4 @@
-#ifndef ZC_SCRIPTING_ARRAY_MANAGER_H_
-#define ZC_SCRIPTING_ARRAY_MANAGER_H_
+#pragma once
 
 #include "base/general.h"
 #include "base/zc_array.h"
@@ -66,5 +65,3 @@ private:
 	bool _invalid;
 	struct script_array* pinned_array = nullptr;
 };
-
-#endif

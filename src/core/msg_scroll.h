@@ -1,5 +1,4 @@
-#ifndef CORE_MSG_SCROLL_H_
-#define CORE_MSG_SCROLL_H_
+#pragma once
 
 #include <optional>
 
@@ -66,5 +65,3 @@ namespace msg_layout
 	bool char_wrap_needed(int cursor_x, int tlength, int width,
 		int margin_right, bool wrap_flag, bool rem_word_is_space);
 }
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef ZINFO_H_
-#define ZINFO_H_
+#pragma once
 #include "core/mapscr.h"
 
 void assignchar(char** p, char const* str);
@@ -67,5 +66,3 @@ extern zinfo ZI;
 
 int32_t writezinfo(PACKFILE *f, zinfo const& z);
 int32_t readzinfo(PACKFILE *f, zinfo& z, zquestheader const& hdr);
-
-#endif

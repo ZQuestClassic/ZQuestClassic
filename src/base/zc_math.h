@@ -1,5 +1,4 @@
-#ifndef BASE_ZC_MATH_H_
-#define BASE_ZC_MATH_H_
+#pragma once
 
 #include <cstdint>
 
@@ -54,5 +53,3 @@ void set_maths_mode(MathsMode mode);
 
 
 } //namespace zc
-
-#endif

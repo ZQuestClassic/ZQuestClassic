@@ -1,5 +1,4 @@
-#ifndef ZC_DIALOG_HEROEDITOR_H_
-#define ZC_DIALOG_HEROEDITOR_H_
+#pragma once
 
 #include "gui/dialog.h"
 #include "gui/button.h"
@@ -72,5 +71,3 @@ private:
 		
 	friend bool call_hero_editor();
 };
-
-#endif

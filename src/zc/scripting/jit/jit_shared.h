@@ -1,5 +1,4 @@
-#ifndef ZC_JIT_SHARED_H_
-#define ZC_JIT_SHARED_H_
+#pragma once
 
 // Shared data structures and driver for the native JIT backends (x64 and a64).
 //
@@ -163,5 +162,3 @@ const JitFunctionAnalysis& jit_analyze_function(zasm_script* script, JittedScrip
 int32_t jit_direct_enter(JittedExecutionContext* ctx, int32_t callee_start_pc);
 int32_t jit_direct_not_compiled(JittedExecutionContext* ctx);
 void jit_direct_retstack_pop();
-
-#endif

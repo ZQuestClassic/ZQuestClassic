@@ -1,5 +1,4 @@
-#ifndef ZC_SYS_H_
-#define ZC_SYS_H_
+#pragma once
 
 #include "core/zdefs.h"
 #include "core/jwinfsel.h"
@@ -194,4 +193,3 @@ extern int32_t midi_strict;
 #ifdef ALLEGRO_MACOSX
 extern int32_t midi_strict; //L
 #endif
-#endif                                                      // _ZC_SYS_H_

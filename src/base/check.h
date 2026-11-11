@@ -1,7 +1,6 @@
 // See https://chromium.googlesource.com/chromium/src/+/HEAD/styleguide/c++/c++.md#check_dcheck_and-notreached
 
-#ifndef BASE_CHECK_H_
-#define BASE_CHECK_H_
+#pragma once
 
 #include <cstdlib>
 
@@ -51,6 +50,4 @@ struct DebugDepsNotReached {};
 	HandleCheckError(__FILE__, __LINE__, __func__, "unexpected code path");\
 	abort();\
 }
-#endif
-
 #endif

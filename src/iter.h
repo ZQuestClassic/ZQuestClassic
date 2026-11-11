@@ -1,3 +1,5 @@
+#pragma once
+
 #include "base/compiler.h"
 #include "core/handles.h"
 #include "core/mapscr.h"

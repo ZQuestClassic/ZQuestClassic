@@ -1,5 +1,4 @@
-#ifndef ZASM_EXPORT_H_
-#define ZASM_EXPORT_H_
+#pragma once
 
 #include "parser/Compiler.h"
 #include "core/zdefs.h"
@@ -10,7 +9,3 @@ namespace ZScript
 	struct disassembled_script_data;
 }
 using ZScript::disassembled_script_data;
-
-
-#endif
-

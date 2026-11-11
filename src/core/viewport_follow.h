@@ -1,5 +1,4 @@
-#ifndef CORE_VIEWPORT_FOLLOW_H_
-#define CORE_VIEWPORT_FOLLOW_H_
+#pragma once
 
 #include "base/ints.h"
 #include "base/zfix.h"
@@ -48,5 +47,3 @@ struct ViewportFollowSettings
 	zfix recenter_speed = 0;
 	word recenter_delay = 30;
 };
-
-#endif

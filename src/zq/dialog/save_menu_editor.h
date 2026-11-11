@@ -1,5 +1,4 @@
-#ifndef ZC_DIALOG_SAVE_MENU_DLG_H_
-#define ZC_DIALOG_SAVE_MENU_DLG_H_
+#pragma once
 
 #include "gui/dialog.h"
 #include "gui/drop_down_list.h"
@@ -26,5 +25,3 @@ private:
 	std::shared_ptr<GUI::DropDownList> midi_ddl;
 	GUI::ListData list_sfx, list_music, list_aligns, list_font, list_genscr, list_shadow_types;
 };
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef MOVEINFO_H_
-#define MOVEINFO_H_
+#pragma once
 
 #include "base/ints.h"
 #include "base/headers.h"
@@ -341,5 +340,3 @@ struct TileMoveUndo
 			list->add_diff(diff);
 	}
 };
-
-#endif

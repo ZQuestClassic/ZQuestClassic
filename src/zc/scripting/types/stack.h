@@ -1,5 +1,4 @@
-#ifndef ZC_SCRIPTING_STACK_H_
-#define ZC_SCRIPTING_STACK_H_
+#pragma once
 
 #include <cstdint>
 #include <vector>
@@ -12,5 +11,3 @@ std::vector<user_stack*> get_user_stacks();
 
 int32_t stack_get_register(int32_t reg);
 void stack_set_register(int32_t reg, int32_t value);
-
-#endif

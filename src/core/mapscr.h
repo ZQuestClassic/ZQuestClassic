@@ -1,5 +1,4 @@
-#ifndef CORE_MAPSCR_H_
-#define CORE_MAPSCR_H_
+#pragma once
 
 class ffcdata;
 struct ffc_handle_t;
@@ -388,5 +387,3 @@ struct map_info // misc data for entire maps
 	bool operator==(map_info const& other) const = default;
 };
 extern std::vector<map_info> map_infos;
-
-#endif

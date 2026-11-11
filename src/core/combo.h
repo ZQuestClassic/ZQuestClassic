@@ -1,5 +1,4 @@
-#ifndef CORE_COMBO_H_
-#define CORE_COMBO_H_
+#pragma once
 
 #include "base/headers.h"
 #include "base/general.h"
@@ -560,6 +559,3 @@ extern const std::vector<std::pair<int, const char*>> burning_trigger_causes;
 // The trigger causes that fire every frame for as long as they're true, with their names in
 // the Combo Trigger Editor.
 extern const std::vector<std::pair<int, const char*>> every_frame_trigger_causes;
-
-#endif
-

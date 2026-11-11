@@ -1,5 +1,4 @@
-#ifndef WORKER_POOL_H_
-#define WORKER_POOL_H_
+#pragma once
 
 #include <allegro5/allegro.h>
 #include <cstddef>
@@ -47,5 +46,3 @@ private:
     size_t active_tasks = 0;
     bool stopping = false;
 };
-
-#endif

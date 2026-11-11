@@ -1,5 +1,4 @@
-#ifndef ZAPP_H_
-#define ZAPP_H_
+#pragma once
 
 #include <optional>
 #include <functional>
@@ -52,5 +51,3 @@ void zapp_reporting_set_tag(const char* key, bool value);
 bool is_exiting();
 void set_is_exiting();
 void zapp_exit(int code);
-
-#endif

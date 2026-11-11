@@ -1,5 +1,4 @@
-#ifndef ZASM_DEBUG_DATA_H_
-#define ZASM_DEBUG_DATA_H_
+#pragma once
 
 #include <array>
 #include <optional>
@@ -245,5 +244,3 @@ private:
 	mutable std::vector<std::vector<int32_t>> scope_children_cache;
 	mutable bool scope_children_cache_built = false;
 };
-
-#endif

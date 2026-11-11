@@ -1,5 +1,4 @@
-#ifndef GAMEDATA_H_
-#define GAMEDATA_H_
+#pragma once
 
 #include "base/general.h"
 #include "base/ints.h"
@@ -459,6 +458,3 @@ public:
 };
 
 extern gamedata *game;
-
-#endif
-

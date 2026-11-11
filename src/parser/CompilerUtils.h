@@ -1,7 +1,6 @@
 // Various utility functions for the compiler.
 
-#ifndef ZSCRIPT_COMPILER_UTILS_H_
-#define ZSCRIPT_COMPILER_UTILS_H_
+#pragma once
 
 #include <optional>
 
@@ -231,6 +230,3 @@ Value findLargest(
 	}
 	return largest;
 }
-
-
-#endif // !ZSCRIPT_COMPILER_UTILS_H

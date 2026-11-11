@@ -1,5 +1,4 @@
-#ifndef ZC_DIALOG_COMBOTRIGGEREDITOR_H_
-#define ZC_DIALOG_COMBOTRIGGEREDITOR_H_
+#pragma once
 
 #include "comboeditor.h"
 #include "gui/dialog.h"
@@ -57,5 +56,3 @@ private:
 	friend bool call_trigger_editor(ComboEditorDialog& dlg, size_t index);
 	friend class ComboWizardDialog;
 };
-
-#endif

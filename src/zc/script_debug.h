@@ -1,3 +1,5 @@
+#pragma once
+
 #include "base/compiler.h"
 #include "core/zdefs.h"
 #include <string>

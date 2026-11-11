@@ -1,5 +1,4 @@
-#ifndef WASM_COMPILER_H_
-#define WASM_COMPILER_H_
+#pragma once
 
 #include <cstring>
 #include <stdint.h>
@@ -639,5 +638,3 @@ struct WasmCompiler {
   WasmModuleBuilder builder;
   WasmModule finish();
 };
-
-#endif

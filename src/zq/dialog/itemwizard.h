@@ -1,5 +1,4 @@
-#ifndef ZC_DIALOG_ITEMWIZARD_H_
-#define ZC_DIALOG_ITEMWIZARD_H_
+#pragma once
 
 #include "itemeditor.h"
 #include "gui/switcher.h"
@@ -60,5 +59,3 @@ private:
 	ItemWizardDialog(ItemEditorDialog& parent);
 	friend void call_item_wizard(ItemEditorDialog& dlg);
 };
-
-#endif

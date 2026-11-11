@@ -1,5 +1,4 @@
-#ifndef BASE_RANDOM_H_
-#define BASE_RANDOM_H_
+#pragma once
 
 #include <random>
 
@@ -26,7 +25,5 @@ int32_t db_rand(char const* f, int l,zc_randgen* rng=NULL);
 int32_t db_rand(char const* f, int l,int32_t upper,int32_t lower=0,zc_randgen* rng=NULL);
 #define zc_srand(...) db_srand(__FILE__,__LINE__,__VA_ARGS__)
 void db_srand(char const* f, int l, int32_t seedval, zc_randgen* rng=NULL);
-
-#endif
 
 #endif

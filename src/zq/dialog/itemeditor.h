@@ -1,5 +1,4 @@
-#ifndef ZC_DIALOG_ITEMEDITOR_H_
-#define ZC_DIALOG_ITEMEDITOR_H_
+#pragma once
 
 #include "gui/dialog.h"
 #include "gui/checkbox.h"
@@ -104,5 +103,3 @@ private:
 	friend void call_item_editor(int32_t index);
 	friend class ItemWizardDialog;
 };
-
-#endif

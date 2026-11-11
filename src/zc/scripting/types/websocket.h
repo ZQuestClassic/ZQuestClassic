@@ -1,5 +1,4 @@
-#ifndef ZC_SCRIPTING_WEBSOCKET_H_
-#define ZC_SCRIPTING_WEBSOCKET_H_
+#pragma once
 
 #include "../../user_object.h"
 #include "base/ints.h"
@@ -32,5 +31,3 @@ void websocket_init();
 int32_t websocket_get_register(int32_t reg);
 void websocket_set_register(int32_t reg, int32_t value);
 std::optional<int32_t> websocket_run_command(word command);
-
-#endif

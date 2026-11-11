@@ -1,5 +1,4 @@
-#ifndef COMBOS_H_
-#define COMBOS_H_
+#pragma once
 
 #include "base/compiler.h"
 #include "core/handles.h"
@@ -111,5 +110,3 @@ void cpos_count_instance(int cid, int add);
 bool cpos_moving_block_holds(int cid);
 
 void combos_init_game_vars();
-
-#endif

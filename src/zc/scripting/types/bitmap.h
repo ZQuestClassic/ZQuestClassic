@@ -1,5 +1,4 @@
-#ifndef ZC_SCRIPTING_BITMAP_H_
-#define ZC_SCRIPTING_BITMAP_H_
+#pragma once
 
 #include <user_object.h>
 #include "allegro5/display.h"
@@ -93,5 +92,3 @@ user_bitmap* checkBitmap(int32_t ref, bool req_valid, bool skipError = false);
 
 int32_t bitmap_get_register(int32_t reg);
 void bitmap_set_register(int32_t reg, int32_t value);
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef ZC_DIALOG_VECTORPICK_H_
-#define ZC_DIALOG_VECTORPICK_H_
+#pragma once
 
 #include "gui/dialog.h"
 #include "gui/button.h"
@@ -102,5 +101,3 @@ void call_edit_map(bounded_map<Sz,int32_t>& mp, bool zsint)
 template void call_edit_map(bounded_map<byte,int32_t>& mp, bool zsint);
 template void call_edit_map(bounded_map<word,int32_t>& mp, bool zsint);
 template void call_edit_map(bounded_map<dword,int32_t>& mp, bool zsint);
-#endif
-

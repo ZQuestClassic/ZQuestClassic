@@ -1,5 +1,4 @@
-#ifndef ZELDA_H_
-#define ZELDA_H_
+#pragma once
 
 #include "base/compiler.h"
 #include "base/util.h"
@@ -448,5 +447,3 @@ enum
 #define GAMEFLAG_F6SCRIPT_ACTIVE    0x04
 #define GAMEFLAG_RESET_GAME_LOOP    0x08
 #define GAMEFLAG_NO_F6              0x10
-
-#endif

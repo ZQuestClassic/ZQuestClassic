@@ -1,5 +1,4 @@
-#ifndef ZC_SCRIPTING_ARRAYS_H_
-#define ZC_SCRIPTING_ARRAYS_H_
+#pragma once
 
 // See arrays.cpp for how to define scripting arrays.
 
@@ -1338,5 +1337,3 @@ const IScriptingArray* zasm_array_get(int zasm_var);
 // Only meaningful for arrays whose resolvesObject() is true; test_arrays checks
 // the generated zasm table agrees with this.
 std::optional<int> zasm_array_ref_register(int zasm_var);
-
-#endif

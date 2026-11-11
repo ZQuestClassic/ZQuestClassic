@@ -1,5 +1,4 @@
-#ifndef ZC_GUI_DIALOGMESSAGE_H_
-#define ZC_GUI_DIALOGMESSAGE_H_
+#pragma once
 
 #include <functional>
 #include <memory>
@@ -100,5 +99,3 @@ private:
 };
 
 }
-
-#endif

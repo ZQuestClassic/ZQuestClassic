@@ -8,8 +8,7 @@
 // Combo spotlights trace along the combo grid. FFC spotlights trace from the FFC's center in
 // 16px steps, so their spots go in a `lightbeam_lattice` for that offset from the combo grid.
 
-#ifndef ZC_LIGHTBEAM_H_
-#define ZC_LIGHTBEAM_H_
+#pragma once
 
 #include "base/ints.h"
 #include "core/zdefs.h"
@@ -117,5 +116,3 @@ int lbeam_flag(uint idx);
 void lightbeam_launch(lightbeam_world& world, int32_t beam_id, byte spotdir, rpos_t rpos, byte set);
 // Launches a beam from an FFC spotlight centered on (x, y).
 void lightbeam_launch_ffc(lightbeam_world& world, int32_t beam_id, byte spotdir, int32_t x, int32_t y, byte set, byte beamwid);
-
-#endif

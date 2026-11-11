@@ -1,5 +1,4 @@
-#ifndef ZALLEG_PACKFILE_H_
-#define ZALLEG_PACKFILE_H_
+#pragma once
 
 #include "zalleg/zalleg.h"
 #include "base/ints.h"
@@ -783,5 +782,3 @@ inline bool p_putlset(std::set<T> const& s, PACKFILE *f)
 	}
 	return true;
 }
-
-#endif

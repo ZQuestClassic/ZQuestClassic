@@ -1,5 +1,4 @@
-#ifndef CORE_HOTKEY_H_
-#define CORE_HOTKEY_H_
+#pragma once
 
 #include "zalleg/zalleg.h"
 #include <string>
@@ -34,6 +33,3 @@ int hotkey_mouse_button(int k);
 std::string get_keystr(int key);
 bool is_modkey(int c);
 int get_mods(int mask = HOTKEY_FLAG_FILTER);
-
-#endif
-

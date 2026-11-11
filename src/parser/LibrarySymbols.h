@@ -1,5 +1,4 @@
-#ifndef LIBRARY_SYMBOLS_H_
-#define LIBRARY_SYMBOLS_H_
+#pragma once
 
 #include "DataStructs.h"
 
@@ -13,5 +12,3 @@ void setIndexedVariable(int32_t refVar, Function* function, int32_t var);
 void setBoolVariable(int32_t refVar, Function* function, int32_t var);
 bool setConstExprForBinding(Function* fn);
 void getInternalArray(int32_t refVar, Function* function, int32_t zasm_var);
-
-#endif

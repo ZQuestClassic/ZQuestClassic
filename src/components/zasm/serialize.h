@@ -1,5 +1,4 @@
-#ifndef ZASM_SERIALIZE_H_
-#define ZASM_SERIALIZE_H_
+#pragma once
 
 #include "base/ints.h"
 #include "core/zdefs.h"
@@ -15,5 +14,3 @@ std::string zasm_op_to_string(word scommand);
 std::optional<int> parse_zasm_compare_arg(char const* buf);
 // Its string or array goes in `literals`, which must not be full.
 ffscript parse_zasm_op(std::string op_str, zasm_literals& literals);
-
-#endif

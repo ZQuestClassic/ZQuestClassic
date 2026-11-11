@@ -1,5 +1,4 @@
-#ifndef ZSCRIPT_ASTVISITORS_H_
-#define ZSCRIPT_ASTVISITORS_H_
+#pragma once
 
 #include "AST.h"
 #include "CompileError.h"
@@ -433,6 +432,3 @@ namespace ZScript
 		Scope* val;
 	};
 }
-
-#endif
-

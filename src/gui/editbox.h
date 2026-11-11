@@ -1,5 +1,4 @@
-#ifndef EDITBOX_H_
-#define EDITBOX_H_
+#pragma once
 
 #include "zalleg/zalleg.h"
 #include "base/headers.h"
@@ -56,5 +55,3 @@ bool do_box_edit(DIALOG* dlg, std::function<bool(int)> proc, string& str, string
 bool do_box_edit(DIALOG* dlg, std::function<bool(int)> proc, FILE* f, string const& title, bool wrap, char const* helpfile = nullptr);
 
 void do_box_setup(DIALOG* dlg);
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef ZALLEG_RENDER_TREE_H_
-#define ZALLEG_RENDER_TREE_H_
+#pragma once
 
 #include "allegro5/color.h"
 #include "allegro5/shader.h"
@@ -352,5 +351,3 @@ std::pair<int, int> zc_get_mouse();
 RenderTreeItem& gui_mouse_target();
 int window_mouse_x();
 int window_mouse_y();
-
-#endif

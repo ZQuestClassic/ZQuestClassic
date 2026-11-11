@@ -1,5 +1,4 @@
-#ifndef ZC_GUI_FUNCTION_H_
-#define ZC_GUI_FUNCTION_H_
+#pragma once
 
 #include <cstddef>
 #include <type_traits>
@@ -93,5 +92,3 @@ private:
 };
 
 } // namespace GUI
-
-#endif

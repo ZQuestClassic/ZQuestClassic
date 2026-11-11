@@ -1,5 +1,4 @@
-#ifndef BASE_LAZY_DEFAULT_H_
-#define BASE_LAZY_DEFAULT_H_
+#pragma once
 
 #include <memory>
 
@@ -69,5 +68,3 @@ public:
 private:
 	std::unique_ptr<T> value;
 };
-
-#endif

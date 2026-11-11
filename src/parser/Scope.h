@@ -1,5 +1,4 @@
-#ifndef ZSCRIPT_SCOPE_H_
-#define ZSCRIPT_SCOPE_H_
+#pragma once
 
 #include <map>
 #include <string>
@@ -662,4 +661,3 @@ namespace ZScript
 	};
 
 };
-#endif

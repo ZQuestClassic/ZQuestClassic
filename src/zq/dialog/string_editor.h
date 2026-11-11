@@ -1,5 +1,4 @@
-#ifndef ZC_DIALOG_STRINGEDIT_H_
-#define ZC_DIALOG_STRINGEDIT_H_
+#pragma once
 
 #include "gui/button.h"
 #include "gui/dialog.h"
@@ -45,5 +44,3 @@ private:
 	void onTextUpdated(std::string text);
 	void updateCurrentSCC(int32_t cursor_start, int32_t cursor_end);
 };
-
-#endif

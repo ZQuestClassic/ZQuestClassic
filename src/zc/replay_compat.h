@@ -1,5 +1,4 @@
-#ifndef ZC_REPLAY_COMPAT_H_
-#define ZC_REPLAY_COMPAT_H_
+#pragma once
 
 // Bugs that are fixed but not put behind a QR are often preserved in order to keep replays valid.
 // These function all return true when the bug should be present.
@@ -22,5 +21,3 @@ bool replay_compat_unequip_a_button_on_load_bug();
 // replay_continue, and replay_stop, so the mode tracks every replay state
 // transition.
 void replay_compat_setup_zc_maths();
-
-#endif

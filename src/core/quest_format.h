@@ -1,5 +1,4 @@
-#ifndef CORE_QUEST_FORMAT_H_
-#define CORE_QUEST_FORMAT_H_
+#pragma once
 
 #include <cstdint>
 
@@ -16,5 +15,3 @@ enum
 };
 
 extern int32_t quest_format[versiontypesLAST];
-
-#endif

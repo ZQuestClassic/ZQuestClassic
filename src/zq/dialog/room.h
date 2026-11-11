@@ -1,5 +1,4 @@
-#ifndef ZC_DIALOG_ROOM_H_
-#define ZC_DIALOG_ROOM_H_
+#pragma once
 
 #include "gui/dialog.h"
 #include "gui/drop_down_list.h"
@@ -46,5 +45,3 @@ private:
 	
 	void setOldGuy();
 };
-
-#endif

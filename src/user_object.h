@@ -1,5 +1,4 @@
-#ifndef ZC_USER_OBJECT
-#define ZC_USER_OBJECT
+#pragma once
 
 #include "allegro/debug.h"
 #include "base/check.h"
@@ -287,5 +286,3 @@ struct saved_user_object
 	user_object obj;
 	std::map<int32_t,ZScriptArray> held_arrays;
 };
-
-#endif

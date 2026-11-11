@@ -1,5 +1,4 @@
-#ifndef ZQ_DIALOG_INST_VAR_REMAP_H_
-#define ZQ_DIALOG_INST_VAR_REMAP_H_
+#pragma once
 
 #include "gui/dialog.h"
 #include "gui/drop_down_list.h"
@@ -55,5 +54,3 @@ private:
 	std::vector<GUI::ListData> new_var_lists;
 	std::shared_ptr<GUI::Window> window;
 };
-
-#endif

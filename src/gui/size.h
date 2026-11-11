@@ -1,5 +1,4 @@
-#ifndef ZC_GUI_SIZE_H_
-#define ZC_GUI_SIZE_H_
+#pragma once
 
 #include <cstddef>
 #include <cstdint>
@@ -201,5 +200,3 @@ inline Size operator/(const int32_t v, const Size s)
 }
 
 }
-
-#endif

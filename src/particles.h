@@ -1,5 +1,4 @@
-#ifndef PARTICLES_H_
-#define PARTICLES_H_
+#pragma once
 
 #include "core/zdefs.h"
 #include "base/zfix.h"
@@ -84,5 +83,3 @@ public:
 };
 
 extern particle_list particles;
-
-#endif

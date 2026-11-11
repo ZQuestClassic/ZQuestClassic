@@ -1,5 +1,4 @@
-#ifndef ZC_SCRIPTING_MAPDATA_H_
-#define ZC_SCRIPTING_MAPDATA_H_
+#pragma once
 
 #include "core/handles.h"
 #include "core/mapscr.h"
@@ -57,5 +56,3 @@ int create_mapdata_temp_ref(mapdata_type type, int screen, int layer);
 
 int32_t mapdata_get_register(int32_t reg);
 void mapdata_set_register(int32_t reg, int32_t value);
-
-#endif

@@ -1,3 +1,5 @@
+#pragma once
+
 #define __TIMEZONE__ "UTC"
 #define COMPILER_V_FIRST 0
 #define COMPILER_V_SECOND 0

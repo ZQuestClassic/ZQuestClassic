@@ -1,5 +1,4 @@
-#ifndef ZC_DIALOG_SCREEN_ENEMIES_H_
-#define ZC_DIALOG_SCREEN_ENEMIES_H_
+#pragma once
 
 #include "gui/dialog.h"
 #include "gui/button.h"
@@ -45,4 +44,3 @@ private:
 
 	friend void call_screenenemies_dialog();
 };
-#endif

@@ -1,5 +1,4 @@
-#ifndef ZALLEG_ZALLEG_H_
-#define ZALLEG_ZALLEG_H_
+#pragma once
 
 #include "allegro/base.h"
 #include "allegro/datafile.h"
@@ -89,5 +88,3 @@ bool zconsole_is_muted();
 
 void safe_al_trace(const char* str);
 void safe_al_trace(std::string const& str);
-
-#endif

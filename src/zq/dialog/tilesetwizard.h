@@ -1,5 +1,4 @@
-#ifndef ZC_DIALOG_TILESETWIZARD_H_
-#define ZC_DIALOG_TILESETWIZARD_H_
+#pragma once
 
 #include "gui/dialog.h"
 #include "gui/checkbox.h"
@@ -38,5 +37,3 @@ private:
 	std::shared_ptr<GUI::RadioSet> tilesetChoice;
 	std::shared_ptr<GUI::Label> tilesetInfo;
 };
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef ZC_DIALOG_VIEWSCRIPTSLOTS_H_
-#define ZC_DIALOG_VIEWSCRIPTSLOTS_H_
+#pragma once
 
 #include "gui/dialog.h"
 #include "gui/text_field.h"
@@ -33,5 +32,3 @@ private:
 		list_dmapslots, list_screenslots, list_itemspriteslots, list_comboslots,
 		list_genericslots, list_subscreenslots;
 };
-
-#endif

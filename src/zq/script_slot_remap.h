@@ -1,5 +1,4 @@
-#ifndef ZQ_SCRIPT_SLOT_REMAP_H_
-#define ZQ_SCRIPT_SLOT_REMAP_H_
+#pragma once
 
 #include "base/containers.h"
 #include "base/general.h"
@@ -56,5 +55,3 @@ std::vector<SlotRemap> plan_slot_remaps(const DebugData& old_debug_data, const D
 	std::function<const ScriptExports*(const std::string& script_name)> find_new_exports);
 
 InstVarRemapResult apply_slot_remaps(const std::vector<SlotRemap>& remaps);
-
-#endif

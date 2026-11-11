@@ -1,5 +1,4 @@
-#ifndef ZC_DEBUGGER_DEBUGGER_H_
-#define ZC_DEBUGGER_DEBUGGER_H_
+#pragma once
 
 #include "imgui.h"
 #include "base/expected.h"
@@ -291,5 +290,3 @@ void zscript_debugger_close();
 // if the main display is destroyed while the debugger window exists, Allegro (on macOS) moves the
 // main display's bitmaps to the debugger window, and their render-target state dangles.
 void zscript_debugger_shutdown();
-
-#endif

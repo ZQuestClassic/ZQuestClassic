@@ -1,5 +1,4 @@
-#ifndef DECORATIONS_H_
-#define DECORATIONS_H_
+#pragma once
 
 #include "base/zfix.h"
 #include "sprite.h"
@@ -127,5 +126,3 @@ public:
 		return true;
 	};
 };
-
-#endif

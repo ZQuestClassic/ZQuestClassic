@@ -1,5 +1,4 @@
-#ifndef RENDER_MINIMAP_H_
-#define RENDER_MINIMAP_H_
+#pragma once
 
 #include "zalleg/render.h"
 
@@ -18,5 +17,3 @@ private:
 	void prepare();
 	void render(bool bitmap_resized);
 };
-
-#endif

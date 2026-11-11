@@ -1,5 +1,4 @@
-#ifndef ZC_DIALOG_SCREEN_NOTES_H_
-#define ZC_DIALOG_SCREEN_NOTES_H_
+#pragma once
 
 #include "gui/dialog.h"
 #include "gui/label.h"
@@ -55,5 +54,3 @@ protected:
 	std::shared_ptr<GUI::Label> prevlbl;
 	std::shared_ptr<GUI::Window> window;
 };
-
-#endif

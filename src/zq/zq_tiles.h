@@ -1,5 +1,4 @@
-#ifndef ZQ_TILES_H_
-#define ZQ_TILES_H_
+#pragma once
 
 #include "core/zdefs.h"
 
@@ -114,4 +113,3 @@ int32_t d_itile_proc(int32_t msg,DIALOG *d,int32_t c);
 int32_t onIcons();
 void center_zq_tiles_dialogs();
 int32_t d_combo_proc(int32_t msg,DIALOG *d,int32_t c);
-#endif

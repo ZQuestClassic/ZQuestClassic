@@ -1,5 +1,4 @@
-#ifndef ZQ_SUBSCR_H_
-#define ZQ_SUBSCR_H_
+#pragma once
 
 //subscreen object alignment
 enum { ssoaLEFT, ssoaCENTER, ssoaRIGHT, ssoaTOP, ssoaMIDDLE, ssoaBOTTOM };
@@ -20,5 +19,3 @@ void center_zq_subscreen_dialogs();
 void update_sso_name();
 void update_sscpy_name();
 void update_up_dn_btns();
-
-#endif

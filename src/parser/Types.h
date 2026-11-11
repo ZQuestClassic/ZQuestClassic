@@ -1,5 +1,4 @@
-#ifndef ZSCRIPT_TYPES_H_
-#define ZSCRIPT_TYPES_H_
+#pragma once
 
 #include <functional>
 #include <iostream>
@@ -648,5 +647,3 @@ namespace ZScript
 	bool operator==(ParserScriptType const& lhs, ParserScriptType const& rhs);
 	bool operator!=(ParserScriptType const& lhs, ParserScriptType const& rhs);
 }
-
-#endif

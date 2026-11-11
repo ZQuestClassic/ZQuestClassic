@@ -1,5 +1,4 @@
-#ifndef ZSCRIPT_RENDERTARGET_H_
-#define ZSCRIPT_RENDERTARGET_H_
+#pragma once
 
 #include "base/compiler.h"
 
@@ -75,7 +74,3 @@ private:
 };
 
 extern ZScriptDrawingRenderTarget* zscriptDrawingRenderTarget;
-
-
-#endif
-

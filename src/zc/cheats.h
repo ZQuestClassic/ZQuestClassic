@@ -1,5 +1,4 @@
-#ifndef CHEATS_H_
-#define CHEATS_H_
+#pragma once
 
 #include <vector>
 #include <string>
@@ -56,5 +55,3 @@ bool bindable_cheat(Cheat cheat);
 void cheats_hit_bind(Cheat cheat);
 void cheats_enqueue(Cheat cheat, int arg1 = -1, int arg2 = -1, std::string arg3 = "");
 void cheats_execute_queued();
-
-#endif

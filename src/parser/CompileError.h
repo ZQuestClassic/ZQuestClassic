@@ -1,5 +1,4 @@
-#ifndef COMPILE_ERROR_H_
-#define COMPILE_ERROR_H_
+#pragma once
 
 #include <string>
 #include "CompilerUtils.h"
@@ -159,5 +158,3 @@ namespace ZScript
 		int32_t warningCount_;
 	};
 }
-	
-#endif

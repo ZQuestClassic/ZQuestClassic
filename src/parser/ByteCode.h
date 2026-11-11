@@ -1,5 +1,4 @@
-#ifndef BYTECODE_H_
-#define BYTECODE_H_
+#pragma once
 
 #include "components/zasm/defines.h"
 #include "parser/Opcode.h"
@@ -219,5 +218,3 @@ namespace ZScript {
 		Opcode* clone() const {return new OStackSet(getFirstArgument()->clone(), getSecondArgument()->clone(), getThirdArgument()->clone());}
 	};
 }
-
-#endif

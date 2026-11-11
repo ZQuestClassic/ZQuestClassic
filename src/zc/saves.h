@@ -1,5 +1,4 @@
-#ifndef ZC_SAVES_H_
-#define ZC_SAVES_H_
+#pragma once
 
 #include "gamedata.h"
 #include "base/expected.h"
@@ -88,5 +87,3 @@ enum class ReadMode
 
 bool _write_save(save_t* save, std::string& err);
 bool _load_from_save_file_expect_one(ReadMode read_mode, fs::path path, save_t& out_save, std::string& err);
-
-#endif

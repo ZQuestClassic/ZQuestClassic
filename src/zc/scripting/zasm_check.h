@@ -1,5 +1,4 @@
-#ifndef ZC_SCRIPTING_ZASM_CHECK_H_
-#define ZC_SCRIPTING_ZASM_CHECK_H_
+#pragma once
 
 #include "base/check.h"
 
@@ -26,6 +25,4 @@ void fuzz_mark_invalid_zasm();
 #define ZASM_DCHECK(expr) DCHECK(expr)
 #define ZASM_NOTREACHED() NOTREACHED()
 #define ZASM_DCHECK_CONTINUE(expr) DCHECK(expr)
-#endif
-
 #endif

@@ -1,5 +1,4 @@
-#ifndef ZC_DIALOG_INFO_H_
-#define ZC_DIALOG_INFO_H_
+#pragma once
 
 #include "core/qrs.h"
 #include "base/headers.h"
@@ -46,5 +45,3 @@ protected:
 	
 	std::shared_ptr<GUI::Grid> build_text();
 };
-
-#endif

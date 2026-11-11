@@ -1,5 +1,4 @@
-#ifndef ZC_DIALOG_SCC_H_
-#define ZC_DIALOG_SCC_H_
+#pragma once
 
 #include "core/msgstr.h"
 #include "components/scc/scc.h"
@@ -41,5 +40,3 @@ private:
 	void refresh_music_list();
 	bool load_scc_str(std::string const& str);
 };
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef ZC_DIALOG_OBJECTPAGES_H_
-#define ZC_DIALOG_OBJECTPAGES_H_
+#pragma once
 
 #include "zalleg/zalleg.h"
 #include "base/ints.h"
@@ -201,6 +200,3 @@ public:
 	virtual string cfgname() const override {return "aliases";}
 	// virtual string custom_info() const {return "";}
 };
-
-#endif
-

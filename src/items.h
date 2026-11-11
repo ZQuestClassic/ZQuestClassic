@@ -1,5 +1,4 @@
-#ifndef ITEMS_H_
-#define ITEMS_H_
+#pragma once
 
 #include "core/zdefs.h"
 #include "core/flags.h"
@@ -334,5 +333,3 @@ inline constexpr bool invalid_item_id(int iid)
 {
 	return !valid_item_id(iid);
 }
-
-#endif

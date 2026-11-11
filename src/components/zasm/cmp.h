@@ -1,5 +1,4 @@
-#ifndef ZASM_CMP_H_
-#define ZASM_CMP_H_
+#pragma once
 
 #include "base/ints.h"
 #include <string>
@@ -50,5 +49,3 @@ inline std::string CMP_STR(uint cmpval)
 			return pref+"Always";
 	}
 }
-
-#endif

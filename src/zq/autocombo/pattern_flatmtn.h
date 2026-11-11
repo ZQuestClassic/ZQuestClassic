@@ -1,5 +1,4 @@
-#ifndef AUTOPATTERN_FLATMTN_H_
-#define AUTOPATTERN_FLATMTN_H_
+#pragma once
 
 #include <functional>
 #include "core/autocombo.h"
@@ -22,5 +21,3 @@ namespace AutoPattern
 	};
 
 }
-
-#endif

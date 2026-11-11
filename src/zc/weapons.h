@@ -1,5 +1,4 @@
-#ifndef WEAPONS_H_
-#define WEAPONS_H_
+#pragma once
 
 #include "core/combo.h"
 #include "core/handles.h"
@@ -232,6 +231,3 @@ struct weapon_size_t
 
 bool compute_do_size(weapon_data const& data, int weap_id, bool lw);
 weapon_size_t calculate_weapon_size(weapon_data const& data, int weap_id, int dir, bool lw);
-
-
-#endif

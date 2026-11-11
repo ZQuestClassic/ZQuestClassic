@@ -1,5 +1,4 @@
-#ifndef ZC_DIALOG_BOTTLESHOPTYPE_H_
-#define ZC_DIALOG_BOTTLESHOPTYPE_H_
+#pragma once
 
 #include "gui/dialog.h"
 #include "gui/drop_down_list.h"
@@ -30,5 +29,3 @@ private:
 	bottleshoptype tempBottleShop;
 	GUI::ListData list_bottletypes;
 };
-
-#endif

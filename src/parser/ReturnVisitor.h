@@ -4,8 +4,7 @@
  * Author: Emily
  */
 
-#ifndef RETURNVISITOR_H_
-#define RETURNVISITOR_H_
+#pragma once
 
 #include "ASTVisitors.h"
 #include "DataStructs.h"
@@ -243,6 +242,3 @@ namespace ZScript
 		void analyzeBinaryExpr(ASTBinaryExpr& host);
 	};
 }
-
-#endif
-

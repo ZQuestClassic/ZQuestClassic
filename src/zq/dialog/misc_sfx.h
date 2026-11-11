@@ -1,5 +1,4 @@
-#ifndef ZC_DIALOG_MISCSFX_H_
-#define ZC_DIALOG_MISCSFX_H_
+#pragma once
 
 #include "gui/dialog.h"
 #include "gui/text_field.h"
@@ -24,6 +23,3 @@ private:
 	int32_t local_sfx[sfxMAX];
 	size_t vals_per_tab;
 };
-
-#endif
-

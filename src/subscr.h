@@ -1,5 +1,4 @@
-#ifndef SUBSCR_H_
-#define SUBSCR_H_
+#pragma once
 
 #include "base/compiler.h"
 #include "new_subscr.h"
@@ -150,5 +149,3 @@ void sso_bounding_box(BITMAP *bmp, SubscrWidget* widg, int32_t color);
 
 bool findWeaponWithParent(int32_t id, int32_t type);
 int32_t countWeaponWithParent(int32_t id, int32_t type);
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef ZC_DIALOG_SUBSCREENWIZARD_H_
-#define ZC_DIALOG_SUBSCREENWIZARD_H_
+#pragma once
 
 #include "zalleg/gui.h"
 #include "gui/dialog.h"
@@ -71,5 +70,3 @@ private:
 	SubscreenWizardDialog(subwizardtype stype, int32_t& x, int32_t& y);
 	friend void call_subscreen_wizard(subwizardtype stype, int32_t& x, int32_t& y);
 };
-
-#endif

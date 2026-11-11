@@ -1,5 +1,4 @@
-#ifndef PARSERDEFS_H_
-#define PARSERDEFS_H_
+#pragma once
 
 #include "base/headers.h"
 #include "components/zasm/cmp.h"
@@ -64,6 +63,3 @@ void zconsole_info(std::string const& str);
 bool zparser_errored_out();
 void zparser_error_out(std::string message, ZScript::LocationData const& err_loc);
 void zparser_warn_out(std::string message);
-
-#endif
-

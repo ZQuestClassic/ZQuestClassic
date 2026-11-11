@@ -1,5 +1,4 @@
-#ifndef MIDI_H_
-#define MIDI_H_
+#pragma once
 
 #include "allegro/midi.h"
 #include "base/ints.h"
@@ -62,5 +61,3 @@ ZCM_EXTERN void get_midi_info(MIDI *midi, midi_info *mi);
 ZCM_EXTERN char *timestr(double sec);
 ZCM_EXTERN bool decode_text_event(char *s,byte type,byte *buf);
 ZCM_EXTERN void get_midi_text(MIDI *midi, midi_info *mi, char *text);
-
-#endif

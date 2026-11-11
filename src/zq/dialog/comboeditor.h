@@ -1,5 +1,4 @@
-#ifndef ZC_DIALOG_COMBOEDITOR_H_
-#define ZC_DIALOG_COMBOEDITOR_H_
+#pragma once
 
 #include "gui/dialog.h"
 #include "gui/button.h"
@@ -94,5 +93,3 @@ private:
 	friend class ComboWizardDialog;
 	friend class ComboTriggerDialog;
 };
-
-#endif

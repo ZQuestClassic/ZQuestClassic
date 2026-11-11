@@ -1,5 +1,4 @@
-#ifndef ZQ_GUI_BUILDER_ZQ_H_
-#define ZQ_GUI_BUILDER_ZQ_H_
+#pragma once
 
 // The GUI builder (gui/builder.h), plus the editor's own widgets.
 
@@ -248,5 +247,3 @@ ZCGUI_BUILDER_END()
 ZCGUI_BUILDER_FUNCTION(Engraving, Engraving, makeEngraving)
 
 } // namespace GUI::Builder
-
-#endif

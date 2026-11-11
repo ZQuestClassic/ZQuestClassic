@@ -1,5 +1,4 @@
-#ifndef CORE_CPOS_INFO_H_
-#define CORE_CPOS_INFO_H_
+#pragma once
 
 #include "base/ints.h"
 #include "base/containers.h"
@@ -36,5 +35,3 @@ struct cpos_info
 	void updateInfo(cpos_info const& other);
 	void clearInfo();
 };
-
-#endif

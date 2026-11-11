@@ -1,5 +1,4 @@
-#ifndef ZC_ZASM_PIPELINE_H_
-#define ZC_ZASM_PIPELINE_H_
+#pragma once
 
 #include "components/worker_pool/worker_pool.h"
 
@@ -14,5 +13,3 @@ WorkerPool* zasm_pipeline_worker_pool();
 // these semantics - callers (the engine worker pool, the wasm backend's own
 // precompile threading) only apply their own caps.
 int jit_requested_threads(int min_threads);
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef HERO_H_
-#define HERO_H_
+#pragma once
 
 #include "zalleg/zalleg.h"
 #include "components/sound/zcmusic.h"
@@ -762,5 +761,3 @@ void red_shift();
 void slide_in_color(int32_t color);
 
 extern HeroClass Hero;
-
-#endif

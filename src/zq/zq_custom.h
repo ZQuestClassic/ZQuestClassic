@@ -1,5 +1,4 @@
-#ifndef ZQ_CUSTOM_H_
-#define ZQ_CUSTOM_H_
+#pragma once
 
 #include "items.h"
 #include "zalleg/zalleg.h"
@@ -30,5 +29,3 @@ int32_t onMiscSFX();
 
 int32_t readonenpc(PACKFILE *f, int32_t index);
 int32_t writeonenpc(PACKFILE *f, int32_t i);
-
-#endif

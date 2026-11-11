@@ -1,5 +1,4 @@
-#ifndef CORE_MISCTYPES_H_
-#define CORE_MISCTYPES_H_
+#pragma once
 
 #include <array>
 
@@ -224,6 +223,3 @@ struct miscQdata
 extern std::array<DoorComboSet, MAXDOORCOMBOSETS> DoorComboSets;
 extern std::array<std::string, MAXDOORCOMBOSETS> DoorComboSetNames;
 extern miscQdata QMisc;
-
-#endif
-

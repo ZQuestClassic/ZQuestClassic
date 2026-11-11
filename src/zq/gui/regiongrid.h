@@ -1,5 +1,4 @@
-#ifndef ZC_GUI_REGIONGRID_H_
-#define ZC_GUI_REGIONGRID_H_
+#pragma once
 
 #include "core/mapscr.h"
 #include "gui/widget.h"
@@ -53,5 +52,3 @@ namespace GUI
 		int32_t onEvent(int32_t event, MessageDispatcher& sendMessage) override;
 	};
 }
-
-#endif

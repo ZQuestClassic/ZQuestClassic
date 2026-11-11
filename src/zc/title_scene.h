@@ -1,5 +1,4 @@
-#ifndef ZC_TITLE_SCENE_H_
-#define ZC_TITLE_SCENE_H_
+#pragma once
 
 #include "core/title_theme.h"
 #include <memory>
@@ -25,5 +24,3 @@ protected:
 
 bool is_halloween_today();
 std::unique_ptr<TitleScene> create_halloween_title_scene(int w, int h);
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef ZQUEST_H_
-#define ZQUEST_H_
+#pragma once
 
 #include <string>
 #include <vector>
@@ -612,7 +611,5 @@ void questminrev_help();
 //throw together midi_strict hack
 #ifdef ALLEGRO_LINUX_GP2X
 extern int32_t midi_strict;
-#endif
-
 #endif
 /* end */

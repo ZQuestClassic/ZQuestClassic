@@ -1,7 +1,6 @@
 // Defines operator overloads for bitwise operators that work on enum classes.
 
-#ifndef CORE_FLAGS_H_
-#define CORE_FLAGS_H_
+#pragma once
 
 #include <type_traits>
 
@@ -205,5 +204,3 @@ inline T& operator&=(T& X, T Y)
 } // ends namespace
 
 using namespace flags;
-
-#endif

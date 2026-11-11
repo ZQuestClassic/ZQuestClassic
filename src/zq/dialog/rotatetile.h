@@ -1,5 +1,4 @@
-#ifndef ZC_DIALOG_ROTATETILE_H_
-#define ZC_DIALOG_ROTATETILE_H_
+#pragma once
 
 #include "gui/dialog.h"
 #include "gui/text_field.h"
@@ -21,5 +20,3 @@ private:
 	zfix tr;
 	zfix* trot;
 };
-
-#endif

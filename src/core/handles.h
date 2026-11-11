@@ -1,5 +1,4 @@
-#ifndef CORE_HANDLES_H_
-#define CORE_HANDLES_H_
+#pragma once
 
 #include "core/combo.h"
 #include "core/zdefs.h"
@@ -154,5 +153,3 @@ struct combined_handle_t : std::variant<rpos_handle_t, ffc_handle_t>
 	uint8_t cflag() const;
 	uint8_t ctype() const;
 };
-
-#endif

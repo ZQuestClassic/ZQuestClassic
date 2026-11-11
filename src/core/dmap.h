@@ -1,5 +1,4 @@
-#ifndef CORE_DMAP_H_
-#define CORE_DMAP_H_
+#pragma once
 
 #include "base/general.h"
 #include "base/ints.h"
@@ -90,6 +89,3 @@ enum { dmDNGN, dmOVERW, dmCAVE, dmBSOVERW, dmMAX };
 // dmap type bit masks (?)
 #define dmfCONTINUE      128
 #define dmfTYPE          127
-
-#endif
-

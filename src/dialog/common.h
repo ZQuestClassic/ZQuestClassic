@@ -1,5 +1,4 @@
-#ifndef ZC_DIALOG_COMMON_H_
-#define ZC_DIALOG_COMMON_H_
+#pragma once
 
 #ifndef _WIN32
 #include <memory>
@@ -100,5 +99,3 @@ GUI::ListData getStringListData();
 GUI::ListData getShopListData();
 GUI::ListData getBShopListData();
 GUI::ListData getInfoShopListData();
-
-#endif

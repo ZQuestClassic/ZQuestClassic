@@ -1681,15 +1681,12 @@ void {sub}_set_register(int32_t reg, int32_t value)
 
         header = (
             f'''
-#ifndef ZC_SCRIPTING_{sub.upper()}_H_
-#define ZC_SCRIPTING_{sub.upper()}_H_
+#pragma once
 
 #include <cstdint>
 
 int32_t {sub}_get_register(int32_t reg);
 void {sub}_set_register(int32_t reg, int32_t value);
-
-#endif
         '''.strip()
             + '\n'
         )

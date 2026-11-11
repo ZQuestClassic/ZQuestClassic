@@ -3,8 +3,7 @@
 //which would otherwise break scripts from the LI build
 //~Joe123
 
-#ifndef ZSCRIPTVER_H_
-#define ZSCRIPTVER_H_
+#pragma once
 
 #include "zc/ffscript.h"
 #include <cstdint>
@@ -57,5 +56,3 @@ private:
     
     static void ScrollingScript(int32_t scrolldir, int32_t cx, int32_t sx, int32_t sy, bool end_frames, bool waitdraw);
 };
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef ZASM_TABLE_H_
-#define ZASM_TABLE_H_
+#pragma once
 
 #include "base/ints.h"
 #include "components/zasm/defines.h"
@@ -201,5 +200,3 @@ inline GotoRange gotoranges_at(const std::vector<int32_t>& table, size_t i)
 // any other command - single-target jumps keep their target in arg1 (see
 // command_is_goto).
 std::vector<int32_t> zasm_jump_targets(int command, const std::vector<int32_t>* vec);
-
-#endif

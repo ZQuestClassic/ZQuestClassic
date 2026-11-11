@@ -1,5 +1,4 @@
-#ifndef ZALLEG_COLORS_H_
-#define ZALLEG_COLORS_H_
+#pragma once
 
 #include "allegro/color.h"
 #include "allegro/palette.h"
@@ -56,5 +55,3 @@ extern void create_zc_trans_table(COLOR_MAP *table, AL_CONST PALETTE pal, int32_
 #define psTOTAL255 ((pdTOTAL255<<4)*3)
 
 extern byte nes_pal[];
-
-#endif

@@ -3,8 +3,7 @@
 /* Wrapper for transparently extending	*/
 /* supported music file formats.      	*/
 
-#ifndef ZCMUSIC_H_
-#define ZCMUSIC_H_
+#pragma once
 
 #if defined ZCM_DLL
 #define ZCM_EXTERN extern __declspec(dllexport)
@@ -86,4 +85,3 @@ ZCM_EXTERN void zcmusic_set_loop(ZCMUSIC* zcm, double start, double end);
 ZCM_EXTERN int32_t zcmusic_get_type(ZCMUSIC* zcm);
 
 #undef ZCM_EXTERN
-#endif

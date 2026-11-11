@@ -1,5 +1,4 @@
-#ifndef DIALOG_VIEWPORT_FOLLOW_HELP_H_
-#define DIALOG_VIEWPORT_FOLLOW_HELP_H_
+#pragma once
 
 #include <string>
 
@@ -102,5 +101,3 @@ inline std::string viewport_follow_help(ViewportFollowSetting setting, bool for_
 	}
 	return text;
 }
-
-#endif

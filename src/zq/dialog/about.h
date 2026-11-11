@@ -1,5 +1,4 @@
-#ifndef ZC_DIALOG_ABOUT_H_
-#define ZC_DIALOG_ABOUT_H_
+#pragma once
 
 #include "gui/dialog.h"
 #include "gui/checkbox.h"
@@ -23,5 +22,3 @@ protected:
 	std::string dlgTitle;
 	std::string dlgText;
 };
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef CORE_CPOOL_H_
-#define CORE_CPOOL_H_
+#pragma once
 
 #include "base/headers.h"
 #include "base/containers.h"
@@ -86,6 +85,3 @@ private:
 
 extern combo_alias combo_aliases[MAXCOMBOALIASES];
 extern combo_pool combo_pools[MAXCOMBOPOOLS];
-
-#endif
-

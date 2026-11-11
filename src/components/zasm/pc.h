@@ -1,8 +1,5 @@
-#ifndef ZASM_PC_H_
-#define ZASM_PC_H_
+#pragma once
 
 #include <cstdint>
 
 using pc_t = uint32_t;
-
-#endif

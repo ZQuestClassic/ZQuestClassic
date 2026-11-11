@@ -1,8 +1,7 @@
 /*
  * Custom ZFix: because Allegro's zfix is not precise
  */
-#ifndef ZFIX_H_
-#define ZFIX_H_
+#pragma once
 #include <cstdint>
 #include <math.h>
 #include <limits>
@@ -982,5 +981,3 @@ inline int wrap_zslong_deg(int v)
 		v -= whole;
 	return v;
 }
-
-#endif		  /* ifndef ZFIX_H */

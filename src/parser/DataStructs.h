@@ -1,5 +1,4 @@
-#ifndef ZSCRIPT_DATASTRUCTS_H_
-#define ZSCRIPT_DATASTRUCTS_H_
+#pragma once
 
 #include <vector>
 #include "AST.h"
@@ -29,6 +28,3 @@ namespace ZScript
 		std::vector<std::shared_ptr<Opcode>> initCode;
 	};
 }
-
-#endif
-

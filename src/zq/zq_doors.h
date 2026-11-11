@@ -1,3 +1,5 @@
+#pragma once
+
 extern int32_t onDoors();
 extern int32_t onDoorCombos();
 extern void center_zq_door_dialogs();

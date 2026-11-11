@@ -1,5 +1,4 @@
-#ifndef ZC_DIALOG_INFOLISTER_H_
-#define ZC_DIALOG_INFOLISTER_H_
+#pragma once
 
 #include "gui/dialog.h"
 #include "gui/label.h"
@@ -260,4 +259,3 @@ protected:
 private:
 	std::shared_ptr<GUI::Button> up_btn, down_btn, del_btn;
 };
-#endif

@@ -1,5 +1,4 @@
-#ifndef GENERAL_H_
-#define GENERAL_H_
+#pragma once
 
 #include "base/ints.h"
 #include "base/zfix.h"
@@ -659,6 +658,3 @@ struct ScopeExitHandler
 private:
 	std::function<void()> proc;
 };
-
-#endif
-

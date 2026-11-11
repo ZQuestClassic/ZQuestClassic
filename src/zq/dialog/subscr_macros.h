@@ -1,5 +1,4 @@
-#ifndef ZC_DLG_SUBSCR_MACROS_H_
-#define ZC_DLG_SUBSCR_MACROS_H_
+#pragma once
 
 
 #define NUM_FIELD(var,_min,_max) \
@@ -122,6 +121,3 @@ Rows<3>( \
 		}), \
 	INFOBTN("The cset to flash to (set same as the normal cset to not flash)") \
 )
-
-#endif
-

@@ -1,5 +1,4 @@
-#ifndef ZC_SCRIPTING_ITEMSPRITE_H_
-#define ZC_SCRIPTING_ITEMSPRITE_H_
+#pragma once
 
 #include "base/ints.h"
 #include "items.h"
@@ -20,5 +19,3 @@ public:
 int32_t itemsprite_get_register(int32_t reg);
 void itemsprite_set_register(int32_t reg, int32_t value);
 std::optional<int32_t> itemsprite_run_command(word command);
-
-#endif

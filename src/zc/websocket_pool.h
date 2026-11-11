@@ -1,5 +1,4 @@
-#ifndef ZC_WEBSOCKET_POOL_H_
-#define ZC_WEBSOCKET_POOL_H_
+#pragma once
 
 #include <string>
 
@@ -26,5 +25,3 @@ WebSocketStatus websocket_pool_status(int connection_id);
 std::string websocket_pool_error(int connection_id);
 void websocket_pool_close(int connection_id);
 void websocket_pool_destroy();
-
-#endif

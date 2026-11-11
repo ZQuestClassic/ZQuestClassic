@@ -1,5 +1,4 @@
-#ifndef ZC_ARRAY_H_
-#define ZC_ARRAY_H_
+#pragma once
 
 #include "base/general.h"
 #include <cstdint>
@@ -108,5 +107,3 @@ private:
 	bool _valid;
 	script_object_type _object_type;
 };
-
-#endif

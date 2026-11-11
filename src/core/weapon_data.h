@@ -1,5 +1,4 @@
-#ifndef CORE_WEAPON_DATA_H_
-#define CORE_WEAPON_DATA_H_
+#pragma once
 
 #include "base/ints.h"
 #include "base/zfix.h"
@@ -65,5 +64,3 @@ struct weapon_data
 private:
 	static weapon_data make_blank_lifting();
 };
-#endif
-

@@ -1,5 +1,4 @@
-#ifndef ZC_DIALOG_COMPILEZSCRIPT_H_
-#define ZC_DIALOG_COMPILEZSCRIPT_H_
+#pragma once
 
 #include "gui/dialog.h"
 #include "gui/radioset.h"
@@ -26,5 +25,3 @@ private:
 	std::shared_ptr<GUI::Label> labels[2];
 	std::shared_ptr<GUI::Window> window;
 };
-
-#endif

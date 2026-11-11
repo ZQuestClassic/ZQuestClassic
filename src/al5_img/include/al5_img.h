@@ -1,5 +1,4 @@
-#ifndef AL5IMG_H_
-#define AL5IMG_H_
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
@@ -9,6 +8,4 @@ void al5img_init();
 
 #ifdef __cplusplus
 }
-#endif
-
 #endif

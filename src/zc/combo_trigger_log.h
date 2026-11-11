@@ -1,5 +1,4 @@
-#ifndef ZC_COMBO_TRIGGER_LOG_H_
-#define ZC_COMBO_TRIGGER_LOG_H_
+#pragma once
 
 #include "core/handles.h"
 #include <deque>
@@ -107,5 +106,3 @@ private:
 // Reports something about a trigger that didn't run, like why a weapon that touched its combo
 // didn't set it off.
 void trigger_log_note(const combined_handle_t& handle, int cid, size_t idx, weapon* w, std::string const& text);
-
-#endif

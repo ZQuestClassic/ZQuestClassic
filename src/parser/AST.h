@@ -1,5 +1,4 @@
-#ifndef ZSCRIPT_AST_H_
-#define ZSCRIPT_AST_H_
+#pragma once
 
 // Declare for flex and bison.
 namespace ZScript
@@ -2470,6 +2469,3 @@ namespace ZScript
 		bool wasResolved_;
 	};
 }
-
-#endif
-

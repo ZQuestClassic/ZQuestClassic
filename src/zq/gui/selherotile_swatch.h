@@ -1,5 +1,4 @@
-#ifndef ZC_GUI_SELHEROTILE_SWATCH_H_
-#define ZC_GUI_SELHEROTILE_SWATCH_H_
+#pragma once
 
 #include "gui/widget.h"
 #include "gui/dialog_ref.h"
@@ -37,5 +36,3 @@ namespace GUI
 	};
 
 }
-
-#endif

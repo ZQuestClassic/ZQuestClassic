@@ -1,5 +1,4 @@
-#ifndef HEADERS_H_
-#define HEADERS_H_
+#pragma once
 
 #include <optional>
 #include <string>
@@ -33,5 +32,3 @@ concept integral_enum_type = std::is_enum_v<T> && std::integral<std::underlying_
 
 template<typename T>
 concept integral_type = int_type<T> || integral_enum_type<T>;
-
-#endif

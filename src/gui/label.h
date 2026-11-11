@@ -1,5 +1,4 @@
-#ifndef ZC_GUI_LABEL_H_
-#define ZC_GUI_LABEL_H_
+#pragma once
 
 #include "gui/widget.h"
 #include "gui/dialog_ref.h"
@@ -68,5 +67,3 @@ private:
 };
 
 }
-
-#endif

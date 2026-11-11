@@ -1,5 +1,4 @@
-#ifndef RENDER_TOOLTIP_H_
-#define RENDER_TOOLTIP_H_
+#pragma once
 
 #include "core/zdefs.h"
 #include <string>
@@ -14,5 +13,3 @@ void ttip_uninstall_all();
 void ttip_set_highlight_thickness(int id, int thickness);
 void ttip_set_z_index(int id, int z_index);
 void ttip_clear_timer();
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef ZC_DIALOG_COMBOWIZARD_H_
-#define ZC_DIALOG_COMBOWIZARD_H_
+#pragma once
 
 #include "comboeditor.h"
 #include "gui/switcher.h"
@@ -62,5 +61,3 @@ private:
 	ComboWizardDialog(ComboEditorDialog& parent);
 	friend void call_combo_wizard(ComboEditorDialog& dlg);
 };
-
-#endif

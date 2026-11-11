@@ -1,5 +1,4 @@
-#ifndef REPLAY_UPLOAD_H_
-#define REPLAY_UPLOAD_H_
+#pragma once
 
 #include <optional>
 #include <string>
@@ -9,5 +8,3 @@ int replay_upload();
 std::optional<std::string> replay_upload(std::string file_path);
 int replay_upload_auto();
 void replay_upload_clear_cache();
-
-#endif

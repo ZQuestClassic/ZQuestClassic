@@ -1,3 +1,5 @@
+#pragma once
+
 int32_t onColors_Main();
 int32_t onColors_Levels();
 int32_t onColors_Sprites();

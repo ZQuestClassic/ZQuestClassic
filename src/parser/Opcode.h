@@ -1,5 +1,4 @@
-#ifndef OPCODE_H_
-#define OPCODE_H_
+#pragma once
 
 #include "Compiler.h"
 #include "components/zasm/defines.h"
@@ -543,5 +542,3 @@ namespace ZScript
 	};
 
 }
-
-#endif

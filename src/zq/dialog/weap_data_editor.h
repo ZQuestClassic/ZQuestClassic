@@ -1,5 +1,4 @@
-#ifndef ZC_DIALOG_WEAPDATAEDITOR_H_
-#define ZC_DIALOG_WEAPDATAEDITOR_H_
+#pragma once
 
 #include "gui/dialog.h"
 #include "gui/checkbox.h"
@@ -46,5 +45,3 @@ private:
 	std::shared_ptr<GUI::Widget> MoveFlag(move_flags index, string const& str);
 	friend void call_weap_data_editor(weapon_data& weap, bool lweapon, bool togglable);
 };
-
-#endif

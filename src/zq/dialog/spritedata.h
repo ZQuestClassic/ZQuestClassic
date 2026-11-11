@@ -1,5 +1,4 @@
-#ifndef ZC_DIALOG_SPRITEDATA_H_
-#define ZC_DIALOG_SPRITEDATA_H_
+#pragma once
 
 #include "gui/dialog.h"
 #include "gui/drop_down_list.h"
@@ -36,5 +35,3 @@ private:
 	sprite_data tempSprite;
 	void updateAnimation();
 };
-
-#endif

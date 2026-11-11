@@ -1,5 +1,4 @@
-#ifndef AUTOPATTERN_FENCE_H_
-#define AUTOPATTERN_FENCE_H_
+#pragma once
 
 #include <functional>
 #include "core/autocombo.h"
@@ -32,5 +31,3 @@ namespace AutoPattern
 	};
 
 }
-
-#endif

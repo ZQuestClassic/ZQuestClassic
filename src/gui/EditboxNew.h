@@ -1,5 +1,4 @@
-#ifndef EDITBOXNEW_H_
-#define EDITBOXNEW_H_
+#pragma once
 
 #include <string>
 #include <list>
@@ -374,6 +373,3 @@ protected:
 private:
 	BITMAP *linetext;
 };
-
-#endif
-

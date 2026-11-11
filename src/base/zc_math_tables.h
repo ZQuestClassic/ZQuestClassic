@@ -31,8 +31,7 @@
 // 1e-4 away from a rounding boundary, but checking in the result removes all
 // doubt.
 
-#ifndef ZC_MATH_TABLES_H_
-#define ZC_MATH_TABLES_H_
+#pragma once
 
 #include <cstdint>
 
@@ -964,5 +963,3 @@ static const int32_t EXP2M1_TABLE_Q30[1026] = {
 	1062144174,1063590448,1065037701,1066485935,1067935149,1069385344,1070836521,1072288681,
 	1073741824,1073741824
 };
-
-#endif

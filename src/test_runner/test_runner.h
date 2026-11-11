@@ -1,5 +1,4 @@
-#ifndef TEST_RUNNER_H_
-#define TEST_RUNNER_H_
+#pragma once
 
 struct TestResults
 {
@@ -8,5 +7,3 @@ struct TestResults
 };
 
 bool run_tests(TestResults fn(bool verbose), const char* name, bool verbose);
-
-#endif

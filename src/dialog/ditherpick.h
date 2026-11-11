@@ -1,5 +1,4 @@
-#ifndef ZC_DIALOG_DITHERPICK_H_
-#define ZC_DIALOG_DITHERPICK_H_
+#pragma once
 
 #include "gui/dialog.h"
 #include "gui/button.h"
@@ -30,5 +29,3 @@ private:
 	std::shared_ptr<GUI::Window> window;
 	std::shared_ptr<GUI::DitherPreview> dithprev;
 };
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef ZC_DIALOG_COMPILESETTING_H_
-#define ZC_DIALOG_COMPILESETTING_H_
+#pragma once
 
 #include "gui/dialog.h"
 #include "gui/window.h"
@@ -36,5 +35,3 @@ private:
 	void load();
 	void save();
 };
-
-#endif

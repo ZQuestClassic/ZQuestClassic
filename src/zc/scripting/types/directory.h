@@ -1,5 +1,4 @@
-#ifndef ZC_SCRIPTING_DIRECTORY_H_
-#define ZC_SCRIPTING_DIRECTORY_H_
+#pragma once
 
 #include "../../user_object.h"
 #include "core/jwinfsel.h"
@@ -28,5 +27,3 @@ user_dir* checkDir(uint32_t id,  bool skipError = false);
 int32_t directory_get_register(int32_t reg);
 void directory_set_register(int32_t reg, int32_t value);
 std::optional<int32_t> directory_run_command(word command);
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef SOLIDOBJECT_H_
-#define SOLIDOBJECT_H_
+#pragma once
 
 #include "base/zfix.h"
 #include "zalleg/zalleg.h"
@@ -49,8 +48,3 @@ protected:
 	
 	virtual bool is_unpushable() const {return false;}
 };
-
-
-
-#endif
-

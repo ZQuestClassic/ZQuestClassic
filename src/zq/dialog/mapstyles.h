@@ -1,5 +1,4 @@
-#ifndef ZC_DIALOG_MAPSTYLES_H_
-#define ZC_DIALOG_MAPSTYLES_H_
+#pragma once
 
 #include "gui/dialog.h"
 #include "gui/label.h"
@@ -28,5 +27,3 @@ private:
 	zcolors local_mapstyles;
 	friend bool call_mapstyles_dialog();
 };
-
-#endif

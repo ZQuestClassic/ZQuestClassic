@@ -1,5 +1,4 @@
-#ifndef COMPILER_H_
-#define COMPILER_H_
+#pragma once
 
 #include "CompilerUtils.h"
 #include "Types.h"
@@ -376,5 +375,3 @@ namespace ZScript
 		std::string msg;
 	};
 }
-
-#endif

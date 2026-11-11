@@ -1,5 +1,4 @@
-#ifndef ZC_DIALOG_MIDI_EDITOR_H_
-#define ZC_DIALOG_MIDI_EDITOR_H_
+#pragma once
 
 #include "gui/dialog.h"
 #include "gui/button.h"
@@ -32,4 +31,3 @@ private:
 	std::shared_ptr<GUI::Label> lposition;
 	friend bool call_midi_editor(int32_t index);
 };
-#endif

@@ -1,5 +1,4 @@
-#ifndef ZC_DIALOG_DOOR_SEL_H_
-#define ZC_DIALOG_DOOR_SEL_H_
+#pragma once
 
 #include "gui/dialog.h"
 #include "gui/button.h"
@@ -36,4 +35,3 @@ private:
 	
 	friend bool call_doorseldialog();
 };
-#endif

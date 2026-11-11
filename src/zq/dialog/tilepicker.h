@@ -1,5 +1,4 @@
-#ifndef ZC_DIALOG_TILESPICKER_H_
-#define ZC_DIALOG_TILESPICKER_H_
+#pragma once
 
 #include "base/headers.h"
 #include "base/containers.h"
@@ -38,5 +37,3 @@ protected:
 	bool& confirm;
 	std::shared_ptr<GUI::Window> window;
 };
-
-#endif

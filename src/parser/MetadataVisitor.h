@@ -1,5 +1,4 @@
-#ifndef META_DATA_VISITOR_H_
-#define META_DATA_VISITOR_H_
+#pragma once
 
 #include "ASTVisitors.h"
 #include "ZScript.h"
@@ -36,5 +35,3 @@ namespace ZScript
 		bool is_enabled;
 	};
 }
-
-#endif

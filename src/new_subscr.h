@@ -1,5 +1,4 @@
-#ifndef NEW_SUBSCR_H_
-#define NEW_SUBSCR_H_
+#pragma once
 
 #include "base/ints.h"
 #include "zalleg/zalleg.h"
@@ -1273,6 +1272,3 @@ private:
 
 // Only exists to support `resolveScriptingObject` in src/zc/scripting/arrays.h.
 struct ZCSubscreenActive : ZCSubscreen{};
-
-#endif
-

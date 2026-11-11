@@ -1,5 +1,4 @@
-#ifndef ZSCRIPT_ZSCRIPT_H_
-#define ZSCRIPT_ZSCRIPT_H_
+#pragma once
 
 #include <vector>
 #include <map>
@@ -783,5 +782,3 @@ namespace ZScript
 	std::string getSourceCodeSnippet(const LocationData& loc);
 	std::string getErrorContext(const LocationData& loc);
 }
-
-#endif

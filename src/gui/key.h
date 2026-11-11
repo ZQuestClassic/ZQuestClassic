@@ -1,5 +1,4 @@
-#ifndef ZC_GUI_KEY_H_
-#define ZC_GUI_KEY_H_
+#pragma once
 
 #include <utility>
 
@@ -166,5 +165,3 @@ inline constexpr ShortcutKey operator ""_key(unsigned long long int num)
 }
 
 }} // namespace GUI::Key
-
-#endif

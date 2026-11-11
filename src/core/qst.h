@@ -1,5 +1,4 @@
-#ifndef CORE_QST_H_
-#define CORE_QST_H_
+#pragma once
 
 #include "core/zdefs.h"
 #include "items.h"
@@ -343,5 +342,3 @@ void init_favorites();
 #define TILESET_CLEARHEADER    0x04
 #define TILESET_BUGFIX         0x08
 #define TILESET_SCR_BUGFIX     0x10
-
-#endif

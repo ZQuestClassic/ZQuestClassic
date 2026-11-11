@@ -1,5 +1,4 @@
-#ifndef ZC_SCRIPTING_FILE_H_
-#define ZC_SCRIPTING_FILE_H_
+#pragma once
 
 #include "../../user_object.h"
 
@@ -27,5 +26,3 @@ user_file* checkFile(int32_t ref, bool req_file = false, bool skipError = false)
 int32_t file_get_register(int32_t reg);
 void file_set_register(int32_t reg, int32_t value);
 std::optional<int32_t> file_run_command(word command);
-
-#endif

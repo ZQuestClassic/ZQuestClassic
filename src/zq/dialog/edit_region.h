@@ -1,5 +1,4 @@
-#ifndef ZC_DIALOG_EDIT_REGION_DLG_H_
-#define ZC_DIALOG_EDIT_REGION_DLG_H_
+#pragma once
 
 #include "gui/dialog.h"
 #include "gui/checkbox.h"
@@ -46,5 +45,3 @@ private:
 	
 	GUI::ListData list_lpals;
 };
-
-#endif

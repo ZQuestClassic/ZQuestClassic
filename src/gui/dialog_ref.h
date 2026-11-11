@@ -1,5 +1,4 @@
-#ifndef ZC_GUI_DIALOGREF_H_
-#define ZC_GUI_DIALOGREF_H_
+#pragma once
 
 #include <cstddef>
 #include <cstdint>
@@ -45,5 +44,3 @@ private:
 };
 
 }
-
-#endif

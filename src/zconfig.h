@@ -1,5 +1,4 @@
-#ifndef ZC_ZCONFIG_H_
-#define ZC_ZCONFIG_H_
+#pragma once
 
 #include "base/zapp.h"
 
@@ -93,5 +92,3 @@ private:
 // 2. config value
 // 3. default
 bool is_feature_enabled(const char* flag_switch, const char* config_header, const char* config_name, bool def);
-
-#endif

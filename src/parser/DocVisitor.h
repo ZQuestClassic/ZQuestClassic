@@ -1,5 +1,4 @@
-#ifndef DOC_VISITOR_H
-#define DOC_VISITOR_H
+#pragma once
 
 #include "ASTVisitors.h"
 #include "ZScript.h"
@@ -24,5 +23,3 @@ namespace ZScript
 		std::string getOutput();
 	};
 }
-
-#endif

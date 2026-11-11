@@ -1,5 +1,4 @@
-#ifndef ZC_DIALOG_QRS_H_
-#define ZC_DIALOG_QRS_H_
+#pragma once
 
 #include "core/qrs.h"
 #include "gui/dialog.h"
@@ -43,6 +42,3 @@ private:
 	
 	friend void call_qrsearch_dialog(std::function<void(byte*)> setQRs);
 };
-
-#endif
-

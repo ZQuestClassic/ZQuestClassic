@@ -1,5 +1,4 @@
-#ifndef ZC_SCRIPTING_USER_OBJECT_H_
-#define ZC_SCRIPTING_USER_OBJECT_H_
+#pragma once
 
 #include "base/ints.h"
 #include <user_object.h>
@@ -14,5 +13,3 @@ std::vector<user_object*> get_user_objects();
 
 void user_object_init();
 std::optional<int32_t> user_object_run_command(word command);
-
-#endif

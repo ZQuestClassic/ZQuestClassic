@@ -1,5 +1,4 @@
-#ifndef ENDING_H_
-#define ENDING_H_
+#pragma once
 
 #include <cstdint>
 
@@ -10,5 +9,3 @@ void brick(int32_t x,int32_t y);
 void endingpal();
 void ending();
 void ending_scripted();
-#endif
- 

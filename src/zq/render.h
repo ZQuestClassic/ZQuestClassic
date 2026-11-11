@@ -1,5 +1,4 @@
-#ifndef ZQ_RENDER_TREE_H_
-#define ZQ_RENDER_TREE_H_
+#pragma once
 
 #include "zalleg/render.h"
 
@@ -13,5 +12,3 @@ void zq_pop_unfrozen_dialogs();
 void zq_freeze_all_rti(RenderTreeItem* rti = nullptr);
 void render_zq();
 ALLEGRO_BITMAP* render_zq_capture();
-
-#endif

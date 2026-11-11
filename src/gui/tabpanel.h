@@ -1,5 +1,4 @@
-#ifndef ZC_GUI_TABPANEL_H_
-#define ZC_GUI_TABPANEL_H_
+#pragma once
 
 #include "gui/widget.h"
 #include "gui/tabref.h"
@@ -71,5 +70,3 @@ private:
 };
 
 }
-
-#endif

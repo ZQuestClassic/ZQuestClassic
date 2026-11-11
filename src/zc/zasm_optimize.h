@@ -1,5 +1,4 @@
-#ifndef ZASM_OPTIMIZE_H_
-#define ZASM_OPTIMIZE_H_
+#pragma once
 
 #include "core/zdefs.h"
 
@@ -32,5 +31,3 @@ void zasm_optimize_sync();
 void zasm_optimize();
 OptimizeResults zasm_optimize_script(zasm_script* script);
 void zasm_optimize_run_for_file(std::string path);
-
-#endif

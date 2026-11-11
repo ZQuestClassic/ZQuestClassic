@@ -1,5 +1,4 @@
-#ifndef ZQ_CLASS_H_
-#define ZQ_CLASS_H_
+#pragma once
 
 #include "core/zdefs.h"
 #include "core/mapscr.h"
@@ -657,5 +656,3 @@ int32_t write_one_ffscript(PACKFILE *f, zquestheader *Header, int32_t i, script_
 int32_t write_one_ffscript_old(PACKFILE *f, script_data *script);
 int32_t writeitemdropsets(PACKFILE *f, zquestheader *Header);
 int32_t writefavorites(PACKFILE *f, zquestheader *Header);
-
-#endif

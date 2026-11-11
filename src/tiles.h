@@ -1,5 +1,4 @@
-#ifndef ZC_TILES_H_
-#define ZC_TILES_H_
+#pragma once
 
 #include "zalleg/zalleg.h"
 #include "core/zdefs.h"
@@ -90,6 +89,3 @@ void overcomboblocktranslucent(BITMAP *dest, int32_t x, int32_t y, int32_t cid, 
 bool is_valid_format(byte format);
 int32_t tilesize(byte format);
 int32_t comboa_lmasktotal(byte layermask);
-
-#endif                                                      // _ZC_TILES_H_
- 

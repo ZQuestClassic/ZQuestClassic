@@ -1,5 +1,4 @@
-#ifndef ZC_GUI_MISC_CSET_SEL_H_
-#define ZC_GUI_MISC_CSET_SEL_H_
+#pragma once
 
 #include "gui/widget.h"
 #include "gui/label.h"
@@ -43,5 +42,3 @@ private:
 };
 
 }
-
-#endif

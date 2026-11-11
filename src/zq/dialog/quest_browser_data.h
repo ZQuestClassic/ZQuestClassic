@@ -1,5 +1,4 @@
-#ifndef ZC_DIALOG_QUEST_BROWSER_DATA_H_
-#define ZC_DIALOG_QUEST_BROWSER_DATA_H_
+#pragma once
 
 #include <cstdint>
 #include <string>
@@ -79,5 +78,3 @@ std::string known_update();
 bool update_checked();
 
 }
-
-#endif

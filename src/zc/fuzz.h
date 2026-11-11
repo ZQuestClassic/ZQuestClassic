@@ -1,5 +1,4 @@
-#ifndef ZC_FUZZ_H_
-#define ZC_FUZZ_H_
+#pragma once
 
 #ifdef ZC_FUZZ
 
@@ -7,7 +6,5 @@
 bool zplayer_fuzz_requested();
 // Hands the process over to libFuzzer. Never returns.
 void zplayer_fuzz_main();
-
-#endif
 
 #endif

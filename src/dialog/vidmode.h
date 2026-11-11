@@ -1,5 +1,4 @@
-#ifndef ZC_DIALOG_VIDMODE_H_
-#define ZC_DIALOG_VIDMODE_H_
+#pragma once
 
 #include "gui/dialog.h"
 #include "gui/checkbox.h"
@@ -23,5 +22,3 @@ public:
 protected:
 	std::shared_ptr<GUI::TextField> rx,ry;
 };
-
-#endif

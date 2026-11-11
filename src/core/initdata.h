@@ -1,5 +1,4 @@
-#ifndef CORE_INITDATA_H_
-#define CORE_INITDATA_H_
+#pragma once
 
 #include "base/headers.h"
 #include "base/containers.h"
@@ -143,6 +142,3 @@ struct zinitdata
 	zinitdata();
 };
 extern zinitdata zinit;
-
-#endif
-

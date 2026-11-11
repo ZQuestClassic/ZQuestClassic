@@ -1,5 +1,4 @@
-#ifndef SUBSCR_GRID_DLG_H_
-#define SUBSCR_GRID_DLG_H_
+#pragma once
 
 #include "gui/dialog.h"
 #include "gui/window.h"
@@ -24,5 +23,3 @@ private:
 	bool show_grid;
 	bool grid_dots;
 };
-
-#endif

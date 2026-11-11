@@ -1,5 +1,4 @@
-#ifndef FFSCRIPT_H_
-#define FFSCRIPT_H_
+#pragma once
 
 #include "core/dmap.h"
 #include "core/quest_format.h"
@@ -1186,7 +1185,5 @@ void print_d_register_deps();
 #define GET_D(r) ri->d[r]
 #define SET_D(r, v) ri->d[r] = (v)
 #define GET_REF(x) (ri->x()+0)
-
-#endif
 
 #endif

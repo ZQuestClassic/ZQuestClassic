@@ -1,5 +1,4 @@
-#ifndef ZQ_GUI_TRIGGER_DIAGRAM_H_
-#define ZQ_GUI_TRIGGER_DIAGRAM_H_
+#pragma once
 
 #include "core/trigger_graph.h"
 #include "gui/dialog_ref.h"
@@ -254,5 +253,3 @@ private:
 };
 
 }
-
-#endif

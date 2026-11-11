@@ -1,5 +1,4 @@
-#ifndef ZC_HERO_TILES_H_
-#define ZC_HERO_TILES_H_
+#pragma once
 
 #include "core/zdefs.h"
 
@@ -81,5 +80,3 @@ void setupherotiles(int32_t style);
 void setherotile(int32_t tile, int32_t flip, int32_t extend, int32_t state, int32_t dir);
 void setupherodefenses();
 void setupherooffsets();
-
-#endif

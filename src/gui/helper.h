@@ -1,5 +1,4 @@
-#ifndef ZC_GUI_HELPER_H_
-#define ZC_GUI_HELPER_H_
+#pragma once
 
 // This is to make static_assert failures stand out, since they can easily
 // get lost in all the other output errors produce with metaprogramming.
@@ -29,5 +28,3 @@
 #define ZCGUI_WIDGET_STR(baseName) ZCGUI_STRINGIZE(ZCGUI_WIDGET_NAME(baseName))
 #define ZCGUI_PROP_NAME(baseName) baseName
 #define ZCGUI_PROP_STR(baseName) ZCGUI_STRINGIZE(ZCGUI_PROP_NAME(baseName))
-
-#endif

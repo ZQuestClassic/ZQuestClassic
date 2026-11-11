@@ -1,5 +1,4 @@
-#ifndef ZC_DIALOG_SUBSCR_PAGE_SETTINGS_H_
-#define ZC_DIALOG_SUBSCR_PAGE_SETTINGS_H_
+#pragma once
 
 #include "gui/dialog.h"
 #include "gui/window.h"
@@ -38,5 +37,3 @@ protected:
 	
 	void refr_info();
 };
-
-#endif

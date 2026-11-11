@@ -1,5 +1,4 @@
-#ifndef CORE_QRS_H_
-#define CORE_QRS_H_
+#pragma once
 
 #include "base/ints.h"
 #include "base/headers.h"
@@ -305,6 +304,3 @@ enum class QSTCompilerSetting : uint16_t
 };
 extern map<QSTCompilerSetting, int> qst_compiler_settings;
 std::string to_string(QSTCompilerSetting setting);
-
-#endif
-

@@ -1,5 +1,4 @@
-#ifndef ZC_DIALOG_FOO_H_
-#define ZC_DIALOG_FOO_H_
+#pragma once
 
 #include "gui/dialog.h"
 #include "gui/text_field.h"
@@ -20,5 +19,3 @@ private:
 	int32_t swid, shei, tw, th;
 	int32_t *twid, *thei;
 };
-
-#endif

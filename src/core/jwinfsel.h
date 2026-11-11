@@ -1,5 +1,4 @@
-#ifndef CORE_JWIN_FSEL_H_
-#define CORE_JWIN_FSEL_H_
+#pragma once
 
 #include "gui/jwin.h"
 
@@ -62,5 +61,3 @@ typedef struct EXT_LIST
   *  list_sel is the index of the current selection in the EXT_LIST.
   */
 int32_t jwin_file_browse_ex(AL_CONST char *message, char *path, EXT_LIST *list, int32_t *list_sel, int32_t size, int32_t width, int32_t height, FONT *title_font);
-
-#endif

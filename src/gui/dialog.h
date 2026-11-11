@@ -1,5 +1,4 @@
-#ifndef ZC_GUI_DIALOG_H_
-#define ZC_GUI_DIALOG_H_
+#pragma once
 
 #include "base/zapp.h"
 #include "dialog_message.h"
@@ -90,5 +89,3 @@ public:
 };
 
 }
-
-#endif

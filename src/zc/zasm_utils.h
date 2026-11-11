@@ -1,5 +1,4 @@
-#ifndef ZASM_UTILS_H_
-#define ZASM_UTILS_H_
+#pragma once
 
 #include "core/qst.h"
 #include "core/zdefs.h"
@@ -189,5 +188,3 @@ void zasm_for_every_script(bool parallel, std::function<void(zasm_script*)> zasm
 uint64_t zasm_scripts_hash();
 
 std::pair<bool, bool> get_command_rw(int command, int arg);
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef ZC_DIALOG_EDITDMAPDLG_H_
-#define ZC_DIALOG_EDITDMAPDLG_H_
+#pragma once
 
 #include "gui/dialog.h"
 #include "gui/checkbox.h"
@@ -66,5 +65,3 @@ private:
 	GUI::ListData list_disabled_items, list_items;
 	GUI::ListData list_dmapscript;
 };
-
-#endif

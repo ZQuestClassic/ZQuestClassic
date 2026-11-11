@@ -1,5 +1,4 @@
-#ifndef BASE_EMSCRIPTEN_UTILS_H_
-#define BASE_EMSCRIPTEN_UTILS_H_
+#pragma once
 
 #include <emscripten/emscripten.h>
 #include <string>
@@ -15,5 +14,3 @@ void em_open_link(std::string url);
 bool em_is_mobile();
 void em_open_test_mode(const char* qstpath, int dmap, int screen, int retsquare);
 int em_compile_zscript(const char* script_path, const char* console_path, const char* qr);
-
-#endif

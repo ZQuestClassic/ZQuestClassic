@@ -1,5 +1,4 @@
-#ifndef ZC_DIALOG_BOTTLETYPE_H_
-#define ZC_DIALOG_BOTTLETYPE_H_
+#pragma once
 
 #include "gui/dialog.h"
 #include "gui/drop_down_list.h"
@@ -30,5 +29,3 @@ private:
 	bottletype tempBottle;
 	GUI::ListData list_counters;
 };
-
-#endif

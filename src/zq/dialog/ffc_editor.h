@@ -1,5 +1,4 @@
-#ifndef ZC_DIALOG_FFCDLG_H_
-#define ZC_DIALOG_FFCDLG_H_
+#pragma once
 
 #include "ffc.h"
 #include "gui/dialog.h"
@@ -71,5 +70,3 @@ private:
 	int prev_cache_x, prev_cache_y;
 	GUI::ListData list_link, list_ffcscript;
 };
-
-#endif

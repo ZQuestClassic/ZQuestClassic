@@ -1,5 +1,4 @@
-#ifndef ZC_DIALOG_QUEST_BROWSER_H_
-#define ZC_DIALOG_QUEST_BROWSER_H_
+#pragma once
 
 #include "gui/dialog.h"
 #include "gui/button.h"
@@ -68,5 +67,3 @@ private:
 	bool pumpScan();
 	bool pickSelected();
 };
-
-#endif

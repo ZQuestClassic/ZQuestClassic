@@ -1,5 +1,4 @@
-#ifndef ZSCRIPT_SYMBOLS_H_
-#define ZSCRIPT_SYMBOLS_H_
+#pragma once
 
 #include "parser/ByteCode.h"
 #include "parser/parserDefs.h"
@@ -86,6 +85,3 @@ if(reg!=EXP2) addOpcode2 (code, new OSetRegister(new VarArgument(EXP2), new VarA
 function->setIntFlag(IFUNCFLAG_REASSIGNPTR)
 
 //}
-
-#endif
-

@@ -1,5 +1,4 @@
-#ifndef ZC_PAL_H_
-#define ZC_PAL_H_
+#pragma once
 
 #include "zalleg/zalleg.h"
 #include "core/zdefs.h"
@@ -48,5 +47,3 @@ INLINE RGB NESpal(int32_t i)
     return _RGB(nes_pal+i*3);
 }
 extern int32_t reverse_NESpal(RGB c);
-
-#endif                                                      // _ZC_PAL_H_

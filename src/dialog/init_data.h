@@ -1,5 +1,4 @@
-#ifndef ZC_DIALOG_INITDLG_H_
-#define ZC_DIALOG_INITDLG_H_
+#pragma once
 
 #include "gui/dialog.h"
 #include "gui/checkbox.h"
@@ -76,6 +75,4 @@ private:
 	size_t index;
 	GUI::ListData list_dmaps, list_items;
 };
-#endif
-
 #endif

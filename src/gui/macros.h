@@ -1,5 +1,4 @@
-#ifndef ZC_GUI_MACROS_H_
-#define ZC_GUI_MACROS_H_
+#pragma once
 
 #include <memory>
 #include <type_traits>
@@ -317,5 +316,3 @@ inline std::shared_ptr<::GUI:: widgetType> ZCGUI_WIDGET_NAME(functionName)(Props
         std::forward<PropsType>(props)...);                                                        \
     return std::move(ret).resolve();                                                               \
 }
-
-#endif

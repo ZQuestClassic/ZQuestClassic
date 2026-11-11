@@ -1,5 +1,4 @@
-#ifndef ZC_DIALOG_ALERT_H_
-#define ZC_DIALOG_ALERT_H_
+#pragma once
 
 #include "info.h"
 
@@ -21,5 +20,3 @@ private:
 	bool dontshowagain;
 	std::function<void(bool,bool)> onEnd;
 };
-
-#endif

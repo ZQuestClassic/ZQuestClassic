@@ -1,3 +1,5 @@
+#pragma once
+
 /* Allegro datafile object indexes, produced by grabber v4.2.0, MSVC.s */
 /* Datafile: c:\Users\Emily\Documents\ZC\ZQSRC255_64\resources\modules\classic\classic_fonts.dat */
 /* Date: Fri Mar 31 14:21:55 2023 */

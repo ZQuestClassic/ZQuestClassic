@@ -1,5 +1,4 @@
-#ifndef CORE_TITLE_THEME_H_
-#define CORE_TITLE_THEME_H_
+#pragma once
 
 #include <algorithm>
 #include <cctype>
@@ -33,5 +32,3 @@ inline TitleTheme title_theme_from_name(std::string_view name)
 	}
 	return TitleTheme::Seasonal;
 }
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef ZSCR_DATA_H_
-#define ZSCR_DATA_H_
+#pragma once
 
 #include "base/util.h"
 #include "core/zdefs.h"
@@ -991,6 +990,3 @@ bool zasm_meta::parse_meta(const char *buffer)
 	
 	return true;
 }
-
-#endif
-

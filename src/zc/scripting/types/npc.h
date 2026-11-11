@@ -1,5 +1,4 @@
-#ifndef ZC_SCRIPTING_NPC_H_
-#define ZC_SCRIPTING_NPC_H_
+#pragma once
 
 #include "base/ints.h"
 #include "zc/guys.h"
@@ -32,5 +31,3 @@ private:
 int32_t npc_get_register(int32_t reg);
 void npc_set_register(int32_t reg, int32_t value);
 std::optional<int32_t> npc_run_command(word command);
-
-#endif

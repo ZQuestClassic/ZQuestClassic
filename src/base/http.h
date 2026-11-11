@@ -1,5 +1,4 @@
-#ifndef BASE_HTTP_H_
-#define BASE_HTTP_H_
+#pragma once
 
 #include "base/expected.h"
 #include <filesystem>
@@ -22,5 +21,3 @@ expected<http_response, std::string> get(std::string url);
 expected<http_response, std::string> upload(std::string url, fs::path path);
 
 };
-
-#endif

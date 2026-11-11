@@ -1,5 +1,4 @@
-#ifndef ZC_RENDER_TREE_H_
-#define ZC_RENDER_TREE_H_
+#pragma once
 
 #include "zalleg/render.h"
 
@@ -26,5 +25,3 @@ void start_info_bmp();
 void end_info_bmp();
 void render_zc();
 ALLEGRO_BITMAP* render_zc_capture();
-
-#endif

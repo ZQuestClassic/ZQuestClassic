@@ -1,5 +1,4 @@
-#ifndef ZSCRIPT_SEMANTIC_ANALYZER_H_
-#define ZSCRIPT_SEMANTIC_ANALYZER_H_
+#pragma once
 
 #include "ASTVisitors.h"
 #include "RegBaseVisitor.h"
@@ -114,5 +113,4 @@ namespace ZScript
 				ZScript::DataType const& rightType);
 
 	};
-}	
-#endif
+}

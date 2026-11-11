@@ -1,5 +1,4 @@
-#ifndef AUTOPATTERN_BASE_H_
-#define AUTOPATTERN_BASE_H_
+#pragma once
 
 #include <functional>
 #include "core/autocombo.h"
@@ -94,4 +93,3 @@ namespace AutoPattern
 	};
 
 }
-#endif

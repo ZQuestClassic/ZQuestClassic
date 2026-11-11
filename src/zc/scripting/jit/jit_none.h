@@ -1,5 +1,4 @@
-#ifndef ZC_JIT_NONE_H_
-#define ZC_JIT_NONE_H_
+#pragma once
 
 #include <cstdint>
 
@@ -13,5 +12,3 @@ struct JittedScriptInstance
 	// Only used by the wasm JIT (RUNGENFRZSCR yield); always -1 here.
 	int32_t frozen_dest_reg = -1;
 };
-
-#endif

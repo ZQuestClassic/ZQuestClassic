@@ -1,5 +1,4 @@
-#ifndef SPRITE_H_
-#define SPRITE_H_
+#pragma once
 
 #include "zalleg/zalleg.h"
 #include "base/headers.h"
@@ -380,5 +379,3 @@ bool lineBoxCollision(zfix linex1, zfix liney1, zfix linex2, zfix liney2, zfix b
 double comparePointLine(double x, double y, double x1, double x2, double y1, double y2);
 
 void for_every_sprite(std::function<void(sprite&)> proc);
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef COMMENT_UTILS_H_
-#define COMMENT_UTILS_H_
+#pragma once
 
 #include <cstdint>
 #include <optional>
@@ -45,5 +44,3 @@ struct CommentSymbolParseResult {
 };
 
 std::vector<CommentSymbolParseResult> parseForSymbolLinks(std::string comment, const ZScript::AST* node, bool check_params);
-
-#endif

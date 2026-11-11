@@ -1,5 +1,4 @@
-#ifndef ZC_GUI_MSGSTR_PREVIEW_H_
-#define ZC_GUI_MSGSTR_PREVIEW_H_
+#pragma once
 
 #include "core/msgstr.h"
 #include "core/msg_scroll.h"
@@ -51,5 +50,3 @@ private:
 };
 
 }
-
-#endif

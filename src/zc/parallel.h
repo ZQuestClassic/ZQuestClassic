@@ -1,5 +1,4 @@
-#ifndef ZC_PARALLEL_H_
-#define ZC_PARALLEL_H_
+#pragma once
 
 // The <execution> header defines compiler-provided execution policies, but is not always present.
 // See: https://github.com/alugowski/poolSTL
@@ -15,5 +14,3 @@
 
 #define POOLSTL_STD_SUPPLEMENT
 #include <poolstl/poolstl.hpp>
-
-#endif

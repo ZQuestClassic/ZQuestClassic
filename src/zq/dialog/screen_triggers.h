@@ -1,5 +1,4 @@
-#ifndef ZC_DIALOG_SCREEN_TRIGGERS_H_
-#define ZC_DIALOG_SCREEN_TRIGGERS_H_
+#pragma once
 
 #include "gui/dialog.h"
 #include "zq/gui/trigger_diagram.h"
@@ -40,5 +39,3 @@ private:
 	// Rebuilds the diagram from the screen, after a combo was edited.
 	void refresh();
 };
-
-#endif

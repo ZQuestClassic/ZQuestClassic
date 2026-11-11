@@ -1,5 +1,4 @@
-#ifndef BASE_VERSION_H_
-#define BASE_VERSION_H_
+#pragma once
 
 struct ZCVersion {
 	const char* version_string;
@@ -10,5 +9,3 @@ const char* getVersionString();
 ZCVersion getVersion();
 int getAlphaState();
 bool isStableRelease();
-
-#endif

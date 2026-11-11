@@ -1,3 +1,5 @@
+#pragma once
+
 /* Allegro datafile object indexes, produced by grabber v4.2.2, MacOS X */
 /* Datafile: /zc/trunk/output/common/sfx.dat */
 /* Date: Sun Feb  6 19:53:24 2011 */

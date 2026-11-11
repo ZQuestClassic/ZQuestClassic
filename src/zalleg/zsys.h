@@ -1,5 +1,4 @@
-#ifndef ZALLEG_ZSYS_H_
-#define ZALLEG_ZSYS_H_
+#pragma once
 
 #include "allegro/file.h"
 #include "allegro/gui.h"
@@ -227,5 +226,3 @@ size_t count_digits(int32_t n);
 void quit_game();
 
 void sane_destroy_bitmap(BITMAP **bmp);
-
-#endif                                                      // _ZSYS_H_

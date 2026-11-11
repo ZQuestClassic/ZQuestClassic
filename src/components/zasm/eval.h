@@ -1,5 +1,4 @@
-#ifndef ZASM_EVAL_H_
-#define ZASM_EVAL_H_
+#pragma once
 
 #include "base/expected.h"
 #include "components/zasm/debug_data.h"
@@ -182,5 +181,3 @@ public:
 	void assignTo(std::shared_ptr<ExprNode> target, DebugValue val);
 	std::string printValue(DebugValue value);
 };
-
-#endif

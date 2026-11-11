@@ -1,5 +1,4 @@
-#ifndef ZC_DIALOG_CHECKLIST_H_
-#define ZC_DIALOG_CHECKLIST_H_
+#pragma once
 
 #include "base/headers.h"
 #include "base/containers.h"
@@ -32,5 +31,3 @@ protected:
 	std::optional<size_t> per_col;
 	std::shared_ptr<GUI::Window> window;
 };
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef ZC_SCRIPTING_STRING_UTILS_H_
-#define ZC_SCRIPTING_STRING_UTILS_H_
+#pragma once
 
 #include "base/ints.h"
 #include <cstdint>
@@ -11,5 +10,3 @@ std::string zs_sprintf(const char* format, int32_t num_args, std::function<int32
 
 void do_sprintf(const bool v, const bool varg);
 void do_sprintfarr();
-
-#endif

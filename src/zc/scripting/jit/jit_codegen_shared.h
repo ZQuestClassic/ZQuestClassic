@@ -1,5 +1,4 @@
-#ifndef ZC_JIT_CODEGEN_SHARED_H_
-#define ZC_JIT_CODEGEN_SHARED_H_
+#pragma once
 
 // Code-generation logic shared between the two native JIT backends
 // (jit_x64.cpp, jit_a64.cpp) that must stay semantically identical even
@@ -877,5 +876,3 @@ inline bool jit_command_is_compiled_shared(int command)
 
 	return false;
 }
-
-#endif

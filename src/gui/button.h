@@ -1,5 +1,4 @@
-#ifndef ZC_GUI_BUTTON_H_
-#define ZC_GUI_BUTTON_H_
+#pragma once
 
 #include "core/hotkey.h"
 #include "gui/widget.h"
@@ -75,5 +74,3 @@ private:
 };
 
 }
-
-#endif

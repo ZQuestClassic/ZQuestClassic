@@ -1,5 +1,4 @@
-#ifndef ZC_DIALOG_PICKRULETMP_H_
-#define ZC_DIALOG_PICKRULETMP_H_
+#pragma once
 
 #include "gui/dialog.h"
 #include "gui/checkbox.h"
@@ -24,5 +23,3 @@ private:
 	std::shared_ptr<GUI::Checkbox> templates[sz_ruletemplate];
 	GUI::ListData const& list_rule_templates;
 };
-
-#endif

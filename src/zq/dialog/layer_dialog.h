@@ -1,5 +1,4 @@
-#ifndef ZC_DIALOG_LAYERDLG_H_
-#define ZC_DIALOG_LAYERDLG_H_
+#pragma once
 
 #include "gui/dialog.h"
 #include "gui/text_field.h"
@@ -26,5 +25,3 @@ private:
 	std::map<int, std::pair<int, int>> autolayer_data;
 	std::pair<int, int> temp_autolayer_data;
 };
-
-#endif

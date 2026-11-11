@@ -1,5 +1,4 @@
-#ifndef ZC_DIALOG_SUBSCR_TRANS_H_
-#define ZC_DIALOG_SUBSCR_TRANS_H_
+#pragma once
 
 #include "gui/dialog.h"
 #include "gui/window.h"
@@ -37,5 +36,3 @@ protected:
 	int32_t* cur_args() {return args[local_trans.type];}
 	void refr_info();
 };
-
-#endif

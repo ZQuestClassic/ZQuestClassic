@@ -1,5 +1,4 @@
-#ifndef INTS_H_
-#define INTS_H_
+#pragma once
 
 #include <stdint.h>
 #include <cstring>
@@ -11,5 +10,3 @@ typedef uint64_t qword; //0-18,446,744,073,709,551,616  (64 bits)
 typedef unsigned int uint;
 
 using std::size_t;
-
-#endif

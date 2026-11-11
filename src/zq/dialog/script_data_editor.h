@@ -1,5 +1,4 @@
-#ifndef ZC_DIALOG_SCRDATAEDITORDLG_H_
-#define ZC_DIALOG_SCRDATAEDITORDLG_H_
+#pragma once
 
 #include "gui/dialog.h"
 #include "gui/grid.h"
@@ -64,6 +63,3 @@ private:
 	
 	std::shared_ptr<GUI::Window> window;
 };
-
-#endif
-

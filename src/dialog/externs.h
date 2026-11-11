@@ -1,5 +1,4 @@
-#ifndef ZC_DIALOG_EXTERNS_H_
-#define ZC_DIALOG_EXTERNS_H_
+#pragma once
 
 #include "base/headers.h"
 #include "base/containers.h"
@@ -31,6 +30,3 @@ void edit_screen_notes(mapscr* scr, int map, int screen);
 void browse_screen_notes();
 
 void call_music_dialog(int index = -1);
-
-#endif
-

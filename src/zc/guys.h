@@ -1,5 +1,4 @@
-#ifndef GUYS_H_
-#define GUYS_H_
+#pragma once
 
 #include <list>
 #include <optional>
@@ -898,4 +897,3 @@ void clear_script_one_frame_conditions();
 void dragging_item();
 void roaming_item();
 int32_t more_carried_items(int screen);
-#endif

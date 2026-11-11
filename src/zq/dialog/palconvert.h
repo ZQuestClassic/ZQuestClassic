@@ -1,5 +1,4 @@
-#ifndef ZC_DIALOG_PALETTECONVERT_H_
-#define ZC_DIALOG_PALETTECONVERT_H_
+#pragma once
 
 #include "gui/dialog.h"
 #include "gui/radioset.h"
@@ -21,5 +20,3 @@ public:
 
 private:
 };
-
-#endif

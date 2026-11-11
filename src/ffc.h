@@ -1,5 +1,4 @@
-#ifndef FFC_H_
-#define FFC_H_
+#pragma once
 
 #include <cstdint>
 
@@ -83,5 +82,3 @@ public:
 private:
 	bool loaded;
 };
-
-#endif

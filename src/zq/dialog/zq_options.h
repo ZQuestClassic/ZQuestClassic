@@ -1,5 +1,4 @@
-#ifndef ZC_DIALOG_EDITOR_OPTIONS_H_
-#define ZC_DIALOG_EDITOR_OPTIONS_H_
+#pragma once
 
 #include "gui/dialog.h"
 #include "gui/text_field.h"
@@ -89,5 +88,3 @@ private:
 	void saveOptions();
 	void saveOption(int ind);
 };
-
-#endif

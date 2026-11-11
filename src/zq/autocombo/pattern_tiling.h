@@ -1,5 +1,4 @@
-#ifndef AUTOPATTERN_TILING_H_
-#define AUTOPATTERN_TILING_H_
+#pragma once
 
 #include <functional>
 #include "core/autocombo.h"
@@ -25,5 +24,3 @@ namespace AutoPattern
 	};
 
 }
-
-#endif

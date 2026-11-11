@@ -1,5 +1,4 @@
-#ifndef ZC_JIT_WASM_H_
-#define ZC_JIT_WASM_H_
+#pragma once
 
 #include "core/zdefs.h"
 #include "components/zasm/pc.h"
@@ -41,5 +40,3 @@ struct JittedScriptInstance
 
 	~JittedScriptInstance();
 };
-
-#endif

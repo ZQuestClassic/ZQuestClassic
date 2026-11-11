@@ -1,5 +1,4 @@
-#ifndef ZASM_DEFINES_H_
-#define ZASM_DEFINES_H_
+#pragma once
 
 // Defines for the ZASM commands
 enum ASM_DEFINE
@@ -3590,5 +3589,3 @@ enum ASM_DEFINE
 #define rNUL                     D(5)
 #define rSFTEMP                  D(6)
 #define rWHAT_NO_7               D(7)
-
-#endif

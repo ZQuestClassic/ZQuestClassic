@@ -1,5 +1,4 @@
-#ifndef ZC_DIALOG_SUBSCR_LISTS_EDIT_H_
-#define ZC_DIALOG_SUBSCR_LISTS_EDIT_H_
+#pragma once
 
 #include "gui/dialog.h"
 #include "gui/window.h"
@@ -32,5 +31,3 @@ protected:
 	
 	void rclick_menu(size_t cur_type, int mx, int my);
 };
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef ZQ_FILES_H_
-#define ZQ_FILES_H_
+#pragma once
 
 #include "allegro/file.h"
 #include "base/ints.h"
@@ -60,6 +59,3 @@ int32_t readonezdoorset(PACKFILE *f, int32_t index);
 
 int32_t onExport_Doorset();
 int32_t onImport_Doorset();
-
-#endif
- 

@@ -1,5 +1,4 @@
-#ifndef TEST_RUNNER_ASSERT_H_
-#define TEST_RUNNER_ASSERT_H_
+#pragma once
 
 #include <cstddef>
 #include <stdexcept>
@@ -134,5 +133,3 @@ inline void _assertSomeImpl(const Container& v, Predicate predicate, const char*
 }
 
 #define assertSome(v, pred) _assertSomeImpl((v), (pred), #v, #pred, __FILE__, __LINE__)
-
-#endif

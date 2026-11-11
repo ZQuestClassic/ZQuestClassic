@@ -1,5 +1,4 @@
-#ifndef ZQ_MISC_H_
-#define ZQ_MISC_H_
+#pragma once
 
 #include "core/mapscr.h"
 #include "zalleg/zalleg.h"
@@ -270,5 +269,3 @@ int32_t onDecMap();
 int32_t onDumpScr();
 
 int32_t onExport_Package();
-
-#endif

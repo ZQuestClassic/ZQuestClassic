@@ -1,5 +1,4 @@
-#ifndef MAPS_H_
-#define MAPS_H_
+#pragma once
 
 #include <optional>
 #include <set>
@@ -600,5 +599,3 @@ void clear_screen_states();
 void screen_item_set_state(int screen, ScreenItemState state);
 
 void mark_visited(int screen);
-
-#endif

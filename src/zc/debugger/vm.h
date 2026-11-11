@@ -1,5 +1,4 @@
-#ifndef ZC_DEBUGGER_VM_H_
-#define ZC_DEBUGGER_VM_H_
+#pragma once
 
 #include "base/expected.h"
 #include "components/zasm/eval.h"
@@ -37,5 +36,3 @@ struct VM : VMInterface
 	DebugValue createString(const std::string& str) override;
 	int32_t getThisPointer() override;
 };
-
-#endif

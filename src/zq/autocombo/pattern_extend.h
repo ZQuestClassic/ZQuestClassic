@@ -1,5 +1,4 @@
-#ifndef AUTOPATTERN_EXTEND_H_
-#define AUTOPATTERN_EXTEND_H_
+#pragma once
 
 #include <functional>
 #include "core/autocombo.h"
@@ -29,5 +28,3 @@ namespace AutoPattern
 		bool dogroup;
 	};
 }
-
-#endif

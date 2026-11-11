@@ -1,5 +1,4 @@
-#ifndef FFASM_H_
-#define FFASM_H_
+#pragma once
 
 #include "core/zdefs.h"
 #include <vector>
@@ -9,5 +8,3 @@ int32_t set_argument(char const* argbuf, int32_t& argument);
 int32_t parse_script_section(char const* combuf, char const* const* argbufs, ffscript& zas, zasm_literals& literals, int32_t &retcode, std::vector<int32_t> *vptr = nullptr, std::string *sptr = nullptr);
 int32_t parse_script_string(std::vector<ffscript>& zasm, zasm_literals& literals, std::string const& scriptstr, bool report_success);
 int32_t ffparse(char *string);
-
-#endif

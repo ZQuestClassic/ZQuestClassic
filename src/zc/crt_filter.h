@@ -1,5 +1,4 @@
-#ifndef ZC_CRT_FILTER_H_
-#define ZC_CRT_FILTER_H_
+#pragma once
 
 // Post-process CRT display filters, applied when drawing the game layer to the screen.
 // Purely cosmetic: everything here operates on the final a5 blit, so replays, snapshots,
@@ -49,5 +48,3 @@ bool crt_filter_warps_mouse();
 // Maps a [0,1] uv position on the destination rect to the source uv displayed there,
 // mirroring the shader's curvature. Identity for modes that don't warp.
 std::pair<double, double> crt_filter_warp_uv(double u, double v);
-
-#endif

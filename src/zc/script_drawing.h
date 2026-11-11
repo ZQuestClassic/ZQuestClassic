@@ -1,5 +1,4 @@
-#ifndef ZC_SCRIPT_DRAWING_H_
-#define ZC_SCRIPT_DRAWING_H_
+#pragma once
 
 #include "core/zdefs.h"
 #include <utility>
@@ -451,9 +450,3 @@ private:
 
 
 extern CScriptDrawingCommands script_drawing_commands;
-
-
-
-
-#endif
-

@@ -1,5 +1,4 @@
-#ifndef ZQ_HOTKEY_H_
-#define ZQ_HOTKEY_H_
+#pragma once
 
 #include "allegro/gui.h"
 #include "base/general.h"
@@ -225,6 +224,3 @@ void disable_hotkey(uint hkey, bool dis);
 bool disabled_hotkey(uint hkey);
 
 bool selected_hotkey(uint hkey);
-
-#endif
-

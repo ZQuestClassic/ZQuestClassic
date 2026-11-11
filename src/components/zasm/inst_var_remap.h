@@ -1,5 +1,4 @@
-#ifndef ZASM_INST_VAR_REMAP_H_
-#define ZASM_INST_VAR_REMAP_H_
+#pragma once
 
 #include <array>
 #include <map>
@@ -94,5 +93,3 @@ InstVarRemapResult apply_inst_var_remap(std::map<word, int>& inst_init, const In
 // `long`), except to variables that already have a value. InitD is left as
 // is. Returns the number of values copied.
 int apply_initd_moves(std::map<word, int>& inst_init, const std::array<int, 8>& run_args, const InstVarRemap& remap);
-
-#endif

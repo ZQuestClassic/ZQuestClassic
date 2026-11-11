@@ -1,5 +1,4 @@
-#ifndef ZC_GUI_WIDGET_H_
-#define ZC_GUI_WIDGET_H_
+#pragma once
 
 #include "gui/common.h"
 #include "dialog_message.h"
@@ -446,5 +445,3 @@ public:
 };
 
 }
-
-#endif

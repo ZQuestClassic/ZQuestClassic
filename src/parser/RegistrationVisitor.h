@@ -4,8 +4,7 @@
  * Author: Emily
  */
 
-#ifndef REGISTRATIONVISITOR_H_
-#define REGISTRATIONVISITOR_H_
+#pragma once
 
 #include "ASTVisitors.h"
 #include "RegBaseVisitor.h"
@@ -98,6 +97,3 @@ namespace ZScript
 		void handle_staticness(AST* node, bool& is_static, bool is_nonstatic, Scope* scope, bool disallow);
 	};
 }
-
-#endif
-

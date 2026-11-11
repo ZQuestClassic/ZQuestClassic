@@ -1,5 +1,4 @@
-#ifndef CORE_ZDEFS_H_
-#define CORE_ZDEFS_H_
+#pragma once
 
 #include "base/general.h"
 #include "base/lazy_default.h"
@@ -2241,5 +2240,3 @@ enum
 #undef rad14
 #undef rad15
 #undef rad16
-
-#endif

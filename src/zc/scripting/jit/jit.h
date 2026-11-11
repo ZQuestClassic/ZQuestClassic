@@ -1,7 +1,6 @@
 // See docs/jit.md for an overview of the JIT (Just-in-time) compiler for ZScript.
 
-#ifndef ZC_JIT_H_
-#define ZC_JIT_H_
+#pragma once
 
 #include "base/compiler.h"
 #include "core/zdefs.h"
@@ -60,5 +59,3 @@ int jit_run_script(JittedScriptInstance* j_instance);
 // none).
 bool jit_can_start_script();
 void jit_release(JittedScript* j_script);
-
-#endif

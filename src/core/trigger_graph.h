@@ -1,5 +1,4 @@
-#ifndef CORE_TRIGGER_GRAPH_H_
-#define CORE_TRIGGER_GRAPH_H_
+#pragma once
 
 #include <array>
 #include <nlohmann/json.hpp>
@@ -165,5 +164,3 @@ trigger_graph build_trigger_graph(std::vector<trigger_graph_screen> const& scree
 
 // The graph as JSON, as -dump-screen prints it and the editor's diagram copies it.
 nlohmann::json trigger_graph_json(trigger_graph const& graph);
-
-#endif

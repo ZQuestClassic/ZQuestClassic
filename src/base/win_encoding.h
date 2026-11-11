@@ -1,5 +1,4 @@
-#ifndef BASE_WIN_ENCODING_H_
-#define BASE_WIN_ENCODING_H_
+#pragma once
 
 #include <string>
 #include <string_view>
@@ -26,5 +25,3 @@ namespace util
 	unsigned int system_ansi_code_page();
 #endif
 }
-
-#endif

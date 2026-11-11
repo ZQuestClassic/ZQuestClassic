@@ -1,5 +1,4 @@
-#ifndef ZC_DIALOG_ALERTFUNC_H_
-#define ZC_DIALOG_ALERTFUNC_H_
+#pragma once
 
 #include "info.h"
 #include "gui/button.h"
@@ -32,5 +31,3 @@ private:
 		std::vector<std::function<bool()>> const& buttonProcs,
 		uint32_t focused_button);
 };
-
-#endif

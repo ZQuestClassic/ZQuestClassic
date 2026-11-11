@@ -1,5 +1,4 @@
-#ifndef JWIN_H_
-#define JWIN_H_
+#pragma once
 
 #include "base/ints.h"
 #include "zalleg/zalleg.h"
@@ -326,5 +325,3 @@ void draw_checkbox(BITMAP *dest,int x,int y,int sz,bool value);
 bool do_checkbox(BITMAP *dest,int x,int y,int wid,int hei,int &value, int xoffs = 0, int yoffs = 0);
 bool do_checkbox_tx(BITMAP *dest,int x,int y,int wid,int hei,int &value, int txtoffs, int xoffs = 0, int yoffs = 0);
 bool do_scheckbox(BITMAP *dest,int x,int y,int sz,int &value, int xoffs = 0, int yoffs = 0);
-
-#endif                                                      // _JWIN_H_

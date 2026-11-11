@@ -1,5 +1,4 @@
-#ifndef ZC_DIALOG_SFXDATA_H_
-#define ZC_DIALOG_SFXDATA_H_
+#pragma once
 
 #include "gui/dialog.h"
 #include "gui/button.h"
@@ -33,5 +32,3 @@ private:
 
 	friend bool call_sfxdata_dialog(int32_t index);
 };
-
-#endif

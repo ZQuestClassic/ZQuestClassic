@@ -1,5 +1,4 @@
-#ifndef ZC_GUI_MISC_COLOR_ROW_H_
-#define ZC_GUI_MISC_COLOR_ROW_H_
+#pragma once
 
 #include "gui/widget.h"
 #include <vector>
@@ -33,5 +32,3 @@ private:
 };
 
 }
-
-#endif

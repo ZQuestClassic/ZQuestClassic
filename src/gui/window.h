@@ -1,5 +1,4 @@
-#ifndef ZC_GUI_WINDOW_H_
-#define ZC_GUI_WINDOW_H_
+#pragma once
 
 #include "gui/dialog_ref.h"
 #include "gui/top_level.h"
@@ -68,5 +67,3 @@ private:
 };
 
 }
-
-#endif

@@ -1,9 +1,6 @@
-#ifndef ZABOUT_H_
-#define ZABOUT_H_
+#pragma once
 
 char const* getReleasePlatform();
 char const* getRunningArch();
 char const* getReleaseChannel();
 char const* getRepo();
-
-#endif

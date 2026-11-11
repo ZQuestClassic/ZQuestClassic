@@ -1,5 +1,4 @@
-#ifndef QUESTREPORT_H_
-#define QUESTREPORT_H_
+#pragma once
 
 #include "zalleg/zalleg.h"
 
@@ -30,5 +29,3 @@ bool integrityBoolRoomNoString(mapscr* ts);
 bool integrityBoolRoomNoGuyNoString(mapscr* ts);
 bool integrityBoolSaveCombo(mapscr* ts, int32_t ctype);
 bool integrityBoolUnderCombo(mapscr* ts, int32_t ctype);
-
-#endif

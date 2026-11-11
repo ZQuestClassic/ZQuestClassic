@@ -1,5 +1,4 @@
-#ifndef ZC_DIALOG_PALEDIT_H_
-#define ZC_DIALOG_PALEDIT_H_
+#pragma once
 
 #include "gui/dialog.h"
 #include "gui/text_field.h"
@@ -35,5 +34,3 @@ private:
 	std::shared_ptr<GUI::TabPanel> tabpan;
 	std::shared_ptr<GUI::Button> cyclebutton;
 };
-
-#endif

@@ -1,3 +1,5 @@
+#pragma once
+
 #include <chrono>
 #include "base/ints.h"
 #include "base/headers.h"

@@ -1,5 +1,4 @@
-#ifndef ZC_PARSER_HELPER_H_
-#define ZC_PARSER_HELPER_H_
+#pragma once
 
 #include "parser/AST.h"
 
@@ -12,5 +11,3 @@ ParserScriptType getScriptType(std::string name);
 bool isValidIdentifier(std::string identifier);
 
 }
-
-#endif

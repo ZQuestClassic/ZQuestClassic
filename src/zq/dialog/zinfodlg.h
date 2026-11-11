@@ -1,5 +1,4 @@
-#ifndef ZC_DIALOG_ZINFODLG_H_
-#define ZC_DIALOG_ZINFODLG_H_
+#pragma once
 
 #include "gui/dialog.h"
 #include "gui/checkbox.h"
@@ -55,5 +54,3 @@ private:
 	GUI::ListData list_itemclass, list_combotype, list_mapflag,
 		list_counters, list_weapon, list_efamilies, list_level_items;
 };
-
-#endif

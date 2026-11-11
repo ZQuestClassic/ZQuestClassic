@@ -1,5 +1,4 @@
-#ifndef ZC_SCRIPTING_SCRIPT_OBJECT_H_
-#define ZC_SCRIPTING_SCRIPT_OBJECT_H_
+#pragma once
 
 #include "base/general.h"
 #include "zc/ffscript.h"
@@ -185,5 +184,3 @@ struct UserDataContainer
 		return false;
 	}
 };
-
-#endif

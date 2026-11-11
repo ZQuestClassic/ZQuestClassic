@@ -1,5 +1,4 @@
-#ifndef TAB_INTERN_H_
-#define TAB_INTERN_H_
+#pragma once
 
 #include "allegro/gui.h"
 #include <cstdint>
@@ -26,5 +25,4 @@ int32_t last_visible_tab(TABPANEL *panel, int32_t first_tab, int32_t maxwidth);
 int32_t d_tab_proc(int32_t msg, DIALOG *d, int32_t c);
 #ifdef __cplusplus
 }
-#endif
 #endif

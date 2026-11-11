@@ -1,5 +1,4 @@
-#ifndef RENDER_MAP_VIEW_H_
-#define RENDER_MAP_VIEW_H_
+#pragma once
 
 #include "zalleg/render.h"
 
@@ -21,5 +20,3 @@ private:
 MapViewRTI* mapview_get_rti();
 void mapview_open(int flags, int sw, int sh, int bw, int bh);
 void mapview_close();
-
-#endif

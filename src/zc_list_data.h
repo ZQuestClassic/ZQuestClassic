@@ -1,5 +1,4 @@
-#ifndef ZC_LIST_DATA_H_
-#define ZC_LIST_DATA_H_
+#pragma once
 
 #include "base/containers.h"
 #include "base/general.h"
@@ -97,5 +96,3 @@ namespace GUI::ZCCheckListData
 	CheckList const& ex_state();
 	CheckList const& ex_doors();
 }
-
-#endif

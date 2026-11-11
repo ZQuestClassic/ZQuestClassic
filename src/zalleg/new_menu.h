@@ -1,5 +1,4 @@
-#ifndef ZALLEG_NEWMENU_H_
-#define ZALLEG_NEWMENU_H_
+#pragma once
 
 #include "base/headers.h"
 #include "base/containers.h"
@@ -217,5 +216,3 @@ private:
 };
 
 optional<int> popup_num_menu(uint x, uint y, int min, int max, optional<int> hl = nullopt, std::function<string(int)> formatter = nullptr);
-
-#endif
