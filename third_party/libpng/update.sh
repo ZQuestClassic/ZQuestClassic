@@ -9,7 +9,7 @@ cd "$SCRIPT_DIR"
 rm -rf !(update.sh)
 
 [ ! -d 'libpng' ] && git clone https://github.com/pnggroup/libpng.git
-git -C libpng checkout 49363adcfaf098748d7a4c8c624ad8c45a8c3a86 # v1.6.51
+git -C libpng checkout cd952f49f95bb27154ae77dbb103032d95f6e580 # v1.6.59
 
 mkdir src
 cp -r libpng/*.c libpng/*.h libpng/intel libpng/arm src
