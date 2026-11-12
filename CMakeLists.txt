@@ -754,19 +754,31 @@ target_link_libraries(zcbase PUBLIC zconsolelogger)
 FetchContent_Declare(
 	gme_external
 	GIT_REPOSITORY https://github.com/libgme/game-music-emu
-	GIT_TAG        05a2aa29e8eae29316804fdd28ceaa96c74a1531
+	GIT_TAG        8238afd9503a59ffcec0e2685584d5ce819ad7c6
 	PATCH_COMMAND  git restore . && git apply ${CMAKE_SOURCE_DIR}/third_party/gme.patch
 	EXCLUDE_FROM_ALL
 )
 set(GME_YM2612_EMU "Nuked" CACHE STRING "Which YM2612 emulator to use: \"Nuked\" (LGPLv2.1+), \"MAME\" (GPLv2+), or \"GENS\" (LGPLv2.1+)")
+# gme can build a shared library, a static one, or both. Build only the one
+# matching BUILD_SHARED_LIBS. gme caches these options at first configure, so
+# force them.
+if(BUILD_SHARED_LIBS)
+	set(GME_BUILD_SHARED ON CACHE BOOL "" FORCE)
+	set(GME_BUILD_STATIC OFF CACHE BOOL "" FORCE)
+else()
+	set(GME_BUILD_SHARED OFF CACHE BOOL "" FORCE)
+	set(GME_BUILD_STATIC ON CACHE BOOL "" FORCE)
+endif()
 FetchContent_MakeAvailable(gme_external)
+# gme_shared or gme_static.
+get_target_property(GME_TARGET gme::gme ALIASED_TARGET)
 add_library(gme_headers INTERFACE)
 target_include_directories(gme_headers INTERFACE ${gme_external_SOURCE_DIR}/gme)
 target_link_libraries(gme_headers INTERFACE ${ZLIB_LIBRARIES})
 target_compile_definitions(gme_headers INTERFACE -DVGM_YM2612_NUKED)
 
-set(SOUNDLIBS gme gme_headers)
-list(APPEND ZC_INSTALL_TARGETS gme)
+set(SOUNDLIBS gme::gme gme_headers)
+list(APPEND ZC_INSTALL_TARGETS ${GME_TARGET})
 
 if(MSVC AND (MSVC_VERSION GREATER 1600))
 	set(ZCSOUNDLIBSEXTRA legacy_stdio_definitions)
@@ -1249,7 +1261,8 @@ if(CMAKE_GENERATOR MATCHES "Visual Studio")
 	endif()
 	set_target_properties(run_replay_tests_all run_replay_tests_basic run_replay_tests_all_1s run_replay_tests_all_10s run_replay_tests_all_100s PROPERTIES FOLDER "Replay Tests")
 	set_target_properties(zcbase zcgui zcsound PROPERTIES FOLDER "Our Libraries")
-	set_target_properties(gme PROPERTIES FOLDER Sound)
+	get_target_property(gme_target gme::gme ALIASED_TARGET)
+	set_target_properties(${gme_target} PROPERTIES FOLDER Sound)
 	set_target_properties(allegro allegro_audio allegro_acodec allegro_image allegro_font allegro_main allegro_primitives allegro_dialog allegro-legacy al5img algif alpng PROPERTIES FOLDER Allegro)
 	set_target_properties(zconsole zconsolelogger PROPERTIES FOLDER ZConsole)
 	if(WANT_SENTRY)
