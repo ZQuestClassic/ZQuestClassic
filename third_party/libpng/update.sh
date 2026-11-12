@@ -8,7 +8,7 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd "$SCRIPT_DIR"
 rm -rf !(update.sh)
 
-SHA=49363adcfaf098748d7a4c8c624ad8c45a8c3a86 # v1.6.51
+SHA=cd952f49f95bb27154ae77dbb103032d95f6e580 # v1.6.59
 python3 ../update_dependency.py https://github.com/pnggroup/libpng/archive/${SHA}.tar.gz libpng
 
 mkdir src
