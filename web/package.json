@@ -14,7 +14,7 @@
     "workbox-cli": "^7.0.0"
   },
   "devDependencies": {
-    "esbuild": "^0.23.0",
+    "esbuild": "^0.28.2",
     "expect": "^29.4.3",
     "mocha": "^10.2.0",
     "puppeteer": "^25.2.1",
