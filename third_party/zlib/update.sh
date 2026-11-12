@@ -7,7 +7,7 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd "$SCRIPT_DIR"
 rm -fr src include
 
-SHA=51b7f2abdade71cd9bb0e7a373ef2610ec6f9daf # v1.3.1
+SHA=99623ef7097352da7993ba614161fd6a311e046e # v1.4
 python3 ../update_dependency.py https://github.com/madler/zlib/archive/${SHA}.tar.gz zlib
 
 mkdir src include
