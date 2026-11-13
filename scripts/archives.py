@@ -25,7 +25,6 @@ import github_helpers
 import requests
 import s3_helpers
 
-from github import Github, UnknownObjectException
 from joblib import Memory
 
 
@@ -185,7 +184,9 @@ def get_release_commit_count_of_tag_or_raise(branch: str, tag: str):
 def _has_release_package(tag: str, release_platform: str):
     try:
         return get_gh_release_package_url(tag, release_platform) is not None
-    except UnknownObjectException:
+    except github_helpers.GitHubError as e:
+        if e.status != 404:
+            raise
         # No GitHub release exists for this tag.
         return False
 
@@ -429,52 +430,56 @@ def create_binary_paths(dir: Path, release_platform: str, missing_ok=False):
     return binaries
 
 
-def get_repo():
+def get_gh():
     token = os.environ.get('GH_PAT', None)
     if not token:
         raise Exception('token required - set GH_PAT env variable')
 
-    gh = Github(token)
-    return gh.get_repo('ZQuestClassic/ZQuestClassic')
+    return github_helpers.GitHub(token)
 
 
 # TODO: remove this when uploading releases to s3 bucket is automated.
 def get_gh_release_package_url(tag: str, release_platform: str):
-    repo = get_repo()
-    release = repo.get_release(tag)
-    assets = list(release.get_assets())
+    gh = get_gh()
+    release = gh.get(f'repos/ZQuestClassic/ZQuestClassic/releases/tags/{tag}')
+    assets = release['assets']
 
     asset = None
     if release_platform == 'mac':
         asset = next(
-            (a for a in assets if a.name.endswith('mac-universal.dmg')), None
-        ) or next((asset for asset in assets if asset.name.endswith('.dmg')), None)
+            (a for a in assets if a['name'].endswith('mac-universal.dmg')), None
+        ) or next((asset for asset in assets if asset['name'].endswith('.dmg')), None)
     elif release_platform == 'windows':
         # Exclude things that are certainly not windows packages, so a
         # release with only (say) a mac build doesn't match below.
         candidates = [
             asset
             for asset in assets
-            if not asset.name.endswith(('.dmg', '.tar.gz', '.tgz'))
-            and 'web' not in asset.name
+            if not asset['name'].endswith(('.dmg', '.tar.gz', '.tgz'))
+            and 'web' not in asset['name']
         ]
         if len(candidates) == 1:
             asset = candidates[0]
         else:
-            candidates = [asset for asset in candidates if 'windows' in asset.name]
+            candidates = [asset for asset in candidates if 'windows' in asset['name']]
             asset = next(
                 (
                     asset
                     for arch in _windows_arch_preference()
                     for asset in candidates
-                    if arch in asset.name
+                    if arch in asset['name']
                 ),
                 None,
             )
     elif release_platform == 'linux':
         names = _linux_package_names()
         asset = next(
-            (asset for name in names for asset in assets if asset.name.endswith(name)),
+            (
+                asset
+                for name in names
+                for asset in assets
+                if asset['name'].endswith(name)
+            ),
             None,
         )
         # Very old releases used other names, but were all x86-64.
@@ -483,8 +488,8 @@ def get_gh_release_package_url(tag: str, release_platform: str):
                 (
                     asset
                     for asset in assets
-                    if asset.name.endswith(('.tar.gz', '.tgz'))
-                    and 'aarch64' not in asset.name
+                    if asset['name'].endswith(('.tar.gz', '.tgz'))
+                    and 'aarch64' not in asset['name']
                 ),
                 None,
             )
@@ -492,7 +497,7 @@ def get_gh_release_package_url(tag: str, release_platform: str):
     if not asset:
         return None
 
-    return asset.browser_download_url
+    return asset['browser_download_url']
 
 
 def download(tag_or_sha: str, release_platform: str, quiet=False):

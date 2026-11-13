@@ -69,7 +69,6 @@ from compare_replays import (
     create_compare_report,
     start_webserver,
 )
-from github import Github
 from lib.replay_helpers import read_replay_meta
 from replays import (
     Replay,
@@ -100,7 +99,7 @@ is_agent = 'CLAUDE' in os.environ or 'AGENT' in os.environ
 sys.path.append(str((root_dir / 'scripts').absolute()))
 import archives
 
-from github_helpers import infer_gha_platform
+from github_helpers import GitHub, infer_gha_platform
 
 
 def dir_path(path):
@@ -596,7 +595,7 @@ def prompt_for_gh_auth():
         token = input('Enter a GitHub PAT token: ').strip()
         print()
 
-    return Github(token), repo
+    return GitHub(token), repo
 
 
 def upstream_fetched_recently(max_age_hours: float) -> bool:

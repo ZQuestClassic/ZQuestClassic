@@ -9,10 +9,74 @@ from time import sleep
 
 import requests
 
-from github import Github
+from requests.adapters import HTTPAdapter
+from urllib3.util import Retry
 
 script_dir = Path(os.path.dirname(os.path.realpath(__file__)))
 root_dir = script_dir.parent
+
+API_URL = 'https://api.github.com'
+
+
+class GitHubError(Exception):
+    def __init__(self, status: int, data: dict):
+        super().__init__(f'{status} {data}')
+        self.status = status
+        # The response body. For an error from GitHub, has a "message".
+        self.data = data
+
+
+# A minimal client for GitHub's REST API. Results are the parsed JSON, as
+# documented at https://docs.github.com/en/rest
+class GitHub:
+    def __init__(self, token: str | None = None):
+        self.token = token
+        self.session = requests.Session()
+        # The session reuses connections, which GitHub may have closed while
+        # idle (say, between polls of a workflow run). Retry those, and
+        # GitHub's occasional 5xx errors, for requests that are safe to repeat.
+        retry = Retry(
+            total=5,
+            backoff_factor=1,
+            status_forcelist=[500, 502, 503, 504],
+            raise_on_status=False,
+        )
+        self.session.mount('https://', HTTPAdapter(max_retries=retry))
+        self.session.headers['Accept'] = 'application/vnd.github+json'
+        self.session.headers['X-GitHub-Api-Version'] = '2022-11-28'
+        if token:
+            self.session.headers['Authorization'] = f'Bearer {token}'
+
+    # `path` is relative to the API root, or a full URL (many results have
+    # URLs for related resources).
+    def request(self, method: str, path: str, **kwargs) -> requests.Response:
+        url = path if path.startswith('https://') else f'{API_URL}/{path}'
+        response = self.session.request(method, url, timeout=60, **kwargs)
+        if response.status_code >= 400:
+            try:
+                data = response.json()
+            except ValueError:
+                data = {'message': response.text}
+            raise GitHubError(response.status_code, data)
+        return response
+
+    def get(self, path: str, **params):
+        return self.request('GET', path, params=params).json()
+
+    def post(self, path: str, body: dict | None = None) -> requests.Response:
+        return self.request('POST', path, json=body)
+
+    # Yields every item of a list, fetching more pages only as needed. Some
+    # lists are wrapped in an object: `list_item` is the key they are under.
+    def paginate(self, path: str, list_item: str | None = None, **params):
+        params = {'per_page': 100, **params}
+        while path:
+            response = self.request('GET', path, params=params)
+            data = response.json()
+            yield from data[list_item] if list_item else data
+            # The URL of the next page already has the params.
+            path = response.links.get('next', {}).get('url')
+            params = None
 
 
 def is_arm64_windows():
@@ -69,14 +133,12 @@ def infer_gha_platform():
 # See:
 # - https://nightly.link/
 # - https://github.com/actions/upload-artifact/issues/51
-def _download_artifact(gh, repo, artifact, dest):
-    auth_header = gh._Github__requester._Requester__authorizationHeader
-    if auth_header == None:
-        url = f'https://nightly.link/{repo}/actions/artifacts/{artifact.id}.zip'
+def _download_artifact(gh: GitHub, repo, artifact, dest):
+    if not gh.token:
+        url = f'https://nightly.link/{repo}/actions/artifacts/{artifact["id"]}.zip'
         r = requests.get(url)
     else:
-        url = artifact.archive_download_url
-        r = requests.get(url, headers={'Authorization': auth_header})
+        r = gh.request('GET', artifact['archive_download_url'])
 
     zip = zipfile.ZipFile(io.BytesIO(r.content))
     zip.extractall(dest)
@@ -93,7 +155,7 @@ def extract_tars(dir: Path):
             tar_path.unlink()
 
 
-def get_gha_artifacts(gh: Github, repo_str: str, run_id: int) -> Path:
+def get_gha_artifacts(gh: GitHub, repo_str: str, run_id: int) -> Path:
     if not isinstance(run_id, int):
         raise Exception('run_id must be an integer')
 
@@ -102,9 +164,10 @@ def get_gha_artifacts(gh: Github, repo_str: str, run_id: int) -> Path:
     if workflow_run_dir.exists() and (workflow_run_dir / '.complete').exists():
         return workflow_run_dir
 
-    repo = gh.get_repo(repo_str)
-    run = repo.get_workflow_run(run_id)
-    replay_artifacts = [r for r in run.get_artifacts() if r.name.startswith('replays-')]
+    artifacts = gh.paginate(
+        f'repos/{repo_str}/actions/runs/{run_id}/artifacts', list_item='artifacts'
+    )
+    replay_artifacts = [a for a in artifacts if a['name'].startswith('replays-')]
     if not replay_artifacts:
         raise Exception(f'no replay artifacts found for run {run_id}')
 
@@ -112,16 +175,16 @@ def get_gha_artifacts(gh: Github, repo_str: str, run_id: int) -> Path:
 
     test_results_paths = []
     for artifact in replay_artifacts:
-        artifact_dir = workflow_run_dir / str(artifact.name)
+        artifact_dir = workflow_run_dir / artifact['name']
         if not artifact_dir.exists():
-            print(f'downloading artifact: {artifact.name}')
+            print(f'downloading artifact: {artifact["name"]}')
             _download_artifact(gh, repo_str, artifact, artifact_dir)
             extract_tars(artifact_dir)
         test_results_path = next(artifact_dir.rglob('test_results.json'), None)
         if test_results_path:
             test_results_paths.append(test_results_path)
         else:
-            print(f'missing test_results.json for {artifact.name}')
+            print(f'missing test_results.json for {artifact["name"]}')
 
     if not test_results_paths:
         raise Exception(f'run {run_id}: found no test_results.json files')
@@ -132,7 +195,7 @@ def get_gha_artifacts(gh: Github, repo_str: str, run_id: int) -> Path:
 
 # It's possible that the artifacts are not available very shortly after a workflow finishes.
 # Pretty rare, though.
-def get_gha_artifacts_with_retry(gh: Github, repo_str: str, run_id: int) -> Path:
+def get_gha_artifacts_with_retry(gh: GitHub, repo_str: str, run_id: int) -> Path:
     NUM_TRIES = 5
     WAIT_TIME = 20
     for i in range(0, NUM_TRIES):

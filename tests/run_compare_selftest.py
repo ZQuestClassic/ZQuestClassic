@@ -24,13 +24,13 @@ import time
 
 from pathlib import Path
 
-from github import Github
-
 script_dir = Path(__file__).parent.absolute()
 root_dir = script_dir.parent
 sys.path.append(str(script_dir))
+sys.path.append(str(root_dir / 'scripts'))
 
-from run_test_workflow import start_test_workflow_run
+from github_helpers import GitHub
+from run_test_workflow import get_workflow_run, start_test_workflow_run
 
 parser = argparse.ArgumentParser(
     description='Check that a compare report gets generated for a failing replay run.'
@@ -68,27 +68,26 @@ def get_token():
     return subprocess.check_output(['gh', 'auth', 'token'], text=True).strip()
 
 
-def wait_for_run(repo, run_id):
+def wait_for_run(run_id):
     start = time.time()
     last_status = None
     while True:
-        run = repo.get_workflow_run(run_id)
-        if run.status != last_status:
-            print(f'[{int(time.time() - start)}s] run {run_id}: {run.status}')
-            last_status = run.status
-        if run.status == 'completed':
+        run = get_workflow_run(gh, args.repo, run_id)
+        if run['status'] != last_status:
+            print(f'[{int(time.time() - start)}s] run {run_id}: {run["status"]}')
+            last_status = run['status']
+        if run['status'] == 'completed':
             return run
         time.sleep(30)
 
 
 token = get_token()
-gh = Github(token)
-repo = gh.get_repo(args.repo)
+gh = GitHub(token)
 
 if args.run_id:
     run_id = args.run_id
-    run = repo.get_workflow_run(run_id)
-    print(f'using existing run: {run.html_url}')
+    run = get_workflow_run(gh, args.repo, run_id)
+    print(f'using existing run: {run["html_url"]}')
 else:
     # Stop shortly after the corrupted frame, to keep the runs short.
     stop_frame = args.corrupt_frame + 60
@@ -103,11 +102,11 @@ else:
     if not run_id:
         sys.exit('failed to dispatch the test workflow')
     print(f'dispatched: https://github.com/{args.repo}/actions/runs/{run_id}')
-    run = wait_for_run(repo, run_id)
+    run = wait_for_run(run_id)
 
-if run.conclusion != 'failure':
+if run['conclusion'] != 'failure':
     sys.exit(
-        f'run {run_id} concluded "{run.conclusion}", expected "failure". '
+        f'run {run_id} concluded "{run["conclusion"]}", expected "failure". '
         'If it passed, the branch probably lacks the -replay-debug-corrupt-frame flag.'
     )
 
@@ -134,7 +133,7 @@ subprocess.check_call(
         '--run-id',
         str(run_id),
         '--ref-name',
-        run.head_branch,
+        run['head_branch'],
         '--actor',
         'compare-selftest',
     ],

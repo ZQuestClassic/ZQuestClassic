@@ -9,7 +9,7 @@ from pathlib import Path
 
 import requests
 
-from github import Github
+from github_helpers import GitHub
 
 BUCKET = 'zc-archives'
 BUCKET_URL = 'https://zc-archives.nyc3.cdn.digitaloceanspaces.com'
@@ -52,25 +52,27 @@ def get_commits_in_bucket(bucket_url: str):
     return list(commitishes)
 
 
-gh = Github(args.token)
-repo = gh.get_repo('ZQuestClassic/ZQuestClassic')
+gh = GitHub(args.token)
 releases_already_uploaded = get_commits_in_bucket(BUCKET_URL)
 
-for release in repo.get_releases():
-    if release.tag_name in releases_already_uploaded:
+for release in gh.paginate('repos/ZQuestClassic/ZQuestClassic/releases'):
+    tag = release['tag_name']
+    if tag in releases_already_uploaded:
         continue
-    if release.created_at.year < 2024:
+    # An ISO 8601 date.
+    if int(release['created_at'][:4]) < 2024:
         continue
 
-    print(f'uploading {release.tag_name}')
-    rls_dir = tmp_dir / release.tag_name
+    print(f'uploading {tag}')
+    rls_dir = tmp_dir / tag
     rls_dir.mkdir(exist_ok=True, parents=True)
-    for asset in release.get_assets():
-        if 'web' in asset.name:
+    for asset in release['assets']:
+        if 'web' in asset['name']:
             continue
 
-        asset_path = rls_dir / asset.name.replace(f'{release.tag_name}-', '')
+        asset_path = rls_dir / asset['name'].replace(f'{tag}-', '')
         if not asset_path.exists():
-            asset_path.write_bytes(requests.get(asset.browser_download_url).content)
+            url = asset['browser_download_url']
+            asset_path.write_bytes(requests.get(url).content)
 
     subprocess.check_call(['s3cmd', 'sync', '--acl-public', rls_dir, f's3://{BUCKET}/'])

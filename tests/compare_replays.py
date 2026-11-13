@@ -16,7 +16,6 @@ from pathlib import Path
 
 import intervaltree
 
-from github import Github
 from PIL import Image
 from replays import ReplayTestResults, RunResult
 
@@ -24,7 +23,7 @@ script_dir = Path(os.path.dirname(os.path.realpath(__file__)))
 root_dir = script_dir.parent
 
 os.sys.path.append(str((root_dir / 'scripts').absolute()))
-from github_helpers import extract_tars, get_gha_artifacts_with_retry
+from github_helpers import GitHub, extract_tars, get_gha_artifacts_with_retry
 
 
 def dir_path(path):
@@ -175,7 +174,7 @@ def collect_many_test_results_from_dir(directory: Path) -> list[ReplayTestResult
 
 
 def collect_many_test_results_from_ci(
-    gh: Github, repo: str, workflow_run_id: str
+    gh: GitHub, repo: str, workflow_run_id: str
 ) -> list[ReplayTestResults]:
     workflow_dir = get_gha_artifacts_with_retry(gh, repo, workflow_run_id)
     return collect_many_test_results_from_dir(workflow_dir)
@@ -465,7 +464,7 @@ if __name__ == '__main__':
     all_test_runs = []
     if args.workflow_run:
         print(f'collecting test runs from CI of {args.repo}')
-        gh = Github(args.token)
+        gh = GitHub(args.token)
         for run_id in args.workflow_run:
             print(f'=== collecting test runs from workflow run {run_id}')
             test_runs = collect_many_test_results_from_ci(gh, args.repo, run_id)
