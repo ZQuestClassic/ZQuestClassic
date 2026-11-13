@@ -60,7 +60,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: git clone
-        uses: connorjclark/action-cached-lfs-checkout@3ea4dc59b06f3baa8c01ba891fbfc2dbfdce5bc8
+        uses: connorjclark/action-cached-lfs-checkout@f082d118c76ebb8e100c35719e76b86866146f9d
         with:
           enableCrossOsArchive: true
 
@@ -87,12 +87,12 @@ jobs:
     runs-on: ${{ inputs.runs-on }}
     steps:
       - name: git clone
-        uses: connorjclark/action-cached-lfs-checkout@3ea4dc59b06f3baa8c01ba891fbfc2dbfdce5bc8
+        uses: connorjclark/action-cached-lfs-checkout@f082d118c76ebb8e100c35719e76b86866146f9d
         with:
           enableCrossOsArchive: true
 
       - name: Setup Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v7
         with:
           python-version: '3.12'
           # Many pinned packages have no Windows arm64 wheels; x64 Python runs
@@ -112,7 +112,7 @@ jobs:
       - run: mkdir -p .tmp
 
       - name: Download Artifacts
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v8
         with:
           name: ${{ needs.build.outputs.artifact-name }}
           path: ${{ needs.build.outputs.artifact-name }}
@@ -242,14 +242,14 @@ jobs:
       HAS_ZSCRIPT_DATABASE_TOKEN: ${{ secrets.GH_PAT_ZSCRIPT_DATABASE != '' }}
     steps:
       - name: git clone
-        uses: connorjclark/action-cached-lfs-checkout@3ea4dc59b06f3baa8c01ba891fbfc2dbfdce5bc8
+        uses: connorjclark/action-cached-lfs-checkout@f082d118c76ebb8e100c35719e76b86866146f9d
         with:
           enableCrossOsArchive: true
       # For test_zscript_version_docs.
       - run: git fetch origin releases/2.55
 
       - name: Setup Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v7
         with:
           python-version: '3.12'
           # Many pinned packages have no Windows arm64 wheels; x64 Python runs
@@ -269,12 +269,12 @@ jobs:
       - run: mkdir -p .tmp
 
       - name: Install Node.js 22.x
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v7
         with:
           node-version: 22.x
 
       - name: Download Artifacts
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v8
         with:
           name: ${{ needs.build.outputs.artifact-name }}
           path: ${{ needs.build.outputs.artifact-name }}
@@ -290,13 +290,13 @@ jobs:
           --build-folder zc-extracted
 
       - name: Updater cache
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: ${{ github.workspace }}/.tmp/test_updater/cache
           key: updater-cache-${{ inputs.runs-on }}-${{ runner.arch }}
 
       - name: Archives cache
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: ${{ github.workspace }}/.tmp/archives
           key: archives-cache-${{ inputs.runs-on }}-${{ runner.arch }}
@@ -304,14 +304,14 @@ jobs:
       # The vscode extension test downloads a pinned VS Code into this folder;
       # the key follows the file that holds the pinned version.
       - name: VS Code test cache
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: ${{ github.workspace }}/vscode-extension/.vscode-test/vscode-*
           key: vscode-test-cache-${{ inputs.runs-on }}-${{ runner.arch }}-${{ hashFiles('vscode-extension/client/src/test/runTest.ts') }}
 
       - name: Checkout zscript database
         if: ${{ env.HAS_ZSCRIPT_DATABASE_TOKEN == 'true' }}
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           token: ${{ secrets.GH_PAT_ZSCRIPT_DATABASE }}
           repository: ZQuestClassic/zscript-database
