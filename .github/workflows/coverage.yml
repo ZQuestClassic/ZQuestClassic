@@ -23,9 +23,7 @@ jobs:
   collect-coverage:
     needs: warm-lfs-cache
     if: github.repository == 'ZQuestClassic/ZQuestClassic'
-    # See https://github.com/community/community/discussions/40777
-    # uses: ./.github/workflows/test.yml
-    uses: ZQuestClassic/ZQuestClassic/.github/workflows/test.yml@main
+    uses: ./.github/workflows/test.yml
     with:
       runs-on: ubuntu-22.04
       arch: x64
