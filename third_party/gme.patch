@@ -6,11 +6,17 @@ Taken from https://github.com/libgme/game-music-emu/pull/167 (which builds
 on https://github.com/libgme/game-music-emu/pull/134). Remove this patch
 once the pinned gme commit includes that change.
 
+Also gives the NSF voice type table an entry for every voice. It had 16,
+but a file enabling every expansion chip has 29 voices, so muting voices
+read past the end of the table (CVE-2026-111153). Fix as suggested in
+https://github.com/libgme/game-music-emu/issues/164. Remove this part once
+the pinned gme commit fixes that issue.
+
 diff --git a/gme/Nes_Fds_Apu.h b/gme/Nes_Fds_Apu.h
-index b12cf93b..ae0ae4f8 100644
+index b12cf93..ae0ae4f 100644
 --- a/gme/Nes_Fds_Apu.h
 +++ b/gme/Nes_Fds_Apu.h
-@@ -24,6 +24,9 @@ class Nes_Fds_Apu {
+@@ -24,6 +24,9 @@ public:
  	int read( blip_time_t time, unsigned addr );
  	void end_frame( blip_time_t );
  
@@ -21,10 +27,24 @@ index b12cf93b..ae0ae4f8 100644
  	Nes_Fds_Apu();
  	void write_( unsigned addr, int data );
 diff --git a/gme/Nsf_Emu.cpp b/gme/Nsf_Emu.cpp
-index 860cb503..8aae0d45 100644
+index 796de61..190f8b9 100644
 --- a/gme/Nsf_Emu.cpp
 +++ b/gme/Nsf_Emu.cpp
-@@ -545,6 +545,17 @@ void Nsf_Emu::cpu_write_misc( nes_addr_t addr, int data )
+@@ -214,7 +214,12 @@ blargg_err_t Nsf_Emu::init_sound()
+ 		noise_type | 0, mixed_type | 1,
+ 		wave_type  | 3, wave_type  | 4, wave_type | 5,
+ 		wave_type  | 6, wave_type  | 7, wave_type | 8, wave_type | 9,
+-		wave_type  |10, wave_type  |11, wave_type |12, wave_type |13
++		wave_type  |10, wave_type  |11, wave_type |12, wave_type |13,
++		// One entry per voice with every expansion chip enabled (29)
++		wave_type  |14, wave_type  |15, wave_type |16, wave_type |17,
++		wave_type  |18, wave_type  |19, wave_type |20, wave_type |21,
++		wave_type  |22, wave_type  |23, wave_type |24, wave_type |25,
++		wave_type  |26
+ 	};
+ 	set_voice_types( types ); // common to all sound chip configurations
+ 
+@@ -546,6 +551,17 @@ void Nsf_Emu::cpu_write_misc( nes_addr_t addr, int data )
  				return;
  			}
  		}
@@ -42,7 +62,7 @@ index 860cb503..8aae0d45 100644
  	}
  	#endif
  
-@@ -575,6 +586,21 @@ blargg_err_t Nsf_Emu::start_track_( int track )
+@@ -576,6 +592,21 @@ blargg_err_t Nsf_Emu::start_track_( int track )
  
  	cpu::reset( unmapped_code ); // also maps low_mem
  	cpu::map_code( sram_addr, sizeof sram, sram );
@@ -65,7 +85,7 @@ index 860cb503..8aae0d45 100644
  		cpu_write( bank_select_addr + i, initial_banks [i] );
  
 diff --git a/gme/nes_cpu_io.h b/gme/nes_cpu_io.h
-index 6f8b08ff..da58fc43 100644
+index 6f8b08f..da58fc4 100644
 --- a/gme/nes_cpu_io.h
 +++ b/gme/nes_cpu_io.h
 @@ -9,6 +9,8 @@
