@@ -1,0 +1,7 @@
+# Advisories that scripts/check_dependency_advisories.py should not report.
+#
+# <dependency> <advisory id> <reason>
+
+gme_external CVE-2026-111153 Fixed by third_party/gme.patch
+gme_external CVE-2026-0016 Not about gme. An Android bulletin, filed against every project Android bundles
+gme_external CVE-2026-0018 Not about gme. An Android bulletin, filed against every project Android bundles

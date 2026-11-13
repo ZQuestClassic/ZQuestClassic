@@ -1,0 +1,68 @@
+name: Dependency Advisories
+
+# Checks the native dependencies for known security advisories, and keeps an
+# issue open for as long as there are any. Dependabot handles the Python, npm
+# and GitHub Actions dependencies - see .github/dependabot.yml.
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 14 * * 1"
+
+permissions:
+  contents: read
+  issues: write
+
+env:
+  PYTHONUNBUFFERED: "1"
+  ISSUE_TITLE: Security advisories for native dependencies
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    if: github.repository == 'ZQuestClassic/ZQuestClassic'
+
+    steps:
+      - name: git clone
+        uses: actions/checkout@v4
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Check advisories
+        id: check
+        run: |
+          set +e
+          python scripts/check_dependency_advisories.py --output report.md
+          code=$?
+          # 1 means advisories were found. Anything higher is the script failing.
+          if [ $code -gt 1 ]; then exit $code; fi
+          cat report.md >> "$GITHUB_STEP_SUMMARY"
+          echo "found=$code" >> "$GITHUB_OUTPUT"
+
+      - name: Update issue
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          FOUND: ${{ steps.check.outputs.found }}
+        run: |
+          issue=$(gh issue list --state open --search "in:title \"$ISSUE_TITLE\"" \
+            --json number,title --jq "map(select(.title == \"$ISSUE_TITLE\")) | .[0].number // empty")
+          if [ "$FOUND" = "1" ]; then
+            if [ -n "$issue" ]; then
+              # Editing an issue notifies nobody, so comment if the report changed.
+              gh issue view "$issue" --json body --jq .body > previous.md
+              if ! diff -qbB --strip-trailing-cr previous.md report.md > /dev/null; then
+                gh issue edit "$issue" --body-file report.md
+                gh issue comment "$issue" --body "The report changed - see the description."
+              fi
+            else
+              gh issue create --title "$ISSUE_TITLE" --body-file report.md
+            fi
+          elif [ -n "$issue" ]; then
+            gh issue close "$issue" --comment "No advisories remain."
+          fi
+
+      - name: Fail if there are advisories
+        if: steps.check.outputs.found == '1'
+        run: exit 1
