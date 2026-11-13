@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2026-11-10 08:08:23</td>
+      <td>2026-11-13 22:29:49</td>
     </tr>
   </table>
 </div>
@@ -74,12 +74,12 @@
       <th>Block coverage</th>
     </tr>
     <tr><td><a href="#l849">build_shader(char const*, char const*, char const*, bool) (line 849)</a></td><td>not called</td><td>0.0%</td></tr>
-    <tr><td><a href="#l756">crt_filter_get_mode() (line 756)</a></td><td>called 20058 times, returned 20058 times</td><td>83.0%</td></tr>
+    <tr><td><a href="#l756">crt_filter_get_mode() (line 756)</a></td><td>called 26593 times, returned 26593 times</td><td>83.0%</td></tr>
     <tr><td><a href="#l919">crt_filter_overlay_shader() (line 919)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l768">crt_filter_set_mode(CrtFilterMode) (line 768)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l947">crt_filter_set_overlay_uniforms(int, int, int, int, float, float, float, float) (line 947)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l928">crt_filter_set_uniforms(int, int, int, int) (line 928)</a></td><td>not called</td><td>0.0%</td></tr>
-    <tr><td><a href="#l910">crt_filter_shader() (line 910)</a></td><td>called 20058 times, returned 20058 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l910">crt_filter_shader() (line 910)</a></td><td>called 26593 times, returned 26593 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l780">crt_filter_update_web_display_size() (line 780)</a></td><td>called 849 times, returned 849 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l960">crt_filter_warp_uv(double, double) (line 960)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l955">crt_filter_warps_mouse() (line 955)</a></td><td>not called</td><td>0.0%</td></tr>
@@ -88,7 +88,7 @@
     <tr><td><a href="#l692">geom::intersect(geom::Vec2) (line 692)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l733">geom::maxscale() (line 733)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l747">geom::stretch() (line 747)</a></td><td>not called</td><td>0.0%</td></tr>
-    <tr><td><a href="#l884">get_cached_shader(CrtFilterMode, bool) (line 884)</a></td><td>called 20058 times, returned 20058 times</td><td>30.0%</td></tr>
+    <tr><td><a href="#l884">get_cached_shader(CrtFilterMode, bool) (line 884)</a></td><td>called 26593 times, returned 26593 times</td><td>30.0%</td></tr>
   </table>
 </details>
 
@@ -108,28 +108,28 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;zc/crt_filter.h&quot;</span></td>
+      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">"zc/crt_filter.h"</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2" href="#l2">2</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;zalleg/zalleg.h&quot;</span></td>
+      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">"zalleg/zalleg.h"</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l3" href="#l3">3</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;a5alleg.h&quot;</span></td>
+      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">"a5alleg.h"</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l4" href="#l4">4</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;zconfig.h&quot;</span></td>
+      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">"zconfig.h"</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l5" href="#l5">5</a></td>
@@ -213,7 +213,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="c1">// defaults, uniforms are adapted to allegro&#39;s shader conventions, HLSL translations were</span></td>
+      <td class="src "><span class="c1">// defaults, uniforms are adapted to allegro's shader conventions, HLSL translations were</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l17" href="#l17">17</a></td>
@@ -374,14 +374,14 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="c1">//     &quot;Feel free to distribute my shaders under the GPL. After all, the barrel</span></td>
+      <td class="src "><span class="c1">//     "Feel free to distribute my shaders under the GPL. After all, the barrel</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l40" href="#l40">40</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="c1">//     distortion code was taken from the Curvature shader, which is under the GPL.&quot;)</span></td>
+      <td class="src "><span class="c1">//     distortion code was taken from the Curvature shader, which is under the GPL.")</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l41" href="#l41">41</a></td>
@@ -423,21 +423,21 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="c1">// allegro&#39;s default vertex shader, which provides `varying_texcoord` normalized over</span></td>
+      <td class="src "><span class="c1">// allegro's default vertex shader, which provides `varying_texcoord` normalized over</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l47" href="#l47">47</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="c1">// the source bitmap and `varying_color` holding the draw call&#39;s tint. The HLSL ones</span></td>
+      <td class="src "><span class="c1">// the source bitmap and `varying_color` holding the draw call's tint. The HLSL ones</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l48" href="#l48">48</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="c1">// pair with allegro&#39;s default `vs_main`/`VS_OUTPUT` (`Input.TexCoord`/`Input.Color`).</span></td>
+      <td class="src "><span class="c1">// pair with allegro's default `vs_main`/`VS_OUTPUT` (`Input.TexCoord`/`Input.Color`).</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l49" href="#l49">49</a></td>
@@ -472,7 +472,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="c1">// - keeping the two passes in a single source is what guarantees they can&#39;t drift apart -</span></td>
+      <td class="src "><span class="c1">// - keeping the two passes in a single source is what guarantees they can't drift apart -</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l54" href="#l54">54</a></td>
@@ -500,7 +500,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="k">static</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">easymode_glsl</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="sa">R</span><span class="s">&quot;</span><span class="dl">(</span></td>
+      <td class="src "><span class="k">static</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">easymode_glsl</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="sa">R</span><span class="s">"</span><span class="dl">(</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l58" href="#l58">58</a></td>
@@ -1186,14 +1186,14 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="s">    // varying_texcoord has GL&#39;s origin (v grows upward) while u_sub_rect is measured from</span></td>
+      <td class="src "><span class="s">    // varying_texcoord has GL's origin (v grows upward) while u_sub_rect is measured from</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l156" href="#l156">156</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="s">    // the layer&#39;s top, so flip into top-down layer space for the rect mapping - and flip</span></td>
+      <td class="src "><span class="s">    // the layer's top, so flip into top-down layer space for the rect mapping - and flip</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l157" href="#l157">157</a></td>
@@ -1221,7 +1221,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="s">    // no flips - Direct3D&#39;s texture origin is already top-down.) The base pass never</span></td>
+      <td class="src "><span class="s">    // no flips - Direct3D's texture origin is already top-down.) The base pass never</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l161" href="#l161">161</a></td>
@@ -1277,7 +1277,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="s">    // dilate() matches the base pass&#39;s input curve; diverging leaves the overlay in a</span></td>
+      <td class="src "><span class="s">    // dilate() matches the base pass's input curve; diverging leaves the overlay in a</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l169" href="#l169">169</a></td>
@@ -1305,7 +1305,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="s">    // Un-premultiplying around the math isn&#39;t worth the cost for how thin those edges are.</span></td>
+      <td class="src "><span class="s">    // Un-premultiplying around the math isn't worth the cost for how thin those edges are.</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l173" href="#l173">173</a></td>
@@ -1368,7 +1368,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="s">    // Scanlines can&#39;t be resolved below ~2x output scale (they only alias) - fade them out.</span></td>
+      <td class="src "><span class="s">    // Scanlines can't be resolved below ~2x output scale (they only alias) - fade them out.</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l182" href="#l182">182</a></td>
@@ -1627,7 +1627,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="dl">)</span><span class="s">&quot;</span><span class="p">;</span></td>
+      <td class="src "><span class="dl">)</span><span class="s">"</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l219" href="#l219">219</a></td>
@@ -1641,7 +1641,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="k">static</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">easymode_hlsl</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="sa">R</span><span class="s">&quot;</span><span class="dl">(</span></td>
+      <td class="src "><span class="k">static</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">easymode_hlsl</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="sa">R</span><span class="s">"</span><span class="dl">(</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l221" href="#l221">221</a></td>
@@ -2229,7 +2229,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="s">    // See the GLSL version. No coordinate flips here: Direct3D&#39;s texture origin is</span></td>
+      <td class="src "><span class="s">    // See the GLSL version. No coordinate flips here: Direct3D's texture origin is</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l305" href="#l305">305</a></td>
@@ -2334,7 +2334,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="s">    // Scanlines can&#39;t be resolved below ~2x output scale (they only alias) - fade them out.</span></td>
+      <td class="src "><span class="s">    // Scanlines can't be resolved below ~2x output scale (they only alias) - fade them out.</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l320" href="#l320">320</a></td>
@@ -2586,7 +2586,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="dl">)</span><span class="s">&quot;</span><span class="p">;</span></td>
+      <td class="src "><span class="dl">)</span><span class="s">"</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l356" href="#l356">356</a></td>
@@ -2600,7 +2600,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="k">static</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">geom_glsl</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="sa">R</span><span class="s">&quot;</span><span class="dl">(</span></td>
+      <td class="src "><span class="k">static</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">geom_glsl</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="sa">R</span><span class="s">"</span><span class="dl">(</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l358" href="#l358">358</a></td>
@@ -3482,7 +3482,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="s">    // the overlay bitmap stands in for both scanline rows. GL&#39;s texture-space y runs</span></td>
+      <td class="src "><span class="s">    // the overlay bitmap stands in for both scanline rows. GL's texture-space y runs</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l484" href="#l484">484</a></td>
@@ -3734,7 +3734,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="s">    // See easymode above: the vertex color carries the draw call&#39;s tint.</span></td>
+      <td class="src "><span class="s">    // See easymode above: the vertex color carries the draw call's tint.</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l520" href="#l520">520</a></td>
@@ -3755,7 +3755,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="dl">)</span><span class="s">&quot;</span><span class="p">;</span></td>
+      <td class="src "><span class="dl">)</span><span class="s">"</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l523" href="#l523">523</a></td>
@@ -3769,7 +3769,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="k">static</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">geom_hlsl</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="sa">R</span><span class="s">&quot;</span><span class="dl">(</span></td>
+      <td class="src "><span class="k">static</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">geom_hlsl</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="sa">R</span><span class="s">"</span><span class="dl">(</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l525" href="#l525">525</a></td>
@@ -4805,7 +4805,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="dl">)</span><span class="s">&quot;</span><span class="p">;</span></td>
+      <td class="src "><span class="dl">)</span><span class="s">"</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l673" href="#l673">673</a></td>
@@ -4819,7 +4819,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="c1">// CPU mirror of crt-geom&#39;s curvature math (with tilt fixed at 0), used both to compute</span></td>
+      <td class="src "><span class="c1">// CPU mirror of crt-geom's curvature math (with tilt fixed at 0), used both to compute</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l675" href="#l675">675</a></td>
@@ -5392,7 +5392,7 @@
       <td class="lineno"><a id="l756" href="#l756">756</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">20058</td>
+      <td class="linecount coveredLine">26593</td>
       <td class="src coveredLine"><span class="n">CrtFilterMode</span><span class="w"> </span><span class="nf">crt_filter_get_mode</span><span class="p">()</span></td>
     </tr>
     <tr class="source-line">
@@ -5408,12 +5408,12 @@
         <details class="linebranchDetails">
         <summary class="linebranchSummary">2/2</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 19925 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 26460 times.</div>
           <div class="takenBranch">&check; Branch 1 taken 133 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount coveredLine">20058</td>
+      <td class="linecount coveredLine">26593</td>
       <td class="src coveredLine"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">loaded_mode</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -5428,7 +5428,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">133</td>
-      <td class="src coveredLine"><span class="w">		</span><span class="kt">int</span><span class="w"> </span><span class="n">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zc_get_config</span><span class="p">(</span><span class="s">&quot;zeldadx&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;crt_filter&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span></td>
+      <td class="src coveredLine"><span class="w">		</span><span class="kt">int</span><span class="w"> </span><span class="n">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zc_get_config</span><span class="p">(</span><span class="s">"zeldadx"</span><span class="p">,</span><span class="w"> </span><span class="s">"crt_filter"</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l761" href="#l761">761</a></td>
@@ -5471,7 +5471,7 @@
       <td class="lineno"><a id="l765" href="#l765">765</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">20058</td>
+      <td class="linecount coveredLine">26593</td>
       <td class="src coveredLine"><span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="o">*</span><span class="n">loaded_mode</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
@@ -5514,7 +5514,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">	</span><span class="n">zc_set_config</span><span class="p">(</span><span class="s">&quot;zeldadx&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;crt_filter&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="n">mode</span><span class="p">);</span></td>
+      <td class="src uncoveredLine"><span class="w">	</span><span class="n">zc_set_config</span><span class="p">(</span><span class="s">"zeldadx"</span><span class="p">,</span><span class="w"> </span><span class="s">"crt_filter"</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="n">mode</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l772" href="#l772">772</a></td>
@@ -5675,7 +5675,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="c1">// bufW never shrinks below the virtual screen, so when the page&#39;s box is smaller</span></td>
+      <td class="src "><span class="w">		</span><span class="c1">// bufW never shrinks below the virtual screen, so when the page's box is smaller</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l795" href="#l795">795</a></td>
@@ -5843,14 +5843,14 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="c1">// `screen` is repointed at a popup&#39;s own bitmap while one is open - which is always, since</span></td>
+      <td class="src "><span class="w">	</span><span class="c1">// `screen` is repointed at a popup's own bitmap while one is open - which is always, since</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l819" href="#l819">819</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="c1">// this runs from the CRT Filter menu callback, so it read the menu&#39;s size instead.</span></td>
+      <td class="src "><span class="w">	</span><span class="c1">// this runs from the CRT Filter menu callback, so it read the menu's size instead.</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l820" href="#l820">820</a></td>
@@ -5990,7 +5990,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="s">&quot;C&quot;</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">zc_web_display_size_changed</span><span class="p">()</span></td>
+      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="s">"C"</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">zc_web_display_size_changed</span><span class="p">()</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l840" href="#l840">840</a></td>
@@ -6032,14 +6032,14 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="c1">// Each filter&#39;s source builds two programs: the base pass, and (with `overlay` set, which</span></td>
+      <td class="src "><span class="c1">// Each filter's source builds two programs: the base pass, and (with `overlay` set, which</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l846" href="#l846">846</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="c1">// prepends `#define OVERLAY`) the full-resolution overlay variant. Both languages&#39;</span></td>
+      <td class="src "><span class="c1">// prepends `#define OVERLAY`) the full-resolution overlay variant. Both languages'</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l847" href="#l847">847</a></td>
@@ -6151,14 +6151,14 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">		</span><span class="n">Z_message</span><span class="p">(</span><span class="s">&quot;Could not create shader for CRT filter &#39;%s&#39; - was the display created with ALLEGRO_PROGRAMMABLE_PIPELINE?</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="p">);</span></td>
+      <td class="src uncoveredLine"><span class="w">		</span><span class="n">Z_message</span><span class="p">(</span><span class="s">"Could not create shader for CRT filter '%s' - was the display created with ALLEGRO_PROGRAMMABLE_PIPELINE?</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l863" href="#l863">863</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">		</span><span class="k">return</span><span class="w"> </span><span class="k">nullptr</span><span class="p">;</span></td>
+      <td class="src uncoveredLine"><span class="w">		</span><span class="k">return</span><span class="w"> </span><span class="nb">nullptr</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l864" href="#l864">864</a></td>
@@ -6200,7 +6200,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">		</span><span class="n">pixel_source</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;#define OVERLAY</span><span class="se">\n</span><span class="s">&quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">pixel_source</span><span class="p">;</span></td>
+      <td class="src uncoveredLine"><span class="w">		</span><span class="n">pixel_source</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"#define OVERLAY</span><span class="se">\n</span><span class="s">"</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">pixel_source</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l870" href="#l870">870</a></td>
@@ -6235,7 +6235,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">		</span><span class="n">Z_message</span><span class="p">(</span><span class="s">&quot;Failed to build CRT filter &#39;%s&#39;: %s</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="n">al_get_shader_log</span><span class="p">(</span><span class="n">shader</span><span class="p">));</span></td>
+      <td class="src uncoveredLine"><span class="w">		</span><span class="n">Z_message</span><span class="p">(</span><span class="s">"Failed to build CRT filter '%s': %s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="n">al_get_shader_log</span><span class="p">(</span><span class="n">shader</span><span class="p">));</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l875" href="#l875">875</a></td>
@@ -6249,7 +6249,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">		</span><span class="k">return</span><span class="w"> </span><span class="k">nullptr</span><span class="p">;</span></td>
+      <td class="src uncoveredLine"><span class="w">		</span><span class="k">return</span><span class="w"> </span><span class="nb">nullptr</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l877" href="#l877">877</a></td>
@@ -6291,7 +6291,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="c1">// Build failures latch (a filter that failed once won&#39;t build next frame either), so a</span></td>
+      <td class="src "><span class="c1">// Build failures latch (a filter that failed once won't build next frame either), so a</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l883" href="#l883">883</a></td>
@@ -6304,7 +6304,7 @@
       <td class="lineno"><a id="l884" href="#l884">884</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">20058</td>
+      <td class="linecount coveredLine">26593</td>
       <td class="src coveredLine"><span class="k">static</span><span class="w"> </span><span class="n">ALLEGRO_SHADER</span><span class="o">*</span><span class="w"> </span><span class="n">get_cached_shader</span><span class="p">(</span><span class="n">CrtFilterMode</span><span class="w"> </span><span class="n">mode</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">overlay</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -6321,19 +6321,19 @@
         <summary class="linebranchSummary">1/2</summary>
         <div class="linebranchContents">
           <div class="notTakenBranch">&cross; Branch 0 not taken.</div>
-          <div class="takenBranch">&check; Branch 1 taken 20058 times.</div>
+          <div class="takenBranch">&check; Branch 1 taken 26593 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">20058</td>
+      <td class="linecount partialCoveredLine">26593</td>
       <td class="src partialCoveredLine"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">mode</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">CrtFilterMode</span><span class="o">::</span><span class="n">none</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l887" href="#l887">887</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">20058</td>
-      <td class="src coveredLine"><span class="w">		</span><span class="k">return</span><span class="w"> </span><span class="k">nullptr</span><span class="p">;</span></td>
+      <td class="linecount coveredLine">26593</td>
+      <td class="src coveredLine"><span class="w">		</span><span class="k">return</span><span class="w"> </span><span class="nb">nullptr</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l888" href="#l888">888</a></td>
@@ -6410,7 +6410,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">				</span><span class="n">shaders</span><span class="p">[</span><span class="n">overlay</span><span class="p">][</span><span class="n">index</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">build_shader</span><span class="p">(</span><span class="n">overlay</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="s">&quot;easymode overlay&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s">&quot;easymode&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">easymode_glsl</span><span class="p">,</span><span class="w"> </span><span class="n">easymode_hlsl</span><span class="p">,</span><span class="w"> </span><span class="n">overlay</span><span class="p">);</span></td>
+      <td class="src uncoveredLine"><span class="w">				</span><span class="n">shaders</span><span class="p">[</span><span class="n">overlay</span><span class="p">][</span><span class="n">index</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">build_shader</span><span class="p">(</span><span class="n">overlay</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="s">"easymode overlay"</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s">"easymode"</span><span class="p">,</span><span class="w"> </span><span class="n">easymode_glsl</span><span class="p">,</span><span class="w"> </span><span class="n">easymode_hlsl</span><span class="p">,</span><span class="w"> </span><span class="n">overlay</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l899" href="#l899">899</a></td>
@@ -6431,7 +6431,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">				</span><span class="n">shaders</span><span class="p">[</span><span class="n">overlay</span><span class="p">][</span><span class="n">index</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">build_shader</span><span class="p">(</span><span class="n">overlay</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="s">&quot;geom overlay&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s">&quot;geom&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">geom_glsl</span><span class="p">,</span><span class="w"> </span><span class="n">geom_hlsl</span><span class="p">,</span><span class="w"> </span><span class="n">overlay</span><span class="p">);</span></td>
+      <td class="src uncoveredLine"><span class="w">				</span><span class="n">shaders</span><span class="p">[</span><span class="n">overlay</span><span class="p">][</span><span class="n">index</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">build_shader</span><span class="p">(</span><span class="n">overlay</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="s">"geom overlay"</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s">"geom"</span><span class="p">,</span><span class="w"> </span><span class="n">geom_glsl</span><span class="p">,</span><span class="w"> </span><span class="n">geom_hlsl</span><span class="p">,</span><span class="w"> </span><span class="n">overlay</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l902" href="#l902">902</a></td>
@@ -6479,7 +6479,7 @@
       <td class="lineno"><a id="l908" href="#l908">908</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">20058</td>
+      <td class="linecount coveredLine">26593</td>
       <td class="src coveredLine"><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
@@ -6493,7 +6493,7 @@
       <td class="lineno"><a id="l910" href="#l910">910</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">20058</td>
+      <td class="linecount coveredLine">26593</td>
       <td class="src coveredLine"><span class="n">ALLEGRO_SHADER</span><span class="o">*</span><span class="w"> </span><span class="n">crt_filter_shader</span><span class="p">()</span></td>
     </tr>
     <tr class="source-line">
@@ -6522,7 +6522,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="k">return</span><span class="w"> </span><span class="k">nullptr</span><span class="p">;</span></td>
+      <td class="src "><span class="w">		</span><span class="k">return</span><span class="w"> </span><span class="nb">nullptr</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l915" href="#l915">915</a></td>
@@ -6535,7 +6535,7 @@
       <td class="lineno"><a id="l916" href="#l916">916</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">20058</td>
+      <td class="linecount coveredLine">26593</td>
       <td class="src coveredLine"><span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="n">get_cached_shader</span><span class="p">(</span><span class="n">crt_filter_get_mode</span><span class="p">(),</span><span class="w"> </span><span class="nb">false</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
@@ -6585,7 +6585,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="k">return</span><span class="w"> </span><span class="k">nullptr</span><span class="p">;</span></td>
+      <td class="src "><span class="w">		</span><span class="k">return</span><span class="w"> </span><span class="nb">nullptr</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l924" href="#l924">924</a></td>
@@ -6648,14 +6648,14 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">	</span><span class="n">al_set_shader_float_vector</span><span class="p">(</span><span class="s">&quot;u_source_size&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="n">source_size</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span></td>
+      <td class="src uncoveredLine"><span class="w">	</span><span class="n">al_set_shader_float_vector</span><span class="p">(</span><span class="s">"u_source_size"</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="n">source_size</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l933" href="#l933">933</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">	</span><span class="n">al_set_shader_float_vector</span><span class="p">(</span><span class="s">&quot;u_output_size&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="n">output_size</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span></td>
+      <td class="src uncoveredLine"><span class="w">	</span><span class="n">al_set_shader_float_vector</span><span class="p">(</span><span class="s">"u_output_size"</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="n">output_size</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l934" href="#l934">934</a></td>
@@ -6711,21 +6711,21 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">		</span><span class="n">al_set_shader_float_vector</span><span class="p">(</span><span class="s">&quot;u_stretch&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="n">stretch</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span></td>
+      <td class="src uncoveredLine"><span class="w">		</span><span class="n">al_set_shader_float_vector</span><span class="p">(</span><span class="s">"u_stretch"</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="n">stretch</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l942" href="#l942">942</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">		</span><span class="n">al_set_shader_float_vector</span><span class="p">(</span><span class="s">&quot;u_sinangle&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="n">sinangle</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span></td>
+      <td class="src uncoveredLine"><span class="w">		</span><span class="n">al_set_shader_float_vector</span><span class="p">(</span><span class="s">"u_sinangle"</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="n">sinangle</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l943" href="#l943">943</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">		</span><span class="n">al_set_shader_float_vector</span><span class="p">(</span><span class="s">&quot;u_cosangle&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="n">cosangle</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span></td>
+      <td class="src uncoveredLine"><span class="w">		</span><span class="n">al_set_shader_float_vector</span><span class="p">(</span><span class="s">"u_cosangle"</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="n">cosangle</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l944" href="#l944">944</a></td>
@@ -6788,7 +6788,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">	</span><span class="n">al_set_shader_float_vector</span><span class="p">(</span><span class="s">&quot;u_sub_rect&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="n">sub_rect</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span></td>
+      <td class="src uncoveredLine"><span class="w">	</span><span class="n">al_set_shader_float_vector</span><span class="p">(</span><span class="s">"u_sub_rect"</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="n">sub_rect</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l953" href="#l953">953</a></td>
@@ -6823,7 +6823,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="n">crt_filter_get_mode</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">CrtFilterMode</span><span class="o">::</span><span class="n">geom</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">crt_filter_shader</span><span class="p">()</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="k">nullptr</span><span class="p">;</span></td>
+      <td class="src uncoveredLine"><span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="n">crt_filter_get_mode</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">CrtFilterMode</span><span class="o">::</span><span class="n">geom</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">crt_filter_shader</span><span class="p">()</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="nb">nullptr</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l958" href="#l958">958</a></td>
@@ -6879,7 +6879,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="c1">// Same mapping as the geom shader&#39;s crt_transform(). Clamp so the sphere math stays</span></td>
+      <td class="src "><span class="w">	</span><span class="c1">// Same mapping as the geom shader's crt_transform(). Clamp so the sphere math stays</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l966" href="#l966">966</a></td>

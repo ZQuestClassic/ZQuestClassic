@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2026-11-10 08:08:23</td>
+      <td>2026-11-13 22:29:49</td>
     </tr>
   </table>
 </div>
@@ -106,14 +106,14 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;zc/lightbeam.h&quot;</span></td>
+      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">"zc/lightbeam.h"</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2" href="#l2">2</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;base/general.h&quot;</span></td>
+      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">"base/general.h"</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l3" href="#l3">3</a></td>
@@ -439,7 +439,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">667</td>
-      <td class="src coveredLine"><span class="kt">bool</span><span class="w"> </span><span class="n">lightbeam_xy</span><span class="o">::</span><span class="n">herocollide</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">lightbeam_world</span><span class="o">&amp;</span><span class="w"> </span><span class="n">world</span><span class="p">,</span><span class="w"> </span><span class="n">byte</span><span class="w"> </span><span class="n">beamwid</span><span class="p">)</span><span class="w"> </span><span class="k">const</span></td>
+      <td class="src coveredLine"><span class="kt">bool</span><span class="w"> </span><span class="n">lightbeam_xy</span><span class="o">::</span><span class="n">herocollide</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">lightbeam_world</span><span class="o">&amp;</span><span class="w"> </span><span class="n">world</span><span class="p">,</span><span class="w"> </span><span class="kt">byte</span><span class="w"> </span><span class="n">beamwid</span><span class="p">)</span><span class="w"> </span><span class="k">const</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l47" href="#l47">47</a></td>
@@ -630,7 +630,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">66097</td>
-      <td class="src coveredLine"><span class="k">static</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">turn_beam</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">lightbeam_world</span><span class="o">&amp;</span><span class="w"> </span><span class="n">world</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">lightbeam_cell</span><span class="o">&amp;</span><span class="w"> </span><span class="n">cell</span><span class="p">,</span><span class="w"> </span><span class="n">byte</span><span class="o">&amp;</span><span class="w"> </span><span class="n">spotdir</span><span class="p">)</span></td>
+      <td class="src coveredLine"><span class="k">static</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">turn_beam</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">lightbeam_world</span><span class="o">&amp;</span><span class="w"> </span><span class="n">world</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">lightbeam_cell</span><span class="o">&amp;</span><span class="w"> </span><span class="n">cell</span><span class="p">,</span><span class="w"> </span><span class="kt">byte</span><span class="o">&amp;</span><span class="w"> </span><span class="n">spotdir</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l70" href="#l70">70</a></td>
@@ -962,7 +962,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">5</td>
-      <td class="src coveredLine"><span class="w">			</span><span class="n">byte</span><span class="w"> </span><span class="n">newdir</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cell</span><span class="p">.</span><span class="n">mirror_dirs</span><span class="p">[</span><span class="n">spotdir</span><span class="p">];</span></td>
+      <td class="src coveredLine"><span class="w">			</span><span class="kt">byte</span><span class="w"> </span><span class="n">newdir</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cell</span><span class="p">.</span><span class="n">mirror_dirs</span><span class="p">[</span><span class="n">spotdir</span><span class="p">];</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l111" href="#l111">111</a></td>
@@ -1053,7 +1053,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">14662</td>
-      <td class="src coveredLine"><span class="k">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">handleBeam</span><span class="p">(</span><span class="n">lightbeam_world</span><span class="o">&amp;</span><span class="w"> </span><span class="n">world</span><span class="p">,</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">spot_t</span><span class="o">&gt;&amp;</span><span class="w"> </span><span class="n">grid</span><span class="p">,</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">age</span><span class="p">,</span><span class="w"> </span><span class="n">byte</span><span class="w"> </span><span class="n">spotdir</span><span class="p">,</span><span class="w"> </span><span class="n">rpos_t</span><span class="w"> </span><span class="n">rpos</span><span class="p">,</span><span class="w"> </span><span class="n">byte</span><span class="w"> </span><span class="n">set</span><span class="p">)</span></td>
+      <td class="src coveredLine"><span class="k">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">handleBeam</span><span class="p">(</span><span class="n">lightbeam_world</span><span class="o">&amp;</span><span class="w"> </span><span class="n">world</span><span class="p">,</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">spot_t</span><span class="o">&gt;&amp;</span><span class="w"> </span><span class="n">grid</span><span class="p">,</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">age</span><span class="p">,</span><span class="w"> </span><span class="kt">byte</span><span class="w"> </span><span class="n">spotdir</span><span class="p">,</span><span class="w"> </span><span class="n">rpos_t</span><span class="w"> </span><span class="n">rpos</span><span class="p">,</span><span class="w"> </span><span class="kt">byte</span><span class="w"> </span><span class="n">set</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l122" href="#l122">122</a></td>
@@ -1707,7 +1707,7 @@
         </details>
       </td>
       <td class="linecount coveredLine">365</td>
-      <td class="src coveredLine"><span class="w">			</span><span class="k">for</span><span class="p">(</span><span class="n">byte</span><span class="w"> </span><span class="n">d</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">d</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">4</span><span class="p">;</span><span class="w"> </span><span class="o">++</span><span class="n">d</span><span class="p">)</span></td>
+      <td class="src coveredLine"><span class="w">			</span><span class="k">for</span><span class="p">(</span><span class="kt">byte</span><span class="w"> </span><span class="n">d</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">d</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">4</span><span class="p">;</span><span class="w"> </span><span class="o">++</span><span class="n">d</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l199" href="#l199">199</a></td>
@@ -1807,7 +1807,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">189</td>
-      <td class="src coveredLine"><span class="k">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">handleFFBeam</span><span class="p">(</span><span class="n">lightbeam_world</span><span class="o">&amp;</span><span class="w"> </span><span class="n">world</span><span class="p">,</span><span class="w"> </span><span class="n">lightbeam_lattice</span><span class="o">&amp;</span><span class="w"> </span><span class="n">lattice</span><span class="p">,</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">age</span><span class="p">,</span><span class="w"> </span><span class="n">byte</span><span class="w"> </span><span class="n">spotdir</span><span class="p">,</span><span class="w"> </span><span class="n">lightbeam_xy</span><span class="w"> </span><span class="n">curxy</span><span class="p">,</span><span class="w"> </span><span class="n">byte</span><span class="w"> </span><span class="n">set</span><span class="p">,</span><span class="w"> </span><span class="n">byte</span><span class="w"> </span><span class="n">beamwid</span><span class="p">)</span></td>
+      <td class="src coveredLine"><span class="k">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">handleFFBeam</span><span class="p">(</span><span class="n">lightbeam_world</span><span class="o">&amp;</span><span class="w"> </span><span class="n">world</span><span class="p">,</span><span class="w"> </span><span class="n">lightbeam_lattice</span><span class="o">&amp;</span><span class="w"> </span><span class="n">lattice</span><span class="p">,</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">age</span><span class="p">,</span><span class="w"> </span><span class="kt">byte</span><span class="w"> </span><span class="n">spotdir</span><span class="p">,</span><span class="w"> </span><span class="n">lightbeam_xy</span><span class="w"> </span><span class="n">curxy</span><span class="p">,</span><span class="w"> </span><span class="kt">byte</span><span class="w"> </span><span class="n">set</span><span class="p">,</span><span class="w"> </span><span class="kt">byte</span><span class="w"> </span><span class="n">beamwid</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l211" href="#l211">211</a></td>
@@ -2210,7 +2210,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">3</td>
-      <td class="src coveredLine"><span class="w">				</span><span class="n">byte</span><span class="w"> </span><span class="n">newdir</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cell</span><span class="p">.</span><span class="n">mirror_dirs</span><span class="p">[</span><span class="n">spotdir</span><span class="p">];</span></td>
+      <td class="src coveredLine"><span class="w">				</span><span class="kt">byte</span><span class="w"> </span><span class="n">newdir</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cell</span><span class="p">.</span><span class="n">mirror_dirs</span><span class="p">[</span><span class="n">spotdir</span><span class="p">];</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l261" href="#l261">261</a></td>
@@ -2498,7 +2498,7 @@
         </details>
       </td>
       <td class="linecount coveredLine">205</td>
-      <td class="src coveredLine"><span class="w">			</span><span class="k">for</span><span class="p">(</span><span class="n">byte</span><span class="w"> </span><span class="n">d</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">d</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">4</span><span class="p">;</span><span class="w"> </span><span class="o">++</span><span class="n">d</span><span class="p">)</span></td>
+      <td class="src coveredLine"><span class="w">			</span><span class="k">for</span><span class="p">(</span><span class="kt">byte</span><span class="w"> </span><span class="n">d</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">d</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">4</span><span class="p">;</span><span class="w"> </span><span class="o">++</span><span class="n">d</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l291" href="#l291">291</a></td>
@@ -2598,7 +2598,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">14375</td>
-      <td class="src coveredLine"><span class="kt">void</span><span class="w"> </span><span class="n">lightbeam_launch</span><span class="p">(</span><span class="n">lightbeam_world</span><span class="o">&amp;</span><span class="w"> </span><span class="n">world</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">beam_id</span><span class="p">,</span><span class="w"> </span><span class="n">byte</span><span class="w"> </span><span class="n">spotdir</span><span class="p">,</span><span class="w"> </span><span class="n">rpos_t</span><span class="w"> </span><span class="n">rpos</span><span class="p">,</span><span class="w"> </span><span class="n">byte</span><span class="w"> </span><span class="n">set</span><span class="p">)</span></td>
+      <td class="src coveredLine"><span class="kt">void</span><span class="w"> </span><span class="n">lightbeam_launch</span><span class="p">(</span><span class="n">lightbeam_world</span><span class="o">&amp;</span><span class="w"> </span><span class="n">world</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">beam_id</span><span class="p">,</span><span class="w"> </span><span class="kt">byte</span><span class="w"> </span><span class="n">spotdir</span><span class="p">,</span><span class="w"> </span><span class="n">rpos_t</span><span class="w"> </span><span class="n">rpos</span><span class="p">,</span><span class="w"> </span><span class="kt">byte</span><span class="w"> </span><span class="n">set</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l303" href="#l303">303</a></td>
@@ -2740,7 +2740,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">65</td>
-      <td class="src coveredLine"><span class="kt">void</span><span class="w"> </span><span class="n">lightbeam_launch_ffc</span><span class="p">(</span><span class="n">lightbeam_world</span><span class="o">&amp;</span><span class="w"> </span><span class="n">world</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">beam_id</span><span class="p">,</span><span class="w"> </span><span class="n">byte</span><span class="w"> </span><span class="n">spotdir</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">y</span><span class="p">,</span><span class="w"> </span><span class="n">byte</span><span class="w"> </span><span class="n">set</span><span class="p">,</span><span class="w"> </span><span class="n">byte</span><span class="w"> </span><span class="n">beamwid</span><span class="p">)</span></td>
+      <td class="src coveredLine"><span class="kt">void</span><span class="w"> </span><span class="n">lightbeam_launch_ffc</span><span class="p">(</span><span class="n">lightbeam_world</span><span class="o">&amp;</span><span class="w"> </span><span class="n">world</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">beam_id</span><span class="p">,</span><span class="w"> </span><span class="kt">byte</span><span class="w"> </span><span class="n">spotdir</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">y</span><span class="p">,</span><span class="w"> </span><span class="kt">byte</span><span class="w"> </span><span class="n">set</span><span class="p">,</span><span class="w"> </span><span class="kt">byte</span><span class="w"> </span><span class="n">beamwid</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l320" href="#l320">320</a></td>

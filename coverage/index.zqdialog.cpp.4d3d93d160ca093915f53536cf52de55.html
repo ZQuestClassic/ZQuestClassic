@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2026-11-10 08:08:23</td>
+      <td>2026-11-13 22:29:49</td>
     </tr>
   </table>
 </div>
@@ -77,7 +77,7 @@
     <tr><td><a href="#l287">dlg_tint_paused() (line 287)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l58">get_active_dialog(bool) (line 58)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l276">get_dlg_tint() (line 276)</a></td><td>not called</td><td>0.0%</td></tr>
-    <tr><td><a href="#l272">get_dlg_tint_rti() (line 272)</a></td><td>called 20058 times, returned 20058 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l272">get_dlg_tint_rti() (line 272)</a></td><td>called 26593 times, returned 26593 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l35">get_zqdialog_xy(int&amp;, int&amp;) (line 35)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l50">on_zqdialog_close() (line 50)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l46">on_zqdialog_close(std::function&lt;void ()&gt;&amp;&amp;) (line 46)</a></td><td>not called</td><td>0.0%</td></tr>
@@ -87,7 +87,7 @@
     <tr><td><a href="#l110">popup_zqdialog_start(int, int, int, int, int) (line 110)</a></td><td>called 12 times, returned 12 times</td><td>42.0%</td></tr>
     <tr><td><a href="#l71">popup_zqdialog_start(std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt;, RenderTreeItemType, int, int, int, int, int) (line 71)</a></td><td>called 12 times, returned 12 times</td><td>13.0%</td></tr>
     <tr><td><a href="#l145">popup_zqdialog_start_a5() (line 145)</a></td><td>not called</td><td>0.0%</td></tr>
-    <tr><td><a href="#l230">reload_dialog_tint() (line 230)</a></td><td>called 20058 times, returned 20058 times</td><td>14.0%</td></tr>
+    <tr><td><a href="#l230">reload_dialog_tint() (line 230)</a></td><td>called 26593 times, returned 26593 times</td><td>14.0%</td></tr>
     <tr><td><a href="#l217">remove_dlg_layer(RenderTreeItem*) (line 217)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l30">zqdialog_freeze(bool) (line 30)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l25">zqdialog_name(std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt; const&amp;) (line 25)</a></td><td>not called</td><td>0.0%</td></tr>
@@ -111,42 +111,42 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;render.h&quot;</span></td>
+      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">"render.h"</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2" href="#l2">2</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;a5alleg.h&quot;</span></td>
+      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">"a5alleg.h"</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l3" href="#l3">3</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;allegro5/bitmap.h&quot;</span></td>
+      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">"allegro5/bitmap.h"</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l4" href="#l4">4</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;allegro5/display.h&quot;</span></td>
+      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">"allegro5/display.h"</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l5" href="#l5">5</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;base/zapp.h&quot;</span></td>
+      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">"base/zapp.h"</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l6" href="#l6">6</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;core/zdefs.h&quot;</span></td>
+      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">"core/zdefs.h"</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l7" href="#l7">7</a></td>
@@ -196,15 +196,15 @@
         <details class="linebranchDetails">
         <summary class="linebranchSummary">2/4</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 1003 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 1004 times.</div>
           <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
           <div class="notTakenBranch">&cross; Branch 2 not taken.</div>
-          <div class="takenBranch">&check; Branch 3 taken 1003 times.</div>
+          <div class="takenBranch">&check; Branch 3 taken 1004 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">1003</td>
-      <td class="src partialCoveredLine"><span class="n">RenderTreeItem</span><span class="w"> </span><span class="n">rti_dialogs</span><span class="p">(</span><span class="s">&quot;dialogs&quot;</span><span class="p">);</span></td>
+      <td class="linecount partialCoveredLine">1004</td>
+      <td class="src partialCoveredLine"><span class="n">RenderTreeItem</span><span class="w"> </span><span class="n">rti_dialogs</span><span class="p">(</span><span class="s">"dialogs"</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l14" href="#l14">14</a></td>
@@ -212,15 +212,15 @@
         <details class="linebranchDetails">
         <summary class="linebranchSummary">2/4</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 1003 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 1004 times.</div>
           <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
           <div class="notTakenBranch">&cross; Branch 2 not taken.</div>
-          <div class="takenBranch">&check; Branch 3 taken 1003 times.</div>
+          <div class="takenBranch">&check; Branch 3 taken 1004 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">1003</td>
-      <td class="src partialCoveredLine"><span class="k">static</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">rti_tint</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">RenderTreeItem</span><span class="p">(</span><span class="s">&quot;tint&quot;</span><span class="p">);</span></td>
+      <td class="linecount partialCoveredLine">1004</td>
+      <td class="src partialCoveredLine"><span class="k">static</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">rti_tint</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">RenderTreeItem</span><span class="p">(</span><span class="s">"tint"</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l15" href="#l15">15</a></td>
@@ -248,14 +248,14 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="n">BITMAP</span><span class="o">*</span><span class="w"> </span><span class="n">zqdialog_bg_bmp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">nullptr</span><span class="p">;</span></td>
+      <td class="src "><span class="n">BITMAP</span><span class="o">*</span><span class="w"> </span><span class="n">zqdialog_bg_bmp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">nullptr</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l19" href="#l19">19</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="k">static</span><span class="w"> </span><span class="n">RenderTreeItem</span><span class="o">*</span><span class="w"> </span><span class="n">active_dlg_rti</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">nullptr</span><span class="p">;</span></td>
+      <td class="src "><span class="k">static</span><span class="w"> </span><span class="n">RenderTreeItem</span><span class="o">*</span><span class="w"> </span><span class="n">active_dlg_rti</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">nullptr</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l20" href="#l20">20</a></td>
@@ -605,7 +605,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="k">nullptr</span><span class="p">;</span></td>
+      <td class="src uncoveredLine"><span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="nb">nullptr</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l70" href="#l70">70</a></td>
@@ -922,7 +922,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">12</td>
-      <td class="src partialCoveredLine"><span class="w">	</span><span class="n">popup_zqdialog_start</span><span class="p">(</span><span class="s">&quot;zqdialog&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">RenderTreeItemType</span><span class="o">::</span><span class="n">dialog_a4</span><span class="p">,</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="p">,</span><span class="w"> </span><span class="n">w</span><span class="p">,</span><span class="w"> </span><span class="n">h</span><span class="p">,</span><span class="w"> </span><span class="n">transp</span><span class="p">);</span></td>
+      <td class="src partialCoveredLine"><span class="w">	</span><span class="n">popup_zqdialog_start</span><span class="p">(</span><span class="s">"zqdialog"</span><span class="p">,</span><span class="w"> </span><span class="n">RenderTreeItemType</span><span class="o">::</span><span class="n">dialog_a4</span><span class="p">,</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="p">,</span><span class="w"> </span><span class="n">w</span><span class="p">,</span><span class="w"> </span><span class="n">h</span><span class="p">,</span><span class="w"> </span><span class="n">transp</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l113" href="#l113">113</a></td>
@@ -1041,7 +1041,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">			</span><span class="n">screen</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rti</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="n">rti</span><span class="o">-&gt;</span><span class="n">a4_bitmap</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="k">nullptr</span><span class="p">;</span></td>
+      <td class="src uncoveredLine"><span class="w">			</span><span class="n">screen</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rti</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="n">rti</span><span class="o">-&gt;</span><span class="n">a4_bitmap</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="nb">nullptr</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l129" href="#l129">129</a></td>
@@ -1076,7 +1076,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">			</span><span class="n">zqdialog_bg_bmp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">nullptr</span><span class="p">;</span></td>
+      <td class="src uncoveredLine"><span class="w">			</span><span class="n">zqdialog_bg_bmp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">nullptr</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l134" href="#l134">134</a></td>
@@ -1195,7 +1195,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">	</span><span class="k">auto</span><span class="w"> </span><span class="n">rti</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">RenderTreeItem</span><span class="p">(</span><span class="s">&quot;zqdialog_a5&quot;</span><span class="p">);</span></td>
+      <td class="src uncoveredLine"><span class="w">	</span><span class="k">auto</span><span class="w"> </span><span class="n">rti</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">RenderTreeItem</span><span class="p">(</span><span class="s">"zqdialog_a5"</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l151" href="#l151">151</a></td>
@@ -1398,7 +1398,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">			</span><span class="n">zqdialog_bg_bmp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">nullptr</span><span class="p">;</span></td>
+      <td class="src uncoveredLine"><span class="w">			</span><span class="n">zqdialog_bg_bmp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">nullptr</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l180" href="#l180">180</a></td>
@@ -1545,7 +1545,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">	</span><span class="n">RenderTreeItem</span><span class="o">*</span><span class="w"> </span><span class="n">rti</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">RenderTreeItem</span><span class="p">(</span><span class="s">&quot;dlg&quot;</span><span class="p">);</span></td>
+      <td class="src uncoveredLine"><span class="w">	</span><span class="n">RenderTreeItem</span><span class="o">*</span><span class="w"> </span><span class="n">rti</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">RenderTreeItem</span><span class="p">(</span><span class="s">"dlg"</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l201" href="#l201">201</a></td>
@@ -1594,7 +1594,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="c1">// Not dirty: the draw pass clears and re-renders a dirty item&#39;s bitmap, which would</span></td>
+      <td class="src "><span class="w">	</span><span class="c1">// Not dirty: the draw pass clears and re-renders a dirty item's bitmap, which would</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l208" href="#l208">208</a></td>
@@ -1719,7 +1719,7 @@
       <td class="lineno"><a id="l225" href="#l225">225</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">1003</td>
+      <td class="linecount coveredLine">1004</td>
       <td class="src coveredLine"><span class="n">ALLEGRO_COLOR</span><span class="w"> </span><span class="n">dialog_tint</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">al_premul_rgba</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">64</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
@@ -1727,7 +1727,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="n">ALLEGRO_COLOR</span><span class="o">*</span><span class="w"> </span><span class="n">override_dlg_tint</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">nullptr</span><span class="p">;</span></td>
+      <td class="src "><span class="n">ALLEGRO_COLOR</span><span class="o">*</span><span class="w"> </span><span class="n">override_dlg_tint</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">nullptr</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l227" href="#l227">227</a></td>
@@ -1754,7 +1754,7 @@
       <td class="lineno"><a id="l230" href="#l230">230</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">20058</td>
+      <td class="linecount coveredLine">26593</td>
       <td class="src coveredLine"><span class="kt">void</span><span class="w"> </span><span class="nf">reload_dialog_tint</span><span class="p">()</span></td>
     </tr>
     <tr class="source-line">
@@ -1768,7 +1768,7 @@
       <td class="lineno"><a id="l232" href="#l232">232</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">20058</td>
+      <td class="linecount coveredLine">26593</td>
       <td class="src coveredLine"><span class="w">	</span><span class="k">auto</span><span class="o">&amp;</span><span class="w"> </span><span class="n">children</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rti_dialogs</span><span class="p">.</span><span class="n">get_children</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
@@ -1777,19 +1777,19 @@
         <details class="linebranchDetails">
         <summary class="linebranchSummary">1/2</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 20058 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 26593 times.</div>
           <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">20058</td>
+      <td class="linecount partialCoveredLine">26593</td>
       <td class="src partialCoveredLine"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">children</span><span class="p">.</span><span class="n">empty</span><span class="p">())</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l234" href="#l234">234</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">20058</td>
+      <td class="linecount coveredLine">26593</td>
       <td class="src coveredLine"><span class="w">		</span><span class="k">return</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
@@ -1846,28 +1846,28 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">			</span><span class="n">zc_get_config</span><span class="p">(</span><span class="s">&quot;ZQ_GUI&quot;</span><span class="p">,</span><span class="s">&quot;dlg_tint_r&quot;</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span></td>
+      <td class="src uncoveredLine"><span class="w">			</span><span class="n">zc_get_config</span><span class="p">(</span><span class="s">"ZQ_GUI"</span><span class="p">,</span><span class="s">"dlg_tint_r"</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l243" href="#l243">243</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">			</span><span class="n">zc_get_config</span><span class="p">(</span><span class="s">&quot;ZQ_GUI&quot;</span><span class="p">,</span><span class="s">&quot;dlg_tint_g&quot;</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span></td>
+      <td class="src uncoveredLine"><span class="w">			</span><span class="n">zc_get_config</span><span class="p">(</span><span class="s">"ZQ_GUI"</span><span class="p">,</span><span class="s">"dlg_tint_g"</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l244" href="#l244">244</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">			</span><span class="n">zc_get_config</span><span class="p">(</span><span class="s">&quot;ZQ_GUI&quot;</span><span class="p">,</span><span class="s">&quot;dlg_tint_b&quot;</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span></td>
+      <td class="src uncoveredLine"><span class="w">			</span><span class="n">zc_get_config</span><span class="p">(</span><span class="s">"ZQ_GUI"</span><span class="p">,</span><span class="s">"dlg_tint_b"</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l245" href="#l245">245</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">			</span><span class="n">zc_get_config</span><span class="p">(</span><span class="s">&quot;ZQ_GUI&quot;</span><span class="p">,</span><span class="s">&quot;dlg_tint_a&quot;</span><span class="p">,</span><span class="mi">128</span><span class="p">)</span></td>
+      <td class="src uncoveredLine"><span class="w">			</span><span class="n">zc_get_config</span><span class="p">(</span><span class="s">"ZQ_GUI"</span><span class="p">,</span><span class="s">"dlg_tint_a"</span><span class="p">,</span><span class="mi">128</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l246" href="#l246">246</a></td>
@@ -2048,14 +2048,14 @@
       <td class="lineno"><a id="l271" href="#l271">271</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">20058</td>
+      <td class="linecount coveredLine">26593</td>
       <td class="src coveredLine"><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l272" href="#l272">272</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">20058</td>
+      <td class="linecount coveredLine">26593</td>
       <td class="src coveredLine"><span class="n">RenderTreeItem</span><span class="o">*</span><span class="w"> </span><span class="nf">get_dlg_tint_rti</span><span class="p">()</span></td>
     </tr>
     <tr class="source-line">
@@ -2069,7 +2069,7 @@
       <td class="lineno"><a id="l274" href="#l274">274</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">20058</td>
+      <td class="linecount coveredLine">26593</td>
       <td class="src coveredLine"><span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="o">&amp;</span><span class="n">rti_tint</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">

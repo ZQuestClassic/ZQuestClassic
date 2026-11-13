@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2026-11-10 08:08:23</td>
+      <td>2026-11-13 22:29:49</td>
     </tr>
   </table>
 </div>
@@ -73,7 +73,7 @@
       <th>Call count</th>
       <th>Block coverage</th>
     </tr>
-    <tr><td><a href="#l542">CConsoleLogger::CConsoleLogger() (line 542)</a></td><td>called 1034 times, returned 1034 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l542">CConsoleLogger::CConsoleLogger() (line 542)</a></td><td>called 1035 times, returned 1035 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l590">CConsoleLogger::Close() (line 590)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l561">CConsoleLogger::Create(char const*, int, int, char const*, char const*) (line 561)</a></td><td>called 12 times, returned 12 times</td><td>66.0%</td></tr>
     <tr><td><a href="#l651">CConsoleLogger::ResetDefaultOutput() (line 651)</a></td><td>not called</td><td>0.0%</td></tr>
@@ -82,8 +82,8 @@
     <tr><td><a href="#l579">CConsoleLogger::kill() (line 579)</a></td><td>called 894 times, returned 894 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l622">CConsoleLogger::printf(char const*, ...) (line 622)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l610">CConsoleLogger::valid() (line 610)</a></td><td>not called</td><td>0.0%</td></tr>
-    <tr><td><a href="#l547">CConsoleLogger::~CConsoleLogger() (line 547)</a></td><td>called 88560 times, returned 88560 times</td><td>100.0%</td></tr>
-    <tr><td><a href="#l670">CConsoleLoggerEx::CConsoleLoggerEx() (line 670)</a></td><td>called 1034 times, returned 1034 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l547">CConsoleLogger::~CConsoleLogger() (line 547)</a></td><td>called 88561 times, returned 88561 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l670">CConsoleLoggerEx::CConsoleLoggerEx() (line 670)</a></td><td>called 1035 times, returned 1035 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l784">CConsoleLoggerEx::_cprint(int, char const*, int) (line 784)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l679">CConsoleLoggerEx::_print(char const*, int) (line 679)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l703">CConsoleLoggerEx::clear_eol() (line 703)</a></td><td>not called</td><td>0.0%</td></tr>
@@ -114,14 +114,14 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;zconsole/ConsoleLogger.h&quot;</span></td>
+      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">"zconsole/ConsoleLogger.h"</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2" href="#l2">2</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;base/general.h&quot;</span></td>
+      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">"base/general.h"</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l3" href="#l3">3</a></td>
@@ -142,7 +142,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="n">byte</span><span class="w"> </span><span class="n">monochrome_console</span><span class="p">;</span></td>
+      <td class="src "><span class="kt">byte</span><span class="w"> </span><span class="n">monochrome_console</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l6" href="#l6">6</a></td>
@@ -177,7 +177,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="k">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">WINAPI</span><span class="w"> </span><span class="nf">CompletionRoutine</span><span class="p">([[</span><span class="n">maybe_unused</span><span class="p">]]</span><span class="w"> </span><span class="n">DWORD</span><span class="w"> </span><span class="n">u32_ErrorCode</span><span class="p">,</span><span class="w"> </span><span class="p">[[</span><span class="n">maybe_unused</span><span class="p">]]</span><span class="w"> </span><span class="n">DWORD</span><span class="w"> </span><span class="n">u32_BytesTransfered</span><span class="p">,</span><span class="w"> </span><span class="p">[[</span><span class="n">maybe_unused</span><span class="p">]]</span><span class="w"> </span><span class="n">OVERLAPPED</span><span class="o">*</span><span class="w"> </span><span class="n">pk_Overlapped</span><span class="p">)</span></td>
+      <td class="src "><span class="k">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">WINAPI</span><span class="w"> </span><span class="nf">CompletionRoutine</span><span class="p">([[</span><span class="na">maybe_unused</span><span class="p">]]</span><span class="w"> </span><span class="n">DWORD</span><span class="w"> </span><span class="n">u32_ErrorCode</span><span class="p">,</span><span class="w"> </span><span class="p">[[</span><span class="na">maybe_unused</span><span class="p">]]</span><span class="w"> </span><span class="n">DWORD</span><span class="w"> </span><span class="n">u32_BytesTransfered</span><span class="p">,</span><span class="w"> </span><span class="p">[[</span><span class="na">maybe_unused</span><span class="p">]]</span><span class="w"> </span><span class="n">OVERLAPPED</span><span class="o">*</span><span class="w"> </span><span class="n">pk_Overlapped</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l11" href="#l11">11</a></td>
@@ -191,7 +191,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">    </span><span class="c1">// Don&#39;t care.</span></td>
+      <td class="src "><span class="w">    </span><span class="c1">// Don't care.</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l13" href="#l13">13</a></td>
@@ -345,7 +345,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="c1">//         it&#39;s better to avoid closing the pipe here....</span></td>
+      <td class="src "><span class="w">	</span><span class="c1">//         it's better to avoid closing the pipe here....</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l35" href="#l35">35</a></td>
@@ -422,7 +422,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="c1">// helper_executable: which (and where) is the EXE that will write the pipe&#39;s output</span></td>
+      <td class="src "><span class="c1">// helper_executable: which (and where) is the EXE that will write the pipe's output</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l46" href="#l46">46</a></td>
@@ -478,7 +478,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="c1">// Ensure there&#39;s no pipe connected</span></td>
+      <td class="src "><span class="w">	</span><span class="c1">// Ensure there's no pipe connected</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l54" href="#l54">54</a></td>
@@ -527,7 +527,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">strcpy</span><span class="p">(</span><span class="n">m_name</span><span class="p">,</span><span class="s">&quot;</span><span class="se">\\\\</span><span class="s">.</span><span class="se">\\</span><span class="s">pipe</span><span class="se">\\</span><span class="s">&quot;</span><span class="p">);</span></td>
+      <td class="src "><span class="w">	</span><span class="n">strcpy</span><span class="p">(</span><span class="n">m_name</span><span class="p">,</span><span class="s">"</span><span class="se">\\\\</span><span class="s">.</span><span class="se">\\</span><span class="s">pipe</span><span class="se">\\</span><span class="s">"</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l61" href="#l61">61</a></td>
@@ -576,7 +576,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="n">snprintf</span><span class="p">((</span><span class="kt">char</span><span class="o">*</span><span class="p">)</span><span class="n">logger_name</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">m_name</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="p">(</span><span class="kt">size_t</span><span class="p">)((</span><span class="kt">char</span><span class="o">*</span><span class="p">)</span><span class="n">logger_name</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">m_name</span><span class="p">),</span><span class="w"> </span><span class="s">&quot;logger%p_%lu&quot;</span><span class="p">,</span><span class="w"> </span><span class="k">this</span><span class="p">,</span><span class="w"> </span><span class="n">now</span><span class="p">);</span></td>
+      <td class="src "><span class="w">		</span><span class="n">snprintf</span><span class="p">((</span><span class="kt">char</span><span class="o">*</span><span class="p">)</span><span class="n">logger_name</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">m_name</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="p">(</span><span class="kt">size_t</span><span class="p">)((</span><span class="kt">char</span><span class="o">*</span><span class="p">)</span><span class="n">logger_name</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">m_name</span><span class="p">),</span><span class="w"> </span><span class="s">"logger%p_%lu"</span><span class="p">,</span><span class="w"> </span><span class="k">this</span><span class="p">,</span><span class="w"> </span><span class="n">now</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l68" href="#l68">68</a></td>
@@ -618,7 +618,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">_CONSOLE_DEBUG</span><span class="p">(</span><span class="s">&quot;Creating pipe...</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span></td>
+      <td class="src "><span class="w">	</span><span class="n">_CONSOLE_DEBUG</span><span class="p">(</span><span class="s">"Creating pipe...</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l74" href="#l74">74</a></td>
@@ -646,7 +646,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		  </span><span class="n">PIPE_ACCESS_OUTBOUND</span><span class="o">|</span><span class="n">FILE_FLAG_OVERLAPPED</span><span class="p">,</span><span class="w">     </span><span class="c1">// read/write access, we&#39;re only writing...</span></td>
+      <td class="src "><span class="w">		  </span><span class="n">PIPE_ACCESS_OUTBOUND</span><span class="o">|</span><span class="n">FILE_FLAG_OVERLAPPED</span><span class="p">,</span><span class="w">     </span><span class="c1">// read/write access, we're only writing...</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l78" href="#l78">78</a></td>
@@ -688,7 +688,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		  </span><span class="mi">0</span><span class="p">,</span><span class="w">                        </span><span class="c1">// input buffer size (we don&#39;t read data, so 0 is fine)</span></td>
+      <td class="src "><span class="w">		  </span><span class="mi">0</span><span class="p">,</span><span class="w">                        </span><span class="c1">// input buffer size (we don't read data, so 0 is fine)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l84" href="#l84">84</a></td>
@@ -723,7 +723,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="n">_CONSOLE_DEBUG</span><span class="p">(</span><span class="s">&quot;ConsoleLogger: CreateNamedPipe failed; disabling console</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span></td>
+      <td class="src "><span class="w">		</span><span class="n">_CONSOLE_DEBUG</span><span class="p">(</span><span class="s">"ConsoleLogger: CreateNamedPipe failed; disabling console</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l89" href="#l89">89</a></td>
@@ -744,7 +744,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">_CONSOLE_DEBUG</span><span class="p">(</span><span class="s">&quot;Created pipe!</span><span class="se">\n</span><span class="s">Creating process...</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span></td>
+      <td class="src "><span class="w">	</span><span class="n">_CONSOLE_DEBUG</span><span class="p">(</span><span class="s">"Created pipe!</span><span class="se">\n</span><span class="s">Creating process...</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l92" href="#l92">92</a></td>
@@ -758,7 +758,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="c1">// Extra console : create another process , its role is to display the pipe&#39;s output</span></td>
+      <td class="src "><span class="w">	</span><span class="c1">// Extra console : create another process , its role is to display the pipe's output</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l94" href="#l94">94</a></td>
@@ -821,7 +821,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">snprintf</span><span class="p">(</span><span class="n">cmdline</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">cmdline</span><span class="p">),</span><span class="w"> </span><span class="s">&quot;%s %s&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">helper_executable</span><span class="p">,</span><span class="w"> </span><span class="n">logger_name</span><span class="p">);</span></td>
+      <td class="src "><span class="w">	</span><span class="n">snprintf</span><span class="p">(</span><span class="n">cmdline</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">cmdline</span><span class="p">),</span><span class="w"> </span><span class="s">"%s %s"</span><span class="p">,</span><span class="w"> </span><span class="n">helper_executable</span><span class="p">,</span><span class="w"> </span><span class="n">logger_name</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l103" href="#l103">103</a></td>
@@ -849,7 +849,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">getenv</span><span class="p">(</span><span class="s">&quot;ConsoleLoggerHelper&quot;</span><span class="p">);</span></td>
+      <td class="src "><span class="w">		</span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">getenv</span><span class="p">(</span><span class="s">"ConsoleLoggerHelper"</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l107" href="#l107">107</a></td>
@@ -870,7 +870,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">			</span><span class="n">snprintf</span><span class="p">(</span><span class="n">cmdline</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">cmdline</span><span class="p">),</span><span class="w"> </span><span class="s">&quot;%s %s&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">path</span><span class="p">,</span><span class="w"> </span><span class="n">logger_name</span><span class="p">);</span></td>
+      <td class="src "><span class="w">			</span><span class="n">snprintf</span><span class="p">(</span><span class="n">cmdline</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">cmdline</span><span class="p">),</span><span class="w"> </span><span class="s">"%s %s"</span><span class="p">,</span><span class="w"> </span><span class="n">path</span><span class="p">,</span><span class="w"> </span><span class="n">logger_name</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l110" href="#l110">110</a></td>
@@ -905,7 +905,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">			</span><span class="n">_CONSOLE_DEBUG</span><span class="p">(</span><span class="s">&quot;ConsoleLogger: helper executable not found; disabling console</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span></td>
+      <td class="src "><span class="w">			</span><span class="n">_CONSOLE_DEBUG</span><span class="p">(</span><span class="s">"ConsoleLogger: helper executable not found; disabling console</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l115" href="#l115">115</a></td>
@@ -954,7 +954,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="c1">// We never wait on the helper&#39;s main thread; close the handle so it isn&#39;t</span></td>
+      <td class="src "><span class="w">	</span><span class="c1">// We never wait on the helper's main thread; close the handle so it isn't</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l122" href="#l122">122</a></td>
@@ -982,7 +982,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">_CONSOLE_DEBUG</span><span class="p">(</span><span class="s">&quot;Created process!</span><span class="se">\n</span><span class="s">Connecting pipe...</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span></td>
+      <td class="src "><span class="w">	</span><span class="n">_CONSOLE_DEBUG</span><span class="p">(</span><span class="s">"Created process!</span><span class="se">\n</span><span class="s">Connecting pipe...</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l126" href="#l126">126</a></td>
@@ -1248,7 +1248,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="n">_CONSOLE_DEBUG</span><span class="p">(</span><span class="s">&quot;ConsoleLogger: helper failed to connect; disabling console</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span></td>
+      <td class="src "><span class="w">		</span><span class="n">_CONSOLE_DEBUG</span><span class="p">(</span><span class="s">"ConsoleLogger: helper failed to connect; disabling console</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l164" href="#l164">164</a></td>
@@ -1318,7 +1318,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">_CONSOLE_DEBUG</span><span class="p">(</span><span class="s">&quot;Connected pipe!</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span></td>
+      <td class="src "><span class="w">	</span><span class="n">_CONSOLE_DEBUG</span><span class="p">(</span><span class="s">"Connected pipe!</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l174" href="#l174">174</a></td>
@@ -1332,14 +1332,14 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="c1">// In order to easily add new future-features , i&#39;ve chosen to pass the &quot;extra&quot;</span></td>
+      <td class="src "><span class="w">	</span><span class="c1">// In order to easily add new future-features , i've chosen to pass the "extra"</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l176" href="#l176">176</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="c1">// parameters just the HTTP protocol - via textual &quot;headers&quot; .</span></td>
+      <td class="src "><span class="w">	</span><span class="c1">// parameters just the HTTP protocol - via textual "headers" .</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l177" href="#l177">177</a></td>
@@ -1388,7 +1388,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">snprintf</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">buffer</span><span class="p">),</span><span class="w"> </span><span class="s">&quot;TITLE: %s</span><span class="se">\r\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">lpszWindowTitle</span><span class="p">);</span></td>
+      <td class="src "><span class="w">	</span><span class="n">snprintf</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">buffer</span><span class="p">),</span><span class="w"> </span><span class="s">"TITLE: %s</span><span class="se">\r\n</span><span class="s">"</span><span class="p">,</span><span class="w"> </span><span class="n">lpszWindowTitle</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l184" href="#l184">184</a></td>
@@ -1416,7 +1416,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="n">_CONSOLE_DEBUG</span><span class="p">(</span><span class="s">&quot;ConsoleLogger: WriteFile failed (1); disabling console</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span></td>
+      <td class="src "><span class="w">		</span><span class="n">_CONSOLE_DEBUG</span><span class="p">(</span><span class="s">"ConsoleLogger: WriteFile failed (1); disabling console</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l188" href="#l188">188</a></td>
@@ -1479,7 +1479,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="n">snprintf</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">buffer</span><span class="p">),</span><span class="w"> </span><span class="s">&quot;BUFFER-SIZE: %dx%d</span><span class="se">\r\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">buffer_size_x</span><span class="p">,</span><span class="w"> </span><span class="n">buffer_size_y</span><span class="p">);</span></td>
+      <td class="src "><span class="w">		</span><span class="n">snprintf</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">buffer</span><span class="p">),</span><span class="w"> </span><span class="s">"BUFFER-SIZE: %dx%d</span><span class="se">\r\n</span><span class="s">"</span><span class="p">,</span><span class="w"> </span><span class="n">buffer_size_x</span><span class="p">,</span><span class="w"> </span><span class="n">buffer_size_y</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l197" href="#l197">197</a></td>
@@ -1507,7 +1507,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">			</span><span class="n">_CONSOLE_DEBUG</span><span class="p">(</span><span class="s">&quot;ConsoleLogger: WriteFile failed (2); disabling console</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span></td>
+      <td class="src "><span class="w">			</span><span class="n">_CONSOLE_DEBUG</span><span class="p">(</span><span class="s">"ConsoleLogger: WriteFile failed (2); disabling console</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l201" href="#l201">201</a></td>
@@ -1633,7 +1633,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="c1">// send NULL as &quot;end of header&quot;</span></td>
+      <td class="src "><span class="w">	</span><span class="c1">// send NULL as "end of header"</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l219" href="#l219">219</a></td>
@@ -1668,7 +1668,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="n">_CONSOLE_DEBUG</span><span class="p">(</span><span class="s">&quot;ConsoleLogger: WriteFile failed (3); disabling console</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span></td>
+      <td class="src "><span class="w">		</span><span class="n">_CONSOLE_DEBUG</span><span class="p">(</span><span class="s">"ConsoleLogger: WriteFile failed (3); disabling console</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l224" href="#l224">224</a></td>
@@ -1871,7 +1871,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="c1">// if iSize==-1 (default) , we&#39;ll use strlen(lpszText)</span></td>
+      <td class="src "><span class="c1">// if iSize==-1 (default) , we'll use strlen(lpszText)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l253" href="#l253">253</a></td>
@@ -2186,7 +2186,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">FILE</span><span class="w"> </span><span class="o">*</span><span class="n">fp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">_fdopen</span><span class="p">(</span><span class="w"> </span><span class="n">hConHandle</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;w&quot;</span><span class="w"> </span><span class="p">);</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">FILE</span><span class="w"> </span><span class="o">*</span><span class="n">fp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">_fdopen</span><span class="p">(</span><span class="w"> </span><span class="n">hConHandle</span><span class="p">,</span><span class="w"> </span><span class="s">"w"</span><span class="w"> </span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l298" href="#l298">298</a></td>
@@ -2312,7 +2312,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">FILE</span><span class="w"> </span><span class="o">*</span><span class="n">fp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">_fdopen</span><span class="p">(</span><span class="w"> </span><span class="n">hConHandle</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;w&quot;</span><span class="w"> </span><span class="p">);</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">FILE</span><span class="w"> </span><span class="o">*</span><span class="n">fp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">_fdopen</span><span class="p">(</span><span class="w"> </span><span class="n">hConHandle</span><span class="p">,</span><span class="w"> </span><span class="s">"w"</span><span class="w"> </span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l316" href="#l316">316</a></td>
@@ -2375,7 +2375,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="c1">// we use the thread-safe funtion &quot;SafeWriteFile()&quot; to output the data</span></td>
+      <td class="src "><span class="c1">// we use the thread-safe funtion "SafeWriteFile()" to output the data</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l325" href="#l325">325</a></td>
@@ -2529,7 +2529,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="c1">// first output the &quot;command&quot; (which is COMMAND_PRINT) and the size,</span></td>
+      <td class="src "><span class="c1">// first output the "command" (which is COMMAND_PRINT) and the size,</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l347" href="#l347">347</a></td>
@@ -2571,7 +2571,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="c1">// we assume that in iSize &lt; 2^24 , because we&#39;re using only 3 bytes of iSize </span></td>
+      <td class="src "><span class="w">	</span><span class="c1">// we assume that in iSize &lt; 2^24 , because we're using only 3 bytes of iSize </span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l353" href="#l353">353</a></td>
@@ -2739,7 +2739,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="c1">// we assume that in iSize &lt; 2^24 , because we&#39;re using only 3 bytes of iSize </span></td>
+      <td class="src "><span class="w">	</span><span class="c1">// we assume that in iSize &lt; 2^24 , because we're using only 3 bytes of iSize </span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l377" href="#l377">377</a></td>
@@ -2823,7 +2823,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="c1">// we assume that in iSize &lt; 2^24 , because we&#39;re using only 3 bytes of iSize </span></td>
+      <td class="src "><span class="w">	</span><span class="c1">// we assume that in iSize &lt; 2^24 , because we're using only 3 bytes of iSize </span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l389" href="#l389">389</a></td>
@@ -2928,7 +2928,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="c1">// we assume that in iSize &lt; 2^24 , because we&#39;re using only 3 bytes of iSize </span></td>
+      <td class="src "><span class="w">	</span><span class="c1">// we assume that in iSize &lt; 2^24 , because we're using only 3 bytes of iSize </span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l404" href="#l404">404</a></td>
@@ -3012,7 +3012,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="c1">// we assume that in iSize &lt; 2^24 , because we&#39;re using only 3 bytes of iSize </span></td>
+      <td class="src "><span class="w">	</span><span class="c1">// we assume that in iSize &lt; 2^24 , because we're using only 3 bytes of iSize </span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l416" href="#l416">416</a></td>
@@ -3117,7 +3117,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="c1">// we assume that in iSize &lt; 2^24 , because we&#39;re using only 3 bytes of iSize </span></td>
+      <td class="src "><span class="w">	</span><span class="c1">// we assume that in iSize &lt; 2^24 , because we're using only 3 bytes of iSize </span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l431" href="#l431">431</a></td>
@@ -3194,7 +3194,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="c1">// cprintf(attr,str,...) : prints a formatted string with the &quot;attributes&quot; color</span></td>
+      <td class="src "><span class="c1">// cprintf(attr,str,...) : prints a formatted string with the "attributes" color</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l442" href="#l442">442</a></td>
@@ -3677,7 +3677,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="c1">// we assume that in iSize &lt; 2^24 , because we&#39;re using only 3 bytes of iSize </span></td>
+      <td class="src "><span class="w">	</span><span class="c1">// we assume that in iSize &lt; 2^24 , because we're using only 3 bytes of iSize </span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l511" href="#l511">511</a></td>
@@ -3900,21 +3900,21 @@
       <td class="lineno"><a id="l542" href="#l542">542</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">2068</td>
+      <td class="linecount coveredLine">2070</td>
       <td class="src coveredLine"><span class="n">CConsoleLogger</span><span class="o">::</span><span class="n">CConsoleLogger</span><span class="p">()</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">kill_on_close</span><span class="p">(</span><span class="nb">true</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l543" href="#l543">543</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">1034</td>
+      <td class="linecount coveredLine">1035</td>
       <td class="src coveredLine"><span class="p">{</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l544" href="#l544">544</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">1034</td>
+      <td class="linecount coveredLine">1035</td>
       <td class="src coveredLine"><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
@@ -3935,7 +3935,7 @@
       <td class="lineno"><a id="l547" href="#l547">547</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">88560</td>
+      <td class="linecount coveredLine">88561</td>
       <td class="src coveredLine"><span class="n">CConsoleLogger</span><span class="o">::~</span><span class="n">CConsoleLogger</span><span class="p">()</span></td>
     </tr>
     <tr class="source-line">
@@ -3956,7 +3956,7 @@
       <td class="lineno"><a id="l550" href="#l550">550</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">88560</td>
+      <td class="linecount coveredLine">88561</td>
       <td class="src coveredLine"><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
@@ -4020,7 +4020,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="c1">// helper_executable: which (and where) is the EXE that will write the pipe&#39;s output</span></td>
+      <td class="src "><span class="c1">// helper_executable: which (and where) is the EXE that will write the pipe's output</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l560" href="#l560">560</a></td>
@@ -4034,35 +4034,35 @@
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">12</td>
-      <td class="src coveredLine"><span class="kt">int32_t</span><span class="w"> </span><span class="n">CConsoleLogger</span><span class="o">::</span><span class="n">Create</span><span class="p">([[</span><span class="n">maybe_unused</span><span class="p">]]</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w">	</span><span class="o">*</span><span class="n">lpszWindowTitle</span><span class="cm">/*=NULL*/</span><span class="p">,</span></td>
+      <td class="src coveredLine"><span class="kt">int32_t</span><span class="w"> </span><span class="n">CConsoleLogger</span><span class="o">::</span><span class="n">Create</span><span class="p">([[</span><span class="na">maybe_unused</span><span class="p">]]</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w">	</span><span class="o">*</span><span class="n">lpszWindowTitle</span><span class="cm">/*=NULL*/</span><span class="p">,</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l562" href="#l562">562</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">							</span><span class="p">[[</span><span class="n">maybe_unused</span><span class="p">]]</span><span class="w"> </span><span class="kt">int32_t</span><span class="w">			</span><span class="n">buffer_size_x</span><span class="cm">/*=-1*/</span><span class="p">,</span></td>
+      <td class="src "><span class="w">							</span><span class="p">[[</span><span class="na">maybe_unused</span><span class="p">]]</span><span class="w"> </span><span class="kt">int32_t</span><span class="w">			</span><span class="n">buffer_size_x</span><span class="cm">/*=-1*/</span><span class="p">,</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l563" href="#l563">563</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">							</span><span class="p">[[</span><span class="n">maybe_unused</span><span class="p">]]</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">buffer_size_y</span><span class="cm">/*=-1*/</span><span class="p">,</span></td>
+      <td class="src "><span class="w">							</span><span class="p">[[</span><span class="na">maybe_unused</span><span class="p">]]</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">buffer_size_y</span><span class="cm">/*=-1*/</span><span class="p">,</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l564" href="#l564">564</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">							</span><span class="p">[[</span><span class="n">maybe_unused</span><span class="p">]]</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w">	</span><span class="o">*</span><span class="n">logger_name</span><span class="cm">/*=NULL*/</span><span class="p">,</span></td>
+      <td class="src "><span class="w">							</span><span class="p">[[</span><span class="na">maybe_unused</span><span class="p">]]</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w">	</span><span class="o">*</span><span class="n">logger_name</span><span class="cm">/*=NULL*/</span><span class="p">,</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l565" href="#l565">565</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">							</span><span class="p">[[</span><span class="n">maybe_unused</span><span class="p">]]</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w">	</span><span class="o">*</span><span class="n">helper_executable</span><span class="cm">/*=NULL*/</span><span class="p">)</span></td>
+      <td class="src "><span class="w">							</span><span class="p">[[</span><span class="na">maybe_unused</span><span class="p">]]</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w">	</span><span class="o">*</span><span class="n">helper_executable</span><span class="cm">/*=NULL*/</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l566" href="#l566">566</a></td>
@@ -4132,14 +4132,14 @@
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">12</td>
-      <td class="src coveredLine"><span class="w">	</span><span class="n">m_textlog</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">al_open_native_text_log</span><span class="p">(</span><span class="s">&quot;ZScript&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">ALLEGRO_TEXTLOG_MONOSPACE</span><span class="p">);</span></td>
+      <td class="src coveredLine"><span class="w">	</span><span class="n">m_textlog</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">al_open_native_text_log</span><span class="p">(</span><span class="s">"ZScript"</span><span class="p">,</span><span class="w"> </span><span class="n">ALLEGRO_TEXTLOG_MONOSPACE</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l575" href="#l575">575</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">12</td>
-      <td class="src coveredLine"><span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="n">m_textlog</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="k">nullptr</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span></td>
+      <td class="src coveredLine"><span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="n">m_textlog</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="nb">nullptr</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l576" href="#l576">576</a></td>
@@ -4307,7 +4307,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="c1">// if iSize==-1 (default) , we&#39;ll use strlen(lpszText)</span></td>
+      <td class="src "><span class="c1">// if iSize==-1 (default) , we'll use strlen(lpszText)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l599" href="#l599">599</a></td>
@@ -4335,7 +4335,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kr">inline</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">CConsoleLogger</span><span class="o">::</span><span class="n">print</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">lpszText</span><span class="p">,</span><span class="w"> </span><span class="p">[[</span><span class="n">maybe_unused</span><span class="p">]]</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">iSize</span><span class="cm">/*=-1*/</span><span class="p">)</span></td>
+      <td class="src "><span class="kr">inline</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">CConsoleLogger</span><span class="o">::</span><span class="n">print</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">lpszText</span><span class="p">,</span><span class="w"> </span><span class="p">[[</span><span class="na">maybe_unused</span><span class="p">]]</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">iSize</span><span class="cm">/*=-1*/</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l603" href="#l603">603</a></td>
@@ -4356,7 +4356,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">m_textlog</span><span class="p">)</span><span class="w"> </span><span class="n">al_append_native_text_log</span><span class="p">(</span><span class="n">m_textlog</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;%s&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">lpszText</span><span class="p">);</span></td>
+      <td class="src "><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">m_textlog</span><span class="p">)</span><span class="w"> </span><span class="n">al_append_native_text_log</span><span class="p">(</span><span class="n">m_textlog</span><span class="p">,</span><span class="w"> </span><span class="s">"%s"</span><span class="p">,</span><span class="w"> </span><span class="n">lpszText</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l606" href="#l606">606</a></td>
@@ -4566,7 +4566,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">m_textlog</span><span class="p">)</span><span class="w"> </span><span class="n">al_append_native_text_log</span><span class="p">(</span><span class="n">m_textlog</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;%s&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">tmp</span><span class="p">);</span></td>
+      <td class="src uncoveredLine"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">m_textlog</span><span class="p">)</span><span class="w"> </span><span class="n">al_append_native_text_log</span><span class="p">(</span><span class="n">m_textlog</span><span class="p">,</span><span class="w"> </span><span class="s">"%s"</span><span class="p">,</span><span class="w"> </span><span class="n">tmp</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l636" href="#l636">636</a></td>
@@ -4727,7 +4727,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="c1">// we use the thread-safe funtion &quot;SafeWriteFile()&quot; to output the data</span></td>
+      <td class="src "><span class="c1">// we use the thread-safe funtion "SafeWriteFile()" to output the data</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l659" href="#l659">659</a></td>
@@ -4741,7 +4741,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="kt">int32_t</span><span class="w"> </span><span class="n">CConsoleLogger</span><span class="o">::</span><span class="n">_print</span><span class="p">([[</span><span class="n">maybe_unused</span><span class="p">]]</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">lpszText</span><span class="p">,</span><span class="w"> </span><span class="p">[[</span><span class="n">maybe_unused</span><span class="p">]]</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">iSize</span><span class="p">)</span></td>
+      <td class="src uncoveredLine"><span class="kt">int32_t</span><span class="w"> </span><span class="n">CConsoleLogger</span><span class="o">::</span><span class="n">_print</span><span class="p">([[</span><span class="na">maybe_unused</span><span class="p">]]</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">lpszText</span><span class="p">,</span><span class="w"> </span><span class="p">[[</span><span class="na">maybe_unused</span><span class="p">]]</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">iSize</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l661" href="#l661">661</a></td>
@@ -4810,21 +4810,21 @@
       <td class="lineno"><a id="l670" href="#l670">670</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">1034</td>
+      <td class="linecount coveredLine">1035</td>
       <td class="src coveredLine"><span class="n">CConsoleLoggerEx</span><span class="o">::</span><span class="n">CConsoleLoggerEx</span><span class="p">()</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l671" href="#l671">671</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">1034</td>
+      <td class="linecount coveredLine">1035</td>
       <td class="src coveredLine"><span class="p">{</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l672" href="#l672">672</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">1034</td>
+      <td class="linecount coveredLine">1035</td>
       <td class="src coveredLine"><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
@@ -4853,7 +4853,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="c1">// first output the &quot;command&quot; (which is COMMAND_PRINT) and the size,</span></td>
+      <td class="src "><span class="c1">// first output the "command" (which is COMMAND_PRINT) and the size,</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l677" href="#l677">677</a></td>
@@ -4874,7 +4874,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="kt">int32_t</span><span class="w"> </span><span class="n">CConsoleLoggerEx</span><span class="o">::</span><span class="n">_print</span><span class="p">([[</span><span class="n">maybe_unused</span><span class="p">]]</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">lpszText</span><span class="p">,</span><span class="w"> </span><span class="p">[[</span><span class="n">maybe_unused</span><span class="p">]]</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">iSize</span><span class="p">)</span></td>
+      <td class="src uncoveredLine"><span class="kt">int32_t</span><span class="w"> </span><span class="n">CConsoleLoggerEx</span><span class="o">::</span><span class="n">_print</span><span class="p">([[</span><span class="na">maybe_unused</span><span class="p">]]</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">lpszText</span><span class="p">,</span><span class="w"> </span><span class="p">[[</span><span class="na">maybe_unused</span><span class="p">]]</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">iSize</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l680" href="#l680">680</a></td>
@@ -4986,7 +4986,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">1174</td>
-      <td class="src coveredLine"><span class="kt">void</span><span class="w"> </span><span class="n">CConsoleLoggerEx</span><span class="o">::</span><span class="n">cls</span><span class="p">([[</span><span class="n">maybe_unused</span><span class="p">]]</span><span class="w"> </span><span class="n">word</span><span class="w"> </span><span class="n">color</span><span class="p">)</span></td>
+      <td class="src coveredLine"><span class="kt">void</span><span class="w"> </span><span class="n">CConsoleLoggerEx</span><span class="o">::</span><span class="n">cls</span><span class="p">([[</span><span class="na">maybe_unused</span><span class="p">]]</span><span class="w"> </span><span class="n">word</span><span class="w"> </span><span class="n">color</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l696" href="#l696">696</a></td>
@@ -5098,7 +5098,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="kt">void</span><span class="w"> </span><span class="n">CConsoleLoggerEx</span><span class="o">::</span><span class="n">clear_eol</span><span class="p">([[</span><span class="n">maybe_unused</span><span class="p">]]</span><span class="w"> </span><span class="n">word</span><span class="w"> </span><span class="n">color</span><span class="p">)</span></td>
+      <td class="src uncoveredLine"><span class="kt">void</span><span class="w"> </span><span class="n">CConsoleLoggerEx</span><span class="o">::</span><span class="n">clear_eol</span><span class="p">([[</span><span class="na">maybe_unused</span><span class="p">]]</span><span class="w"> </span><span class="n">word</span><span class="w"> </span><span class="n">color</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l712" href="#l712">712</a></td>
@@ -5154,7 +5154,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">1174</td>
-      <td class="src coveredLine"><span class="kt">void</span><span class="w"> </span><span class="n">CConsoleLoggerEx</span><span class="o">::</span><span class="n">gotoxy</span><span class="p">([[</span><span class="n">maybe_unused</span><span class="p">]]</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="p">[[</span><span class="n">maybe_unused</span><span class="p">]]</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">y</span><span class="p">)</span></td>
+      <td class="src coveredLine"><span class="kt">void</span><span class="w"> </span><span class="n">CConsoleLoggerEx</span><span class="o">::</span><span class="n">gotoxy</span><span class="p">([[</span><span class="na">maybe_unused</span><span class="p">]]</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="p">[[</span><span class="na">maybe_unused</span><span class="p">]]</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">y</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l720" href="#l720">720</a></td>
@@ -5196,7 +5196,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="c1">// cprintf(attr,str,...) : prints a formatted string with the &quot;attributes&quot; color</span></td>
+      <td class="src "><span class="c1">// cprintf(attr,str,...) : prints a formatted string with the "attributes" color</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l726" href="#l726">726</a></td>
@@ -5210,7 +5210,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">8450</td>
-      <td class="src coveredLine"><span class="kt">int32_t</span><span class="w"> </span><span class="n">CConsoleLoggerEx</span><span class="o">::</span><span class="n">cprintf</span><span class="p">([[</span><span class="n">maybe_unused</span><span class="p">]]</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">attributes</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">format</span><span class="p">,...)</span></td>
+      <td class="src coveredLine"><span class="kt">int32_t</span><span class="w"> </span><span class="n">CConsoleLoggerEx</span><span class="o">::</span><span class="n">cprintf</span><span class="p">([[</span><span class="na">maybe_unused</span><span class="p">]]</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">attributes</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">format</span><span class="p">,...)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l728" href="#l728">728</a></td>
@@ -5308,7 +5308,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">8450</td>
-      <td class="src partialCoveredLine"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">m_textlog</span><span class="p">)</span><span class="w"> </span><span class="n">al_append_native_text_log</span><span class="p">(</span><span class="n">m_textlog</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;%s&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">tmp</span><span class="p">);</span></td>
+      <td class="src partialCoveredLine"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">m_textlog</span><span class="p">)</span><span class="w"> </span><span class="n">al_append_native_text_log</span><span class="p">(</span><span class="n">m_textlog</span><span class="p">,</span><span class="w"> </span><span class="s">"%s"</span><span class="p">,</span><span class="w"> </span><span class="n">tmp</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l741" href="#l741">741</a></td>
@@ -5336,7 +5336,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">32017</td>
-      <td class="src coveredLine"><span class="kt">int32_t</span><span class="w"> </span><span class="n">CConsoleLoggerEx</span><span class="o">::</span><span class="n">safeprint</span><span class="p">([[</span><span class="n">maybe_unused</span><span class="p">]]</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">attributes</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">str</span><span class="p">)</span></td>
+      <td class="src coveredLine"><span class="kt">int32_t</span><span class="w"> </span><span class="n">CConsoleLoggerEx</span><span class="o">::</span><span class="n">safeprint</span><span class="p">([[</span><span class="na">maybe_unused</span><span class="p">]]</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">attributes</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">str</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l745" href="#l745">745</a></td>
@@ -5371,7 +5371,7 @@
         </details>
       </td>
       <td class="linecount coveredLine">32017</td>
-      <td class="src coveredLine"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">m_textlog</span><span class="p">)</span><span class="w"> </span><span class="n">al_append_native_text_log</span><span class="p">(</span><span class="n">m_textlog</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;%s&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">str</span><span class="p">);</span></td>
+      <td class="src coveredLine"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">m_textlog</span><span class="p">)</span><span class="w"> </span><span class="n">al_append_native_text_log</span><span class="p">(</span><span class="n">m_textlog</span><span class="p">,</span><span class="w"> </span><span class="s">"%s"</span><span class="p">,</span><span class="w"> </span><span class="n">str</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l749" href="#l749">749</a></td>
@@ -5518,7 +5518,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">m_textlog</span><span class="p">)</span><span class="w"> </span><span class="n">al_append_native_text_log</span><span class="p">(</span><span class="n">m_textlog</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;%s&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">tmp</span><span class="p">);</span></td>
+      <td class="src uncoveredLine"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">m_textlog</span><span class="p">)</span><span class="w"> </span><span class="n">al_append_native_text_log</span><span class="p">(</span><span class="n">m_textlog</span><span class="p">,</span><span class="w"> </span><span class="s">"%s"</span><span class="p">,</span><span class="w"> </span><span class="n">tmp</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l770" href="#l770">770</a></td>
@@ -5574,7 +5574,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">m_textlog</span><span class="p">)</span><span class="w"> </span><span class="n">al_append_native_text_log</span><span class="p">(</span><span class="n">m_textlog</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;%s&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">str</span><span class="p">);</span></td>
+      <td class="src uncoveredLine"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">m_textlog</span><span class="p">)</span><span class="w"> </span><span class="n">al_append_native_text_log</span><span class="p">(</span><span class="n">m_textlog</span><span class="p">,</span><span class="w"> </span><span class="s">"%s"</span><span class="p">,</span><span class="w"> </span><span class="n">str</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l778" href="#l778">778</a></td>
@@ -5623,7 +5623,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="kt">int32_t</span><span class="w"> </span><span class="n">CConsoleLoggerEx</span><span class="o">::</span><span class="n">_cprint</span><span class="p">([[</span><span class="n">maybe_unused</span><span class="p">]]</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">attributes</span><span class="p">,</span><span class="w"> </span><span class="p">[[</span><span class="n">maybe_unused</span><span class="p">]]</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">lpszText</span><span class="p">,</span><span class="w"> </span><span class="p">[[</span><span class="n">maybe_unused</span><span class="p">]]</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">iSize</span><span class="p">)</span></td>
+      <td class="src uncoveredLine"><span class="kt">int32_t</span><span class="w"> </span><span class="n">CConsoleLoggerEx</span><span class="o">::</span><span class="n">_cprint</span><span class="p">([[</span><span class="na">maybe_unused</span><span class="p">]]</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">attributes</span><span class="p">,</span><span class="w"> </span><span class="p">[[</span><span class="na">maybe_unused</span><span class="p">]]</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">lpszText</span><span class="p">,</span><span class="w"> </span><span class="p">[[</span><span class="na">maybe_unused</span><span class="p">]]</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">iSize</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l785" href="#l785">785</a></td>

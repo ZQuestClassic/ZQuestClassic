@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2026-11-10 08:08:23</td>
+      <td>2026-11-13 22:29:49</td>
     </tr>
   </table>
 </div>
@@ -73,7 +73,7 @@
       <th>Call count</th>
       <th>Block coverage</th>
     </tr>
-    <tr><td><a href="#l199">install_crash_backtrace_handler() (line 199)</a></td><td>called 2063 times, returned 2063 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l199">install_crash_backtrace_handler() (line 199)</a></td><td>called 2064 times, returned 2064 times</td><td>100.0%</td></tr>
   </table>
 </details>
 
@@ -93,7 +93,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;base/crash_backtrace.h&quot;</span></td>
+      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">"base/crash_backtrace.h"</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2" href="#l2">2</a></td>
@@ -219,14 +219,14 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="c1">// DbgHelp is loaded at runtime, so the executables don&#39;t import functions from it that</span></td>
+      <td class="src "><span class="c1">// DbgHelp is loaded at runtime, so the executables don't import functions from it that</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l20" href="#l20">20</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="c1">// Windows 7&#39;s copy may lack (see scripts/check_windows_imports.py) just for CI.</span></td>
+      <td class="src "><span class="c1">// Windows 7's copy may lack (see scripts/check_windows_imports.py) just for CI.</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l21" href="#l21">21</a></td>
@@ -303,7 +303,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">HMODULE</span><span class="w"> </span><span class="n">dbghelp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">LoadLibraryW</span><span class="p">(</span><span class="sa">L</span><span class="s">&quot;dbghelp.dll&quot;</span><span class="p">);</span></td>
+      <td class="src "><span class="w">	</span><span class="n">HMODULE</span><span class="w"> </span><span class="n">dbghelp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">LoadLibraryW</span><span class="p">(</span><span class="sa">L</span><span class="s">"dbghelp.dll"</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l32" href="#l32">32</a></td>
@@ -331,49 +331,49 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">pSymSetOptions</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="k">decltype</span><span class="p">(</span><span class="n">pSymSetOptions</span><span class="p">))</span><span class="n">GetProcAddress</span><span class="p">(</span><span class="n">dbghelp</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;SymSetOptions&quot;</span><span class="p">);</span></td>
+      <td class="src "><span class="w">	</span><span class="n">pSymSetOptions</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="k">decltype</span><span class="p">(</span><span class="n">pSymSetOptions</span><span class="p">))</span><span class="n">GetProcAddress</span><span class="p">(</span><span class="n">dbghelp</span><span class="p">,</span><span class="w"> </span><span class="s">"SymSetOptions"</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l36" href="#l36">36</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">pSymInitializeW</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="k">decltype</span><span class="p">(</span><span class="n">pSymInitializeW</span><span class="p">))</span><span class="n">GetProcAddress</span><span class="p">(</span><span class="n">dbghelp</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;SymInitializeW&quot;</span><span class="p">);</span></td>
+      <td class="src "><span class="w">	</span><span class="n">pSymInitializeW</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="k">decltype</span><span class="p">(</span><span class="n">pSymInitializeW</span><span class="p">))</span><span class="n">GetProcAddress</span><span class="p">(</span><span class="n">dbghelp</span><span class="p">,</span><span class="w"> </span><span class="s">"SymInitializeW"</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l37" href="#l37">37</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">pStackWalk64</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="k">decltype</span><span class="p">(</span><span class="n">pStackWalk64</span><span class="p">))</span><span class="n">GetProcAddress</span><span class="p">(</span><span class="n">dbghelp</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;StackWalk64&quot;</span><span class="p">);</span></td>
+      <td class="src "><span class="w">	</span><span class="n">pStackWalk64</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="k">decltype</span><span class="p">(</span><span class="n">pStackWalk64</span><span class="p">))</span><span class="n">GetProcAddress</span><span class="p">(</span><span class="n">dbghelp</span><span class="p">,</span><span class="w"> </span><span class="s">"StackWalk64"</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l38" href="#l38">38</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">pSymFunctionTableAccess64</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="k">decltype</span><span class="p">(</span><span class="n">pSymFunctionTableAccess64</span><span class="p">))</span><span class="n">GetProcAddress</span><span class="p">(</span><span class="n">dbghelp</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;SymFunctionTableAccess64&quot;</span><span class="p">);</span></td>
+      <td class="src "><span class="w">	</span><span class="n">pSymFunctionTableAccess64</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="k">decltype</span><span class="p">(</span><span class="n">pSymFunctionTableAccess64</span><span class="p">))</span><span class="n">GetProcAddress</span><span class="p">(</span><span class="n">dbghelp</span><span class="p">,</span><span class="w"> </span><span class="s">"SymFunctionTableAccess64"</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l39" href="#l39">39</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">pSymGetModuleBase64</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="k">decltype</span><span class="p">(</span><span class="n">pSymGetModuleBase64</span><span class="p">))</span><span class="n">GetProcAddress</span><span class="p">(</span><span class="n">dbghelp</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;SymGetModuleBase64&quot;</span><span class="p">);</span></td>
+      <td class="src "><span class="w">	</span><span class="n">pSymGetModuleBase64</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="k">decltype</span><span class="p">(</span><span class="n">pSymGetModuleBase64</span><span class="p">))</span><span class="n">GetProcAddress</span><span class="p">(</span><span class="n">dbghelp</span><span class="p">,</span><span class="w"> </span><span class="s">"SymGetModuleBase64"</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l40" href="#l40">40</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">pSymFromAddr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="k">decltype</span><span class="p">(</span><span class="n">pSymFromAddr</span><span class="p">))</span><span class="n">GetProcAddress</span><span class="p">(</span><span class="n">dbghelp</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;SymFromAddr&quot;</span><span class="p">);</span></td>
+      <td class="src "><span class="w">	</span><span class="n">pSymFromAddr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="k">decltype</span><span class="p">(</span><span class="n">pSymFromAddr</span><span class="p">))</span><span class="n">GetProcAddress</span><span class="p">(</span><span class="n">dbghelp</span><span class="p">,</span><span class="w"> </span><span class="s">"SymFromAddr"</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l41" href="#l41">41</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">pSymGetLineFromAddr64</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="k">decltype</span><span class="p">(</span><span class="n">pSymGetLineFromAddr64</span><span class="p">))</span><span class="n">GetProcAddress</span><span class="p">(</span><span class="n">dbghelp</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;SymGetLineFromAddr64&quot;</span><span class="p">);</span></td>
+      <td class="src "><span class="w">	</span><span class="n">pSymGetLineFromAddr64</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="k">decltype</span><span class="p">(</span><span class="n">pSymGetLineFromAddr64</span><span class="p">))</span><span class="n">GetProcAddress</span><span class="p">(</span><span class="n">dbghelp</span><span class="p">,</span><span class="w"> </span><span class="s">"SymGetLineFromAddr64"</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l42" href="#l42">42</a></td>
@@ -429,7 +429,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">WriteFile</span><span class="p">(</span><span class="n">out</span><span class="p">,</span><span class="w"> </span><span class="n">str</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="n">DWORD</span><span class="p">)</span><span class="n">strlen</span><span class="p">(</span><span class="n">str</span><span class="p">),</span><span class="w"> </span><span class="o">&amp;</span><span class="n">written</span><span class="p">,</span><span class="w"> </span><span class="k">nullptr</span><span class="p">);</span></td>
+      <td class="src "><span class="w">	</span><span class="n">WriteFile</span><span class="p">(</span><span class="n">out</span><span class="p">,</span><span class="w"> </span><span class="n">str</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="n">DWORD</span><span class="p">)</span><span class="n">strlen</span><span class="p">(</span><span class="n">str</span><span class="p">),</span><span class="w"> </span><span class="o">&amp;</span><span class="n">written</span><span class="p">,</span><span class="w"> </span><span class="nb">nullptr</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l50" href="#l50">50</a></td>
@@ -506,7 +506,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="n">out</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CreateFileA</span><span class="p">(</span><span class="n">backtrace_file_path</span><span class="p">,</span><span class="w"> </span><span class="n">GENERIC_WRITE</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="k">nullptr</span><span class="p">,</span><span class="w"> </span><span class="n">CREATE_ALWAYS</span><span class="p">,</span><span class="w"> </span><span class="n">FILE_ATTRIBUTE_NORMAL</span><span class="p">,</span><span class="w"> </span><span class="k">nullptr</span><span class="p">);</span></td>
+      <td class="src "><span class="w">		</span><span class="n">out</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CreateFileA</span><span class="p">(</span><span class="n">backtrace_file_path</span><span class="p">,</span><span class="w"> </span><span class="n">GENERIC_WRITE</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="nb">nullptr</span><span class="p">,</span><span class="w"> </span><span class="n">CREATE_ALWAYS</span><span class="p">,</span><span class="w"> </span><span class="n">FILE_ATTRIBUTE_NORMAL</span><span class="p">,</span><span class="w"> </span><span class="nb">nullptr</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l61" href="#l61">61</a></td>
@@ -541,7 +541,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">snprintf</span><span class="p">(</span><span class="n">line</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">line</span><span class="p">),</span><span class="w"> </span><span class="s">&quot;crashed: %s</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">reason</span><span class="p">);</span></td>
+      <td class="src "><span class="w">	</span><span class="n">snprintf</span><span class="p">(</span><span class="n">line</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">line</span><span class="p">),</span><span class="w"> </span><span class="s">"crashed: %s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span><span class="w"> </span><span class="n">reason</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l66" href="#l66">66</a></td>
@@ -583,14 +583,14 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">pSymInitializeW</span><span class="p">(</span><span class="n">process</span><span class="p">,</span><span class="w"> </span><span class="n">symbol_search_path</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="n">symbol_search_path</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="k">nullptr</span><span class="p">,</span><span class="w"> </span><span class="n">TRUE</span><span class="p">))</span></td>
+      <td class="src "><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">pSymInitializeW</span><span class="p">(</span><span class="n">process</span><span class="p">,</span><span class="w"> </span><span class="n">symbol_search_path</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="n">symbol_search_path</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="nb">nullptr</span><span class="p">,</span><span class="w"> </span><span class="n">TRUE</span><span class="p">))</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l72" href="#l72">72</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="n">write_str</span><span class="p">(</span><span class="n">out</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;(could not load symbols)</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span></td>
+      <td class="src "><span class="w">		</span><span class="n">write_str</span><span class="p">(</span><span class="n">out</span><span class="p">,</span><span class="w"> </span><span class="s">"(could not load symbols)</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l73" href="#l73">73</a></td>
@@ -744,7 +744,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#error &quot;unknown architecture&quot;</span></td>
+      <td class="src "><span class="cp">#error "unknown architecture"</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l95" href="#l95">95</a></td>
@@ -800,7 +800,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">pStackWalk64</span><span class="p">(</span><span class="n">machine</span><span class="p">,</span><span class="w"> </span><span class="n">process</span><span class="p">,</span><span class="w"> </span><span class="kr">thread</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">frame</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">context</span><span class="p">,</span><span class="w"> </span><span class="k">nullptr</span><span class="p">,</span><span class="w"> </span><span class="n">pSymFunctionTableAccess64</span><span class="p">,</span><span class="w"> </span><span class="n">pSymGetModuleBase64</span><span class="p">,</span><span class="w"> </span><span class="k">nullptr</span><span class="p">))</span></td>
+      <td class="src "><span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">pStackWalk64</span><span class="p">(</span><span class="n">machine</span><span class="p">,</span><span class="w"> </span><span class="n">process</span><span class="p">,</span><span class="w"> </span><span class="kr">thread</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">frame</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">context</span><span class="p">,</span><span class="w"> </span><span class="nb">nullptr</span><span class="p">,</span><span class="w"> </span><span class="n">pSymFunctionTableAccess64</span><span class="p">,</span><span class="w"> </span><span class="n">pSymGetModuleBase64</span><span class="p">,</span><span class="w"> </span><span class="nb">nullptr</span><span class="p">))</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l103" href="#l103">103</a></td>
@@ -870,7 +870,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="kt">char</span><span class="w"> </span><span class="n">module_name</span><span class="p">[</span><span class="n">MAX_PATH</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;?&quot;</span><span class="p">;</span></td>
+      <td class="src "><span class="w">		</span><span class="kt">char</span><span class="w"> </span><span class="n">module_name</span><span class="p">[</span><span class="n">MAX_PATH</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"?"</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l113" href="#l113">113</a></td>
@@ -898,7 +898,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">			</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">slash</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">strrchr</span><span class="p">(</span><span class="n">module_name</span><span class="p">,</span><span class="w"> </span><span class="sc">&#39;\\&#39;</span><span class="p">))</span></td>
+      <td class="src "><span class="w">			</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">slash</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">strrchr</span><span class="p">(</span><span class="n">module_name</span><span class="p">,</span><span class="w"> </span><span class="sc">'\\'</span><span class="p">))</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l117" href="#l117">117</a></td>
@@ -1017,7 +1017,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">				</span><span class="n">snprintf</span><span class="p">(</span><span class="n">line</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">line</span><span class="p">),</span><span class="w"> </span><span class="s">&quot;#%-2d %s!%s [%s:%lu]</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">module_name</span><span class="p">,</span><span class="w"> </span><span class="n">symbol</span><span class="o">-&gt;</span><span class="n">Name</span><span class="p">,</span><span class="w"> </span><span class="n">source</span><span class="p">.</span><span class="n">FileName</span><span class="p">,</span><span class="w"> </span><span class="n">source</span><span class="p">.</span><span class="n">LineNumber</span><span class="p">);</span></td>
+      <td class="src "><span class="w">				</span><span class="n">snprintf</span><span class="p">(</span><span class="n">line</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">line</span><span class="p">),</span><span class="w"> </span><span class="s">"#%-2d %s!%s [%s:%lu]</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">module_name</span><span class="p">,</span><span class="w"> </span><span class="n">symbol</span><span class="o">-&gt;</span><span class="n">Name</span><span class="p">,</span><span class="w"> </span><span class="n">source</span><span class="p">.</span><span class="n">FileName</span><span class="p">,</span><span class="w"> </span><span class="n">source</span><span class="p">.</span><span class="n">LineNumber</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l134" href="#l134">134</a></td>
@@ -1031,7 +1031,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">				</span><span class="n">snprintf</span><span class="p">(</span><span class="n">line</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">line</span><span class="p">),</span><span class="w"> </span><span class="s">&quot;#%-2d %s!%s+0x%llx</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">module_name</span><span class="p">,</span><span class="w"> </span><span class="n">symbol</span><span class="o">-&gt;</span><span class="n">Name</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="kt">unsigned</span><span class="w"> </span><span class="kt">long</span><span class="w"> </span><span class="kt">long</span><span class="p">)</span><span class="n">displacement</span><span class="p">);</span></td>
+      <td class="src "><span class="w">				</span><span class="n">snprintf</span><span class="p">(</span><span class="n">line</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">line</span><span class="p">),</span><span class="w"> </span><span class="s">"#%-2d %s!%s+0x%llx</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">module_name</span><span class="p">,</span><span class="w"> </span><span class="n">symbol</span><span class="o">-&gt;</span><span class="n">Name</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="kt">unsigned</span><span class="w"> </span><span class="kt">long</span><span class="w"> </span><span class="kt">long</span><span class="p">)</span><span class="n">displacement</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l136" href="#l136">136</a></td>
@@ -1059,7 +1059,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">			</span><span class="n">snprintf</span><span class="p">(</span><span class="n">line</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">line</span><span class="p">),</span><span class="w"> </span><span class="s">&quot;#%-2d %s+0x%llx</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">module_name</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="kt">unsigned</span><span class="w"> </span><span class="kt">long</span><span class="w"> </span><span class="kt">long</span><span class="p">)(</span><span class="n">address</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">module_base</span><span class="p">));</span></td>
+      <td class="src "><span class="w">			</span><span class="n">snprintf</span><span class="p">(</span><span class="n">line</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">line</span><span class="p">),</span><span class="w"> </span><span class="s">"#%-2d %s+0x%llx</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">module_name</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="kt">unsigned</span><span class="w"> </span><span class="kt">long</span><span class="w"> </span><span class="kt">long</span><span class="p">)(</span><span class="n">address</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">module_base</span><span class="p">));</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l140" href="#l140">140</a></td>
@@ -1122,14 +1122,14 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="c1">// CI (where stdout is a pipe, so fully buffered) is usually all of the program&#39;s output.</span></td>
+      <td class="src "><span class="w">	</span><span class="c1">// CI (where stdout is a pipe, so fully buffered) is usually all of the program's output.</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l149" href="#l149">149</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">fflush</span><span class="p">(</span><span class="k">nullptr</span><span class="p">);</span></td>
+      <td class="src "><span class="w">	</span><span class="n">fflush</span><span class="p">(</span><span class="nb">nullptr</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l150" href="#l150">150</a></td>
@@ -1171,7 +1171,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">snprintf</span><span class="p">(</span><span class="n">reason</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">reason</span><span class="p">),</span><span class="w"> </span><span class="s">&quot;unhandled exception 0x%08lX at %p&quot;</span><span class="p">,</span></td>
+      <td class="src "><span class="w">	</span><span class="n">snprintf</span><span class="p">(</span><span class="n">reason</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">reason</span><span class="p">),</span><span class="w"> </span><span class="s">"unhandled exception 0x%08lX at %p"</span><span class="p">,</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l156" href="#l156">156</a></td>
@@ -1199,7 +1199,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="c1">// Let the C runtime&#39;s filter carry on as usual (for a C++ exception, it calls std::terminate).</span></td>
+      <td class="src "><span class="w">	</span><span class="c1">// Let the C runtime's filter carry on as usual (for a C++ exception, it calls std::terminate).</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l160" href="#l160">160</a></td>
@@ -1269,7 +1269,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">print_backtrace</span><span class="p">(</span><span class="o">&amp;</span><span class="n">context</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;abort() was called&quot;</span><span class="p">);</span></td>
+      <td class="src "><span class="w">	</span><span class="n">print_backtrace</span><span class="p">(</span><span class="o">&amp;</span><span class="n">context</span><span class="p">,</span><span class="w"> </span><span class="s">"abort() was called"</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l170" href="#l170">170</a></td>
@@ -1325,7 +1325,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">getenv</span><span class="p">(</span><span class="s">&quot;ZC_CRASH_BACKTRACE_FILE&quot;</span><span class="p">))</span></td>
+      <td class="src "><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">getenv</span><span class="p">(</span><span class="s">"ZC_CRASH_BACKTRACE_FILE"</span><span class="p">))</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l178" href="#l178">178</a></td>
@@ -1353,14 +1353,14 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="c1">// linker wrote them, which is a different machine for CI&#39;s test jobs.</span></td>
+      <td class="src "><span class="w">	</span><span class="c1">// linker wrote them, which is a different machine for CI's test jobs.</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l182" href="#l182">182</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">DWORD</span><span class="w"> </span><span class="n">len</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">GetModuleFileNameW</span><span class="p">(</span><span class="k">nullptr</span><span class="p">,</span><span class="w"> </span><span class="n">symbol_search_path</span><span class="p">,</span><span class="w"> </span><span class="n">MAX_PATH</span><span class="p">);</span></td>
+      <td class="src "><span class="w">	</span><span class="n">DWORD</span><span class="w"> </span><span class="n">len</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">GetModuleFileNameW</span><span class="p">(</span><span class="nb">nullptr</span><span class="p">,</span><span class="w"> </span><span class="n">symbol_search_path</span><span class="p">,</span><span class="w"> </span><span class="n">MAX_PATH</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l183" href="#l183">183</a></td>
@@ -1381,14 +1381,14 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="kt">wchar_t</span><span class="o">*</span><span class="w"> </span><span class="n">slash</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">wcsrchr</span><span class="p">(</span><span class="n">symbol_search_path</span><span class="p">,</span><span class="w"> </span><span class="sa">L</span><span class="sc">&#39;\\&#39;</span><span class="p">))</span></td>
+      <td class="src "><span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="kt">wchar_t</span><span class="o">*</span><span class="w"> </span><span class="n">slash</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">wcsrchr</span><span class="p">(</span><span class="n">symbol_search_path</span><span class="p">,</span><span class="w"> </span><span class="sa">L</span><span class="sc">'\\'</span><span class="p">))</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l186" href="#l186">186</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">			</span><span class="o">*</span><span class="n">slash</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="sa">L</span><span class="sc">&#39;\0&#39;</span><span class="p">;</span></td>
+      <td class="src "><span class="w">			</span><span class="o">*</span><span class="n">slash</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="sa">L</span><span class="sc">'\0'</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l187" href="#l187">187</a></td>
@@ -1416,7 +1416,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="n">symbol_search_path</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="sa">L</span><span class="sc">&#39;\0&#39;</span><span class="p">;</span></td>
+      <td class="src "><span class="w">		</span><span class="n">symbol_search_path</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="sa">L</span><span class="sc">'\0'</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l191" href="#l191">191</a></td>
@@ -1478,7 +1478,7 @@
       <td class="lineno"><a id="l199" href="#l199">199</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">2063</td>
+      <td class="linecount coveredLine">2064</td>
       <td class="src coveredLine"><span class="kt">void</span><span class="w"> </span><span class="n">install_crash_backtrace_handler</span><span class="p">()</span></td>
     </tr>
     <tr class="source-line">
@@ -1492,7 +1492,7 @@
       <td class="lineno"><a id="l201" href="#l201">201</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">2063</td>
+      <td class="linecount coveredLine">2064</td>
       <td class="src coveredLine"><span class="p">}</span></td>
     </tr>
     <tr class="source-line">

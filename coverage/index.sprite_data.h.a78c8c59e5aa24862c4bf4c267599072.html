@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2026-11-10 08:08:23</td>
+      <td>2026-11-13 22:29:49</td>
     </tr>
   </table>
 </div>
@@ -79,11 +79,11 @@
     <tr><td><a href="#l7">sprite_data::operator=(sprite_data const&amp;) (line 7)</a></td><td>called 223 times, returned 223 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l7">sprite_data::operator=(sprite_data&amp;&amp;) (line 7)</a></td><td>called 307964 times, returned 307964 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l37">sprite_data::operator==(sprite_data const&amp;) const (line 37)</a></td><td>called 1533 times, returned 1533 times</td><td>100.0%</td></tr>
-    <tr><td><a href="#l7">sprite_data::sprite_data() (line 7)</a></td><td>called 309904 times, returned 309904 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l7">sprite_data::sprite_data() (line 7)</a></td><td>called 309905 times, returned 309905 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l7">sprite_data::sprite_data(sprite_data const&amp;) (line 7)</a></td><td>called 643737 times, returned 643737 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l7">sprite_data::sprite_data(sprite_data&amp;&amp;) (line 7)</a></td><td>called 9932 times, returned 9932 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l26">sprite_data::total_duration(bool) const (line 26)</a></td><td>called 255127 times, returned 255127 times</td><td>100.0%</td></tr>
-    <tr><td><a href="#l7">sprite_data::~sprite_data() (line 7)</a></td><td>called 963573 times, returned 963573 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l7">sprite_data::~sprite_data() (line 7)</a></td><td>called 963574 times, returned 963574 times</td><td>100.0%</td></tr>
   </table>
 </details>
 
@@ -117,7 +117,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;base/containers.h&quot;</span></td>
+      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">"base/containers.h"</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l4" href="#l4">4</a></td>
@@ -173,35 +173,35 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">byte</span><span class="w"> </span><span class="n">misc</span><span class="p">;</span><span class="w">         </span><span class="c1">// 000bvhff (vh:flipping, f:flash (1:NES, 2:BSZ))</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">byte</span><span class="w"> </span><span class="n">misc</span><span class="p">;</span><span class="w">         </span><span class="c1">// 000bvhff (vh:flipping, f:flash (1:NES, 2:BSZ))</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l12" href="#l12">12</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">byte</span><span class="w"> </span><span class="n">csets</span><span class="p">;</span><span class="w">        </span><span class="c1">// ffffcccc (f:flash cset, c:cset)</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">byte</span><span class="w"> </span><span class="n">csets</span><span class="p">;</span><span class="w">        </span><span class="c1">// ffffcccc (f:flash cset, c:cset)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l13" href="#l13">13</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">byte</span><span class="w"> </span><span class="n">frames</span><span class="p">;</span><span class="w">       </span><span class="c1">// animation frame count</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">byte</span><span class="w"> </span><span class="n">frames</span><span class="p">;</span><span class="w">       </span><span class="c1">// animation frame count</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l14" href="#l14">14</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">byte</span><span class="w"> </span><span class="n">speed</span><span class="p">;</span><span class="w">        </span><span class="c1">// animation speed</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">byte</span><span class="w"> </span><span class="n">speed</span><span class="p">;</span><span class="w">        </span><span class="c1">// animation speed</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l15" href="#l15">15</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">byte</span><span class="w"> </span><span class="n">type</span><span class="p">;</span><span class="w">         </span><span class="c1">// used by certain weapons</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">byte</span><span class="w"> </span><span class="n">type</span><span class="p">;</span><span class="w">         </span><span class="c1">// used by certain weapons</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l16" href="#l16">16</a></td>
@@ -222,7 +222,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">4584289</td>
-      <td class="src coveredLine"><span class="w">	</span><span class="n">byte</span><span class="w"> </span><span class="nf">flip</span><span class="p">()</span><span class="w"> </span><span class="k">const</span></td>
+      <td class="src coveredLine"><span class="w">	</span><span class="kt">byte</span><span class="w"> </span><span class="nf">flip</span><span class="p">()</span><span class="w"> </span><span class="k">const</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l19" href="#l19">19</a></td>
@@ -250,7 +250,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">7686204</td>
-      <td class="src coveredLine"><span class="w">	</span><span class="n">byte</span><span class="w"> </span><span class="nf">cs</span><span class="p">()</span><span class="w"> </span><span class="k">const</span></td>
+      <td class="src coveredLine"><span class="w">	</span><span class="kt">byte</span><span class="w"> </span><span class="nf">cs</span><span class="p">()</span><span class="w"> </span><span class="k">const</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l23" href="#l23">23</a></td>

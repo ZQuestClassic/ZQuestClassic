@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2026-11-10 08:08:23</td>
+      <td>2026-11-13 22:29:49</td>
     </tr>
   </table>
 </div>
@@ -133,7 +133,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;components/zasm/eval.h&quot;</span></td>
+      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">"components/zasm/eval.h"</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l4" href="#l4">4</a></td>
@@ -147,14 +147,14 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;base/expected.h&quot;</span></td>
+      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">"base/expected.h"</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l6" href="#l6">6</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;components/zasm/debug_data.h&quot;</span></td>
+      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">"components/zasm/debug_data.h"</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l7" href="#l7">7</a></td>
@@ -526,7 +526,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">4</td>
-      <td class="src partialCoveredLine"><span class="w">			</span><span class="k">throw</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">runtime_error</span><span class="p">(</span><span class="s">&quot;Unexpected input: &quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">input</span><span class="p">.</span><span class="n">substr</span><span class="p">(</span><span class="n">pos</span><span class="p">));</span></td>
+      <td class="src partialCoveredLine"><span class="w">			</span><span class="k">throw</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">runtime_error</span><span class="p">(</span><span class="s">"Unexpected input: "</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">input</span><span class="p">.</span><span class="n">substr</span><span class="p">(</span><span class="n">pos</span><span class="p">));</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l51" href="#l51">51</a></td>
@@ -640,7 +640,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">		</span><span class="k">return</span><span class="w"> </span><span class="k">nullptr</span><span class="p">;</span></td>
+      <td class="src uncoveredLine"><span class="w">		</span><span class="k">return</span><span class="w"> </span><span class="nb">nullptr</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l63" href="#l63">63</a></td>
@@ -710,7 +710,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="c1">// Check for &#39;=&#39; (but not &#39;==&#39;).</span></td>
+      <td class="src "><span class="w">	</span><span class="c1">// Check for '=' (but not '==').</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l72" href="#l72">72</a></td>
@@ -732,7 +732,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">13095</td>
-      <td class="src partialCoveredLine"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">peek</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="sc">&#39;=&#39;</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="p">(</span><span class="n">pos</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">input</span><span class="p">.</span><span class="n">size</span><span class="p">()</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">input</span><span class="p">[</span><span class="n">pos</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="sc">&#39;=&#39;</span><span class="p">))</span></td>
+      <td class="src partialCoveredLine"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">peek</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="sc">'='</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="p">(</span><span class="n">pos</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">input</span><span class="p">.</span><span class="n">size</span><span class="p">()</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">input</span><span class="p">[</span><span class="n">pos</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="sc">'='</span><span class="p">))</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l73" href="#l73">73</a></td>
@@ -753,7 +753,7 @@
         </details>
       </td>
       <td class="linecount coveredLine">27</td>
-      <td class="src coveredLine"><span class="w">		</span><span class="n">get</span><span class="p">();</span><span class="w"> </span><span class="c1">// Consume &#39;=&#39;</span></td>
+      <td class="src coveredLine"><span class="w">		</span><span class="n">get</span><span class="p">();</span><span class="w"> </span><span class="c1">// Consume '='</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l75" href="#l75">75</a></td>
@@ -880,7 +880,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">13106</td>
-      <td class="src partialCoveredLine"><span class="w">	</span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">peek</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="sc">&#39;|&#39;</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">pos</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">input</span><span class="p">.</span><span class="n">size</span><span class="p">()</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">input</span><span class="p">[</span><span class="n">pos</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="sc">&#39;|&#39;</span><span class="p">)</span></td>
+      <td class="src partialCoveredLine"><span class="w">	</span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">peek</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="sc">'|'</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">pos</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">input</span><span class="p">.</span><span class="n">size</span><span class="p">()</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">input</span><span class="p">[</span><span class="n">pos</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="sc">'|'</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l87" href="#l87">87</a></td>
@@ -922,7 +922,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">11</td>
-      <td class="src partialCoveredLine"><span class="w">		</span><span class="n">left</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">make_shared</span><span class="o">&lt;</span><span class="n">BinaryOpNode</span><span class="o">&gt;</span><span class="p">(</span><span class="s">&quot;||&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">left</span><span class="p">,</span><span class="w"> </span><span class="n">right</span><span class="p">);</span></td>
+      <td class="src partialCoveredLine"><span class="w">		</span><span class="n">left</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">make_shared</span><span class="o">&lt;</span><span class="n">BinaryOpNode</span><span class="o">&gt;</span><span class="p">(</span><span class="s">"||"</span><span class="p">,</span><span class="w"> </span><span class="n">left</span><span class="p">,</span><span class="w"> </span><span class="n">right</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l91" href="#l91">91</a></td>
@@ -1014,7 +1014,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">13118</td>
-      <td class="src partialCoveredLine"><span class="w">	</span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">peek</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="sc">&#39;&amp;&#39;</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">pos</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">input</span><span class="p">.</span><span class="n">size</span><span class="p">()</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">input</span><span class="p">[</span><span class="n">pos</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="sc">&#39;&amp;&#39;</span><span class="p">)</span></td>
+      <td class="src partialCoveredLine"><span class="w">	</span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">peek</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="sc">'&amp;'</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">pos</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">input</span><span class="p">.</span><span class="n">size</span><span class="p">()</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">input</span><span class="p">[</span><span class="n">pos</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="sc">'&amp;'</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l100" href="#l100">100</a></td>
@@ -1056,7 +1056,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">12</td>
-      <td class="src partialCoveredLine"><span class="w">		</span><span class="n">left</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">make_shared</span><span class="o">&lt;</span><span class="n">BinaryOpNode</span><span class="o">&gt;</span><span class="p">(</span><span class="s">&quot;&amp;&amp;&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">left</span><span class="p">,</span><span class="w"> </span><span class="n">right</span><span class="p">);</span></td>
+      <td class="src partialCoveredLine"><span class="w">		</span><span class="n">left</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">make_shared</span><span class="o">&lt;</span><span class="n">BinaryOpNode</span><span class="o">&gt;</span><span class="p">(</span><span class="s">"&amp;&amp;"</span><span class="p">,</span><span class="w"> </span><span class="n">left</span><span class="p">,</span><span class="w"> </span><span class="n">right</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l104" href="#l104">104</a></td>
@@ -1142,7 +1142,7 @@
         </details>
       </td>
       <td class="linecount coveredLine">13126</td>
-      <td class="src coveredLine"><span class="w">	</span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">peek</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="sc">&#39;|&#39;</span><span class="p">)</span></td>
+      <td class="src coveredLine"><span class="w">	</span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">peek</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="sc">'|'</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l113" href="#l113">113</a></td>
@@ -1156,7 +1156,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="c1">// If next char is |, it&#39;s a Logical OR, let the parent handle it</span></td>
+      <td class="src "><span class="w">		</span><span class="c1">// If next char is |, it's a Logical OR, let the parent handle it</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l115" href="#l115">115</a></td>
@@ -1174,7 +1174,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">19</td>
-      <td class="src partialCoveredLine"><span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">pos</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">input</span><span class="p">.</span><span class="n">size</span><span class="p">()</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">input</span><span class="p">[</span><span class="n">pos</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="sc">&#39;|&#39;</span><span class="p">)</span></td>
+      <td class="src partialCoveredLine"><span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">pos</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">input</span><span class="p">.</span><span class="n">size</span><span class="p">()</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">input</span><span class="p">[</span><span class="n">pos</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="sc">'|'</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l116" href="#l116">116</a></td>
@@ -1318,7 +1318,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">13128</td>
-      <td class="src partialCoveredLine"><span class="w">	</span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">peek</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="sc">&#39;^&#39;</span><span class="p">)</span></td>
+      <td class="src partialCoveredLine"><span class="w">	</span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">peek</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="sc">'^'</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l130" href="#l130">130</a></td>
@@ -1455,7 +1455,7 @@
         </details>
       </td>
       <td class="linecount coveredLine">13131</td>
-      <td class="src coveredLine"><span class="w">	</span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">peek</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="sc">&#39;&amp;&#39;</span><span class="p">)</span></td>
+      <td class="src coveredLine"><span class="w">	</span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">peek</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="sc">'&amp;'</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l143" href="#l143">143</a></td>
@@ -1469,7 +1469,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="c1">// If next char is &amp;, it&#39;s a Logical AND, let the parent handle it</span></td>
+      <td class="src "><span class="w">		</span><span class="c1">// If next char is &amp;, it's a Logical AND, let the parent handle it</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l145" href="#l145">145</a></td>
@@ -1487,7 +1487,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">15</td>
-      <td class="src partialCoveredLine"><span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">pos</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">input</span><span class="p">.</span><span class="n">size</span><span class="p">()</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">input</span><span class="p">[</span><span class="n">pos</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="sc">&#39;&amp;&#39;</span><span class="p">)</span></td>
+      <td class="src partialCoveredLine"><span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">pos</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">input</span><span class="p">.</span><span class="n">size</span><span class="p">()</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">input</span><span class="p">[</span><span class="n">pos</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="sc">'&amp;'</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l146" href="#l146">146</a></td>
@@ -1635,7 +1635,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">13141</td>
-      <td class="src partialCoveredLine"><span class="w">	</span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">peek</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="sc">&#39;=&#39;</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">peek</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="sc">&#39;!&#39;</span><span class="p">)</span></td>
+      <td class="src partialCoveredLine"><span class="w">	</span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">peek</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="sc">'='</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">peek</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="sc">'!'</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l160" href="#l160">160</a></td>
@@ -1649,7 +1649,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="c1">// Check for &#39;==&#39; or &#39;!=&#39;</span></td>
+      <td class="src "><span class="w">		</span><span class="c1">// Check for '==' or '!='</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l162" href="#l162">162</a></td>
@@ -1671,7 +1671,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">33</td>
-      <td class="src partialCoveredLine"><span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">peek</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="sc">&#39;=&#39;</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">pos</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">input</span><span class="p">.</span><span class="n">size</span><span class="p">()</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">input</span><span class="p">[</span><span class="n">pos</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="sc">&#39;=&#39;</span><span class="p">)</span></td>
+      <td class="src partialCoveredLine"><span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">peek</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="sc">'='</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">pos</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">input</span><span class="p">.</span><span class="n">size</span><span class="p">()</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">input</span><span class="p">[</span><span class="n">pos</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="sc">'='</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l163" href="#l163">163</a></td>
@@ -1713,7 +1713,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">9</td>
-      <td class="src partialCoveredLine"><span class="w">			</span><span class="n">left</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">make_shared</span><span class="o">&lt;</span><span class="n">BinaryOpNode</span><span class="o">&gt;</span><span class="p">(</span><span class="s">&quot;==&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">left</span><span class="p">,</span><span class="w"> </span><span class="n">right</span><span class="p">);</span></td>
+      <td class="src partialCoveredLine"><span class="w">			</span><span class="n">left</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">make_shared</span><span class="o">&lt;</span><span class="n">BinaryOpNode</span><span class="o">&gt;</span><span class="p">(</span><span class="s">"=="</span><span class="p">,</span><span class="w"> </span><span class="n">left</span><span class="p">,</span><span class="w"> </span><span class="n">right</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l167" href="#l167">167</a></td>
@@ -1742,7 +1742,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">24</td>
-      <td class="src partialCoveredLine"><span class="w">		</span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">peek</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="sc">&#39;!&#39;</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">pos</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">input</span><span class="p">.</span><span class="n">size</span><span class="p">()</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">input</span><span class="p">[</span><span class="n">pos</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="sc">&#39;=&#39;</span><span class="p">)</span></td>
+      <td class="src partialCoveredLine"><span class="w">		</span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">peek</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="sc">'!'</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">pos</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">input</span><span class="p">.</span><span class="n">size</span><span class="p">()</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">input</span><span class="p">[</span><span class="n">pos</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="sc">'='</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l169" href="#l169">169</a></td>
@@ -1784,7 +1784,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">1</td>
-      <td class="src partialCoveredLine"><span class="w">			</span><span class="n">left</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">make_shared</span><span class="o">&lt;</span><span class="n">BinaryOpNode</span><span class="o">&gt;</span><span class="p">(</span><span class="s">&quot;!=&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">left</span><span class="p">,</span><span class="w"> </span><span class="n">right</span><span class="p">);</span></td>
+      <td class="src partialCoveredLine"><span class="w">			</span><span class="n">left</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">make_shared</span><span class="o">&lt;</span><span class="n">BinaryOpNode</span><span class="o">&gt;</span><span class="p">(</span><span class="s">"!="</span><span class="p">,</span><span class="w"> </span><span class="n">left</span><span class="p">,</span><span class="w"> </span><span class="n">right</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l173" href="#l173">173</a></td>
@@ -1909,7 +1909,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">13152</td>
-      <td class="src partialCoveredLine"><span class="w">	</span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">peek</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="sc">&#39;&lt;&#39;</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">peek</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="sc">&#39;&gt;&#39;</span><span class="p">)</span></td>
+      <td class="src partialCoveredLine"><span class="w">	</span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">peek</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="sc">'&lt;'</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">peek</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="sc">'&gt;'</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l187" href="#l187">187</a></td>
@@ -1974,7 +1974,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">11</td>
-      <td class="src partialCoveredLine"><span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">peek</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="sc">&#39;=&#39;</span><span class="p">)</span></td>
+      <td class="src partialCoveredLine"><span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">peek</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="sc">'='</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l193" href="#l193">193</a></td>
@@ -2009,7 +2009,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">2</td>
-      <td class="src partialCoveredLine"><span class="w">			</span><span class="n">op</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="sc">&#39;=&#39;</span><span class="p">;</span></td>
+      <td class="src partialCoveredLine"><span class="w">			</span><span class="n">op</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="sc">'='</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l196" href="#l196">196</a></td>
@@ -2141,7 +2141,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">13167</td>
-      <td class="src partialCoveredLine"><span class="w">	</span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">peek</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="sc">&#39;+&#39;</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">peek</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="sc">&#39;-&#39;</span><span class="p">)</span></td>
+      <td class="src partialCoveredLine"><span class="w">	</span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">peek</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="sc">'+'</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">peek</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="sc">'-'</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l209" href="#l209">209</a></td>
@@ -2286,7 +2286,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">13186</td>
-      <td class="src partialCoveredLine"><span class="w">	</span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">peek</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="sc">&#39;*&#39;</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">peek</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="sc">&#39;/&#39;</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">peek</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="sc">&#39;%&#39;</span><span class="p">)</span></td>
+      <td class="src partialCoveredLine"><span class="w">	</span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">peek</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="sc">'*'</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">peek</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="sc">'/'</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">peek</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="sc">'%'</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l222" href="#l222">222</a></td>
@@ -2425,7 +2425,7 @@
         </details>
       </td>
       <td class="linecount coveredLine">13206</td>
-      <td class="src coveredLine"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">c</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="sc">&#39;~&#39;</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">c</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="sc">&#39;-&#39;</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">c</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="sc">&#39;!&#39;</span><span class="p">)</span><span class="w"> </span></td>
+      <td class="src coveredLine"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">c</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="sc">'~'</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">c</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="sc">'-'</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">c</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="sc">'!'</span><span class="p">)</span><span class="w"> </span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l236" href="#l236">236</a></td>
@@ -2574,7 +2574,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">13190</td>
-      <td class="src partialCoveredLine"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">match</span><span class="p">(</span><span class="sc">&#39;&quot;&#39;</span><span class="p">))</span></td>
+      <td class="src partialCoveredLine"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">match</span><span class="p">(</span><span class="sc">'"'</span><span class="p">))</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l252" href="#l252">252</a></td>
@@ -2595,7 +2595,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">		</span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">peek</span><span class="p">()</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="sc">&#39;&quot;&#39;</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">peek</span><span class="p">()</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span></td>
+      <td class="src uncoveredLine"><span class="w">		</span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">peek</span><span class="p">()</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="sc">'"'</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">peek</span><span class="p">()</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l255" href="#l255">255</a></td>
@@ -2630,7 +2630,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">			</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">nextChar</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="sc">&#39;\\&#39;</span><span class="p">)</span></td>
+      <td class="src uncoveredLine"><span class="w">			</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">nextChar</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="sc">'\\'</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l260" href="#l260">260</a></td>
@@ -2644,7 +2644,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">				</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">peek</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">throw</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">runtime_error</span><span class="p">(</span><span class="s">&quot;Unexpected end of string&quot;</span><span class="p">);</span></td>
+      <td class="src uncoveredLine"><span class="w">				</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">peek</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">throw</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">runtime_error</span><span class="p">(</span><span class="s">"Unexpected end of string"</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l262" href="#l262">262</a></td>
@@ -2679,42 +2679,42 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">					</span><span class="k">case</span><span class="w"> </span><span class="sc">&#39;n&#39;</span><span class="p">:</span><span class="w"> </span><span class="n">s</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="sc">&#39;\n&#39;</span><span class="p">;</span><span class="w"> </span><span class="k">break</span><span class="p">;</span></td>
+      <td class="src uncoveredLine"><span class="w">					</span><span class="k">case</span><span class="w"> </span><span class="sc">'n'</span><span class="p">:</span><span class="w"> </span><span class="n">s</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="sc">'\n'</span><span class="p">;</span><span class="w"> </span><span class="k">break</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l267" href="#l267">267</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">					</span><span class="k">case</span><span class="w"> </span><span class="sc">&#39;r&#39;</span><span class="p">:</span><span class="w"> </span><span class="n">s</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="sc">&#39;\r&#39;</span><span class="p">;</span><span class="w"> </span><span class="k">break</span><span class="p">;</span></td>
+      <td class="src uncoveredLine"><span class="w">					</span><span class="k">case</span><span class="w"> </span><span class="sc">'r'</span><span class="p">:</span><span class="w"> </span><span class="n">s</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="sc">'\r'</span><span class="p">;</span><span class="w"> </span><span class="k">break</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l268" href="#l268">268</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">					</span><span class="k">case</span><span class="w"> </span><span class="sc">&#39;t&#39;</span><span class="p">:</span><span class="w"> </span><span class="n">s</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="sc">&#39;\t&#39;</span><span class="p">;</span><span class="w"> </span><span class="k">break</span><span class="p">;</span></td>
+      <td class="src uncoveredLine"><span class="w">					</span><span class="k">case</span><span class="w"> </span><span class="sc">'t'</span><span class="p">:</span><span class="w"> </span><span class="n">s</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="sc">'\t'</span><span class="p">;</span><span class="w"> </span><span class="k">break</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l269" href="#l269">269</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">					</span><span class="k">case</span><span class="w"> </span><span class="sc">&#39;\\&#39;</span><span class="p">:</span><span class="w"> </span><span class="n">s</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="sc">&#39;\\&#39;</span><span class="p">;</span><span class="w"> </span><span class="k">break</span><span class="p">;</span></td>
+      <td class="src uncoveredLine"><span class="w">					</span><span class="k">case</span><span class="w"> </span><span class="sc">'\\'</span><span class="p">:</span><span class="w"> </span><span class="n">s</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="sc">'\\'</span><span class="p">;</span><span class="w"> </span><span class="k">break</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l270" href="#l270">270</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">					</span><span class="k">case</span><span class="w"> </span><span class="sc">&#39;&quot;&#39;</span><span class="p">:</span><span class="w"> </span><span class="n">s</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="sc">&#39;&quot;&#39;</span><span class="p">;</span><span class="w"> </span><span class="k">break</span><span class="p">;</span></td>
+      <td class="src uncoveredLine"><span class="w">					</span><span class="k">case</span><span class="w"> </span><span class="sc">'"'</span><span class="p">:</span><span class="w"> </span><span class="n">s</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="sc">'"'</span><span class="p">;</span><span class="w"> </span><span class="k">break</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l271" href="#l271">271</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">					</span><span class="k">case</span><span class="w"> </span><span class="sc">&#39;0&#39;</span><span class="p">:</span><span class="w"> </span><span class="n">s</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="sc">&#39;\0&#39;</span><span class="p">;</span><span class="w"> </span><span class="k">break</span><span class="p">;</span></td>
+      <td class="src uncoveredLine"><span class="w">					</span><span class="k">case</span><span class="w"> </span><span class="sc">'0'</span><span class="p">:</span><span class="w"> </span><span class="n">s</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="sc">'\0'</span><span class="p">;</span><span class="w"> </span><span class="k">break</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l272" href="#l272">272</a></td>
@@ -2805,14 +2805,14 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">match</span><span class="p">(</span><span class="sc">&#39;&quot;&#39;</span><span class="p">))</span></td>
+      <td class="src uncoveredLine"><span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">match</span><span class="p">(</span><span class="sc">'"'</span><span class="p">))</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l285" href="#l285">285</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">			</span><span class="k">throw</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">runtime_error</span><span class="p">(</span><span class="s">&quot;Unterminated string literal&quot;</span><span class="p">);</span></td>
+      <td class="src uncoveredLine"><span class="w">			</span><span class="k">throw</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">runtime_error</span><span class="p">(</span><span class="s">"Unterminated string literal"</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l286" href="#l286">286</a></td>
@@ -2933,7 +2933,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">1</td>
-      <td class="src partialCoveredLine"><span class="w">			</span><span class="k">throw</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">runtime_error</span><span class="p">(</span><span class="s">&quot;Number literal too large&quot;</span><span class="p">);</span></td>
+      <td class="src partialCoveredLine"><span class="w">			</span><span class="k">throw</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">runtime_error</span><span class="p">(</span><span class="s">"Number literal too large"</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l298" href="#l298">298</a></td>
@@ -2984,7 +2984,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">9721</td>
-      <td class="src partialCoveredLine"><span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">peek</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="sc">&#39;.&#39;</span><span class="p">)</span></td>
+      <td class="src partialCoveredLine"><span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">peek</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="sc">'.'</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l303" href="#l303">303</a></td>
@@ -3077,7 +3077,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">1</td>
-      <td class="src partialCoveredLine"><span class="w">				</span><span class="k">throw</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">runtime_error</span><span class="p">(</span><span class="s">&quot;Expected digits after decimal point&quot;</span><span class="p">);</span></td>
+      <td class="src partialCoveredLine"><span class="w">				</span><span class="k">throw</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">runtime_error</span><span class="p">(</span><span class="s">"Expected digits after decimal point"</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l312" href="#l312">312</a></td>
@@ -3105,7 +3105,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">1</td>
-      <td class="src partialCoveredLine"><span class="w">				</span><span class="k">throw</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">runtime_error</span><span class="p">(</span><span class="s">&quot;Number literal has too many decimal places (max 4)&quot;</span><span class="p">);</span></td>
+      <td class="src partialCoveredLine"><span class="w">				</span><span class="k">throw</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">runtime_error</span><span class="p">(</span><span class="s">"Number literal has too many decimal places (max 4)"</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l314" href="#l314">314</a></td>
@@ -3119,7 +3119,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">10</td>
-      <td class="src partialCoveredLine"><span class="w">			</span><span class="n">fracStr</span><span class="p">.</span><span class="n">resize</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="sc">&#39;0&#39;</span><span class="p">);</span><span class="w"> </span><span class="c1">// &quot;5&quot; is 0.5000</span></td>
+      <td class="src partialCoveredLine"><span class="w">			</span><span class="n">fracStr</span><span class="p">.</span><span class="n">resize</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="sc">'0'</span><span class="p">);</span><span class="w"> </span><span class="c1">// "5" is 0.5000</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l315" href="#l315">315</a></td>
@@ -3161,7 +3161,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">				</span><span class="k">throw</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">runtime_error</span><span class="p">(</span><span class="s">&quot;Number literal too large&quot;</span><span class="p">);</span></td>
+      <td class="src uncoveredLine"><span class="w">				</span><span class="k">throw</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">runtime_error</span><span class="p">(</span><span class="s">"Number literal too large"</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l319" href="#l319">319</a></td>
@@ -3205,7 +3205,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">9709</td>
-      <td class="src partialCoveredLine"><span class="w">		</span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">peek</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="sc">&#39;L&#39;</span><span class="p">)</span></td>
+      <td class="src partialCoveredLine"><span class="w">		</span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">peek</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="sc">'L'</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l324" href="#l324">324</a></td>
@@ -3240,7 +3240,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">				</span><span class="k">throw</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">runtime_error</span><span class="p">(</span><span class="s">&quot;Number literal too large&quot;</span><span class="p">);</span></td>
+      <td class="src uncoveredLine"><span class="w">				</span><span class="k">throw</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">runtime_error</span><span class="p">(</span><span class="s">"Number literal too large"</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l328" href="#l328">328</a></td>
@@ -3317,7 +3317,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">1</td>
-      <td class="src partialCoveredLine"><span class="w">				</span><span class="k">throw</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">runtime_error</span><span class="p">(</span><span class="s">&quot;Number literal too large&quot;</span><span class="p">);</span></td>
+      <td class="src partialCoveredLine"><span class="w">				</span><span class="k">throw</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">runtime_error</span><span class="p">(</span><span class="s">"Number literal too large"</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l337" href="#l337">337</a></td>
@@ -3382,7 +3382,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">3468</td>
-      <td class="src partialCoveredLine"><span class="w">	</span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">match</span><span class="p">(</span><span class="sc">&#39;(&#39;</span><span class="p">))</span></td>
+      <td class="src partialCoveredLine"><span class="w">	</span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">match</span><span class="p">(</span><span class="sc">'('</span><span class="p">))</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l344" href="#l344">344</a></td>
@@ -3419,14 +3419,14 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">7</td>
-      <td class="src partialCoveredLine"><span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">match</span><span class="p">(</span><span class="sc">&#39;)&#39;</span><span class="p">))</span></td>
+      <td class="src partialCoveredLine"><span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">match</span><span class="p">(</span><span class="sc">')'</span><span class="p">))</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l347" href="#l347">347</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">			</span><span class="k">throw</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">runtime_error</span><span class="p">(</span><span class="s">&quot;Expected &#39;)&#39;&quot;</span><span class="p">);</span></td>
+      <td class="src uncoveredLine"><span class="w">			</span><span class="k">throw</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">runtime_error</span><span class="p">(</span><span class="s">"Expected ')'"</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l348" href="#l348">348</a></td>
@@ -3449,7 +3449,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">3461</td>
-      <td class="src partialCoveredLine"><span class="w">	</span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">isalpha</span><span class="p">(</span><span class="n">c</span><span class="p">)</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">c</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="sc">&#39;_&#39;</span><span class="p">)</span></td>
+      <td class="src partialCoveredLine"><span class="w">	</span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">isalpha</span><span class="p">(</span><span class="n">c</span><span class="p">)</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">c</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="sc">'_'</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l350" href="#l350">350</a></td>
@@ -3491,7 +3491,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">68147</td>
-      <td class="src partialCoveredLine"><span class="w">		</span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">isalnum</span><span class="p">(</span><span class="n">peek</span><span class="p">())</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">peek</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="sc">&#39;_&#39;</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">peek</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="sc">&#39;:&#39;</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">peek</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="sc">&#39;.&#39;</span><span class="p">)</span></td>
+      <td class="src partialCoveredLine"><span class="w">		</span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">isalnum</span><span class="p">(</span><span class="n">peek</span><span class="p">())</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">peek</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="sc">'_'</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">peek</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="sc">':'</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">peek</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="sc">'.'</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l353" href="#l353">353</a></td>
@@ -3535,7 +3535,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">3461</td>
-      <td class="src partialCoveredLine"><span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">id</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">&quot;new&quot;</span><span class="p">)</span></td>
+      <td class="src partialCoveredLine"><span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">id</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">"new"</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l357" href="#l357">357</a></td>
@@ -3587,7 +3587,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">86</td>
-      <td class="src partialCoveredLine"><span class="w">			</span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">isalnum</span><span class="p">(</span><span class="n">peek</span><span class="p">())</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">peek</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="sc">&#39;_&#39;</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">peek</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="sc">&#39;:&#39;</span><span class="p">)</span></td>
+      <td class="src partialCoveredLine"><span class="w">			</span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">isalnum</span><span class="p">(</span><span class="n">peek</span><span class="p">())</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">peek</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="sc">'_'</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">peek</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="sc">':'</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l361" href="#l361">361</a></td>
@@ -3631,14 +3631,14 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">10</td>
-      <td class="src partialCoveredLine"><span class="w">			</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">match</span><span class="p">(</span><span class="sc">&#39;(&#39;</span><span class="p">))</span></td>
+      <td class="src partialCoveredLine"><span class="w">			</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">match</span><span class="p">(</span><span class="sc">'('</span><span class="p">))</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l365" href="#l365">365</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">				</span><span class="k">throw</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">runtime_error</span><span class="p">(</span><span class="s">&quot;Expected &#39;(&#39; after class name in new expression&quot;</span><span class="p">);</span></td>
+      <td class="src uncoveredLine"><span class="w">				</span><span class="k">throw</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">runtime_error</span><span class="p">(</span><span class="s">"Expected '(' after class name in new expression"</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l366" href="#l366">366</a></td>
@@ -3668,7 +3668,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">10</td>
-      <td class="src partialCoveredLine"><span class="w">			</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">match</span><span class="p">(</span><span class="sc">&#39;)&#39;</span><span class="p">))</span></td>
+      <td class="src partialCoveredLine"><span class="w">			</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">match</span><span class="p">(</span><span class="sc">')'</span><span class="p">))</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l369" href="#l369">369</a></td>
@@ -3721,7 +3721,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">2</td>
-      <td class="src partialCoveredLine"><span class="w">				</span><span class="p">}</span><span class="w"> </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">match</span><span class="p">(</span><span class="sc">&#39;,&#39;</span><span class="p">));</span></td>
+      <td class="src partialCoveredLine"><span class="w">				</span><span class="p">}</span><span class="w"> </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">match</span><span class="p">(</span><span class="sc">','</span><span class="p">));</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l374" href="#l374">374</a></td>
@@ -3744,14 +3744,14 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">1</td>
-      <td class="src partialCoveredLine"><span class="w">				</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">match</span><span class="p">(</span><span class="sc">&#39;)&#39;</span><span class="p">))</span></td>
+      <td class="src partialCoveredLine"><span class="w">				</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">match</span><span class="p">(</span><span class="sc">')'</span><span class="p">))</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l376" href="#l376">376</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">					</span><span class="k">throw</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">runtime_error</span><span class="p">(</span><span class="s">&quot;Expected &#39;)&#39; after arguments&quot;</span><span class="p">);</span></td>
+      <td class="src uncoveredLine"><span class="w">					</span><span class="k">throw</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">runtime_error</span><span class="p">(</span><span class="s">"Expected ')' after arguments"</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l377" href="#l377">377</a></td>
@@ -3772,7 +3772,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">10</td>
-      <td class="src coveredLine"><span class="w">			</span><span class="kt">size_t</span><span class="w"> </span><span class="n">last_component</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">className</span><span class="p">.</span><span class="n">find_last_of</span><span class="p">(</span><span class="s">&quot;:&quot;</span><span class="p">);</span></td>
+      <td class="src coveredLine"><span class="w">			</span><span class="kt">size_t</span><span class="w"> </span><span class="n">last_component</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">className</span><span class="p">.</span><span class="n">find_last_of</span><span class="p">(</span><span class="s">":"</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l380" href="#l380">380</a></td>
@@ -3811,7 +3811,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">9</td>
-      <td class="src partialCoveredLine"><span class="w">				</span><span class="n">className</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="s">&quot;::&quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">className</span><span class="p">.</span><span class="n">substr</span><span class="p">(</span><span class="n">last_component</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span></td>
+      <td class="src partialCoveredLine"><span class="w">				</span><span class="n">className</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="s">"::"</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">className</span><span class="p">.</span><span class="n">substr</span><span class="p">(</span><span class="n">last_component</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l383" href="#l383">383</a></td>
@@ -3848,7 +3848,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">1</td>
-      <td class="src partialCoveredLine"><span class="w">				</span><span class="n">className</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="s">&quot;::&quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">className</span><span class="p">;</span></td>
+      <td class="src partialCoveredLine"><span class="w">				</span><span class="n">className</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="s">"::"</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">className</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l387" href="#l387">387</a></td>
@@ -3899,7 +3899,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">3451</td>
-      <td class="src partialCoveredLine"><span class="w">		</span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">id</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">&quot;true&quot;</span><span class="p">)</span></td>
+      <td class="src partialCoveredLine"><span class="w">		</span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">id</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">"true"</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l392" href="#l392">392</a></td>
@@ -3964,7 +3964,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">3448</td>
-      <td class="src partialCoveredLine"><span class="w">		</span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">id</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">&quot;false&quot;</span><span class="p">)</span></td>
+      <td class="src partialCoveredLine"><span class="w">		</span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">id</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">"false"</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l399" href="#l399">399</a></td>
@@ -4069,7 +4069,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">		</span><span class="k">throw</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">runtime_error</span><span class="p">(</span><span class="s">&quot;Unexpected character&quot;</span><span class="p">);</span></td>
+      <td class="src uncoveredLine"><span class="w">		</span><span class="k">throw</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">runtime_error</span><span class="p">(</span><span class="s">"Unexpected character"</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l413" href="#l413">413</a></td>
@@ -4148,7 +4148,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">16551</td>
-      <td class="src partialCoveredLine"><span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">match</span><span class="p">(</span><span class="sc">&#39;(&#39;</span><span class="p">))</span></td>
+      <td class="src partialCoveredLine"><span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">match</span><span class="p">(</span><span class="sc">'('</span><span class="p">))</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l422" href="#l422">422</a></td>
@@ -4243,7 +4243,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">				</span><span class="k">throw</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">runtime_error</span><span class="p">(</span><span class="s">&quot;Expression is not callable&quot;</span><span class="p">);</span></td>
+      <td class="src uncoveredLine"><span class="w">				</span><span class="k">throw</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">runtime_error</span><span class="p">(</span><span class="s">"Expression is not callable"</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l431" href="#l431">431</a></td>
@@ -4273,7 +4273,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">3225</td>
-      <td class="src partialCoveredLine"><span class="w">			</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">match</span><span class="p">(</span><span class="sc">&#39;)&#39;</span><span class="p">))</span></td>
+      <td class="src partialCoveredLine"><span class="w">			</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">match</span><span class="p">(</span><span class="sc">')'</span><span class="p">))</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l434" href="#l434">434</a></td>
@@ -4326,7 +4326,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">9521</td>
-      <td class="src partialCoveredLine"><span class="w">				</span><span class="p">}</span><span class="w"> </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">match</span><span class="p">(</span><span class="sc">&#39;,&#39;</span><span class="p">));</span></td>
+      <td class="src partialCoveredLine"><span class="w">				</span><span class="p">}</span><span class="w"> </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">match</span><span class="p">(</span><span class="sc">','</span><span class="p">));</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l439" href="#l439">439</a></td>
@@ -4342,14 +4342,14 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">3212</td>
-      <td class="src partialCoveredLine"><span class="w">				</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">match</span><span class="p">(</span><span class="sc">&#39;)&#39;</span><span class="p">))</span></td>
+      <td class="src partialCoveredLine"><span class="w">				</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">match</span><span class="p">(</span><span class="sc">')'</span><span class="p">))</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l440" href="#l440">440</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">					</span><span class="k">throw</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">runtime_error</span><span class="p">(</span><span class="s">&quot;Expected &#39;)&#39;&quot;</span><span class="p">);</span></td>
+      <td class="src uncoveredLine"><span class="w">					</span><span class="k">throw</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">runtime_error</span><span class="p">(</span><span class="s">"Expected ')'"</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l441" href="#l441">441</a></td>
@@ -4481,7 +4481,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">13326</td>
-      <td class="src partialCoveredLine"><span class="w">		</span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">peek</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="sc">&#39;-&#39;</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">input</span><span class="p">[</span><span class="n">pos</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="sc">&#39;&gt;&#39;</span><span class="p">)</span></td>
+      <td class="src partialCoveredLine"><span class="w">		</span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">peek</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="sc">'-'</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">input</span><span class="p">[</span><span class="n">pos</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="sc">'&gt;'</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l456" href="#l456">456</a></td>
@@ -4543,7 +4543,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">602</td>
-      <td class="src partialCoveredLine"><span class="w">			</span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">isalnum</span><span class="p">(</span><span class="n">peek</span><span class="p">())</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">peek</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="sc">&#39;_&#39;</span><span class="p">)</span></td>
+      <td class="src partialCoveredLine"><span class="w">			</span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">isalnum</span><span class="p">(</span><span class="n">peek</span><span class="p">())</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">peek</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="sc">'_'</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l462" href="#l462">462</a></td>
@@ -4571,7 +4571,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">				</span><span class="k">throw</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">runtime_error</span><span class="p">(</span><span class="s">&quot;Expected member name&quot;</span><span class="p">);</span></td>
+      <td class="src uncoveredLine"><span class="w">				</span><span class="k">throw</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">runtime_error</span><span class="p">(</span><span class="s">"Expected member name"</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l465" href="#l465">465</a></td>
@@ -4636,7 +4636,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">13242</td>
-      <td class="src partialCoveredLine"><span class="w">		</span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">match</span><span class="p">(</span><span class="sc">&#39;[&#39;</span><span class="p">))</span><span class="w"> </span></td>
+      <td class="src partialCoveredLine"><span class="w">		</span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">match</span><span class="p">(</span><span class="sc">'['</span><span class="p">))</span><span class="w"> </span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l471" href="#l471">471</a></td>
@@ -4673,14 +4673,14 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">56</td>
-      <td class="src partialCoveredLine"><span class="w">			</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">match</span><span class="p">(</span><span class="sc">&#39;]&#39;</span><span class="p">))</span></td>
+      <td class="src partialCoveredLine"><span class="w">			</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">match</span><span class="p">(</span><span class="sc">']'</span><span class="p">))</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l474" href="#l474">474</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">				</span><span class="k">throw</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">runtime_error</span><span class="p">(</span><span class="s">&quot;Expected &#39;]&#39; after array index&quot;</span><span class="p">);</span></td>
+      <td class="src uncoveredLine"><span class="w">				</span><span class="k">throw</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">runtime_error</span><span class="p">(</span><span class="s">"Expected ']' after array index"</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l475" href="#l475">475</a></td>
@@ -4972,7 +4972,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">84587</td>
-      <td class="src partialCoveredLine"><span class="w">				</span><span class="k">throw</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">runtime_error</span><span class="p">(</span><span class="s">&quot;Unknown variable: &quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">varNode</span><span class="o">-&gt;</span><span class="n">identifier</span><span class="p">);</span></td>
+      <td class="src partialCoveredLine"><span class="w">				</span><span class="k">throw</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">runtime_error</span><span class="p">(</span><span class="s">"Unknown variable: "</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">varNode</span><span class="o">-&gt;</span><span class="n">identifier</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l509" href="#l509">509</a></td>
@@ -5063,7 +5063,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">				</span><span class="k">throw</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">runtime_error</span><span class="p">(</span><span class="s">&quot;Accessing member of non-class type&quot;</span><span class="p">);</span></td>
+      <td class="src uncoveredLine"><span class="w">				</span><span class="k">throw</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">runtime_error</span><span class="p">(</span><span class="s">"Accessing member of non-class type"</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l520" href="#l520">520</a></td>
@@ -5098,7 +5098,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">				</span><span class="k">throw</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">runtime_error</span><span class="p">(</span><span class="s">&quot;Member not found: &quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">mem</span><span class="o">-&gt;</span><span class="n">member_name</span><span class="p">);</span></td>
+      <td class="src uncoveredLine"><span class="w">				</span><span class="k">throw</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">runtime_error</span><span class="p">(</span><span class="s">"Member not found: "</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">mem</span><span class="o">-&gt;</span><span class="n">member_name</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l524" href="#l524">524</a></td>
@@ -5133,7 +5133,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">				</span><span class="k">throw</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">runtime_error</span><span class="p">(</span><span class="s">&quot;Failed to read member: &quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">mem</span><span class="o">-&gt;</span><span class="n">member_name</span><span class="p">);</span></td>
+      <td class="src uncoveredLine"><span class="w">				</span><span class="k">throw</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">runtime_error</span><span class="p">(</span><span class="s">"Failed to read member: "</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">mem</span><span class="o">-&gt;</span><span class="n">member_name</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l528" href="#l528">528</a></td>
@@ -5212,7 +5212,7 @@
         </details>
       </td>
       <td class="linecount coveredLine">87</td>
-      <td class="src coveredLine"><span class="w">			</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">bin</span><span class="o">-&gt;</span><span class="n">op</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">&quot;&amp;&amp;&quot;</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">bin</span><span class="o">-&gt;</span><span class="n">op</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">&quot;||&quot;</span><span class="p">)</span></td>
+      <td class="src coveredLine"><span class="w">			</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">bin</span><span class="o">-&gt;</span><span class="n">op</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">"&amp;&amp;"</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">bin</span><span class="o">-&gt;</span><span class="n">op</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">"||"</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l538" href="#l538">538</a></td>
@@ -5254,7 +5254,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">				</span><span class="c1">// Helper to determine &#39;1&#39; based on Fixed Point rules</span></td>
+      <td class="src "><span class="w">				</span><span class="c1">// Helper to determine '1' based on Fixed Point rules</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l543" href="#l543">543</a></td>
@@ -5282,7 +5282,7 @@
         </details>
       </td>
       <td class="linecount coveredLine">22</td>
-      <td class="src coveredLine"><span class="w">				</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">bin</span><span class="o">-&gt;</span><span class="n">op</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">&quot;&amp;&amp;&quot;</span><span class="p">)</span></td>
+      <td class="src coveredLine"><span class="w">				</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">bin</span><span class="o">-&gt;</span><span class="n">op</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">"&amp;&amp;"</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l546" href="#l546">546</a></td>
@@ -5447,7 +5447,7 @@
         </details>
       </td>
       <td class="linecount coveredLine">111</td>
-      <td class="src coveredLine"><span class="w">			</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">bin</span><span class="o">-&gt;</span><span class="n">op</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">&quot;==&quot;</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">bin</span><span class="o">-&gt;</span><span class="n">op</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">&quot;!=&quot;</span><span class="w"> </span><span class="o">||</span></td>
+      <td class="src coveredLine"><span class="w">			</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">bin</span><span class="o">-&gt;</span><span class="n">op</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">"=="</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">bin</span><span class="o">-&gt;</span><span class="n">op</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">"!="</span><span class="w"> </span><span class="o">||</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l564" href="#l564">564</a></td>
@@ -5463,7 +5463,7 @@
         </details>
       </td>
       <td class="linecount coveredLine">56</td>
-      <td class="src coveredLine"><span class="w">				</span><span class="n">bin</span><span class="o">-&gt;</span><span class="n">op</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">&quot;&lt;&quot;</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">bin</span><span class="o">-&gt;</span><span class="n">op</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">&quot;&lt;=&quot;</span><span class="w"> </span><span class="o">||</span></td>
+      <td class="src coveredLine"><span class="w">				</span><span class="n">bin</span><span class="o">-&gt;</span><span class="n">op</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">"&lt;"</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">bin</span><span class="o">-&gt;</span><span class="n">op</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">"&lt;="</span><span class="w"> </span><span class="o">||</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l565" href="#l565">565</a></td>
@@ -5477,7 +5477,7 @@
         </details>
       </td>
       <td class="linecount coveredLine">50</td>
-      <td class="src coveredLine"><span class="w">				</span><span class="n">bin</span><span class="o">-&gt;</span><span class="n">op</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">&quot;&gt;&quot;</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">bin</span><span class="o">-&gt;</span><span class="n">op</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">&quot;&gt;=&quot;</span><span class="p">)</span></td>
+      <td class="src coveredLine"><span class="w">				</span><span class="n">bin</span><span class="o">-&gt;</span><span class="n">op</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">"&gt;"</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">bin</span><span class="o">-&gt;</span><span class="n">op</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">"&gt;="</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l566" href="#l566">566</a></td>
@@ -5561,7 +5561,7 @@
         </details>
       </td>
       <td class="linecount coveredLine">20</td>
-      <td class="src coveredLine"><span class="w">				</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">bin</span><span class="o">-&gt;</span><span class="n">op</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">&quot;==&quot;</span><span class="p">)</span><span class="w"> </span><span class="n">res</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">l_val</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">r_val</span><span class="p">);</span></td>
+      <td class="src coveredLine"><span class="w">				</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">bin</span><span class="o">-&gt;</span><span class="n">op</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">"=="</span><span class="p">)</span><span class="w"> </span><span class="n">res</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">l_val</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">r_val</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l575" href="#l575">575</a></td>
@@ -5575,7 +5575,7 @@
         </details>
       </td>
       <td class="linecount coveredLine">12</td>
-      <td class="src coveredLine"><span class="w">				</span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">bin</span><span class="o">-&gt;</span><span class="n">op</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">&quot;!=&quot;</span><span class="p">)</span><span class="w"> </span><span class="n">res</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">l_val</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">r_val</span><span class="p">);</span></td>
+      <td class="src coveredLine"><span class="w">				</span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">bin</span><span class="o">-&gt;</span><span class="n">op</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">"!="</span><span class="p">)</span><span class="w"> </span><span class="n">res</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">l_val</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">r_val</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l576" href="#l576">576</a></td>
@@ -5589,7 +5589,7 @@
         </details>
       </td>
       <td class="linecount coveredLine">11</td>
-      <td class="src coveredLine"><span class="w">				</span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">bin</span><span class="o">-&gt;</span><span class="n">op</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">&quot;&lt;&quot;</span><span class="p">)</span><span class="w">  </span><span class="n">res</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">l_val</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">r_val</span><span class="p">);</span></td>
+      <td class="src coveredLine"><span class="w">				</span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">bin</span><span class="o">-&gt;</span><span class="n">op</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">"&lt;"</span><span class="p">)</span><span class="w">  </span><span class="n">res</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">l_val</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">r_val</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l577" href="#l577">577</a></td>
@@ -5603,7 +5603,7 @@
         </details>
       </td>
       <td class="linecount coveredLine">6</td>
-      <td class="src coveredLine"><span class="w">				</span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">bin</span><span class="o">-&gt;</span><span class="n">op</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">&quot;&lt;=&quot;</span><span class="p">)</span><span class="w"> </span><span class="n">res</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">l_val</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">r_val</span><span class="p">);</span></td>
+      <td class="src coveredLine"><span class="w">				</span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">bin</span><span class="o">-&gt;</span><span class="n">op</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">"&lt;="</span><span class="p">)</span><span class="w"> </span><span class="n">res</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">l_val</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">r_val</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l578" href="#l578">578</a></td>
@@ -5617,7 +5617,7 @@
         </details>
       </td>
       <td class="linecount coveredLine">5</td>
-      <td class="src coveredLine"><span class="w">				</span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">bin</span><span class="o">-&gt;</span><span class="n">op</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">&quot;&gt;&quot;</span><span class="p">)</span><span class="w">  </span><span class="n">res</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">l_val</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">r_val</span><span class="p">);</span></td>
+      <td class="src coveredLine"><span class="w">				</span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">bin</span><span class="o">-&gt;</span><span class="n">op</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">"&gt;"</span><span class="p">)</span><span class="w">  </span><span class="n">res</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">l_val</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">r_val</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l579" href="#l579">579</a></td>
@@ -5631,7 +5631,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">1</td>
-      <td class="src partialCoveredLine"><span class="w">				</span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">bin</span><span class="o">-&gt;</span><span class="n">op</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">&quot;&gt;=&quot;</span><span class="p">)</span><span class="w"> </span><span class="n">res</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">l_val</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">r_val</span><span class="p">);</span></td>
+      <td class="src partialCoveredLine"><span class="w">				</span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">bin</span><span class="o">-&gt;</span><span class="n">op</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">"&gt;="</span><span class="p">)</span><span class="w"> </span><span class="n">res</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">l_val</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">r_val</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l580" href="#l580">580</a></td>
@@ -5764,7 +5764,7 @@
         </details>
       </td>
       <td class="linecount coveredLine">29718</td>
-      <td class="src coveredLine"><span class="w">			</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">u</span><span class="o">-&gt;</span><span class="n">op</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">&quot;-&quot;</span><span class="p">)</span></td>
+      <td class="src coveredLine"><span class="w">			</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">u</span><span class="o">-&gt;</span><span class="n">op</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">"-"</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l595" href="#l595">595</a></td>
@@ -5799,7 +5799,7 @@
         </details>
       </td>
       <td class="linecount coveredLine">29710</td>
-      <td class="src coveredLine"><span class="w">			</span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">u</span><span class="o">-&gt;</span><span class="n">op</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">&quot;~&quot;</span><span class="p">)</span></td>
+      <td class="src coveredLine"><span class="w">			</span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">u</span><span class="o">-&gt;</span><span class="n">op</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">"~"</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l599" href="#l599">599</a></td>
@@ -5813,7 +5813,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">				</span><span class="c1">// The engine&#39;s bitwise-not works on the integer part for fixed values</span></td>
+      <td class="src "><span class="w">				</span><span class="c1">// The engine's bitwise-not works on the integer part for fixed values</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l601" href="#l601">601</a></td>
@@ -5876,7 +5876,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">29708</td>
-      <td class="src partialCoveredLine"><span class="w">			</span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">u</span><span class="o">-&gt;</span><span class="n">op</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">&quot;!&quot;</span><span class="p">)</span></td>
+      <td class="src partialCoveredLine"><span class="w">			</span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">u</span><span class="o">-&gt;</span><span class="n">op</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">"!"</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l608" href="#l608">608</a></td>
@@ -6181,7 +6181,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">2</td>
-      <td class="src partialCoveredLine"><span class="w">				</span><span class="k">throw</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">runtime_error</span><span class="p">(</span><span class="s">&quot;No matching function: &quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">call</span><span class="o">-&gt;</span><span class="n">name</span><span class="p">);</span></td>
+      <td class="src partialCoveredLine"><span class="w">				</span><span class="k">throw</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">runtime_error</span><span class="p">(</span><span class="s">"No matching function: "</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">call</span><span class="o">-&gt;</span><span class="n">name</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l641" href="#l641">641</a></td>
@@ -6223,7 +6223,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">3232</td>
-      <td class="src coveredLine"><span class="w">			</span><span class="k">const</span><span class="w"> </span><span class="n">DebugSymbol</span><span class="o">*</span><span class="w"> </span><span class="n">varArgsSymbol</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">nullptr</span><span class="p">;</span></td>
+      <td class="src coveredLine"><span class="w">			</span><span class="k">const</span><span class="w"> </span><span class="n">DebugSymbol</span><span class="o">*</span><span class="w"> </span><span class="n">varArgsSymbol</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">nullptr</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l646" href="#l646">646</a></td>
@@ -6363,7 +6363,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">			</span><span class="c1">// Determine how to set &#39;this&#39; context (if any).</span></td>
+      <td class="src "><span class="w">			</span><span class="c1">// Determine how to set 'this' context (if any).</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l663" href="#l663">663</a></td>
@@ -6863,7 +6863,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">				</span><span class="k">throw</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">runtime_error</span><span class="p">(</span><span class="s">&quot;Indexing applied to non-array type&quot;</span><span class="p">);</span></td>
+      <td class="src uncoveredLine"><span class="w">				</span><span class="k">throw</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">runtime_error</span><span class="p">(</span><span class="s">"Indexing applied to non-array type"</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l713" href="#l713">713</a></td>
@@ -6898,7 +6898,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">			</span><span class="c1">// It doesn&#39;t matter what type the value is - ZScript always divides the index by 10000.</span></td>
+      <td class="src "><span class="w">			</span><span class="c1">// It doesn't matter what type the value is - ZScript always divides the index by 10000.</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l717" href="#l717">717</a></td>
@@ -6940,7 +6940,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">3</td>
-      <td class="src partialCoveredLine"><span class="w">				</span><span class="k">throw</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">runtime_error</span><span class="p">(</span><span class="s">&quot;Invalid index for array&quot;</span><span class="p">);</span></td>
+      <td class="src partialCoveredLine"><span class="w">				</span><span class="k">throw</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">runtime_error</span><span class="p">(</span><span class="s">"Invalid index for array"</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l721" href="#l721">721</a></td>
@@ -7178,7 +7178,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">27</td>
-      <td class="src partialCoveredLine"><span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="k">auto</span><span class="w"> </span><span class="n">v</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">vm</span><span class="p">.</span><span class="n">readObjectMember</span><span class="p">(</span><span class="n">DebugValue</span><span class="p">{</span><span class="n">thisPtr</span><span class="p">,</span><span class="w"> </span><span class="k">nullptr</span><span class="p">},</span><span class="w"> </span><span class="n">sym</span><span class="p">))</span></td>
+      <td class="src partialCoveredLine"><span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="k">auto</span><span class="w"> </span><span class="n">v</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">vm</span><span class="p">.</span><span class="n">readObjectMember</span><span class="p">(</span><span class="n">DebugValue</span><span class="p">{</span><span class="n">thisPtr</span><span class="p">,</span><span class="w"> </span><span class="nb">nullptr</span><span class="p">},</span><span class="w"> </span><span class="n">sym</span><span class="p">))</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l751" href="#l751">751</a></td>
@@ -7436,7 +7436,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">11</td>
-      <td class="src partialCoveredLine"><span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">sym</span><span class="p">)</span><span class="w"> </span><span class="k">throw</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">runtime_error</span><span class="p">(</span><span class="s">&quot;Cannot assign to unknown variable: &quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">varNode</span><span class="o">-&gt;</span><span class="n">identifier</span><span class="p">);</span></td>
+      <td class="src partialCoveredLine"><span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">sym</span><span class="p">)</span><span class="w"> </span><span class="k">throw</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">runtime_error</span><span class="p">(</span><span class="s">"Cannot assign to unknown variable: "</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">varNode</span><span class="o">-&gt;</span><span class="n">identifier</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l780" href="#l780">780</a></td>
@@ -7464,7 +7464,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">			</span><span class="k">throw</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">runtime_error</span><span class="p">(</span><span class="s">&quot;Cannot assign to constant: &quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">varNode</span><span class="o">-&gt;</span><span class="n">identifier</span><span class="p">);</span></td>
+      <td class="src uncoveredLine"><span class="w">			</span><span class="k">throw</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">runtime_error</span><span class="p">(</span><span class="s">"Cannot assign to constant: "</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">varNode</span><span class="o">-&gt;</span><span class="n">identifier</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l783" href="#l783">783</a></td>
@@ -7496,7 +7496,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">3</td>
-      <td class="src partialCoveredLine"><span class="w">			</span><span class="k">throw</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">runtime_error</span><span class="p">(</span><span class="s">&quot;Cannot assign to const variable: &quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">varNode</span><span class="o">-&gt;</span><span class="n">identifier</span><span class="p">);</span></td>
+      <td class="src partialCoveredLine"><span class="w">			</span><span class="k">throw</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">runtime_error</span><span class="p">(</span><span class="s">"Cannot assign to const variable: "</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">varNode</span><span class="o">-&gt;</span><span class="n">identifier</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l785" href="#l785">785</a></td>
@@ -7757,7 +7757,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">1</td>
-      <td class="src coveredLine"><span class="w">				</span><span class="n">DebugValue</span><span class="w"> </span><span class="n">thisVal</span><span class="p">{</span><span class="n">thisPtr</span><span class="p">,</span><span class="w"> </span><span class="k">nullptr</span><span class="p">};</span><span class="w"> </span><span class="c1">// Type doesn&#39;t matter for the raw pointer</span></td>
+      <td class="src coveredLine"><span class="w">				</span><span class="n">DebugValue</span><span class="w"> </span><span class="n">thisVal</span><span class="p">{</span><span class="n">thisPtr</span><span class="p">,</span><span class="w"> </span><span class="nb">nullptr</span><span class="p">};</span><span class="w"> </span><span class="c1">// Type doesn't matter for the raw pointer</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l812" href="#l812">812</a></td>
@@ -7780,7 +7780,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">					</span><span class="k">throw</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">runtime_error</span><span class="p">(</span><span class="s">&quot;Failed to write to member variable&quot;</span><span class="p">);</span></td>
+      <td class="src uncoveredLine"><span class="w">					</span><span class="k">throw</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">runtime_error</span><span class="p">(</span><span class="s">"Failed to write to member variable"</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l814" href="#l814">814</a></td>
@@ -7801,7 +7801,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">				</span><span class="k">throw</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">runtime_error</span><span class="p">(</span><span class="s">&quot;Variable is not writable (Storage type &quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">to_string</span><span class="p">(</span><span class="n">sym</span><span class="o">-&gt;</span><span class="n">storage</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s">&quot;)&quot;</span><span class="p">);</span></td>
+      <td class="src uncoveredLine"><span class="w">				</span><span class="k">throw</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">runtime_error</span><span class="p">(</span><span class="s">"Variable is not writable (Storage type "</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">to_string</span><span class="p">(</span><span class="n">sym</span><span class="o">-&gt;</span><span class="n">storage</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s">")"</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l817" href="#l817">817</a></td>
@@ -7971,7 +7971,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">5</td>
-      <td class="src partialCoveredLine"><span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">cls</span><span class="p">)</span><span class="w"> </span><span class="k">throw</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">runtime_error</span><span class="p">(</span><span class="s">&quot;Assignment to member of non-class type&quot;</span><span class="p">);</span></td>
+      <td class="src partialCoveredLine"><span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">cls</span><span class="p">)</span><span class="w"> </span><span class="k">throw</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">runtime_error</span><span class="p">(</span><span class="s">"Assignment to member of non-class type"</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l837" href="#l837">837</a></td>
@@ -8005,7 +8005,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">5</td>
-      <td class="src partialCoveredLine"><span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">sym</span><span class="p">)</span><span class="w"> </span><span class="k">throw</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">runtime_error</span><span class="p">(</span><span class="s">&quot;Member not found: &quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">memNode</span><span class="o">-&gt;</span><span class="n">member_name</span><span class="p">);</span></td>
+      <td class="src partialCoveredLine"><span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">sym</span><span class="p">)</span><span class="w"> </span><span class="k">throw</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">runtime_error</span><span class="p">(</span><span class="s">"Member not found: "</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">memNode</span><span class="o">-&gt;</span><span class="n">member_name</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l840" href="#l840">840</a></td>
@@ -8033,7 +8033,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">			</span><span class="k">throw</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">runtime_error</span><span class="p">(</span><span class="s">&quot;Failed to write to member: &quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">memNode</span><span class="o">-&gt;</span><span class="n">member_name</span><span class="p">);</span></td>
+      <td class="src uncoveredLine"><span class="w">			</span><span class="k">throw</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">runtime_error</span><span class="p">(</span><span class="s">"Failed to write to member: "</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">memNode</span><span class="o">-&gt;</span><span class="n">member_name</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l843" href="#l843">843</a></td>
@@ -8117,7 +8117,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">			</span><span class="k">throw</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">runtime_error</span><span class="p">(</span><span class="s">&quot;Assignment to index of non-array type&quot;</span><span class="p">);</span></td>
+      <td class="src uncoveredLine"><span class="w">			</span><span class="k">throw</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">runtime_error</span><span class="p">(</span><span class="s">"Assignment to index of non-array type"</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l852" href="#l852">852</a></td>
@@ -8159,7 +8159,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">			</span><span class="k">throw</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">runtime_error</span><span class="p">(</span><span class="s">&quot;Array assignment failed (Index out of bounds?)&quot;</span><span class="p">);</span></td>
+      <td class="src uncoveredLine"><span class="w">			</span><span class="k">throw</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">runtime_error</span><span class="p">(</span><span class="s">"Array assignment failed (Index out of bounds?)"</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l856" href="#l856">856</a></td>
@@ -8187,7 +8187,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">		</span><span class="k">throw</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">runtime_error</span><span class="p">(</span><span class="s">&quot;Expression is not an l-value (cannot be assigned to)&quot;</span><span class="p">);</span></td>
+      <td class="src uncoveredLine"><span class="w">		</span><span class="k">throw</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">runtime_error</span><span class="p">(</span><span class="s">"Expression is not an l-value (cannot be assigned to)"</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l860" href="#l860">860</a></td>
@@ -8278,7 +8278,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">		</span><span class="k">throw</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">runtime_error</span><span class="p">(</span><span class="s">&quot;Binary operations on strings not supported.&quot;</span><span class="p">);</span></td>
+      <td class="src uncoveredLine"><span class="w">		</span><span class="k">throw</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">runtime_error</span><span class="p">(</span><span class="s">"Binary operations on strings not supported."</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l872" href="#l872">872</a></td>
@@ -8355,7 +8355,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">2</td>
-      <td class="src partialCoveredLine"><span class="w">			</span><span class="k">throw</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">runtime_error</span><span class="p">(</span><span class="s">&quot;Bitflags operation requires matching types.&quot;</span><span class="p">);</span></td>
+      <td class="src partialCoveredLine"><span class="w">			</span><span class="k">throw</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">runtime_error</span><span class="p">(</span><span class="s">"Bitflags operation requires matching types."</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l879" href="#l879">879</a></td>
@@ -8380,7 +8380,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">5</td>
-      <td class="src partialCoveredLine"><span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">op</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">&quot;|&quot;</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">op</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">&quot;&amp;&quot;</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">op</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">&quot;^&quot;</span><span class="p">)</span></td>
+      <td class="src partialCoveredLine"><span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">op</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">"|"</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">op</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">"&amp;"</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">op</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">"^"</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l881" href="#l881">881</a></td>
@@ -8464,7 +8464,7 @@
         </details>
       </td>
       <td class="linecount coveredLine">5</td>
-      <td class="src coveredLine"><span class="w">			</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">op</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">&quot;|&quot;</span><span class="p">)</span><span class="w"> </span><span class="n">res</span><span class="p">.</span><span class="n">raw_value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">l_val</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">r_val</span><span class="p">;</span></td>
+      <td class="src coveredLine"><span class="w">			</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">op</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">"|"</span><span class="p">)</span><span class="w"> </span><span class="n">res</span><span class="p">.</span><span class="n">raw_value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">l_val</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">r_val</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l890" href="#l890">890</a></td>
@@ -8478,7 +8478,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">5</td>
-      <td class="src partialCoveredLine"><span class="w">			</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">op</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">&quot;&amp;&quot;</span><span class="p">)</span><span class="w"> </span><span class="n">res</span><span class="p">.</span><span class="n">raw_value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">l_val</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">r_val</span><span class="p">;</span></td>
+      <td class="src partialCoveredLine"><span class="w">			</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">op</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">"&amp;"</span><span class="p">)</span><span class="w"> </span><span class="n">res</span><span class="p">.</span><span class="n">raw_value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">l_val</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">r_val</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l891" href="#l891">891</a></td>
@@ -8492,7 +8492,7 @@
         </details>
       </td>
       <td class="linecount coveredLine">5</td>
-      <td class="src coveredLine"><span class="w">			</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">op</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">&quot;^&quot;</span><span class="p">)</span><span class="w"> </span><span class="n">res</span><span class="p">.</span><span class="n">raw_value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">l_val</span><span class="w"> </span><span class="o">^</span><span class="w"> </span><span class="n">r_val</span><span class="p">;</span></td>
+      <td class="src coveredLine"><span class="w">			</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">op</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">"^"</span><span class="p">)</span><span class="w"> </span><span class="n">res</span><span class="p">.</span><span class="n">raw_value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">l_val</span><span class="w"> </span><span class="o">^</span><span class="w"> </span><span class="n">r_val</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l892" href="#l892">892</a></td>
@@ -8541,7 +8541,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">		</span><span class="k">throw</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">runtime_error</span><span class="p">(</span><span class="s">&quot;Invalid operation &#39;&quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">op</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s">&quot;&#39; for Bitflags.&quot;</span><span class="p">);</span></td>
+      <td class="src uncoveredLine"><span class="w">		</span><span class="k">throw</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">runtime_error</span><span class="p">(</span><span class="s">"Invalid operation '"</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">op</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s">"' for Bitflags."</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l898" href="#l898">898</a></td>
@@ -8594,7 +8594,7 @@
         </details>
       </td>
       <td class="linecount coveredLine">38</td>
-      <td class="src coveredLine"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">op</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">&quot;|&quot;</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">op</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">&quot;&amp;&quot;</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">op</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">&quot;^&quot;</span><span class="p">)</span></td>
+      <td class="src coveredLine"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">op</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">"|"</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">op</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">"&amp;"</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">op</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">"^"</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l904" href="#l904">904</a></td>
@@ -8608,7 +8608,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="c1">// The engine&#39;s bitwise ops work on the integer part for fixed values (do_and</span></td>
+      <td class="src "><span class="w">		</span><span class="c1">// The engine's bitwise ops work on the integer part for fixed values (do_and</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l906" href="#l906">906</a></td>
@@ -8671,7 +8671,7 @@
         </details>
       </td>
       <td class="linecount coveredLine">7</td>
-      <td class="src coveredLine"><span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">op</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">&quot;|&quot;</span><span class="p">)</span><span class="w"> </span><span class="n">bits</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">l_bits</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">r_bits</span><span class="p">;</span></td>
+      <td class="src coveredLine"><span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">op</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">"|"</span><span class="p">)</span><span class="w"> </span><span class="n">bits</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">l_bits</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">r_bits</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l912" href="#l912">912</a></td>
@@ -8685,7 +8685,7 @@
         </details>
       </td>
       <td class="linecount coveredLine">4</td>
-      <td class="src coveredLine"><span class="w">		</span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">op</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">&quot;&amp;&quot;</span><span class="p">)</span><span class="w"> </span><span class="n">bits</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">l_bits</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">r_bits</span><span class="p">;</span></td>
+      <td class="src coveredLine"><span class="w">		</span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">op</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">"&amp;"</span><span class="p">)</span><span class="w"> </span><span class="n">bits</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">l_bits</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">r_bits</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l913" href="#l913">913</a></td>
@@ -8748,7 +8748,7 @@
         </details>
       </td>
       <td class="linecount coveredLine">31</td>
-      <td class="src coveredLine"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">op</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">&quot;+&quot;</span><span class="p">)</span></td>
+      <td class="src coveredLine"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">op</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">"+"</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l920" href="#l920">920</a></td>
@@ -8769,7 +8769,7 @@
         </details>
       </td>
       <td class="linecount coveredLine">18</td>
-      <td class="src coveredLine"><span class="w">	</span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">op</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">&quot;-&quot;</span><span class="p">)</span></td>
+      <td class="src coveredLine"><span class="w">	</span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">op</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">"-"</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l922" href="#l922">922</a></td>
@@ -8790,7 +8790,7 @@
         </details>
       </td>
       <td class="linecount coveredLine">17</td>
-      <td class="src coveredLine"><span class="w">	</span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">op</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">&quot;*&quot;</span><span class="p">)</span></td>
+      <td class="src coveredLine"><span class="w">	</span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">op</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">"*"</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l924" href="#l924">924</a></td>
@@ -8874,7 +8874,7 @@
         </details>
       </td>
       <td class="linecount coveredLine">13</td>
-      <td class="src coveredLine"><span class="w">	</span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">op</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">&quot;/&quot;</span><span class="p">)</span></td>
+      <td class="src coveredLine"><span class="w">	</span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">op</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">"/"</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l934" href="#l934">934</a></td>
@@ -8902,7 +8902,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">			</span><span class="k">throw</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">runtime_error</span><span class="p">(</span><span class="s">&quot;Divide by zero&quot;</span><span class="p">);</span></td>
+      <td class="src uncoveredLine"><span class="w">			</span><span class="k">throw</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">runtime_error</span><span class="p">(</span><span class="s">"Divide by zero"</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l937" href="#l937">937</a></td>
@@ -9007,7 +9007,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">6</td>
-      <td class="src partialCoveredLine"><span class="w">	</span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">op</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">&quot;%&quot;</span><span class="p">)</span></td>
+      <td class="src partialCoveredLine"><span class="w">	</span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">op</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">"%"</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l950" href="#l950">950</a></td>
@@ -9021,7 +9021,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="c1">// The engine&#39;s modulo works on the raw value for both fixed and long values</span></td>
+      <td class="src "><span class="w">		</span><span class="c1">// The engine's modulo works on the raw value for both fixed and long values</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l952" href="#l952">952</a></td>
@@ -9056,7 +9056,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">1</td>
-      <td class="src partialCoveredLine"><span class="w">			</span><span class="k">throw</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">runtime_error</span><span class="p">(</span><span class="s">&quot;Modulo by zero&quot;</span><span class="p">);</span></td>
+      <td class="src partialCoveredLine"><span class="w">			</span><span class="k">throw</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">runtime_error</span><span class="p">(</span><span class="s">"Modulo by zero"</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l955" href="#l955">955</a></td>
@@ -9147,7 +9147,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="k">nullptr</span><span class="p">;</span></td>
+      <td class="src uncoveredLine"><span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="nb">nullptr</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l966" href="#l966">966</a></td>
@@ -9196,7 +9196,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">3235</td>
-      <td class="src coveredLine"><span class="w">	</span><span class="k">const</span><span class="w"> </span><span class="n">DebugScope</span><span class="o">*</span><span class="w"> </span><span class="n">bestMatch</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">nullptr</span><span class="p">;</span></td>
+      <td class="src coveredLine"><span class="w">	</span><span class="k">const</span><span class="w"> </span><span class="n">DebugScope</span><span class="o">*</span><span class="w"> </span><span class="n">bestMatch</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">nullptr</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l973" href="#l973">973</a></td>
@@ -9322,7 +9322,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">			</span><span class="c1">// If a function has a &#39;this&#39; context, it is represented as as hidden variable in the</span></td>
+      <td class="src "><span class="w">			</span><span class="c1">// If a function has a 'this' context, it is represented as as hidden variable in the</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l988" href="#l988">988</a></td>
@@ -10103,7 +10103,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">1</td>
-      <td class="src partialCoveredLine"><span class="w">		</span><span class="k">throw</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">runtime_error</span><span class="p">(</span><span class="s">&quot;Ambiguous function call &#39;&quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">name</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s">&quot;&#39;. Multiple overloads match.&quot;</span><span class="p">);</span></td>
+      <td class="src partialCoveredLine"><span class="w">		</span><span class="k">throw</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">runtime_error</span><span class="p">(</span><span class="s">"Ambiguous function call '"</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">name</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s">"'. Multiple overloads match."</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1075" href="#l1075">1075</a></td>

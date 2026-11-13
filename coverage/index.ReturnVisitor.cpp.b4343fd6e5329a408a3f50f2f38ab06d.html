@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2026-11-10 08:08:23</td>
+      <td>2026-11-13 22:29:49</td>
     </tr>
   </table>
 </div>
@@ -128,7 +128,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cm"> * Code path handler, to check for unreachable code / missing &#39;return&#39; statements</span></td>
+      <td class="src "><span class="cm"> * Code path handler, to check for unreachable code / missing 'return' statements</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l3" href="#l3">3</a></td>
@@ -163,21 +163,21 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;parser/ASTVisitors.h&quot;</span></td>
+      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">"parser/ASTVisitors.h"</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l8" href="#l8">8</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;parserDefs.h&quot;</span></td>
+      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">"parserDefs.h"</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l9" href="#l9">9</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;ReturnVisitor.h&quot;</span></td>
+      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">"ReturnVisitor.h"</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l10" href="#l10">10</a></td>
@@ -198,14 +198,14 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;Scope.h&quot;</span></td>
+      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">"Scope.h"</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l13" href="#l13">13</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;CompileError.h&quot;</span></td>
+      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">"CompileError.h"</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l14" href="#l14">14</a></td>
@@ -576,7 +576,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">70402838</td>
-      <td class="src partialCoveredLine"><span class="w">	</span><span class="k">if</span><span class="p">(</span><span class="n">node</span><span class="p">.</span><span class="n">isDisabled</span><span class="p">())</span><span class="w"> </span><span class="k">return</span><span class="p">;</span><span class="w"> </span><span class="c1">//Don&#39;t visit disabled nodes.</span></td>
+      <td class="src partialCoveredLine"><span class="w">	</span><span class="k">if</span><span class="p">(</span><span class="n">node</span><span class="p">.</span><span class="n">isDisabled</span><span class="p">())</span><span class="w"> </span><span class="k">return</span><span class="p">;</span><span class="w"> </span><span class="c1">//Don't visit disabled nodes.</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l61" href="#l61">61</a></td>
@@ -590,7 +590,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">70402838</td>
-      <td class="src partialCoveredLine"><span class="w">	</span><span class="k">if</span><span class="p">(</span><span class="n">reachable</span><span class="p">(</span><span class="n">node</span><span class="p">))</span><span class="w"> </span><span class="k">return</span><span class="p">;</span><span class="w"> </span><span class="c1">//Don&#39;t double-pass</span></td>
+      <td class="src partialCoveredLine"><span class="w">	</span><span class="k">if</span><span class="p">(</span><span class="n">reachable</span><span class="p">(</span><span class="n">node</span><span class="p">))</span><span class="w"> </span><span class="k">return</span><span class="p">;</span><span class="w"> </span><span class="c1">//Don't double-pass</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l62" href="#l62">62</a></td>
@@ -1332,7 +1332,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">1672186</td>
-      <td class="src partialCoveredLine"><span class="w">		</span><span class="n">resetter</span><span class="p">.</span><span class="n">visit</span><span class="p">(</span><span class="o">*</span><span class="n">block</span><span class="p">);</span><span class="w"> </span><span class="c1">//reset the &#39;reachable&#39; state to false</span></td>
+      <td class="src partialCoveredLine"><span class="w">		</span><span class="n">resetter</span><span class="p">.</span><span class="n">visit</span><span class="p">(</span><span class="o">*</span><span class="n">block</span><span class="p">);</span><span class="w"> </span><span class="c1">//reset the 'reachable' state to false</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l150" href="#l150">150</a></td>
@@ -1642,7 +1642,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">1671853</td>
-      <td class="src partialCoveredLine"><span class="w">			</span><span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">done</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">debug_data_should_emit_inlined_functions</span><span class="p">())</span><span class="w"> </span><span class="c1">//Visit the function&#39;s statements</span></td>
+      <td class="src partialCoveredLine"><span class="w">			</span><span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">done</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">debug_data_should_emit_inlined_functions</span><span class="p">())</span><span class="w"> </span><span class="c1">//Visit the function's statements</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l181" href="#l181">181</a></td>
@@ -1793,7 +1793,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">1671850</td>
-      <td class="src coveredLine"><span class="w">				</span><span class="n">in_func</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">nullptr</span><span class="p">;</span></td>
+      <td class="src coveredLine"><span class="w">				</span><span class="n">in_func</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">nullptr</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l196" href="#l196">196</a></td>
@@ -2844,7 +2844,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="k">else</span><span class="w"> </span><span class="c1">//&#39;if&#39; without &#39;else&#39; never terminates</span></td>
+      <td class="src "><span class="w">	</span><span class="k">else</span><span class="w"> </span><span class="c1">//'if' without 'else' never terminates</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l324" href="#l324">324</a></td>
@@ -3058,7 +3058,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">541909</td>
-      <td class="src coveredLine"><span class="w">	</span><span class="n">paramNode</span><span class="o">-&gt;</span><span class="n">mark_branch</span><span class="p">();</span><span class="w"> </span><span class="c1">// is a branch of its&#39; 2 child nodes</span></td>
+      <td class="src coveredLine"><span class="w">	</span><span class="n">paramNode</span><span class="o">-&gt;</span><span class="n">mark_branch</span><span class="p">();</span><span class="w"> </span><span class="c1">// is a branch of its' 2 child nodes</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l350" href="#l350">350</a></td>
@@ -3202,7 +3202,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">380333</td>
-      <td class="src coveredLine"><span class="w">	</span><span class="n">paramNode</span><span class="o">-&gt;</span><span class="n">mark_branch</span><span class="p">();</span><span class="w"> </span><span class="c1">// is a branch of its&#39; 2 child nodes</span></td>
+      <td class="src coveredLine"><span class="w">	</span><span class="n">paramNode</span><span class="o">-&gt;</span><span class="n">mark_branch</span><span class="p">();</span><span class="w"> </span><span class="c1">// is a branch of its' 2 child nodes</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l367" href="#l367">367</a></td>
@@ -3309,7 +3309,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="c1">//if a break/continue moved out of it, don&#39;t count it as a terminator</span></td>
+      <td class="src "><span class="w">	</span><span class="c1">//if a break/continue moved out of it, don't count it as a terminator</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l380" href="#l380">380</a></td>
@@ -3470,7 +3470,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">65</td>
-      <td class="src coveredLine"><span class="w">	</span><span class="n">paramNode</span><span class="o">-&gt;</span><span class="n">mark_branch</span><span class="p">();</span><span class="w"> </span><span class="c1">// is a branch of its&#39; 2 child nodes</span></td>
+      <td class="src coveredLine"><span class="w">	</span><span class="n">paramNode</span><span class="o">-&gt;</span><span class="n">mark_branch</span><span class="p">();</span><span class="w"> </span><span class="c1">// is a branch of its' 2 child nodes</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l399" href="#l399">399</a></td>
@@ -3882,7 +3882,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">6</td>
-      <td class="src coveredLine"><span class="w">	</span><span class="n">paramNode</span><span class="o">-&gt;</span><span class="n">mark_branch</span><span class="p">();</span><span class="w"> </span><span class="c1">// is a branch of its&#39; 2 child nodes</span></td>
+      <td class="src coveredLine"><span class="w">	</span><span class="n">paramNode</span><span class="o">-&gt;</span><span class="n">mark_branch</span><span class="p">();</span><span class="w"> </span><span class="c1">// is a branch of its' 2 child nodes</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l447" href="#l447">447</a></td>
@@ -4108,7 +4108,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">16288</td>
-      <td class="src coveredLine"><span class="w">	</span><span class="n">paramNode</span><span class="o">-&gt;</span><span class="n">mark_branch</span><span class="p">();</span><span class="w"> </span><span class="c1">// is a branch of its&#39; 2 child nodes</span></td>
+      <td class="src coveredLine"><span class="w">	</span><span class="n">paramNode</span><span class="o">-&gt;</span><span class="n">mark_branch</span><span class="p">();</span><span class="w"> </span><span class="c1">// is a branch of its' 2 child nodes</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l475" href="#l475">475</a></td>
@@ -4201,7 +4201,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="c1">//if a break/continue moved out of it, don&#39;t count it as a terminator</span></td>
+      <td class="src "><span class="w">	</span><span class="c1">//if a break/continue moved out of it, don't count it as a terminator</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l486" href="#l486">486</a></td>
@@ -4362,7 +4362,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">1543</td>
-      <td class="src coveredLine"><span class="w">	</span><span class="n">paramNode</span><span class="o">-&gt;</span><span class="n">mark_branch</span><span class="p">();</span><span class="w"> </span><span class="c1">// is a branch of its&#39; 2 child nodes</span></td>
+      <td class="src coveredLine"><span class="w">	</span><span class="n">paramNode</span><span class="o">-&gt;</span><span class="n">mark_branch</span><span class="p">();</span><span class="w"> </span><span class="c1">// is a branch of its' 2 child nodes</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l505" href="#l505">505</a></td>
@@ -4448,7 +4448,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="c1">//if a break/continue moved out of it, don&#39;t count it as a terminator</span></td>
+      <td class="src "><span class="w">	</span><span class="c1">//if a break/continue moved out of it, don't count it as a terminator</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l515" href="#l515">515</a></td>
@@ -4609,7 +4609,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="c1">//is NOT a branch of its&#39; child nodes, due to fallthrough</span></td>
+      <td class="src "><span class="w">	</span><span class="c1">//is NOT a branch of its' child nodes, due to fallthrough</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l534" href="#l534">534</a></td>
@@ -4728,7 +4728,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="c1">//if a break/continue moved out of it, don&#39;t count it as a terminator</span></td>
+      <td class="src "><span class="w">	</span><span class="c1">//if a break/continue moved out of it, don't count it as a terminator</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l547" href="#l547">547</a></td>
@@ -5079,7 +5079,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="c1">//This should work, but, FUNCFLAG_NEVER_RETURN won&#39;t be set for all</span></td>
+      <td class="src "><span class="w">	</span><span class="c1">//This should work, but, FUNCFLAG_NEVER_RETURN won't be set for all</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l586" href="#l586">586</a></td>

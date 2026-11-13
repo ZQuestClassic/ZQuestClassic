@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2026-11-10 08:08:23</td>
+      <td>2026-11-13 22:29:49</td>
     </tr>
   </table>
 </div>
@@ -124,7 +124,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="c1">// Unit tests for the ZASM optimizer. These reach into the optimizer&#39;s internals</span></td>
+      <td class="src "><span class="c1">// Unit tests for the ZASM optimizer. These reach into the optimizer's internals</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2" href="#l2">2</a></td>
@@ -145,70 +145,70 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;test_runner/test_runner.h&quot;</span></td>
+      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">"test_runner/test_runner.h"</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l5" href="#l5">5</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;test_runner/assert.h&quot;</span></td>
+      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">"test_runner/assert.h"</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l6" href="#l6">6</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;zc/zasm_optimize.h&quot;</span></td>
+      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">"zc/zasm_optimize.h"</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l7" href="#l7">7</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;zc/zasm_optimize_internal.h&quot;</span></td>
+      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">"zc/zasm_optimize_internal.h"</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l8" href="#l8">8</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;zc/zasm_utils.h&quot;</span></td>
+      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">"zc/zasm_utils.h"</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l9" href="#l9">9</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;zc/ffscript.h&quot;</span></td>
+      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">"zc/ffscript.h"</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l10" href="#l10">10</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;components/zasm/defines.h&quot;</span></td>
+      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">"components/zasm/defines.h"</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l11" href="#l11">11</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;components/zasm/serialize.h&quot;</span></td>
+      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">"components/zasm/serialize.h"</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l12" href="#l12">12</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;base/util.h&quot;</span></td>
+      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">"base/util.h"</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l13" href="#l13">13</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;base/zapp.h&quot;</span></td>
+      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">"base/zapp.h"</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l14" href="#l14">14</a></td>
@@ -383,14 +383,14 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">	</span><span class="n">util</span><span class="o">::</span><span class="n">split</span><span class="p">(</span><span class="n">expected</span><span class="p">,</span><span class="w"> </span><span class="n">expected_lines</span><span class="p">,</span><span class="w"> </span><span class="sc">&#39;\n&#39;</span><span class="p">);</span></td>
+      <td class="src uncoveredLine"><span class="w">	</span><span class="n">util</span><span class="o">::</span><span class="n">split</span><span class="p">(</span><span class="n">expected</span><span class="p">,</span><span class="w"> </span><span class="n">expected_lines</span><span class="p">,</span><span class="w"> </span><span class="sc">'\n'</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l39" href="#l39">39</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">	</span><span class="n">util</span><span class="o">::</span><span class="n">split</span><span class="p">(</span><span class="n">got</span><span class="p">,</span><span class="w"> </span><span class="n">got_lines</span><span class="p">,</span><span class="w"> </span><span class="sc">&#39;\n&#39;</span><span class="p">);</span></td>
+      <td class="src uncoveredLine"><span class="w">	</span><span class="n">util</span><span class="o">::</span><span class="n">split</span><span class="p">(</span><span class="n">got</span><span class="p">,</span><span class="w"> </span><span class="n">got_lines</span><span class="p">,</span><span class="w"> </span><span class="sc">'\n'</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l40" href="#l40">40</a></td>
@@ -418,7 +418,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">	</span><span class="n">fmt</span><span class="o">::</span><span class="n">println</span><span class="p">(</span><span class="s">&quot;= delta</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span></td>
+      <td class="src uncoveredLine"><span class="w">	</span><span class="n">fmt</span><span class="o">::</span><span class="n">println</span><span class="p">(</span><span class="s">"= delta</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l44" href="#l44">44</a></td>
@@ -439,14 +439,14 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">		</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">expected_line</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">expected_lines</span><span class="p">.</span><span class="n">size</span><span class="p">()</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="n">expected_lines</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s">&quot;EOF&quot;</span><span class="p">;</span></td>
+      <td class="src uncoveredLine"><span class="w">		</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">expected_line</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">expected_lines</span><span class="p">.</span><span class="n">size</span><span class="p">()</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="n">expected_lines</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s">"EOF"</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l47" href="#l47">47</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">		</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">got_line</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">got_lines</span><span class="p">.</span><span class="n">size</span><span class="p">()</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="n">got_lines</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s">&quot;EOF&quot;</span><span class="p">;</span></td>
+      <td class="src uncoveredLine"><span class="w">		</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">got_line</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">got_lines</span><span class="p">.</span><span class="n">size</span><span class="p">()</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="n">got_lines</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s">"EOF"</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l48" href="#l48">48</a></td>
@@ -467,7 +467,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">			</span><span class="n">fmt</span><span class="o">::</span><span class="n">println</span><span class="p">(</span><span class="s">&quot;  {}&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">expected_lines</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span></td>
+      <td class="src uncoveredLine"><span class="w">			</span><span class="n">fmt</span><span class="o">::</span><span class="n">println</span><span class="p">(</span><span class="s">"  {}"</span><span class="p">,</span><span class="w"> </span><span class="n">expected_lines</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l51" href="#l51">51</a></td>
@@ -495,14 +495,14 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">			</span><span class="n">fmt</span><span class="o">::</span><span class="n">println</span><span class="p">(</span><span class="s">&quot;- {}&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">expected_lines</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span></td>
+      <td class="src uncoveredLine"><span class="w">			</span><span class="n">fmt</span><span class="o">::</span><span class="n">println</span><span class="p">(</span><span class="s">"- {}"</span><span class="p">,</span><span class="w"> </span><span class="n">expected_lines</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l55" href="#l55">55</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">			</span><span class="n">fmt</span><span class="o">::</span><span class="n">println</span><span class="p">(</span><span class="s">&quot;+ {}&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">got_lines</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span></td>
+      <td class="src uncoveredLine"><span class="w">			</span><span class="n">fmt</span><span class="o">::</span><span class="n">println</span><span class="p">(</span><span class="s">"+ {}"</span><span class="p">,</span><span class="w"> </span><span class="n">got_lines</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l56" href="#l56">56</a></td>
@@ -572,7 +572,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">204</td>
-      <td class="src partialCoveredLine"><span class="w">	</span><span class="n">util</span><span class="o">::</span><span class="n">split</span><span class="p">(</span><span class="n">text</span><span class="p">,</span><span class="w"> </span><span class="n">lines</span><span class="p">,</span><span class="w"> </span><span class="sc">&#39;\n&#39;</span><span class="p">);</span></td>
+      <td class="src partialCoveredLine"><span class="w">	</span><span class="n">util</span><span class="o">::</span><span class="n">split</span><span class="p">(</span><span class="n">text</span><span class="p">,</span><span class="w"> </span><span class="n">lines</span><span class="p">,</span><span class="w"> </span><span class="sc">'\n'</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l65" href="#l65">65</a></td>
@@ -600,7 +600,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">4833</td>
-      <td class="src partialCoveredLine"><span class="w">		</span><span class="n">line</span><span class="p">.</span><span class="n">erase</span><span class="p">(</span><span class="n">line</span><span class="p">.</span><span class="n">find_last_not_of</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\t\n\v\f\r</span><span class="s"> &quot;</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span></td>
+      <td class="src partialCoveredLine"><span class="w">		</span><span class="n">line</span><span class="p">.</span><span class="n">erase</span><span class="p">(</span><span class="n">line</span><span class="p">.</span><span class="n">find_last_not_of</span><span class="p">(</span><span class="s">"</span><span class="se">\t\n\v\f\r</span><span class="s"> "</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l67" href="#l67">67</a></td>
@@ -653,7 +653,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">4629</td>
-      <td class="src partialCoveredLine"><span class="w">        </span><span class="n">os</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">lines</span><span class="p">.</span><span class="n">at</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span></td>
+      <td class="src partialCoveredLine"><span class="w">        </span><span class="n">os</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">lines</span><span class="p">.</span><span class="n">at</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">"</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l71" href="#l71">71</a></td>
@@ -765,7 +765,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">129</td>
-      <td class="src partialCoveredLine"><span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="n">str</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span></td>
+      <td class="src partialCoveredLine"><span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="n">str</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s">"</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l82" href="#l82">82</a></td>
@@ -828,14 +828,14 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">		</span><span class="n">fmt</span><span class="o">::</span><span class="n">println</span><span class="p">(</span><span class="s">&quot;failure: {}</span><span class="se">\n</span><span class="s">{}:{}</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="n">expect_file</span><span class="p">,</span><span class="w"> </span><span class="n">expect_line</span><span class="p">);</span></td>
+      <td class="src uncoveredLine"><span class="w">		</span><span class="n">fmt</span><span class="o">::</span><span class="n">println</span><span class="p">(</span><span class="s">"failure: {}</span><span class="se">\n</span><span class="s">{}:{}</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="n">expect_file</span><span class="p">,</span><span class="w"> </span><span class="n">expect_line</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l90" href="#l90">90</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">		</span><span class="n">fmt</span><span class="o">::</span><span class="n">println</span><span class="p">(</span><span class="s">&quot;expected {}, but got: {}</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">expected</span><span class="p">.</span><span class="n">to_string</span><span class="p">(),</span><span class="w"> </span><span class="n">got</span><span class="p">.</span><span class="n">to_string</span><span class="p">());</span></td>
+      <td class="src uncoveredLine"><span class="w">		</span><span class="n">fmt</span><span class="o">::</span><span class="n">println</span><span class="p">(</span><span class="s">"expected {}, but got: {}</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span><span class="w"> </span><span class="n">expected</span><span class="p">.</span><span class="n">to_string</span><span class="p">(),</span><span class="w"> </span><span class="n">got</span><span class="p">.</span><span class="n">to_string</span><span class="p">());</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l91" href="#l91">91</a></td>
@@ -1132,21 +1132,21 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">		</span><span class="n">fmt</span><span class="o">::</span><span class="n">println</span><span class="p">(</span><span class="s">&quot;failure: {}</span><span class="se">\n</span><span class="s">{}:{}</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="n">expect_file</span><span class="p">,</span><span class="w"> </span><span class="n">expect_line</span><span class="p">);</span></td>
+      <td class="src uncoveredLine"><span class="w">		</span><span class="n">fmt</span><span class="o">::</span><span class="n">println</span><span class="p">(</span><span class="s">"failure: {}</span><span class="se">\n</span><span class="s">{}:{}</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="n">expect_file</span><span class="p">,</span><span class="w"> </span><span class="n">expect_line</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l125" href="#l125">125</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">		</span><span class="n">fmt</span><span class="o">::</span><span class="n">println</span><span class="p">(</span><span class="s">&quot;= expected:</span><span class="se">\n\n</span><span class="s">{}&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">expected</span><span class="p">);</span></td>
+      <td class="src uncoveredLine"><span class="w">		</span><span class="n">fmt</span><span class="o">::</span><span class="n">println</span><span class="p">(</span><span class="s">"= expected:</span><span class="se">\n\n</span><span class="s">{}"</span><span class="p">,</span><span class="w"> </span><span class="n">expected</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l126" href="#l126">126</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">		</span><span class="n">fmt</span><span class="o">::</span><span class="n">println</span><span class="p">(</span><span class="s">&quot;= got:</span><span class="se">\n\n</span><span class="s">{}&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">got</span><span class="p">);</span></td>
+      <td class="src uncoveredLine"><span class="w">		</span><span class="n">fmt</span><span class="o">::</span><span class="n">println</span><span class="p">(</span><span class="s">"= got:</span><span class="se">\n\n</span><span class="s">{}"</span><span class="p">,</span><span class="w"> </span><span class="n">got</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l127" href="#l127">127</a></td>
@@ -1302,7 +1302,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">70</td>
-      <td class="src partialCoveredLine"><span class="w">	</span><span class="n">util</span><span class="o">::</span><span class="n">split</span><span class="p">(</span><span class="n">text</span><span class="p">,</span><span class="w"> </span><span class="n">lines</span><span class="p">,</span><span class="w"> </span><span class="sc">&#39;\n&#39;</span><span class="p">);</span></td>
+      <td class="src partialCoveredLine"><span class="w">	</span><span class="n">util</span><span class="o">::</span><span class="n">split</span><span class="p">(</span><span class="n">text</span><span class="p">,</span><span class="w"> </span><span class="n">lines</span><span class="p">,</span><span class="w"> </span><span class="sc">'\n'</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l146" href="#l146">146</a></td>
@@ -1353,7 +1353,7 @@
         </details>
       </td>
       <td class="linecount coveredLine">1628</td>
-      <td class="src coveredLine"><span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">line</span><span class="p">.</span><span class="n">empty</span><span class="p">()</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">line</span><span class="p">.</span><span class="n">starts_with</span><span class="p">(</span><span class="s">&quot;Function&quot;</span><span class="p">))</span></td>
+      <td class="src coveredLine"><span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">line</span><span class="p">.</span><span class="n">empty</span><span class="p">()</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">line</span><span class="p">.</span><span class="n">starts_with</span><span class="p">(</span><span class="s">"Function"</span><span class="p">))</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l150" href="#l150">150</a></td>
@@ -1504,7 +1504,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">64</td>
-      <td class="src partialCoveredLine"><span class="w">	</span><span class="n">util</span><span class="o">::</span><span class="n">split</span><span class="p">(</span><span class="n">text</span><span class="p">,</span><span class="w"> </span><span class="n">lines</span><span class="p">,</span><span class="w"> </span><span class="sc">&#39;\n&#39;</span><span class="p">);</span></td>
+      <td class="src partialCoveredLine"><span class="w">	</span><span class="n">util</span><span class="o">::</span><span class="n">split</span><span class="p">(</span><span class="n">text</span><span class="p">,</span><span class="w"> </span><span class="n">lines</span><span class="p">,</span><span class="w"> </span><span class="sc">'\n'</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l166" href="#l166">166</a></td>
@@ -1546,7 +1546,7 @@
         </details>
       </td>
       <td class="linecount coveredLine">187</td>
-      <td class="src coveredLine"><span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">line</span><span class="p">.</span><span class="n">starts_with</span><span class="p">((</span><span class="s">&quot;;&quot;</span><span class="p">)))</span></td>
+      <td class="src coveredLine"><span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">line</span><span class="p">.</span><span class="n">starts_with</span><span class="p">((</span><span class="s">";"</span><span class="p">)))</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l170" href="#l170">170</a></td>
@@ -1625,7 +1625,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">1641</td>
-      <td class="src partialCoveredLine"><span class="w">		</span><span class="n">zasm</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">lines</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span></td>
+      <td class="src partialCoveredLine"><span class="w">		</span><span class="n">zasm</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">lines</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s">"</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l179" href="#l179">179</a></td>
@@ -1678,7 +1678,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">		</span><span class="n">fmt</span><span class="o">::</span><span class="n">println</span><span class="p">(</span><span class="s">&quot;error: no zasm parsed from &#39;{}&#39; (missing or empty file?)&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">path</span><span class="p">);</span></td>
+      <td class="src uncoveredLine"><span class="w">		</span><span class="n">fmt</span><span class="o">::</span><span class="n">println</span><span class="p">(</span><span class="s">"error: no zasm parsed from '{}' (missing or empty file?)"</span><span class="p">,</span><span class="w"> </span><span class="n">path</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l184" href="#l184">184</a></td>
@@ -1699,7 +1699,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="c1">// Configures the first function as the &quot;entry&quot;.</span></td>
+      <td class="src "><span class="w">	</span><span class="c1">// Configures the first function as the "entry".</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l187" href="#l187">187</a></td>
@@ -1789,7 +1789,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">123</td>
-      <td class="src partialCoveredLine"><span class="w">			</span><span class="n">out</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">lines</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span></td>
+      <td class="src partialCoveredLine"><span class="w">			</span><span class="n">out</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">lines</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s">"</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l195" href="#l195">195</a></td>
@@ -1847,7 +1847,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">64</td>
-      <td class="src partialCoveredLine"><span class="w">	</span><span class="n">fmt</span><span class="o">::</span><span class="n">println</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">output:&quot;</span><span class="p">);</span></td>
+      <td class="src partialCoveredLine"><span class="w">	</span><span class="n">fmt</span><span class="o">::</span><span class="n">println</span><span class="p">(</span><span class="s">"</span><span class="se">\n</span><span class="s">output:"</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l200" href="#l200">200</a></td>
@@ -1877,7 +1877,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">1</td>
-      <td class="src partialCoveredLine"><span class="w">		</span><span class="n">fmt</span><span class="o">::</span><span class="n">println</span><span class="p">(</span><span class="s">&quot;warning: jump to a pc outside of the script at pc {} (the quest loader would disable this script)&quot;</span><span class="p">,</span><span class="w"> </span><span class="o">*</span><span class="n">pc</span><span class="p">);</span></td>
+      <td class="src partialCoveredLine"><span class="w">		</span><span class="n">fmt</span><span class="o">::</span><span class="n">println</span><span class="p">(</span><span class="s">"warning: jump to a pc outside of the script at pc {} (the quest loader would disable this script)"</span><span class="p">,</span><span class="w"> </span><span class="o">*</span><span class="n">pc</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l202" href="#l202">202</a></td>
@@ -1928,7 +1928,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">64</td>
-      <td class="src partialCoveredLine"><span class="w">	</span><span class="n">fmt</span><span class="o">::</span><span class="n">println</span><span class="p">(</span><span class="s">&quot;{}&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">zasm_to_string_clean</span><span class="p">(</span><span class="o">&amp;</span><span class="n">script</span><span class="p">));</span></td>
+      <td class="src partialCoveredLine"><span class="w">	</span><span class="n">fmt</span><span class="o">::</span><span class="n">println</span><span class="p">(</span><span class="s">"{}"</span><span class="p">,</span><span class="w"> </span><span class="n">zasm_to_string_clean</span><span class="p">(</span><span class="o">&amp;</span><span class="n">script</span><span class="p">));</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l206" href="#l206">206</a></td>
@@ -1995,7 +1995,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">2</td>
-      <td class="src partialCoveredLine"><span class="w">	</span><span class="k">static</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">filter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">get_flag_string</span><span class="p">(</span><span class="s">&quot;-test-filter&quot;</span><span class="p">);</span></td>
+      <td class="src partialCoveredLine"><span class="w">	</span><span class="k">static</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">filter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">get_flag_string</span><span class="p">(</span><span class="s">"-test-filter"</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l213" href="#l213">213</a></td>
@@ -2093,7 +2093,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">		</span><span class="n">fmt</span><span class="o">::</span><span class="n">println</span><span class="p">(</span><span class="s">&quot;{}&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">e</span><span class="p">.</span><span class="n">what</span><span class="p">());</span></td>
+      <td class="src uncoveredLine"><span class="w">		</span><span class="n">fmt</span><span class="o">::</span><span class="n">println</span><span class="p">(</span><span class="s">"{}"</span><span class="p">,</span><span class="w"> </span><span class="n">e</span><span class="p">.</span><span class="n">what</span><span class="p">());</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l226" href="#l226">226</a></td>
@@ -2191,7 +2191,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">5</td>
-      <td class="src partialCoveredLine"><span class="w">	</span><span class="n">util</span><span class="o">::</span><span class="n">split</span><span class="p">(</span><span class="n">text</span><span class="p">,</span><span class="w"> </span><span class="n">lines</span><span class="p">,</span><span class="w"> </span><span class="sc">&#39;\n&#39;</span><span class="p">);</span></td>
+      <td class="src partialCoveredLine"><span class="w">	</span><span class="n">util</span><span class="o">::</span><span class="n">split</span><span class="p">(</span><span class="n">text</span><span class="p">,</span><span class="w"> </span><span class="n">lines</span><span class="p">,</span><span class="w"> </span><span class="sc">'\n'</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l239" href="#l239">239</a></td>
@@ -2270,7 +2270,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">42</td>
-      <td class="src partialCoveredLine"><span class="w">			</span><span class="n">numbered</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">fmt</span><span class="o">::</span><span class="n">format</span><span class="p">(</span><span class="s">&quot;{}: {}</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">pc</span><span class="o">++</span><span class="p">,</span><span class="w"> </span><span class="n">line</span><span class="p">);</span></td>
+      <td class="src partialCoveredLine"><span class="w">			</span><span class="n">numbered</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">fmt</span><span class="o">::</span><span class="n">format</span><span class="p">(</span><span class="s">"{}: {}</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span><span class="w"> </span><span class="n">pc</span><span class="o">++</span><span class="p">,</span><span class="w"> </span><span class="n">line</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l246" href="#l246">246</a></td>
@@ -2596,7 +2596,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="c1">// The analysis of each function on its own must match its part of the whole script&#39;s.</span></td>
+      <td class="src "><span class="w">	</span><span class="c1">// The analysis of each function on its own must match its part of the whole script's.</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l284" href="#l284">284</a></td>
@@ -2923,7 +2923,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">1</td>
-      <td class="src coveredLine"><span class="n">TestResults</span><span class="w"> </span><span class="nf">test_zasm_optimize</span><span class="p">([[</span><span class="n">maybe_unused</span><span class="p">]]</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">verbose</span><span class="p">)</span></td>
+      <td class="src coveredLine"><span class="n">TestResults</span><span class="w"> </span><span class="nf">test_zasm_optimize</span><span class="p">([[</span><span class="na">maybe_unused</span><span class="p">]]</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">verbose</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l316" href="#l316">316</a></td>
@@ -2967,7 +2967,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">2</td>
-      <td class="src partialCoveredLine"><span class="w">	</span><span class="n">TEST</span><span class="p">(</span><span class="s">&quot;evaluate_binary_op&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">tr</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="o">&amp;</span><span class="p">]{</span></td>
+      <td class="src partialCoveredLine"><span class="w">	</span><span class="n">TEST</span><span class="p">(</span><span class="s">"evaluate_binary_op"</span><span class="p">,</span><span class="w"> </span><span class="n">tr</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="o">&amp;</span><span class="p">]{</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l321" href="#l321">321</a></td>
@@ -3549,7 +3549,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="c1">// Comparing with &quot;Never&quot;</span></td>
+      <td class="src "><span class="w">		</span><span class="c1">// Comparing with "Never"</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l366" href="#l366">366</a></td>
@@ -3678,7 +3678,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="c1">// Comparing with &quot;Always&quot;</span></td>
+      <td class="src "><span class="w">		</span><span class="c1">// Comparing with "Always"</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l377" href="#l377">377</a></td>
@@ -5479,7 +5479,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">2</td>
-      <td class="src partialCoveredLine"><span class="w">	</span><span class="n">TEST</span><span class="p">(</span><span class="s">&quot;simulate&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">tr</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="o">&amp;</span><span class="p">]{</span></td>
+      <td class="src partialCoveredLine"><span class="w">	</span><span class="n">TEST</span><span class="p">(</span><span class="s">"simulate"</span><span class="p">,</span><span class="w"> </span><span class="n">tr</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="o">&amp;</span><span class="p">]{</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l512" href="#l512">512</a></td>
@@ -5629,7 +5629,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">1</td>
-      <td class="src partialCoveredLine"><span class="w">		</span><span class="n">script</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zasm_script</span><span class="p">{</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">s</span><span class="p">)};</span></td>
+      <td class="src partialCoveredLine"><span class="w">		</span><span class="n">script</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zasm_script</span><span class="p">{</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="s">""</span><span class="p">,</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">s</span><span class="p">)};</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l528" href="#l528">528</a></td>
@@ -5814,7 +5814,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">1</td>
-      <td class="src partialCoveredLine"><span class="w">		</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">state</span><span class="p">.</span><span class="n">d</span><span class="p">[</span><span class="mi">2</span><span class="p">].</span><span class="n">to_string</span><span class="p">(),</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">(</span><span class="s">&quot;Bool(D2)&quot;</span><span class="p">));</span></td>
+      <td class="src partialCoveredLine"><span class="w">		</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">state</span><span class="p">.</span><span class="n">d</span><span class="p">[</span><span class="mi">2</span><span class="p">].</span><span class="n">to_string</span><span class="p">(),</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">(</span><span class="s">"Bool(D2)"</span><span class="p">));</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l543" href="#l543">543</a></td>
@@ -5881,7 +5881,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">1</td>
-      <td class="src partialCoveredLine"><span class="w">		</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">state</span><span class="p">.</span><span class="n">d</span><span class="p">[</span><span class="mi">3</span><span class="p">].</span><span class="n">to_string</span><span class="p">(),</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">(</span><span class="s">&quot;Bool(D3)&quot;</span><span class="p">));</span></td>
+      <td class="src partialCoveredLine"><span class="w">		</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">state</span><span class="p">.</span><span class="n">d</span><span class="p">[</span><span class="mi">3</span><span class="p">].</span><span class="n">to_string</span><span class="p">(),</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">(</span><span class="s">"Bool(D3)"</span><span class="p">));</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l548" href="#l548">548</a></td>
@@ -5948,7 +5948,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">1</td>
-      <td class="src partialCoveredLine"><span class="w">		</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">state</span><span class="p">.</span><span class="n">d</span><span class="p">[</span><span class="mi">2</span><span class="p">].</span><span class="n">to_string</span><span class="p">(),</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">(</span><span class="s">&quot;(Bool(D2)) != (Bool(D3))&quot;</span><span class="p">));</span></td>
+      <td class="src partialCoveredLine"><span class="w">		</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">state</span><span class="p">.</span><span class="n">d</span><span class="p">[</span><span class="mi">2</span><span class="p">].</span><span class="n">to_string</span><span class="p">(),</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">(</span><span class="s">"(Bool(D2)) != (Bool(D3))"</span><span class="p">));</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l553" href="#l553">553</a></td>
@@ -6031,7 +6031,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">1</td>
-      <td class="src partialCoveredLine"><span class="w">		</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">evaluate_binary_op</span><span class="p">(</span><span class="n">cmp</span><span class="p">,</span><span class="w"> </span><span class="n">state</span><span class="p">.</span><span class="n">operand_1</span><span class="p">,</span><span class="w"> </span><span class="n">state</span><span class="p">.</span><span class="n">operand_2</span><span class="p">).</span><span class="n">to_string</span><span class="p">(),</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">(</span><span class="s">&quot;(Bool(D2)) == (Bool(D3))&quot;</span><span class="p">));</span></td>
+      <td class="src partialCoveredLine"><span class="w">		</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">evaluate_binary_op</span><span class="p">(</span><span class="n">cmp</span><span class="p">,</span><span class="w"> </span><span class="n">state</span><span class="p">.</span><span class="n">operand_1</span><span class="p">,</span><span class="w"> </span><span class="n">state</span><span class="p">.</span><span class="n">operand_2</span><span class="p">).</span><span class="n">to_string</span><span class="p">(),</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">(</span><span class="s">"(Bool(D2)) == (Bool(D3))"</span><span class="p">));</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l559" href="#l559">559</a></td>
@@ -6061,7 +6061,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">2</td>
-      <td class="src partialCoveredLine"><span class="w">	</span><span class="n">TEST</span><span class="p">(</span><span class="s">&quot;compile_conditional&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">tr</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="o">&amp;</span><span class="p">]{</span></td>
+      <td class="src partialCoveredLine"><span class="w">	</span><span class="n">TEST</span><span class="p">(</span><span class="s">"compile_conditional"</span><span class="p">,</span><span class="w"> </span><span class="n">tr</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="o">&amp;</span><span class="p">]{</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l562" href="#l562">562</a></td>
@@ -6668,14 +6668,14 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">2</td>
-      <td class="src partialCoveredLine"><span class="w">	</span><span class="n">TEST</span><span class="p">(</span><span class="s">&quot;instruction_is_suspend&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">tr</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="o">&amp;</span><span class="p">]{</span></td>
+      <td class="src partialCoveredLine"><span class="w">	</span><span class="n">TEST</span><span class="p">(</span><span class="s">"instruction_is_suspend"</span><span class="p">,</span><span class="w"> </span><span class="n">tr</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="o">&amp;</span><span class="p">]{</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l621" href="#l621">621</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="c1">// The suspend info table is built separately from command_is_suspend (which can&#39;t be used</span></td>
+      <td class="src "><span class="w">		</span><span class="c1">// The suspend info table is built separately from command_is_suspend (which can't be used</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l622" href="#l622">622</a></td>
@@ -6780,7 +6780,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="c1">// Reading it doesn&#39;t suspend, and neither do other writes.</span></td>
+      <td class="src "><span class="w">		</span><span class="c1">// Reading it doesn't suspend, and neither do other writes.</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l635" href="#l635">635</a></td>
@@ -6831,7 +6831,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">2</td>
-      <td class="src partialCoveredLine"><span class="w">	</span><span class="n">TEST</span><span class="p">(</span><span class="s">&quot;zasm_literals&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">tr</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="o">&amp;</span><span class="p">]{</span></td>
+      <td class="src partialCoveredLine"><span class="w">	</span><span class="n">TEST</span><span class="p">(</span><span class="s">"zasm_literals"</span><span class="p">,</span><span class="w"> </span><span class="n">tr</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="o">&amp;</span><span class="p">]{</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l641" href="#l641">641</a></td>
@@ -6910,7 +6910,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">1</td>
-      <td class="src partialCoveredLine"><span class="w">		</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">literals</span><span class="p">.</span><span class="n">get</span><span class="p">(</span><span class="n">op</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="k">nullptr</span><span class="p">);</span></td>
+      <td class="src partialCoveredLine"><span class="w">		</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">literals</span><span class="p">.</span><span class="n">get</span><span class="p">(</span><span class="n">op</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="nb">nullptr</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l648" href="#l648">648</a></td>
@@ -6935,7 +6935,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">1</td>
-      <td class="src partialCoveredLine"><span class="w">		</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">literals</span><span class="p">.</span><span class="n">set</span><span class="p">(</span><span class="n">op</span><span class="p">,</span><span class="w"> </span><span class="p">{.</span><span class="n">str</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;&quot;</span><span class="p">}));</span></td>
+      <td class="src partialCoveredLine"><span class="w">		</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">literals</span><span class="p">.</span><span class="n">set</span><span class="p">(</span><span class="n">op</span><span class="p">,</span><span class="w"> </span><span class="p">{.</span><span class="n">str</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">""</span><span class="p">}));</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l650" href="#l650">650</a></td>
@@ -6967,7 +6967,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">1</td>
-      <td class="src partialCoveredLine"><span class="w">		</span><span class="n">assertEqual</span><span class="p">(</span><span class="o">*</span><span class="n">literals</span><span class="p">.</span><span class="n">str</span><span class="p">(</span><span class="n">op</span><span class="p">),</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">(</span><span class="s">&quot;&quot;</span><span class="p">));</span></td>
+      <td class="src partialCoveredLine"><span class="w">		</span><span class="n">assertEqual</span><span class="p">(</span><span class="o">*</span><span class="n">literals</span><span class="p">.</span><span class="n">str</span><span class="p">(</span><span class="n">op</span><span class="p">),</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">(</span><span class="s">""</span><span class="p">));</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l652" href="#l652">652</a></td>
@@ -6983,7 +6983,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">1</td>
-      <td class="src partialCoveredLine"><span class="w">		</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">literals</span><span class="p">.</span><span class="n">vec</span><span class="p">(</span><span class="n">op</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="k">nullptr</span><span class="p">);</span></td>
+      <td class="src partialCoveredLine"><span class="w">		</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">literals</span><span class="p">.</span><span class="n">vec</span><span class="p">(</span><span class="n">op</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="nb">nullptr</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l653" href="#l653">653</a></td>
@@ -7046,7 +7046,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">1</td>
-      <td class="src partialCoveredLine"><span class="w">		</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">literals</span><span class="p">.</span><span class="n">add</span><span class="p">({.</span><span class="n">str</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;x&quot;</span><span class="p">}),</span><span class="w"> </span><span class="kt">uint16_t</span><span class="p">(</span><span class="mi">0</span><span class="p">));</span></td>
+      <td class="src partialCoveredLine"><span class="w">		</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">literals</span><span class="p">.</span><span class="n">add</span><span class="p">({.</span><span class="n">str</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"x"</span><span class="p">}),</span><span class="w"> </span><span class="kt">uint16_t</span><span class="p">(</span><span class="mi">0</span><span class="p">));</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l657" href="#l657">657</a></td>
@@ -7064,7 +7064,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">1</td>
-      <td class="src partialCoveredLine"><span class="w">		</span><span class="n">assertTrue</span><span class="p">(</span><span class="o">!</span><span class="n">literals</span><span class="p">.</span><span class="n">set</span><span class="p">(</span><span class="n">op</span><span class="p">,</span><span class="w"> </span><span class="p">{.</span><span class="n">str</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;x&quot;</span><span class="p">}));</span></td>
+      <td class="src partialCoveredLine"><span class="w">		</span><span class="n">assertTrue</span><span class="p">(</span><span class="o">!</span><span class="n">literals</span><span class="p">.</span><span class="n">set</span><span class="p">(</span><span class="n">op</span><span class="p">,</span><span class="w"> </span><span class="p">{.</span><span class="n">str</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"x"</span><span class="p">}));</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l658" href="#l658">658</a></td>
@@ -7152,7 +7152,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">2</td>
-      <td class="src partialCoveredLine"><span class="w">	</span><span class="n">TEST</span><span class="p">(</span><span class="s">&quot;zasm_text_round_trip&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">tr</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="o">&amp;</span><span class="p">]{</span></td>
+      <td class="src partialCoveredLine"><span class="w">	</span><span class="n">TEST</span><span class="p">(</span><span class="s">"zasm_text_round_trip"</span><span class="p">,</span><span class="w"> </span><span class="n">tr</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="o">&amp;</span><span class="p">]{</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l666" href="#l666">666</a></td>
@@ -7355,7 +7355,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">1</td>
-      <td class="src partialCoveredLine"><span class="w">		</span><span class="n">zasm</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">with_string</span><span class="p">(</span><span class="s">&quot;  two  spaces, </span><span class="se">\&quot;</span><span class="s">quoted</span><span class="se">\&quot;</span><span class="s">, C:</span><span class="se">\\</span><span class="s">new</span><span class="se">\n\t\xe9</span><span class="s">&quot;</span><span class="p">));</span></td>
+      <td class="src partialCoveredLine"><span class="w">		</span><span class="n">zasm</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">with_string</span><span class="p">(</span><span class="s">"  two  spaces, </span><span class="se">\"</span><span class="s">quoted</span><span class="se">\"</span><span class="s">, C:</span><span class="se">\\</span><span class="s">new</span><span class="se">\n\t\xe9</span><span class="s">"</span><span class="p">));</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l687" href="#l687">687</a></td>
@@ -7373,7 +7373,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">1</td>
-      <td class="src partialCoveredLine"><span class="w">		</span><span class="n">zasm</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">with_string</span><span class="p">(</span><span class="s">&quot;&quot;</span><span class="p">));</span></td>
+      <td class="src partialCoveredLine"><span class="w">		</span><span class="n">zasm</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">with_string</span><span class="p">(</span><span class="s">""</span><span class="p">));</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l688" href="#l688">688</a></td>
@@ -7518,7 +7518,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">2</td>
-      <td class="src partialCoveredLine"><span class="w">	</span><span class="n">TEST</span><span class="p">(</span><span class="s">&quot;liveness_branch_then_call&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">tr</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="o">&amp;</span><span class="p">]{</span></td>
+      <td class="src partialCoveredLine"><span class="w">	</span><span class="n">TEST</span><span class="p">(</span><span class="s">"liveness_branch_then_call"</span><span class="p">,</span><span class="w"> </span><span class="n">tr</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="o">&amp;</span><span class="p">]{</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l699" href="#l699">699</a></td>
@@ -7548,7 +7548,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">1</td>
-      <td class="src partialCoveredLine"><span class="w">		</span><span class="k">auto</span><span class="w"> </span><span class="n">script</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zasm_from_instructions</span><span class="p">(</span><span class="sa">R</span><span class="s">&quot;</span><span class="dl">(</span></td>
+      <td class="src partialCoveredLine"><span class="w">		</span><span class="k">auto</span><span class="w"> </span><span class="n">script</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zasm_from_instructions</span><span class="p">(</span><span class="sa">R</span><span class="s">"</span><span class="dl">(</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l702" href="#l702">702</a></td>
@@ -7625,7 +7625,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="s">		</span><span class="dl">)</span><span class="s">&quot;</span><span class="p">);</span></td>
+      <td class="src "><span class="s">		</span><span class="dl">)</span><span class="s">"</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l713" href="#l713">713</a></td>
@@ -7737,7 +7737,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">2</td>
-      <td class="src partialCoveredLine"><span class="w">	</span><span class="n">TEST</span><span class="p">(</span><span class="s">&quot;liveness_written_before_return&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">tr</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="o">&amp;</span><span class="p">]{</span></td>
+      <td class="src partialCoveredLine"><span class="w">	</span><span class="n">TEST</span><span class="p">(</span><span class="s">"liveness_written_before_return"</span><span class="p">,</span><span class="w"> </span><span class="n">tr</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="o">&amp;</span><span class="p">]{</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l721" href="#l721">721</a></td>
@@ -7760,7 +7760,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">1</td>
-      <td class="src partialCoveredLine"><span class="w">		</span><span class="k">auto</span><span class="w"> </span><span class="n">script</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zasm_from_instructions</span><span class="p">(</span><span class="sa">R</span><span class="s">&quot;</span><span class="dl">(</span></td>
+      <td class="src partialCoveredLine"><span class="w">		</span><span class="k">auto</span><span class="w"> </span><span class="n">script</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zasm_from_instructions</span><span class="p">(</span><span class="sa">R</span><span class="s">"</span><span class="dl">(</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l723" href="#l723">723</a></td>
@@ -7816,7 +7816,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="s">		</span><span class="dl">)</span><span class="s">&quot;</span><span class="p">);</span></td>
+      <td class="src "><span class="s">		</span><span class="dl">)</span><span class="s">"</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l731" href="#l731">731</a></td>
@@ -7952,7 +7952,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">2</td>
-      <td class="src partialCoveredLine"><span class="w">	</span><span class="n">TEST</span><span class="p">(</span><span class="s">&quot;liveness_kept_across_calls&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">tr</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="o">&amp;</span><span class="p">]{</span></td>
+      <td class="src partialCoveredLine"><span class="w">	</span><span class="n">TEST</span><span class="p">(</span><span class="s">"liveness_kept_across_calls"</span><span class="p">,</span><span class="w"> </span><span class="n">tr</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="o">&amp;</span><span class="p">]{</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l742" href="#l742">742</a></td>
@@ -7982,7 +7982,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">1</td>
-      <td class="src partialCoveredLine"><span class="w">		</span><span class="k">auto</span><span class="w"> </span><span class="n">script</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zasm_from_instructions</span><span class="p">(</span><span class="sa">R</span><span class="s">&quot;</span><span class="dl">(</span></td>
+      <td class="src partialCoveredLine"><span class="w">		</span><span class="k">auto</span><span class="w"> </span><span class="n">script</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zasm_from_instructions</span><span class="p">(</span><span class="sa">R</span><span class="s">"</span><span class="dl">(</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l745" href="#l745">745</a></td>
@@ -8052,7 +8052,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="s">		</span><span class="dl">)</span><span class="s">&quot;</span><span class="p">);</span></td>
+      <td class="src "><span class="s">		</span><span class="dl">)</span><span class="s">"</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l755" href="#l755">755</a></td>
@@ -8190,7 +8190,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">2</td>
-      <td class="src partialCoveredLine"><span class="w">	</span><span class="n">TEST</span><span class="p">(</span><span class="s">&quot;liveness_must_write&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">tr</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="o">&amp;</span><span class="p">]{</span></td>
+      <td class="src partialCoveredLine"><span class="w">	</span><span class="n">TEST</span><span class="p">(</span><span class="s">"liveness_must_write"</span><span class="p">,</span><span class="w"> </span><span class="n">tr</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="o">&amp;</span><span class="p">]{</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l765" href="#l765">765</a></td>
@@ -8220,7 +8220,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">1</td>
-      <td class="src partialCoveredLine"><span class="w">		</span><span class="k">auto</span><span class="w"> </span><span class="n">script</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zasm_from_instructions</span><span class="p">(</span><span class="sa">R</span><span class="s">&quot;</span><span class="dl">(</span></td>
+      <td class="src partialCoveredLine"><span class="w">		</span><span class="k">auto</span><span class="w"> </span><span class="n">script</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zasm_from_instructions</span><span class="p">(</span><span class="sa">R</span><span class="s">"</span><span class="dl">(</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l768" href="#l768">768</a></td>
@@ -8304,7 +8304,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="s">		</span><span class="dl">)</span><span class="s">&quot;</span><span class="p">);</span></td>
+      <td class="src "><span class="s">		</span><span class="dl">)</span><span class="s">"</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l780" href="#l780">780</a></td>
@@ -8417,7 +8417,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">2</td>
-      <td class="src partialCoveredLine"><span class="w">	</span><span class="n">TEST</span><span class="p">(</span><span class="s">&quot;liveness_callee_reads_on_entry&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">tr</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="o">&amp;</span><span class="p">]{</span></td>
+      <td class="src partialCoveredLine"><span class="w">	</span><span class="n">TEST</span><span class="p">(</span><span class="s">"liveness_callee_reads_on_entry"</span><span class="p">,</span><span class="w"> </span><span class="n">tr</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="o">&amp;</span><span class="p">]{</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l789" href="#l789">789</a></td>
@@ -8447,7 +8447,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">1</td>
-      <td class="src partialCoveredLine"><span class="w">		</span><span class="k">auto</span><span class="w"> </span><span class="n">script</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zasm_from_instructions</span><span class="p">(</span><span class="sa">R</span><span class="s">&quot;</span><span class="dl">(</span></td>
+      <td class="src partialCoveredLine"><span class="w">		</span><span class="k">auto</span><span class="w"> </span><span class="n">script</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zasm_from_instructions</span><span class="p">(</span><span class="sa">R</span><span class="s">"</span><span class="dl">(</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l792" href="#l792">792</a></td>
@@ -8489,7 +8489,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="s">		</span><span class="dl">)</span><span class="s">&quot;</span><span class="p">);</span></td>
+      <td class="src "><span class="s">		</span><span class="dl">)</span><span class="s">"</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l798" href="#l798">798</a></td>

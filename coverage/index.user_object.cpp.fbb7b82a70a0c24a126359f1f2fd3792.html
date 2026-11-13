@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2026-11-10 08:08:23</td>
+      <td>2026-11-13 22:29:49</td>
     </tr>
   </table>
 </div>
@@ -105,7 +105,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;zc/scripting/types/user_object.h&quot;</span></td>
+      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">"zc/scripting/types/user_object.h"</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2" href="#l2">2</a></td>
@@ -119,42 +119,42 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;base/general.h&quot;</span></td>
+      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">"base/general.h"</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l4" href="#l4">4</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;core/zdefs.h&quot;</span></td>
+      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">"core/zdefs.h"</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l5" href="#l5">5</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;components/zasm/defines.h&quot;</span></td>
+      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">"components/zasm/defines.h"</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l6" href="#l6">6</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;zc/ffscript.h&quot;</span></td>
+      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">"zc/ffscript.h"</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l7" href="#l7">7</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;zc/scripting/script_object.h&quot;</span></td>
+      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">"zc/scripting/script_object.h"</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l8" href="#l8">8</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;zc/zscriptversion.h&quot;</span></td>
+      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">"zc/zscriptversion.h"</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l9" href="#l9">9</a></td>
@@ -224,7 +224,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="k">static</span><span class="w"> </span><span class="n">UserDataContainer</span><span class="o">&lt;</span><span class="n">user_object</span><span class="p">,</span><span class="w"> </span><span class="n">MAX_USER_OBJECTS</span><span class="o">&gt;</span><span class="w"> </span><span class="n">user_objects</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="n">script_object_type</span><span class="o">::</span><span class="n">object</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;object&quot;</span><span class="p">};</span></td>
+      <td class="src "><span class="k">static</span><span class="w"> </span><span class="n">UserDataContainer</span><span class="o">&lt;</span><span class="n">user_object</span><span class="p">,</span><span class="w"> </span><span class="n">MAX_USER_OBJECTS</span><span class="o">&gt;</span><span class="w"> </span><span class="n">user_objects</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="n">script_object_type</span><span class="o">::</span><span class="n">object</span><span class="p">,</span><span class="w"> </span><span class="s">"object"</span><span class="p">};</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l19" href="#l19">19</a></td>
@@ -1091,7 +1091,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">			</span><span class="n">scripting_log_error_with_context</span><span class="p">(</span><span class="s">&quot;Script tried to read position &#39;{}&#39; out of bounds on a &#39;{}&#39; size object ({}).&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">ind</span><span class="p">,</span><span class="w"> </span><span class="n">obj</span><span class="o">-&gt;</span><span class="n">data</span><span class="p">.</span><span class="n">size</span><span class="p">(),</span><span class="w"> </span><span class="n">id</span><span class="p">);</span></td>
+      <td class="src uncoveredLine"><span class="w">			</span><span class="n">scripting_log_error_with_context</span><span class="p">(</span><span class="s">"Script tried to read position '{}' out of bounds on a '{}' size object ({})."</span><span class="p">,</span><span class="w"> </span><span class="n">ind</span><span class="p">,</span><span class="w"> </span><span class="n">obj</span><span class="o">-&gt;</span><span class="n">data</span><span class="p">.</span><span class="n">size</span><span class="p">(),</span><span class="w"> </span><span class="n">id</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l121" href="#l121">121</a></td>
@@ -1217,7 +1217,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">			</span><span class="n">scripting_log_error_with_context</span><span class="p">(</span><span class="s">&quot;Script tried to write position &#39;{}&#39; out of bounds on a &#39;{}&#39; size object ({}).&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">ind</span><span class="p">,</span><span class="w"> </span><span class="n">obj</span><span class="o">-&gt;</span><span class="n">data</span><span class="p">.</span><span class="n">size</span><span class="p">(),</span><span class="w"> </span><span class="n">id</span><span class="p">);</span></td>
+      <td class="src uncoveredLine"><span class="w">			</span><span class="n">scripting_log_error_with_context</span><span class="p">(</span><span class="s">"Script tried to write position '{}' out of bounds on a '{}' size object ({})."</span><span class="p">,</span><span class="w"> </span><span class="n">ind</span><span class="p">,</span><span class="w"> </span><span class="n">obj</span><span class="o">-&gt;</span><span class="n">data</span><span class="p">.</span><span class="n">size</span><span class="p">(),</span><span class="w"> </span><span class="n">id</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l137" href="#l137">137</a></td>
@@ -1932,14 +1932,14 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">			</span><span class="n">zprint2</span><span class="p">(</span><span class="s">&quot;STARTDESTRUCTOR: %s</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">sargstr</span><span class="o">-&gt;</span><span class="n">c_str</span><span class="p">());</span></td>
+      <td class="src uncoveredLine"><span class="w">			</span><span class="n">zprint2</span><span class="p">(</span><span class="s">"STARTDESTRUCTOR: %s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span><span class="w"> </span><span class="n">sargstr</span><span class="o">-&gt;</span><span class="n">c_str</span><span class="p">());</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l235" href="#l235">235</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">			</span><span class="c1">//This opcode&#39;s EXISTENCE indicates the first opcode</span></td>
+      <td class="src "><span class="w">			</span><span class="c1">//This opcode's EXISTENCE indicates the first opcode</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l236" href="#l236">236</a></td>
@@ -2100,7 +2100,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">32920</td>
-      <td class="src coveredLine"><span class="w">			</span><span class="n">current_zasm_context</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;ZCLASS_MARK_TYPE&quot;</span><span class="p">;</span></td>
+      <td class="src coveredLine"><span class="w">			</span><span class="n">current_zasm_context</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"ZCLASS_MARK_TYPE"</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l256" href="#l256">256</a></td>
@@ -2410,7 +2410,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">32920</td>
-      <td class="src coveredLine"><span class="w">			</span><span class="n">current_zasm_context</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;&quot;</span><span class="p">;</span></td>
+      <td class="src coveredLine"><span class="w">			</span><span class="n">current_zasm_context</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">""</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l292" href="#l292">292</a></td>

@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2026-11-10 08:08:23</td>
+      <td>2026-11-13 22:29:49</td>
     </tr>
   </table>
 </div>
@@ -104,7 +104,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="c1">// on text that isn&#39;t valid UTF-8. Quests made before 2.55-alpha-117 have such</span></td>
+      <td class="src "><span class="c1">// on text that isn't valid UTF-8. Quests made before 2.55-alpha-117 have such</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l3" href="#l3">3</a></td>
@@ -132,21 +132,21 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;zalleg/zalleg.h&quot;</span></td>
+      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">"zalleg/zalleg.h"</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l7" href="#l7">7</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;test_runner/test_runner.h&quot;</span></td>
+      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">"test_runner/test_runner.h"</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l8" href="#l8">8</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;test_runner/assert.h&quot;</span></td>
+      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">"test_runner/assert.h"</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l9" href="#l9">9</a></td>
@@ -308,7 +308,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">1</td>
-      <td class="src partialCoveredLine"><span class="w">	</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">decode</span><span class="p">(</span><span class="s">&quot;aZ&quot;</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">{</span><span class="sc">&#39;a&#39;</span><span class="p">,</span><span class="w"> </span><span class="sc">&#39;Z&#39;</span><span class="p">}));</span></td>
+      <td class="src partialCoveredLine"><span class="w">	</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">decode</span><span class="p">(</span><span class="s">"aZ"</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">{</span><span class="sc">'a'</span><span class="p">,</span><span class="w"> </span><span class="sc">'Z'</span><span class="p">}));</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l27" href="#l27">27</a></td>
@@ -335,7 +335,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">1</td>
-      <td class="src partialCoveredLine"><span class="w">	</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">decode</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\xC3\xA9</span><span class="s">&quot;</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">{</span><span class="mh">0xE9</span><span class="p">}));</span></td>
+      <td class="src partialCoveredLine"><span class="w">	</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">decode</span><span class="p">(</span><span class="s">"</span><span class="se">\xC3\xA9</span><span class="s">"</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">{</span><span class="mh">0xE9</span><span class="p">}));</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l29" href="#l29">29</a></td>
@@ -355,7 +355,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">1</td>
-      <td class="src partialCoveredLine"><span class="w">	</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">decode</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\xE2\x82\xAC</span><span class="s">&quot;</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">{</span><span class="mh">0x20AC</span><span class="p">}));</span></td>
+      <td class="src partialCoveredLine"><span class="w">	</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">decode</span><span class="p">(</span><span class="s">"</span><span class="se">\xE2\x82\xAC</span><span class="s">"</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">{</span><span class="mh">0x20AC</span><span class="p">}));</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l30" href="#l30">30</a></td>
@@ -382,14 +382,14 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">1</td>
-      <td class="src partialCoveredLine"><span class="w">	</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">decode</span><span class="p">(</span><span class="s">&quot;G</span><span class="se">\xE9</span><span class="s">n&quot;</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">{</span><span class="sc">&#39;G&#39;</span><span class="p">,</span><span class="w"> </span><span class="mh">0xDCE9</span><span class="p">,</span><span class="w"> </span><span class="sc">&#39;n&#39;</span><span class="p">}));</span></td>
+      <td class="src partialCoveredLine"><span class="w">	</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">decode</span><span class="p">(</span><span class="s">"G</span><span class="se">\xE9</span><span class="s">n"</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">{</span><span class="sc">'G'</span><span class="p">,</span><span class="w"> </span><span class="mh">0xDCE9</span><span class="p">,</span><span class="w"> </span><span class="sc">'n'</span><span class="p">}));</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l32" href="#l32">32</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="c1">// A lone continuation byte (this used to read as 0x28, &#39;(&#39;).</span></td>
+      <td class="src "><span class="w">	</span><span class="c1">// A lone continuation byte (this used to read as 0x28, '(').</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l33" href="#l33">33</a></td>
@@ -409,7 +409,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">1</td>
-      <td class="src partialCoveredLine"><span class="w">	</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">decode</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\xA8</span><span class="s">&quot;</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">{</span><span class="mh">0xDCA8</span><span class="p">}));</span></td>
+      <td class="src partialCoveredLine"><span class="w">	</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">decode</span><span class="p">(</span><span class="s">"</span><span class="se">\xA8</span><span class="s">"</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">{</span><span class="mh">0xDCA8</span><span class="p">}));</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l34" href="#l34">34</a></td>
@@ -436,14 +436,14 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">1</td>
-      <td class="src partialCoveredLine"><span class="w">	</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">decode</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\xC3</span><span class="s">&quot;</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">{</span><span class="mh">0xDCC3</span><span class="p">}));</span></td>
+      <td class="src partialCoveredLine"><span class="w">	</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">decode</span><span class="p">(</span><span class="s">"</span><span class="se">\xC3</span><span class="s">"</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">{</span><span class="mh">0xDCC3</span><span class="p">}));</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l36" href="#l36">36</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="c1">// Overlong encodings and encoded surrogates aren&#39;t valid.</span></td>
+      <td class="src "><span class="w">	</span><span class="c1">// Overlong encodings and encoded surrogates aren't valid.</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l37" href="#l37">37</a></td>
@@ -463,7 +463,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">1</td>
-      <td class="src partialCoveredLine"><span class="w">	</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">decode</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\xC0\x80</span><span class="s">&quot;</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">{</span><span class="mh">0xDCC0</span><span class="p">,</span><span class="w"> </span><span class="mh">0xDC80</span><span class="p">}));</span></td>
+      <td class="src partialCoveredLine"><span class="w">	</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">decode</span><span class="p">(</span><span class="s">"</span><span class="se">\xC0\x80</span><span class="s">"</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">{</span><span class="mh">0xDCC0</span><span class="p">,</span><span class="w"> </span><span class="mh">0xDC80</span><span class="p">}));</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l38" href="#l38">38</a></td>
@@ -483,7 +483,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">1</td>
-      <td class="src partialCoveredLine"><span class="w">	</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">decode</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\xED\xB3\xA9</span><span class="s">&quot;</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">{</span><span class="mh">0xDCED</span><span class="p">,</span><span class="w"> </span><span class="mh">0xDCB3</span><span class="p">,</span><span class="w"> </span><span class="mh">0xDCA9</span><span class="p">}));</span></td>
+      <td class="src partialCoveredLine"><span class="w">	</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">decode</span><span class="p">(</span><span class="s">"</span><span class="se">\xED\xB3\xA9</span><span class="s">"</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">{</span><span class="mh">0xDCED</span><span class="p">,</span><span class="w"> </span><span class="mh">0xDCB3</span><span class="p">,</span><span class="w"> </span><span class="mh">0xDCA9</span><span class="p">}));</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l39" href="#l39">39</a></td>
@@ -497,28 +497,28 @@
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">1</td>
-      <td class="src coveredLine"><span class="w">	</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">ugetc</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\xE9</span><span class="s">&quot;</span><span class="p">),</span><span class="w"> </span><span class="mh">0xDCE9</span><span class="p">);</span></td>
+      <td class="src coveredLine"><span class="w">	</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">ugetc</span><span class="p">(</span><span class="s">"</span><span class="se">\xE9</span><span class="s">"</span><span class="p">),</span><span class="w"> </span><span class="mh">0xDCE9</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l41" href="#l41">41</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">1</td>
-      <td class="src coveredLine"><span class="w">	</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">uwidth</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\xE9</span><span class="s">n&quot;</span><span class="p">),</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span></td>
+      <td class="src coveredLine"><span class="w">	</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">uwidth</span><span class="p">(</span><span class="s">"</span><span class="se">\xE9</span><span class="s">n"</span><span class="p">),</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l42" href="#l42">42</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">1</td>
-      <td class="src coveredLine"><span class="w">	</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">uwidth</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\xC3\xA9</span><span class="s">&quot;</span><span class="p">),</span><span class="w"> </span><span class="mi">2</span><span class="p">);</span></td>
+      <td class="src coveredLine"><span class="w">	</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">uwidth</span><span class="p">(</span><span class="s">"</span><span class="se">\xC3\xA9</span><span class="s">"</span><span class="p">),</span><span class="w"> </span><span class="mi">2</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l43" href="#l43">43</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">1</td>
-      <td class="src coveredLine"><span class="w">	</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">ustrlen</span><span class="p">(</span><span class="s">&quot;G</span><span class="se">\xE9</span><span class="s">n</span><span class="se">\xC3\xA9</span><span class="s">&quot;</span><span class="p">),</span><span class="w"> </span><span class="mi">4</span><span class="p">);</span></td>
+      <td class="src coveredLine"><span class="w">	</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">ustrlen</span><span class="p">(</span><span class="s">"G</span><span class="se">\xE9</span><span class="s">n</span><span class="se">\xC3\xA9</span><span class="s">"</span><span class="p">),</span><span class="w"> </span><span class="mi">4</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l44" href="#l44">44</a></td>
@@ -574,7 +574,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">1</td>
-      <td class="src partialCoveredLine"><span class="w">	</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">s</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;G</span><span class="se">\xE9</span><span class="s">n</span><span class="se">\xC3\xA9</span><span class="s">rique </span><span class="se">\x83\x84\xA8</span><span class="s">&quot;</span><span class="p">;</span></td>
+      <td class="src partialCoveredLine"><span class="w">	</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">s</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"G</span><span class="se">\xE9</span><span class="s">n</span><span class="se">\xC3\xA9</span><span class="s">rique </span><span class="se">\x83\x84\xA8</span><span class="s">"</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l51" href="#l51">51</a></td>
@@ -664,7 +664,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">1</td>
-      <td class="src partialCoveredLine"><span class="w">	</span><span class="kt">int</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">usetc</span><span class="p">(</span><span class="n">c</span><span class="p">,</span><span class="w"> </span><span class="n">ugetc</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\xE9</span><span class="s">&quot;</span><span class="p">));</span></td>
+      <td class="src partialCoveredLine"><span class="w">	</span><span class="kt">int</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">usetc</span><span class="p">(</span><span class="n">c</span><span class="p">,</span><span class="w"> </span><span class="n">ugetc</span><span class="p">(</span><span class="s">"</span><span class="se">\xE9</span><span class="s">"</span><span class="p">));</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l59" href="#l59">59</a></td>
@@ -764,14 +764,14 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="c1">// The DMap intro is drawn one byte at a time with &quot;%c&quot; and a char. For byte</span></td>
+      <td class="src "><span class="w">	</span><span class="c1">// The DMap intro is drawn one byte at a time with "%c" and a char. For byte</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l70" href="#l70">70</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="c1">// 0x84 that passes -124 where char is signed, and 0x84 where it isn&#39;t (ARM</span></td>
+      <td class="src "><span class="w">	</span><span class="c1">// 0x84 that passes -124 where char is signed, and 0x84 where it isn't (ARM</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l71" href="#l71">71</a></td>
@@ -785,7 +785,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">1</td>
-      <td class="src coveredLine"><span class="w">	</span><span class="n">uszprintf</span><span class="p">(</span><span class="n">buf</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">buf</span><span class="p">),</span><span class="w"> </span><span class="s">&quot;%c&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">-124</span><span class="p">);</span></td>
+      <td class="src coveredLine"><span class="w">	</span><span class="n">uszprintf</span><span class="p">(</span><span class="n">buf</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">buf</span><span class="p">),</span><span class="w"> </span><span class="s">"%c"</span><span class="p">,</span><span class="w"> </span><span class="mi">-124</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l73" href="#l73">73</a></td>
@@ -803,14 +803,14 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">1</td>
-      <td class="src partialCoveredLine"><span class="w">	</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">(</span><span class="n">buf</span><span class="p">),</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\x84</span><span class="s">&quot;</span><span class="p">));</span></td>
+      <td class="src partialCoveredLine"><span class="w">	</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">(</span><span class="n">buf</span><span class="p">),</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">(</span><span class="s">"</span><span class="se">\x84</span><span class="s">"</span><span class="p">));</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l74" href="#l74">74</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">1</td>
-      <td class="src coveredLine"><span class="w">	</span><span class="n">uszprintf</span><span class="p">(</span><span class="n">buf</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">buf</span><span class="p">),</span><span class="w"> </span><span class="s">&quot;%c&quot;</span><span class="p">,</span><span class="w"> </span><span class="mh">0x84</span><span class="p">);</span></td>
+      <td class="src coveredLine"><span class="w">	</span><span class="n">uszprintf</span><span class="p">(</span><span class="n">buf</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">buf</span><span class="p">),</span><span class="w"> </span><span class="s">"%c"</span><span class="p">,</span><span class="w"> </span><span class="mh">0x84</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l75" href="#l75">75</a></td>
@@ -828,7 +828,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">1</td>
-      <td class="src partialCoveredLine"><span class="w">	</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">(</span><span class="n">buf</span><span class="p">),</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\xC2\x84</span><span class="s">&quot;</span><span class="p">));</span></td>
+      <td class="src partialCoveredLine"><span class="w">	</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">(</span><span class="n">buf</span><span class="p">),</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">(</span><span class="s">"</span><span class="se">\xC2\x84</span><span class="s">"</span><span class="p">));</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l76" href="#l76">76</a></td>
@@ -842,7 +842,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">1</td>
-      <td class="src coveredLine"><span class="w">	</span><span class="n">uszprintf</span><span class="p">(</span><span class="n">buf</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">buf</span><span class="p">),</span><span class="w"> </span><span class="s">&quot;%c&quot;</span><span class="p">,</span><span class="w"> </span><span class="mh">0xE9</span><span class="p">);</span></td>
+      <td class="src coveredLine"><span class="w">	</span><span class="n">uszprintf</span><span class="p">(</span><span class="n">buf</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">buf</span><span class="p">),</span><span class="w"> </span><span class="s">"%c"</span><span class="p">,</span><span class="w"> </span><span class="mh">0xE9</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l78" href="#l78">78</a></td>
@@ -860,7 +860,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">1</td>
-      <td class="src partialCoveredLine"><span class="w">	</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">(</span><span class="n">buf</span><span class="p">),</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\xC3\xA9</span><span class="s">&quot;</span><span class="p">));</span></td>
+      <td class="src partialCoveredLine"><span class="w">	</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">(</span><span class="n">buf</span><span class="p">),</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">(</span><span class="s">"</span><span class="se">\xC3\xA9</span><span class="s">"</span><span class="p">));</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l79" href="#l79">79</a></td>
@@ -874,7 +874,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">1</td>
-      <td class="src coveredLine"><span class="w">	</span><span class="n">uszprintf</span><span class="p">(</span><span class="n">buf</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">buf</span><span class="p">),</span><span class="w"> </span><span class="s">&quot;</span><span class="se">\xE9</span><span class="s">%d%s</span><span class="se">\x84</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;</span><span class="se">\xA8</span><span class="s">&quot;</span><span class="p">);</span></td>
+      <td class="src coveredLine"><span class="w">	</span><span class="n">uszprintf</span><span class="p">(</span><span class="n">buf</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">buf</span><span class="p">),</span><span class="w"> </span><span class="s">"</span><span class="se">\xE9</span><span class="s">%d%s</span><span class="se">\x84</span><span class="s">"</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="s">"</span><span class="se">\xA8</span><span class="s">"</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l81" href="#l81">81</a></td>
@@ -892,7 +892,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">1</td>
-      <td class="src partialCoveredLine"><span class="w">	</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">(</span><span class="n">buf</span><span class="p">),</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\xE9</span><span class="s">&quot;</span><span class="w"> </span><span class="s">&quot;1</span><span class="se">\xA8\x84</span><span class="s">&quot;</span><span class="p">));</span></td>
+      <td class="src partialCoveredLine"><span class="w">	</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">(</span><span class="n">buf</span><span class="p">),</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">(</span><span class="s">"</span><span class="se">\xE9</span><span class="s">"</span><span class="w"> </span><span class="s">"1</span><span class="se">\xA8\x84</span><span class="s">"</span><span class="p">));</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l82" href="#l82">82</a></td>
@@ -941,21 +941,21 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="p">{</span><span class="w"> </span><span class="s">&quot;decode&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">test_decode</span><span class="w"> </span><span class="p">},</span></td>
+      <td class="src "><span class="w">		</span><span class="p">{</span><span class="w"> </span><span class="s">"decode"</span><span class="p">,</span><span class="w"> </span><span class="n">test_decode</span><span class="w"> </span><span class="p">},</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l89" href="#l89">89</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="p">{</span><span class="w"> </span><span class="s">&quot;round_trip&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">test_round_trip</span><span class="w"> </span><span class="p">},</span></td>
+      <td class="src "><span class="w">		</span><span class="p">{</span><span class="w"> </span><span class="s">"round_trip"</span><span class="p">,</span><span class="w"> </span><span class="n">test_round_trip</span><span class="w"> </span><span class="p">},</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l90" href="#l90">90</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="p">{</span><span class="w"> </span><span class="s">&quot;sprintf&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">test_sprintf</span><span class="w"> </span><span class="p">},</span></td>
+      <td class="src "><span class="w">		</span><span class="p">{</span><span class="w"> </span><span class="s">"sprintf"</span><span class="p">,</span><span class="w"> </span><span class="n">test_sprintf</span><span class="w"> </span><span class="p">},</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l91" href="#l91">91</a></td>
@@ -1046,7 +1046,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">				</span><span class="n">fmt</span><span class="o">::</span><span class="n">println</span><span class="p">(</span><span class="s">&quot;  [PASS] {}&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">test</span><span class="p">.</span><span class="n">name</span><span class="p">);</span></td>
+      <td class="src uncoveredLine"><span class="w">				</span><span class="n">fmt</span><span class="o">::</span><span class="n">println</span><span class="p">(</span><span class="s">"  [PASS] {}"</span><span class="p">,</span><span class="w"> </span><span class="n">test</span><span class="p">.</span><span class="n">name</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l101" href="#l101">101</a></td>
@@ -1088,7 +1088,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">			</span><span class="n">fmt</span><span class="o">::</span><span class="n">println</span><span class="p">(</span><span class="s">&quot;  [FAIL] {}</span><span class="se">\n</span><span class="s">{}&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">test</span><span class="p">.</span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="n">e</span><span class="p">.</span><span class="n">what</span><span class="p">());</span></td>
+      <td class="src uncoveredLine"><span class="w">			</span><span class="n">fmt</span><span class="o">::</span><span class="n">println</span><span class="p">(</span><span class="s">"  [FAIL] {}</span><span class="se">\n</span><span class="s">{}"</span><span class="p">,</span><span class="w"> </span><span class="n">test</span><span class="p">.</span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="n">e</span><span class="p">.</span><span class="n">what</span><span class="p">());</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l106" href="#l106">106</a></td>

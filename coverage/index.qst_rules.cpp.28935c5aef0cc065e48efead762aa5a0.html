@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2026-11-10 08:08:23</td>
+      <td>2026-11-13 22:29:49</td>
     </tr>
   </table>
 </div>
@@ -93,28 +93,28 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;core/qrs.h&quot;</span></td>
+      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">"core/qrs.h"</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2" href="#l2">2</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;core/qst.h&quot;</span></td>
+      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">"core/qst.h"</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l3" href="#l3">3</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;zalleg/packfile.h&quot;</span></td>
+      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">"zalleg/packfile.h"</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l4" href="#l4">4</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;core/quest_format.h&quot;</span></td>
+      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">"core/quest_format.h"</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l5" href="#l5">5</a></td>
@@ -128,14 +128,14 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">byte</span><span class="o">*</span><span class="w"> </span><span class="n">legacy_skip_flags</span><span class="p">;</span></td>
+      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">byte</span><span class="o">*</span><span class="w"> </span><span class="n">legacy_skip_flags</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l7" href="#l7">7</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="n">byte</span><span class="w"> </span><span class="n">deprecated_rules</span><span class="p">[</span><span class="n">QUESTRULES_NEW_SIZE</span><span class="p">];</span></td>
+      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="kt">byte</span><span class="w"> </span><span class="n">deprecated_rules</span><span class="p">[</span><span class="n">QUESTRULES_NEW_SIZE</span><span class="p">];</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l8" href="#l8">8</a></td>
@@ -2234,7 +2234,7 @@
         </details>
       </td>
       <td class="linecount coveredLine">1034</td>
-      <td class="src coveredLine"><span class="w">	</span><span class="k">if</span><span class="p">(</span><span class="n">tempheader</span><span class="p">.</span><span class="n">zelda_version</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mh">0x250</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="p">(</span><span class="n">tempheader</span><span class="p">.</span><span class="n">zelda_version</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mh">0x250</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">tempheader</span><span class="p">.</span><span class="n">build</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">20</span><span class="p">))</span><span class="w"> </span><span class="c1">//20 is 2.50.0 RC1 and RC2 (cause it didn&#39;t get bumped). Okay I&#39;m gonna be honest I have no idea if any 2.50 build was available before RC1, but gonna try and cover my ass here -Dimi</span></td>
+      <td class="src coveredLine"><span class="w">	</span><span class="k">if</span><span class="p">(</span><span class="n">tempheader</span><span class="p">.</span><span class="n">zelda_version</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mh">0x250</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="p">(</span><span class="n">tempheader</span><span class="p">.</span><span class="n">zelda_version</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mh">0x250</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">tempheader</span><span class="p">.</span><span class="n">build</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">20</span><span class="p">))</span><span class="w"> </span><span class="c1">//20 is 2.50.0 RC1 and RC2 (cause it didn't get bumped). Okay I'm gonna be honest I have no idea if any 2.50 build was available before RC1, but gonna try and cover my ass here -Dimi</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l220" href="#l220">220</a></td>
@@ -2611,7 +2611,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="c1">// All &#39;official&#39; quests need this disabled.</span></td>
+      <td class="src "><span class="w">		</span><span class="c1">// All 'official' quests need this disabled.</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l259" href="#l259">259</a></td>
@@ -2730,7 +2730,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">1100</td>
-      <td class="src partialCoveredLine"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">tempheader</span><span class="p">.</span><span class="n">zelda_version</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="mh">0x190</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="p">(</span><span class="n">tempheader</span><span class="p">.</span><span class="n">zelda_version</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mh">0x192</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">(</span><span class="n">tempheader</span><span class="p">.</span><span class="n">title</span><span class="p">).</span><span class="n">starts_with</span><span class="p">(</span><span class="s">&quot;Zelda 3000</span><span class="se">\0</span><span class="s">&quot;</span><span class="p">)))</span></td>
+      <td class="src partialCoveredLine"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">tempheader</span><span class="p">.</span><span class="n">zelda_version</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="mh">0x190</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="p">(</span><span class="n">tempheader</span><span class="p">.</span><span class="n">zelda_version</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mh">0x192</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">(</span><span class="n">tempheader</span><span class="p">.</span><span class="n">title</span><span class="p">).</span><span class="n">starts_with</span><span class="p">(</span><span class="s">"Zelda 3000</span><span class="se">\0</span><span class="s">"</span><span class="p">)))</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l270" href="#l270">270</a></td>
@@ -3985,7 +3985,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="c1">//The change was made in build 43, but I&#39;m setting this to &lt; 42, because quests made in 42 would benefit from this change, and</span></td>
+      <td class="src "><span class="w">	</span><span class="c1">//The change was made in build 43, but I'm setting this to &lt; 42, because quests made in 42 would benefit from this change, and</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l400" href="#l400">400</a></td>
@@ -4550,7 +4550,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">			</span><span class="c1">//In &lt; 2.55a27, if you had an A+B subscreen, L and R didn&#39;t shift through inventory.</span></td>
+      <td class="src "><span class="w">			</span><span class="c1">//In &lt; 2.55a27, if you had an A+B subscreen, L and R didn't shift through inventory.</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l449" href="#l449">449</a></td>
@@ -4622,7 +4622,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="c1">//Compatibility: Setting the hero&#39;s action to rafting was previously disallowed, though legal for scripts to attempt.</span></td>
+      <td class="src "><span class="w">		</span><span class="c1">//Compatibility: Setting the hero's action to rafting was previously disallowed, though legal for scripts to attempt.</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l458" href="#l458">458</a></td>
@@ -4713,7 +4713,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="c1">//If an itemdata had a &#39;frames&#39; of 0, items created of that data would ignore all changes to &#39;frames&#39;</span></td>
+      <td class="src "><span class="w">		</span><span class="c1">//If an itemdata had a 'frames' of 0, items created of that data would ignore all changes to 'frames'</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l467" href="#l467">467</a></td>
@@ -5112,7 +5112,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="c1">//Rule used to be &#39;qr_SETXYBUTTONITEMS&#39;, now split.</span></td>
+      <td class="src "><span class="w">		</span><span class="c1">//Rule used to be 'qr_SETXYBUTTONITEMS', now split.</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l504" href="#l504">504</a></td>
@@ -5386,7 +5386,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">239</td>
-      <td class="src partialCoveredLine"><span class="w">		</span><span class="n">set_qr</span><span class="p">(</span><span class="n">qr_GANONINTRO</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span><span class="w"> </span><span class="c1">//This will get flipped later on in the compatrule 11 check. That&#39;s why it&#39;s turning it off.</span></td>
+      <td class="src partialCoveredLine"><span class="w">		</span><span class="n">set_qr</span><span class="p">(</span><span class="n">qr_GANONINTRO</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span><span class="w"> </span><span class="c1">//This will get flipped later on in the compatrule 11 check. That's why it's turning it off.</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l530" href="#l530">530</a></td>
@@ -6056,7 +6056,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">313</td>
-      <td class="src partialCoveredLine"><span class="w">	</span><span class="k">if</span><span class="p">(</span><span class="n">compatrule_version</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">7</span><span class="p">)</span><span class="w"> </span><span class="c1">//&#39;Hit All Triggers-&gt;Perm Secret&#39; doesn&#39;t trigger temp secrets</span></td>
+      <td class="src partialCoveredLine"><span class="w">	</span><span class="k">if</span><span class="p">(</span><span class="n">compatrule_version</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">7</span><span class="p">)</span><span class="w"> </span><span class="c1">//'Hit All Triggers-&gt;Perm Secret' doesn't trigger temp secrets</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l593" href="#l593">593</a></td>
@@ -6182,7 +6182,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="c1">//Broken &#39;Big enemy&#39; animation style</span></td>
+      <td class="src "><span class="w">		</span><span class="c1">//Broken 'Big enemy' animation style</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l605" href="#l605">605</a></td>
@@ -6410,7 +6410,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">313</td>
-      <td class="src partialCoveredLine"><span class="w">	</span><span class="k">if</span><span class="p">(</span><span class="n">compatrule_version</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">13</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">tempheader</span><span class="p">.</span><span class="n">zelda_version</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mh">0x255</span><span class="p">)</span><span class="w"> </span><span class="c1">//ANone doesn&#39;t reset to originaltile</span></td>
+      <td class="src partialCoveredLine"><span class="w">	</span><span class="k">if</span><span class="p">(</span><span class="n">compatrule_version</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">13</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">tempheader</span><span class="p">.</span><span class="n">zelda_version</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mh">0x255</span><span class="p">)</span><span class="w"> </span><span class="c1">//ANone doesn't reset to originaltile</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l626" href="#l626">626</a></td>
@@ -6571,7 +6571,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="c1">//I&#39;m leaving this commented cause I doubt it&#39;ll break anything and I think the bugfix might be appreciated in older versions.</span></td>
+      <td class="src "><span class="w">		</span><span class="c1">//I'm leaving this commented cause I doubt it'll break anything and I think the bugfix might be appreciated in older versions.</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l642" href="#l642">642</a></td>
@@ -6641,7 +6641,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="c1">//Scrolling Doesn&#39;t Cancel Charge</span></td>
+      <td class="src "><span class="w">		</span><span class="c1">//Scrolling Doesn't Cancel Charge</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l650" href="#l650">650</a></td>
@@ -7252,7 +7252,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="c1">// Must come after the compatrule_version &lt; 27 wipe above: this rule&#39;s index</span></td>
+      <td class="src "><span class="w">	</span><span class="c1">// Must come after the compatrule_version &lt; 27 wipe above: this rule's index</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l704" href="#l704">704</a></td>
@@ -9907,7 +9907,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="c1">// These QRs are for changes that were cherry-picked to the 2.55 branch. We can&#39;t bump the</span></td>
+      <td class="src "><span class="w">	</span><span class="c1">// These QRs are for changes that were cherry-picked to the 2.55 branch. We can't bump the</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l913" href="#l913">913</a></td>
