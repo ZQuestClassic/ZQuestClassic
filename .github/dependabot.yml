@@ -1,0 +1,58 @@
+# Dependabot only understands the Python, npm and GitHub Actions dependencies.
+# The native libraries (third_party/ and the FetchContent pins in CMake) are
+# invisible to it - scripts/check_dependency_advisories.py covers those.
+#
+# For Python and npm only security fixes get a pull request (that is what a
+# limit of 0 means), so the "Dependabot security updates" repository setting
+# must be on for these entries to do anything.
+
+version: 2
+updates:
+  - package-ecosystem: pip
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 0
+    commit-message:
+      prefix: "chore!: "
+    groups:
+      python-security:
+        applies-to: security-updates
+        patterns: ["*"]
+
+  - package-ecosystem: npm
+    directory: /web
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 0
+    commit-message:
+      prefix: "build(web)!: "
+    groups:
+      web-security:
+        applies-to: security-updates
+        patterns: ["*"]
+
+  - package-ecosystem: npm
+    directories:
+      - /vscode-extension
+      - /vscode-extension/client
+      - /vscode-extension/server
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 0
+    commit-message:
+      prefix: "build(vscode)!: "
+    groups:
+      vscode-security:
+        applies-to: security-updates
+        patterns: ["*"]
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+    commit-message:
+      prefix: "ci!: "
+    groups:
+      actions:
+        patterns: ["*"]
