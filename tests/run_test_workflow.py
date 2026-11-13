@@ -231,6 +231,10 @@ def poll_workflow_run(gh: GitHub, repo_str: str, run_id: int):
             print('re-running workflow')
             retries_left -= 1
             gh.post(f'repos/{repo_str}/actions/runs/{run_id}/rerun')
+            # The run keeps its old conclusion for a moment after the rerun is
+            # requested, which would otherwise count as another failure.
+            while get_workflow_run(gh, repo_str, run_id)['status'] == 'completed':
+                sleep(5)
 
             continue
 
