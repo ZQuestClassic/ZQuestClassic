@@ -20,13 +20,13 @@ jobs:
       # run_test_workflow.py), so nothing here may depend on this checkout
       # matching that branch's layout.
       - name: git clone
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           # Need history to find baseline commit.
           fetch-depth: 0
 
       - name: Setup Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v7
         with:
           python-version: '3.12'
           cache: pip
@@ -35,7 +35,7 @@ jobs:
         run: pip install -r requirements.txt
 
       - name: Setup Node.js (for Surge)
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: '20'
 

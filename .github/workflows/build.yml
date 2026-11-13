@@ -61,7 +61,7 @@ jobs:
           cmake-version: '3.31.10'
 
       - name: git clone
-        uses: connorjclark/action-cached-lfs-checkout@3ea4dc59b06f3baa8c01ba891fbfc2dbfdce5bc8
+        uses: connorjclark/action-cached-lfs-checkout@f082d118c76ebb8e100c35719e76b86866146f9d
         with:
           include: 'resources/**/*'
           enableCrossOsArchive: true
@@ -73,7 +73,7 @@ jobs:
         run: git fetch --filter=blob:none --unshallow --tags origin '+refs/heads/*:refs/remotes/origin/*'
 
       - name: Setup Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v7
         with:
           python-version: '3.12'
           # Many pinned packages have no Windows arm64 wheels; x64 Python runs
@@ -92,7 +92,7 @@ jobs:
 
       - name: Install LLVM and Clang
         if: inputs.compiler == 'clang' && runner.os == 'Linux' && runner.arch == 'X64'
-        uses: KyleMayes/install-llvm-action@v1
+        uses: KyleMayes/install-llvm-action@v2
         with:
           version: 17.0.2
           env: true
@@ -118,7 +118,7 @@ jobs:
       - name: Restore ccache
         id: ccache-restore
         if: inputs.cache
-        uses: actions/cache/restore@v5
+        uses: actions/cache/restore@v6
         with:
           path: .ccache
           key: ${{ inputs.runs-on }}-${{ inputs.arch }}-${{ inputs.compiler }}-${{ inputs.config }}-v3-ccache-${{ github.run_id }}
@@ -134,7 +134,7 @@ jobs:
       # compiler, so the key does too.
       - name: Restore vcpkg packages
         if: ${{ contains(inputs.runs-on, 'windows') }}
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: ${{ github.workspace }}/.vcpkg-cache
           key: vcpkg-${{ inputs.runs-on }}-${{ inputs.arch }}-120deac3062162151622ca4860575a33844ba10b-${{ env.VCToolsVersion }}
@@ -162,7 +162,7 @@ jobs:
       # caches (the repo's cache storage is capped).
       - name: Save ccache
         if: inputs.cache && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/releases/'))
-        uses: actions/cache/save@v5
+        uses: actions/cache/save@v6
         with:
           path: .ccache
           key: ${{ steps.ccache-restore.outputs.cache-primary-key }}

@@ -22,7 +22,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: git clone
-        uses: connorjclark/action-cached-lfs-checkout@3ea4dc59b06f3baa8c01ba891fbfc2dbfdce5bc8
+        uses: connorjclark/action-cached-lfs-checkout@f082d118c76ebb8e100c35719e76b86866146f9d
         with:
           enableCrossOsArchive: true
 
@@ -116,7 +116,7 @@ jobs:
           cmake-version: '3.31.6'
 
       - name: git clone
-        uses: connorjclark/action-cached-lfs-checkout@3ea4dc59b06f3baa8c01ba891fbfc2dbfdce5bc8
+        uses: connorjclark/action-cached-lfs-checkout@f082d118c76ebb8e100c35719e76b86866146f9d
         with:
           enableCrossOsArchive: true
       # The version header comes from `git describe`, which needs the history and
@@ -145,7 +145,7 @@ jobs:
           echo "EMSDK_NODE=$EMSDK_NODE" >> $GITHUB_ENV
 
       - name: Install Node.js 22.x
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v7
         with:
           node-version: 22.x
 
@@ -168,7 +168,7 @@ jobs:
       # caches (the repo's cache storage is capped).
       - name: ccache cache files
         id: ccache-restore
-        uses: actions/cache/restore@v5
+        uses: actions/cache/restore@v6
         with:
           path: .ccache
           key: web-ccache-v2-${{ github.run_id }}
@@ -203,7 +203,7 @@ jobs:
       - run: ccache -s
       - name: Save ccache
         if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/releases/')
-        uses: actions/cache/save@v5
+        uses: actions/cache/save@v6
         with:
           path: .ccache
           key: ${{ steps.ccache-restore.outputs.cache-primary-key }}
@@ -216,7 +216,7 @@ jobs:
         working-directory: web
         env:
           BUILD_FOLDER: ../build_emscripten/RelWithDebInfo
-      - uses: actions/setup-python@v6
+      - uses: actions/setup-python@v7
         with:
           python-version: '3.12'
           cache: pip

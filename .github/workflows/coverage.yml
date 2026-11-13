@@ -16,7 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: git clone
-        uses: connorjclark/action-cached-lfs-checkout@3ea4dc59b06f3baa8c01ba891fbfc2dbfdce5bc8
+        uses: connorjclark/action-cached-lfs-checkout@f082d118c76ebb8e100c35719e76b86866146f9d
         with:
           enableCrossOsArchive: true
 
@@ -42,13 +42,13 @@ jobs:
 
     steps:
       - name: git clone
-        uses: actions/checkout@v4
-      - uses: actions/setup-python@v6
+        uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
       - run: pip install -r requirements.txt
 
-      - uses: actions/download-artifact@v6
+      - uses: actions/download-artifact@v8
         with:
           path: coverage-json
 
@@ -60,7 +60,7 @@ jobs:
           GCOV: llvm-cov-14 gcov
 
       - name: Install Node.js 18.x
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v7
         with:
           node-version: 18.x
       - run: |
@@ -72,7 +72,7 @@ jobs:
           # https://github.com/tschaub/gh-pages/issues/354
           CACHE_DIR: tmp
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v7
         with:
           files: tests/.coverage/coverage.json
       - uses: actions/upload-artifact@v7
