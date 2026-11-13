@@ -9,12 +9,12 @@ export async function run(): Promise<void> {
 		ui: 'tdd',
 		color: true,
 		require: ['mocha-expect-snapshot'],
-		// @ts-expect-error
+		// @ts-expect-error mocha-expect-snapshot's types only declare jestExpect.
 		rootHooks: mochaExpect.mochaHooks,
 	});
 	mocha.timeout(100000);
 
-	// @ts-expect-error
+	// @ts-expect-error mocha-expect-snapshot's types only declare jestExpect.
 	mochaExpect.setSnapshotResolver({
 		resolveSnapshotPath(name: string) {
 			return `${__dirname}/../../src/test/__snapshots__/${path.basename(name)}.snap`;

@@ -250,9 +250,8 @@ async function onDidChangeConfiguration(change: DidChangeConfigurationParams) {
 	await scanWorkspace();
 }
 
-connection.onDidChangeWatchedFiles(e => {
+connection.onDidChangeWatchedFiles(() => {
 	// TODO: probably have to re-init?
-	e.changes;
 });
 
 function getDocumentSettings(uri: string): Thenable<Settings> {
@@ -736,7 +735,7 @@ connection.onSignatureHelp(
 		return onSignatureHelp({
 			document: doc,
 			params,
-		})
+		});
 	}
 );
 
