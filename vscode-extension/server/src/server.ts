@@ -313,12 +313,11 @@ function parseOutput(settings: Settings, stdout: string, stderr: string, tmpScri
 	for (const line of compilerOutput.split('\n')) {
 		if (line.includes('syntax error')) {
 			const m = line.match(/syntax error, (.*) \[(.*) Line (\d+) Column (\d+).*\].*/);
-			let message = '';
+			let message: string;
 			let lineNum = 0;
 			let colNum = 0;
-			let fname = '';
 			if (m) {
-				fname = cleanupFile(m[2]);
+				const fname = cleanupFile(m[2]);
 				message = m[1].trim();
 				if (fileMatches(fname, "ZQ_BUFFER") || fileMatches(fname, tmpInput)) {
 					lineNum = 0;
@@ -350,14 +349,13 @@ function parseOutput(settings: Settings, stdout: string, stderr: string, tmpScri
 			diagnostics.push(diagnostic);
 		} else if (line.includes('Error') || line.includes('Warning')) {
 			const m = line.match(/(.*)Line (\d+).*Columns (\d+)-(\d+) - (.*)/);
-			let message = '';
+			let message: string;
 			let lineNum = 0;
 			let colStartNum = 0;
 			let colEndNum = 0;
 			let sev = 'Warning';
-			let fname = '';
 			if (m) {
-				fname = cleanupFile(m[1]);
+				const fname = cleanupFile(m[1]);
 				message = m[5].trim();
 				if (message.startsWith('Error'))
 					sev = 'Error';
@@ -395,13 +393,12 @@ function parseOutput(settings: Settings, stdout: string, stderr: string, tmpScri
 			diagnostics.push(diagnostic);
 		} else if (line.includes('ERROR:') || line.includes('WARNING:')) {
 			const m = line.match(/(.*) \[(.*) Line (\d+) Column (\d+).*/);
-			let message = '';
+			let message: string;
 			let lineNum = 0;
 			let colNum = 0;
 			let sev = 'Warning';
-			let fname = '';
 			if (m) {
-				fname = cleanupFile(m[2]);
+				const fname = cleanupFile(m[2]);
 				message = m[1].trim();
 				if (message.startsWith('ERROR:'))
 					sev = 'Error';
@@ -496,7 +493,7 @@ async function processScript(uri: string, content: string, signal: AbortSignal):
 	}
 
 	includeText += `#include "${tmpScript}"\n`;
-	let stdout = '';
+	let stdout: string;
 	let stderr = '';
 	let success = false;
 	fs.writeFileSync(tmpInput, includeText);
