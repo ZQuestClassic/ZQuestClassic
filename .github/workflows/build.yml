@@ -59,7 +59,7 @@ jobs:
       package-name: ${{ steps.set-package-vars.outputs.package-name }}
     steps:
       - name: Install cmake
-        uses: jwlawson/actions-setup-cmake@v2
+        uses: jwlawson/actions-setup-cmake@0d6a7d60b009d01c9e7523be22153ff8f19460d3 # v2.2.0
         with:
           cmake-version: '3.31.10'
 
@@ -89,13 +89,13 @@ jobs:
 
       - name: Setup MSVC (Windows only)
         if: ${{ contains(inputs.runs-on, 'windows') }}
-        uses: ilammy/msvc-dev-cmd@v1
+        uses: ilammy/msvc-dev-cmd@0b201ec74fa43914dc39ae48a89fd1d8cb592756 # v1.13.0
         with:
           arch: ${{ inputs.arch }}
 
       - name: Install LLVM and Clang
         if: inputs.compiler == 'clang' && runner.os == 'Linux' && runner.arch == 'X64'
-        uses: KyleMayes/install-llvm-action@v2
+        uses: KyleMayes/install-llvm-action@ebc0426251bc40c7cd31162802432c68818ab8f0 # v2.0.9
         with:
           version: 17.0.2
           env: true
@@ -129,7 +129,7 @@ jobs:
 
       - name: Setup vcpkg
         if: ${{ contains(inputs.runs-on, 'windows') }}
-        uses: lukka/run-vcpkg@v11
+        uses: lukka/run-vcpkg@b1a0dd252f06b9e25b3c022a9a03bd7a427fb6a2 # v11.6
         with:
           vcpkgGitCommitId: 120deac3062162151622ca4860575a33844ba10b
 
