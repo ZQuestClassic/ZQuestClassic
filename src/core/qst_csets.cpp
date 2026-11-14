@@ -263,7 +263,9 @@ int32_t readcolordata(PACKFILE *f, miscQdata *Misc, word version, word build, wo
 	{
 		for (int i = 0; i < psTOTAL255; i++)
 		{
-			colordata[i] = _rgb_scale_6[colordata[i]];
+			// No real quest has a value over 63, only a damaged file. Masked rather than failing the
+			// load: a wrong color is not worth refusing the quest over.
+			colordata[i] = _rgb_scale_6[colordata[i] & 63];
 		}
 	}
 

@@ -535,9 +535,10 @@ static int32_t read_saves(ReadMode read_mode, PACKFILE* f, std::vector<save_t>& 
 		if(!pfread(game.header.pal,sizeof(game.header.pal),f))
 			return 41;
 
+		// Masked for damaged files (see readcolordata).
 		if (section_version < 42)
 			for (int i = 0; i < sizeof(game.header.pal); i++)
-				game.header.pal[i] = _rgb_scale_6[game.header.pal[i]];
+				game.header.pal[i] = _rgb_scale_6[game.header.pal[i] & 63];
 
 		if(section_version < 37)
 		{

@@ -770,7 +770,8 @@ int32_t readcombo_triggers_loop(PACKFILE* f, word s_version, combo_trigger& temp
 			{
 				int v = temp_trigger.trigtint[q];
 				int va = abs(v);
-				temp_trigger.trigtint[q] = _rgb_scale_6[va] * sign(v);
+				// Masked for damaged files (see readcolordata).
+				temp_trigger.trigtint[q] = _rgb_scale_6[va & 63] * sign(v);
 			}
 		}
 		if(!p_igetw(&temp_trigger.triglvlpalette,f))
