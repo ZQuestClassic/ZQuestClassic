@@ -14289,14 +14289,24 @@ int32_t FFScript::do_create_bitmap()
 
 uint32_t FFScript::create_user_bitmap_ex(int32_t w, int32_t h)
 {
+	if (!is_valid_bitmap_size(w, h))
+	{
+		scripting_log_error_with_context("Invalid bitmap size: {} x {}", w, h);
+		return 0;
+	}
+
 	auto bmp = user_bitmaps.create();
 	if (!bmp)
 		return 0;
 
-	bmp->width = w;
-	bmp->height = h;
-	bmp->u_bmp = create_bitmap_ex(8,w,h);
-	clear_bitmap(bmp->u_bmp);
+	bmp->u_bmp = create_script_bitmap(w, h);
+	// Null if it was too big to allocate, the same as a freed bitmap (see checkBitmap).
+	if (bmp->u_bmp)
+	{
+		clear_bitmap(bmp->u_bmp);
+		bmp->width = w;
+		bmp->height = h;
+	}
 	return bmp->id;
 }
 
