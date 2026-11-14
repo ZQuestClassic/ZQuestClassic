@@ -102,7 +102,8 @@ public:
 
 	bool isRegistered(int zasm_var)
 	{
-		return m_arrays[zasm_var];
+		// Quests can hold any register number.
+		return (unsigned)zasm_var < std::size(m_arrays) && m_arrays[zasm_var];
 	}
 
 	size_t getSize(int zasm_var, int ref) const
