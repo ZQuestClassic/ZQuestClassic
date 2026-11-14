@@ -28,6 +28,7 @@
 #include "base/colors.h"
 #include "tiles.h"
 #include <algorithm>
+#include <chrono>
 #include "base/zsys.h"
 #include "qst.h"
 #include "defdata.h"
