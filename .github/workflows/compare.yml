@@ -6,6 +6,9 @@ on:
     types:
       - completed
 
+permissions:
+  contents: read
+
 env:
   PYTHONUNBUFFERED: '1'
 
@@ -13,6 +16,13 @@ jobs:
   compare:
     if: github.event.workflow_run.conclusion == 'failure'
     runs-on: ubuntu-latest
+    # The compare tooling reads the failing run's artifacts, finds the PR it
+    # was for, creates a ref for the baseline commit, and starts (and reruns)
+    # a test.yml run there.
+    permissions:
+      actions: write
+      contents: write
+      pull-requests: read
     steps:
       # This checks out the default branch (main) regardless of which branch
       # the failing CI run was for - that is where the compare tooling lives.

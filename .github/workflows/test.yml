@@ -50,6 +50,9 @@ on:
       GH_PAT_ZSCRIPT_DATABASE:
         required: false
 
+permissions:
+  contents: read
+
 env:
   PYTHONUNBUFFERED: '1'
 

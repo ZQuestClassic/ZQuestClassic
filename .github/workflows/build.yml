@@ -49,6 +49,9 @@ on:
       SENTRY_TOKEN:
         required: false
 
+permissions:
+  contents: read
+
 jobs:
   build:
     runs-on: ${{ inputs.runs-on }}

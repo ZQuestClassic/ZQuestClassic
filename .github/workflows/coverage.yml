@@ -6,6 +6,9 @@ on:
     branches: ["main"]
     paths: ["tests/**"]
 
+permissions:
+  contents: read
+
 env:
   PYTHONUNBUFFERED: "1"
 
@@ -39,6 +42,9 @@ jobs:
     needs: ["collect-coverage"]
     runs-on: ubuntu-22.04
     if: github.repository == 'ZQuestClassic/ZQuestClassic'
+    # Pushes the report to the gh-pages branch.
+    permissions:
+      contents: write
 
     steps:
       - name: git clone

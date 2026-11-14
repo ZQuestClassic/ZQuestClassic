@@ -17,6 +17,9 @@ on:
         type: string
         description: "Version Override: (! USE VERSION TYPE INSTEAD !) Only use this to publish a specific version, or republish an existing one. For emergency use only."
 
+permissions:
+  contents: read
+
 jobs:
   create-tag:
     runs-on: ubuntu-latest
@@ -104,6 +107,9 @@ jobs:
       - build-release
     if: ${{ always() }}
     runs-on: ubuntu-22.04
+    # Creates the release and its tag.
+    permissions:
+      contents: write
     steps:
       - name: git clone
         uses: actions/checkout@v7
