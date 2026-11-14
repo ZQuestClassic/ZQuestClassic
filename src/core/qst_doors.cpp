@@ -68,6 +68,7 @@ int32_t read_door_entry(PACKFILE *f, int32_t i, int32_t zelda_version, bool skip
 
 	char name[21];
 	if (!pfread(name, sizeof(name), f)) return 1;
+	name[sizeof(name) - 1] = 0;
 	if (zelda_version < 0x193)
 		if (!p_getc(&padding, f)) return 1;
 
