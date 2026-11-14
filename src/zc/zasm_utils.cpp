@@ -94,35 +94,61 @@ bool StructuredZasm::is_modern_function_calling()
 	return calling_mode == CALLING_MODE_CALLFUNC_RETURNFUNC || calling_mode == CALLING_MODE_UNKNOWN;
 }
 
+// Finds the functions from the quest's debug data. That comes from the quest file, so it is only
+// used if it fits this script: every function within it, and every script starting at a function.
+// Returns false (with nothing found) otherwise.
+static bool find_functions_from_debug_data(const zasm_script* script, std::vector<ZasmFunction>& functions, std::map<pc_t, pc_t>& start_pc_to_function)
+{
+	if (!zasm_debug_data.exists())
+		return false;
+
+	for (const auto& scope : zasm_debug_data.scopes)
+	{
+		if (scope.tag != TAG_FUNCTION)
+			continue;
+		if (scope.start_pc == 0 && scope.end_pc == 0)
+			continue;
+		if (scope.start_pc > scope.end_pc || scope.end_pc >= script->size)
+		{
+			functions.clear();
+			return false;
+		}
+
+		functions.push_back({0, zasm_debug_data.getFullScopeName(&scope), scope.start_pc, scope.end_pc});
+	}
+
+	std::sort(functions.begin(), functions.end(), [](auto& a, auto& b){
+		return a.start_pc < b.start_pc;
+	});
+
+	for (int i = 0; i < functions.size(); i++)
+	{
+		functions[i].id = i;
+		start_pc_to_function[functions[i].start_pc] = i;
+	}
+
+	for (auto sd : script->script_datas)
+	{
+		if (!start_pc_to_function.contains(sd->pc))
+		{
+			functions.clear();
+			start_pc_to_function.clear();
+			return false;
+		}
+	}
+
+	return true;
+}
+
 StructuredZasm zasm_construct_structured(const zasm_script* script)
 {
 	std::vector<ZasmFunction> functions;
 	std::set<pc_t> function_calls;
 	std::map<pc_t, pc_t> start_pc_to_function;
 
-	if (zasm_debug_data.exists())
+	// Without usable debug data, the functions are found from the ZASM instead (below).
+	if (find_functions_from_debug_data(script, functions, start_pc_to_function))
 	{
-		for (const auto& scope : zasm_debug_data.scopes)
-		{
-			if (scope.tag == TAG_FUNCTION)
-			{
-				if (scope.start_pc == 0 && scope.end_pc == 0)
-					continue;
-
-				functions.push_back({0, zasm_debug_data.getFullScopeName(&scope), scope.start_pc, scope.end_pc});
-			}
-		}
-
-		std::sort(functions.begin(), functions.end(), [](auto& a, auto& b){
-			return a.start_pc < b.start_pc;
-		});
-
-		for (int i = 0; i < functions.size(); i++)
-		{
-			functions[i].id = i;
-			start_pc_to_function[functions[i].start_pc] = i;
-		}
-
 		// Find all function calls, and build the call graph (called_by_functions).
 		// The latter is needed by zasm_find_yielding_functions to propagate "may
 		// yield" up to transitive callers - e.g. a function that calls a function
