@@ -71,6 +71,9 @@ env:
   CCACHE_SLOPPINESS: time_macros
   TARGET: zplayer zeditor zscript zlauncher ${{ contains(inputs.runs-on, 'windows') && 'zupdater' || '' }}
 
+permissions:
+  contents: read
+
 jobs:
   build:
     runs-on: ${{ inputs.runs-on }}

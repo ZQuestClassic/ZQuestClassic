@@ -40,6 +40,9 @@ on:
       from-ci-workflow:
         type: boolean
 
+permissions:
+  contents: read
+
 env:
   PYTHONUNBUFFERED: '1'
 

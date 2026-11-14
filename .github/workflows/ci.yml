@@ -7,7 +7,7 @@ on:
   pull_request:
 
 permissions:
-  actions: write
+  contents: read
 
 env:
   PYTHONUNBUFFERED: '1'
@@ -63,6 +63,11 @@ jobs:
     needs: ["test"]
     runs-on: ubuntu-latest
     if: failure()
+    # The compare tooling reads the failing run's artifacts, creates a ref
+    # for the baseline commit, and starts (and reruns) a test.yml run there.
+    permissions:
+      actions: write
+      contents: write
     env:
       REPLAY_FAILURE_DISCORD_WEBHOOK: ${{ secrets.REPLAY_FAILURE_DISCORD_WEBHOOK }}
 

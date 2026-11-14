@@ -29,6 +29,9 @@ on:
         description: Build prerelease assets only (sets ZC_IS_PRERELEASE=1, publishes nothing)
         default: false
 
+permissions:
+  contents: read
+
 jobs:
   create-tag:
     runs-on: ubuntu-latest
@@ -110,6 +113,9 @@ jobs:
       - build-release
     if: ${{ always() && !inputs.prerelease }}
     runs-on: ubuntu-22.04
+    # Creates the release and its tag.
+    permissions:
+      contents: write
     steps:
       - name: git clone
         uses: actions/checkout@v4
