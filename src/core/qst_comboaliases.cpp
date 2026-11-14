@@ -86,6 +86,10 @@ int32_t readcomboaliases(PACKFILE *f, zquestheader *Header, word version, word b
         }
         
         count=(width+1)*(height+1)*(comboa_lmasktotal(mask)+1);
+        if(count > combo_aliases[j].combos.size())
+        {
+            return qe_invalid;
+        }
         
 		combo_aliases[j].width = width;
 		combo_aliases[j].height = height;
