@@ -4,6 +4,7 @@
 #include "components/zasm/table.h"
 #include "zc/scripting/arrays.h"
 #include "zc/scripting/script_object.h"
+#include "zc/scripting/zasm_check.h"
 #include "zc/zscriptversion.h"
 #include <algorithm>
 #include <memory>
@@ -471,6 +472,8 @@ void user_object::restore_references()
 void user_object::prep(dword pc, ScriptType type, word script, int32_t i)
 {
 	if(!pc) return; //destructor is null
+	// The compiler gives the position after a STARTDESTRUCTOR.
+	ZASM_CHECK(pc <= curscript->zasm_script->size);
 	ffscript &zas = curscript->zasm_script->zasm[pc-1];
 	auto zas_name = curscript->zasm_script->literals.str(zas);
 	if(zas.command == STARTDESTRUCTOR && zas_name) //Destructor is valid

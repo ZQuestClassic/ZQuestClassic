@@ -110,6 +110,7 @@ subscr.cpp -> zc/ffscript.h
 tiles.cpp -> zc/maps.h
 user_object.cpp -> zc/scripting/arrays.h
 user_object.cpp -> zc/scripting/script_object.h
+user_object.cpp -> zc/scripting/zasm_check.h
 user_object.cpp -> zc/zscriptversion.h
 zalleg/files.cpp -> core/fonts.h
 zalleg/files.h -> core/jwinfsel.h
