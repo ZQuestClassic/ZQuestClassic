@@ -5,6 +5,7 @@
 #include "components/zasm/defines.h"
 #include "zc/ffscript.h"
 #include "zc/scripting/script_object.h"
+#include "zc/scripting/zasm_check.h"
 #include "zc/zscriptversion.h"
 #include <optional>
 
@@ -71,7 +72,13 @@ static uint32_t get_object_arr(size_t sz)
 static void do_constructclass(ScriptType type, word script, int32_t i)
 {
 	if (!sargvec) return;
-	
+
+	// The number of variables, then the size of each array: the compiler never gives a negative
+	// or out of range one.
+	ZASM_CHECK(!sargvec->empty());
+	for (int32_t v : *sargvec)
+		ZASM_CHECK(v >= 0 && v <= MAX_ZSCRIPT_INT);
+
 	size_t num_vars = sargvec->at(0);
 	size_t total_vars = num_vars + sargvec->size()-1;
 	auto destr_pc = GET_D(rEXP1);
@@ -247,9 +254,9 @@ std::optional<int32_t> user_object_run_command(word command)
 		}
 		case ZCLASS_MARK_TYPE:
 		{
-			CHECK(sargvec);
+			// The compiler always gives this (index, type) pairs.
+			ZASM_CHECK(sargvec && sargvec->size() % 2 == 0);
 			auto& vec = *sargvec;
-			assert(vec.size() % 2 == 0);
 
 			uint32_t id = ri->thiskey;
 			current_zasm_context = "ZCLASS_MARK_TYPE";
@@ -258,7 +265,12 @@ std::optional<int32_t> user_object_run_command(word command)
 				for (size_t i = 0; i < vec.size(); i += 2)
 				{
 					int index = vec[i];
-					assert(vec[i + 1] >= 0 && vec[i + 1] <= (int)script_object_type::last);
+					if (index < 0 || index >= obj->data.size() ||
+						vec[i + 1] < 0 || vec[i + 1] > (int)script_object_type::last)
+					{
+						scripting_log_error_with_context("Invalid ZCLASS_MARK_TYPE");
+						continue;
+					}
 					auto type = (script_object_type)vec[i + 1];
 					if (index >= obj->owned_vars)
 					{

@@ -3798,11 +3798,19 @@ uint32_t allocatemem(int32_t size, bool local, ScriptType type, const uint32_t U
 	return array->id;
 }
 
+// Reads a script_object_type from an opcode argument, tolerating invalid values
+// (quests compiled before these arguments existed always serialized 0/none).
+static script_object_type get_object_type_from_sarg(int32_t arg)
+{
+	if (arg > 0 && arg <= (int)script_object_type::last)
+		return (script_object_type)arg;
+	return script_object_type::none;
+}
+
 void do_allocatemem(bool v, const bool local, ScriptType type, const uint32_t UID)
 {
 	int32_t size = SH::get_arg(sarg2, v) / 10000;
-	assert(sarg3 >= 0 && sarg3 <= (int)script_object_type::last);
-	uint32_t id = allocatemem(size, local, type, UID, (script_object_type)sarg3);
+	uint32_t id = allocatemem(size, local, type, UID, get_object_type_from_sarg(sarg3));
 	set_register(sarg1, id);
 }
 
@@ -10095,15 +10103,6 @@ bool script_is_within_debugger_vm;
 bool suppress_script_error_logging;
 bool disable_script_error_logs;
 
-// Reads a script_object_type from an opcode argument, tolerating invalid values
-// (quests compiled before these arguments existed always serialized 0/none).
-static script_object_type get_object_type_from_sarg(int32_t arg)
-{
-	if (arg > 0 && arg <= (int)script_object_type::last)
-		return (script_object_type)arg;
-	return script_object_type::none;
-}
-
 // When j_instance is null, that means the interperter is fully in charge.
 // Otherwise, the JIT may still call this function for the many commands that are not compiled, or
 // during the period before a function is "hot" enough to have been compiled.
@@ -11154,8 +11153,7 @@ int32_t run_script_int(JittedScriptInstance* j_instance)
 				FFCore.do_varg_choose();
 				break;
 			case MAKEVARGARRAY:
-				assert(sarg1 >= 0 && sarg1 <= (int)script_object_type::last);
-				FFCore.do_varg_makearray(type, i, (script_object_type)sarg1);
+				FFCore.do_varg_makearray(type, i, get_object_type_from_sarg(sarg1));
 				break;
 			
 			case PUSHVARGV:
@@ -13957,7 +13955,7 @@ int32_t run_script_int(JittedScriptInstance* j_instance)
 				if (sarg1 >= GD(0) && sarg1 < GD(MAX_GLOBAL_VARIABLES))
 				{
 					int index = sarg1-GD(0);
-					assert(game->global_d_types[index] != script_object_type::none);
+					ZASM_DCHECK(game->global_d_types[index] != script_object_type::none);
 					script_object_ref_inc(value);
 					script_object_ref_dec(game->global_d[index]);
 					game->global_d[index] = value;
@@ -13965,14 +13963,14 @@ int32_t run_script_int(JittedScriptInstance* j_instance)
 				else if (sarg1 >= SCRIPT_INST_VARS(0) && sarg1 < SCRIPT_INST_VARS(MAX_SCRIPT_INST_VARIABLES))
 				{
 					int index = sarg1-SCRIPT_INST_VARS(0);
-					assert(ri->script_d_is_object.contains(index));
+					ZASM_DCHECK(ri->script_d_is_object.contains(index));
 					script_object_ref_inc(value);
 					script_object_ref_dec(ri->script_d[index]);
 					ri->script_d[index] = value;
 				}
 				else if (zasm_array_supports(sarg1))
 				{
-					auto type = (script_object_type)sarg3;
+					auto type = get_object_type_from_sarg(sarg3);
 
 					int zasm_var = sarg1;
 					int index = GET_D(rINDEX) / 10000;
@@ -13980,7 +13978,7 @@ int32_t run_script_int(JittedScriptInstance* j_instance)
 					int ref = ref_arg ? get_ref(ref_arg) : 0;
 					zasm_array_set(zasm_var, ref, index, value, type);
 				}
-				else NOTREACHED();
+				else ZASM_NOTREACHED();
 				break;
 			}
 			case LOAD_INTERNAL_ARRAY:
