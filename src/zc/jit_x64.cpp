@@ -341,23 +341,13 @@ static void compile_command(CompilationState& state, x86::Compiler &cc, script_d
 	}
 }
 
-// Modifies the stack pointer, checking that the result stays in bounds. sp may
-// range over [0, MAX_STACK_SIZE], where MAX_STACK_SIZE means the stack is
-// empty. On overflow (or underflow), undoes the modification and runs the
-// command in the interpreter, which logs the error and stops the script -
-// identical to non-jit behavior.
-static void modify_sp_checked(CompilationState& state, x86::Compiler &cc, x86::Gp vStackIndex, int delta, int pc)
+// Runs the command at pc (and the rest of the script) in the interpreter. Used
+// when a command fails a bounds check, so the interpreter logs the error and
+// stops the script - identical to non-jit behavior.
+static void run_command_interpreted(CompilationState& state, x86::Compiler &cc, x86::Gp vStackIndex, int pc)
 {
 	extern int32_t jitted_uncompiled_command_count;
 
-	cc.add(vStackIndex, delta);
-	// For pushes (delta < 0) the new sp must also be a readable slot, so allow
-	// one less than for pops.
-	cc.cmp(vStackIndex, delta < 0 ? MAX_STACK_SIZE : MAX_STACK_SIZE + 1);
-	Label ok = cc.newLabel();
-	cc.jb(ok);
-
-	cc.sub(vStackIndex, delta);
 	x86::Gp reg = cc.newIntPtr();
 	cc.mov(reg, (uint64_t)&jitted_uncompiled_command_count);
 	cc.mov(x86::ptr_32(reg), 1);
@@ -369,7 +359,46 @@ static void modify_sp_checked(CompilationState& state, x86::Compiler &cc, x86::G
 	invokeNode->setArg(0, true);
 	invokeNode->setRet(0, state.vRetVal);
 	cc.jmp(state.L_End);
+}
 
+// Modifies the stack pointer, checking that the result stays in bounds. sp may
+// range over [0, MAX_STACK_SIZE], where MAX_STACK_SIZE means the stack is
+// empty. On overflow (or underflow), undoes the modification and runs the
+// command in the interpreter.
+static void modify_sp_checked(CompilationState& state, x86::Compiler &cc, x86::Gp vStackIndex, int delta, int pc)
+{
+	cc.add(vStackIndex, delta);
+	Label ok = cc.newLabel();
+	if (delta < 0)
+	{
+		// For pushes the new sp must be a writable slot.
+		cc.cmp(vStackIndex, MAX_STACK_SIZE);
+		cc.jb(ok);
+	}
+	else
+	{
+		// Pops read the slot below the new sp, so it must be in [1, MAX_STACK_SIZE].
+		x86::Gp below = cc.newInt32();
+		cc.mov(below, vStackIndex);
+		cc.sub(below, 1);
+		cc.cmp(below, MAX_STACK_SIZE);
+		cc.jb(ok);
+	}
+
+	cc.sub(vStackIndex, delta);
+	run_command_interpreted(state, cc, vStackIndex, pc);
+
+	cc.bind(ok);
+}
+
+// Checks that a stack offset computed from script values is a valid slot,
+// otherwise runs the command in the interpreter.
+static void check_stack_offset(CompilationState& state, x86::Compiler &cc, x86::Gp vStackIndex, x86::Gp offset, int pc)
+{
+	Label ok = cc.newLabel();
+	cc.cmp(offset, MAX_STACK_SIZE);
+	cc.jb(ok);
+	run_command_interpreted(state, cc, vStackIndex, pc);
 	cc.bind(ok);
 }
 
@@ -887,6 +916,7 @@ JittedFunction jit_compile_script(script_data *script)
 			cc.mov(offset, arg2);
 			cc.add(offset, x86::ptr_32(state.ptrRegisters, rSFRAME * 4));
 			div_10000(cc, offset);
+			check_stack_offset(state, cc, vStackIndex, offset, i);
 
 			set_z_register(state, cc, vStackIndex, arg1, x86::ptr_32(state.ptrStack, offset, 2));
 		}
@@ -896,6 +926,7 @@ JittedFunction jit_compile_script(script_data *script)
 			// Set register to a value on the stack (offset is register at arg2).
 			x86::Gp offset = get_z_register(state, cc, vStackIndex, arg2);
 			div_10000(cc, offset);
+			check_stack_offset(state, cc, vStackIndex, offset, i);
 
 			set_z_register(state, cc, vStackIndex, arg1, x86::ptr_32(state.ptrStack, offset, 2));
 		}
@@ -907,6 +938,7 @@ JittedFunction jit_compile_script(script_data *script)
 			cc.mov(offset, arg2);
 			cc.add(offset, x86::ptr_32(state.ptrRegisters, rSFRAME * 4));
 			div_10000(cc, offset);
+			check_stack_offset(state, cc, vStackIndex, offset, i);
 
 			x86::Gp val = get_z_register(state, cc, vStackIndex, arg1);
 			cc.mov(x86::ptr_32(state.ptrStack, offset, 2), val);
@@ -917,6 +949,7 @@ JittedFunction jit_compile_script(script_data *script)
 			// Write from register to a value on the stack (offset is register at arg2).
 			x86::Gp offset = get_z_register(state, cc, vStackIndex, arg2);
 			div_10000(cc, offset);
+			check_stack_offset(state, cc, vStackIndex, offset, i);
 
 			x86::Gp val = get_z_register(state, cc, vStackIndex, arg1);
 			cc.mov(x86::ptr_32(state.ptrStack, offset, 2), val);
