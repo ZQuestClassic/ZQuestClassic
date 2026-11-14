@@ -77,10 +77,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           # https://github.com/tschaub/gh-pages/issues/354
           CACHE_DIR: tmp
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v7
-        with:
-          files: tests/.coverage/coverage.json
       - uses: actions/upload-artifact@v7
         with:
           name: coverage-html-report
