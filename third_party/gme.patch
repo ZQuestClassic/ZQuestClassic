@@ -12,6 +12,34 @@ read past the end of the table (CVE-2026-111153). Fix as suggested in
 https://github.com/libgme/game-music-emu/issues/164. Remove this part once
 the pinned gme commit fixes that issue.
 
+Also fixes three out-of-bounds reads found by fuzzing (scripts/fuzzing): an SPC
+whose sample directory sits at the top of memory read past the 64K RAM
+instead of wrapping (Spc_Dsp.cpp), and a GBS whose program counter ran past
+$FFFF read past the CPU's page map instead of wrapping (Gb_Cpu.cpp), and a
+VGM PCM seek could point the sample reader anywhere (Vgm_Emu_Impl.cpp). Three
+more in VGM: a file ending in the middle of a command read its bytes past
+the end, a data block's size could move the reader outside of the file,
+both when playing and when scanning for the FM chips at load
+(Vgm_Emu_Impl.cpp), and a write to a YM2612 that the header never set up
+used an uninitialized chip (Ym2612_Nuked.cpp). And the data and loop offsets
+in a VGM header could point outside of the file where long is 32 bits
+(Vgm_Emu.cpp). Not reported upstream yet.
+
+diff --git a/gme/Gb_Cpu.cpp b/gme/Gb_Cpu.cpp
+index cea1a6a..a6c64b0 100644
+--- a/gme/Gb_Cpu.cpp
++++ b/gme/Gb_Cpu.cpp
+@@ -124,6 +124,10 @@ bool Gb_Cpu::run( int32_t cycle_count )
+ 
+ loop:
+ 
++	// A jump can land past $FFFF (ex: RST with a high load address, or running off the end of
++	// memory). Wrap it like the hardware does, rather than read past code_map.
++	pc &= 0xFFFF;
++
+ 	check( (unsigned long) pc < 0x10000 );
+ 	check( (unsigned long) sp < 0x10000 );
+ 	check( (flags & ~0xF0) == 0 );
 diff --git a/gme/Nes_Fds_Apu.h b/gme/Nes_Fds_Apu.h
 index b12cf93..ae0ae4f 100644
 --- a/gme/Nes_Fds_Apu.h
@@ -84,6 +112,185 @@ index 796de61..190f8b9 100644
  	for ( int i = 0; i < bank_count; ++i )
  		cpu_write( bank_select_addr + i, initial_banks [i] );
  
+diff --git a/gme/Spc_Dsp.cpp b/gme/Spc_Dsp.cpp
+index 6b41ead..dcb3204 100644
+--- a/gme/Spc_Dsp.cpp
++++ b/gme/Spc_Dsp.cpp
+@@ -195,7 +195,7 @@ void Spc_Dsp::run( int clock_count )
+ #ifdef SPC_ISOLATED_ECHO_BUFFER
+ 	uint8_t* const echo_ram = m.echo_ram;
+ #endif
+-	uint8_t const* const dir = &ram [REG(dir) * 0x100];
++	int const dir = REG(dir) * 0x100;
+ 	int const slow_gaussian = (REG(pmon) >> 1) | REG(non);
+ 	int const noise_rate = REG(flg) & 0x1F;
+ 
+@@ -248,7 +248,9 @@ void Spc_Dsp::run( int clock_count )
+ 		int vbit = 1;
+ 		do
+ 		{
+-			#define SAMPLE_PTR(i) GET_LE16A( &dir [VREG(v_regs,srcn) * 4 + i * 2] )
++			// Wraps at 64K like the hardware: a high dir and srcn would otherwise read past ram.
++			#define SAMPLE_PTR(i) (ram [(dir + VREG(v_regs,srcn) * 4 + i * 2) & 0xFFFF] |\
++					ram [(dir + VREG(v_regs,srcn) * 4 + i * 2 + 1) & 0xFFFF] << 8)
+ 
+ 			int brr_header = ram [v->brr_addr];
+ 			int kon_delay = v->kon_delay;
+diff --git a/gme/Vgm_Emu.cpp b/gme/Vgm_Emu.cpp
+index 213b214..521f8d4 100644
+--- a/gme/Vgm_Emu.cpp
++++ b/gme/Vgm_Emu.cpp
+@@ -354,7 +354,12 @@ blargg_err_t Vgm_Emu::load_mem_( byte const* new_data, long new_size )
+ 	// get loop
+ 	loop_begin = data_end;
+ 	if ( get_le32( h.loop_offset ) )
+-		loop_begin = &data [get_le32( h.loop_offset ) + offsetof (header_t,loop_offset)];
++	{
++		// Keep it within the file.
++		unsigned long long offset = (unsigned long long) get_le32( h.loop_offset ) + offsetof (header_t,loop_offset);
++		if ( offset < (unsigned long long) new_size )
++			loop_begin = &data [offset];
++	}
+ 
+ 	set_voice_count( psg[0].osc_count );
+ 
+@@ -460,10 +465,14 @@ blargg_err_t Vgm_Emu::start_track_( int track )
+ 	vgm_time     = 0;
+ 	if ( get_le32( header().version ) >= 0x150 )
+ 	{
+-		long data_offset = get_le32( header().data_offset );
++		// Wide enough for any offset (long is 32 bits on some platforms), and kept within the file.
++		long long data_offset = get_le32( header().data_offset );
+ 		check( data_offset );
+ 		if ( data_offset )
+-			pos += data_offset + offsetof (header_t,data_offset) - 0x40;
++		{
++			data_offset += (long long) offsetof (header_t,data_offset) - 0x40;
++			pos = data_offset < data_end - pos ? pos + data_offset : data_end;
++		}
+ 	}
+ 
+ 	if ( uses_fm )
+diff --git a/gme/Vgm_Emu_Impl.cpp b/gme/Vgm_Emu_Impl.cpp
+index 81a3a61..524b53d 100644
+--- a/gme/Vgm_Emu_Impl.cpp
++++ b/gme/Vgm_Emu_Impl.cpp
+@@ -131,8 +131,39 @@ blip_time_t Vgm_Emu_Impl::run_commands( vgm_time_t end_time )
+ 
+ 	while ( vgm_time < end_time && pos < data_end )
+ 	{
+-		// TODO: be sure there are enough bytes left in stream for particular command
+-		// so we don't read past end
++		// A file can end in the middle of a command: don't read its bytes past the end.
++		int len;
++		switch ( *pos )
++		{
++			case cmd_end:
++			case cmd_delay_735:
++			case cmd_delay_882:
++				len = 1;
++				break;
++
++			case cmd_psg:
++			case cmd_byte_delay:
++				len = 2;
++				break;
++
++			case cmd_delay:
++				len = 3;
++				break;
++
++			case cmd_data_block:
++				len = 7;
++				break;
++
++			default:
++				len = (*pos & 0xF0) == cmd_pcm_delay || (*pos & 0xF0) == cmd_short_delay ?
++						1 : command_len( *pos );
++		}
++		if ( len > data_end - pos )
++		{
++			pos = data_end;
++			break;
++		}
++
+ 		switch ( *pos++ )
+ 		{
+ 		case cmd_end:
+@@ -233,26 +264,34 @@ blip_time_t Vgm_Emu_Impl::run_commands( vgm_time_t end_time )
+ 		case cmd_data_block: {
+ 			check( *pos == cmd_end );
+ 			int type = pos [1];
+-			long size = get_le32( pos + 2 );
++			// The size comes from the file, so keep it within the data. (Unsigned: a long is
++			// only 32 bits on some platforms.)
++			unsigned long size = get_le32( pos + 2 );
+ 			pos += 6;
+ 			if ( type == pcm_block_type )
+ 				pcm_data = pos;
+-			pos += size;
++			pos += size < (unsigned long) (data_end - pos) ? size : (unsigned long) (data_end - pos);
+ 			break;
+ 		}
+ 
+-		case cmd_pcm_seek:
+-			pcm_pos = pcm_data + pos [3] * 0x1000000L + pos [2] * 0x10000L +
+-					pos [1] * 0x100L + pos [0];
++		case cmd_pcm_seek: {
++			// The offset comes from the file, so keep it within the data. (Unsigned: a long is
++			// only 32 bits on some platforms.)
++			unsigned long offset = pos [3] * 0x1000000UL + pos [2] * 0x10000UL +
++					pos [1] * 0x100UL + pos [0];
++			pcm_pos = pcm_data < data_end && offset < (unsigned long) (data_end - pcm_data) ?
++					pcm_data + offset : data_end;
+ 			pos += 4;
+ 			break;
++		}
+ 
+ 		default:
+ 			int cmd = pos [-1];
+ 			switch ( cmd & 0xF0 )
+ 			{
+ 				case cmd_pcm_delay:
+-					write_pcm( vgm_time, *pcm_pos++ );
++					if ( pcm_pos < data_end )
++						write_pcm( vgm_time, *pcm_pos++ );
+ 					vgm_time += cmd & 0x0F;
+ 					break;
+ 
+@@ -346,9 +385,16 @@ void Vgm_Emu_Impl::update_fm_rates( long* ym2413_rate, long* ym2612_rate ) const
+ 			p += 3;
+ 			break;
+ 
+-		case cmd_data_block:
+-			p += 7 + get_le32( p + 3 );
++		case cmd_data_block: {
++			// The file can end in the middle of the block, and its size comes from the file,
++			// so keep both within the data. (Unsigned: a long is only 32 bits on some platforms.)
++			if ( 7 > data_end - p )
++				return;
++			unsigned long size = get_le32( p + 3 );
++			p += 7;
++			p += size < (unsigned long) (data_end - p) ? size : (unsigned long) (data_end - p);
+ 			break;
++		}
+ 
+ 		case cmd_ym2413:
+ 			*ym2612_rate = 0;
+diff --git a/gme/Ym2612_Nuked.cpp b/gme/Ym2612_Nuked.cpp
+index d691fe6..accf569 100644
+--- a/gme/Ym2612_Nuked.cpp
++++ b/gme/Ym2612_Nuked.cpp
+@@ -1818,7 +1818,8 @@ void OPN2_SetMute(ym3438_t *chip, Bit32u mute)
+ Ym2612_Nuked_Emu::Ym2612_Nuked_Emu()
+ {
+ 	Ym2612_NukedImpl::OPN2_SetChipType( Ym2612_NukedImpl::ym3438_type_asic );
+-	impl = new Ym2612_NukedImpl::ym3438_t;
++	// Zeroed: a file can write to a chip that its header never set up.
++	impl = new Ym2612_NukedImpl::ym3438_t();
+ }
+ 
+ Ym2612_Nuked_Emu::~Ym2612_Nuked_Emu()
 diff --git a/gme/nes_cpu_io.h b/gme/nes_cpu_io.h
 index 6f8b08f..da58fc4 100644
 --- a/gme/nes_cpu_io.h
