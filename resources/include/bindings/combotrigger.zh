@@ -413,7 +413,7 @@ enum ComboTriggerFlag
 	// combo or a combo type with an effect of its own (a chest, bush, lock block, switch, step,
 	// warp, sign, ...).
 	//
-	// @versionadded 3.0
+	// @versionadded 2.55.18
 	TRIGFLAG_ONCE_PER_WEAPON,
 
 	TRIGFLAG_MAX
