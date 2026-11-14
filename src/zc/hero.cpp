@@ -32794,6 +32794,10 @@ void HeroClass::explode(int32_t type)
 	static byte herotilebuf[256];
 	int32_t ltile=0;
 	int32_t lflip=0;
+	// Scripts can set any tile. Like drawing it, exploding one that doesn't exist does nothing.
+	if ((unsigned)tile >= NEWMAXTILES)
+		return;
+
 	unpack_tile(newtilebuf, tile, flip, true);
 	memcpy(herotilebuf, unpackbuf, 256);
 	for(int32_t i=0; i<16; ++i)
