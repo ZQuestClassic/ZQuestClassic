@@ -331,7 +331,7 @@ static int32_t read_saves(ReadMode read_mode, PACKFILE* f, std::vector<save_t>& 
 		}
 		else if(section_version >= 37)
 		{
-			bounded_vec<word,byte> tmpbvec;
+			bounded_vec<word,byte> tmpbvec{game.lvlitems.size()};
 			if(!p_getbvec(&tmpbvec,f))
 				return 25;
 			for(dword q = 0; q < tmpbvec.capacity(); ++q)
@@ -497,7 +497,7 @@ static int32_t read_saves(ReadMode read_mode, PACKFILE* f, std::vector<save_t>& 
 				return 35;
 			if(section_version < 45)
 			{
-				bounded_vec<dword,word> tmpbvec;
+				bounded_vec<dword,word> tmpbvec{game.maps.size()};
 				if(!p_getbvec(&tmpbvec, f))
 					return 36;
 				game.maps.clear();
@@ -864,6 +864,8 @@ static int32_t read_saves(ReadMode read_mode, PACKFILE* f, std::vector<save_t>& 
 			{
 				byte dummybyte;
 				if(!p_igetw(&num_gen_scripts, f))
+					return 73;
+				if(num_gen_scripts > game.gen_exitState.size())
 					return 73;
 				for(size_t q=0; q<num_gen_scripts; q++)
 				{

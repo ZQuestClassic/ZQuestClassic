@@ -58,6 +58,15 @@ TestResults test_saves([[maybe_unused]] bool verbose)
 	game->pos_states[5][10] = 3;
 	game->pos_states[163][175] = 0x80;
 	game->ffcpos_states[200][2] = 0xFF;
+	// Scripts size these, so each entry has its own size: the shorter must not cut off the longer.
+	game->gen_data[0].resize(4);
+	game->gen_data[0][3] = 30000;
+	game->gen_data[1].resize(10);
+	game->gen_data[1][9] = 90000;
+	game->screen_data[2].resize(10);
+	game->screen_data[2][9] = 7;
+	game->screen_data[5].resize(3);
+	game->screen_data[5][1] = 8;
 	game->engine_object_slots = {
 		{{engine_object_storage::screen_d, 640, 4}, script_object_type::object},
 		{{engine_object_storage::screen_data, 272, 1000}, script_object_type::array},
@@ -117,6 +126,11 @@ TestResults test_saves([[maybe_unused]] bool verbose)
 	}
 	
 	#define SAVE_TEST_VECTOR_2D(field) tr.total++; for (int i = 0; i < game->field.size(); ++i) {\
+		if (game->field[i].size() != save.game->field[i].size()) {\
+			printf("game->%s[%d].size() != save.game->%s[%d].size()\n", #field, i, #field, i);\
+			printf("%s\n", fmt::format("{} != {}", game->field[i].size(), save.game->field[i].size()).c_str());\
+			tr.failed++;\
+		}\
 		for(int j = 0; j < game->field[i].size(); ++j) {\
 			if (!gd_compare(game->field[i][j], save.game->field[i][j])) {\
 				printf("game->%s[%d][%d] != save.game->%s[%d][%d]\n", #field, i, j, #field, i, j);\
