@@ -75,7 +75,7 @@ set(WANT_ZUPDATER TRUE CACHE BOOL "Build the zupdater target")
 set(WANT_SENTRY FALSE CACHE BOOL "Include Sentry for crash dump handling")
 set(WANT_WEBSOCKETS TRUE CACHE BOOL "Support websockets in zscript")
 set(WANT_NFD TRUE CACHE BOOL "Include nativefiledialog")
-set(WANT_FUZZ FALSE CACHE BOOL "Set FUZZ CXX definition")
+set(WANT_FUZZ FALSE CACHE BOOL "Build zplayer with libFuzzer targets (ZC_FUZZ=<target> zplayer). Needs clang; see docs/fuzzing.md")
 set(WANT_GIT_HOOKS TRUE CACHE BOOL "Install git hooks")
 set(WANT_ZC_TESTS TRUE CACHE BOOL "Build tests")
 set(WANT_VENDORED_ZLIB TRUE CACHE BOOL "Build the vendored library at third_party/zlib")
@@ -128,6 +128,27 @@ else()
 	set(CMAKE_CXX_FLAGS_ASAN "-O1 -g -fsanitize=address,bool -fno-sanitize-recover=bool -fno-omit-frame-pointer" CACHE STRING "" FORCE)
 	set(CMAKE_C_FLAGS_ASAN "-O1 -g -fsanitize=address,bool -fno-sanitize-recover=bool -fno-omit-frame-pointer" CACHE STRING "" FORCE)
 	set(CMAKE_EXE_LINKER_FLAGS_ASAN "${CMAKE_EXE_LINKER_FLAGS_DEBUG} -fsanitize=address,bool" CACHE STRING "" FORCE)
+endif()
+
+if(WANT_FUZZ)
+	if(NOT CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR MSVC)
+		message(FATAL_ERROR "WANT_FUZZ needs clang (with libFuzzer, e.g. Homebrew llvm on macOS)")
+	endif()
+	# Coverage instrumentation for everything built from here on, vendored libraries
+	# included, so the fuzzer can see into the music decoders too. zplayer links libFuzzer's
+	# no-main runtime and enters it when the ZC_FUZZ env var names a target (src/zc/fuzz.cpp).
+	add_compile_options(-fsanitize=fuzzer-no-link)
+	add_link_options(-fsanitize=fuzzer-no-link)
+	execute_process(
+		COMMAND ${CMAKE_CXX_COMPILER} -print-resource-dir
+		OUTPUT_VARIABLE CLANG_RESOURCE_DIR
+		OUTPUT_STRIP_TRAILING_WHITESPACE)
+	file(GLOB_RECURSE LIBFUZZER_NO_MAIN "${CLANG_RESOURCE_DIR}/lib/*fuzzer_no_main*.a")
+	if(NOT LIBFUZZER_NO_MAIN)
+		message(FATAL_ERROR "Could not find libFuzzer's no-main runtime under ${CLANG_RESOURCE_DIR}")
+	endif()
+	list(GET LIBFUZZER_NO_MAIN 0 LIBFUZZER_NO_MAIN)
+	message(STATUS "libFuzzer: ${LIBFUZZER_NO_MAIN}")
 endif()
 
 if(WANT_GIT_HOOKS)
@@ -1533,6 +1554,7 @@ if(WANT_FUZZ)
 	foreach(target IN LISTS zc_targets)
 		target_compile_definitions(${target} PRIVATE ZC_FUZZ)
 	endforeach()
+	target_link_libraries(zplayer PRIVATE ${LIBFUZZER_NO_MAIN})
 endif()
 
 if (WIN32)

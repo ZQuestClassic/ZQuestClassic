@@ -23,6 +23,7 @@
 #include "zc/scripting/jit/jit.h"
 #include "zc/ffscript.h"
 #include "zc/script_debug.h"
+#include "zc/scripting/zasm_check.h"
 #include "zc/zasm_pipeline.h"
 #include "zc/zasm_utils.h"
 #include "components/zasm/serialize.h"
@@ -487,6 +488,11 @@ static void set_z_register(CompilationState& state, a64::Compiler& cc, int r, T 
 	else if (r == SP || r == SP2)
 	{
 		// TODO
+#ifdef ZC_FUZZ
+		// The compiler never emits this, so not a crash for the fuzzer to report (see ZASM_CHECK).
+		fuzz_mark_invalid_zasm();
+		return;
+#endif
 		Z_error_fatal("Unimplemented: set SP");
 	}
 	else if (r == SWITCHKEY)

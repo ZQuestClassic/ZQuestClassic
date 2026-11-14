@@ -13,6 +13,7 @@
 #include "zc/scripting/jit/jit.h"
 #include "zc/ffscript.h"
 #include "zc/script_debug.h"
+#include "zc/scripting/zasm_check.h"
 #include "zc/zasm_pipeline.h"
 #include "zc/zasm_utils.h"
 #include "components/zasm/serialize.h"
@@ -587,6 +588,11 @@ static bool exec_script(JittedExecutionContext* ctx)
 	}
 	else
 	{
+#ifdef ZC_FUZZ
+		// A function ran off its end into the next one, which the compiler never emits (see
+		// ZASM_CHECK).
+		fuzz_reject_invalid_zasm();
+#endif
 		Z_error_fatal("[jit ERROR] unknown exec result: %d\n", exec_result);
 	}
 }

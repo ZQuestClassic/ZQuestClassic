@@ -1,4 +1,5 @@
 #include "zc/commands.h"
+#include "zc/fuzz.h"
 #include "core/misctypes.h"
 #include "core/qst.h"
 #include "base/zapp.h"
@@ -68,6 +69,11 @@ void do_extract_zasm_command(const char* quest_path)
 
 void zplayer_handle_commands()
 {
+#ifdef ZC_FUZZ
+	if (zplayer_fuzz_requested())
+		zplayer_fuzz_main();
+#endif
+
 	int test_zc_arg = zapp_check_switch("-test-zc");
 	if (test_zc_arg)
 	{

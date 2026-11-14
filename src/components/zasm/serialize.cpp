@@ -44,6 +44,9 @@ std::string zasm_op_to_string(word scommand, int32_t arg1, int32_t arg2, int32_t
 {
 	std::stringstream ss;
 	auto c = get_script_command(scommand);
+	// Quests can hold any command.
+	if (!c)
+		return fmt::format("UNKNOWN_{}", scommand);
 
 	int args[] = {arg1, arg2, arg3};
 	#define SS_WIDTH(w) std::setw(w) << std::setfill(' ') << std::left

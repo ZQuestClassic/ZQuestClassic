@@ -28,6 +28,10 @@ enum ReplayMode
 
 std::string replay_mode_to_string(ReplayMode mode);
 std::map<std::string, std::string> replay_load_meta(std::filesystem::path path);
+#ifdef ZC_FUZZ
+// Parses a whole replay file, then throws the result away.
+void replay_fuzz_load(std::filesystem::path path);
+#endif
 // Returns false if a replay file could not be loaded (missing/unreadable/malformed),
 // in which case replay mode is left Off.
 bool replay_start(ReplayMode mode_, std::filesystem::path path, int frame);

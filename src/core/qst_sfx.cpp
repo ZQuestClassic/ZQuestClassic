@@ -173,7 +173,7 @@ int32_t readsfx_old(PACKFILE *f, word s_version)
 			auto len = (temp_sample.bits==8?1:2)*(temp_sample.stereo==0?1:2)*temp_sample.len;
 #ifdef ZC_FUZZ
 	const int32_t sfx_limit = 100000;
-			if (len < 0 || len > sfx_limit)
+			if (len > sfx_limit)
 			{
 				return qe_invalid;
 			}

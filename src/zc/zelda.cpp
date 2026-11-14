@@ -42,6 +42,7 @@
 #include "zc/combos.h"
 #include "zc/combo_trigger_log.h"
 #include "zc/commands.h"
+#include "zc/fuzz.h"
 #include "zc/debugger/debugger.h"
 #include "zc/ffscript.h"
 #include "zc/frame_timings.h"
@@ -3943,6 +3944,10 @@ int main(int argc, char **argv)
 	int test_zc_arg = used_switch(argc, argv, "-test-zc");
 	if (test_zc_arg > 0)
 		set_headless_mode();
+#ifdef ZC_FUZZ
+	if (zplayer_fuzz_requested())
+		set_headless_mode();
+#endif
 
 	qstdir = (char*)malloc(2048);
 	qstpath = (char*)malloc(2048);

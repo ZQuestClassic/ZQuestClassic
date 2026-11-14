@@ -7,6 +7,7 @@
 #include "zc/scripting/types/bitmap.h"
 #include "zc/scripting/types/genericdata.h"
 #include "zc/scripting/types/user_object.h"
+#include "zc/scripting/zasm_check.h"
 #include "zc/zscriptversion.h"
 
 #include <ranges>
@@ -685,7 +686,13 @@ static auto run_mark_and_sweep(bool only_include_global_roots)
 			continue;
 
 		auto object = get_script_object(id);
+		// Only hand-written ZASM stores a number that isn't an object in something typed as one.
+#ifdef ZC_FUZZ
+		if (id && !object)
+			fuzz_mark_invalid_zasm();
+#else
 		assert(id == 0 || object);
+#endif
 		if (!object)
 			continue;
 
