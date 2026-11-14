@@ -103,14 +103,20 @@ static expected<std::string, std::string> parse_user_path_impl(std::string user_
 	if (is_file)
 	{
 		static auto banned_fnames = {
-			"..", ".", "AUX", "COM1", "COM2", "COM3", "COM4", "COM5", "COM6",
+			"AUX", "COM1", "COM2", "COM3", "COM4", "COM5", "COM6",
 			"COM7", "COM8", "COM9", "CON", "LPT1", "LPT2", "LPT3", "LPT4",
 			"LPT5", "LPT6", "LPT7", "LPT8", "LPT9", "NUL", "PRN",
 		};
 
-		auto stem = resolved_path.stem().string();
 		auto fname = resolved_path.filename().string();
-		bool banned = std::find(std::begin(banned_fnames), std::end(banned_fnames), stem) != std::end(banned_fnames);
+		// Windows reserves device names in any case and with any extension ("nul.txt",
+		// "con.tar.gz"), ignoring spaces before the extension.
+		auto device = fname.substr(0, fname.find('.'));
+		while (device.ends_with(' '))
+			device.pop_back();
+		util::upperstr(device);
+		bool banned = fname == "." || fname == ".." ||
+			std::find(std::begin(banned_fnames), std::end(banned_fnames), device) != std::end(banned_fnames);
 		banned |= fname.ends_with(".") || fname.ends_with(" ");
 
 		if (banned)
