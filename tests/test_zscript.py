@@ -215,9 +215,14 @@ class TestZScript(ZCTestCase):
                     self.expect_snapshot(expected_path, output, args.update)
 
     def test_zscript_version_docs(self):
-        subprocess.check_call(
-            [sys.executable, root_dir / 'scripts/lint_zscript_versions.py']
+        p = subprocess.run(
+            [sys.executable, root_dir / 'scripts/lint_zscript_versions.py'],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            encoding='utf-8',
         )
+        if p.returncode != 0:
+            self.fail(f'lint_zscript_versions.py failed:\n{p.stdout}')
 
 
 if __name__ == '__main__':
