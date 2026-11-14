@@ -4,6 +4,7 @@
 #include "base/fonts.h"
 #include "dialog/alert.h"
 #include <stdio.h>
+#include <chrono>
 
 #include "gui/EditboxNew.h"
 
