@@ -6,6 +6,7 @@ import argparse
 import json
 import os
 import re
+import shlex
 import subprocess
 
 from argparse import ArgumentTypeError
@@ -187,7 +188,8 @@ def start_test_workflow_run(
         'runs-on': runs_on,
         'arch': arch,
         'compiler': compiler,
-        'extra-args': ' '.join(f'"{x}"' if ' ' in x else x for x in extra_args),
+        # ci.py splits this back up with shlex.
+        'extra-args': shlex.join(extra_args),
     }
     print(f'starting run with inputs: {inputs}')
     for key, value in inputs.items():
@@ -241,10 +243,34 @@ def poll_workflow_run(gh: GitHub, repo_str: str, run_id: int):
         break
 
 
+# True if `name` has the form of a test suite replay's name: a relative path
+# to a .zplay file with forward slashes, such as "classic_1st/ganon.zplay".
+# That is enough for the test runner to read it as nothing but a replay under
+# tests/replays.
+#
+# Whether the file exists isn't checked, because the failing run and its
+# baseline may be on a branch that lays out tests/replays differently than this
+# checkout.
+def is_test_suite_replay_name(name) -> bool:
+    if not isinstance(name, str) or not name.endswith('.zplay'):
+        return False
+    if name.startswith('-') or '\\' in name:
+        return False
+    if any(ord(c) < 32 or ord(c) == 127 for c in name):
+        return False
+    # Rules out absolute paths too, which start with an empty part.
+    return all(part not in ('', '.', '..') for part in name.split('/'))
+
+
 # Returns a list of args to give to `run_replay_tests.py`, to collect snapshots of the failing replay
 # tests provided by `test_results_paths`
+#
+# With `test_suite_only`, failing replays whose name isn't that of a test suite
+# replay are skipped. Use it when the args are for a CI run, which can only run
+# those, and when the test results may come from a pull request.
 def get_args_for_collect_baseline_from_test_results(
     test_results_paths: list[Path],
+    test_suite_only: bool = False,
 ) -> list[str]:
     failing_segments_by_replay = {}
     name_to_path = {}
@@ -257,22 +283,25 @@ def get_args_for_collect_baseline_from_test_results(
                 continue
 
             if run.failing_frame == None:
-                print(f'{path}: no failing_frame for {run.name}, skipping (it probably crashed)')
+                print(f'{path}: no failing_frame for {run.name!r}, skipping (it probably crashed)')
+                continue
+
+            if test_suite_only and not is_test_suite_replay_name(run.name):
+                print(f'warning: {path}: {run.name!r} is not a test suite replay, skipping')
+                continue
+
+            # Capture the very first frame (this covers non-gfx failures).
+            # ...and all unexpected gfx segments (but, the limited variant).
+            segments = [[run.failing_frame, run.failing_frame]]
+            segments.extend(run.unexpected_gfx_segments_limited or [])
+            try:
+                segments = [[int(start), int(end)] for start, end in segments]
+            except (TypeError, ValueError):
+                print(f'warning: {path}: bad frame numbers for {run.name!r}, skipping')
                 continue
 
             name_to_path[run.name] = run.path
-
-            if run.name not in failing_segments_by_replay:
-                failing_segments_by_replay[run.name] = []
-            # Capture the very first frame (this covers non-gfx failures).
-            failing_segments_by_replay[run.name].append(
-                [run.failing_frame, run.failing_frame]
-            )
-            # ...and all unexpected gfx segments (but, the limited variant).
-            if run.unexpected_gfx_segments_limited:
-                failing_segments_by_replay[run.name].extend(
-                    run.unexpected_gfx_segments_limited
-                )
+            failing_segments_by_replay.setdefault(run.name, []).extend(segments)
 
     args = []
     last_args = []
@@ -282,7 +311,7 @@ def get_args_for_collect_baseline_from_test_results(
         # tests/replays differently than the checkout this runs on). Replays
         # from elsewhere (e.g. uploaded replays) are passed as paths.
         replay_path = Path(name_to_path[replay_name])
-        if is_test_suite_replay(replay_path, replay_name):
+        if test_suite_only or is_test_suite_replay(replay_path, replay_name):
             args.append(f'--filter={replay_name}')
         else:
             last_args.append(name_to_path[replay_name])
@@ -325,7 +354,9 @@ def is_test_suite_replay(replay_path: Path, replay_name: str) -> bool:
 def collect_baseline_from_test_results(
     gh: GitHub, repo: str, baseline_branch: str, test_results_paths: list[Path]
 ) -> int:
-    extra_args = get_args_for_collect_baseline_from_test_results(test_results_paths)
+    extra_args = get_args_for_collect_baseline_from_test_results(
+        test_results_paths, test_suite_only=True
+    )
     if not baseline_branch:
         baseline_branch = find_baseline(gh, repo, default_baseline_branch())
 
@@ -416,7 +447,7 @@ if __name__ == '__main__':
     else:
         extra_args = []
         if args.extra_args:
-            extra_args = args.extra_args.split(' ')
+            extra_args = shlex.split(args.extra_args)
 
         if args.compiler:
             compiler = args.compiler
