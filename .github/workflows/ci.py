@@ -917,9 +917,11 @@ def extract_nested_archives(src_dir: Path):
             extract_dir = filepath.parent / filepath.stem
             zip_ref.extractall(extract_dir)
 
+    # These come from the failing run, which may be a pull request from a fork.
+    # The 'data' filter rejects members that would land outside the folder.
     for tar_path in src_dir.rglob("*.tar"):
         with tarfile.open(tar_path, 'r') as tar_ref:
-            tar_ref.extractall(tar_path.parent)
+            tar_ref.extractall(tar_path.parent, filter='data')
 
 
 @command("compare-replays", help="Compare replays and notify Discord")

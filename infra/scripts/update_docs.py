@@ -75,7 +75,7 @@ def main():
     print("Extracting...")
     try:
         with tarfile.open(tarball_path, "r:gz") as tar:
-            tar.extractall(path=TMP_BUILD_DIR)
+            tar.extractall(path=TMP_BUILD_DIR, filter="data")
     except Exception as e:
         print(f"Error extracting tarball: {e}")
         return

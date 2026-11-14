@@ -150,8 +150,10 @@ def extract_tars(dir: Path):
         print(f'extracting from {tar_path}')
         extract_dir = tar_path.with_suffix('')
         if not extract_dir.exists():
+            # Artifacts can come from pull requests. The 'data' filter refuses
+            # members that would land outside `extract_dir`.
             with tarfile.open(tar_path) as tar:
-                tar.extractall(path=extract_dir)
+                tar.extractall(path=extract_dir, filter='data')
             tar_path.unlink()
 
 
