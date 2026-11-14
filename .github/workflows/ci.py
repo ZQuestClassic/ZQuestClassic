@@ -982,7 +982,8 @@ def compare_replays(ctx: CiContext, args):
 
     extract_nested_archives(results_dir)
 
-    # Collect baseline via run_test_workflow.py
+    # Collect baseline via run_test_workflow.py. The scripts read the token
+    # from GITHUB_TOKEN, which keeps it off their command lines.
     gh_out_file = root_dir / ".tmp/github_output.txt"
     gh_out_file.parent.mkdir(parents=True, exist_ok=True)
     gh_out_file.write_text("")
@@ -993,7 +994,7 @@ def compare_replays(ctx: CiContext, args):
     # The baseline is the latest passing CI run of the branch the failing run
     # belongs to (main, a release branch, or a PR's base branch).
     run_python_cmd(
-        f"tests/run_test_workflow.py --test_results {results_dir} --baseline_for_run {args.run_id} --repo {ctx.repo} --token {token}",
+        f"tests/run_test_workflow.py --test_results {results_dir} --baseline_for_run {args.run_id} --repo {ctx.repo}",
         env=env,
     )
 
@@ -1008,7 +1009,7 @@ def compare_replays(ctx: CiContext, args):
 
     # Generate Report via compare_replays.py
     run_python_cmd(
-        f"tests/compare_replays.py --workflow_run {baseline_run_id} --local {results_dir} --repo {ctx.repo} --token {token}"
+        f"tests/compare_replays.py --workflow_run {baseline_run_id} --local {results_dir} --repo {ctx.repo}"
     )
 
     # Upload to surge.sh

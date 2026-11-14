@@ -382,7 +382,7 @@ def collect_baseline_from_failing_workflow_run(
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--repo', default='ZQuestClassic/ZQuestClassic')
-    parser.add_argument('--token', required=True)
+    parser.add_argument('--token', default=os.environ.get('GITHUB_TOKEN'))
 
     # Specify workflow parameters.
     parser.add_argument('--commit')
@@ -403,6 +403,8 @@ if __name__ == '__main__':
     parser.add_argument('--baseline_for_run', type=int)
 
     args = parser.parse_args()
+    if not args.token:
+        parser.error('a token is required: set GITHUB_TOKEN or pass --token')
     gh = GitHub(args.token)
 
     if args.test_results is not None and args.failing_workflow_run is not None:

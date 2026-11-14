@@ -452,7 +452,7 @@ if __name__ == '__main__':
     parser.add_argument('--dest', type=dir_path, default=default_out_dir)
     parser.add_argument('--repo', default='ZQuestClassic/ZQuestClassic')
     parser.add_argument('--start-server', action=argparse.BooleanOptionalAction)
-    parser.add_argument('--token')
+    parser.add_argument('--token', default=os.environ.get('GITHUB_TOKEN'))
     args = parser.parse_args()
 
     if not args.workflow_run and not args.local:
