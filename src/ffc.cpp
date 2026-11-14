@@ -86,7 +86,7 @@ bool ffcdata::checkSolid() const
 {
 	if (flags & ffc_solid)
 		return true;
-	if (flags & ffc_cmb_solid)
+	if ((flags & ffc_cmb_solid) && data < combobuf.size())
 	{
 		auto const& cmb = combobuf[data];
 		if (cmb.walk & 0xF)
