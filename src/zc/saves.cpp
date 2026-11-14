@@ -923,6 +923,8 @@ static int32_t read_saves(ReadMode read_mode, PACKFILE* f, std::vector<save_t>& 
 				byte dummybyte;
 				if(!p_igetw(&num_gen_scripts, f))
 					return 73;
+				if(num_gen_scripts > game.gen_exitState.size())
+					return 73;
 				for(size_t q=0; q<num_gen_scripts; q++)
 				{
 					if(!p_getc(&dummybyte,f))
