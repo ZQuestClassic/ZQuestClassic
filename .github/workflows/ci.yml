@@ -145,7 +145,7 @@ jobs:
 
     steps:
       - name: Install cmake
-        uses: jwlawson/actions-setup-cmake@v2
+        uses: jwlawson/actions-setup-cmake@0d6a7d60b009d01c9e7523be22153ff8f19460d3 # v2.2.0
         with:
           cmake-version: '3.31.6'
 
@@ -154,7 +154,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      - uses: mymindstorm/setup-emsdk@v12
+      - uses: mymindstorm/setup-emsdk@ab889da2abbcbb280f91ec4c215d3bb4f3a8f775 # v12
         with:
           version: "3.1.45"
           actions-cache-folder: "emsdk-cache-${{ runner.os }}-${{ runner.arch }}"

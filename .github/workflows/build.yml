@@ -81,7 +81,7 @@ jobs:
       package-name: ${{ steps.set-package-name.outputs.package-name }}
     steps:
       - name: Install cmake
-        uses: jwlawson/actions-setup-cmake@v2
+        uses: jwlawson/actions-setup-cmake@0d6a7d60b009d01c9e7523be22153ff8f19460d3 # v2.2.0
         with:
           cmake-version: '3.31.10'
 
@@ -110,7 +110,7 @@ jobs:
         run: pip install -r requirements.txt
 
       - if: ${{ contains(inputs.runs-on, 'windows') }}
-        uses: ilammy/msvc-dev-cmd@v1
+        uses: ilammy/msvc-dev-cmd@0b201ec74fa43914dc39ae48a89fd1d8cb592756 # v1.13.0
         with:
           arch: ${{ inputs.arch }}
 
@@ -121,7 +121,7 @@ jobs:
           args: install .github/dependencies.config -y --allow-downgrade
       - name: Install LLVM and Clang
         if: inputs.compiler == 'clang' && runner.os == 'Linux'
-        uses: KyleMayes/install-llvm-action@v1
+        uses: KyleMayes/install-llvm-action@1a3da29f56261a1e1f937ec88f0856a9b8321d7e # v1
         with:
           version: 17.0.2
           env: true
@@ -138,7 +138,7 @@ jobs:
             print('{0}={1}'.format('CMAKE_TOOLCHAIN_FILE', r'${{ github.workspace }}/vcpkg/scripts/buildsystems/vcpkg.cmake'), file=f)
             print('{0}={1}'.format('VCPKG_DEFAULT_TRIPLET', triplet), file=f)
       - if: ${{ contains(inputs.runs-on, 'windows') }}
-        uses: lukka/run-vcpkg@v11
+        uses: lukka/run-vcpkg@b1a0dd252f06b9e25b3c022a9a03bd7a427fb6a2 # v11.6
         with:
           vcpkgGitCommitId: 120deac3062162151622ca4860575a33844ba10b
       - if: ${{ contains(inputs.runs-on, 'windows') }}
