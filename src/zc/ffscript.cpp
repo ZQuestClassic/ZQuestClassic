@@ -41400,15 +41400,25 @@ int32_t FFScript::do_create_bitmap()
 
 int32_t FFScript::create_user_bitmap_ex(int32_t w, int32_t h, int32_t d = 8)
 {
+	if (!is_valid_bitmap_size(w, h))
+	{
+		Z_scripterrlog("Invalid bitmap size: %d x %d\n", w, h);
+		return 0;
+	}
+
 	int32_t id = get_free_bitmap();
 	if ( id > 0 )
 	{
 		user_bitmap* bmp = &(scb.script_created_bitmaps[id-10]);
-		bmp->width = w;
-		bmp->height = h;
-		bmp->depth = d;
-		bmp->u_bmp = create_bitmap_ex(d,w,h);
-		clear_bitmap(bmp->u_bmp);
+		bmp->u_bmp = create_script_bitmap(d, w, h);
+		// Null if it was too big to allocate, the same as a freed bitmap (see checkBitmap).
+		if (bmp->u_bmp)
+		{
+			clear_bitmap(bmp->u_bmp);
+			bmp->width = w;
+			bmp->height = h;
+			bmp->depth = d;
+		}
 	}
 	return id;
 }

@@ -5875,13 +5875,26 @@ void bmp_do_regenr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 	return;
     }
 	int32_t bitid = sdci[DRAWCMD_BMP_TARGET] - 10; 
-	if ( scb.script_created_bitmaps[bitid].u_bmp )
-		destroy_bitmap(scb.script_created_bitmaps[bitid].u_bmp);
-	scb.script_created_bitmaps[bitid].u_bmp = create_bitmap_ex(8,w,h);
-	clear_bitmap(scb.script_created_bitmaps[bitid].u_bmp);
+	auto& usr_bmp = scb.script_created_bitmaps[bitid];
+	if ( usr_bmp.u_bmp )
+		destroy_bitmap(usr_bmp.u_bmp);
+	usr_bmp.u_bmp = nullptr;
+	usr_bmp.width = 0;
+	usr_bmp.height = 0;
+	if (!is_valid_bitmap_size(w, h))
+	{
+		Z_scripterrlog("bitmap->Create() was given an invalid size: %d x %d.\n", w, h);
+		return;
+	}
+
+	usr_bmp.u_bmp = create_script_bitmap(8, w, h);
+	// Null if it was too big to allocate, the same as a freed bitmap (see checkBitmap).
+	if (!usr_bmp.u_bmp)
+		return;
+	clear_bitmap(usr_bmp.u_bmp);
 	
-	scb.script_created_bitmaps[bitid].width = w;
-	scb.script_created_bitmaps[bitid].height = h;
+	usr_bmp.width = w;
+	usr_bmp.height = h;
 	
 	
     

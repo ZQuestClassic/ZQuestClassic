@@ -228,6 +228,22 @@ enum //ScrollingData indexes
 //User-generated / Script-Generated bitmap object
 #define UBMPFLAG_RESERVED		0x01
 #define UBMPFLAG_FREEING		0x02
+// The most a script-created bitmap can be in either direction. Keeps the byte count within an
+// int, which create_bitmap_ex needs.
+#define MAX_SCRIPT_BITMAP_SIZE 32767
+
+// True if a script can make a bitmap this size. A height of 0 is allowed, but must be given to
+// create_bitmap_ex as 1 (see create_script_bitmap).
+inline bool is_valid_bitmap_size(int32_t w, int32_t h)
+{
+	return w >= 0 && h >= 0 && w <= MAX_SCRIPT_BITMAP_SIZE && h <= MAX_SCRIPT_BITMAP_SIZE;
+}
+// create_bitmap_ex for a size that is_valid_bitmap_size allows.
+inline BITMAP* create_script_bitmap(int32_t depth, int32_t w, int32_t h)
+{
+	return create_bitmap_ex(depth, w, std::max(h, 1));
+}
+
 struct user_bitmap : public user_abstract_obj
 {
 	BITMAP* u_bmp;
