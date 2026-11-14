@@ -1,5 +1,9 @@
+import datetime
+import hashlib
+import ipaddress
 import json
 import os
+import shutil
 import sys
 import uuid
 import zlib
@@ -8,6 +12,11 @@ from http import HTTPStatus
 from pathlib import Path
 
 import boto3
+
+try:
+    import fcntl
+except ImportError:  # Windows (local dev only)
+    fcntl = None
 
 from flask import Flask, flash, redirect, request, url_for
 from werkzeug.exceptions import HTTPException
@@ -34,6 +43,18 @@ replays_dir.mkdir(exist_ok=True)
 # An uploaded replay may not exceed this size once decompressed.
 MAX_REPLAY_BYTES = 300_000_000
 
+# Uploads are refused (507) once the disk holding the replays has less free space than this.
+# Can be set with the FLASK_MIN_FREE_DISK_BYTES env var.
+MIN_FREE_DISK_BYTES = int(app.config.get('MIN_FREE_DISK_BYTES', 2_000_000_000))
+
+# Per client IP (per /64 for IPv6, see quota_key), per UTC day (429 when exceeded). ZC uploads each changed replay once a week
+# at most, one at a time, so a real player stays far below these.
+MAX_UPLOADS_PER_IP_PER_DAY = 500
+MAX_UPLOAD_BYTES_PER_IP_PER_DAY = 3_000_000_000
+
+# Shared by all the uwsgi processes, so the counts live on disk.
+quota_dir = data_dir / 'upload_quota'
+
 
 def decompress_gzip_bounded(data: bytes, max_size: int) -> bytes:
     """Decompress gzip data, aborting if the output would exceed max_size.
@@ -45,10 +66,82 @@ def decompress_gzip_bounded(data: bytes, max_size: int) -> bytes:
     out = decompressor.decompress(data, max_size + 1)
     if decompressor.unconsumed_tail or len(out) > max_size:
         raise ValueError('decompressed payload too large')
-    out += decompressor.flush()
-    if len(out) > max_size:
-        raise ValueError('decompressed payload too large')
+    # Concatenating copies `out`, which can be hundreds of MB, so only do it if needed.
+    tail = decompressor.flush()
+    if tail:
+        if len(out) + len(tail) > max_size:
+            raise ValueError('decompressed payload too large')
+        out += tail
     return out
+
+
+def quota_key(ip: str) -> str:
+    """The address uploads are counted under. An IPv6 address counts as its whole /64, which
+    is what a single customer usually gets, so switching addresses within it doesn't help.
+    """
+    try:
+        addr = ipaddress.ip_address(ip)
+    except ValueError:
+        return ip
+    if addr.version == 6 and addr.ipv4_mapped:
+        return str(addr.ipv4_mapped)
+    if addr.version == 6:
+        return str(ipaddress.ip_network(f'{addr}/64', strict=False))
+    return str(addr)
+
+
+class IpQuota:
+    """Counts uploads and bytes per client IP for the current UTC day, in a file locked
+    against the other server processes for the duration of the `with` block."""
+
+    def __init__(self, ip: str):
+        today = datetime.datetime.now(datetime.timezone.utc).strftime('%Y-%m-%d')
+        day_dir = quota_dir / today
+        if not day_dir.exists():
+            day_dir.mkdir(parents=True, exist_ok=True)
+            for old in quota_dir.iterdir():
+                if old.name != today:
+                    shutil.rmtree(old, ignore_errors=True)
+        # Not the IP itself: no need to keep those around.
+        name = hashlib.sha256(quota_key(ip).encode()).hexdigest()[:32]
+        self.path = day_dir / name
+        self.uploads = 0
+        self.bytes = 0
+
+    def __enter__(self):
+        self.file = open(self.path, 'a+')
+        # Not waiting for the lock: one IP with several uploads in flight shouldn't be able
+        # to tie up every server process. ZC uploads one at a time.
+        self.busy = False
+        if fcntl:
+            try:
+                fcntl.flock(self.file, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            except BlockingIOError:
+                self.busy = True
+                return self
+        self.file.seek(0)
+        parts = self.file.read().split()
+        if len(parts) == 2 and all(p.isdigit() for p in parts):
+            self.uploads, self.bytes = int(parts[0]), int(parts[1])
+        return self
+
+    def exceeded(self) -> bool:
+        return (
+            self.uploads >= MAX_UPLOADS_PER_IP_PER_DAY
+            or self.bytes >= MAX_UPLOAD_BYTES_PER_IP_PER_DAY
+        )
+
+    def add(self, num_bytes: int):
+        self.uploads += 1
+        self.bytes += num_bytes
+        self.file.seek(0)
+        self.file.truncate()
+        self.file.write(f'{self.uploads} {self.bytes}')
+        self.file.flush()
+
+    def __exit__(self, *args):
+        # Closing releases the lock.
+        self.file.close()
 
 
 def is_valid_uuid(val):
@@ -133,6 +226,34 @@ def replays(uuid):
         flush=True,
     )
 
+    if shutil.disk_usage(replays_dir).free < MIN_FREE_DISK_BYTES:
+        print('replay upload refused: disk is full', flush=True)
+        return {
+            'error': 'server is out of space for replays, try again later'
+        }, HTTPStatus.INSUFFICIENT_STORAGE
+
+    with IpQuota(request.remote_addr or '') as quota:
+        if quota.busy:
+            return {
+                'error': 'another upload from this address is in progress, try again later'
+            }, HTTPStatus.TOO_MANY_REQUESTS
+        if quota.exceeded():
+            print(
+                f'replay upload refused: quota exceeded ip={request.remote_addr}',
+                flush=True,
+            )
+            return {
+                'error': 'too many uploads today, try again later'
+            }, HTTPStatus.TOO_MANY_REQUESTS
+
+        body, status, *stored = handle_replay_upload(uuid, content_encoding)
+        if stored:
+            quota.add(stored[0])
+        return body, status
+
+
+def handle_replay_upload(uuid, content_encoding):
+    """Returns (body, status, bytes stored)."""
     # Larger payloads are rejected by MAX_CONTENT_LENGTH.
     raw_data = request.data
 
@@ -157,6 +278,8 @@ def replays(uuid):
         data = raw_data.decode('utf-8')
     except UnicodeDecodeError:
         return {'error': 'Payload is not valid utf-8 text'}, HTTPStatus.BAD_REQUEST
+    # Only one copy of a large replay at a time.
+    del raw_data
 
     if not data.startswith('M'):
         return {'error': 'invalid replay'}, HTTPStatus.BAD_REQUEST
@@ -224,7 +347,7 @@ def replays(uuid):
     if s3:
         s3.upload_file(path, app.config['S3_BUCKET'], key)
 
-    return {'key': key}, status
+    return {'key': key}, status, len(data)
 
 
 @app.errorhandler(HTTPException)
