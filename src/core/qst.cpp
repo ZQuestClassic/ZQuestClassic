@@ -37,6 +37,7 @@
 #include "advanced_music.h"
 #include "zalleg/zsyssimple.h"
 #include "core/quest_format.h"
+#include <chrono>
 
 extern sprite_list  guys, items, Ewpns, Lwpns, chainlinks, decorations;
 extern void setZScriptVersion(int32_t s_version);

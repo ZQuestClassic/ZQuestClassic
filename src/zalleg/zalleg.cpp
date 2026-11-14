@@ -507,7 +507,7 @@ void zalleg_setup_allegro(App id, int argc, char **argv)
 	packfile_password(NULL);
 }
 
-static int web_display_w, web_display_h;
+[[maybe_unused]] static int web_display_w, web_display_h;
 void zalleg_set_web_display_size(int w, int h)
 {
 	web_display_w = w;
