@@ -64,6 +64,29 @@ static void test_parse_user_path_banned_extension()
 	assertTrue(parse_user_path("a.exe", false).has_value());
 }
 
+static void test_parse_legacy_user_path()
+{
+	std::string sep(1, (char)fs::path::preferred_separator);
+
+	// Relative to the current directory, as before, with slashes made native.
+	assertEqual(parse_legacy_user_path("a.png").value(), std::string("a.png"));
+	assertEqual(parse_legacy_user_path("dir/a.png").value(), "dir" + sep + "a.png");
+	assertEqual(parse_legacy_user_path("dir/../a.png").value(), "dir" + sep + ".." + sep + "a.png");
+	assertTrue(parse_legacy_user_path("./a/./b/../c.png").has_value());
+
+	// But can't leave it.
+	assertTrue(!parse_legacy_user_path("../a.png"));
+	assertTrue(!parse_legacy_user_path("a/../../a.png"));
+	assertTrue(!parse_legacy_user_path("a\\..\\..\\a.png"));
+	assertTrue(!parse_legacy_user_path("/etc/a.png"));
+	assertTrue(!parse_legacy_user_path("\\a.png"));
+	assertTrue(!parse_legacy_user_path("\\\\server\\share\\a.png"));
+	assertTrue(!parse_legacy_user_path("//server/share/a.png"));
+	assertTrue(!parse_legacy_user_path("C:/a.png"));
+	assertTrue(!parse_legacy_user_path("C:a.png"));
+	assertTrue(!parse_legacy_user_path("a.png\n"));
+}
+
 static void test_parse_user_path_invalid_character()
 {
 	// The error names the character that was rejected.
@@ -84,6 +107,7 @@ TestResults test_parse_user_path(bool verbose)
 		{ "invalid_character", test_parse_user_path_invalid_character },
 		{ "banned_extension", test_parse_user_path_banned_extension },
 		{ "device_name", test_parse_user_path_device_name },
+		{ "legacy", test_parse_legacy_user_path },
 	};
 
 	for (auto& test : tests)

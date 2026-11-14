@@ -455,6 +455,11 @@ class bitmap {
 	// Writes from the bitmap to the specified image file. Requires one of:
 	// `.png`,`.gif`,`pcx`,`.tgx`,`.bmp`. Fails otherwise.
 	//
+	// The path is relative to the quest's `Files` folder (see [FileSystem])
+	// with the quest rule "All bitmap-> and FileSystem-> paths relative to
+	// quest 'Files' folder", and relative to the ZC root folder without it.
+	// Either way, it cannot leave that folder.
+	//
 	// @zasm
 	//   WRITEBITMAP
 	//   POPARGS D5 0.0004

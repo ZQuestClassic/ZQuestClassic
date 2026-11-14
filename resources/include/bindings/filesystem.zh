@@ -6,6 +6,11 @@
 // found at `<zc root folder>/Files/<quest name>`. Quests cannot access
 // files outside this folder.
 //
+// For [DirExists] and [FileExists], this needs the quest rule
+// "All bitmap-> and FileSystem-> paths relative to quest 'Files' folder".
+// Without it, paths are relative to the ZC root folder instead, and cannot
+// leave that folder.
+//
 // Access with `FileSystem->`.
 class FileSystem {
 	// @delete
