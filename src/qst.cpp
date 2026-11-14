@@ -4087,6 +4087,7 @@ int32_t readdoorcombosets(PACKFILE *f, zquestheader *Header)
         {
             return qe_invalid;
         }
+		name[sizeof(name) - 1] = 0;
 		if (!should_skip)
 			DoorComboSetNames[i] = name;
         
