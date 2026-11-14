@@ -198,6 +198,8 @@ static std::vector<std::vector<pc_t>> find_block_predecessors(const ZasmCFG& cfg
 static bool control_enters_functions_only_at_start(const StructuredZasm& structured_zasm, const ZasmCFG& cfg)
 {
 	const auto& functions = structured_zasm.functions;
+	if (functions.empty())
+		return false;
 	for (size_t i = 1; i < functions.size(); i++)
 	{
 		if (functions[i].start_pc != functions[i - 1].final_pc + 1)
@@ -209,7 +211,11 @@ static bool control_enters_functions_only_at_start(const StructuredZasm& structu
 	for (pc_t block = 0; block < cfg.block_starts.size(); block++)
 	{
 		while (cfg.block_starts[block] > functions[fn_id].final_pc)
-			fn_id++;
+		{
+			// A block past the last function: they don't cover the script.
+			if (++fn_id == functions.size())
+				return false;
+		}
 		block_function_ids[block] = fn_id;
 	}
 
