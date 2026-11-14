@@ -895,8 +895,8 @@ static bool set_version()
 	return true;
 }
 
-// Returns false if the file could not be opened or was malformed in a way that
-// prevents loading. Deeper structural corruption is still caught by CHECK.
+// Returns false if the file could not be opened or is malformed. Replay files can come from
+// anywhere (ex: uploads), so nothing in one may crash the parser.
 static bool load_replay(std::string& buffer, std::map<std::string, std::string>& meta, std::filesystem::path path, bool only_meta = false)
 {
     auto start = std::chrono::steady_clock::now();
@@ -988,6 +988,11 @@ static bool load_replay(std::string& buffer, std::map<std::string, std::string>&
         return true;
     };
 
+    auto malformed = [&](const char* why) {
+        fprintf(stderr, "malformed replay file (%s): %s\n", why, path.string().c_str());
+        return false;
+    };
+
     std::string_view file_view(buffer);
 
     while (!file_view.empty())
@@ -1007,8 +1012,10 @@ static bool load_replay(std::string& buffer, std::map<std::string, std::string>&
             continue;
 
         // First find '\xC2' instead of the 2-byte std::string ANNOTATION_MARKER.
+        // Other characters start with that byte too (ex: '©' in a quest title), so check both.
         auto annotation_pos = line.find('\xC2');
-        if (annotation_pos != std::string_view::npos && annotation_pos + 1 < line.size() && line[annotation_pos + 1] == (char)0xAB)
+        bool has_annotation = annotation_pos != std::string_view::npos && annotation_pos + 1 < line.size() && line[annotation_pos + 1] == (char)0xAB;
+        if (has_annotation)
             line = line.substr(0, annotation_pos);
 
         if (!line.empty() && line.front() == ' ')
@@ -1053,8 +1060,10 @@ static bool load_replay(std::string& buffer, std::map<std::string, std::string>&
 
             if (!done_with_initial_meta)
             {
-                CHECK(meta.find(key) == meta.end());
-                CHECK(annotation_pos == std::string_view::npos);
+                if (meta.contains(key))
+                    return malformed("duplicate meta");
+                if (has_annotation)
+                    return malformed("annotation in meta");
                 meta[key] = value;
             }
             else
@@ -1075,7 +1084,7 @@ static bool load_replay(std::string& buffer, std::map<std::string, std::string>&
         }
         else if (type == TypeQuit)
         {
-            int quit_state;
+            int quit_state = 0;
             consume_int(line, quit_state);
             replay_log.emplace_back(std::in_place_type<QuitReplayStep>, frame, quit_state);
         }
@@ -1088,7 +1097,8 @@ static bool load_replay(std::string& buffer, std::map<std::string, std::string>&
             std::string cheat_name;
             consume_string(line, cheat_name);
             cheat = cheat_from_string(cheat_name);
-            CHECK(cheat > Cheat::None && cheat < Cheat::Last);
+            if (!(cheat > Cheat::None && cheat < Cheat::Last))
+                return malformed("unknown cheat");
 
             if (cheat == Cheat::HeroData)
             {
@@ -1107,31 +1117,39 @@ static bool load_replay(std::string& buffer, std::map<std::string, std::string>&
         }
         else if (type == TypeQR)
         {
-            int qr;
+            int qr = -1;
             int value_int = 0;
 
             consume_int(line, qr);
             consume_int(line, value_int);
 
-            CHECK(qr >= 0 && qr < qr_MAX);
+            if (!(qr >= 0 && qr < qr_MAX))
+                return malformed("unknown qr");
 
             replay_log.emplace_back(std::in_place_type<QRReplayStep>, frame, qr, value_int != 0);
         }
         else if (type == TypeRng)
         {
-            int start_index, end_index, seed;
+            int start_index = 0, end_index = 0, seed = 0;
             consume_int(line, start_index);
             consume_int(line, end_index);
             consume_int(line, seed);
-            CHECK(start_index <= end_index);
+            if (start_index > end_index)
+                return malformed("bad rng range");
             replay_log.emplace_back(std::in_place_type<RngReplayStep>, frame, start_index, end_index, seed);
         }
         else if (type == TypeKeyMap)
         {
-            CHECK(rs.version >= 5);
-            std::array<int, KeyMapReplayStep::NumButtons> keys;
+            if (rs.version < 5)
+                return malformed("key map step before version 5");
+            std::array<int, KeyMapReplayStep::NumButtons> keys{};
             for (int i = 0; i < KeyMapReplayStep::NumButtons; i++)
+            {
                 consume_int(line, keys[i]);
+                // Playback indexes the key state arrays with these.
+                if (keys[i] < 0 || keys[i] >= KEY_MAX)
+                    return malformed("bad key in key map");
+            }
 
             replay_log.emplace_back(std::in_place_type<KeyMapReplayStep>, frame, keys);
             if (!found_key_map)
@@ -1143,10 +1161,8 @@ static bool load_replay(std::string& buffer, std::map<std::string, std::string>&
         }
         else if (type == TypeKeyUp || type == TypeKeyDown)
         {
-            if (rs.version >= 5)
-            {
-                CHECK(found_key_map);
-            }
+            if (rs.version >= 5 && !found_key_map)
+                return malformed("key step before key map");
 
             if (!line.empty() && line.front() == ' ')
                 line.remove_prefix(1);
@@ -1160,15 +1176,19 @@ static bool load_replay(std::string& buffer, std::map<std::string, std::string>&
                 button_index = -1;
                 key_index = KeyReplayStep::find_index_for_key_name(text.substr(2));
                 if (key_index == -1)
+                {
                     fprintf(stderr, "unknown key %.*s\n", (int)text.size() - 2, text.data() + 2);
-                CHECK(key_index != -1);
+                    return malformed("unknown key");
+                }
             }
             else
             {
                 button_index = KeyReplayStep::find_index_for_button_name(text);
                 if (button_index == -1)
+                {
                     fprintf(stderr, "unknown button %.*s\n", (int)text.size(), text.data());
-                CHECK(button_index != -1);
+                    return malformed("unknown button");
+                }
                 key_index = key_map.button_keys[button_index];
             }
 
@@ -1176,7 +1196,7 @@ static bool load_replay(std::string& buffer, std::map<std::string, std::string>&
         }
         else if (type == TypeMouse)
         {
-            int x, y, z = 0, b = 0;
+            int x = 0, y = 0, z = 0, b = 0;
             consume_int(line, x);
             consume_int(line, y);
             consume_int(line, z);
@@ -1187,7 +1207,7 @@ static bool load_replay(std::string& buffer, std::map<std::string, std::string>&
         }
         else if (type == TypeState)
         {
-            int state_type, value;
+            int state_type = 0, value = 0;
             consume_int(line, state_type);
             consume_int(line, value);
             replay_log.emplace_back(std::in_place_type<StateReplayStep>, frame, (ReplayStateType)state_type, value);
