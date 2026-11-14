@@ -91,6 +91,70 @@ static bool prompt(std::string msg)
 	return ret == 1;
 }
 
+static std::string get_url_part(CURLU* h, CURLUPart part)
+{
+	char* value = nullptr;
+	if (curl_url_get(h, part, &value, 0) != CURLUE_OK || !value)
+		return "";
+	std::string result = value;
+	curl_free(value);
+	if (part != CURLUPART_PATH)
+		util::lowerstr(result);
+	return result;
+}
+
+// Release assets must come from the project's GitHub releases over https. A server on this
+// machine is also allowed (over http too), which is what the tests use.
+static bool is_allowed_asset_url(const std::string& url, bool& is_local)
+{
+	is_local = false;
+	CURLU* h = curl_url();
+	if (!h)
+		return false;
+
+	bool ok = false;
+	if (curl_url_set(h, CURLUPART_URL, url.c_str(), 0) == CURLUE_OK)
+	{
+		std::string scheme = get_url_part(h, CURLUPART_SCHEME);
+		std::string host = get_url_part(h, CURLUPART_HOST);
+		std::string path = get_url_part(h, CURLUPART_PATH);
+		bool has_user = !get_url_part(h, CURLUPART_USER).empty() || !get_url_part(h, CURLUPART_PASSWORD).empty();
+		std::string port = get_url_part(h, CURLUPART_PORT);
+
+		if (!has_user)
+		{
+			if (host == "127.0.0.1" || host == "localhost" || host == "[::1]")
+			{
+				is_local = true;
+				ok = scheme == "http" || scheme == "https";
+			}
+			else
+			{
+				ok = scheme == "https" && host == "github.com" && (port.empty() || port == "443")
+					&& path.starts_with("/ZQuestClassic/ZQuestClassic/releases/download/");
+			}
+		}
+	}
+
+	curl_url_cleanup(h);
+	return ok;
+}
+
+// Only https (or http too, for a local server), and a bounded number of redirects.
+static void restrict_protocols(CURL* curl, bool allow_http)
+{
+#if LIBCURL_VERSION_NUM >= 0x075500
+	const char* protocols = allow_http ? "http,https" : "https";
+	curl_easy_setopt(curl, CURLOPT_PROTOCOLS_STR, protocols);
+	curl_easy_setopt(curl, CURLOPT_REDIR_PROTOCOLS_STR, protocols);
+#else
+	long protocols = allow_http ? (CURLPROTO_HTTP | CURLPROTO_HTTPS) : CURLPROTO_HTTPS;
+	curl_easy_setopt(curl, CURLOPT_PROTOCOLS, protocols);
+	curl_easy_setopt(curl, CURLOPT_REDIR_PROTOCOLS, protocols);
+#endif
+	curl_easy_setopt(curl, CURLOPT_MAXREDIRS, 5L);
+}
+
 // Returns the latest release of the configured channel.
 static std::tuple<std::string, std::string> get_next_release()
 {
@@ -118,6 +182,7 @@ static std::tuple<std::string, std::string> get_next_release()
 	curl_easy_setopt(curl_handle, CURLOPT_USERAGENT, "libcurl-agent/1.0");
 	curl_easy_setopt(curl_handle, CURLOPT_FOLLOWLOCATION, 1L);
 	curl_easy_setopt(curl_handle, CURLOPT_FAILONERROR, 1L);
+	restrict_protocols(curl_handle, false);
 	CURLcode res = curl_easy_perform(curl_handle);
 	curl_easy_cleanup(curl_handle);
 
@@ -174,7 +239,7 @@ static std::tuple<std::string, std::string> get_next_release()
 	return {tag_name, asset_url};
 }
 
-static bool download_file(std::string url, fs::path dest, std::string& error)
+static bool download_file(std::string url, bool allow_http, fs::path dest, std::string& error)
 {
 	CURL *curl = curl_easy_init();
 	if (!curl)
@@ -203,6 +268,7 @@ static bool download_file(std::string url, fs::path dest, std::string& error)
 	curl_easy_setopt(curl, CURLOPT_WRITEDATA, fp);
 	curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
 	curl_easy_setopt(curl, CURLOPT_FAILONERROR, 1L);
+	restrict_protocols(curl, allow_http);
 	CURLcode res = curl_easy_perform(curl);
 
 	long response_code = 0;
@@ -343,6 +409,13 @@ static void prune_cache(const fs::path& cache_folder, const fs::path& keep)
 
 static bool install_release_impl(std::string asset_url, bool use_cache, std::string& error)
 {
+	bool is_local_url;
+	if (!is_allowed_asset_url(asset_url, is_local_url))
+	{
+		error = fmt::format("Refusing to download from unexpected URL: {}", asset_url);
+		return false;
+	}
+
 	fs::path root_dir = "";
 	if (!fs::exists(root_dir / "base_config"))
 	{
@@ -379,7 +452,7 @@ static bool install_release_impl(std::string asset_url, bool use_cache, std::str
 	if (!opened)
 	{
 		fs::create_directories(cache_folder);
-		if (!download_file(asset_url, zip_path, error))
+		if (!download_file(asset_url, is_local_url, zip_path, error))
 			return false;
 
 		if (!open_zip_file(archive, files, zip_path, error))
