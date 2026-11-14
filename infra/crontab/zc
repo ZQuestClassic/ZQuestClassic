@@ -1,5 +1,6 @@
-# Update docs every 10 minutes
-*/10 * * * * root bash /home/zc/ZQuestClassic/infra/scripts/update.sh >> /var/log/zc-docs-update.log 2>&1
+# Update docs every 10 minutes. This runs code from the repo, so it must not run as
+# root: zc owns /home/zc/ZQuestClassic and /var/www/docs.zquestclassic.com.
+*/10 * * * * zc bash /home/zc/ZQuestClassic/infra/scripts/update.sh >> /var/log/zc-docs-update.log 2>&1
 
 # Restart once a day to periodically update manifest.json.
 # Use `restart` (not `try-restart`): try-restart is a no-op on a stopped/failed

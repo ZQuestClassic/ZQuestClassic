@@ -32,7 +32,9 @@ Running `scripts/update.sh path/to/ZC/repo` will build the latest version. Commi
 
 Host: DigitalOcean
 
-This is a simple static-site that hosts the docs build for ZC. The deployed site is updated every 10 minutes via a cron.
+This is a simple static-site that hosts the docs build for ZC. The deployed site is updated every 10 minutes via a cron (`crontab/zc`, which runs `scripts/update.sh`).
+
+That cron runs code from the repo, so it runs as the unprivileged `zc` user, the same one that runs the api server. `zc` must own the checkout at `/home/zc/ZQuestClassic`, the web root `/var/www/docs.zquestclassic.com` and the log `/var/log/zc-docs-update.log` (`deploy.sh` makes sure of that). Don't run git in the checkout as root (`deploy.sh` uses `sudo -u zc`), or files in it become root's and the cron can no longer update them.
 
 The source code is at `./docs-www/`.
 
