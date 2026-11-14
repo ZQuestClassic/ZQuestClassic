@@ -87,7 +87,7 @@ const std::vector<uint8_t>& zasm_get_register_dependency_mask_cache()
 	return register_dependency_mask_cache;
 }
 
-bool StructuredZasm::is_modern_function_calling()
+bool StructuredZasm::is_modern_function_calling() const
 {
 	// UNKNOWN is included b/c scripts like "global init" don't typically have any function calls,
 	// so might as well consider it "modern".

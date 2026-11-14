@@ -46,6 +46,7 @@
 #include "zconsole/ConsoleLogger.h"
 
 #include <algorithm>
+#include <climits>
 #include <cstdint>
 #include <fmt/format.h>
 #include <map>
@@ -327,48 +328,57 @@ void jit_create_labels(State& state, Compiler& cc, zasm_script* script, const Za
 	}
 }
 
-// Scans the contiguous run of PUSH/POP commands starting at pc, returning the
-// largest stack growth within it and where the run ends - so the backend can
-// bounds-check the stack pointer once per run instead of at every push.
+// Scans the contiguous run of stack commands (pushes, POP, POPARGS, PEEK) starting at pc,
+// returning which stack slots it reads and writes, and where the run ends - so the backend can
+// bounds-check the stack pointer once per run instead of at every push, pop and peek.
+//
+// Each slot is given by its depth below the stack pointer at the start of the run: a push writes
+// the slot at the depth it leaves the stack at, and a pop or peek reads the one at the depth it
+// finds it at. POPARGS only moves the stack pointer here, as it checks its own read.
 struct JitPushRunScan
 {
-	int max_stack_delta;
+	int min_depth;
+	int max_depth;
 	pc_t end_pc;
 };
 
 inline JitPushRunScan jit_scan_push_run(const zasm_script* script, pc_t pc, pc_t final_pc)
 {
-	// The first command may itself be a multi-slot PUSHARGS (the optimizer's
-	// push-combining makes that the common case). Counting it as 1 understated
-	// the run's depth by arg2-1 slots, so a script within that many slots of
-	// the limit would write out of bounds instead of exiting with
-	// RUNSCRIPT_JIT_STACK_OVERFLOW.
-	const auto& op0 = script->zasm[pc];
-	bool starts_with_pushargs = op0.command == PUSHARGSV || op0.command == PUSHARGSR;
-	int stack_delta = starts_with_pushargs ? std::max(1, op0.arg2) : 1;
-	int max_stack_delta = stack_delta;
+	int depth = 0;
+	int min_depth = INT_MAX;
+	int max_depth = INT_MIN;
+	auto access = [&](int lo, int hi) {
+		min_depth = std::min(min_depth, lo);
+		max_depth = std::max(max_depth, hi);
+	};
 
-	pc_t j = pc + 1;
+	pc_t j = pc;
 	for (; j <= final_pc; j++)
 	{
 		const auto& op = script->zasm[j];
 		if (op.command == PUSHV || op.command == PUSHR)
 		{
-			stack_delta++;
-			max_stack_delta = std::max(max_stack_delta, stack_delta);
+			depth++;
+			access(depth, depth);
 		}
 		else if (op.command == PUSHARGSV || op.command == PUSHARGSR)
 		{
-			stack_delta += op.arg2;
-			max_stack_delta = std::max(max_stack_delta, stack_delta);
+			if (op.arg2 > 0)
+				access(depth + 1, depth + op.arg2);
+			depth += op.arg2;
 		}
 		else if (op.command == POP)
 		{
-			stack_delta -= 1;
+			access(depth, depth);
+			depth--;
+		}
+		else if (op.command == PEEK)
+		{
+			access(depth, depth);
 		}
 		else if (op.command == POPARGS)
 		{
-			stack_delta -= op.arg2;
+			depth -= op.arg2;
 		}
 		else if (op.command == NOP)
 		{
@@ -380,7 +390,182 @@ inline JitPushRunScan jit_scan_push_run(const zasm_script* script, pc_t pc, pc_t
 		}
 	}
 
-	return {max_stack_delta, j};
+	// A run with no access (only a PUSHARGS of 0) checks nothing beyond sp <= MAX_STACK_SIZE.
+	if (min_depth > max_depth)
+		min_depth = max_depth = 0;
+	return {min_depth, max_depth, j};
+}
+
+// The limit for checking a run that touches the slots at depths [min_depth, max_depth] below the
+// stack pointer, with check_sp(sp, -max_depth, limit). Every slot sp - depth must be in
+// [0, MAX_STACK_SIZE), so sp - max_depth >= 0 and sp - min_depth < MAX_STACK_SIZE. Checking the
+// first alone would let a stack pointer the interpreter left out of range (SETR SP can set it to
+// anything) write past the stack. One unsigned compare checks both.
+inline int jit_stack_run_sp_limit(int min_depth, int max_depth)
+{
+	return std::max(0, MAX_STACK_SIZE + min_depth - max_depth);
+}
+
+// The limit for checking `depth` pushes with check_sp(sp, -depth, limit): they write the slots at
+// depths [1, depth].
+inline int jit_push_sp_limit(int depth)
+{
+	return jit_stack_run_sp_limit(1, depth);
+}
+
+// How to bounds-check the stack accesses at a constant offset from rSFRAME (LOAD, STORE, STOREV).
+//
+// rSFRAME holds the same value from when a function sets up its frame until it calls a function
+// (which sets up its own, and the caller's is popped back after). So rather than check every
+// access, one check that rSFRAME plus every such offset in the piece is in range covers each
+// access after it, until rSFRAME may change again. The interpreter checks each access instead,
+// but a compiled function's frame is all set up when it starts, so every offset it uses is in
+// range of it. So for compiler output this never fails. Only hand-written ZASM can fail it, and
+// that may stop sooner than the interpreter would, or even stop a script the interpreter
+// wouldn't (if the out of range access is on a path that never runs).
+struct JitFrameAccessPlan
+{
+	enum Mode : uint8_t
+	{
+		// Check this access alone.
+		CHECK_ACCESS,
+		// Check that rSFRAME plus every offset up to max_offset is in range, then this access
+		// needs no check.
+		CHECK_RANGE,
+		// A range check already covers this access.
+		NO_CHECK,
+	};
+
+	// By pc - start_pc. Empty if every access is checked alone.
+	std::vector<Mode> modes;
+	pc_t start_pc = 0;
+	// MAX_STACK_SIZE less the largest offset of any access in the piece (the smallest is at least
+	// 0). Checking that rSFRAME < limit covers them all, with no wraparound.
+	int32_t limit = MAX_STACK_SIZE;
+
+	Mode mode(pc_t pc) const
+	{
+		return modes.empty() ? CHECK_ACCESS : modes[pc - start_pc];
+	}
+};
+
+inline bool jit_is_frame_access(int command)
+{
+	return command == LOAD || command == STORE || command == STOREV;
+}
+
+// True if rSFRAME may hold a different value after this instruction.
+inline bool jit_may_change_sframe(const ffscript& op)
+{
+	// A call sets up the callee's frame, and nothing stops a script from changing registers while
+	// suspended (it may resume elsewhere, too).
+	if (op.command == CALLFUNC || instruction_is_suspend(op))
+		return true;
+
+	const auto& meta = zasm_get_command_meta(op.command);
+	if (meta.implicit_write_mask & (1 << rSFRAME))
+		return true;
+
+	const int32_t* args = &op.arg1;
+	for (int i = 0; i < 3; i++)
+	{
+		if (meta.args[i].writes && args[i] == rSFRAME)
+			return true;
+	}
+	return false;
+}
+
+// `entries` are where control enters the piece other than at start_pc: the resume labels, keyed
+// by the pc before the one execution continues at.
+template <typename Labels>
+JitFrameAccessPlan jit_plan_frame_accesses(const zasm_script* script, const JittedScript* j_script,
+	pc_t start_pc, pc_t final_pc, const Labels& entries)
+{
+	JitFrameAccessPlan plan;
+
+	// Control only enters a function at its start (or the resume points of its pieces) for modern
+	// function calls.
+	if (j_script->script_analysis || !j_script->structured_zasm.is_modern_function_calling())
+		return plan;
+
+	int32_t max_offset = -1;
+	for (pc_t i = start_pc; i <= final_pc; i++)
+	{
+		const auto& op = script->zasm[i];
+		if (!jit_is_frame_access(op.command))
+			continue;
+		if (op.arg2 < 0 || op.arg2 >= MAX_STACK_SIZE)
+			return plan;
+		max_offset = std::max(max_offset, op.arg2);
+	}
+	if (max_offset == -1)
+		return plan;
+
+	size_t n = final_pc - start_pc + 1;
+
+	// Whether rSFRAME has been range checked since it last may have changed, before (in) and after
+	// (out) each instruction: a forward "must" dataflow, from every value set (then lowered where
+	// a path in has no check) until nothing changes.
+	std::vector<uint8_t> is_entry(n), checked_out(n, 1), falls_through(n, 1);
+	std::vector<std::vector<pc_t>> jumps_in(n);
+	is_entry[0] = 1;
+	for (const auto& [pc, label] : entries)
+	{
+		if (pc + 1 >= start_pc && pc + 1 <= final_pc)
+			is_entry[pc + 1 - start_pc] = 1;
+	}
+	for (pc_t i = start_pc; i <= final_pc; i++)
+	{
+		const auto& op = script->zasm[i];
+		auto add_jump = [&](int target) {
+			if (target >= (int)start_pc && target <= (int)final_pc)
+				jumps_in[target - start_pc].push_back(i - start_pc);
+		};
+		if (command_is_goto(op.command))
+			add_jump(op.arg1);
+		else if (op.command == GOTOTABLE || op.command == GOTORANGES)
+		{
+			for (int pc : zasm_jump_targets(op.command, script->literals.vec(op)))
+				add_jump(pc);
+		}
+
+		if (op.command == GOTO || op.command == RETURNFUNC || op.command == QUIT)
+			falls_through[i - start_pc] = 0;
+	}
+
+	plan.modes.resize(n);
+	bool changed = true;
+	while (changed)
+	{
+		changed = false;
+		for (size_t k = 0; k < n; k++)
+		{
+			bool checked = !is_entry[k];
+			if (checked && k > 0 && falls_through[k - 1])
+				checked = checked_out[k - 1];
+			for (pc_t from : jumps_in[k])
+				checked = checked && checked_out[from];
+
+			const auto& op = script->zasm[start_pc + k];
+			if (jit_is_frame_access(op.command))
+			{
+				plan.modes[k] = checked ? JitFrameAccessPlan::NO_CHECK : JitFrameAccessPlan::CHECK_RANGE;
+				checked = true;
+			}
+			if (jit_may_change_sframe(op))
+				checked = false;
+
+			if ((bool)checked_out[k] != checked)
+			{
+				checked_out[k] = checked;
+				changed = true;
+			}
+		}
+	}
+
+	plan.start_pc = start_pc;
+	plan.limit = MAX_STACK_SIZE - max_offset;
+	return plan;
 }
 
 // Maps each resume point to the native address of its label, for re-entering

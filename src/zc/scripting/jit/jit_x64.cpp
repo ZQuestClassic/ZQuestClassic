@@ -45,6 +45,10 @@ struct CompilationState
 	pc_t final_pc;
 	CallConvId calling_convention;
 	Label L_End;
+	// Shared out-of-line exit for every stack overflow check in the function (see check_sp),
+	// created on first use. One stub keeps each check to a compare and a branch.
+	Label L_StackOverflow;
+	JitFrameAccessPlan frame_plan;
 	// Return path for propagating a direct callee's non-RETURN exec result to the driver untouched.
 	// Unlike L_End it must not store vSp (ctx->sp holds the value saved by the function that
 	// actually exited).
@@ -142,15 +146,14 @@ static void modify_sp(CompilationState& state, x86::Compiler& cc, x86::Gp vStack
 	state.modified_stack = true;
 }
 
-static void check_sp(CompilationState& state, x86::Compiler& cc, x86::Gp vStackIndex, int offset = 0)
+// Stops the script with a stack overflow unless vStackIndex + offset < limit (unsigned). Returns
+// the register holding vStackIndex + offset.
+static x86::Gp check_sp(CompilationState& state, x86::Compiler& cc, x86::Gp vStackIndex, int offset = 0, int limit = MAX_STACK_SIZE)
 {
-	if (offset == 0)
+	x86::Gp val = vStackIndex;
+	if (offset != 0)
 	{
-		cc.cmp(vStackIndex, MAX_STACK_SIZE);
-	}
-	else
-	{
-		x86::Gp val = cc.newUInt32();
+		val = cc.newUInt32();
 		cc.mov(val, vStackIndex);
 		// Prefer inc/dec for smaller code size.
 		if (offset == 1)
@@ -159,16 +162,24 @@ static void check_sp(CompilationState& state, x86::Compiler& cc, x86::Gp vStackI
 			cc.dec(val);
 		else
 			cc.add(val, offset);
-		cc.cmp(val, MAX_STACK_SIZE);
 	}
+	cc.cmp(val, limit);
 
-	Label label = cc.newLabel();
-	cc.jb(label);
-	set_ctx_ret_code(state, cc, RUNSCRIPT_JIT_STACK_OVERFLOW);
-	cc.mov(state.vResult, EXEC_RESULT_EXIT);
-	restore_regs(state, cc);
-	cc.ret(state.vResult);
-	cc.bind(label);
+	if (!state.L_StackOverflow.isValid())
+		state.L_StackOverflow = cc.newLabel();
+	cc.jae(state.L_StackOverflow);
+	return val;
+}
+
+// A stack slot whose index the script controls (a register, or SP plus an offset). Quest files
+// can hold any ZASM, so like the interpreter's SH::read_stack and SH::write_stack this checks the
+// index first, and stops the script with a stack overflow if it is out of range.
+static x86::Mem checked_stack_mem(CompilationState& state, x86::Compiler& cc, x86::Gp index, int offset_words = 0)
+{
+	// The address uses the slot that was checked, a 32-bit sum that wraps around:
+	// [index*4 + offset_words*4] is computed in 64 bits, and for an index near 2^32 would pass the
+	// check yet be far past the stack.
+	return x86::ptr_32(state.ptrStackBase, check_sp(state, cc, index, offset_words), 2);
 }
 
 static void do_stack_push_many(CompilationState& state, x86::Compiler& cc, int offset, int amount, x86::Gp val)
@@ -200,13 +211,15 @@ static void flush_stack_cache(CompilationState& state, x86::Compiler& cc)
 		if (DEBUG_JIT_PRINT_ASM)
 			cc.setInlineComment("flush cached stack");
 
+		// Capped so hand-written ZASM can't overflow the sum (each amount is capped when it is
+		// cached). More than the stack holds always fails the check, whatever the count.
 		int stack_change = 0;
 		for (auto& [reg, is_constant, value, amount] : state.cached_d_reg_stack)
 		{
-			stack_change += amount;
+			stack_change = std::min(stack_change + amount, MAX_STACK_SIZE + 1);
 		}
 
-		check_sp(state, cc, state.vSp, -stack_change);
+		check_sp(state, cc, state.vSp, -stack_change, jit_push_sp_limit(stack_change));
 		modify_sp(state, cc, state.vSp, -stack_change);
 
 		int i = stack_change - 1;
@@ -235,6 +248,23 @@ static void flush_stack_cache(CompilationState& state, x86::Compiler& cc)
 		}
 		state.cached_d_reg_stack.clear();
 	}
+}
+
+// The slot of a LOAD, STORE or STOREV, checked as the piece's JitFrameAccessPlan says.
+static x86::Mem frame_stack_mem(CompilationState& state, x86::Compiler& cc, x86::Gp sframe, int offset_words)
+{
+	const auto& plan = state.frame_plan;
+	switch (plan.mode(state.pc))
+	{
+		case JitFrameAccessPlan::CHECK_ACCESS:
+			return checked_stack_mem(state, cc, sframe, offset_words);
+		case JitFrameAccessPlan::CHECK_RANGE:
+			check_sp(state, cc, sframe, 0, plan.limit);
+			break;
+		case JitFrameAccessPlan::NO_CHECK:
+			break;
+	}
+	return x86::ptr_32(state.ptrStackBase, sframe, 2, offset_words * 4);
 }
 
 static bool instruction_is_compiled(const ffscript& op);
@@ -863,47 +893,45 @@ static void compile_compare(CompilationState& state, x86::Compiler& cc, int comm
 	}
 	else if (command == STACKWRITEATVV_IF)
 	{
-		// TODO: needs to check for stack overflow.
 		// Write directly value on the stack (arg1 to offset arg2)
-		x86::Gp offset = immutable_add_constant(cc, state.vSp, arg2);
 		auto cmp = arg3 & CMP_FLAGS;
 		switch(cmp) //but only conditionally
 		{
 			case 0:
 				break;
 			case CMP_GT|CMP_LT|CMP_EQ:
-				cc.mov(x86::ptr_32(state.ptrStackBase, offset, 2), arg1);
+				cc.mov(checked_stack_mem(state, cc, state.vSp, arg2), arg1);
 				break;
 			default:
 			{
-				x86::Gp tmp = cc.newInt32();
-				x86::Gp val = cc.newInt32();
-				cc.mov(tmp, x86::ptr_32(state.ptrStackBase, offset, 2));
-				cc.mov(val, arg1);
+				// Skip the write (and its stack check, like the interpreter) if the condition is
+				// false.
+				Label L_skip = cc.newLabel();
 				switch(cmp)
 				{
 					case CMP_GT:
-						cc.cmovg(tmp, val);
+						cc.jle(L_skip);
 						break;
 					case CMP_GT|CMP_EQ:
-						cc.cmovge(tmp, val);
+						cc.jl(L_skip);
 						break;
 					case CMP_LT:
-						cc.cmovl(tmp, val);
+						cc.jge(L_skip);
 						break;
 					case CMP_LT|CMP_EQ:
-						cc.cmovle(tmp, val);
+						cc.jg(L_skip);
 						break;
 					case CMP_EQ:
-						cc.cmove(tmp, val);
+						cc.jne(L_skip);
 						break;
 					case CMP_GT|CMP_LT:
-						cc.cmovne(tmp, val);
+						cc.je(L_skip);
 						break;
 					default:
 						assert(false);
 				}
-				cc.mov(x86::ptr_32(state.ptrStackBase, offset, 2), tmp);
+				cc.mov(checked_stack_mem(state, cc, state.vSp, arg2), arg1);
+				cc.bind(L_skip);
 			}
 		}
 	}
@@ -1020,13 +1048,15 @@ static bool instruction_is_compiled(const ffscript& op)
 	return command_is_compiled(op.command) && !jit_instruction_runs_in_interpreter(op);
 }
 
-// Check for stack overflows, but only once per contiguous series of PUSH (or POP) commands.
+// Check for stack overflows, but only once per contiguous run of stack commands (pushes, POP,
+// PEEK): the check covers every slot the run reads or writes (see jit_scan_push_run).
 static void handle_check_sp_push(CompilationState& state, x86::Compiler& cc, const zasm_script* script)
 {
 	if (state.pc >= state.num_push_commands_in_row_end_pc)
 	{
 		auto scan = jit_scan_push_run(script, state.pc, state.final_pc);
-		check_sp(state, cc, state.vSp, -scan.max_stack_delta);
+		int limit = jit_stack_run_sp_limit(scan.min_depth, scan.max_depth);
+		check_sp(state, cc, state.vSp, -scan.max_depth, limit);
 		state.num_push_commands_in_row_end_pc = scan.end_pc;
 	}
 }
@@ -1224,9 +1254,8 @@ static void compile_single_command(CompilationState& state, x86::Compiler& cc, c
 		break;
 		case STACKWRITEATVV:
 		{
-			// TODO: needs to check for stack overflow.
 			// Write directly value on the stack (arg1 to offset arg2)
-			cc.mov(x86::ptr_32(state.ptrStackBase, state.vSp, 2, arg2 * 4), arg1);
+			cc.mov(checked_stack_mem(state, cc, state.vSp, arg2), arg1);
 		}
 		break;
 		case PUSHV:
@@ -1275,7 +1304,7 @@ static void compile_single_command(CompilationState& state, x86::Compiler& cc, c
 				// same register in-place) would corrupt the stack cache entry before the flush.
 				x86::Gp copy = cc.newInt32();
 				cc.mov(copy, get_z_register(state, cc, arg1));
-				state.cached_d_reg_stack.push_back({.reg=copy, .amount=arg2});
+				state.cached_d_reg_stack.push_back({.reg=copy, .amount=std::min(arg2, MAX_STACK_SIZE + 1)});
 				break;
 			}
 
@@ -1309,7 +1338,7 @@ static void compile_single_command(CompilationState& state, x86::Compiler& cc, c
 		{
 			if (state.use_cached_regs)
 			{
-				state.cached_d_reg_stack.push_back({.is_constant=true, .value=arg1, .amount=arg2});
+				state.cached_d_reg_stack.push_back({.is_constant=true, .value=arg1, .amount=std::min(arg2, MAX_STACK_SIZE + 1)});
 				break;
 			}
 
@@ -1362,21 +1391,21 @@ static void compile_single_command(CompilationState& state, x86::Compiler& cc, c
 		{
 			// Set register to a value on the stack (offset is arg2 + rSFRAME register).
 			x86::Gp sframe = get_z_register(state, cc, rSFRAME);
-			set_z_register(state, cc, arg1, x86::ptr_32(state.ptrStackBase, sframe, 2, arg2 * 4));
+			set_z_register(state, cc, arg1, frame_stack_mem(state, cc, sframe, arg2));
 		}
 		break;
 		case LOADD:
 		{
 			// Set register to a value on the stack (offset is arg2 + rSFRAME register).
 			x86::Gp offset = compute_stack_offset(cc, get_z_register(state, cc, rSFRAME), arg2);
-			set_z_register(state, cc, arg1, x86::ptr_32(state.ptrStackBase, offset, 2));
+			set_z_register(state, cc, arg1, checked_stack_mem(state, cc, offset));
 		}
 		break;
 		case LOADI:
 		{
 			// Set register to a value on the stack (offset is register at arg2).
 			x86::Gp offset = compute_stack_offset(cc, get_z_register(state, cc, arg2), 0);
-			set_z_register(state, cc, arg1, x86::ptr_32(state.ptrStackBase, offset, 2));
+			set_z_register(state, cc, arg1, checked_stack_mem(state, cc, offset));
 		}
 		break;
 		case REF_REMOVE:
@@ -1395,7 +1424,7 @@ static void compile_single_command(CompilationState& state, x86::Compiler& cc, c
 			// Write from register to a value on the stack (offset is arg2 + rSFRAME register).
 			x86::Gp sframe = get_z_register(state, cc, rSFRAME);
 			x86::Gp val = get_z_register(state, cc, arg1);
-			cc.mov(x86::ptr_32(state.ptrStackBase, sframe, 2, arg2 * 4), val);
+			cc.mov(frame_stack_mem(state, cc, sframe, arg2), val);
 		}
 		break;
 		case STORE_OBJECT:
@@ -1463,7 +1492,7 @@ static void compile_single_command(CompilationState& state, x86::Compiler& cc, c
 		{
 			// Write directly value on the stack (offset is arg2 + rSFRAME register).
 			x86::Gp sframe = get_z_register(state, cc, rSFRAME);
-			cc.mov(x86::ptr_32(state.ptrStackBase, sframe, 2, arg2 * 4), arg1);
+			cc.mov(frame_stack_mem(state, cc, sframe, arg2), arg1);
 		}
 		break;
 		case STORED:
@@ -1471,14 +1500,14 @@ static void compile_single_command(CompilationState& state, x86::Compiler& cc, c
 			// Write from register to a value on the stack (offset is arg2 + rSFRAME register).
 			x86::Gp offset = compute_stack_offset(cc, get_z_register(state, cc, rSFRAME), arg2);
 			x86::Gp val = get_z_register(state, cc, arg1);
-			cc.mov(x86::ptr_32(state.ptrStackBase, offset, 2), val);
+			cc.mov(checked_stack_mem(state, cc, offset), val);
 		}
 		break;
 		case STOREDV:
 		{
 			// Write directly value on the stack (offset is arg2 + rSFRAME register).
 			x86::Gp offset = compute_stack_offset(cc, get_z_register(state, cc, rSFRAME), arg2);
-			cc.mov(x86::ptr_32(state.ptrStackBase, offset, 2), arg1);
+			cc.mov(checked_stack_mem(state, cc, offset), arg1);
 		}
 		break;
 		case STOREI:
@@ -1486,7 +1515,7 @@ static void compile_single_command(CompilationState& state, x86::Compiler& cc, c
 			// Write from register to a value on the stack (offset is register at arg2).
 			x86::Gp offset = compute_stack_offset(cc, get_z_register(state, cc, arg2), 0);
 			x86::Gp val = get_z_register(state, cc, arg1);
-			cc.mov(x86::ptr_32(state.ptrStackBase, offset, 2), val);
+			cc.mov(checked_stack_mem(state, cc, offset), val);
 		}
 		break;
 		case READPODARRAYR:
@@ -1745,6 +1774,8 @@ static void compile_single_command(CompilationState& state, x86::Compiler& cc, c
 				break;
 			}
 
+			handle_check_sp_push(state, cc, script);
+
 			x86::Gp val = cc.newInt32();
 			cc.mov(val, x86::ptr_32(state.ptrStackBase, state.vSp, 2));
 			modify_sp(state, cc, state.vSp, 1);
@@ -1762,18 +1793,14 @@ static void compile_single_command(CompilationState& state, x86::Compiler& cc, c
 			modify_sp(state, cc, state.vSp, arg2);
 
 			// word read = ri->sp - 1;
-			x86::Gp read = cc.newUInt32();
-			cc.mov(read, state.vSp);
-			cc.sub(read, 1);
-
-			check_sp(state, cc, read);
+			x86::Mem read = checked_stack_mem(state, cc, state.vSp, -1);
 
 			// int32_t value = SH::read_stack(read);
 			// set_register(sarg1, value);
 			if (arg1 != D(5) || state.runtime_debugging) // Skip setting the "null" register (unless runtime debugging).
 			{
 				x86::Gp val = cc.newInt32();
-				cc.mov(val, x86::ptr_32(state.ptrStackBase, read, 2));
+				cc.mov(val, read);
 				set_z_register(state, cc, arg1, val);
 			}
 		}
@@ -1794,6 +1821,8 @@ static void compile_single_command(CompilationState& state, x86::Compiler& cc, c
 					break;
 				}
 			}
+
+			handle_check_sp_push(state, cc, script);
 
 			x86::Gp val = cc.newInt32();
 			cc.mov(val, x86::ptr_32(state.ptrStackBase, state.vSp, 2));
@@ -2426,6 +2455,7 @@ std::optional<JittedFunction> jit_backend_compile_function(zasm_script* script, 
 
 	JumpAnnotation* resume_annotation = cc.newJumpAnnotation();
 	jit_create_labels(state, cc, script, fn, start_pc, final_pc);
+	state.frame_plan = jit_plan_frame_accesses(script, j_script, start_pc, final_pc, state.resume_labels);
 
 	for (auto& [pc, label] : state.resume_labels)
 		resume_annotation->addLabel(label);
@@ -2583,6 +2613,15 @@ std::optional<JittedFunction> jit_backend_compile_function(zasm_script* script, 
 		set_ctx_pc(state, cc, pc);
 		cc.mov(state.vResult, EXEC_RESULT_CONTINUE);
 		cc.jmp(state.L_End);
+	}
+
+	if (state.L_StackOverflow.isValid())
+	{
+		cc.bind(state.L_StackOverflow);
+		set_ctx_ret_code(state, cc, RUNSCRIPT_JIT_STACK_OVERFLOW);
+		cc.mov(state.vResult, EXEC_RESULT_EXIT);
+		restore_regs(state, cc);
+		cc.ret(state.vResult);
 	}
 
 	if (state.L_PropagateEnd.isValid())
