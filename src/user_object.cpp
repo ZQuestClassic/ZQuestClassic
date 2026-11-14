@@ -1,3 +1,4 @@
+#include "base/check.h"
 #include "base/zdefs.h"
 #include "user_object.h"
 #include "zc/ffscript.h"
@@ -176,6 +177,8 @@ bool scr_func_exec::validate()
 void user_object::prep(dword pc, ScriptType type, word script, int32_t i)
 {
 	if(!pc) return; //destructor is null
+	// The compiler gives the position after a STARTDESTRUCTOR.
+	CHECK(pc <= curscript->size);
 	ffscript &zas = curscript->zasm[pc-1];
 	if(zas.command == STARTDESTRUCTOR && zas.strptr) //Destructor is valid
 	{
