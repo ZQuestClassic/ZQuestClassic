@@ -3576,6 +3576,10 @@ static auto register_dependencies = [](){
 
 const std::vector<int>& get_register_dependencies(int reg)
 {
+	// Quests can hold any register number.
+	static const std::vector<int> none;
+	if ((unsigned)reg >= NUMVARIABLES)
+		return none;
 	return register_dependencies[reg];
 }
 

@@ -72,9 +72,14 @@ void zasm_init_meta_cache()
 	}
 }
 
-const std::vector<CommandMetadata>& zasm_get_command_meta_cache()
+const CommandMetadata& zasm_get_command_meta(int command)
 {
-	return command_meta_cache;
+	// Quests can hold any command. Unknown ones stop the script when reached, and read or write
+	// nothing.
+	static const CommandMetadata unknown_command_meta{};
+	if ((unsigned)command >= command_meta_cache.size())
+		return unknown_command_meta;
+	return command_meta_cache[command];
 }
 
 const std::vector<uint8_t>& zasm_get_register_dependency_mask_cache()
@@ -720,7 +725,7 @@ static bool call_reads_all(int32_t callee, const StructuredZasm& structured_zasm
 
 static void instruction_reads_writes(const ffscript& instr, bool suspend_uses_all_registers, uint8_t& reads, uint8_t& writes)
 {
-	auto& meta = command_meta_cache[instr.command];
+	auto& meta = zasm_get_command_meta(instr.command);
 
 	// An instruction's reads all happen before its writes, so collect the masks for every arg
 	// first. Interleaving them per-arg would drop the read when one arg writes a register another
@@ -735,7 +740,7 @@ static void instruction_reads_writes(const ffscript& instr, bool suspend_uses_al
 		if (!arg_info.is_reg) continue;
 
 		int reg = p_arg[argn];
-		if (reg < 8)
+		if ((unsigned)reg < 8)
 		{
 			if (arg_info.reads)
 				reads |= (1 << reg);
@@ -743,7 +748,8 @@ static void instruction_reads_writes(const ffscript& instr, bool suspend_uses_al
 				writes |= (1 << reg);
 		}
 
-		reads |= register_dependency_mask_cache[reg];
+		if ((unsigned)reg < register_dependency_mask_cache.size())
+			reads |= register_dependency_mask_cache[reg];
 	}
 
 	if (suspend_uses_all_registers && instruction_is_suspend(instr))

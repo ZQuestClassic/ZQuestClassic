@@ -27,7 +27,7 @@ struct CommandMetadata
 };
 
 void zasm_init_meta_cache();
-const std::vector<CommandMetadata>& zasm_get_command_meta_cache();
+const CommandMetadata& zasm_get_command_meta(int command);
 const std::vector<uint8_t>& zasm_get_register_dependency_mask_cache();
 
 struct ZasmFunction

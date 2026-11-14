@@ -119,8 +119,7 @@ static void for_every_side_effect_d_registers_only(const ffscript& instr, T fn)
 {
 	std::array<bool, 8> r{}, w{};
 
-	auto& command_meta_cache = zasm_get_command_meta_cache();
-	auto& meta = command_meta_cache[instr.command];
+	auto& meta = zasm_get_command_meta(instr.command);
 	for (int i = 0; i < 8; i++)
 	{
 		r[i] = meta.implicit_read_mask & (1 << i);
@@ -134,7 +133,7 @@ static void for_every_side_effect_d_registers_only(const ffscript& instr, T fn)
 		if (!arg_info.is_reg) continue;
 
 		int reg = p_arg[argn];
-		if (reg < 8)
+		if ((unsigned)reg < 8)
 		{
 			if (arg_info.reads)
 				r[reg] = true;
@@ -241,6 +240,9 @@ template <typename T>
 static void for_every_register_side_effect_args_only(const ffscript& instr, T fn)
 {
 	auto sc = get_script_command(instr.command);
+	// Quests can hold any command. Unknown ones stop the script, and read or write nothing.
+	if (!sc)
+		return;
 
 	if (sc->is_register(0))
 	{
@@ -265,6 +267,8 @@ template <typename T>
 static void for_every_side_effect_all_args(ffscript& instr, T fn)
 {
 	auto sc = get_script_command(instr.command);
+	if (!sc)
+		return;
 
 	if (sc->args >= 1)
 	{
