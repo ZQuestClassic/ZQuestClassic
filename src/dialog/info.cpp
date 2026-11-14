@@ -225,6 +225,8 @@ std::shared_ptr<GUI::Widget> InfoDialog::view()
 		auto url_gr = Rows<4>(padding = 0_px);
 		for (auto& [txt, url] : hint_data.urls)
 		{
+			if (!util::is_web_url(url))
+				continue;
 			url_gr->add(Button(text = txt,
 				height = 2_em,
 				onPressFunc = [&, url]()

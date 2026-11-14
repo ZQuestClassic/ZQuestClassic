@@ -967,28 +967,14 @@ bool LauncherDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 		case message::ZU_RELEASE_NOTES:
 		{
 			std::string url = fmt::format("https://zquestclassic.com/releases/{}/", getVersionString());
-#ifdef _WIN32
-			std::string cmd = "start " + url;
-			system(cmd.c_str());
-#elif defined(__APPLE__)
-			launch_process("open", {url});
-#else
-			launch_process("xdg-open", {url});
-#endif
+			util::open_web_link(url);
 		}
 		break;
 		case message::ZU_RELEASE_NOTES_NEXT:
 		{
 #ifdef HAS_CURL
 			std::string url = fmt::format("https://zquestclassic.com/releases/{}/", next_version);
-#ifdef _WIN32
-			std::string cmd = "start " + url;
-			system(cmd.c_str());
-#elif defined(__APPLE__)
-			launch_process("open", {url});
-#else
-			launch_process("xdg-open", {url});
-#endif
+			util::open_web_link(url);
 #endif
 		}
 		break;

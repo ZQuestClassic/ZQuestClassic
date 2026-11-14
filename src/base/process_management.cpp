@@ -751,9 +751,10 @@ void launch_file(std::string const& file)
 	ShellExecute(0, 0, path_buf, 0, 0, SW_NORMAL);
 #elif defined(__EMSCRIPTEN__)
 	// TODO
+#elif defined(__APPLE__)
+	launch_process("open", {file});
 #else
-	std::string command = "open " + file;
-	system(command.c_str());
+	launch_process("xdg-open", {file});
 #endif
 }
 

@@ -162,6 +162,9 @@ namespace util
 	// Walks up from `dir` until it finds a directory that exists. Returns an
 	// empty path if none of its ancestors do either.
 	fs::path nearest_existing_directory(const fs::path& dir);
+	// True only for an http:// or https:// URL that is safe to hand to the browser.
+	bool is_web_url(std::string_view url);
+	// Opens `url` in the browser. Does nothing if it is not `is_web_url`.
 	void open_web_link(std::string url);
 	std::array<uint8_t, 16> md5_hash_bytes(const std::string& data);
 	// Hash of a file's contents, or nullopt if it can't be read.
