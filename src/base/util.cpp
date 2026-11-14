@@ -10,6 +10,11 @@
 #include <sys/stat.h>
 #include <regex>
 
+#ifdef _WIN32
+#include <shellapi.h>
+#include "base/win_encoding.h"
+#endif
+
 using namespace std;
 namespace fs = std::filesystem;
 
@@ -203,13 +208,45 @@ namespace util
 		}
 	}
 	
+	bool is_web_url(std::string_view url)
+	{
+		std::string scheme(url.substr(0, 8));
+		lowerstr(scheme);
+		size_t prefix_len;
+		if (scheme.starts_with("https://"))
+			prefix_len = 8;
+		else if (scheme.starts_with("http://"))
+			prefix_len = 7;
+		else
+			return false;
+
+		// Needs a host.
+		if (url.size() == prefix_len || url[prefix_len] == '/')
+			return false;
+
+		// Only the characters RFC 3986 allows in a URL (non-ASCII must be percent-encoded).
+		// This rules out whitespace, control characters, quotes and backslashes, which could
+		// otherwise change how the URL is handed to the browser.
+		static constexpr std::string_view allowed_punct = "-._~:/?#[]@!$&'()*+,;=%";
+		for (char c : url)
+		{
+			if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9'))
+				continue;
+			if (allowed_punct.find(c) == std::string_view::npos)
+				return false;
+		}
+		return true;
+	}
+
 	void open_web_link(std::string url)
 	{
+		if (!is_web_url(url))
+			return;
+
 #ifdef __EMSCRIPTEN__
 		(void)url;
 #elif defined(_WIN32)
-		std::string cmd = "start " + url;
-		system(cmd.c_str());
+		ShellExecuteW(NULL, L"open", utf8_to_wide(url).c_str(), NULL, NULL, SW_SHOWNORMAL);
 #elif defined(__APPLE__)
 		launch_process("open", {url});
 #else

@@ -4,6 +4,29 @@
 
 #include <string>
 
+static void test_is_web_url()
+{
+	assertTrue(util::is_web_url("https://zquestclassic.com/releases/"));
+	assertTrue(util::is_web_url("http://example.com"));
+	assertTrue(util::is_web_url("HTTPS://example.com/a?b=c&d=%20#e"));
+
+	assertTrue(!util::is_web_url(""));
+	assertTrue(!util::is_web_url("https://"));
+	assertTrue(!util::is_web_url("https:///etc/passwd"));
+	assertTrue(!util::is_web_url("file:///etc/passwd"));
+	assertTrue(!util::is_web_url("javascript:alert(1)"));
+	assertTrue(!util::is_web_url("calc.exe"));
+	assertTrue(!util::is_web_url("C:\\Windows\\System32\\calc.exe"));
+	assertTrue(!util::is_web_url(" https://example.com"));
+	assertTrue(!util::is_web_url("\thttps://example.com"));
+	assertTrue(!util::is_web_url("https://example.com & calc"));
+	assertTrue(!util::is_web_url("https://example.com\n"));
+	assertTrue(!util::is_web_url("https://example.com/\" --foo"));
+	assertTrue(!util::is_web_url("https://example.com/|calc"));
+	assertTrue(!util::is_web_url("https://example.com/^calc"));
+	assertTrue(!util::is_web_url("https://ex\xC3\xA9.com"));
+}
+
 static void test_fuzzy_match_score()
 {
 	auto score = util::fuzzy_match_score;
@@ -39,6 +62,7 @@ TestResults test_util(bool verbose)
 	TestResults tr{};
 	struct { const char* name; void (*fn)(); } tests[] = {
 		{ "fuzzy_match_score", test_fuzzy_match_score },
+		{ "is_web_url", test_is_web_url },
 	};
 
 	for (auto& test : tests)

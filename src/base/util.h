@@ -57,7 +57,9 @@ namespace util
 	std::string read_text_file(fs::path path);
 	std::istream &portable_get_line(std::istream &is, std::string &t);
 	std::string cropPath(std::string filepath);
-	// Opens `url` in the user's browser.
+	// True only for an http:// or https:// URL that is safe to hand to the browser.
+	bool is_web_url(std::string_view url);
+	// Opens `url` in the browser. Does nothing if it is not `is_web_url`.
 	void open_web_link(std::string url);
 	void replstr(std::string& str, std::string const& from, std::string const& to);
 	void replace_first(std::string& s, std::string const& toReplace, std::string const& replaceWith);
