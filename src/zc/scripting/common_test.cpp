@@ -31,6 +31,21 @@ static void test_parse_user_path_non_ascii()
 	assertTrue(!parse_user_path("a/CON", true));
 }
 
+static void test_parse_user_path_banned_extension()
+{
+	assertTrue(parse_user_path("save.txt", true).has_value());
+	assertTrue(parse_user_path("save.dat", true).has_value());
+	assertTrue(!parse_user_path("a.exe", true));
+	assertTrue(!parse_user_path("a.EXE", true));
+	assertTrue(!parse_user_path("a.Bat", true));
+	assertTrue(!parse_user_path("a.dll", true));
+	assertTrue(!parse_user_path("a.lnk", true));
+	assertTrue(!parse_user_path("a.sh", true));
+	assertTrue(!parse_user_path("a.desktop", true));
+	// Directories can be named anything.
+	assertTrue(parse_user_path("a.exe", false).has_value());
+}
+
 static void test_parse_user_path_invalid_character()
 {
 	// The error names the character that was rejected.
@@ -49,6 +64,7 @@ TestResults test_parse_user_path(bool verbose)
 	struct { const char* name; void (*fn)(); } tests[] = {
 		{ "non_ascii", test_parse_user_path_non_ascii },
 		{ "invalid_character", test_parse_user_path_invalid_character },
+		{ "banned_extension", test_parse_user_path_banned_extension },
 	};
 
 	for (auto& test : tests)

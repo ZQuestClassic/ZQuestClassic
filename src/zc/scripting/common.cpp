@@ -28,8 +28,20 @@ int32_t SH::read_stack_oob()
 	return -10000;
 }
 
-// Gotten from 'https://fileinfo.com/filetypes/executable'
-std::set<std::string> banned_extensions = {".xlm",".caction",".8ck", ".actc",".a6p", ".m3g",".run",".workflow",".otm",".apk",".fxp",".73k",".0xe",".exe",".cmd",".jsx",".scar",".wcm",".jar",".ebs2",".ipa",".xap",".ba_",".ac",".bin",".vlx",".icd",".elf",".xbap",".89k",".widget",".a7r",".ex_",".zl9",".cgi",".scr",".coffee",".ahk",".plsc",".air",".ear",".app",".scptd",".xys",".hms",".cyw",".ebm",".pwc",".xqt",".msl",".seed",".vexe",".ebs",".mcr",".gpu",".celx",".wsh",".frs",".vxp",".action",".com",".out",".gadget",".command",".script",".rfu",".tcp",".widget",".ex4",".bat",".cof",".phar",".rxe",".scb",".ms",".isu",".fas",".mlx",".gpe",".mcr",".mrp",".u3p",".js",".acr",".epk",".exe1",".jsf",".rbf",".rgs",".vpm",".ecf",".hta",".dld",".applescript",".prg",".pyc",".spr",".nexe",".server",".appimage",".pyo",".dek",".mrc",".fpi",".rpj",".iim",".vbs",".pif",".mel",".scpt",".csh",".paf",".ws",".mm",".acc",".ex5",".mac",".plx",".snap",".ps1",".vdo",".mxe",".gs",".osx",".sct",".wiz",".x86",".e_e",".fky",".prg",".fas",".azw2",".actm",".cel",".tiapp",".thm",".kix",".wsf",".vbe",".lo",".ls",".tms",".ezs",".ds",".n",".esh",".vbscript",".arscript",".qit",".pex",".dxl",".wpm",".s2a",".sca",".prc",".shb",".rbx",".jse",".beam",".udf",".mem",".kx",".ksh",".rox",".upx",".ms",".mam",".btm",".es",".asb",".ipf",".mio",".sbs",".hpf",".ita",".eham",".ezt",".dmc",".qpx",".ore",".ncl",".exopc",".smm",".pvd",".ham",".wpk"};
+// Gotten from 'https://fileinfo.com/filetypes/executable', plus libraries, installers, shortcuts
+// and scripts that the OS or a double-click would run.
+static const std::set<std::string> banned_extensions = {".xlm",".caction",".8ck", ".actc",".a6p", ".m3g",".run",".workflow",".otm",".apk",".fxp",".73k",".0xe",".exe",".cmd",".jsx",".scar",".wcm",".jar",".ebs2",".ipa",".xap",".ba_",".ac",".bin",".vlx",".icd",".elf",".xbap",".89k",".widget",".a7r",".ex_",".zl9",".cgi",".scr",".coffee",".ahk",".plsc",".air",".ear",".app",".scptd",".xys",".hms",".cyw",".ebm",".pwc",".xqt",".msl",".seed",".vexe",".ebs",".mcr",".gpu",".celx",".wsh",".frs",".vxp",".action",".com",".out",".gadget",".command",".script",".rfu",".tcp",".widget",".ex4",".bat",".cof",".phar",".rxe",".scb",".ms",".isu",".fas",".mlx",".gpe",".mcr",".mrp",".u3p",".js",".acr",".epk",".exe1",".jsf",".rbf",".rgs",".vpm",".ecf",".hta",".dld",".applescript",".prg",".pyc",".spr",".nexe",".server",".appimage",".pyo",".dek",".mrc",".fpi",".rpj",".iim",".vbs",".pif",".mel",".scpt",".csh",".paf",".ws",".mm",".acc",".ex5",".mac",".plx",".snap",".ps1",".vdo",".mxe",".gs",".osx",".sct",".wiz",".x86",".e_e",".fky",".prg",".fas",".azw2",".actm",".cel",".tiapp",".thm",".kix",".wsf",".vbe",".lo",".ls",".tms",".ezs",".ds",".n",".esh",".vbscript",".arscript",".qit",".pex",".dxl",".wpm",".s2a",".sca",".prc",".shb",".rbx",".jse",".beam",".udf",".mem",".kx",".ksh",".rox",".upx",".ms",".mam",".btm",".es",".asb",".ipf",".mio",".sbs",".hpf",".ita",".eham",".ezt",".dmc",".qpx",".ore",".ncl",".exopc",".smm",".pvd",".ham",".wpk",
+	".dll",".so",".dylib",".sys",".drv",".ocx",".cpl",".msi",".msp",".msc",".reg",".lnk",".url",".scf",".website",".appref-ms",".settingcontent-ms",".library-ms",".application",".wsc",".chm",".desktop",".webloc",".inetloc",".terminal",".sh",".bash",".zsh",".py",".pyw",".pl",".rb",".php",".psm1",".psd1",".vb"};
+
+bool has_banned_extension(const fs::path& path)
+{
+	if (!path.has_extension())
+		return false;
+
+	std::string ext = path.extension().string();
+	util::lowerstr(ext);
+	return banned_extensions.contains(ext);
+}
 
 static expected<std::string, std::string> parse_user_path_impl(std::string user_path, bool is_file)
 {
@@ -81,12 +93,8 @@ static expected<std::string, std::string> parse_user_path_impl(std::string user_
 	}
 
 	// Any extension other than banned ones, including no extension, is allowed.
-	if (is_file && resolved_path.has_extension())
-	{
-		auto ext = resolved_path.extension().string();
-		if (banned_extensions.find(ext) != banned_extensions.end())
-			return make_unexpected(fmt::format("Bad path: {} - banned extension", user_path));
-	}
+	if (is_file && has_banned_extension(resolved_path))
+		return make_unexpected(fmt::format("Bad path: {} - banned extension", user_path));
 
 	if (is_file && !resolved_path.has_filename())
 		return make_unexpected(fmt::format("Bad path: {} - missing filename", user_path));

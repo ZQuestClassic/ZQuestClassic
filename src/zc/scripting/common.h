@@ -9,6 +9,7 @@
 #include "zc/maps.h"
 #include "zc/scripting/array_manager.h"
 
+#include <filesystem>
 #include <string>
 
 #define ZSCRIPT_MAX_STRING_CHARS 214748
@@ -366,5 +367,7 @@ public:
 };
 
 expected<std::string, std::string> parse_user_path(const std::string& user_path, bool is_file);
+// Case-insensitive. True for executables, scripts, shortcuts and the like.
+bool has_banned_extension(const std::filesystem::path& path);
 
 #endif
