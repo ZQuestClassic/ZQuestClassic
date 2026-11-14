@@ -3472,7 +3472,12 @@ void do_store(const bool v)
 
 void script_store_object(uint32_t offset, uint32_t new_id)
 {
-	DCHECK(offset < MAX_STACK_SIZE);
+	// Compiled scripts never get here, but quests can hold any ZASM (see script_mark_type_stack).
+	if (offset >= MAX_STACK_SIZE)
+	{
+		SH::write_stack_oob();
+		return;
+	}
 
 	// Increase, then decrease, to handle the case where a variable (holding the only reference to an object) is assigned to itself.
 	// This is unlikely so lets not bother with a conditional that skips both ref modifications when the ids are equal.
@@ -3507,7 +3512,7 @@ void script_ref_change(bool is_this, int32_t offset, bool inc)
 	{
 		if (!ri->stackPosHasObject(offset))
 		{
-			assert(false);
+			ZASM_DCHECK(false);
 			return;
 		}
 		id = SH::read_stack(offset);
@@ -3521,9 +3526,11 @@ void script_ref_change(bool is_this, int32_t offset, bool inc)
 
 void script_mark_type_stack(int32_t offset, bool is_object)
 {
+	// Like any other access to a stack slot (see SH::write_stack). Compiled scripts never get
+	// here, but quests can hold any ZASM.
 	if (offset < 0 || offset >= MAX_STACK_SIZE)
 	{
-		assert(false);
+		SH::write_stack_oob();
 		return;
 	}
 
@@ -3535,9 +3542,10 @@ void script_mark_type_stack(int32_t offset, bool is_object)
 
 void script_remove_object_ref(int32_t offset)
 {
+	// See script_mark_type_stack.
 	if (offset < 0 || offset >= MAX_STACK_SIZE)
 	{
-		assert(false);
+		SH::write_stack_oob();
 		return;
 	}
 
