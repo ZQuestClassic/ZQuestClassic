@@ -1849,7 +1849,7 @@ struct zquestheader
     byte  quest_number;
     byte  old_rules[2];
     byte  old_map_count;
-    char  old_str_count;
+    byte  old_str_count;
     byte  data_flags[ZQ_MAXDATA];
     byte  old_rules2[2];
     char  old_options;
