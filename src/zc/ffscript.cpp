@@ -5470,6 +5470,8 @@ void FFScript::do_paldata_load_level()
 	if (user_paldata* pd = checkPalData(GET_REF(paldataref)))
 	{
 		int32_t lvl = get_register(sarg1) / 10000;
+		if (BC::checkBounds(lvl, 0, MAXLEVELS - 1, "level") != SH::_NoError)
+			return;
 		//Load CSets 2-4
 		pd->load_cset(2, lvl * pdLEVEL + poLEVEL + 0);
 		pd->load_cset(3, lvl * pdLEVEL + poLEVEL + 1);
@@ -5525,6 +5527,8 @@ void FFScript::do_paldata_load_cycle()
 	if (user_paldata* pd = checkPalData(GET_REF(paldataref)))
 	{
 		int32_t lvl = get_register(sarg1) / 10000;
+		if (BC::checkBounds(lvl, 0, MAXLEVELS - 1, "level") != SH::_NoError)
+			return;
 		for (int32_t q = 4; q <= 12; ++q)
 		{
 			pd->load_cset(q, lvl * pdLEVEL + poLEVEL + q);
@@ -5596,6 +5600,8 @@ void FFScript::do_paldata_write_level()
 	if (user_paldata* pd = checkPalData(GET_REF(paldataref)))
 	{
 		int32_t lvl = get_register(sarg1) / 10000;
+		if (BC::checkBounds(lvl, 0, MAXLEVELS - 1, "level") != SH::_NoError)
+			return;
 		bool changed = false;
 		//Write CSets 2-4
 		if (pd->check_cset(2, lvl * pdLEVEL + poLEVEL + 0))
@@ -5666,6 +5672,8 @@ void FFScript::do_paldata_write_levelcset()
 	if (user_paldata* pd = checkPalData(GET_REF(paldataref)))
 	{
 		int32_t lvl = get_register(sarg1) / 10000;
+		if (BC::checkBounds(lvl, 0, MAXLEVELS - 1, "level") != SH::_NoError)
+			return;
 		int32_t cs = get_register(sarg2) / 10000;
 
 		bool changed = false;
@@ -5823,9 +5831,10 @@ void FFScript::do_paldata_write_spritecset()
 		}
 		bool changed6 = false;
 		bool changed14 = false;
-		if (unsigned(cs) > 15)
+		// A sprite page has 15 csets.
+		if (unsigned(cs) > 14)
 		{
-			Z_scripterrlog("Invalid CSet (%d) passed to paldata->WriteSpriteCSet(). Valid CSets are 0-15. Aborting.\n", cs);
+			Z_scripterrlog("Invalid CSet (%d) passed to paldata->WriteSpriteCSet(). Valid CSets are 0-14. Aborting.\n", cs);
 			return;
 		}
 		if (pd->check_cset(cs, poSPRITE255 + pageoffset + cs))
@@ -5917,6 +5926,8 @@ void FFScript::do_paldata_write_cycle()
 	if (user_paldata* pd = checkPalData(GET_REF(paldataref)))
 	{
 		int32_t lvl = get_register(sarg1) / 10000;
+		if (BC::checkBounds(lvl, 0, MAXLEVELS - 1, "level") != SH::_NoError)
+			return;
 		for (int32_t q = 4; q <= 12; ++q)
 		{
 			if (pd->check_cset(q, lvl * pdLEVEL + poLEVEL + q))
@@ -5933,6 +5944,8 @@ void FFScript::do_paldata_write_cyclecset()
 	if (user_paldata* pd = checkPalData(GET_REF(paldataref)))
 	{
 		int32_t lvl = get_register(sarg1) / 10000;
+		if (BC::checkBounds(lvl, 0, MAXLEVELS - 1, "level") != SH::_NoError)
+			return;
 		int32_t cs = get_register(sarg2) / 10000;
 
 		bool changed = false;
@@ -6161,6 +6174,11 @@ void FFScript::do_paldata_copycset()
 			if (unsigned(cs) > 15)
 			{
 				Z_scripterrlog("Invalid CSet (%d) passed to paldata->CopyCSet(). Valid CSets are 0-15. Aborting.\n", cs);
+				return;
+			}
+			if (unsigned(cs_dest) > 15)
+			{
+				Z_scripterrlog("Invalid CSet (%d) passed to paldata->CopyCSet(). Valid CSets are 0-15. Aborting.\n", cs_dest);
 				return;
 			}
 			for (int32_t q = 0; q < 16; ++q)
