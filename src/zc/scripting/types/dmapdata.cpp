@@ -18,6 +18,8 @@ extern int32_t sarg3;
 int32_t dmapdata_get_register(int32_t reg)
 {
 	int32_t ret = 0;
+	if (BC::checkDMapID(GET_REF(dmapdataref)) != SH::_NoError)
+		return 0;
 	dmap& dmap = DMaps[GET_REF(dmapdataref)];
 
 	switch (reg)
@@ -199,6 +201,8 @@ int32_t dmapdata_get_register(int32_t reg)
 
 void dmapdata_set_register(int32_t reg, int32_t value)
 {
+	if (BC::checkDMapID(GET_REF(dmapdataref)) != SH::_NoError)
+		return;
 	dmap& dmap = DMaps[GET_REF(dmapdataref)];
 
 	switch (reg)
@@ -256,7 +260,12 @@ void dmapdata_set_register(int32_t reg, int32_t value)
 		}
 		case DMAPDATAMAP: 	//byte
 		{
-			dmap.map = ((byte)(value / 10000)) - 1; break;
+			int val = value / 10000;
+			if (BC::checkBounds(val, 1, map_count, "Map") != SH::_NoError)
+				break;
+
+			dmap.map = val - 1;
+			break;
 		}
 		case DMAPDATAMAPSCRIPT:	//byte
 		{
@@ -286,6 +295,8 @@ void dmapdata_set_register(int32_t reg, int32_t value)
 		}
 		case DMAPDATAPALETTE:	//word
 		{
+			if (BC::checkBounds(value / 10000, 0, MAXLEVELS - 1, "palette") != SH::_NoError)
+				break;
 			dmap.color= ((word)(value / 10000));
 			if(ri->dmapdataref() == cur_dmap)
 			{
