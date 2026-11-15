@@ -2577,7 +2577,11 @@ mapscr* checkMapDataScr(int32_t ref)
 
 screendata* checkScreen(int32_t ref)
 {
-	return (screendata*)get_scr_maybe(cur_map, ref);
+	// Only the screens of the current region are loaded.
+	mapscr* scr = (unsigned)ref < MAPSCRS ? get_scr_maybe(cur_map, ref) : nullptr;
+	if (!scr)
+		scripting_log_error_with_context("Invalid {} using UID = {}", "screendata", ref);
+	return (screendata*)scr;
 }
 
 mapscr* get_script_screen()
