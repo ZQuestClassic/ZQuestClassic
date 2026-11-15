@@ -176,7 +176,7 @@ ScriptDebugHandle* runtime_script_debug_handle;
 CScriptDrawingCommands scriptdraws;
 FFScript FFCore;
 
-static UserDataContainer<script_array, 1000000> script_arrays = {script_object_type::array, "array"};
+static UserDataContainer<script_array, MAX_SCRIPT_ARRAYS> script_arrays = {script_object_type::array, "array"};
 static UserDataContainer<user_paldata, MAX_USER_PALDATAS> user_paldatas = {script_object_type::paldata, "paldata"};
 static UserDataContainer<user_rng, MAX_USER_RNGS> user_rngs = {script_object_type::rng, "rng"};
 extern UserDataContainer<user_stack, MAX_USER_STACKS> user_stacks;

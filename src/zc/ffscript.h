@@ -302,7 +302,7 @@ struct user_paldata : public script_object_base
 	void mix(user_paldata *pal_start, user_paldata *pal_end, double percent, int32_t color_space = CSPACE_RGB, int32_t start_color = 0, int32_t end_color = 240);
 };
 
-#define MAX_SCRIPT_ARRAYS 100000
+#define MAX_SCRIPT_ARRAYS 1000000
 
 script_array* create_script_array();
 void register_existing_script_array(script_array* array);
