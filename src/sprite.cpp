@@ -330,6 +330,9 @@ sprite::~sprite()
 	{
 		FFCore.clear_script_engine_data(*scrty, getUID());
 	}
+	// The hero may be in the middle of swapping places with this sprite.
+	if (switching_object == this)
+		switching_object = nullptr;
 	#endif
 }
 
