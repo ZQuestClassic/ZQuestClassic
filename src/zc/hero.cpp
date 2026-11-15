@@ -23714,7 +23714,8 @@ int32_t HeroClass::nextcombo(int32_t cx, int32_t cy, int32_t cdir)
         // from MAPCOMBO()
         int32_t cmb = (cy&0xF0)+(cx>>4);
         
-        if(cmb>175)
+        // The other coordinate may be off the screen too (a script can put the hero anywhere).
+        if(cmb<0 || cmb>175)
             return 0;
             
         return TheMaps[ns].data[cmb];                           // entire combo code
@@ -23774,7 +23775,8 @@ int32_t HeroClass::nextflag(int32_t cx, int32_t cy, int32_t cdir, bool comboflag
         // from MAPCOMBO()
         int32_t cmb = (cy&0xF0)+(cx>>4);
         
-        if(cmb>175)
+        // The other coordinate may be off the screen too (a script can put the hero anywhere).
+        if(cmb<0 || cmb>175)
             return 0;
             
         if(!comboflag)
@@ -27360,7 +27362,8 @@ bool HeroClass::nextcombo_wf(int32_t d2)
     // from MAPCOMBO()
     int32_t cmb = (cy&0xF0)+(cx>>4);
     
-    if(cmb>175)
+    // The other coordinate may be off the screen too (a script can put the hero anywhere).
+    if(cmb<0 || cmb>175)
         return true;
         
     const newcombo* c = &combobuf[TheMaps[ns].data[cmb]];
@@ -27382,6 +27385,10 @@ bool HeroClass::nextcombo_wf(int32_t d2)
     }
     else
     {
+        // There is no combo after the last one.
+        if (cmb == 175)
+            return false;
+
         c = &combobuf[TheMaps[ns].data[++cmb]];
         dried = iswater_type(c->type) && DRIEDLAKE;
         swim = iswater_type(c->type) && (current_item(itype_flippers)) && !dried;
