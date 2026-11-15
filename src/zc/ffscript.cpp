@@ -17475,6 +17475,8 @@ int32_t FFScript::getHeroOTile(int32_t index1, int32_t index2)
 		herospritetype lst = (herospritetype)index1;
 		int32_t dir = index2;
 		int32_t the_ret = 0;
+		if (BC::checkBounds(dir, 0, 3, "direction") != SH::_NoError)
+			return 0;
 		switch(lst)
 		{
 		case LSprwalkspr: the_ret = walkspr[dir][0]; break;
