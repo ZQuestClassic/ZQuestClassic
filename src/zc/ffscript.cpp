@@ -15026,7 +15026,9 @@ void FFScript::do_checkdir(const bool is_dir)
 void FFScript::do_fs_remove()
 {
 	string resolved_path = get_filestr(true, true);
-	set_register(sarg1, !resolved_path.empty() && remove(resolved_path.c_str()) ? 0 : 10000);
+	// An empty path is one that was refused. remove() returns 0 on success.
+	bool removed = !resolved_path.empty() && remove(resolved_path.c_str()) == 0;
+	set_register(sarg1, removed ? 10000 : 0);
 }
 
 static void warp_ex(int args[wexLast])
