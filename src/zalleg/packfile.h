@@ -520,7 +520,9 @@ inline bool p_getlvec(vector<T> *vec, PACKFILE *f)
 		return false;
 	if(sz) //vec found
 	{
-		vec->reserve(sz);
+		// The size comes from the file, so only so much is reserved up front: a damaged file
+		// could ask for all of memory before any of it is read.
+		vec->reserve(std::min<dword>(sz, 0x10000));
 		T dummy = T();
 		for(size_t q = 0; q < sz; ++q)
 		{
