@@ -4715,6 +4715,10 @@ void do_triggersecrets(int screen)
 		return;
 	}
 
+	// A region can have a screen that doesn't exist, which has no secrets to trigger.
+	if (!get_scr(screen)->is_valid())
+		return;
+
 	trigger_secrets_for_screen(TriggerSource::Script, screen, false);
 }
 
