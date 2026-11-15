@@ -334,19 +334,21 @@ StructuredZasm zasm_construct_structured(const zasm_script* script)
 		functions.push_back({i, "", function_start_pcs.at(i), function_final_pcs.at(i)});
 	}
 
-	for (auto [a, b] : function_calls_pc_to_pc)
+	for (auto [call_pc, target_pc] : function_calls_pc_to_pc)
 	{
-		auto it = std::lower_bound(function_start_pcs.begin(), function_start_pcs.end(), a);
-		ASSERT(it != function_start_pcs.end());
-		pc_t callee_pc = std::distance(function_start_pcs.begin(), it) - 1;
+		// The function the call is in is the last one that starts at or before it. The compiler
+		// always emits something before a call (saving the stack frame, or pushing the return
+		// address), but hand-written ZASM can start a function with one.
+		auto it = std::upper_bound(function_start_pcs.begin(), function_start_pcs.end(), call_pc);
+		pc_t caller_id = std::distance(function_start_pcs.begin(), it) - 1;
 
-		it = std::lower_bound(function_start_pcs.begin(), function_start_pcs.end(), b);
+		it = std::lower_bound(function_start_pcs.begin(), function_start_pcs.end(), target_pc);
 		ASSERT(it != function_start_pcs.end());
-		ASSERT(*it == b);
-		pc_t call_pc = std::distance(function_start_pcs.begin(), it);
+		ASSERT(*it == target_pc);
+		pc_t callee_id = std::distance(function_start_pcs.begin(), it);
 
-		functions.at(call_pc).called_by_functions.insert(callee_pc);
-		// functions[callee_pc].calls_functions.insert(call_pc);
+		functions.at(callee_id).called_by_functions.insert(caller_id);
+		// functions[caller_id].calls_functions.insert(callee_id);
 	}
 
 	for (auto sd : script->script_datas)
