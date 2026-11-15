@@ -4568,6 +4568,9 @@ int32_t read_one_dmap(PACKFILE* f, zquestheader *Header, int s_version, int inde
 			
 			tempDMap.color = (word)tempbyte;
 		}
+		// There are this many level palettes, and the palette code uses this without checking.
+		if(tempDMap.color >= MAXLEVELS)
+			tempDMap.color = 0;
 		
 		if(!p_getc(&tempDMap.midi,f))
 		{
