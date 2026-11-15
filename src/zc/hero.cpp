@@ -23052,7 +23052,8 @@ int32_t HeroClass::nextcombo(int32_t cx, int32_t cy, int32_t cdir)
             break;
         }
 		
-		int32_t cmb = COMBOPOS(cx%256, cy%176);
+		// The other coordinate may be off the screen too (a script can put the hero anywhere).
+		int32_t cmb = COMBOPOS(std::clamp(cx%256, 0, 255), std::clamp(cy%176, 0, 175));
 		return get_canonical_scr(map, screen)->data[cmb];
     }
     
@@ -23106,7 +23107,8 @@ int32_t HeroClass::nextflag(int32_t cx, int32_t cy, int32_t cdir, bool comboflag
             break;
         }
 		
-        int32_t pos = COMBOPOS(cx%256, cy%176);
+        // The other coordinate may be off the screen too (a script can put the hero anywhere).
+        int32_t pos = COMBOPOS(std::clamp(cx%256, 0, 255), std::clamp(cy%176, 0, 175));
         const mapscr* scr = get_canonical_scr(map, screen);
         if (!comboflag)
         {
@@ -26656,7 +26658,8 @@ bool HeroClass::nextcombo_wf(int32_t d2)
     // check lower half of combo
     cy += 8;
     
-    int32_t cmb = COMBOPOS(cx%256, cy%176);    
+    // The other coordinate may be off the screen too (a script can put the hero anywhere).
+    int32_t cmb = COMBOPOS(std::clamp(cx%256, 0, 255), std::clamp(cy%176, 0, 175));
     const newcombo* c = &combobuf[scr->data[cmb]];
     bool dried = iswater_type(c->type) && DRIEDLAKE;
     bool swim = iswater_type(c->type) && (current_item(itype_flippers)) && !dried;
@@ -26676,6 +26679,10 @@ bool HeroClass::nextcombo_wf(int32_t d2)
     }
     else
     {
+        // There is no combo after the last one.
+        if (cmb == 175)
+            return false;
+
         c = &combobuf[scr->data[++cmb]];
         dried = iswater_type(c->type) && DRIEDLAKE;
         swim = iswater_type(c->type) && (current_item(itype_flippers)) && !dried;
