@@ -813,7 +813,7 @@ void game_set_register(int32_t reg, int32_t value)
 				Z_scripterrlog("Invalid combo position (%d) passed to GetSolid", pos);
 				break;
 			}
-			if(screen < 0) 
+			if(screen < 0 || screen >= TheMaps.size()) 
 			{
 				Z_scripterrlog("Invalid MapScreen ID (%d) passed to GetSolid", screen);
 				break;
