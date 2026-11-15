@@ -53,9 +53,9 @@ typedef struct mtrkevent
 } mtrkevent;
 
 dword getval(byte *buf,int32_t nbytes);
-dword parse_var_len(byte **data);
+dword parse_var_len(byte **data, byte *end);
 // returns length of the <MTrk event>
-dword parse_mtrk(byte **data, midi_info *mi);
+dword parse_mtrk(byte **data, byte *end, midi_info *mi);
 bool eot(midi_info *mi);
 int32_t beats(dword dt,int32_t divs);
 double tempo(byte *buf);
