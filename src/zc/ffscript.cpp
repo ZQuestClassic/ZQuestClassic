@@ -9093,7 +9093,10 @@ int32_t get_register_slow(const int32_t arg)
 		#define GET_SCREENDATA_BYTE_INDEX(member, str, indexbound) \
 		{ \
 			int32_t indx = ri->d[rINDEX] / 10000; \
-			ret = (tmpscr->member[indx] *10000); \
+			if (BC::checkBounds(indx, 0, indexbound, str) != SH::_NoError) \
+				ret = -10000; \
+			else \
+				ret = (tmpscr->member[indx] *10000); \
 		} \
 		
 		//byte
@@ -22096,7 +22099,8 @@ void set_register_slow(int32_t arg, int32_t value)
 		#define SET_SCREENDATA_BYTE_INDEX(member, str, indexbound) \
 		{ \
 			int32_t indx = ri->d[rINDEX] / 10000; \
-			tmpscr->member[indx] = vbound((value / 10000),0,255); \
+			if (BC::checkBounds(indx, 0, indexbound, str) == SH::_NoError) \
+				tmpscr->member[indx] = vbound((value / 10000),0,255); \
 		}
 		#define SET_SCREENDATA_LAYER_INDEX(member, str, indexbound) \
 		{ \
