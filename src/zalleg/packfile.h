@@ -29,6 +29,7 @@ bool pfwrite(const void *p,int32_t n,PACKFILE *f);
 
 bool pfread(void *p,int n,PACKFILE *f,bool allow_less = false);
 bool p_getc(void *p,PACKFILE *f);
+bool p_getc(bool *p,PACKFILE *f);
 bool p_putc(int32_t c,PACKFILE *f);
 bool p_igetw(void *p,PACKFILE *f);
 bool p_iputw(int32_t c,PACKFILE *f);
