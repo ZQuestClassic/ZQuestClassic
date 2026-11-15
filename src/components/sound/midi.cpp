@@ -18,29 +18,39 @@ dword getval(byte *buf,int32_t nbytes)
     return value;
 }
 
-dword parse_var_len(byte **data)
+// Reads a byte, or 0 at the end of the track (a file can end in the middle of an event).
+static byte read_byte(byte **data, byte *end)
 {
-    dword val = **data & 0x7F;
-    
-    while(**data & 0x80)
+    if(*data >= end)
+        return 0;
+
+    return *(*data)++;
+}
+
+dword parse_var_len(byte **data, byte *end)
+{
+    dword val = 0;
+    byte b;
+
+    do
     {
-        (*data)++;
+        b = read_byte(data, end);
         val <<= 7;
-        val += (**data & 0x7F);
+        val += (b & 0x7F);
     }
-    
-    (*data)++;
+    while(b & 0x80);
+
     return val;
 }
 
-dword parse_mtrk(byte **data, midi_info *mi)
+dword parse_mtrk(byte **data, byte *end, midi_info *mi)
 // returns length of the <MTrk event>
 {
     byte *start = *data;
     
-    mi->dt = parse_var_len(data);
-    mi->event = **data;
-    (*data)++;
+    mi->dt = parse_var_len(data, end);
+    byte *event_pos = *data;
+    mi->event = read_byte(data, end);
     mi->type = 0;
     mi->byte2 = 0;
     mi->nbytes = 0;
@@ -49,7 +59,10 @@ dword parse_mtrk(byte **data, midi_info *mi)
     if(mi->event<0x80 && mi->running_status>0)
     {
         mi->event = mi->running_status;
-        (*data)--;
+        // Put back the data byte, unless the track ended before it (stepping back then would
+        // parse the same bytes forever).
+        if(*data > event_pos)
+            (*data)--;
     }
     
     if(mi->event!=0xFF && mi->event!=0xF0 && mi->event!=0xF7)
@@ -58,22 +71,24 @@ dword parse_mtrk(byte **data, midi_info *mi)
     switch(mi->event)
     {
     case 0xFF:                                              // <meta-event>
-        mi->type = **data;
-        (*data)++;
+        mi->type = read_byte(data, end);
         
     case 0xF0:
     case 0xF7:                                              // <sysex events>
-        mi->nbytes = parse_var_len(data);
+        mi->nbytes = parse_var_len(data, end);
+        if(mi->nbytes > (dword)(end - *data))
+            mi->nbytes = end - *data;
         mi->buf = *data;
         (*data) += mi->nbytes;
         break;
         
     case 0xF2:
-        (*data)+=2;
+        read_byte(data, end);
+        read_byte(data, end);
         break;
         
     case 0xF3:
-        (*data)++;
+        read_byte(data, end);
         break;
         
     default:
@@ -84,16 +99,13 @@ dword parse_mtrk(byte **data, midi_info *mi)
         case 0xA0:
         case 0xB0:
         case 0xE0:
-            mi->type  = **data;
-            (*data)++;
-            mi->byte2 = **data;
-            (*data)++;
+            mi->type  = read_byte(data, end);
+            mi->byte2 = read_byte(data, end);
             break;
             
         case 0xC0:
         case 0xD0:
-            mi->type = **data;
-            (*data)++;
+            mi->type = read_byte(data, end);
             break;
         }
     }
@@ -179,10 +191,10 @@ void get_midi_info(MIDI *midi, midi_info *mi)
         
         while(!eot(mi) && data - midi->track[i].data < midi->track[i].len)
         {
-            parse_mtrk(&data,mi);
+            parse_mtrk(&data,midi->track[i].data + midi->track[i].len,mi);
             total_dt += mi->dt;
             
-            if(gettempo && mi->event==0xFF && mi->type==0x51 && mi->tempo_changes<MAX_TEMPO_CHANGES)
+            if(gettempo && mi->event==0xFF && mi->type==0x51 && mi->nbytes>=3 && mi->tempo_changes<MAX_TEMPO_CHANGES)
             {
                 mi->tempo[mi->tempo_changes] = tempo(mi->buf);
                 int32_t tempo_c = mi->tempo_c[mi->tempo_changes] = beats(total_dt,midi->divisions);
@@ -281,7 +293,7 @@ void get_midi_text(MIDI *midi, midi_info *mi, char *text)
         
         while(!eot(mi) && data - midi->track[i].data < midi->track[i].len)
         {
-            parse_mtrk(&data,mi);
+            parse_mtrk(&data,midi->track[i].data + midi->track[i].len,mi);
             
             if(mi->event==0xFF)
             {

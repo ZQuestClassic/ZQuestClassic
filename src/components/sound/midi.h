@@ -50,9 +50,9 @@ typedef struct mtrkevent
 } mtrkevent;
 
 ZCM_EXTERN dword getval(byte *buf,int32_t nbytes);
-ZCM_EXTERN dword parse_var_len(byte **data);
+ZCM_EXTERN dword parse_var_len(byte **data, byte *end);
 // returns length of the <MTrk event>
-ZCM_EXTERN dword parse_mtrk(byte **data, midi_info *mi);
+ZCM_EXTERN dword parse_mtrk(byte **data, byte *end, midi_info *mi);
 ZCM_EXTERN bool eot(midi_info *mi);
 ZCM_EXTERN int32_t beats(dword dt,int32_t divs);
 ZCM_EXTERN double tempo(byte *buf);
