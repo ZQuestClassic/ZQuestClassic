@@ -233,6 +233,9 @@ void dosubscr()
 			script_drawing_commands.Clear();
 		if (!force_exit)
 			force_exit = run_active_subscript(false);
+		// A script can remove the open subscreen, by lowering the number of subscreens.
+		if (!CURRENT_ACTIVE_SUBSCREEN)
+			break;
 		auto pgnum = CURRENT_ACTIVE_SUBSCREEN->curpage;
 		auto& pg = CURRENT_ACTIVE_SUBSCREEN->cur_page();
 		bool can_btn = !subscr_pg_animating && !force_exit;
@@ -313,7 +316,12 @@ void dosubscr()
 					}
 					if(widg->generic_scrconfig.script && (bpress&widg->gen_script_btns))
 					{
+						ZCSubscreen* sub = CURRENT_ACTIVE_SUBSCREEN;
 						FFCore.runGenericFrozenEngine(widg->generic_scrconfig);
+						// If the script changed the number of subscreens, the subscreen was copied
+						// elsewhere or removed, and 'pg' and 'widg' point at freed memory.
+						if (CURRENT_ACTIVE_SUBSCREEN != sub)
+							goto input_done;
 						data = widg->getItemVal(); //update incase script changed
 						if(must_equip) //update values depending on data.id
 						{
@@ -498,6 +506,7 @@ void dosubscr()
 					CURRENT_ACTIVE_SUBSCREEN->check_btns(btn_press);
 			}
 		}
+	input_done:
 		
 		do_dcounters();
 		Hero.refill();

@@ -1,0 +1,429 @@
+stderr:
+
+Compiling 'bug_subscreen_count_resize.zs'
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+Pass 4: Analyzing Code
+bug_subscreen_count_resize.zs Line 77 @ Columns 44-68 - Warning S094: Function 'Game::GetSubscreenScript(char32[])' is deprecated, and should not be used.
+
+75    Test::Assert(active_sub >= 0 && active_sub < Game->NumActiveSubscreens, "dmap has an active subscreen");
+76    resize_probe_sub = active_sub;
+77    Game->LoadASubData(active_sub)->Script = Game->GetSubscreenScript("ResizeSubscreenProbe");
+                                               ^~~~~~~~~~~~~~~~~~~~~~~~
+
+
+Pass 5: Checking code paths
+Pass 6: Generating object code
+Pass 7: Assembling
+Success!
+Compile finished with exit code '0' (success)
+
+stdout:
+
+{
+  "success": true,
+  "diagnostics": [
+    {
+      "range": {
+        "start": {
+          "line": 76,
+          "character": 43
+        },
+        "end": {
+          "line": 76,
+          "character": 67
+        }
+      },
+      "severity": 2,
+      "message": "S094: Function 'Game::GetSubscreenScript(char32[])' is deprecated, and should not be used."
+    }
+  ],
+  "metadata": {
+    "currentFileSymbols": 17,
+    "symbols": 42,
+    "identifiers": 103,
+    "elided": true
+  }
+}
+
+zasm:
+
+SETV GD2 0; void run() Body Start
+SETV GD3 0
+SETV GD5 0
+SETV GD4 0
+MARK_TYPE_REG GD1 0.0009
+SETV GD1 0
+QUIT; void run() Body End
+PUSHARGSV 0 0.0003; void run() Body Start
+SETR D4 SP2
+ALLOCATEMEMV D2 100 0
+STORE_OBJECT D2 0.0002
+LOAD D2 0.0002; InlineFunc[void Game::GetSaveName(char32[])] Params
+GETSAVENAME D2; InlineFunc[void Game::GetSaveName(char32[])] Body
+ALLOCATEMEMV D2 19 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
+WRITEPODSTRING D2 "[Test] Running %s\n"
+PUSHR D2
+LOAD D2 0.0002
+PUSHVARGR D2
+MARK_TYPE_VARG 0.0009; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
+LOAD D2 0.0002; InlineFunc[int Game::GetGenericScript(char32[])] Params
+GETGENERICSCRIPT D2; InlineFunc[int Game::GetGenericScript(char32[])] Body
+STORE D2 0.0001
+LOAD D2 0.0001; if() Test
+COMPAREV D2 -1
+SETCMP D2 I==
+COMPAREV D2 0
+GOTOCMP 36 ==; Test 'if'
+ALLOCATEMEMV D2 53 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start AND if() Body Start
+WRITEPODSTRING D2 "[Test] failed to start - could not find test script\n"
+PUSHR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
+GAMEEXIT; InlineFunc[void Game::Exit()] Body AND if() Body End
+NOP
+LOAD D2 0.0001; InlineFunc[genericdata Game::LoadGenericData(int)] Params
+LOADGENERICDATA D2; InlineFunc[genericdata Game::LoadGenericData(int)] Body Start
+SETR D2 REFGENERICDATA; InlineFunc[genericdata Game::LoadGenericData(int)] Body End
+STORE D2 0
+SETV D2 1
+PUSHR D2
+LOAD D2 0
+POP D3
+PUSHR D2
+PUSHR D3
+POP D2
+CASTBOOLI D2
+POP REFGENERICDATA
+SETR GENDATARUNNING D2
+LOAD D2 0; while() Test
+PUSHR D2
+POP REFGENERICDATA
+SETR D2 GENDATARUNNING
+COMPAREV D2 0
+GOTOCMP 62 ==; Test 'while'
+PUSHR D4; while() Body Start
+CALLFUNC 0.0360; UsrFunc[void DrawLabel()] Call
+POP D4
+WAITFRAME; InlineFunc[void Waitframe()] Body AND while() Body End
+GOTO 51; while() End
+CALLFUNC 0.0292; UsrFunc[void End()] Call AND [Opt:NeverRet]
+REF_REMOVE 0.0002; [Opt:NeverRet] AND void run() Body End
+SETR D4 SP2; void run() Body Start
+SETR D2 GD4
+ADDV D2 1
+SETR GD4 D2
+SETR D2 GD2; if() Test
+COMPAREV D2 1
+SETCMP D2 I==
+COMPAREV D2 0
+GOTOCMP 92 ==; Test 'if'
+SETV D2 256; if() Body Start
+PUSHR D2
+POP D2
+SETR GAMENUMASUB D2
+SETV D2 256
+PUSHR D2
+POP D2
+SETR GAMENUMPSUB D2
+SETV D2 256
+PUSHR D2
+POP D2
+SETR GAMENUMOSUB D2
+SETV D2 256
+PUSHR D2
+POP D2
+SETR GAMENUMMSUB D2
+SETV D2 5; InlineFunc[void Waitframes(int)] Params
+WAITFRAMESR D2; InlineFunc[void Waitframes(int)] Body
+GOTO 106; if() Body End
+SETR D2 GD2; if() Test AND if() Else Start
+COMPAREV D2 2
+SETCMP D2 I==
+COMPAREV D2 0
+GOTOCMP 105 ==; Test 'if'
+SETR D2 GD3; if() Body Start
+PUSHR D2
+POP D2
+SETR GAMENUMASUB D2
+WAITFRAME; InlineFunc[void Waitframe()] Body
+SETR D2 GD5
+ADDV D2 1
+SETR GD5 D2; if() Body End
+NOP; if() Else End
+NOP
+SETR D2 SCR0; InlineFunc[void subscreendata::Close()] Params Start
+SETR REFSUBSCREENDATA D2; InlineFunc[void subscreendata::Close()] Params End
+SUBDATA_CLOSE; InlineFunc[void subscreendata::Close()] Body
+RETURNFUNC; void run() Body End
+PUSHV 0; void run() Body Start
+SETR D4 SP2
+PUSHR D4
+PUSHV 0; UsrFunc[void Init(int)] Params
+CALLFUNC 0.0270; UsrFunc[void Init(int)] Call
+POP D4
+SETR D2 CURDMAP; InlineFunc[dmapdata Game::LoadDMapData(int)] Params
+LOADDMAPDATAR D2; InlineFunc[dmapdata Game::LoadDMapData(int)] Body Start
+SETR D2 REFDMAPDATA; InlineFunc[dmapdata Game::LoadDMapData(int)] Body End
+PUSHR D2
+POP REFDMAPDATA
+SETR D2 DMAPDATASUBSCRA
+STORE D2 0
+PUSHR D4
+LOAD D2 0; UsrFunc[void Assert(bool, char32[])] Params Start
+COMPAREV D2 0
+GOTOCMP 136 <
+LOAD D2 0
+PUSHR D2
+SETR D2 GAMENUMASUB
+POP D3
+COMPARER D3 D2
+GOTOCMP 136 >=
+SETV D2 1
+GOTO 137
+SETV D2 0
+PUSHR D2
+ALLOCATEMEMV D2 29 0
+WRITEPODSTRING D2 "dmap has an active subscreen"
+PUSHR D2; UsrFunc[void Assert(bool, char32[])] Params End
+CALLFUNC 0.0321; UsrFunc[void Assert(bool, char32[])] Call
+POP D4
+LOAD D2 0
+SETR GD3 D2
+ALLOCATEMEMV D2 21 0; InlineFunc[int Game::GetSubscreenScript(char32[])] Params Start
+WRITEPODSTRING D2 "ResizeSubscreenProbe"; InlineFunc[int Game::GetSubscreenScript(char32[])] Params End
+GETSUBSCREENSCRIPT D2; InlineFunc[int Game::GetSubscreenScript(char32[])] Body
+PUSHR D2
+LOAD D2 0; InlineFunc[subscreendata Game::LoadASubData(int)] Params
+LOADSUBDATARV D2 0; InlineFunc[subscreendata Game::LoadASubData(int)] Body
+POP D3
+PUSHR D2
+PUSHR D3
+POP D2
+POP REFSUBSCREENDATA
+SETR SUBDATASCRIPT D2
+SETV D2 1
+SETR GD2 D2
+PUSHARGSR D4 0.0002; UsrFunc[void Assert(bool, char32[])] Params Start
+CALLFUNC 0.0234; UsrFunc[bool open_active_subscreen()] Call
+POP D4
+PUSHR D2
+ALLOCATEMEMV D2 27 0
+WRITEPODSTRING D2 "opens the active subscreen"
+PUSHR D2; UsrFunc[void Assert(bool, char32[])] Params End
+CALLFUNC 0.0321; UsrFunc[void Assert(bool, char32[])] Call
+PEEK D4
+PUSHR GAMENUMASUB; UsrFunc[void AssertEqual(int, int)] Params Start
+PUSHV 256; UsrFunc[void AssertEqual(int, int)] Params End
+CALLFUNC 0.0299; UsrFunc[void AssertEqual(int, int)] Call
+PEEK D4
+PUSHR GAMENUMMSUB; UsrFunc[void AssertEqual(int, int)] Params Start
+PUSHV 256; UsrFunc[void AssertEqual(int, int)] Params End
+CALLFUNC 0.0299; UsrFunc[void AssertEqual(int, int)] Call
+POP D4
+SETV D2 0
+SETR GD2 D2
+PUSHARGSR D4 0.0002; UsrFunc[void Assert(bool, char32[])] Params Start
+CALLFUNC 0.0234; UsrFunc[bool open_active_subscreen()] Call
+POP D4
+PUSHR D2
+ALLOCATEMEMV D2 50 0
+WRITEPODSTRING D2 "opens the active subscreen after growing the list"
+PUSHR D2; UsrFunc[void Assert(bool, char32[])] Params End
+CALLFUNC 0.0321; UsrFunc[void Assert(bool, char32[])] Call
+POP D4
+SETV D2 2
+SETR GD2 D2
+PUSHARGSR D4 0.0002; UsrFunc[void Assert(bool, char32[])] Params Start
+CALLFUNC 0.0234; UsrFunc[bool open_active_subscreen()] Call
+POP D4
+PUSHR D2
+ALLOCATEMEMV D2 46 0
+WRITEPODSTRING D2 "opens the active subscreen before removing it"
+PUSHR D2; UsrFunc[void Assert(bool, char32[])] Params End
+CALLFUNC 0.0321; UsrFunc[void Assert(bool, char32[])] Call
+PEEK D4
+PUSHR GAMENUMASUB; UsrFunc[void AssertEqual(int, int)] Params Start
+LOAD D2 0
+PUSHR D2; UsrFunc[void AssertEqual(int, int)] Params End
+CALLFUNC 0.0299; UsrFunc[void AssertEqual(int, int)] Call
+PEEK D4
+PUSHR GD5; UsrFunc[void AssertEqual(int, int)] Params Start
+PUSHV 0; UsrFunc[void AssertEqual(int, int)] Params End
+CALLFUNC 0.0299; UsrFunc[void AssertEqual(int, int)] Call
+POP D4
+SETV D2 5; InlineFunc[void Waitframes(int)] Params
+WAITFRAMESR D2; InlineFunc[void Waitframes(int)] Body
+PUSHARGSR D4 0.0002; UsrFunc[void Assert(bool, char32[])] Params Start
+CALLFUNC 0.0234; UsrFunc[bool open_active_subscreen()] Call
+POP D4
+COMPAREV D2 0
+SETCMP D2 I==
+PUSHR D2
+ALLOCATEMEMV D2 50 0
+WRITEPODSTRING D2 "doesn't open an active subscreen that was removed"
+PUSHR D2; UsrFunc[void Assert(bool, char32[])] Params End
+CALLFUNC 0.0321; UsrFunc[void Assert(bool, char32[])] Call
+POP D4
+CALLFUNC 0.0292; UsrFunc[void End()] Call AND [Opt:NeverRet] AND [Opt:NeverRet] AND void run() Body End
+SETR D4 SP2; Func[void press_start()] Body Start
+PUSHV 15; InlineFunc[void WaitTo(ScriptTiming, bool)] Params Start
+SETV D3 0; InlineFunc[void WaitTo(ScriptTiming, bool)] Params End
+POP D2; InlineFunc[void WaitTo(ScriptTiming, bool)] Body Start
+WAITTO D2 D3; InlineFunc[void WaitTo(ScriptTiming, bool)] Body End
+SETV D2 1
+PUSHR D2
+SETV D2 6
+PUSHR D2
+POP D0
+POP D2
+SETR BUTTONINPUT D2
+RETURNFUNC; Func[void press_start()] Body End
+PUSHARGSV 0 0.0002; Func[bool open_active_subscreen()] Body Start
+SETR D4 SP2
+SETR D2 GD4
+STORE D2 0.0001
+STOREV 0 0; for() setup
+LOAD D2 0; for() LoopTest
+COMPAREV D2 30
+GOTOCMP 250 >=
+SETR D2 GD4
+PUSHR D2
+LOAD D2 0.0001
+POP D3
+COMPARER D3 D2
+GOTOCMP 250 !=
+SETV D2 1
+GOTO 251
+SETV D2 0
+COMPAREV D2 0
+GOTOCMP 261 ==; for() TestFail?
+PUSHR D4; for() Body Start
+CALLFUNC 0.0221; UsrFunc[void press_start()] Call
+POP D4
+WAITFRAME; InlineFunc[void Waitframe()] Body AND for() Body End
+LOAD D2 0; for() LoopIncrement
+ADDV D2 1
+STORE D2 0
+GOTO 239; for() End
+NOP
+SETR D2 GD4; return Start
+PUSHR D2
+LOAD D2 0.0001
+POP D3
+COMPARER D3 D2
+SETCMP D2 I!=
+POPARGS D5 0.0002; return End
+RETURNFUNC; Func[bool open_active_subscreen()] Body End
+SETR D4 SP2; Func[void Init(int)] Body Start
+ALLOCATEMEMV D2 35 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
+WRITEPODSTRING D2 "[Test] started: dmap %d screen %d\n"
+PUSHR D2
+PUSHVARGV 5
+LOAD D2 0
+PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
+LOAD D2 0; if() Test
+COMPAREV D2 0
+SETCMP D2 I!=
+COMPAREV D2 0
+GOTOCMP 289 ==; Test 'if'
+PUSHV 5; InlineFunc[void hero::Warp(int, int)] Params Start AND if() Body Start
+LOAD D2 0; InlineFunc[void hero::Warp(int, int)] Params End
+POP D3; InlineFunc[void hero::Warp(int, int)] Body Start
+WARPR D3 D2; InlineFunc[void hero::Warp(int, int)] Body End
+WAITFRAME; InlineFunc[void Waitframe()] Body AND if() Body End
+NOP
+POP D5
+RETURNFUNC; Func[void Init(int)] Body End
+SETR D4 SP2; Func[void End()] Body Start
+ALLOCATEMEMV D2 13 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
+WRITEPODSTRING D2 "[Test] done\n"
+PUSHR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
+GAMEEXIT; InlineFunc[void Game::Exit()] Body AND [Opt:NeverRet] AND Func[void End()] Body End
+SETR D4 SP2; Func[void AssertEqual(int, int)] Body Start
+LOAD D2 0; if() Test
+PUSHR D2
+LOAD D2 0.0001
+POP D3
+COMPARER D3 D2
+SETCMP D2 I!=
+COMPAREV D2 0
+GOTOCMP 318 ==; Test 'if'
+ALLOCATEMEMV D2 49 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start AND if() Body Start
+WRITEPODSTRING D2 "[Test] failed assertion: expected %d but got %d\n"
+PUSHR D2
+LOAD D2 0
+PUSHVARGR D2
+LOAD D2 0.0001
+PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
+GAMEEXIT; InlineFunc[void Game::Exit()] Body AND if() Body End
+NOP
+POPARGS D5 0.0002
+RETURNFUNC; Func[void AssertEqual(int, int)] Body End
+SETR D4 SP2; Func[void Assert(bool, char32[])] Body Start
+MARK_TYPE_STACK 0.0009 0
+REF_INC 0
+LOAD D2 0.0001; unless() Test
+COMPAREV D2 0
+GOTOCMP 330 !=; Test 'unless'
+LOAD D2 0; UsrFunc[void Fail(char32[])] Params Start AND unless() Body Start
+PUSHR D2; UsrFunc[void Fail(char32[])] Params End
+CALLFUNC 0.0334; UsrFunc[void Fail(char32[])] Call AND [Opt:NeverRet] AND unless() Body End
+NOP
+REF_REMOVE 0
+POPARGS D5 0.0002
+RETURNFUNC; Func[void Assert(bool, char32[])] Body End
+SETR D4 SP2; Func[void Fail(char32[])] Body Start
+MARK_TYPE_STACK 0.0009 0
+REF_INC 0
+LOAD D2 0; InlineFunc[int strlen(char32[])] Params Start AND if() Test
+SETR D3 D2; InlineFunc[int strlen(char32[])] Params End
+STRINGLENGTH D2 D3; InlineFunc[int strlen(char32[])] Body
+COMPAREV D2 0
+SETCMP D2 I>
+COMPAREV D2 0
+GOTOCMP 353 ==; Test 'if'
+ALLOCATEMEMV D2 24 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start AND if() Body Start
+WRITEPODSTRING D2 "[Test] failed test: %s\n"
+PUSHR D2
+LOAD D2 0
+PUSHVARGR D2
+MARK_TYPE_VARG 0.0009; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
+GOTO 358; if() Body End
+ALLOCATEMEMV D2 20 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start AND if() Else Start
+WRITEPODSTRING D2 "[Test] failed test\n"
+PUSHR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End AND if() Else End
+NOP
+GAMEEXIT; InlineFunc[void Game::Exit()] Body AND [Opt:NeverRet] AND Func[void Fail(char32[])] Body End
+SETR D4 SP2; Func[void DrawLabel()] Body Start
+SETR D2 GD1; unless() Test
+COMPAREV D2 0
+GOTOCMP 378 ==; Test 'unless' AND return (Void) AND unless() Body
+NOP
+SETV D2 0.0001
+PUSHR D2
+POP D2
+SETR SCREEN_DRAW_ORIGIN D2
+PUSHV 7; InlineFunc[void screendata::DrawString(int, int, int, int, int, int, int, char32[], int)] Params Start
+PUSHARGSV 2 0.0003
+PUSHV 1
+PUSHV 15
+PUSHV 0
+PUSHR GD1
+PUSHV 128; InlineFunc[void screendata::DrawString(int, int, int, int, int, int, int, char32[], int)] Params End
+DRAWSTRINGR; InlineFunc[void screendata::DrawString(int, int, int, int, int, int, int, char32[], int)] Body Start
+POPARGS D5 0.0009; InlineFunc[void screendata::DrawString(int, int, int, int, int, int, int, char32[], int)] Body End
+RETURNFUNC; Func[void DrawLabel()] Body End
