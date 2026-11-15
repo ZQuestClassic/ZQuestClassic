@@ -2370,7 +2370,13 @@ struct LoopOps
 #endif
 	}
 	bool has_goto_label(pc_t i) { return state.goto_labels.contains(i); }
-	void bind_goto_label(pc_t i) { cc.bind(state.goto_labels[i]); }
+	void bind_goto_label(pc_t i)
+	{
+		cc.bind(state.goto_labels[i]);
+		// A jump here skips the check made at the start of a run of stack commands this is in
+		// the middle of, so the run must be checked again from here.
+		state.num_push_commands_in_row_end_pc = 0;
+	}
 	void emit_comment_nop(const char* text)
 	{
 		cc.setInlineComment(text);
