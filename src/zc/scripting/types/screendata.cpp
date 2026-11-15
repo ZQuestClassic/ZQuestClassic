@@ -55,7 +55,10 @@ int32_t screendata_get_register(int32_t reg)
 	#define GET_SCREENDATA_BYTE_INDEX(member, indexbound) \
 	{ \
 		int32_t indx = GET_D(rINDEX) / 10000; \
-		ret = (scr->member[indx] *10000); \
+		if (BC::checkIndex(indx, 0, indexbound) != SH::_NoError) \
+			ret = -10000; \
+		else \
+			ret = (scr->member[indx] *10000); \
 	} \
 
 	//byte
@@ -374,7 +377,8 @@ void screendata_set_register(int32_t reg, int32_t value)
 	#define SET_SCREENDATA_BYTE_INDEX(member, str, indexbound) \
 	{ \
 		int32_t indx = GET_D(rINDEX) / 10000; \
-		scr->member[indx] = vbound((value / 10000),0,255); \
+		if (BC::checkIndex(indx, 0, indexbound) == SH::_NoError) \
+			scr->member[indx] = vbound((value / 10000),0,255); \
 	}
 
 	///max screen id is higher! vbound properly... -Z
