@@ -356,6 +356,11 @@ inline JitPushRunScan jit_scan_push_run(const zasm_script* script, pc_t pc, pc_t
 	for (; j <= final_pc; j++)
 	{
 		const auto& op = script->zasm[j];
+		// A count out of range is left to the interpreter (jit_instruction_runs_in_interpreter),
+		// which ends the run. Every count here is then at most MAX_STACK_SIZE, so the sums can't
+		// overflow.
+		if (jit_instruction_runs_in_interpreter(op))
+			break;
 		if (op.command == PUSHV || op.command == PUSHR)
 		{
 			depth++;

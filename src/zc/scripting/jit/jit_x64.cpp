@@ -211,12 +211,10 @@ static void flush_stack_cache(CompilationState& state, x86::Compiler& cc)
 		if (DEBUG_JIT_PRINT_ASM)
 			cc.setInlineComment("flush cached stack");
 
-		// Capped so hand-written ZASM can't overflow the sum (each amount is capped when it is
-		// cached). More than the stack holds always fails the check, whatever the count.
 		int stack_change = 0;
 		for (auto& [reg, is_constant, value, amount] : state.cached_d_reg_stack)
 		{
-			stack_change = std::min(stack_change + amount, MAX_STACK_SIZE + 1);
+			stack_change += amount;
 		}
 
 		check_sp(state, cc, state.vSp, -stack_change, jit_push_sp_limit(stack_change));
@@ -1304,7 +1302,7 @@ static void compile_single_command(CompilationState& state, x86::Compiler& cc, c
 				// same register in-place) would corrupt the stack cache entry before the flush.
 				x86::Gp copy = cc.newInt32();
 				cc.mov(copy, get_z_register(state, cc, arg1));
-				state.cached_d_reg_stack.push_back({.reg=copy, .amount=std::min(arg2, MAX_STACK_SIZE + 1)});
+				state.cached_d_reg_stack.push_back({.reg=copy, .amount=arg2});
 				break;
 			}
 
@@ -1338,7 +1336,8 @@ static void compile_single_command(CompilationState& state, x86::Compiler& cc, c
 		{
 			if (state.use_cached_regs)
 			{
-				state.cached_d_reg_stack.push_back({.is_constant=true, .value=arg1, .amount=std::min(arg2, MAX_STACK_SIZE + 1)});
+				if(arg2 < 1) break; //do nothing
+				state.cached_d_reg_stack.push_back({.is_constant=true, .value=arg1, .amount=arg2});
 				break;
 			}
 

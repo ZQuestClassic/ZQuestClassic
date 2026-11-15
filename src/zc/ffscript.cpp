@@ -3215,8 +3215,14 @@ void stack_push(int32_t val)
 }
 void stack_push(int32_t val, size_t count)
 {
-	if (!check_stack(ri->sp - count))
+	// The pushes fill the slots from sp - count to sp - 1. So count can't be more than sp, and sp
+	// can't be past MAX_STACK_SIZE, the empty stack (SETR can set SP to anything).
+	if (count > ri->sp || ri->sp > MAX_STACK_SIZE)
+	{
+		log_stack_overflow_error();
+		ri->overflow = true;
 		return;
+	}
 
 	for(int q = 0; q < count; ++q)
 	{
@@ -3407,6 +3413,7 @@ void do_pops() // Pop past a bunch of stuff at once. Useful for clearing the sta
 
 void do_pushs(const bool v) // Push a bunch of the same thing. Useful for filling the stack.
 {
+	if(sarg2 < 1) return;
 	const int value = SH::get_arg(sarg1, v);
 	stack_push(value, sarg2);
 }
