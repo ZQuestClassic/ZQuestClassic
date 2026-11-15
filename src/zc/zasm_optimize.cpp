@@ -594,15 +594,12 @@ static bool optimize_load_store(OptContext& ctx)
 			setr_pc -= 1;
 		}
 
-		ASSERT(!bail);
+		// Not what the compiler emits, but quests can hold any ZASM.
 		if (bail)
 			continue;
 
 		if (C(setr_pc + 1).command != ADDV)
-		{
-			ASSERT(false);
 			continue;
-		}
 
 		int addv_arg2 = C(setr_pc + 1).arg2;
 		word new_command = command == LOADI ? LOADD : STORED;
@@ -623,6 +620,8 @@ static bool optimize_load_store(OptContext& ctx)
 		}
 
 		if (!one_of(command, LOADD, STORED, STOREDV)) continue;
+		// The compiler only emits whole offsets. Hand-written ZASM keeps its command.
+		if (arg2 % 10000 != 0) continue;
 
 		word new_command;
 		switch (command)
@@ -631,7 +630,6 @@ static bool optimize_load_store(OptContext& ctx)
 			case STORED: new_command = STORE; break;
 			case STOREDV: new_command = STOREV; break;
 		}
-		ASSERT(arg2 % 10000 == 0);
 		C(i) = {new_command, arg1, arg2 / 10000};
 	}
 
