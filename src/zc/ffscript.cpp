@@ -9219,7 +9219,7 @@ void do_copytile(const bool v, const bool v2)
 
 int32_t FFScript::IsBlankTile(int32_t i)
 {
-	if( ((unsigned)i) > NEWMAXTILES )
+	if( ((unsigned)i) >= NEWMAXTILES )
 	{
 		scripting_log_error_with_context("Invalid tile ID {}", i);
 		return -1;
@@ -9242,7 +9242,7 @@ int32_t FFScript::IsBlankTile(int32_t i)
 
 int32_t FFScript::Is8BitTile(int32_t i)
 {
-	if (((unsigned)i) > NEWMAXTILES)
+	if (((unsigned)i) >= NEWMAXTILES)
 	{
 		scripting_log_error_with_context("Invalid tile ID {}", i);
 		return -1;
