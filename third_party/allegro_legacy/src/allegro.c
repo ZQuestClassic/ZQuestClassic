@@ -649,10 +649,11 @@ void al_trace(AL_CONST char *msg, ...)
    char buf[1024];
    char *s;
 
-   /* todo, some day: use vsnprintf (C99) */
    va_list ap;
    va_start(ap, msg);
-   vsprintf(buf, msg, ap);
+   // local edit - a message longer than the buffer wrote past it (ex: a long quest string).
+   // vsprintf(buf, msg, ap);
+   vsnprintf(buf, sizeof(buf), msg, ap);
    va_end(ap);
 
    if (_al_trace_handler) {
