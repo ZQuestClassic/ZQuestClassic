@@ -43,6 +43,11 @@ static int currgame = -1;
 static std::vector<save_t> saves;
 static bool save_current_replay_games;
 
+// Sizes in a save come from the file and are allocated before anything is read into them, so
+// they need a limit. Scripts can grow an array well past the usual array size (reading a file
+// or a websocket message into it), so this is only far more than any real save holds.
+static const dword MAX_SAVED_ARRAY_SIZE = 1 << 24;
+
 static bool initialize_new_save(save_t* save, std::string& err);
 
 void save_t::unload()
@@ -754,6 +759,9 @@ static int32_t read_saves(ReadMode read_mode, PACKFILE* f, std::vector<save_t>& 
 		if(tempdword != 0) //Might not be any at all
 		{
 			//Then we allocate the vector
+			// The number of old-style global arrays. Scripts can't make more than this.
+			if(tempdword > 214748)
+				return 53;
 			game.globalRAM.resize(tempdword);
 			
 			for(dword j = 0; j < game.globalRAM.size(); j++)
@@ -765,6 +773,8 @@ static int32_t read_saves(ReadMode read_mode, PACKFILE* f, std::vector<save_t>& 
 					return 54;
 					
 				//We allocate the container
+				if(tempdword > MAX_SAVED_ARRAY_SIZE)
+					return 54;
 				a.Resize(tempdword);
 				a.setValid(true); //should always be valid
 				
@@ -1065,6 +1075,8 @@ static int32_t read_saves(ReadMode read_mode, PACKFILE* f, std::vector<save_t>& 
 					if(!p_igetl(&arrsz,f))
 						return 97;
 					ZScriptArray zsarr;
+					if(arrsz > MAX_SAVED_ARRAY_SIZE)
+						return 97;
 					zsarr.Resize(arrsz);
 					zsarr.setValid(true); //should always be valid
 					for(uint32_t q = 0; q < arrsz; ++q)
