@@ -1804,6 +1804,9 @@ static bool optimize_reduce_comparisons(OptContext& ctx)
 			// If the comparison operands are compared again after the branch, then reducing the comparison
 			// would break the code.
 			pc_t target_pc = C(final_pc).arg1;
+			// Only hand-written ZASM jumps into another function.
+			if (!ctx.cfg.contains_block_start(target_pc))
+				break;
 			{
 				bool target_block_reuses_comparison_operands = false;
 				pc_t target_block_id = ctx.cfg.block_id_from_start_pc(target_pc);
