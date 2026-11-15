@@ -3239,9 +3239,57 @@ int32_t earlyretval = -1;
 // The inline get_register/set_register wrappers in ffscript.h resolve D(0)-D(7) as ids 0-7.
 static_assert(D(0) == 0 && D(7) == 7);
 
+// The dmapdata variables, which all use the dmap of the current dmapdata reference (DMAPDATAID only
+// reports it).
+static bool is_dmapdata_register(int32_t arg)
+{
+	switch (arg)
+	{
+		case DMAPDATAASUBSCRIPT:
+		case DMAPDATACHARTED:
+		case DMAPDATACOMPASS:
+		case DMAPDATACONTINUE:
+		case DMAPDATADISABLEDITEMS:
+		case DMAPDATAFLAGARR:
+		case DMAPDATAFLAGS:
+		case DMAPDATAGRID:
+		case DMAPDATAINTROSTRINGID:
+		case DMAPDATALARGEMAPCSET:
+		case DMAPDATALARGEMAPTILE:
+		case DMAPDATALEVEL:
+		case DMAPDATALOOPEND:
+		case DMAPDATALOOPSTART:
+		case DMAPDATAMAP:
+		case DMAPDATAMAPINITD:
+		case DMAPDATAMAPSCRIPT:
+		case DMAPDATAMIDI:
+		case DMAPDATAMINIMAPCSET:
+		case DMAPDATAMINIMAPTILE:
+		case DMAPDATAMIRRDMAP:
+		case DMAPDATAMUISCTRACK:
+		case DMAPDATAOFFSET:
+		case DMAPDATAPALETTE:
+		case DMAPDATAPSUBSCRIPT:
+		case DMAPDATASIDEVIEW:
+		case DMAPDATASUBINITD:
+		case DMAPDATASUBSCRA:
+		case DMAPDATASUBSCRO:
+		case DMAPDATASUBSCRP:
+		case DMAPDATATYPE:
+		case DMAPDATAXFADEIN:
+		case DMAPDATAXFADEOUT:
+			return true;
+	}
+	return false;
+}
+
 int32_t get_register_slow(const int32_t arg)
 {
 	int32_t ret = 0;
+	
+	// A dmapdata can be cast from any number, or loaded from an invalid id.
+	if (is_dmapdata_register(arg) && BC::checkDMapID(ri->dmapsref, "dmapdata") != SH::_NoError)
+		return 0;
 	
 	//Macros
 	
@@ -15852,6 +15900,10 @@ int32_t get_register_slow(const int32_t arg)
 
 void set_register_slow(int32_t arg, int32_t value)
 {
+	// A dmapdata can be cast from any number, or loaded from an invalid id.
+	if (is_dmapdata_register(arg) && BC::checkDMapID(ri->dmapsref, "dmapdata") != SH::_NoError)
+		return;
+
 	//Macros
 	
 	#define	SET_SPRITEDATA_VAR_INT(member, str) \
@@ -24181,7 +24233,12 @@ void set_register_slow(int32_t arg, int32_t value)
 		//dmapdata dmd-> Variables
 		case DMAPDATAMAP: 	//byte
 		{
-			DMaps[ri->dmapsref].map = ((byte)(value / 10000)) - 1; break;
+			int val = value / 10000;
+			if (BC::checkBounds(val, 1, map_count, "dmapdata->Map") != SH::_NoError)
+				break;
+
+			DMaps[ri->dmapsref].map = val - 1;
+			break;
 		}
 		case DMAPDATALEVEL:	//word
 		{
@@ -24197,6 +24254,8 @@ void set_register_slow(int32_t arg, int32_t value)
 		}
 		case DMAPDATAPALETTE:	//word
 		{
+			if (BC::checkBounds(value / 10000, 0, MAXLEVELS - 1, "dmapdata->Palette") != SH::_NoError)
+				break;
 			DMaps[ri->dmapsref].color= ((word)(value / 10000));
 			if(ri->dmapsref == currdmap)
 			{
