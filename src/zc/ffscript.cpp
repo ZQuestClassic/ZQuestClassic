@@ -35487,7 +35487,7 @@ void do_copytile(const bool v, const bool v2)
 
 int32_t FFScript::IsBlankTile(int32_t i)
 {
-	if( ((unsigned)i) > NEWMAXTILES )
+	if( ((unsigned)i) >= NEWMAXTILES )
 	{
 		Z_scripterrlog("Invalid tile ID (%d) passed to Graphics->IsBlankTile[]\n");
 		return -1;
@@ -35510,7 +35510,7 @@ int32_t FFScript::IsBlankTile(int32_t i)
 
 int32_t FFScript::Is8BitTile(int32_t i)
 {
-	if (((unsigned)i) > NEWMAXTILES)
+	if (((unsigned)i) >= NEWMAXTILES)
 	{
 		Z_scripterrlog("Invalid tile ID (%d) passed to Graphics->Is8BitTile[]\n");
 		return -1;
