@@ -81,6 +81,16 @@ inline bool p_getc(void *p,PACKFILE *f)
 	return true;
 }
 
+inline bool p_getc(bool *p,PACKFILE *f)
+{
+	uint8_t b;
+	if(!p_getc((void*)&b,f))
+		return false;
+	// A file can hold any byte, and a bool that isn't 0 or 1 is undefined.
+	*p = b != 0;
+	return true;
+}
+
 inline bool p_putc(int32_t c,PACKFILE *f)
 {
 	bool success=true;
