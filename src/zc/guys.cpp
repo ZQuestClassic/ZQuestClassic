@@ -16940,7 +16940,7 @@ int32_t addchild(int32_t screen, int32_t x,int32_t y,int32_t id,int32_t clk, spr
 
 int32_t addchild_z(int32_t screen, int32_t x,int32_t y,int32_t z,int32_t id,int32_t clk, sprite* parent)
 {
-	if(id <= 0) return 0;
+	if(id <= 0 || (id&0xFFF) >= MAXGUYS) return 0;
 	
 	int32_t ret = 0;
 	sprite *e=NULL;

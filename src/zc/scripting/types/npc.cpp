@@ -453,7 +453,7 @@ void do_npc_summon()
 	int limit = get_register(sarg1) / 10000;
 	int id = get_register(sarg2) / 10000;
 	int ret = 0;
-	if(GuyH::loadNPC(GET_REF(npcref)) == SH::_NoError)
+	if(BC::checkGuyID(id) == SH::_NoError && GuyH::loadNPC(GET_REF(npcref)) == SH::_NoError)
 	{
 		enemy* n = GuyH::getNPC();
 		if (n->summon_enemy(id, 1, limit, false))
