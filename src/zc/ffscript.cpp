@@ -22056,7 +22056,7 @@ void set_register_slow(int32_t arg, int32_t value)
 				Z_scripterrlog("Invalid combo position (%d) passed to GetSolid", pos);
 				break;
 			}
-			if(scr < 0) 
+			if(scr < 0 || scr >= TheMaps.size()) 
 			{
 				Z_scripterrlog("Invalid MapScreen ID (%d) passed to GetSolid", scr);
 				break;
