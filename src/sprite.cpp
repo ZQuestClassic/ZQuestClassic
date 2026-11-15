@@ -270,6 +270,9 @@ sprite::~sprite()
 		util::remove_if_exists(parent->children, this);
 	for (auto child : children)
 		child->parent = nullptr;
+	// The hero may be in the middle of swapping places with this sprite.
+	if (switching_object == this)
+		switching_object = nullptr;
 	#endif
 }
 
