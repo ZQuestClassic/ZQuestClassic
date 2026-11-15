@@ -35478,6 +35478,10 @@ void do_copytile(const bool v, const bool v2)
 	int32_t tile = SH::get_arg(sarg1, v) / 10000;
 	int32_t tile2 = SH::get_arg(sarg2, v2) / 10000;
 	
+	if(BC::checkTile(tile, "Graphics->CopyTile") != SH::_NoError ||
+			BC::checkTile(tile2, "Graphics->CopyTile") != SH::_NoError)
+		return;
+		
 	copy_tile(newtilebuf, tile, tile2, false);
 }
 
@@ -35520,6 +35524,10 @@ void do_swaptile(const bool v, const bool v2)
 	int32_t tile = SH::get_arg(sarg1, v) / 10000;
 	int32_t tile2 = SH::get_arg(sarg2, v2) / 10000;
 	
+	if(BC::checkTile(tile, "Graphics->SwapTile") != SH::_NoError ||
+			BC::checkTile(tile2, "Graphics->SwapTile") != SH::_NoError)
+		return;
+		
 	copy_tile(newtilebuf, tile, tile2, true);
 }
 
