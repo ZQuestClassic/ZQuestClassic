@@ -1,0 +1,131 @@
+#include "test_runner/assert.h"
+#include "test_runner/test_runner.h"
+#include "zc/script_path.h"
+#include "zc/zc_sys.h"
+
+#include <cstring>
+#include <filesystem>
+
+namespace fs = std::filesystem;
+
+static void test_parse_user_path_non_ascii()
+{
+	std::string sep(1, (char)fs::path::preferred_separator);
+
+	// "Créateur/クエスト.txt", escaped because MSVC reads source files in the ANSI code page.
+	// Bytes >= 0x80 used to be taken for control characters where char is signed (like Windows).
+	std::string dir = "Cr\xc3\xa9" "ateur";
+	std::string name = "\xe3\x82\xaf\xe3\x82\xa8\xe3\x82\xb9\xe3\x83\x88.txt";
+	auto r = parse_user_path(dir + "/" + name, true);
+	if (!r)
+		throw std::runtime_error(r.error());
+	assertTrue(r->ends_with(dir + sep + name));
+
+	// Not valid UTF-8 (like "Créateur.txt" in cp1252): never a crash. On Windows it is read in the
+	// system's ANSI code page; elsewhere the bytes are used as they are.
+	assertTrue(parse_user_path("Cr\xe9" "ateur.txt", true).has_value());
+
+	// Still rejected.
+	assertTrue(!parse_user_path("a\x01" "b.txt", true));
+	assertTrue(!parse_user_path("../a.txt", true));
+	assertTrue(!parse_user_path("a/CON", true));
+}
+
+static void test_parse_user_path_device_name()
+{
+	// Windows device names, in any case and with any extension.
+	assertTrue(!parse_user_path("CON", true));
+	assertTrue(!parse_user_path("con", true));
+	assertTrue(!parse_user_path("nul.txt", true));
+	assertTrue(!parse_user_path("Com1.png", true));
+	assertTrue(!parse_user_path("lpt9.tar.gz", true));
+	assertTrue(!parse_user_path("aux .txt", true));
+	assertTrue(!parse_user_path("dir/prn.dat", true));
+
+	// Names that only start with one are fine.
+	assertTrue(parse_user_path("console.txt", true).has_value());
+	assertTrue(parse_user_path("con_save.dat", true).has_value());
+	assertTrue(parse_user_path("com10.txt", true).has_value());
+	assertTrue(parse_user_path(".nul", true).has_value());
+}
+
+static void test_parse_user_path_banned_extension()
+{
+	assertTrue(parse_user_path("save.txt", true).has_value());
+	assertTrue(parse_user_path("save.dat", true).has_value());
+	assertTrue(!parse_user_path("a.exe", true));
+	assertTrue(!parse_user_path("a.EXE", true));
+	assertTrue(!parse_user_path("a.Bat", true));
+	assertTrue(!parse_user_path("a.dll", true));
+	assertTrue(!parse_user_path("a.lnk", true));
+	assertTrue(!parse_user_path("a.sh", true));
+	assertTrue(!parse_user_path("a.desktop", true));
+	// Directories can be named anything.
+	assertTrue(parse_user_path("a.exe", false).has_value());
+}
+
+static void test_parse_legacy_user_path()
+{
+	std::string sep(1, (char)fs::path::preferred_separator);
+
+	// Relative to the current directory, as before, with slashes made native.
+	assertEqual(parse_legacy_user_path("a.png").value(), std::string("a.png"));
+	assertEqual(parse_legacy_user_path("dir/a.png").value(), "dir" + sep + "a.png");
+	assertEqual(parse_legacy_user_path("dir/../a.png").value(), "dir" + sep + ".." + sep + "a.png");
+	assertTrue(parse_legacy_user_path("./a/./b/../c.png").has_value());
+
+	// But can't leave it.
+	assertTrue(!parse_legacy_user_path("../a.png"));
+	assertTrue(!parse_legacy_user_path("a/../../a.png"));
+	assertTrue(!parse_legacy_user_path("a\\..\\..\\a.png"));
+	assertTrue(!parse_legacy_user_path("/etc/a.png"));
+	assertTrue(!parse_legacy_user_path("\\a.png"));
+	assertTrue(!parse_legacy_user_path("\\\\server\\share\\a.png"));
+	assertTrue(!parse_legacy_user_path("//server/share/a.png"));
+	assertTrue(!parse_legacy_user_path("C:/a.png"));
+	assertTrue(!parse_legacy_user_path("C:a.png"));
+	assertTrue(!parse_legacy_user_path("a.png\n"));
+}
+
+static void test_parse_user_path_invalid_character()
+{
+	// The error names the character that was rejected.
+	auto r = parse_user_path("ab|c.txt", true);
+	assertTrue(!r);
+	assertTrue(r.error().ends_with("invalid character |"));
+}
+
+TestResults test_parse_user_path(bool verbose)
+{
+	char old_qst_files_path[sizeof(qst_files_path)];
+	std::memcpy(old_qst_files_path, qst_files_path, sizeof(qst_files_path));
+	std::strcpy(qst_files_path, "files");
+
+	TestResults tr{};
+	struct { const char* name; void (*fn)(); } tests[] = {
+		{ "non_ascii", test_parse_user_path_non_ascii },
+		{ "invalid_character", test_parse_user_path_invalid_character },
+		{ "banned_extension", test_parse_user_path_banned_extension },
+		{ "device_name", test_parse_user_path_device_name },
+		{ "legacy", test_parse_legacy_user_path },
+	};
+
+	for (auto& test : tests)
+	{
+		++tr.total;
+		try
+		{
+			test.fn();
+			if (verbose)
+				fmt::println("  [PASS] {}", test.name);
+		}
+		catch (const std::exception& e)
+		{
+			++tr.failed;
+			fmt::println("  [FAIL] {}\n{}", test.name, e.what());
+		}
+	}
+
+	std::memcpy(qst_files_path, old_qst_files_path, sizeof(qst_files_path));
+	return tr;
+}

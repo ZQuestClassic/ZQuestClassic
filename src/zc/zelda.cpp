@@ -4262,6 +4262,8 @@ int main(int argc, char **argv)
 		success &= run_tests(test_util, "test_util", verbose);
 		extern TestResults test_control_scheme(bool);
 		success &= run_tests(test_control_scheme, "test_control_scheme", verbose);
+		extern TestResults test_parse_user_path(bool);
+		success &= run_tests(test_parse_user_path, "test_parse_user_path", verbose);
 		if (success)
 			printf("all tests passed\n");
 		exit(success ? 0 : 1);

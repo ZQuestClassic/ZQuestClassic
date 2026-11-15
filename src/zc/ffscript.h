@@ -944,8 +944,6 @@ int32_t get_free_stack(bool skipError = false);
 int32_t get_free_rng(bool skipError = false);
 int32_t get_free_paldata(bool skipError = false);
 
-bool get_scriptfile_path(char* buf, const char* path);
-
 void do_fopen(const bool v, const char* f_mode);
 void do_fremove();
 void do_fclose();

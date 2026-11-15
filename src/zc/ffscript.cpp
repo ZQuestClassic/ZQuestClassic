@@ -25,6 +25,7 @@
 #include "zc/zc_sys.h"
 #include "zc/jit.h"
 #include "zc/script_debug.h"
+#include "zc/script_path.h"
 #include "base/zc_alleg.h"
 #include "base/zc_math.h"
 #include "base/zc_array.h"
@@ -31101,20 +31102,20 @@ void FFScript::do_loaddirectory()
 	string path;
 	ArrayH::getString(arrayptr, path, 2048);
 	
-	if(path.find("../") != string::npos
-		|| path.find("..\\") != string::npos)
-	{
-		Z_scripterrlog("Error: Script attempted to go up a directory in directory load '%s'\n", path.c_str());
-		return;
-	}
-	
 	size_t pos = path.find_last_not_of("/\\");
 	if(pos != string::npos && !(path.find_last_of("/\\") < pos))
 		path = path.substr(0, pos+1);
-	char buf[2048+1] = {0};
-	get_scriptfile_path(buf, path.c_str());
-	regulate_path(buf);
-	if(valid_dir(buf) && checkPath(buf, true))
+	regulate_path(path);
+	string resolved_path;
+	if (auto r = parse_user_path(path, false); !r)
+	{
+		Z_scripterrlog("Error: %s\n", r.error().c_str());
+		ri->directoryref = 0;
+		set_register(sarg1, 0);
+		return;
+	} else resolved_path = r.value();
+	const char* buf = resolved_path.c_str();
+	if(checkPath(buf, true))
 	{
 		ri->directoryref = get_free_directory(false);
 		if(!ri->directoryref) return;
@@ -31415,13 +31416,11 @@ void FFScript::do_paldata_load_bitmap()
 		string str;
 		ArrayH::getString(pathptr, str, 256);
 
-		if (get_qr(qr_BITMAP_AND_FILESYSTEM_PATHS_ALWAYS_RELATIVE))
+		if (auto r = get_qr(qr_BITMAP_AND_FILESYSTEM_PATHS_ALWAYS_RELATIVE) ? parse_user_path(str, true) : parse_legacy_user_path(str); !r)
 		{
-			char buf[2048+1] = { 0 };
-			if (FFCore.get_scriptfile_path(buf, str.c_str()))
-				str = buf;
-		}
-		regulate_path(str);
+			Z_scripterrlog("Error: %s\n", r.error().c_str());
+			return;
+		} else str = r.value();
 
 		if (str.empty())
 		{
@@ -33836,13 +33835,13 @@ static void do_drawing_command(int32_t script_command, bool is_screen_draw)
 			//char cptr = new char[str->size()+1]; // +1 to account for \0 byte
 			//strncpy(cptr, str->c_str(), str->size());
 			
-			if(get_qr(qr_BITMAP_AND_FILESYSTEM_PATHS_ALWAYS_RELATIVE))
+			// A refused path drops the command, so the target bitmap is left as it was.
+			if (auto r = get_qr(qr_BITMAP_AND_FILESYSTEM_PATHS_ALWAYS_RELATIVE) ? parse_user_path(*str, true) : parse_legacy_user_path(*str); !r)
 			{
-				char buf[2048+1] = {0};
-				if(FFCore.get_scriptfile_path(buf, str->c_str()))
-					(*str) = buf;
-			}
-			regulate_path(*str);
+				Z_scripterrlog("Error: %s\n", r.error().c_str());
+				script_drawing_commands.PopLast();
+				return;
+			} else (*str) = r.value();
 			
 			//zprint("READBITMAP string is %s\n", cptr);
 			
@@ -33861,13 +33860,13 @@ static void do_drawing_command(int32_t script_command, bool is_screen_draw)
 			//char *cptr = new char[str->size()+1]; // +1 to account for \0 byte
 			//strncpy(cptr, str->c_str(), str->size());
 			
-			if(get_qr(qr_BITMAP_AND_FILESYSTEM_PATHS_ALWAYS_RELATIVE))
+			// A refused path drops the command, so the target bitmap is left as it was.
+			if (auto r = get_qr(qr_BITMAP_AND_FILESYSTEM_PATHS_ALWAYS_RELATIVE) ? parse_user_path(*str, true) : parse_legacy_user_path(*str); !r)
 			{
-				char buf[2048+1] = {0};
-				if(FFCore.get_scriptfile_path(buf, str->c_str()))
-					(*str) = buf;
-			}
-			regulate_path(*str);
+				Z_scripterrlog("Error: %s\n", r.error().c_str());
+				script_drawing_commands.PopLast();
+				return;
+			} else (*str) = r.value();
 			
 			//zprint("WRITEBITMAP string is %s\n", cptr);
 			script_drawing_commands[j].SetString(str);
@@ -40769,30 +40768,6 @@ int32_t FFScript::get_free_stack(bool skipError)
 	return 0;
 }
 
-// Gotten from 'https://fileinfo.com/filetypes/executable'
-static std::set<std::string> banned_extensions = {".xlm",".caction",".8ck", ".actc",".a6p", ".m3g",".run",".workflow",".otm",".apk",".fxp",".73k",".0xe",".exe",".cmd",".jsx",".scar",".wcm",".jar",".ebs2",".ipa",".xap",".ba_",".ac",".bin",".vlx",".icd",".elf",".xbap",".89k",".widget",".a7r",".ex_",".zl9",".cgi",".scr",".coffee",".ahk",".plsc",".air",".ear",".app",".scptd",".xys",".hms",".cyw",".ebm",".pwc",".xqt",".msl",".seed",".vexe",".ebs",".mcr",".gpu",".celx",".wsh",".frs",".vxp",".action",".com",".out",".gadget",".command",".script",".rfu",".tcp",".widget",".ex4",".bat",".cof",".phar",".rxe",".scb",".ms",".isu",".fas",".mlx",".gpe",".mcr",".mrp",".u3p",".js",".acr",".epk",".exe1",".jsf",".rbf",".rgs",".vpm",".ecf",".hta",".dld",".applescript",".prg",".pyc",".spr",".nexe",".server",".appimage",".pyo",".dek",".mrc",".fpi",".rpj",".iim",".vbs",".pif",".mel",".scpt",".csh",".paf",".ws",".mm",".acc",".ex5",".mac",".plx",".snap",".ps1",".vdo",".mxe",".gs",".osx",".sct",".wiz",".x86",".e_e",".fky",".prg",".fas",".azw2",".actm",".cel",".tiapp",".thm",".kix",".wsf",".vbe",".lo",".ls",".tms",".ezs",".ds",".n",".esh",".vbscript",".arscript",".qit",".pex",".dxl",".wpm",".s2a",".sca",".prc",".shb",".rbx",".jse",".beam",".udf",".mem",".kx",".ksh",".rox",".upx",".ms",".mam",".btm",".es",".asb",".ipf",".mio",".sbs",".hpf",".ita",".eham",".ezt",".dmc",".qpx",".ore",".ncl",".exopc",".smm",".pvd",".ham",".wpk"};
-
-// Any extension other than banned ones, including no extension, is allowed.
-bool validate_userfile_extension(string const& path)
-{
-	std::string ext = std::filesystem::path(path).extension().string();
-	return banned_extensions.find(ext) == banned_extensions.end();
-}
-
-// `buf` must hold 2048+1 chars.
-bool FFScript::get_scriptfile_path(char* buf, const char* path)
-{
-	while((path[0] == '/' || path[0] == '\\') && path[0]) ++path;
-	// A script's string can be in the ANSI code page (typed or saved before src/windows.manifest);
-	// convert it so the file is found under the same name as before.
-	std::string utf8_path = path;
-	util::legacy_path_to_utf8(utf8_path);
-	if(utf8_path[0])
-		snprintf(buf, 2048+1, "%s%c%s", qst_files_path, PATH_SLASH, utf8_path.c_str());
-	else snprintf(buf, 2048+1, "%s", qst_files_path);
-	return true;
-}
-
 void check_file_error(int32_t ref)
 {
 	if(user_file* f = checkFile(ref, "", true, true))
@@ -40812,28 +40787,14 @@ void FFScript::do_fopen(const bool v, const char* f_mode)
 	string filename_str;
 	ArrayH::getString(arrayptr, filename_str, 512);
 	regulate_path(filename_str);
-	// A script's string can be in the ANSI code page (typed or saved before src/windows.manifest),
-	// which std::filesystem::path (in validate_userfile_extension and get_ext) would throw on.
-	util::legacy_path_to_utf8(filename_str);
 	ri->d[rEXP1] = 0L; //Presume failure; update to 10000L on success
-	if(!valid_file(filename_str))
+	string resolved_path;
+	if (auto r = parse_user_path(filename_str, true); !r)
 	{
-		Z_scripterrlog("Path '%s' empty or points to a directory; must point to a file!\n",filename_str.c_str());
+		Z_scripterrlog("Error: %s\n", r.error().c_str());
 		return;
-	}
-	if(!validate_userfile_extension(filename_str))
-	{
-		Z_scripterrlog("Cannot open/create file with extension '%s'.\n", get_ext(filename_str).c_str());
-		return;
-	}
-	if(filename_str.find("../") != string::npos
-		|| filename_str.find("..\\") != string::npos)
-	{
-		Z_scripterrlog("Error: Script attempted to go up a directory in file load '%s'\n", filename_str.c_str());
-		return;
-	}
-	char buf[2048+1] = {0};
-	FFCore.get_scriptfile_path(buf, filename_str.c_str());
+	} else resolved_path = r.value();
+	char* buf = resolved_path.data();
 	user_file* f = checkFile(ri->fileref, "Open()", false, true);
 	if(!f) //auto-allocate
 	{
@@ -43039,44 +43000,50 @@ int32_t FFScript::getQuestHeaderInfo(int32_t type)
 	return quest_format[type];
 }
 
-string get_filestr(const bool relative) //Used for 'FileSystem' functions.
+string get_filestr(const bool relative, bool is_file) //Used for 'FileSystem' functions.
 {
 	int32_t strptr = get_register(sarg1)/10000;
-	string the_string;
-	ArrayH::getString(strptr, the_string, 512);
-	size_t first = the_string.find_first_not_of('/');
+	string user_path;
+	ArrayH::getString(strptr, user_path, 512);
 
-	if (first == string::npos)
+	if (!relative)
 	{
-		the_string.clear();
-	}
-	else
-	{
-		the_string = the_string.substr(first, string::npos); //Kill leading '/'
-		size_t last = the_string.find_last_not_of('/');
-		if(last!=string::npos)++last;
-		the_string = the_string.substr(0,last); //Kill trailing '/'
+		// Kill leading '/'
+		size_t first = user_path.find_first_not_of('/');
+		if (first != string::npos)
+			user_path = user_path.substr(first, string::npos);
+
+		// Kill trailing '/'
+		size_t last = user_path.find_last_not_of('/');
+		if (last != string::npos)
+			user_path = user_path.substr(0, last + 1);
+
+		if (auto r = parse_legacy_user_path(user_path); !r)
+		{
+			Z_scripterrlog("Error: %s\n", r.error().c_str());
+			return "";
+		} else return r.value();
 	}
 
-	if(relative)
+	if (auto r = parse_user_path(user_path, is_file); !r)
 	{
-		char buf[2048+1] = {0};
-		if(FFCore.get_scriptfile_path(buf, the_string.c_str()))
-			the_string = buf;
-	}
-	return the_string;
+		Z_scripterrlog("Error: %s\n", r.error().c_str());
+		return "";
+	} else return r.value();
 }
 
 void FFScript::do_checkdir(const bool is_dir)
 {
-	string the_string = get_filestr(get_qr(qr_BITMAP_AND_FILESYSTEM_PATHS_ALWAYS_RELATIVE));
-	set_register(sarg1, checkPath(the_string.c_str(), is_dir) ? 10000 : 0);
+	string resolved_path = get_filestr(get_qr(qr_BITMAP_AND_FILESYSTEM_PATHS_ALWAYS_RELATIVE), false);
+	set_register(sarg1, !resolved_path.empty() && checkPath(resolved_path.c_str(), is_dir) ? 10000 : 0);
 }
 
 void FFScript::do_fs_remove()
 {
-	string the_string = get_filestr(true);
-	set_register(sarg1, remove(the_string.c_str()) ? 0 : 10000);
+	string resolved_path = get_filestr(true, true);
+	// An empty path is one that was refused. remove() returns 0 on success.
+	bool removed = !resolved_path.empty() && remove(resolved_path.c_str()) == 0;
+	set_register(sarg1, removed ? 10000 : 0);
 }
 
 void FFScript::Play_Level_Music()
