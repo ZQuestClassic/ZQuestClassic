@@ -54,6 +54,19 @@ void draw_subscrs(BITMAP* dest, int x, int y, bool showtime, int pos)
 		put_passive_subscr(dest,x,y+distance,showtime,pos);
 	}
 }
+// Runs the active subscreen's script. The script can remove the subscreen (by lowering the number
+// of subscreens), so check new_subscreen_active again after.
+static void run_active_subscript(bool waitdraw)
+{
+	if (new_subscreen_active && new_subscreen_active->script && FFCore.doscript(ScriptType::EngineSubscreen,0)
+		&& (!waitdraw || FFCore.waitdraw(ScriptType::EngineSubscreen,0)))
+	{
+		ZScriptVersion::RunScript(ScriptType::EngineSubscreen, new_subscreen_active->script, 0);
+		if (waitdraw)
+			FFCore.waitdraw(ScriptType::EngineSubscreen,0) = false;
+	}
+}
+
 static void _dosubscr()
 {
 	PALETTE temppal;
@@ -133,15 +146,10 @@ static void _dosubscr()
 			script_drawing_commands.Clear();
 		}
 		active_sub_yoff = y-playing_field_offset;
-		if(new_subscreen_active->script && FFCore.doscript(ScriptType::EngineSubscreen,0))
-			ZScriptVersion::RunScript(ScriptType::EngineSubscreen, new_subscreen_active->script, 0);
+		run_active_subscript(false);
 		do_dcounters();
 		Hero.refill();
-		if(new_subscreen_active->script && FFCore.doscript(ScriptType::EngineSubscreen,0) && FFCore.waitdraw(ScriptType::EngineSubscreen,0))
-		{
-			ZScriptVersion::RunScript(ScriptType::EngineSubscreen, new_subscreen_active->script, 0);
-			FFCore.waitdraw(ScriptType::EngineSubscreen,0) = false;
-		}
+		run_active_subscript(true);
 		//fill in the screen with black to prevent the hall of mirrors effect
 		clear_to_color(framebuf, 0);
 
@@ -187,8 +195,10 @@ static void _dosubscr()
 			load_control_state();
 		if(replay_version_check(19))
 			script_drawing_commands.Clear();
-		if(new_subscreen_active->script && FFCore.doscript(ScriptType::EngineSubscreen,0))
-			ZScriptVersion::RunScript(ScriptType::EngineSubscreen, new_subscreen_active->script, 0);
+		run_active_subscript(false);
+		// A script can remove the open subscreen, by lowering the number of subscreens.
+		if (!new_subscreen_active)
+			break;
 		auto pgnum = new_subscreen_active->curpage;
 		auto& pg = new_subscreen_active->cur_page();
 		bool can_btn = !subscr_pg_animating;
@@ -269,7 +279,12 @@ static void _dosubscr()
 					}
 					if(widg->generic_script && (bpress&widg->gen_script_btns))
 					{
+						ZCSubscreen* sub = new_subscreen_active;
 						FFCore.runGenericFrozenEngine(widg->generic_script, widg->generic_initd);
+						// If the script changed the number of subscreens, the subscreen was copied
+						// elsewhere or removed, and 'pg' and 'widg' point at freed memory.
+						if (new_subscreen_active != sub)
+							goto input_done;
 						eqwpn = widg->getItemVal(); //update incase script changed
 						if(must_equip) //update values depending on eqwpn
 						{
@@ -450,15 +465,12 @@ static void _dosubscr()
 			if(new_subscreen_active->curpage == pgnum)
 				new_subscreen_active->check_btns(btn_press);
 		}
+	input_done:
 		
 		do_dcounters();
 		Hero.refill();
 		
-		if(new_subscreen_active->script && FFCore.doscript(ScriptType::EngineSubscreen,0) && FFCore.waitdraw(ScriptType::EngineSubscreen,0))
-		{
-			ZScriptVersion::RunScript(ScriptType::EngineSubscreen, new_subscreen_active->script, 0);
-			FFCore.waitdraw(ScriptType::EngineSubscreen,0) = false;
-		}
+		run_active_subscript(true);
 
 		clear_to_color(framebuf, 0);
 
@@ -498,15 +510,10 @@ static void _dosubscr()
 			script_drawing_commands.Clear();
 		}
 		active_sub_yoff = y-playing_field_offset;
-		if(new_subscreen_active->script && FFCore.doscript(ScriptType::EngineSubscreen,0))
-			ZScriptVersion::RunScript(ScriptType::EngineSubscreen, new_subscreen_active->script, 0);
+		run_active_subscript(false);
 		do_dcounters();
 		Hero.refill();
-		if(new_subscreen_active->script && FFCore.doscript(ScriptType::EngineSubscreen,0) && FFCore.waitdraw(ScriptType::EngineSubscreen,0))
-		{
-			ZScriptVersion::RunScript(ScriptType::EngineSubscreen, new_subscreen_active->script, 0);
-			FFCore.waitdraw(ScriptType::EngineSubscreen,0) = false;
-		}
+		run_active_subscript(true);
 		//fill in the screen with black to prevent the hall of mirrors effect
 		clear_to_color(framebuf, 0);
 		

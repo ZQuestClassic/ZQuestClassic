@@ -15901,6 +15901,47 @@ int32_t get_register_slow(const int32_t arg)
 //Setter Instructions
 
 
+// Sets the number of subscreens in a list. Adding or removing subscreens moves them in memory, so
+// the engine's pointers into the list are found again by their index - or cleared, if their
+// subscreen was removed.
+static void resize_subscreen_list(std::vector<ZCSubscreen>& list, byte sub_type, int32_t value)
+{
+	if (value < 0)
+		return;
+
+	size_t sz = vbound(value/10000, 0, 256);
+	if (sz == list.size())
+		return;
+
+	ZCSubscreen** pointers[] = {&new_subscreen_active, &new_subscreen_passive, &new_subscreen_overlay};
+	int indices[std::size(pointers)];
+	for (size_t i = 0; i < std::size(pointers); ++i)
+	{
+		indices[i] = -1;
+		for (size_t q = 0; q < list.size(); ++q)
+		{
+			if (*pointers[i] == &list[q])
+			{
+				indices[i] = q;
+				break;
+			}
+		}
+	}
+
+	while (list.size() < sz)
+		list.emplace_back().sub_type = sub_type;
+	while (list.size() > sz)
+		list.pop_back();
+
+	for (size_t i = 0; i < std::size(pointers); ++i)
+	{
+		if (indices[i] >= 0)
+			*pointers[i] = size_t(indices[i]) < sz ? &list[indices[i]] : nullptr;
+	}
+	if (new_sub_indexes[sub_type] >= int(sz))
+		new_sub_indexes[sub_type] = -1;
+}
+
 void set_register_slow(int32_t arg, int32_t value)
 {
 	// A dmapdata can be cast from any number, or loaded from an invalid id.
@@ -26615,50 +26656,14 @@ void set_register_slow(int32_t arg, int32_t value)
 		}
 		
 		case GAMENUMASUB:
-		{
-			if(value >= 0)
-			{
-				size_t sz = vbound(value/10000, 0, 256);
-				while(subscreens_active.size() < sz)
-				{
-					auto& sub = subscreens_active.emplace_back();
-					sub.sub_type = sstACTIVE;
-				}
-				while(subscreens_active.size() > sz)
-					subscreens_active.pop_back();
-			}
+			resize_subscreen_list(subscreens_active, sstACTIVE, value);
 			break;
-		}
 		case GAMENUMPSUB:
-		{
-			if(value >= 0)
-			{
-				size_t sz = vbound(value/10000, 0, 256);
-				while(subscreens_passive.size() < sz)
-				{
-					auto& sub = subscreens_passive.emplace_back();
-					sub.sub_type = sstPASSIVE;
-				}
-				while(subscreens_passive.size() > sz)
-					subscreens_passive.pop_back();
-			}
+			resize_subscreen_list(subscreens_passive, sstPASSIVE, value);
 			break;
-		}
 		case GAMENUMOSUB:
-		{
-			if(value >= 0)
-			{
-				size_t sz = vbound(value/10000, 0, 256);
-				while(subscreens_overlay.size() < sz)
-				{
-					auto& sub = subscreens_overlay.emplace_back();
-					sub.sub_type = sstOVERLAY;
-				}
-				while(subscreens_overlay.size() > sz)
-					subscreens_overlay.pop_back();
-			}
+			resize_subscreen_list(subscreens_overlay, sstOVERLAY, value);
 			break;
-		}
 		///----------------------------------------------------------------------------------------------------//
 		
 		case SUBDATACURPG:

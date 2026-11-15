@@ -15,6 +15,7 @@
 #include "auto/bug_script_draw_error_logging.zs"
 #include "auto/bug_string_16bit_index.zs"
 #include "auto/bug_subscr_gauge_percent_div0.zs"
+#include "auto/bug_subscreen_count_resize.zs"
 #include "auto/bug_unused_var_bad_opt.zs"
 #include "auto/bug_water_edge_scroll.zs"
 #include "auto/bug_whirlwind_shallow_liquid.zs"
