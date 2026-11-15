@@ -6,6 +6,7 @@
 #include "zc/guys.h"
 #include "zc/scripting/arrays.h"
 #include "zc/scripting/types/musicdata.h"
+#include "zc/scripting/zasm_check.h"
 
 extern refInfo *ri;
 extern int32_t sarg1;
@@ -642,7 +643,7 @@ int32_t combotrigger_get_register(int32_t reg)
 		}
 
 		default:
-			NOTREACHED();
+			ZASM_NOTREACHED();
 	}
 
 	return ret;
@@ -1058,7 +1059,7 @@ void combotrigger_set_register(int32_t reg, int32_t value)
 		}
 
 		default:
-			NOTREACHED();
+			ZASM_NOTREACHED();
 	}
 }
 

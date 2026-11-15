@@ -4,6 +4,7 @@
 #include "components/zasm/defines.h"
 #include "zc/ffscript.h"
 #include "zc/scripting/arrays.h"
+#include "zc/scripting/zasm_check.h"
 
 extern refInfo *ri;
 extern int32_t sarg1;
@@ -62,7 +63,7 @@ int32_t spritedata_get_register(int32_t reg)
 		case SPRITEDATATYPE: GET_SPRITEDATA_VAR_INT(type) break;
 
 		default:
-			NOTREACHED();
+			ZASM_NOTREACHED();
 	}
 
 	return ret;
@@ -129,7 +130,7 @@ void spritedata_set_register(int32_t reg, int32_t value)
 		case SPRITEDATATYPE: SET_SPRITEDATA_VAR_BYTE(type, "Type"); break;
 
 		default:
-			NOTREACHED();
+			ZASM_NOTREACHED();
 	}
 }
 

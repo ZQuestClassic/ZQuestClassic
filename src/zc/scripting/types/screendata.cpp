@@ -7,6 +7,7 @@
 #include "zc/rendertarget.h"
 #include "zc/scripting/arrays.h"
 #include "zc/scripting/types/musicdata.h"
+#include "zc/scripting/zasm_check.h"
 #include "zc/zc_sys.h"
 #include "zc/zscriptversion.h"
 #include "zc/scripting/script_object.h"
@@ -335,7 +336,7 @@ int32_t screendata_get_register(int32_t reg)
 		
 
 		default:
-			NOTREACHED();
+			ZASM_NOTREACHED();
 	}
 
 	return ret;
@@ -607,7 +608,7 @@ void screendata_set_register(int32_t reg, int32_t value)
 			scr->undercset=value/10000;
 			break;
 		default:
-			NOTREACHED();
+			ZASM_NOTREACHED();
 	}
 }
 

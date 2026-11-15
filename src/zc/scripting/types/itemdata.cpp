@@ -4,6 +4,7 @@
 #include "components/zasm/defines.h"
 #include "zc/ffscript.h"
 #include "zc/scripting/arrays.h"
+#include "zc/scripting/zasm_check.h"
 
 extern refInfo *ri;
 extern int32_t sarg1;
@@ -697,7 +698,7 @@ int32_t itemdata_get_register(int32_t reg)
 		}
 
 		default:
-			NOTREACHED();
+			ZASM_NOTREACHED();
 	}
 
 	return ret;
@@ -1325,7 +1326,7 @@ void itemdata_set_register(int32_t reg, int32_t value)
 			break;
 
 		default:
-			NOTREACHED();
+			ZASM_NOTREACHED();
 	}
 }
 
@@ -1421,7 +1422,7 @@ static ArrayRegistrar IDATAATTRIB_registrar(IDATAATTRIB, []{
 				case 7: return (item->misc8);
 				case 8: return (item->misc9);
 				case 9: return (item->misc10);
-				default: NOTREACHED();
+				default: ZASM_NOTREACHED();
 			}
 		},
 		[](itemdata* item, int index, int value){
@@ -1437,7 +1438,7 @@ static ArrayRegistrar IDATAATTRIB_registrar(IDATAATTRIB, []{
 				case 7: item->misc8 = value; break;
 				case 8: item->misc9 = value; break;
 				case 9: item->misc10 = value; break;
-				default: NOTREACHED();
+				default: ZASM_NOTREACHED();
 			}
 		}
 	);
@@ -1465,7 +1466,7 @@ static ArrayRegistrar IDATAATTRIB_L_registrar(IDATAATTRIB_L, []{
 				case 7: return (item->misc8);
 				case 8: return (item->misc9);
 				case 9: return (item->misc10);
-				default: NOTREACHED();
+				default: ZASM_NOTREACHED();
 			}
 		},
 		[](itemdata* item, int index, int value){
@@ -1481,7 +1482,7 @@ static ArrayRegistrar IDATAATTRIB_L_registrar(IDATAATTRIB_L, []{
 				case 7: item->misc8 = value; break;
 				case 8: item->misc9 = value; break;
 				case 9: item->misc10 = value; break;
-				default: NOTREACHED();
+				default: ZASM_NOTREACHED();
 			}
 		}
 	);
@@ -1523,7 +1524,7 @@ static ArrayRegistrar IDATAFLAGS_registrar(IDATAFLAGS, []{
 				case 13: return item->flags & item_flag14;
 				case 14: return item->flags & item_flag15;
 				case 15: return item->flags & item_passive_script;
-				default: NOTREACHED();
+				default: ZASM_NOTREACHED();
 			}
 		},
 		[](itemdata* item, int index, bool value){
@@ -1578,7 +1579,7 @@ static ArrayRegistrar IDATAFLAGS_registrar(IDATAFLAGS, []{
 				case 15:
 					SETFLAG(item->flags, item_passive_script, value);
 					break;
-				default: NOTREACHED();
+				default: ZASM_NOTREACHED();
 			}
 		}
 	);

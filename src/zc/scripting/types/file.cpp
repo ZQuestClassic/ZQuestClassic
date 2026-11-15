@@ -5,6 +5,7 @@
 #include "zc/scripting/arrays.h"
 #include "zc/scripting/common.h"
 #include "zc/scripting/script_object.h"
+#include "zc/scripting/zasm_check.h"
 
 #ifdef _WIN32
 #define SCRIPT_FILE_MODE	(_S_IREAD | _S_IWRITE)
@@ -597,7 +598,7 @@ int32_t file_get_register(int32_t reg)
 			break;
 		}
 
-		default: NOTREACHED();
+		default: ZASM_NOTREACHED();
 	}
 
 	return ret;
@@ -605,7 +606,7 @@ int32_t file_get_register(int32_t reg)
 
 void file_set_register([[maybe_unused]] int32_t reg, [[maybe_unused]] int32_t value)
 {
-	NOTREACHED();
+	ZASM_NOTREACHED();
 }
 
 std::optional<int32_t> file_run_command(word command)

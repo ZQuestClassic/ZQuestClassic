@@ -5,6 +5,7 @@
 #include "zc/ffscript.h"
 #include "zc/scripting/common.h"
 #include "zc/scripting/script_object.h"
+#include "zc/scripting/zasm_check.h"
 
 extern refInfo *ri;
 extern int32_t sarg1;
@@ -133,7 +134,7 @@ int32_t directory_get_register(int32_t reg)
 			break;
 		}
 
-		default: NOTREACHED();
+		default: ZASM_NOTREACHED();
 	}
 
 	return ret;
@@ -141,7 +142,7 @@ int32_t directory_get_register(int32_t reg)
 
 void directory_set_register([[maybe_unused]] int32_t reg, [[maybe_unused]] int32_t value)
 {
-	NOTREACHED();
+	ZASM_NOTREACHED();
 }
 
 std::optional<int32_t> directory_run_command(word command)

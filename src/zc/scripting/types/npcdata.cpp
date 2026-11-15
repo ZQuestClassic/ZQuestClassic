@@ -3,6 +3,7 @@
 #include "base/check.h"
 #include "zc/ffscript.h"
 #include "zc/scripting/arrays.h"
+#include "zc/scripting/zasm_check.h"
 
 extern refInfo *ri;
 extern int32_t sarg1;
@@ -213,7 +214,7 @@ int32_t npcdata_get_register(int32_t reg)
 		}
 
 		default:
-			NOTREACHED();
+			ZASM_NOTREACHED();
 	}
 
 	return ret;
@@ -336,7 +337,7 @@ void npcdata_set_register(int32_t reg, int32_t value)
 			break;
 
 		default:
-			NOTREACHED();
+			ZASM_NOTREACHED();
 	}
 }
 
@@ -409,7 +410,7 @@ static ArrayRegistrar NPCDATASHIELD_registrar(NPCDATASHIELD, []{
 				case 2: return guy->flags & guy_shield_right;
 				case 3: return guy->flags & guy_shield_back;
 				case 4: return guy->flags & guy_bkshield;
-				default: NOTREACHED();
+				default: ZASM_NOTREACHED();
 			}
 		},
 		[](guydata* guy, int index, bool value){
@@ -420,7 +421,7 @@ static ArrayRegistrar NPCDATASHIELD_registrar(NPCDATASHIELD, []{
 				case 2: SETFLAG(guy->flags, guy_shield_right, value); break;
 				case 3: SETFLAG(guy->flags, guy_shield_back, value); break;
 				case 4: SETFLAG(guy->flags, guy_bkshield, value); break;
-				default: NOTREACHED();
+				default: ZASM_NOTREACHED();
 			}
 		}
 	);

@@ -5,6 +5,7 @@
 #include "core/zdefs.h"
 #include "gamedata.h"
 #include "zc/scripting/common.h"
+#include "zc/scripting/zasm_check.h"
 #include "zc/zscriptversion.h"
 
 extern refInfo *ri;
@@ -54,7 +55,7 @@ int32_t misc_get_register(int32_t reg)
 			break;
 
 		default:
-			NOTREACHED();
+			ZASM_NOTREACHED();
 	}
 
 	return ret;
@@ -83,6 +84,6 @@ void misc_set_register(int32_t reg, int32_t value)
 			break;
 
 		default:
-			NOTREACHED();
+			ZASM_NOTREACHED();
 	}
 }

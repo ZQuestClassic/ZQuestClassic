@@ -6,6 +6,7 @@
 #include "sprite.h"
 #include "zc/ffscript.h"
 #include "zc/scripting/types/savedportal.h"
+#include "zc/scripting/zasm_check.h"
 
 extern refInfo *ri;
 extern int32_t sarg1;
@@ -129,7 +130,7 @@ int32_t portal_get_register(int32_t reg)
 		}
 
 		default:
-			NOTREACHED();
+			ZASM_NOTREACHED();
 	}
 
 	return ret;
@@ -225,6 +226,6 @@ void portal_set_register(int32_t reg, int32_t value)
 		}
 
 		default:
-			NOTREACHED();
+			ZASM_NOTREACHED();
 	}
 }

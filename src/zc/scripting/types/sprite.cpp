@@ -10,6 +10,7 @@
 #include "zc/maps.h"
 #include "hero_tiles.h"
 #include "zc/scripting/arrays.h"
+#include "zc/scripting/zasm_check.h"
 
 #include <cstdint>
 
@@ -432,7 +433,7 @@ int32_t sprite_get_register(int32_t reg)
 			return 0;
 		}
 
-		default: NOTREACHED();
+		default: ZASM_NOTREACHED();
 	}
 
 	NOTREACHED();
@@ -999,7 +1000,7 @@ void sprite_set_register(int32_t reg, int32_t value)
 			break;
 		}
 
-		default: NOTREACHED();
+		default: ZASM_NOTREACHED();
 	}
 }
 

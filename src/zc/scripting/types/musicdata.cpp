@@ -2,6 +2,7 @@
 #include "components/zasm/defines.h"
 #include "zc/ffscript.h"
 #include "zc/scripting/arrays.h"
+#include "zc/scripting/zasm_check.h"
 #include "zc/zc_sys.h"
 
 void music_stop();
@@ -98,7 +99,7 @@ int32_t musicdata_get_register(int32_t reg)
 			break;
 		}
 
-		default: NOTREACHED();
+		default: ZASM_NOTREACHED();
 	}
 
 	return ret;
@@ -193,7 +194,7 @@ void musicdata_set_register(int32_t reg, int32_t value)
 			break;
 		}
 		
-		default: NOTREACHED();
+		default: ZASM_NOTREACHED();
 	}
 }
 

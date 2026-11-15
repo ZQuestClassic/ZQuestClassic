@@ -2,6 +2,7 @@
 
 #include "base/check.h"
 #include "components/zasm/defines.h"
+#include "zc/scripting/zasm_check.h"
 #include "zc/zelda.h"
 
 int32_t debug_get_register(int32_t reg)
@@ -15,7 +16,7 @@ int32_t debug_get_register(int32_t reg)
 			break;
 
 		default:
-			NOTREACHED();
+			ZASM_NOTREACHED();
 	}
 
 	return ret;
@@ -23,5 +24,5 @@ int32_t debug_get_register(int32_t reg)
 
 void debug_set_register([[maybe_unused]] int32_t reg, [[maybe_unused]] int32_t value)
 {
-	NOTREACHED();
+	ZASM_NOTREACHED();
 }

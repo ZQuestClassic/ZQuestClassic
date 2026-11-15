@@ -5,6 +5,7 @@
 #include "components/zasm/defines.h"
 #include "core/zdefs.h"
 #include "zc/scripting/script_object.h"
+#include "zc/scripting/zasm_check.h"
 
 #include <cstdint>
 
@@ -95,7 +96,7 @@ int32_t bitmap_get_register(int32_t reg)
 		}
 
 		default:
-			NOTREACHED();
+			ZASM_NOTREACHED();
 	}
 
 	return ret;
@@ -103,5 +104,5 @@ int32_t bitmap_get_register(int32_t reg)
 
 void bitmap_set_register([[maybe_unused]] int32_t reg, [[maybe_unused]] int32_t value)
 {
-	NOTREACHED();
+	ZASM_NOTREACHED();
 }

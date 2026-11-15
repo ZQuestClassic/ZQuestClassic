@@ -9,6 +9,7 @@
 #include "zc/hero.h"
 #include "zc/rendertarget.h"
 #include "zc/scripting/arrays.h"
+#include "zc/scripting/zasm_check.h"
 #include "zc/zelda.h"
 
 #include <optional>
@@ -559,7 +560,7 @@ int32_t itemsprite_get_register(int32_t reg)
 			}
 			break;
 
-		default: NOTREACHED();
+		default: ZASM_NOTREACHED();
 	}
 
 	return ret;
@@ -1156,7 +1157,7 @@ void itemsprite_set_register(int32_t reg, int32_t value)
 			}
 			break;
 
-		default: NOTREACHED();
+		default: ZASM_NOTREACHED();
 	}
 }
 

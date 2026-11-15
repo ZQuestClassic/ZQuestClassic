@@ -5,6 +5,7 @@
 #include "zc/ffscript.h"
 #include "zc/scripting/arrays.h"
 #include "zc/scripting/script_object.h"
+#include "zc/scripting/zasm_check.h"
 
 #include <cstdint>
 
@@ -97,7 +98,7 @@ int32_t genericdata_get_register(int32_t reg)
 		}
 
 		default:
-			NOTREACHED();
+			ZASM_NOTREACHED();
 	}
 
 	return ret;
@@ -125,7 +126,7 @@ void genericdata_set_register(int32_t reg, int32_t value)
 		}
 
 		default:
-			NOTREACHED();
+			ZASM_NOTREACHED();
 	}
 }
 

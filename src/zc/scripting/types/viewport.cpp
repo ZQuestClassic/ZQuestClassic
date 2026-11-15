@@ -6,6 +6,7 @@
 #include "zc/ffscript.h"
 #include "zc/maps.h"
 #include "zc/scripting/common.h"
+#include "zc/scripting/zasm_check.h"
 
 extern refInfo *ri;
 extern int32_t sarg1;
@@ -98,7 +99,7 @@ int32_t viewport_get_register(int32_t reg)
 		break;
 
 		default:
-			NOTREACHED();
+			ZASM_NOTREACHED();
 	}
 
 	return ret;
@@ -224,7 +225,7 @@ void viewport_set_register(int32_t reg, int32_t value)
 		break;
 
 		default:
-			NOTREACHED();
+			ZASM_NOTREACHED();
 	}
 }
 

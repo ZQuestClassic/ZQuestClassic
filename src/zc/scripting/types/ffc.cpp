@@ -4,6 +4,7 @@
 #include "components/zasm/defines.h"
 #include "zc/ffscript.h"
 #include "zc/scripting/arrays.h"
+#include "zc/scripting/zasm_check.h"
 #include "zc/zc_ffc.h"
 
 #include <cstdint>
@@ -87,7 +88,7 @@ int32_t ffc_get_register(int32_t reg)
 			break;
 
 		default:
-			NOTREACHED();
+			ZASM_NOTREACHED();
 	}
 
 	return ret;
@@ -167,7 +168,7 @@ void ffc_set_register(int32_t reg, int32_t value)
 			break;
 
 		default:
-			NOTREACHED();
+			ZASM_NOTREACHED();
 	}
 }
 

@@ -5,6 +5,7 @@
 #include "zc/ffscript.h"
 #include "zc/scripting/arrays.h"
 #include "zc/scripting/script_object.h"
+#include "zc/scripting/zasm_check.h"
 #include "zc/websocket_pool.h"
 #include "zc/zscriptversion.h"
 #include <optional>
@@ -112,7 +113,7 @@ int32_t websocket_get_register(int32_t reg)
 			ret = (int)ws->last_message_type;
 			break;
 		}
-		default: NOTREACHED();
+		default: ZASM_NOTREACHED();
 	}
 
 	return ret;
@@ -120,7 +121,7 @@ int32_t websocket_get_register(int32_t reg)
 
 void websocket_set_register([[maybe_unused]] int32_t reg, [[maybe_unused]] int32_t value)
 {
-	NOTREACHED();
+	ZASM_NOTREACHED();
 }
 
 std::optional<int32_t> websocket_run_command(word command)

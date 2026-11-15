@@ -7,6 +7,7 @@
 #include "zc/ffscript.h"
 #include "zc/guys.h"
 #include "zc/scripting/arrays.h"
+#include "zc/scripting/zasm_check.h"
 
 #include <optional>
 #include <type_traits>
@@ -1301,7 +1302,7 @@ int32_t npc_get_register(int32_t reg)
 				ret = FFCore.get_new_weapondata(wdata_type::npc, GET_REF(npcref));
 			break;
 
-		default: NOTREACHED();
+		default: ZASM_NOTREACHED();
 	}
 
 	return ret;
@@ -1953,7 +1954,7 @@ void npc_set_register(int32_t reg, int32_t value)
 		case NPC_WEAPONDATA:
 			break;
 
-		default: NOTREACHED();
+		default: ZASM_NOTREACHED();
 	}
 }
 
@@ -2285,7 +2286,7 @@ static ArrayRegistrar NPCHITBY_registrar(NPCHITBY, []{
 				case 15:
 					return enemy->hitby[index]; // * 10000; //do not multiply by 10000! UIDs are not *10000!
 
-				default: NOTREACHED();
+				default: ZASM_NOTREACHED();
 			}
 		},
 		[](enemy* enemy, int index, int value){
@@ -2350,7 +2351,7 @@ static ArrayRegistrar NPCSHIELD_registrar(NPCSHIELD, []{
 				case 2: return enemy->flags&guy_shield_right;
 				case 3: return enemy->flags&guy_shield_back;
 				case 4: return enemy->flags&guy_bkshield;
-				default: NOTREACHED();
+				default: ZASM_NOTREACHED();
 			}
 		},
 		[](enemy* enemy, int index, bool value){
@@ -2361,7 +2362,7 @@ static ArrayRegistrar NPCSHIELD_registrar(NPCSHIELD, []{
 				case 2: SETFLAG(enemy->flags, guy_shield_right, value); break;
 				case 3: SETFLAG(enemy->flags, guy_shield_back, value); break;
 				case 4: SETFLAG(enemy->flags, guy_bkshield, value); break;
-				default: NOTREACHED();
+				default: ZASM_NOTREACHED();
 			}
 		}
 	);

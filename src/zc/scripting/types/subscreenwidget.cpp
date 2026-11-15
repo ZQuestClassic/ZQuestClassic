@@ -4,6 +4,7 @@
 #include "components/zasm/defines.h"
 #include "zc/ffscript.h"
 #include "zc/scripting/arrays.h"
+#include "zc/scripting/zasm_check.h"
 
 extern refInfo *ri;
 extern int32_t sarg1;
@@ -1303,7 +1304,7 @@ int32_t subscreenwidget_get_register(int32_t reg)
 		}
 
 		default:
-			NOTREACHED();
+			ZASM_NOTREACHED();
 	}
 
 	return ret;
@@ -2557,7 +2558,7 @@ void subscreenwidget_set_register(int32_t reg, int32_t value)
 		}
 
 		default:
-			NOTREACHED();
+			ZASM_NOTREACHED();
 	}
 }
 
@@ -2852,7 +2853,7 @@ static ArrayRegistrar SUBWIDGPOSES_registrar(SUBWIDGPOSES, []{
 				case down: return widg->pos_down;
 				case left: return widg->pos_left;
 				case right: return widg->pos_right;
-				default: NOTREACHED();
+				default: ZASM_NOTREACHED();
 			}
 		},
 		[](SubscrWidget* widg, int index, int value){
@@ -2862,7 +2863,7 @@ static ArrayRegistrar SUBWIDGPOSES_registrar(SUBWIDGPOSES, []{
 				case down: widg->pos_down = value; break;
 				case left: widg->pos_left = value; break;
 				case right: widg->pos_right = value; break;
-				default: NOTREACHED();
+				default: ZASM_NOTREACHED();
 			}
 		}
 	);
@@ -2897,7 +2898,7 @@ static ArrayRegistrar SUBWIDGTY_CORNER_registrar(SUBWIDGTY_CORNER, []{
 				case widgLGAUGE: case widgMGAUGE: case widgMISCGAUGE: case widgITMCOOLDOWNGAUGE:
 					return ((SW_GaugePiece*)widg)->mts[index].crn();
 				
-				default: NOTREACHED();
+				default: ZASM_NOTREACHED();
 			}
 		},
 		[](SubscrWidget* widg, int index, int value){
@@ -2911,7 +2912,7 @@ static ArrayRegistrar SUBWIDGTY_CORNER_registrar(SUBWIDGTY_CORNER, []{
 					((SW_GaugePiece*)widg)->mts[index].setCrn(value);
 					break;
 
-				default: NOTREACHED();
+				default: ZASM_NOTREACHED();
 			}
 		}
 	);
@@ -2944,7 +2945,7 @@ static ArrayRegistrar SUBWIDGTY_COUNTERS_registrar(SUBWIDGTY_COUNTERS, []{
 				case widgCOUNTER: return ((SW_Counter*)widg)->ctrs[index];
 				case widgMISCGAUGE: return ((SW_MiscGaugePiece*)widg)->counter;
 				case widgCOUNTERPERCBAR: return ((SW_CounterPercentBar*)widg)->counter;
-				default: NOTREACHED();
+				default: ZASM_NOTREACHED();
 			}
 		},
 		[](SubscrWidget* widg, int index, int value){
@@ -2956,7 +2957,7 @@ static ArrayRegistrar SUBWIDGTY_COUNTERS_registrar(SUBWIDGTY_COUNTERS, []{
 				case widgMISCGAUGE:
 					((SW_MiscGaugePiece*)widg)->counter = value;
 					break;
-				default: NOTREACHED();
+				default: ZASM_NOTREACHED();
 			}
 		}
 	);
@@ -2996,7 +2997,7 @@ static ArrayRegistrar SUBWIDGTY_CSET_registrar(SUBWIDGTY_CSET, []{
 				case widgLGAUGE: case widgMGAUGE: case widgMISCGAUGE: case widgITMCOOLDOWNGAUGE:
 					return ((SW_GaugePiece*)widg)->mts[index].cset;
 
-				default: NOTREACHED();
+				default: ZASM_NOTREACHED();
 			}
 		},
 		[](SubscrWidget* widg, int index, int value){
@@ -3020,7 +3021,7 @@ static ArrayRegistrar SUBWIDGTY_CSET_registrar(SUBWIDGTY_CSET, []{
 					((SW_GaugePiece*)widg)->mts[index].cset = value;
 					break;
 
-				default: NOTREACHED();
+				default: ZASM_NOTREACHED();
 			}
 		}
 	);
@@ -3060,7 +3061,7 @@ static ArrayRegistrar SUBWIDGTY_TILE_registrar(SUBWIDGTY_TILE, []{
 				case widgLGAUGE: case widgMGAUGE: case widgMISCGAUGE: case widgITMCOOLDOWNGAUGE:
 					return ((SW_GaugePiece*)widg)->mts[index].tile();
 
-				default: NOTREACHED();
+				default: ZASM_NOTREACHED();
 			}
 		},
 		[](SubscrWidget* widg, int index, int value){
@@ -3085,7 +3086,7 @@ static ArrayRegistrar SUBWIDGTY_TILE_registrar(SUBWIDGTY_TILE, []{
 					((SW_GaugePiece*)widg)->mts[index].setTile(value);
 					break;
 
-				default: NOTREACHED();
+				default: ZASM_NOTREACHED();
 			}
 		}
 	);

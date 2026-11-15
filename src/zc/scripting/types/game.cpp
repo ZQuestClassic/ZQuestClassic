@@ -16,6 +16,7 @@
 #include "zc/scripting/arrays.h"
 #include "zc/scripting/types/musicdata.h"
 #include "advanced_music.h"
+#include "zc/scripting/zasm_check.h"
 #include "zc/zelda.h"
 #include "zc/scripting/script_object.h"
 
@@ -582,7 +583,7 @@ int32_t game_get_register(int32_t reg)
 			break;
 		}
 
-		default: NOTREACHED();
+		default: ZASM_NOTREACHED();
 	}
 
 	return ret;
@@ -928,7 +929,7 @@ void game_set_register(int32_t reg, int32_t value)
 			break;
 		}
 
-		default: NOTREACHED();
+		default: ZASM_NOTREACHED();
 	}
 }
 
@@ -1520,7 +1521,7 @@ static ArrayRegistrar GAMEGRAVITY_registrar(GAMEGRAVITY, []{
 					return zinit.jump_hero_layer_threshold * 10000;
 				case 3: //Air Drag
 					return zinit.air_drag.getZLong();
-				default: NOTREACHED();
+				default: ZASM_NOTREACHED();
 			}
 		},
 		[](int, int index, int value) {
@@ -1538,7 +1539,7 @@ static ArrayRegistrar GAMEGRAVITY_registrar(GAMEGRAVITY, []{
 				case 3: //Air Drag
 					zinit.air_drag = zslongToFix(value);
 					break;
-				default: NOTREACHED();
+				default: ZASM_NOTREACHED();
 			}
 
 			return true;

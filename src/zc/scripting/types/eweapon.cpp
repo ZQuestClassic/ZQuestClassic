@@ -6,6 +6,7 @@
 #include "core/qrs.h"
 #include "core/zdefs.h"
 #include "zc/ffscript.h"
+#include "zc/scripting/zasm_check.h"
 
 extern refInfo *ri;
 extern int32_t sarg1;
@@ -343,7 +344,7 @@ int32_t eweapon_get_register(int32_t reg)
 			break;
 
 		default:
-			NOTREACHED();
+			ZASM_NOTREACHED();
 	}
 
 	return ret;
@@ -714,6 +715,6 @@ void eweapon_set_register(int32_t reg, int32_t value)
 			break;
 
 		default:
-			NOTREACHED();
+			ZASM_NOTREACHED();
 	}
 }

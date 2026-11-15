@@ -6,6 +6,7 @@
 #include "core/qrs.h"
 #include "zc/ffscript.h"
 #include "zc/scripting/arrays.h"
+#include "zc/scripting/zasm_check.h"
 #include "zc/zelda.h"
 
 namespace {
@@ -80,7 +81,7 @@ int32_t audio_get_register(int32_t reg)
 			break;
 
 		default:
-			NOTREACHED();
+			ZASM_NOTREACHED();
 	}
 
 	return ret;
@@ -107,7 +108,7 @@ void audio_set_register(int32_t reg, int32_t value)
 		}
 
 		default:
-			NOTREACHED();
+			ZASM_NOTREACHED();
 	}
 }
 
@@ -127,7 +128,7 @@ static ArrayRegistrar AUDIOVOLUME_registrar(AUDIOVOLUME, []{
 					return do_getMusic_volume();
 				case 3: //sfx volume
 					return do_getSFX_volume();
-				default: NOTREACHED();
+				default: ZASM_NOTREACHED();
 			}
 		},
 		[](int, int index, int value){
@@ -176,7 +177,7 @@ static ArrayRegistrar AUDIOVOLUME_registrar(AUDIOVOLUME, []{
 					do_setSFX_volume(value);
 					break;
 				}
-				default: NOTREACHED();
+				default: ZASM_NOTREACHED();
 			}
 
 			return true;

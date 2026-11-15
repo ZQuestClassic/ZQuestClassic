@@ -7,6 +7,7 @@
 #include "zc/ffscript.h"
 #include "zc/render.h"
 #include "zc/scripting/arrays.h"
+#include "zc/scripting/zasm_check.h"
 
 #include <cstdint>
 
@@ -559,7 +560,7 @@ int32_t hero_get_register(int32_t reg)
 			break;
 
 		default:
-			NOTREACHED();
+			ZASM_NOTREACHED();
 	}
 
 	return ret;
@@ -1468,7 +1469,7 @@ void hero_set_register(int32_t reg, int32_t value)
 		break;
 
 		default:
-			NOTREACHED();
+			ZASM_NOTREACHED();
 	}
 }
 
@@ -1606,7 +1607,7 @@ static ArrayRegistrar LINKHITBY_registrar(LINKHITBY, []{
 				case 15:
 					return Hero.gethitHeroUID(index); //do not multiply by 10000! UIDs are not *10000!
 
-				default: NOTREACHED();
+				default: ZASM_NOTREACHED();
 			}
 		},
 		[](int, int, int) {

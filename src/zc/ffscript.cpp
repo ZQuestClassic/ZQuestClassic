@@ -50,6 +50,7 @@
 #include "zc/scripting/types/portal.h"
 #include "zc/scripting/types/savedportal.h"
 #include "zc/scripting/types/subscreenwidget.h"
+#include "zc/scripting/zasm_check.h"
 #include "zc/zc_ffc.h"
 #include "zc/zc_sys.h"
 #include "zc/scripting/jit/jit.h"
@@ -3362,6 +3363,7 @@ void do_push_varg(const bool v)
 void do_push_vargs(const bool v)
 {
 	if(sarg2 < 1) return;
+	ZASM_CHECK(sarg2 <= MAX_ZSCRIPT_INT);
 	const int value = SH::get_arg(sarg1, v);
 	auto& vec = ri->zs_vargs_stack.back();
 	vec.insert(vec.end(), sarg2, value);
@@ -9511,10 +9513,7 @@ static ZC_FORCE_INLINE bool check_cmp(uint cmp)
 
 static void markRegisterType(int reg, int type)
 {
-	if (!(type >= 0 && type <= (int)script_object_type::last))
-	{
-		assert(false);
-	}
+	ZASM_DCHECK(type >= 0 && type <= (int)script_object_type::last);
 	// Currently only marking globals / script instance vars as objects is supported.
 	if (reg >= GD(0) && reg < GD(MAX_GLOBAL_VARIABLES))
 	{
@@ -9529,7 +9528,7 @@ static void markRegisterType(int reg, int type)
 		else
 			ri->script_d_is_object.erase(index);
 	}
-	else assert(false);
+	else ZASM_DCHECK(false);
 }
 
 static void markGlobalRegisters()
@@ -13831,6 +13830,7 @@ int32_t run_script_int(JittedScriptInstance* j_instance)
 			}
 			case MARK_TYPE_VARG:
 			{
+				ZASM_CHECK(!ri->zs_vargs_stack.back().empty());
 				auto& vec = ri->zs_vargs_stack.back();
 				auto& obj_set = ri->zs_vargs_pos_is_object.back();
 				auto offset = vec.size()-1;
@@ -14568,7 +14568,7 @@ int32_t FFScript::loadMapData()
 // Called when leaving a screen; deallocate arrays created by FFCs that aren't carried over
 void FFScript::deallocateArray(int32_t ptrval)
 {
-	CHECK(!ZScriptVersion::gc_arrays());
+	ZASM_CHECK(!ZScriptVersion::gc_arrays());
 
 	if(ptrval == 0)
 		return;

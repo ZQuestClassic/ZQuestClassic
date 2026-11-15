@@ -3,6 +3,7 @@
 #include "components/zasm/defines.h"
 #include "zc/ffscript.h"
 #include "zc/scripting/arrays.h"
+#include "zc/scripting/zasm_check.h"
 
 extern refInfo *ri;
 extern int32_t sarg1;
@@ -120,7 +121,7 @@ int32_t weapondata_get_register(int32_t reg)
 			ret = data ? 10000 : 0;
 			break;
 
-		default: NOTREACHED();
+		default: ZASM_NOTREACHED();
 	}
 
 	return ret;
@@ -248,7 +249,7 @@ void weapondata_set_register(int32_t reg, int32_t value)
 		case WEAPDATA_VALID:
 			break;
 		
-		default: NOTREACHED();
+		default: ZASM_NOTREACHED();
 	}
 }
 

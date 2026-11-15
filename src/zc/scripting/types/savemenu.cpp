@@ -4,6 +4,7 @@
 #include "zc/ffscript.h"
 #include "zc/scripting/arrays.h"
 #include "zc/scripting/types/musicdata.h"
+#include "zc/scripting/zasm_check.h"
 
 extern refInfo *ri;
 extern int32_t sarg1;
@@ -202,7 +203,7 @@ int32_t savemenu_get_register(int32_t reg)
 			break;
 		}
 
-		default: NOTREACHED();
+		default: ZASM_NOTREACHED();
 	}
 
 	return ret;
@@ -342,7 +343,7 @@ void savemenu_set_register(int32_t reg, int32_t value)
 			break;
 		}
 		
-		default: NOTREACHED();
+		default: ZASM_NOTREACHED();
 	}
 }
 

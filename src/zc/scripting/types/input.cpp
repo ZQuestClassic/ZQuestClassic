@@ -7,6 +7,7 @@
 #include "zc/ffscript.h"
 #include "zc/render.h"
 #include "zc/scripting/arrays.h"
+#include "zc/scripting/zasm_check.h"
 
 extern refInfo *ri;
 extern int32_t sarg1;
@@ -33,7 +34,7 @@ int32_t input_get_register(int32_t reg)
 		break;
 
 		default:
-			NOTREACHED();
+			ZASM_NOTREACHED();
 	}
 
 	return ret;
@@ -60,7 +61,7 @@ void input_set_register(int32_t reg, int32_t value)
 		break;
 
 		default:
-			NOTREACHED();
+			ZASM_NOTREACHED();
 	}
 }
 
@@ -88,7 +89,7 @@ static ArrayRegistrar MOUSEARR_registrar(MOUSEARR, []{
 					return (get_mouse_state(3) & 0x2) ? 10000 : 0;
 				case 5: //Middle Click
 					return (get_mouse_state(3) & 0x4) ? 10000 : 0;
-				default: NOTREACHED();
+				default: ZASM_NOTREACHED();
 			}
 		},
 		[](int, int index, int value) {
@@ -132,7 +133,7 @@ static ArrayRegistrar MOUSEARR_registrar(MOUSEARR, []{
 					else mouse_b &= ~4;
 					break;
 				}
-				default: NOTREACHED();
+				default: ZASM_NOTREACHED();
 			}
 
 			return true;

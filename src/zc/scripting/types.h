@@ -48,6 +48,7 @@
 #include "zc/scripting/types/viewport.h"
 #include "zc/scripting/types/websocket.h"
 #include "zc/scripting/types/weapondata.h"
+#include "zc/scripting/zasm_check.h"
 
 #include <array>
 #include <optional>
@@ -154,7 +155,7 @@ ZC_FORCE_INLINE int32_t scripting_engine_get_register(int32_t reg)
 		case EngineSubsystem::websocket: return websocket_get_register(reg);
 		case EngineSubsystem::weapondata: return weapondata_get_register(reg);
     }
-	NOTREACHED();
+	ZASM_NOTREACHED();
 }
 
 ZC_FORCE_INLINE void scripting_engine_set_register(int32_t reg, int32_t value)
@@ -208,7 +209,7 @@ ZC_FORCE_INLINE void scripting_engine_set_register(int32_t reg, int32_t value)
 		case EngineSubsystem::weapondata: weapondata_set_register(reg, value); return;
     }
 
-	NOTREACHED();
+	ZASM_NOTREACHED();
 }
 
 // TODO: replace cascading code with a routing table (like above), and move all commands to files in types/
