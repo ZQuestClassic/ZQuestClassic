@@ -26280,6 +26280,9 @@ void set_register_slow(int32_t arg, int32_t value)
 			break;
 			
 		case PC:
+			// Only hand-written ZASM writes this. The script goes on at the command after it,
+			// which must be in the script.
+			CHECK(curscript->valid() && (uint32_t)value < curscript->size - 1);
 			ri->pc = value;
 			break;
 			
