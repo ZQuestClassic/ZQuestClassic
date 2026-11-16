@@ -956,6 +956,13 @@ static ArrayRegistrar SCREENDATALAYERMAP_registrar(SCREENDATALAYERMAP, []{
 		[](int ref, int index, int value){
 			if (auto scr = checkScreen(ref))
 			{
+				// Loading the screen reads the layer from this map.
+				if (value > map_count)
+				{
+					scripting_log_error_with_context("Invalid map: {} - there are {} maps", value, map_count);
+					return false;
+				}
+
 				scr->layermap[index - 1] = value;
 				mark_current_region_handles_dirty();
 				return true;

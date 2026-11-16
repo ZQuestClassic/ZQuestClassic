@@ -1572,6 +1572,13 @@ static ArrayRegistrar MAPDATALAYERMAP_registrar(MAPDATALAYERMAP, []{
 		[](int ref, int index, int value){
 			if (auto mapdata = checkMapData(ref))
 			{
+				// Loading the screen reads the layer from this map.
+				if (value > map_count)
+				{
+					scripting_log_error_with_context("Invalid map: {} - there are {} maps", value, map_count);
+					return false;
+				}
+
 				mapdata->scr->layermap[index - 1] = value;
 				if (mapdata->current())
 					mark_current_region_handles_dirty();

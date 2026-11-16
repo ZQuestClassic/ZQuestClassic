@@ -2356,6 +2356,20 @@ int32_t readmaps(PACKFILE *f, zquestheader *Header)
 			}
 		}
 	}
+	if (!should_skip)
+	{
+		// A layer on a map past the last one would read past the maps when the screen loads. A
+		// damaged quest can have one, and so can the editor's: lowering the map count only fixes
+		// the current screen's layers, and the others when they are next viewed (fix_layers).
+		for (auto& scr : TheMaps)
+		{
+			for (int k = 0; k < 6; ++k)
+			{
+				if (scr.layermap[k] && (scr.layermap[k] - 1) * MAPSCRS + scr.layerscreen[k] >= (int)TheMaps.size())
+					scr.layermap[k] = 0;
+			}
+		}
+	}
 	map_count = temp_map_count;
 	return 0;
 }
