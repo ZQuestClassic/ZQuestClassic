@@ -4266,6 +4266,8 @@ int main(int argc, char **argv)
 		success &= run_tests(test_zc_math, "test_zc_math", verbose);
 		extern TestResults test_util(bool);
 		success &= run_tests(test_util, "test_util", verbose);
+		extern TestResults test_packfile(bool);
+		success &= run_tests(test_packfile, "test_packfile", verbose);
 		extern TestResults test_win_encoding(bool);
 		success &= run_tests(test_win_encoding, "test_win_encoding", verbose);
 		extern TestResults test_unicode(bool);
