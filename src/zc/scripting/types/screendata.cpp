@@ -1049,7 +1049,7 @@ static ArrayRegistrar SCREENDATASIDEWARPSC_registrar(SCREENDATASIDEWARPSC, []{
 static ArrayRegistrar SCREENDATASIDEWARPDMAP_registrar(SCREENDATASIDEWARPDMAP, []{
 	static ScriptingArray_ObjectMemberCArray<screendata, &screendata::sidewarpdmap> impl;
 	impl.setMul10000(true);
-	impl.setValueTransform(transforms::vboundInt);
+	impl.setValueTransform(transforms::validate<MAXDMAPS>);
 	return &impl;
 }());
 
@@ -1112,7 +1112,7 @@ static ArrayRegistrar SCREENDATAWARPRETY_registrar(SCREENDATAWARPRETY, []{
 static ArrayRegistrar SCREENDATATILEWARPDMAP_registrar(SCREENDATATILEWARPDMAP, []{
 	static ScriptingArray_ObjectMemberCArray<screendata, &screendata::tilewarpdmap> impl;
 	impl.setMul10000(true);
-	impl.setValueTransform(transforms::vboundInt);
+	impl.setValueTransform(transforms::validate<MAXDMAPS>);
 	return &impl;
 }());
 

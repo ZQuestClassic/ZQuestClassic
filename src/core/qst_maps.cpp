@@ -496,6 +496,9 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 			{
 				return qe_invalid;
 			}
+			// Only a damaged quest has a dmap past the last one.
+			if(temp_mapscr->tilewarpdmap[i] >= MAXDMAPS)
+				temp_mapscr->tilewarpdmap[i] = 0;
 		}
 	}
 	
@@ -729,6 +732,9 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 			{
 				return qe_invalid;
 			}
+			// Only a damaged quest has a dmap past the last one.
+			if(temp_mapscr->sidewarpdmap[i] >= MAXDMAPS)
+				temp_mapscr->sidewarpdmap[i] = 0;
 		}
 	}
 	
@@ -1736,6 +1742,8 @@ int32_t readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, wo
 			{
 				if(!p_igetw(&(temp_mapscr->tilewarpdmap[i]),f))
 					return qe_invalid;
+				if(temp_mapscr->tilewarpdmap[i] >= MAXDMAPS)
+					temp_mapscr->tilewarpdmap[i] = 0;
 			}
 			for(int32_t i=0; i<4; i++)
 			{
@@ -1756,6 +1764,8 @@ int32_t readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, wo
 			{
 				if(!p_igetw(&(temp_mapscr->sidewarpdmap[i]),f))
 					return qe_invalid;
+				if(temp_mapscr->sidewarpdmap[i] >= MAXDMAPS)
+					temp_mapscr->sidewarpdmap[i] = 0;
 			}
 			for(int32_t i=0; i<4; i++)
 			{
