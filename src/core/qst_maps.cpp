@@ -607,7 +607,7 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 			}
 		}
 		//don't read in any invalid data
-		if ( ((unsigned)temp_mapscr->enemy[k]) > MAXGUYS )
+		if ( ((unsigned)temp_mapscr->enemy[k]) >= MAXGUYS )
 		{
 			al_trace("Tried to read an invalid enemy ID (%d) for enemy[%d]. This has been cleared to 0.\n", temp_mapscr->enemy[k], k);
 			temp_mapscr->enemy[k] = 0;
@@ -1879,7 +1879,7 @@ int32_t readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, wo
 			{
 				if(!p_igetw(&(temp_mapscr->enemy[k]),f))
 					return qe_invalid;
-				if (unsigned(temp_mapscr->enemy[k]) > MAXGUYS)
+				if (unsigned(temp_mapscr->enemy[k]) >= MAXGUYS)
 					temp_mapscr->enemy[k] = 0;
 			}
 			if(!p_getc(&(temp_mapscr->pattern),f))
