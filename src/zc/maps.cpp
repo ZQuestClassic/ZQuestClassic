@@ -2099,7 +2099,7 @@ void setmapflag_mi(mapscr* scr, int32_t mi, uint32_t flag)
         std::vector<int32_t> done;
         bool looped = (nmap==cmap+1 && nscr==cscr);
         
-        while((nmap!=0) && !looped && !(nscr>=128))
+        while((nmap!=0) && nmap <= map_count && !looped && !(nscr>=128))
         {
             if(!(game->maps.get(((nmap-1)<<7)+nscr) & flag))
             {
@@ -2181,7 +2181,7 @@ void unsetmapflag_mi(mapscr* scr, int32_t mi, uint32_t flag, bool anyflag)
         std::vector<int32_t> done;
         bool looped = (nmap==cmap+1 && nscr==cscr);
         
-        while((nmap!=0) && !looped && !(nscr>=128))
+        while((nmap!=0) && nmap <= map_count && !looped && !(nscr>=128))
         {
             if(game->maps.get(((nmap-1)<<7)+nscr) & flag)
             {
@@ -2244,7 +2244,7 @@ void setxmapflag_mi(int32_t mi, uint32_t flag)
 		std::vector<int32_t> done;
 		bool looped = (nmap==cmap+1 && nscr==cscr);
 		
-		while((nmap!=0) && !looped && !(nscr>=128))
+		while((nmap!=0) && nmap <= map_count && !looped && !(nscr>=128))
 		{
 			if(!(game->xstates.get(((nmap-1)<<7)+nscr) & flag))
 			{
@@ -2295,7 +2295,7 @@ void unsetxmapflag_mi(int32_t mi, uint32_t flag)
 		std::vector<int32_t> done;
 		bool looped = (nmap==cmap+1 && nscr==cscr);
 		
-		while((nmap!=0) && !looped && !(nscr>=128))
+		while((nmap!=0) && nmap <= map_count && !looped && !(nscr>=128))
 		{
 			if(game->xstates.get(((nmap-1)<<7)+nscr) & flag)
 			{
@@ -3389,7 +3389,7 @@ void trigger_secrets_for_screen(TriggerSource source, mapscr* scr, bool high16on
 	std::vector<int32_t> done;
 	bool looped = (nmap==cmap+1 && nscr==cscr);
 
-	while((nmap!=0) && !looped && !(nscr>=128))
+	while((nmap!=0) && nmap <= map_count && !looped && !(nscr>=128))
 	{
 		if (nmap - 1 == cur_map && is_in_current_region(nscr) && !get_screen_state(nscr).triggered_secrets)
 		{
