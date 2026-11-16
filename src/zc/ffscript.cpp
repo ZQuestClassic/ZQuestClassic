@@ -4486,13 +4486,47 @@ void do_mapdataissolid_layer()
 		}
 		else
 		{
-			if (result.type == mapdata_type::TemporaryCurrentRegion && result.layer == 0)
+			if (result.temporary() && result.layer == 0)
 			{
-				set_register(sarg1, (_walkflag_layer(x, y, 1, result.scr)) ? 10000 : 0);
-			}
-			else if (result.type == mapdata_type::TemporaryScrollingRegion && result.layer == 0)
-			{
-				set_register(sarg1, (_walkflag_layer_scrolling(x, y, 1, result.scr)) ? 10000 : 0);
+				// Check the live screen of the layer, as Screen->isSolidLayer() does. A layer that
+				// isn't there is not solid.
+				bool solid = false;
+				switch (result.type)
+				{
+					case mapdata_type::TemporaryCurrentRegion:
+					{
+						// Find the screen at this spot in the region.
+						solid = _walkflag_layer(x, y, layer - 1, 1);
+						break;
+					}
+					case mapdata_type::TemporaryScrollingRegion:
+					{
+						bool in_region = x >= 0 && y >= 0 && x < scrolling_region.width && y < scrolling_region.height;
+						if (mapscr* m = in_region ? GetScrollingMapscr(layer, x, y) : nullptr)
+							solid = _walkflag_layer_scrolling(x, y, 1, m);
+						break;
+					}
+					case mapdata_type::TemporaryCurrentScreen:
+					{
+						if (mapscr* m = get_scr_layer(result.screen, layer); m->is_valid())
+							solid = _walkflag_layer(x, y, 1, m);
+						break;
+					}
+					case mapdata_type::TemporaryScrollingScreen:
+					{
+						size_t index = result.screen * 7 + layer;
+						if (index < FFCore.ScrollingScreensAll.size())
+						{
+							mapscr* m = FFCore.ScrollingScreensAll[index];
+							if (m && m->is_valid())
+								solid = _walkflag_layer_scrolling(x, y, 1, m);
+						}
+						break;
+					}
+					default:
+						break;
+				}
+				set_register(sarg1, solid ? 10000 : 0);
 			}
 			else
 			{
@@ -4500,13 +4534,16 @@ void do_mapdataissolid_layer()
 
 				if(layer > 0)
 				{
-					if(m->layermap[layer] == 0)
+					// layermap holds the map number + 1 (0 for no layer), and its first entry is
+					// layer 1.
+					int index = (m->layermap[layer - 1] - 1) * MAPSCRS + m->layerscreen[layer - 1];
+					if(m->layermap[layer - 1] == 0 || (unsigned)index >= TheMaps.size())
 					{
 						set_register(sarg1,10000);
 						return;
 					}
 
-					m = &TheMaps[(m->layermap[layer]*MAPSCRS + m->layerscreen[layer])];
+					m = &TheMaps[index];
 				}
 
 				set_register(sarg1, (_walkflag_layer(x, y, 1, m) ? 10000 : 0));
