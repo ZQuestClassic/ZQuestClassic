@@ -24864,6 +24864,9 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 		{
 			wtype = wtWHISTLE;
 			int32_t wind = valid_item_id(whistleitem) ? itemsbuf.get(whistleitem).misc2 : 8;
+			// The whistle's warp ring is an item attribute, which a quest or script can set to anything.
+			if(unsigned(wind) >= NUM_WARP_RINGS)
+				wind = 8;
 			int32_t level=0;
 			
 			if(blowcnt==0)

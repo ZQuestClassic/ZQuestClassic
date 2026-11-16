@@ -2354,6 +2354,9 @@ int32_t WARPCODE(int32_t dmap,int32_t screen,int32_t dw)
         return -1;
         
     int32_t ring=scr->catchall;
+    // A quest or script can set the catchall to anything.
+    if(unsigned(ring) >= NUM_WARP_RINGS)
+        return -2;
     int32_t size=QMisc.warp[ring].size;
     
     if(size==0)
