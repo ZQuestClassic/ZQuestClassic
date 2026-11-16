@@ -2791,6 +2791,18 @@ static int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Mi
 		map_infos.resize(1);
 	}
 
+	if (!get_bit(skip_flags, skip_maps) && !get_bit(skip_flags, skip_dmaps))
+	{
+		// A dmap's screens are looked up in its map without checking it, and only a damaged quest
+		// has a dmap on a map past the last one (the editor moves them when the map count drops).
+		// Dmaps are read before maps, so this waits until both are.
+		for (int i = 0; i < MAXDMAPS; i++)
+		{
+			if (DMaps[i].map >= map_count)
+				DMaps[i].map = 0;
+		}
+	}
+
 	if(loading_tileset_flags & TILESET_CLEARHEADER)
 	{
 		memset(Header->password, 0, sizeof(Header->password));

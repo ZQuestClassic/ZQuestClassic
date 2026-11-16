@@ -36,6 +36,9 @@ int32_t read_one_dmap(PACKFILE* f, zquestheader *Header, int s_version, int inde
 		{
 			return qe_invalid;
 		}
+		// Only a damaged quest has a map past the last one there can be.
+		if(tempDMap.map >= MAXMAPS)
+			tempDMap.map = 0;
 		
 		if(s_version <= 4)
 		{
