@@ -459,6 +459,10 @@ mapscr* GetScrollingMapscr(int layer, int x, int y)
 	if (!screenscrolling)
 		return nullptr;
 
+	// Scripts can pass any position.
+	if (x < 0 || y < 0 || x >= scrolling_region.width || y >= scrolling_region.height)
+		return nullptr;
+
 	int screen = scrolling_region.origin_screen + map_scr_xy_to_index(x / 256, y / 176);
 	mapscr* m = FFCore.ScrollingScreensAll[screen * 7 + layer];
 	if (!m || !m->is_valid())
@@ -4450,10 +4454,18 @@ void do_mapdataissolid()
 		else if (result.type == mapdata_type::TemporaryScrollingRegion && result.layer == 0)
 		{
 			std::array<const mapscr*, 7> screens;
-			for (int lyr = 0; lyr < 7; ++lyr)
+			screens[0] = GetScrollingMapscr(0, x, y);
+			// Nothing is solid off the scrolling region.
+			if (!screens[0])
+			{
+				set_register(sarg1, 0);
+				return;
+			}
+			for (int lyr = 1; lyr < 7; ++lyr)
 			{
 				screens[lyr] = GetScrollingMapscr(lyr, x, y);
-				if (lyr && !screens[lyr]->valid)
+				// A layer the screen doesn't have is skipped by checking layer 0 again.
+				if (!screens[lyr])
 					screens[lyr] = screens[0];
 			}
 			bool result = _walkflag_new(screens, x, y, 0_zf, true);
