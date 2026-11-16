@@ -84,6 +84,11 @@ int32_t read_one_dmap(PACKFILE* f, zquestheader *Header, int s_version, int inde
 			
 			tempDMap.color = (word)tempbyte;
 		}
+		// Only a damaged quest has a level past the last one, and the level state is looked up
+		// by it.
+		if(tempDMap.level >= MAXLEVELS)
+			tempDMap.level = 0;
+		
 		// There are this many level palettes, and the palette code uses this without checking.
 		if(tempDMap.color >= MAXLEVELS)
 			tempDMap.color = 0;

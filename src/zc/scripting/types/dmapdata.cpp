@@ -236,7 +236,12 @@ void dmapdata_set_register(int32_t reg, int32_t value)
 		}
 		case DMAPDATALEVEL:	//word
 		{
-			dmap.level = ((word)(value / 10000)); break;
+			int val = value / 10000;
+			if (BC::checkBounds(val, 0, MAXLEVELS - 1, "level") != SH::_NoError)
+				break;
+
+			dmap.level = val;
+			break;
 		}
 		case DMAPDATALOOPEND:
 		{

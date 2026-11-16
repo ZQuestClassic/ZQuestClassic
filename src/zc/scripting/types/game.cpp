@@ -1334,6 +1334,7 @@ static ArrayRegistrar DMAPLEVELD_registrar(DMAPLEVELD, []{
 	);
 	impl.compatSetDefaultValue(-10000);
 	impl.setMul10000(true);
+	impl.setValueTransform(transforms::validate<MAXLEVELS>);
 	return &impl;
 }());
 
