@@ -973,9 +973,6 @@ static ArrayRegistrar SCREENDATALAYERMAP_registrar(SCREENDATALAYERMAP, []{
 		[](int ref, int index, int value){
 			if (auto scr = checkScreen(ref))
 			{
-				if (quest_format[vFFScript] < 11)
-					index++;
-
 				scr->layermap[index - 1] = value;
 				mark_current_region_handles_dirty();
 				return true;
@@ -984,6 +981,7 @@ static ArrayRegistrar SCREENDATALAYERMAP_registrar(SCREENDATALAYERMAP, []{
 			return false;
 		}
 	);
+	impl.compatZeroIndexedSetter();
 	impl.compatSetDefaultValue(-10000);
 	impl.setMul10000(true);
 	impl.setValueTransform(transforms::vboundByte);
@@ -1006,9 +1004,6 @@ static ArrayRegistrar SCREENDATALAYERSCREEN_registrar(SCREENDATALAYERSCREEN, []{
 		[](int ref, int index, int value){
 			if (auto scr = checkScreen(ref))
 			{
-				if (quest_format[vFFScript] < 11)
-					index++;
-
 				scr->layerscreen[index - 1] = value;
 				mark_current_region_handles_dirty();
 				return true;
@@ -1017,6 +1012,7 @@ static ArrayRegistrar SCREENDATALAYERSCREEN_registrar(SCREENDATALAYERSCREEN, []{
 			return false;
 		}
 	);
+	impl.compatZeroIndexedSetter();
 	impl.compatSetDefaultValue(-10000);
 	impl.setMul10000(true);
 	impl.setValueTransform(transforms::validate<MAPSCRS>);
@@ -1039,9 +1035,6 @@ static ArrayRegistrar SCREENDATALAYEROPACITY_registrar(SCREENDATALAYEROPACITY, [
 		[](int ref, int index, int value){
 			if (auto scr = checkScreen(ref))
 			{
-				if (quest_format[vFFScript] < 11)
-					index++;
-
 				scr->layeropacity[index - 1] = value;
 				return true;
 			}
@@ -1049,6 +1042,7 @@ static ArrayRegistrar SCREENDATALAYEROPACITY_registrar(SCREENDATALAYEROPACITY, [
 			return false;
 		}
 	);
+	impl.compatZeroIndexedSetter();
 	impl.compatSetDefaultValue(-10000);
 	impl.setMul10000(true);
 	impl.setValueTransform(transforms::vboundByte);

@@ -7,6 +7,7 @@
 #include "core/combo.h"
 #include "base/general.h"
 #include "core/qrs.h"
+#include "core/quest_format.h"
 #include "../../ffc.h"
 #include "new_subscr.h"
 #include "zc/hero.h"
@@ -623,11 +624,19 @@ public:
 
 	size_t getResolvedIndex(int size, int index) const override
 	{
+		index = compatIndex(m_zeroIndexedSetter, index);
 		return resolveIndexOneIndexed(index, size, m_boundSetterIndex).value_or(-1);
 	}
 
+	// Note: Do not use for new arrays.
+	// Scripts in quests from before vFFScript 11 index this array from 0. The index is moved
+	// before it is checked, so the functions only ever get an index of 1 to the size.
+	void compatZeroIndexedGetter() { m_zeroIndexedGetter = true; }
+	void compatZeroIndexedSetter() { m_zeroIndexedSetter = true; }
+
 	int getElement(int ref, int index) const override
 	{
+		index = compatIndex(m_zeroIndexedGetter, index);
 		size_t sz = getSize(ref);
 		if (auto resolved_index = resolveIndexOneIndexed(index, sz, m_boundGetterIndex))
 			return m_getFunc(ref, *resolved_index) * (m_mul10000 ? 10000 : 1);
@@ -637,6 +646,7 @@ public:
 
 	bool setElement(int ref, int index, int value) override
 	{
+		index = compatIndex(m_zeroIndexedSetter, index);
 		size_t sz = getSize(ref);
 		if (auto resolved_index = resolveIndexOneIndexed(index, sz, m_boundSetterIndex))
 			index = *resolved_index;
@@ -650,9 +660,16 @@ public:
 	}
 
 private:
+	static int compatIndex(bool zero_indexed, int index)
+	{
+		return zero_indexed && quest_format[vFFScript] < 11 ? index + 1 : index;
+	}
+
 	SizeFunc m_sizeFunc;
 	GetFunc m_getFunc;
 	SetFunc m_setFunc;
+	bool m_zeroIndexedGetter = false;
+	bool m_zeroIndexedSetter = false;
 };
 
 template<typename T_Object, auto T_MemberPtr>

@@ -1598,9 +1598,6 @@ static ArrayRegistrar MAPDATALAYERMAP_registrar(MAPDATALAYERMAP, []{
 		[](int ref, int index) -> int {
 			if (auto scr = checkMapDataScr(ref))
 			{
-				if (quest_format[vFFScript] < 11)
-					index++;
-
 				return scr->layermap[index - 1];
 			}
 
@@ -1609,9 +1606,6 @@ static ArrayRegistrar MAPDATALAYERMAP_registrar(MAPDATALAYERMAP, []{
 		[](int ref, int index, int value){
 			if (auto mapdata = checkMapData(ref))
 			{
-				if (quest_format[vFFScript] < 11)
-					index++;
-
 				mapdata->scr->layermap[index - 1] = value;
 				if (mapdata->current())
 					mark_current_region_handles_dirty();
@@ -1621,6 +1615,8 @@ static ArrayRegistrar MAPDATALAYERMAP_registrar(MAPDATALAYERMAP, []{
 			return false;
 		}
 	);
+	impl.compatZeroIndexedGetter();
+	impl.compatZeroIndexedSetter();
 	impl.compatSetDefaultValue(-10000);
 	impl.setMul10000(true);
 	impl.setValueTransform(transforms::vboundByte);
@@ -1637,9 +1633,6 @@ static ArrayRegistrar MAPDATALAYERSCREEN_registrar(MAPDATALAYERSCREEN, []{
 		[](int ref, int index) -> int {
 			if (auto scr = checkMapDataScr(ref))
 			{
-				if (quest_format[vFFScript] < 11)
-					index++;
-
 				return scr->layerscreen[index - 1];
 			}
 
@@ -1648,9 +1641,6 @@ static ArrayRegistrar MAPDATALAYERSCREEN_registrar(MAPDATALAYERSCREEN, []{
 		[](int ref, int index, int value){
 			if (auto mapdata = checkMapData(ref))
 			{
-				if (quest_format[vFFScript] < 11)
-					index++;
-
 				mapdata->scr->layerscreen[index - 1] = value;
 				if (mapdata->current())
 					mark_current_region_handles_dirty();
@@ -1660,6 +1650,8 @@ static ArrayRegistrar MAPDATALAYERSCREEN_registrar(MAPDATALAYERSCREEN, []{
 			return false;
 		}
 	);
+	impl.compatZeroIndexedGetter();
+	impl.compatZeroIndexedSetter();
 	impl.compatSetDefaultValue(-10000);
 	impl.setMul10000(true);
 	impl.setValueTransform(transforms::validate<MAPSCRS>);
@@ -1676,9 +1668,6 @@ static ArrayRegistrar MAPDATALAYEROPACITY_registrar(MAPDATALAYEROPACITY, []{
 		[](int ref, int index) -> int {
 			if (auto scr = checkMapDataScr(ref))
 			{
-				if (quest_format[vFFScript] < 11)
-					index++;
-
 				return scr->layeropacity[index - 1];
 			}
 
@@ -1687,9 +1676,6 @@ static ArrayRegistrar MAPDATALAYEROPACITY_registrar(MAPDATALAYEROPACITY, []{
 		[](int ref, int index, int value){
 			if (auto mapdata = checkMapData(ref))
 			{
-				if (quest_format[vFFScript] < 11)
-					index++;
-
 				mapdata->scr->layeropacity[index - 1] = value;
 				return true;
 			}
@@ -1697,6 +1683,8 @@ static ArrayRegistrar MAPDATALAYEROPACITY_registrar(MAPDATALAYEROPACITY, []{
 			return false;
 		}
 	);
+	impl.compatZeroIndexedGetter();
+	impl.compatZeroIndexedSetter();
 	impl.compatSetDefaultValue(-10000);
 	impl.setMul10000(true);
 	impl.setValueTransform(transforms::vboundByte);
