@@ -1017,11 +1017,6 @@ bool trigger_warp(const combined_handle_t& handle)
 	auto tdm = wscr->tilewarpdmap[index];
 	auto tscr = wscr->tilewarpscr[index];
 	auto wrindex=(wscr->warpreturnc>>(index*2))&3;
-	int32_t ws = map_screen_index(DMaps[tdm].map, wscr->tilewarpscr[index] + DMaps[tdm].xoff);
-	mapscr* wscr2=&TheMaps[ws];
-	int wx = wscr2->warpreturnx[wrindex];
-	int wy = wscr2->warpreturny[wrindex];
-	auto weff = warpEffectNONE;
 	if (stype == cAWARPA) //these use sidewarps
 	{
 		wtype = wscr->sidewarptype[index];
@@ -1029,11 +1024,18 @@ bool trigger_warp(const combined_handle_t& handle)
 			return false;
 		tdm = wscr->sidewarpdmap[index];
 		tscr = wscr->sidewarpscr[index];
-		ws = map_screen_index(DMaps[tdm].map, wscr->sidewarpscr[index] + DMaps[tdm].xoff);
-		wscr2 = &TheMaps[ws];
-		wx = wscr2->warpreturnx[wrindex];
-		wy = wscr2->warpreturny[wrindex];
 	}
+	// The destination's return point. A small DMap's offset can put the destination off the edge
+	// of its map, which the warp itself refuses (see warp_player) - until then, read no screen.
+	int wx = 0, wy = 0;
+	int dest_screen = tscr + DMaps[tdm].xoff;
+	int ws = map_screen_index(DMaps[tdm].map, dest_screen);
+	if (unsigned(dest_screen) < MAPSCRS && unsigned(ws) < TheMaps.size())
+	{
+		wx = TheMaps[ws].warpreturnx[wrindex];
+		wy = TheMaps[ws].warpreturny[wrindex];
+	}
+	auto weff = warpEffectNONE;
 	if (stype == cPIT || (stype == cAWARPA && (scr->flags5 & fDIRECTAWARP)) || (stype == cSWARPA && (scr->flags5 & fDIRECTSWARP)))
 	{
 		wx = Hero.getX().getInt();
