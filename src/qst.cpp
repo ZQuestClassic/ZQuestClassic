@@ -5768,8 +5768,9 @@ int32_t readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
 					return qe_invalid;
 				}
 
+				// Only a damaged quest has a dmap past the last one.
 				if (keepdata)
-					temp_misc.warp[i].dmap[j] = tempword;
+					temp_misc.warp[i].dmap[j] = tempword < MAXDMAPS ? tempword : 0;
 			}
 		}
 		
@@ -5787,8 +5788,9 @@ int32_t readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
 		{
 			return qe_invalid;
 		}
+		// A ring holds at most this many warps; only a damaged quest says otherwise.
 		if (keepdata)
-			temp_misc.warp[i].size = tempbyte;
+			temp_misc.warp[i].size = std::min<byte>(tempbyte, std::size(temp_misc.warp[i].dmap));
 		
 		if(Header->zelda_version < 0x193)
 		{
@@ -5873,6 +5875,8 @@ int32_t readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
 				{
 					return qe_invalid;
 				}
+				if(temp_misc.warp[8].dmap[i] >= MAXDMAPS)
+					temp_misc.warp[8].dmap[i] = 0;
 			}
 			
 			if(!p_getc(&temp_misc.warp[8].scr[i],f))
