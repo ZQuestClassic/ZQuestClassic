@@ -973,11 +973,6 @@ bool trigger_warp(newcombo const& cmb)
 	auto tdm = wscr->tilewarpdmap[index];
 	auto tscr = wscr->tilewarpscr[index];
 	auto wrindex=(wscr->warpreturnc>>(index*2))&3;
-	int32_t ws=(DMaps[tdm].map*MAPSCRS+wscr->tilewarpscr[index]+DMaps[tdm].xoff);
-	mapscr* wscr2=&TheMaps[ws];
-	int wx = wscr2->warpreturnx[wrindex];
-	int wy = wscr2->warpreturny[wrindex];
-	auto weff = warpEffectNONE;
 	if (stype == cAWARPA) //these use sidewarps
 	{
 		wtype = wscr->sidewarptype[index];
@@ -986,11 +981,17 @@ bool trigger_warp(newcombo const& cmb)
 		wsfx = cmb.attribytes[0];
 		tdm = wscr->sidewarpdmap[index];
 		tscr = wscr->sidewarpscr[index];
-		ws = (DMaps[tdm].map * MAPSCRS + wscr->sidewarpscr[index] + DMaps[tdm].xoff);
-		wscr2 = &TheMaps[ws];
-		wx = wscr2->warpreturnx[wrindex];
-		wy = wscr2->warpreturny[wrindex];
 	}
+	// The destination's return point. A small DMap's offset can put the destination before the first
+	// screen or past the last one - read no screen then.
+	int wx = 0, wy = 0;
+	int32_t ws = DMaps[tdm].map*MAPSCRS + tscr + DMaps[tdm].xoff;
+	if (unsigned(ws) < TheMaps.size())
+	{
+		wx = TheMaps[ws].warpreturnx[wrindex];
+		wy = TheMaps[ws].warpreturny[wrindex];
+	}
+	auto weff = warpEffectNONE;
 	if (stype == cPIT || (stype == cAWARPA && (tmpscr->flags5 & fDIRECTAWARP)) || (stype == cSWARPA && (tmpscr->flags5 & fDIRECTSWARP)))
 	{
 		wx = Hero.getX().getInt();
