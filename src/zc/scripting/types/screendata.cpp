@@ -381,23 +381,6 @@ void screendata_set_register(int32_t reg, int32_t value)
 			scr->member[indx] = vbound((value / 10000),0,255); \
 	}
 
-	///max screen id is higher! vbound properly... -Z
-	#define SET_SCREENDATA_LAYERSCREEN_INDEX(member, str, indexbound) \
-	{ \
-		int32_t indx = GET_D(rINDEX) / 10000; \
-		int32_t scrn_id = value/10000; \
-		if ( quest_format[vFFScript] < 11 ) ++indx; \
-		if (BC::checkIndex(indx, 1, indexbound) != SH::_NoError) \
-		{ \
-		} \
-		else if ( scrn_id > MAPSCRS ) \
-		{ \
-			Z_scripterrlog("Script attempted to use a mapdata->LayerScreen[%d].\n",scrn_id); \
-			Z_scripterrlog("Valid Screen values are (0) through (%d).\n",MAPSCRS); \
-		} \
-		else scr->member[indx-1] = vbound((scrn_id),0,MAPSCRS); \
-	}
-
 	#define SET_SCREENDATA_FLAG(member, str) \
 	{ \
 		int32_t flag =  (value/10000);  \
