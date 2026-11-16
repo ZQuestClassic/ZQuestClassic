@@ -921,7 +921,8 @@ inline bool p_getlstr(string *str, PACKFILE *f)
 		return false;
 	if(sz)
 	{
-		str->reserve(sz);
+		// No reserve here: the size comes from the file, and allocate_string_buffer is what
+		// rejects one far too large.
 		auto buf = allocate_string_buffer(sz);
 		if (!buf.has_value())
 			return false;
