@@ -29891,7 +29891,7 @@ void dospecialmoney(mapscr* scr, int32_t index)
 		 game->change_drupy(0);   
 	    }
         }
-        msgstr::do_new(scr, QMisc.info[scr->catchall].str[priceindex]);
+        msgstr::do_new(scr, QMisc.get_info(scr->catchall).str[priceindex]);
         clear_bitmap(pricesdisplaybuf);
         set_clip_state(pricesdisplaybuf, 1);
         items.del(0);
@@ -30635,7 +30635,7 @@ bool HeroClass::checkitems(int32_t index)
 				((item*)items.spr(i))->pickup=ipDUMMY+ipFADE;
 		}
 		
-		int32_t slot = game->fillBottle(QMisc.bottle_shop_types[item_scr->catchall].fill[PriceIndex]);
+		int32_t slot = game->fillBottle(QMisc.get_bottle_shop(item_scr->catchall).fill[PriceIndex]);
 		id2 = find_bottle_for_slot(slot);
 		itm = &get_item_data(id2);
 		ptr->id = id2;
@@ -30879,10 +30879,10 @@ bool HeroClass::checkitems(int32_t index)
 				switch(item_scr->room)
 				{
 					case rSHOP:
-						shop_pstr = QMisc.shop[item_scr->catchall].str[PriceIndex];
+						shop_pstr = QMisc.get_shop(item_scr->catchall).str[PriceIndex];
 						break;
 					case rBOTTLESHOP:
-						shop_pstr = QMisc.bottle_shop_types[item_scr->catchall].str[PriceIndex];
+						shop_pstr = QMisc.get_bottle_shop(item_scr->catchall).str[PriceIndex];
 						break;
 				}
 			}
@@ -30989,7 +30989,9 @@ bool HeroClass::checkitems(int32_t index)
 		//general item pickup message
 		//show the info string
 		//non-held
-		int32_t shop_pstr = ( item_scr->room == rSHOP && PriceIndex>=0 && QMisc.shop[item_scr->catchall].str[PriceIndex] > 0 ) ? QMisc.shop[item_scr->catchall].str[PriceIndex] : 0;
+		int32_t shop_pstr = 0;
+		if (item_scr->room == rSHOP && PriceIndex >= 0)
+			shop_pstr = std::max<int32_t>(0, QMisc.get_shop(item_scr->catchall).str[PriceIndex]);
 		if ( (pstr > 0 && pstr < msg_count) || (shop_pstr > 0 && shop_pstr < msg_count) )
 		{
 			if ( (pstr > 0 && pstr < msg_count) && ( (!(pstr_flags&itemdataPSTRING_IP_HOLDUP)) && ( pstr_flags&itemdataPSTRING_NOMARK || pstr_flags&itemdataPSTRING_ALWAYS || (!(FFCore.GetItemMessagePlayed(id2))) ) ) )
