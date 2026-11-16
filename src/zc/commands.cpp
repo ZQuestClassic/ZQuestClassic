@@ -83,6 +83,9 @@ void zplayer_handle_commands()
 		bool verbose = zapp_check_switch("-verbose") || zapp_check_switch("-v");
 		bool success = true;
 
+		extern TestResults test_packfile(bool);
+		if (!run_tests(test_packfile, "test_packfile", verbose)) success = false;
+
 		extern TestResults test_saves(bool);
 		if (!run_tests(test_saves, "test_saves", verbose)) success = false;
 

@@ -581,7 +581,7 @@ bool p_getlstr(string *str, PACKFILE *f)
 }
 bool p_putlstr(string const& str, PACKFILE *f)
 {
-	dword sz = word(zc_min(UINT32_MAX,str.size()));
+	dword sz = dword(std::min<size_t>(UINT32_MAX,str.size()));
 	if(!p_iputl(sz,f))
 		return false;
 	if(sz)
