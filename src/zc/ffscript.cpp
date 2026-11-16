@@ -4588,7 +4588,7 @@ void do_setsidewarp()
 	int32_t type   = SH::read_stack(ri->sp + 0) / 10000;
 	
 	current_zasm_extra_context = "warp";
-	if (BC::checkBounds(warp, -1, 3) != SH::_NoError)
+	if (BC::checkBounds(warp, 0, 3) != SH::_NoError)
 		return;
 
 	current_zasm_extra_context = "screen";
@@ -4625,7 +4625,7 @@ void do_settilewarp()
 	int32_t type   = SH::read_stack(ri->sp + 0) / 10000;
 
 	current_zasm_extra_context = "warp";
-	if (BC::checkBounds(warp, -1, 3) != SH::_NoError)
+	if (BC::checkBounds(warp, 0, 3) != SH::_NoError)
 		return;
 
 	current_zasm_extra_context = "screen";
@@ -4658,7 +4658,7 @@ void do_getsidewarpdmap(const bool v)
 {
 	int32_t warp = SH::get_arg(sarg1, v) / 10000;
 	
-	if(BC::checkBounds(warp, -1, 3) != SH::_NoError)
+	if(BC::checkBounds(warp, 0, 3) != SH::_NoError)
 	{
 		set_register(sarg1, -10000);
 		return;
@@ -4671,7 +4671,7 @@ void do_getsidewarpscr(const bool v)
 {
 	int32_t warp = SH::get_arg(sarg1, v) / 10000;
 	
-	if(BC::checkBounds(warp, -1, 3) != SH::_NoError)
+	if(BC::checkBounds(warp, 0, 3) != SH::_NoError)
 	{
 		set_register(sarg1, -10000);
 		return;
@@ -4684,7 +4684,7 @@ void do_getsidewarptype(const bool v)
 {
 	int32_t warp = SH::get_arg(sarg1, v) / 10000;
 	
-	if(BC::checkBounds(warp, -1, 3) != SH::_NoError)
+	if(BC::checkBounds(warp, 0, 3) != SH::_NoError)
 	{
 		set_register(sarg1, -10000);
 		return;
@@ -4697,7 +4697,7 @@ void do_gettilewarpdmap(const bool v)
 {
 	int32_t warp = SH::get_arg(sarg1, v) / 10000;
 	
-	if(BC::checkBounds(warp, -1, 3) != SH::_NoError)
+	if(BC::checkBounds(warp, 0, 3) != SH::_NoError)
 	{
 		set_register(sarg1, -10000);
 		return;
@@ -4710,7 +4710,7 @@ void do_gettilewarpscr(const bool v)
 {
 	int32_t warp = SH::get_arg(sarg1, v) / 10000;
 	
-	if(BC::checkBounds(warp, -1, 3) != SH::_NoError)
+	if(BC::checkBounds(warp, 0, 3) != SH::_NoError)
 	{
 		set_register(sarg1, -10000);
 		return;
@@ -4723,7 +4723,7 @@ void do_gettilewarptype(const bool v)
 {
 	int32_t warp = SH::get_arg(sarg1, v) / 10000;
 	
-	if(BC::checkBounds(warp, -1, 3) != SH::_NoError)
+	if(BC::checkBounds(warp, 0, 3) != SH::_NoError)
 	{
 		set_register(sarg1, -10000);
 		return;
