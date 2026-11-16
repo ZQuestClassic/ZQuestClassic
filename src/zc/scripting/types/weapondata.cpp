@@ -310,7 +310,7 @@ static ArrayRegistrar WEAPDATA_WEAP_FLAGS_registrar(WEAPDATA_WEAP_FLAGS, []{
 static ArrayRegistrar WEAPDATA_BURN_SPRITES_registrar(WEAPDATA_BURN_SPRITES, []{
 	static ScriptingArray_ObjectMemberCArray<weapon_data, &weapon_data::burnsprs> impl;
 	impl.setMul10000(true);
-	impl.setValueTransform(transforms::vboundWord);
+	impl.setValueTransform(transforms::vbound<0, MAXSPRITES-1>);
 	return &impl;
 }());
 

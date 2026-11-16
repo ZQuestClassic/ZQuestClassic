@@ -917,6 +917,9 @@ int32_t read_weap_data(weapon_data& data, PACKFILE* f)
 		}
 		else if (!p_igetw(&(data.burnsprs[q]), f))
 			return qe_invalid;
+		// Only a damaged quest has a sprite past the last one.
+		if (data.burnsprs[q] >= MAXSPRITES)
+			data.burnsprs[q] = 0;
 		if (!p_getc(&(data.light_rads[q]), f))
 			return qe_invalid;
 		if (v_weapon_data >= 3)

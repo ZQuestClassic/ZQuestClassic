@@ -1895,6 +1895,9 @@ int32_t readguy_single(PACKFILE *f, word guyversion, word guy_cversion, zquesthe
 		{
 			if (!p_igetw(&tempguy.weap_data.burnsprs[q], f))
 				return qe_invalid;
+			// Only a damaged quest has a sprite past the last one.
+			if (tempguy.weap_data.burnsprs[q] >= MAXSPRITES)
+				tempguy.weap_data.burnsprs[q] = 0;
 			if (!p_igetw(&tempword, f))
 				return qe_invalid;
 			tempguy.weap_data.light_rads[q] = (byte)tempword;

@@ -777,6 +777,9 @@ int32_t readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
 		{
 			if(!p_igetw(&temp_misc.sprites[q],f))
 				return qe_invalid;
+			// Only a damaged quest has a sprite past the last one.
+			if(temp_misc.sprites[q] >= MAXSPRITES)
+				temp_misc.sprites[q] = 0;
 		}
 	}
 	else if(s_version >= 12)

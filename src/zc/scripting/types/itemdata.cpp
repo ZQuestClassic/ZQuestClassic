@@ -1392,7 +1392,7 @@ static ArrayRegistrar IDATABURNINGSPR_registrar(IDATABURNINGSPR, []{
 	static ScriptingArray_ObjectSubMemberCArray<itemdata, &itemdata::weap_data, &weapon_data::burnsprs> impl;
 	impl.compatSetDefaultValue(-10000);
 	impl.setMul10000(true);
-	impl.setValueTransform(transforms::vboundWord);
+	impl.setValueTransform(transforms::vbound<0, MAXSPRITES-1>);
 	return &impl;
 }());
 
@@ -1496,7 +1496,7 @@ static ArrayRegistrar IDATASPRITE_registrar(IDATASPRITE, []{
 	static ScriptingArray_ObjectMemberCArray<itemdata, &itemdata::wpn_sprites> impl;
 	impl.compatSetDefaultValue(-10000);
 	impl.setMul10000(true);
-	impl.setValueTransform(transforms::vboundWord);
+	impl.setValueTransform(transforms::vbound<0, MAXSPRITES-1>);
 	return &impl;
 }());
 
