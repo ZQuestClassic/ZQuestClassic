@@ -272,6 +272,7 @@ int32_t readheader(PACKFILE *f, zquestheader *Header, byte printmetadata)
 			{
 				return qe_invalid;
 			}
+			tempheader.templatepath[sizeof(tempheader.templatepath)-1] = 0;
 		}
 		
 		if((tempheader.zelda_version < 0x192)||
@@ -446,6 +447,7 @@ int32_t readheader(PACKFILE *f, zquestheader *Header, byte printmetadata)
 		{
 			return qe_invalid;
 		}
+		tempheader.templatepath[sizeof(tempheader.templatepath)-1] = 0;
 		
 		if(!p_getc(&temp_map_count,f))
 		{
@@ -516,20 +518,25 @@ int32_t readheader(PACKFILE *f, zquestheader *Header, byte printmetadata)
 			{
 				return qe_invalid;
 			}
+			// These are printed as strings, so must end in a null byte (see title).
+			tempheader.new_version_devsig[sizeof(tempheader.new_version_devsig)-1] = 0;
 			if(!strcmp(tempheader.new_version_devsig, "Venrob"))
 				strcpy(tempheader.new_version_devsig, "EmilyV99");
 			if(!pfread(tempheader.new_version_compilername,256,f))
 			{
 				return qe_invalid;
 			}
+			tempheader.new_version_compilername[sizeof(tempheader.new_version_compilername)-1] = 0;
 			if(!pfread(tempheader.new_version_compilerversion,256,f))
 			{
 				return qe_invalid;
 			}
+			tempheader.new_version_compilerversion[sizeof(tempheader.new_version_compilerversion)-1] = 0;
 			if(!pfread(tempheader.product_name,1024,f))
 			{
 				return qe_invalid;
 			}
+			tempheader.product_name[sizeof(tempheader.product_name)-1] = 0;
 			
 			if(!p_getc(&tempheader.compilerid,f))
 			{
@@ -559,14 +566,17 @@ int32_t readheader(PACKFILE *f, zquestheader *Header, byte printmetadata)
 			{
 				return qe_invalid;
 			}
+			tempheader.made_in_module_name[sizeof(tempheader.made_in_module_name)-1] = 0;
 			if(!pfread(tempheader.build_datestamp,256,f))
 			{
 				return qe_invalid;
 			}
+			tempheader.build_datestamp[sizeof(tempheader.build_datestamp)-1] = 0;
 			if(!pfread(tempheader.build_timestamp,256,f))
 			{
 				return qe_invalid;
 			}
+			tempheader.build_timestamp[sizeof(tempheader.build_timestamp)-1] = 0;
 		}
 		else // <4
 		{
@@ -608,6 +618,7 @@ int32_t readheader(PACKFILE *f, zquestheader *Header, byte printmetadata)
 			{
 				return qe_invalid;
 			}
+			tempheader.build_timezone[sizeof(tempheader.build_timezone)-1] = 0;
 		}
 		else // < 5
 		{
