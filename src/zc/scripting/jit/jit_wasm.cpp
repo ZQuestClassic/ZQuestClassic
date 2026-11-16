@@ -643,34 +643,17 @@ static void compile_command_interpreter(CompilationState& state, const zasm_scri
 		return;
 	}
 
-	bool could_return_not_ok = false;
-	for (int j = 0; j < count; j++)
-	{
-		int index = pc + j;
-		if (index >= script->size)
-			break;
-
-		if (instruction_could_return_not_ok(script->zasm[index]))
-		{
-			could_return_not_ok = true;
-			break;
-		}
-	}
-
-	if (could_return_not_ok)
-	{
-		// If command did not succeed, trap to end execution.
-		state.wasm->emitLocalTee(0); // l_idx_scratch
-		state.wasm->emitIf();
-		state.wasm->emitLocalGet(0); // l_idx_scratch
-		state.wasm->emitCall(state.f_idx_set_return_value);
-		state.wasm->emitUnreachable(); // Bail.
-		state.wasm->emitEnd();
-	}
-	else
-	{
-		state.wasm->emitDrop();
-	}
+	// Check the result of every interpreted command, not just the ones that can stop the script
+	// by design (instruction_could_return_not_ok): any of them can end it on an error (ex: a
+	// stack read out of range, which only ZASM the compiler never emits can do), and that frees
+	// the script's state, so carrying on would run on freed memory (ex: ctx->script_registers).
+	// If command did not succeed, trap to end execution.
+	state.wasm->emitLocalTee(0); // l_idx_scratch
+	state.wasm->emitIf();
+	state.wasm->emitLocalGet(0); // l_idx_scratch
+	state.wasm->emitCall(state.f_idx_set_return_value);
+	state.wasm->emitUnreachable(); // Bail.
+	state.wasm->emitEnd();
 }
 
 static bool command_is_compiled(int command)

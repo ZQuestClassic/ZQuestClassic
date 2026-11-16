@@ -892,24 +892,14 @@ static void compile_command_interpreter(CompilationState& state, a64::Compiler& 
 		state.modified_stack = true;
 	}
 
-	bool could_return_not_ok = false;
-	for (int j = 0; j < count; j++)
-	{
-		int index = state.pc + j;
-		if (instruction_could_return_not_ok(script->zasm[index]))
-		{
-			could_return_not_ok = true;
-			break;
-		}
-	}
-
-	if (could_return_not_ok)
-	{
-		a64::Gp retVal = cc.newInt32();
-		invokeNode->setRet(0, retVal);
-		cc.mov(state.vResult, EXEC_RESULT_EXIT);
-		ret_if_not_ok(state, cc, retVal);
-	}
+	// Check the result of every interpreted command, not just the ones that can stop the script
+	// by design (instruction_could_return_not_ok): any of them can end it on an error (ex: a
+	// stack read out of range, which only ZASM the compiler never emits can do), and that frees
+	// the script's state, so carrying on would run on freed memory (ex: ctx->script_registers).
+	a64::Gp retVal = cc.newInt32();
+	invokeNode->setRet(0, retVal);
+	cc.mov(state.vResult, EXEC_RESULT_EXIT);
+	ret_if_not_ok(state, cc, retVal);
 }
 
 static bool command_is_compiled(int command)
