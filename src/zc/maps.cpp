@@ -778,7 +778,7 @@ void setmapflag(int32_t mi2, int32_t flag)
         std::vector<int32_t> done;
         bool looped = (nmap==cmap+1 && nscr==cscr);
         
-        while((nmap!=0) && !looped && !(nscr>=128))
+        while((nmap!=0) && nmap <= map_count && !looped && !(nscr>=128))
         {
             if((tmpscr->nocarry&flag)!=flag)
             {
@@ -839,7 +839,7 @@ void unsetmapflag(int32_t mi2, int32_t flag, bool anyflag)
         std::vector<int32_t> done;
         bool looped = (nmap==cmap+1 && nscr==cscr);
         
-        while((nmap!=0) && !looped && !(nscr>=128))
+        while((nmap!=0) && nmap <= map_count && !looped && !(nscr>=128))
         {
             if((tmpscr->nocarry&flag)!=flag)
             {
