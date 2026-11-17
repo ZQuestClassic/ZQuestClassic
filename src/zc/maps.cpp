@@ -2124,7 +2124,7 @@ void setmapflag_mi(mapscr* scr, int32_t mi, uint32_t flag)
         for_each_carryover_screen(cmap, cscr, [&](int map, int screen) {
             if(!(game->maps.get(mapind(map, screen)) & flag))
             {
-                log_state_change(map + 1, screen, "State change carried over");
+                log_state_change(map, screen, "State change carried over");
                 if (replay_is_active())
                     replay_step_comment(fmt::format("map {} scr {} flag {} carry", map + 1, screen, replay_state_string));
                 if (map == cur_map && is_in_current_region(screen))
@@ -2186,7 +2186,7 @@ void unsetmapflag_mi(mapscr* scr, int32_t mi, uint32_t flag, bool anyflag)
         for_each_carryover_screen(cmap, cscr, [&](int map, int screen) {
             if(game->maps.get(mapind(map, screen)) & flag)
             {
-                log_state_change(map + 1, screen, "State change carried over");
+                log_state_change(map, screen, "State change carried over");
                 game->maps[mapind(map, screen)] &= ~flag;
             }
         });
@@ -2229,7 +2229,7 @@ void setxmapflag_mi(int32_t mi, uint32_t flag)
 		for_each_carryover_screen(cmap, cscr, [&](int map, int screen) {
 			if(!(game->xstates.get(mapind(map, screen)) & flag))
 			{
-				log_state_change(map + 1, screen, "ExState change carried over");
+				log_state_change(map, screen, "ExState change carried over");
 				if (replay_is_active())
 					replay_step_comment(fmt::format("map {} scr {} exstate {} carry", map + 1, screen, temp));
 				game->xstates[mapind(map, screen)] |= flag;
@@ -2260,7 +2260,7 @@ void unsetxmapflag_mi(int32_t mi, uint32_t flag)
 		for_each_carryover_screen(cmap, cscr, [&](int map, int screen) {
 			if(game->xstates.get(mapind(map, screen)) & flag)
 			{
-				log_state_change(map + 1, screen, "ExState change carried over");
+				log_state_change(map, screen, "ExState change carried over");
 				game->xstates[mapind(map, screen)] &= ~flag;
 			}
 		});
