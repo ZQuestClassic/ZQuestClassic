@@ -203,7 +203,10 @@ void DrawVariableTooltip(Debugger* debugger, const Variable* var, const std::str
 	std::string type_name = zasm_debug_data.getTypeName(type);
 	if (type_name == "bitmap")
 	{
-		auto user_bitmap = checkBitmap(var->value.raw_value);
+		// The variable may be null or hold a freed bitmap, which is not a script error.
+		bool req_valid = false;
+		bool skip_error = true;
+		auto user_bitmap = checkBitmap(var->value.raw_value, req_valid, skip_error);
 		if (user_bitmap && user_bitmap->u_bmp && !tooltip_bmp)
 		{
 			int w = user_bitmap->u_bmp->w;
