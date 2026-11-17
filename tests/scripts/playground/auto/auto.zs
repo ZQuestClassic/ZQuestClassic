@@ -11,6 +11,7 @@
 #include "auto/bug_mod_int_min.zs"
 #include "auto/bug_nested_class_constructors.zs"
 #include "auto/bug_npc_shield_write.zs"
+#include "auto/bug_printf_long_chunk.zs"
 #include "auto/bug_scc_screen_state_bad_args.zs"
 #include "auto/bug_script_draw_error_logging.zs"
 #include "auto/bug_string_16bit_index.zs"
