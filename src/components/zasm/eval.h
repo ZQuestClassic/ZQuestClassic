@@ -168,6 +168,14 @@ class ExpressionEvaluator
 	const DebugScope* resolveOverload(const std::string& name, const std::vector<const DebugType*>& args, const DebugScope* scope);
 
 public:
+	// Set when an evaluation reads a variable that isn't global, so its result is specific to:
+	// the selected call frame (a local variable), the selected script (one of its instance
+	// variables), or the `this` object of the selected call frame (one of its members, or `this`
+	// itself). Never cleared - reset these before an evaluation to learn this about it.
+	bool read_stack_variable = false;
+	bool read_script_variable = false;
+	bool read_this_object = false;
+
 	ExpressionEvaluator(const DebugData& dd, const DebugScope* scope, VMInterface& v);
 	DebugValue evaluate(std::shared_ptr<ExprNode> node);
 	DebugValue readSymbol(const DebugSymbol* sym);

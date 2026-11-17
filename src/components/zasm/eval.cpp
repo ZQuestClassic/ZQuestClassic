@@ -4,6 +4,7 @@
 
 #include "base/expected.h"
 #include "components/zasm/debug_data.h"
+#include "components/zasm/defines.h"
 #include <cctype>
 #include <optional>
 #include <stdexcept>
@@ -744,6 +745,13 @@ DebugValue ExpressionEvaluator::evaluate(std::shared_ptr<ExprNode> node)
 
 DebugValue ExpressionEvaluator::readSymbol(const DebugSymbol* sym)
 {
+	if (sym->storage == LOC_STACK)
+		read_stack_variable = true;
+	else if (sym->storage == LOC_SCRIPT_INSTANCE)
+		read_script_variable = true;
+	else if (sym->storage == LOC_CLASS || (sym->storage == LOC_REGISTER && sym->offset == CLASS_THISKEY))
+		read_this_object = true;
+
 	if (sym->storage == LOC_CLASS)
 	{
 		int32_t thisPtr = vm.getThisPointer();

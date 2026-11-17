@@ -530,6 +530,9 @@ static TestTask run_scopes_replay_coroutine()
 
 	// Pause within first call to `new A::CL()`
 	debugger->RemoveBreakpoints();
+	// On the way there Test::AssertEqual is called many times, with a different `expected` each
+	// time. Each call has its own, so none of that is a change to it and this never pauses.
+	debugger->AddValueChangeBreakpoint("expected");
 	add_breakpoint(debugger, "scopes.zs", "d->dosomething()");
 	co_await PlayAndWaitForPause(debugger);
 
@@ -925,7 +928,13 @@ static TestTask run_scopes_replay_coroutine()
 	verify_expression(debugger, "a", "2.0000");
 	verify_expression(debugger, "b", "5.0000");
 
+	// Both functions have their own `a`, with different values. Going from one function to the
+	// other is not a change to either, so this never pauses.
+	debugger->AddValueChangeBreakpoint("a");
+
 	co_await PlayAndWaitForPause(debugger);
+	assertEqual(debugger->current_stack_trace->frames.front().function_name, "DebugFrames2"s);
+	assertEqual(debugger->value_breakpoints[0].hit_value_display, ""s);
 
 	verify_expression(debugger, "a", "3.0000");
 	verify_expression(debugger, "b", "6.0000");
@@ -938,6 +947,7 @@ static TestTask run_scopes_replay_coroutine()
 	verify_expression(debugger, "c", "7.0000");
 
 	co_await PlayAndWaitForPause(debugger);
+	assertEqual(debugger->value_breakpoints[0].hit_value_display, ""s);
 
 	verify_expression(debugger, "a", "2.0000");
 	verify_expression(debugger, "b", "5.0000");

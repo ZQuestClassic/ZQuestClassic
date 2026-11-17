@@ -502,12 +502,37 @@ Breakpoint* Debugger::CheckValueChangeBreakpoints(pc_t pc)
 		if (!bp.enabled || !bp.parsed_expression)
 			continue;
 
+		// The call that the last value's local variables belong to has returned. A later call has
+		// its own, even if it is to the same function.
+		if (bp.last_value_owner.stack_ri == ri && ri->retsp < bp.last_value_owner.stack_retsp)
+		{
+			bp.last_value.reset();
+			bp.last_value_serialized.reset();
+			bp.last_value_owner = {};
+		}
+
 		std::optional<DebugValue> value;
+		eval.read_stack_variable = false;
+		eval.read_script_variable = false;
+		eval.read_this_object = false;
 		try {
 			value = eval.evaluate(bp.parsed_expression);
 		} catch (const std::exception&) {
 			continue;
 		}
+
+		Breakpoint::ValueOwner owner;
+		if (eval.read_stack_variable)
+		{
+			owner.stack_ri = ri;
+			owner.stack_retsp = ri->retsp;
+		}
+		if (eval.read_script_variable)
+			owner.script_ri = ri;
+		if (eval.read_this_object)
+			owner.this_object = vm.getThisPointer();
+		bool same_owner = owner == bp.last_value_owner;
+		bp.last_value_owner = owner;
 
 		const DebugType* type = value->type->asNonConst(zasm_debug_data);
 		bool serialize = type->isArray(zasm_debug_data) || type->isClass(zasm_debug_data);
@@ -517,7 +542,7 @@ Breakpoint* Debugger::CheckValueChangeBreakpoints(pc_t pc)
 		if (serialize)
 		{
 			std::string serialized = ValueToStringFull(*value);
-			changed = bp.last_value_serialized && *bp.last_value_serialized != serialized;
+			changed = same_owner && bp.last_value_serialized && *bp.last_value_serialized != serialized;
 			display = std::move(serialized);
 			bp.last_value_serialized = display;
 			bp.last_value.reset();
@@ -525,7 +550,7 @@ Breakpoint* Debugger::CheckValueChangeBreakpoints(pc_t pc)
 		else
 		{
 			display = ValueToStringSummary(*value);
-			changed = bp.last_value && *bp.last_value != value->raw_value;
+			changed = same_owner && bp.last_value && *bp.last_value != value->raw_value;
 			bp.last_value = value->raw_value;
 			bp.last_value_serialized.reset();
 		}

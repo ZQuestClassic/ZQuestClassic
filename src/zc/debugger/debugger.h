@@ -66,6 +66,21 @@ struct Breakpoint
 	std::optional<int32_t> last_value;
 	std::optional<std::string> last_value_serialized;
 	std::string last_value_display;
+	// The call, script and object the last value was read from, for an expression that uses their
+	// variables. Values from different ones aren't compared.
+	struct ValueOwner
+	{
+		// The script and call depth of the call whose local variables were used.
+		const refInfo* stack_ri = nullptr;
+		uint32_t stack_retsp = 0;
+		// The script whose instance variables were used.
+		const refInfo* script_ri = nullptr;
+		// The `this` object whose members were used.
+		std::optional<int32_t> this_object;
+
+		bool operator==(const ValueOwner&) const = default;
+	};
+	ValueOwner last_value_owner;
 	// While paused due to this breakpoint, the new and previous values. Cleared on resume.
 	std::string hit_value_display;
 	std::string hit_value_prev_display;
