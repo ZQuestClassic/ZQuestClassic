@@ -30215,7 +30215,7 @@ void dospecialmoney(int32_t index)
         }
         rectfill(msg_bg_display_buf, 0, 0, msg_bg_display_buf->w, 80, 0);
         rectfill(msg_txt_display_buf, 0, 0, msg_txt_display_buf->w, 80, 0);
-        donewmsg(QMisc.info[tmpscr[tmp].catchall].str[priceindex]);
+        donewmsg(QMisc.get_info(tmpscr[tmp].catchall).str[priceindex]);
         clear_bitmap(pricesdisplaybuf);
         set_clip_state(pricesdisplaybuf, 1);
         items.del(0);
@@ -30890,7 +30890,7 @@ bool HeroClass::checkitems(int32_t index)
 				((item*)items.spr(i))->pickup=ipDUMMY+ipFADE;
 		}
 		
-		int32_t slot = game->fillBottle(QMisc.bottle_shop_types[tmpscr[tmp].catchall].fill[PriceIndex]);
+		int32_t slot = game->fillBottle(QMisc.get_bottle_shop(tmpscr[tmp].catchall).fill[PriceIndex]);
 		id2 = find_bottle_for_slot(slot);
 		ptr->id = id2;
 		holdid = id2;
@@ -30991,7 +30991,7 @@ bool HeroClass::checkitems(int32_t index)
 				
 				for(int32_t i=0; i<3; i++)
 				{
-					if(QMisc.shop[tmpscr[tmp].catchall].hasitem[i] != 0)
+					if(QMisc.get_shop(tmpscr[tmp].catchall).hasitem[i] != 0)
 					{
 						++count;
 					}
@@ -31145,10 +31145,10 @@ bool HeroClass::checkitems(int32_t index)
 				switch(tmpscr[tmp].room)
 				{
 					case rSHOP:
-						shop_pstr = QMisc.shop[tmpscr[tmp].catchall].str[PriceIndex];
+						shop_pstr = QMisc.get_shop(tmpscr[tmp].catchall).str[PriceIndex];
 						break;
 					case rBOTTLESHOP:
-						shop_pstr = QMisc.bottle_shop_types[tmpscr[tmp].catchall].str[PriceIndex];
+						shop_pstr = QMisc.get_bottle_shop(tmpscr[tmp].catchall).str[PriceIndex];
 						break;
 				}
 			}
@@ -31260,7 +31260,9 @@ bool HeroClass::checkitems(int32_t index)
 		//show the info string
 		//non-held
 		//if ( pstr > 0 ) //&& itemsbuf[index].pstring < msg_count && ( ( itemsbuf[index].pickup_string_flags&itemdataPSTRING_ALWAYS || (!(FFCore.GetItemMessagePlayed(index))) ) ) )
-		int32_t shop_pstr = ( tmpscr[tmp].room == rSHOP && PriceIndex>=0 && QMisc.shop[tmpscr[tmp].catchall].str[PriceIndex] > 0 ) ? QMisc.shop[tmpscr[tmp].catchall].str[PriceIndex] : 0;
+		int32_t shop_pstr = 0;
+		if (tmpscr[tmp].room == rSHOP && PriceIndex >= 0)
+			shop_pstr = std::max<int32_t>(0, QMisc.get_shop(tmpscr[tmp].catchall).str[PriceIndex]);
 		if ( (pstr > 0 && pstr < msg_count) || (shop_pstr > 0 && shop_pstr < msg_count) )
 		{
 			if ( (pstr > 0 && pstr < msg_count) && ( (!(pstr_flags&itemdataPSTRING_IP_HOLDUP)) && ( pstr_flags&itemdataPSTRING_NOMARK || pstr_flags&itemdataPSTRING_ALWAYS || (!(FFCore.GetItemMessagePlayed(id2))) ) ) )

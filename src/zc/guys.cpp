@@ -20277,10 +20277,11 @@ void setupscreen()
 		int32_t step  = 5;
 		
 		moneysign();
+		infotype const& info = QMisc.get_info(tmpscr[t].catchall);
 		
 		for(int32_t i=0; i<3; i++)
 		{
-			if(QMisc.info[tmpscr[t].catchall].str[i])
+			if(info.str[i])
 			{
 				++count;
 			}
@@ -20304,7 +20305,7 @@ void setupscreen()
 			{
 				additem((i << step)+base, 89, iRupy, ipMONEY + ipDUMMY);
 				((item*)items.spr(items.Count()-1))->PriceIndex = i;
-				prices[i] = -(QMisc.info[tmpscr[t].catchall].price[i]);
+				prices[i] = -(info.price[i]);
 				if(prices[i]==0)
 					prices[i]=100000; // So putprices() knows there's an item here and positions the price correctly
 				int32_t itemid = current_item_id(itype_wealthmedal);
@@ -20320,7 +20321,7 @@ void setupscreen()
 						prices[i]=100000;
 				}
 				
-				if((QMisc.info[tmpscr[t].catchall].price[i])>1 && prices[i]>-1 && prices[i]!=100000)
+				if((info.price[i])>1 && prices[i]>-1 && prices[i]!=100000)
 					prices[i]=-1;
 			}
 		}
@@ -20382,11 +20383,12 @@ void setupscreen()
 		
 		if(tmpscr[t].room != rTAKEONE)
 			moneysign();
+		shoptype const& shop = QMisc.get_shop(tmpscr[t].catchall);
 			
 		//count and align the stuff
 		for(int32_t i=0; i<3; ++i)
 		{
-			if(QMisc.shop[tmpscr[t].catchall].hasitem[count] != 0)
+			if(shop.hasitem[count] != 0)
 			{
 				++count;
 			}
@@ -20408,12 +20410,12 @@ void setupscreen()
 		
 		for(int32_t i=0; i<count; i++)
 		{
-			additem((i<<step)+base, 89, QMisc.shop[tmpscr[t].catchall].item[i], ipHOLDUP+ipFADE+(tmpscr[t].room == rTAKEONE ? ipONETIME2 : ipCHECK));
+			additem((i<<step)+base, 89, shop.item[i], ipHOLDUP+ipFADE+(tmpscr[t].room == rTAKEONE ? ipONETIME2 : ipCHECK));
 			((item*)items.spr(items.Count()-1))->PriceIndex = i;
 			
 			if(tmpscr[t].room != rTAKEONE)
 			{
-				prices[i] = QMisc.shop[tmpscr[t].catchall].price[i];
+				prices[i] = shop.price[i];
 				if(prices[i]==0)
 					prices[i]=100000; // So putprices() knows there's an item here and positions the price correctly
 				int32_t itemid = current_item_id(itype_wealthmedal);
@@ -20429,7 +20431,7 @@ void setupscreen()
 						prices[i]=100000;
 				}
 				
-				if((QMisc.shop[tmpscr[t].catchall].price[i])>1 && prices[i]<1)
+				if((shop.price[i])>1 && prices[i]<1)
 					prices[i]=1;
 			}
 		}
@@ -20443,7 +20445,7 @@ void setupscreen()
 		int32_t step  = 5;
 		
 		moneysign();
-		bottleshoptype const& bst = QMisc.bottle_shop_types[tmpscr[t].catchall];
+		bottleshoptype const& bst = QMisc.get_bottle_shop(tmpscr[t].catchall);
 		//count and align the stuff
 		for(int32_t i=0; i<3; ++i)
 		{
