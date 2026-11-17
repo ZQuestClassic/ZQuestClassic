@@ -124,6 +124,16 @@ if(LINUX)
 		# install-time RPATH rewrite changes the executables' bytes - so
 		# Linux crash reports never matched the uploaded debug info.
 		add_link_options("-Wl,--build-id=sha1")
+
+		# Stack canaries and checked libc string functions, which upstream
+		# clang (unlike distro compilers, Apple clang and MSVC) leaves off.
+		# They turn an overflow of a fixed size buffer - say, a quest string
+		# longer than a log buffer - into a clean abort instead of a write
+		# over the return address. _FORTIFY_SOURCE needs optimization, so it
+		# is only set for optimized builds (and not Asan, which has its own
+		# checked versions of these functions).
+		add_compile_options("$<$<COMPILE_LANGUAGE:C,CXX>:-fstack-protector-strong>")
+		add_compile_options("$<$<AND:$<CONFIG:Release,RelWithDebInfo,MinSizeRel>,$<COMPILE_LANGUAGE:C,CXX>>:-U_FORTIFY_SOURCE;-D_FORTIFY_SOURCE=2>")
 	endif()
 endif()
 
