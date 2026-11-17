@@ -23005,6 +23005,22 @@ void HeroClass::checktouchblk()
 	}
 }
 
+// Converts a position on the screen next to the hero's screen, toward `dir`, to coordinates within
+// that screen. The coordinate along `dir` is already one on that screen. The other is a world
+// coordinate, so it is made relative to the hero's screen (the one nextscr2 starts from) - the
+// hero may straddle two screens of a region, or be off the screen entirely if a script put them
+// there, so it is also kept on the screen.
+static std::pair<int32_t, int32_t> next_screen_xy(int32_t x, int32_t y, int32_t dir)
+{
+	int screen = screenscrolling ? scrolling_hero_screen : Hero.current_screen;
+	auto [sx, sy] = translate_screen_coordinates_to_world(screen);
+	if (dir == up || dir == down)
+		x -= sx;
+	else
+		y -= sy;
+	return {std::clamp(x, 0, 255), std::clamp(y, 0, 175)};
+}
+
 int32_t HeroClass::nextcombo(int32_t cx, int32_t cy, int32_t cdir)
 {
     switch(cdir)
@@ -23052,8 +23068,8 @@ int32_t HeroClass::nextcombo(int32_t cx, int32_t cy, int32_t cdir)
             break;
         }
 		
-		// The other coordinate may be off the screen too (a script can put the hero anywhere).
-		int32_t cmb = COMBOPOS(std::clamp(cx%256, 0, 255), std::clamp(cy%176, 0, 175));
+		auto [lx, ly] = next_screen_xy(cx, cy, cdir);
+		int32_t cmb = COMBOPOS(lx, ly);
 		return get_canonical_scr(map, screen)->data[cmb];
     }
     
@@ -23107,8 +23123,8 @@ int32_t HeroClass::nextflag(int32_t cx, int32_t cy, int32_t cdir, bool comboflag
             break;
         }
 		
-        // The other coordinate may be off the screen too (a script can put the hero anywhere).
-        int32_t pos = COMBOPOS(std::clamp(cx%256, 0, 255), std::clamp(cy%176, 0, 175));
+        auto [lx, ly] = next_screen_xy(cx, cy, cdir);
+        int32_t pos = COMBOPOS(lx, ly);
         const mapscr* scr = get_canonical_scr(map, screen);
         if (!comboflag)
         {
@@ -26658,8 +26674,8 @@ bool HeroClass::nextcombo_wf(int32_t d2)
     // check lower half of combo
     cy += 8;
     
-    // The other coordinate may be off the screen too (a script can put the hero anywhere).
-    int32_t cmb = COMBOPOS(std::clamp(cx%256, 0, 255), std::clamp(cy%176, 0, 175));
+    std::tie(cx, cy) = next_screen_xy(cx, cy, d2);
+    int32_t cmb = COMBOPOS(cx, cy);
     const newcombo* c = &combobuf[scr->data[cmb]];
     bool dried = iswater_type(c->type) && DRIEDLAKE;
     bool swim = iswater_type(c->type) && (current_item(itype_flippers)) && !dried;
