@@ -778,6 +778,24 @@ static TestTask run_scopes_replay_coroutine()
 	verify_expression(debugger, "b", "bitmap {Height = 32.0000, Width = 32.0000}");
 	verify_expression(debugger, "b->Width", "32.0000");
 
+	// Members declared const (like most of the engine's arrays) expand like any other.
+	{
+		debugger->RemoveWatches();
+		debugger->AddWatchExpression("Screen");
+		debugger->UpdateVariables();
+		assertSize(debugger->watch_variables, 1);
+		Variable& screen_var = debugger->watch_variables[0];
+		debugger->FetchChildren(screen_var);
+		auto it = std::ranges::find_if(screen_var.children, [](auto& child){ return child.name == "ComboData"; });
+		assertTrue(it != screen_var.children.end());
+		assertTrue(zasm_debug_data.getType(it->symbol->type_id)->tag == TYPE_CONST);
+		assertTrue(it->is_expandable);
+		debugger->FetchChildren(*it);
+		assertSize(it->children, 176);
+		assertEqual(it->children[0].name, "[0]"s);
+		debugger->RemoveWatches();
+	}
+
 	// Engine objects in untyped arrays must resolve to their proper debug type.
 	verify_expression(debugger, "arr_rng[0]", "randgen {}");
 

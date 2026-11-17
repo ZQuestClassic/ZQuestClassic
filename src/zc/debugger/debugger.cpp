@@ -1033,21 +1033,13 @@ void Debugger::FetchChildren(Variable& var)
 		auto* array = checkArray(var.value.raw_value, true);
 		if (!array) return;
 
-		if (auto values = vm.readArray(DebugValue{var.value.raw_value, var.value.type}))
+		if (auto values = vm.readArray(var.value))
 		{
 			for (int i = 0; i < values->size(); i++)
 			{
-				DebugValue value = values->at(i);
-				std::string val_str = ValueToStringSummary(value);
-				int elem_val = value.raw_value;
-				const DebugType* elem_type = value.type->asNonConst(zasm_debug_data);
-				bool is_expandable = (elem_type->tag == TYPE_ARRAY && elem_type->extra != TYPE_CHAR32) 
-								|| (elem_type->tag == TYPE_CLASS && elem_val != 0);
-
-				Variable child(value, fmt::format("[{}]", i), val_str, var.color);
-				child.is_expandable = is_expandable;
-
-				var.children.push_back(child);
+				Variable child = CreateVariableFromValue(fmt::format("[{}]", i), values->at(i));
+				child.color = var.color;
+				var.children.push_back(std::move(child));
 			}
 		}
 	}
@@ -1076,14 +1068,11 @@ void Debugger::FetchChildren(Variable& var)
 
 			if (auto v = vm.readObjectMember(var.value, symbol))
 			{
-				DebugValue& value = v.value();
-				const DebugType* type = value.type->asNonConst(zasm_debug_data);
-				std::string val_str = ValueToStringSummary(value);
-				Variable child(value, symbol->name, val_str, var.color);
-				bool is_expandable_type = (type->tag == TYPE_ARRAY && type->extra != TYPE_CHAR32) || type->tag == TYPE_CLASS;
-				child.is_expandable = is_expandable_type && !IsNull(value.raw_value, zasm_debug_data.getTypeName(value.type));
+				// Strips const from the member's declared type, like for any variable.
+				Variable child = CreateVariableFromValue(symbol->name, v.value());
+				child.color = var.color;
 				child.symbol = symbol;
-				var.children.push_back(child);
+				var.children.push_back(std::move(child));
 			}
 		}
 	}
