@@ -2076,6 +2076,34 @@ static void log_state_change(int map, int screen, std::string action)
 		Z_eventlog("[Map %d, Screen %02X] %s\n", map + 1, screen, action.c_str());
 }
 
+// Calls fn(map, screen) (map counting from 0) for each screen the carryover chain from the given
+// screen reaches, in order. The chain stops at a screen it has already visited, a map that doesn't
+// exist, or a special screen.
+template <typename Fn>
+static void for_each_carryover_screen(int map, int screen, Fn fn)
+{
+	// nextmap counts from 1, and 0 ends the chain.
+	int nmap = TheMaps[map*MAPSCRS + screen].nextmap;
+	int nscr = TheMaps[map*MAPSCRS + screen].nextscr;
+
+	std::vector<int32_t> done;
+	bool looped = (nmap == map+1 && nscr == screen);
+
+	while (nmap != 0 && nmap <= map_count && !looped && nscr < 128)
+	{
+		fn(nmap - 1, nscr);
+
+		int cmap = nmap - 1;
+		int cscr = nscr;
+		nmap = TheMaps[cmap*MAPSCRS + cscr].nextmap;
+		nscr = TheMaps[cmap*MAPSCRS + cscr].nextscr;
+
+		int32_t id = ((nmap-1)<<7) + nscr;
+		looped = std::find(done.begin(), done.end(), id) != done.end();
+		done.push_back(id);
+	}
+}
+
 void setmapflag_mi(mapscr* scr, int32_t mi, uint32_t flag)
 {
     byte cscr = mi&((1<<7)-1);
@@ -2093,41 +2121,21 @@ void setmapflag_mi(mapscr* scr, int32_t mi, uint32_t flag)
                
     if((scr->nocarry&flag)!=flag)
     {
-        byte nmap=TheMaps[((cmap)*MAPSCRS)+cscr].nextmap;
-        byte nscr=TheMaps[((cmap)*MAPSCRS)+cscr].nextscr;
-        
-        std::vector<int32_t> done;
-        bool looped = (nmap==cmap+1 && nscr==cscr);
-        
-        while((nmap!=0) && nmap <= map_count && !looped && !(nscr>=128))
-        {
-            if(!(game->maps.get(((nmap-1)<<7)+nscr) & flag))
+        for_each_carryover_screen(cmap, cscr, [&](int map, int screen) {
+            if(!(game->maps.get(mapind(map, screen)) & flag))
             {
-                log_state_change(nmap, nscr, "State change carried over");
+                log_state_change(map + 1, screen, "State change carried over");
                 if (replay_is_active())
-                    replay_step_comment(fmt::format("map {} scr {} flag {} carry", nmap, nscr, replay_state_string));
-                if (nmap - 1 == cur_map && is_in_current_region(nscr))
+                    replay_step_comment(fmt::format("map {} scr {} flag {} carry", map + 1, screen, replay_state_string));
+                if (map == cur_map && is_in_current_region(screen))
                 {
-                    auto screen_handles = create_screen_handles_one(get_scr(nscr));
+                    auto screen_handles = create_screen_handles_one(get_scr(screen));
                     bool do_layers = true;
                     apply_screen_state_remove_combos(screen_handles, flag, do_layers);
                 }
-                game->maps[((nmap-1)<<7)+nscr] |= flag;
+                game->maps[mapind(map, screen)] |= flag;
             }
-            
-            cmap=nmap;
-            cscr=nscr;
-            nmap=TheMaps[((cmap-1)*MAPSCRS)+cscr].nextmap;
-            nscr=TheMaps[((cmap-1)*MAPSCRS)+cscr].nextscr;
-            
-            for(auto it = done.begin(); it != done.end(); it++)
-            {
-                if(*it == ((nmap-1)<<7)+nscr)
-                    looped = true;
-            }
-            
-            done.push_back(((nmap-1)<<7)+nscr);
-        }
+        });
     }
 }
 
@@ -2175,33 +2183,13 @@ void unsetmapflag_mi(mapscr* scr, int32_t mi, uint32_t flag, bool anyflag)
                
     if((scr->nocarry&flag)!=flag)
     {
-        byte nmap=TheMaps[((cmap)*MAPSCRS)+cscr].nextmap;
-        byte nscr=TheMaps[((cmap)*MAPSCRS)+cscr].nextscr;
-        
-        std::vector<int32_t> done;
-        bool looped = (nmap==cmap+1 && nscr==cscr);
-        
-        while((nmap!=0) && nmap <= map_count && !looped && !(nscr>=128))
-        {
-            if(game->maps.get(((nmap-1)<<7)+nscr) & flag)
+        for_each_carryover_screen(cmap, cscr, [&](int map, int screen) {
+            if(game->maps.get(mapind(map, screen)) & flag)
             {
-                log_state_change(nmap, nscr, "State change carried over");
-                game->maps[((nmap-1)<<7)+nscr] &= ~flag;
+                log_state_change(map + 1, screen, "State change carried over");
+                game->maps[mapind(map, screen)] &= ~flag;
             }
-            
-            cmap=nmap;
-            cscr=nscr;
-            nmap=TheMaps[((cmap-1)*MAPSCRS)+cscr].nextmap;
-            nscr=TheMaps[((cmap-1)*MAPSCRS)+cscr].nextscr;
-            
-            for(std::vector<int32_t>::iterator it = done.begin(); it != done.end(); it++)
-            {
-                if(*it == ((nmap-1)<<7)+nscr)
-                    looped = true;
-            }
-            
-            done.push_back(((nmap-1)<<7)+nscr);
-        }
+        });
     }
 }
 
@@ -2238,35 +2226,15 @@ void setxmapflag_mi(int32_t mi, uint32_t flag)
 	
 	if((scr->exstate_carry&flag)==flag)
 	{
-		byte nmap=TheMaps[((cmap)*MAPSCRS)+cscr].nextmap;
-		byte nscr=TheMaps[((cmap)*MAPSCRS)+cscr].nextscr;
-		
-		std::vector<int32_t> done;
-		bool looped = (nmap==cmap+1 && nscr==cscr);
-		
-		while((nmap!=0) && nmap <= map_count && !looped && !(nscr>=128))
-		{
-			if(!(game->xstates.get(((nmap-1)<<7)+nscr) & flag))
+		for_each_carryover_screen(cmap, cscr, [&](int map, int screen) {
+			if(!(game->xstates.get(mapind(map, screen)) & flag))
 			{
-				log_state_change(nmap, nscr, "ExState change carried over");
+				log_state_change(map + 1, screen, "ExState change carried over");
 				if (replay_is_active())
-					replay_step_comment(fmt::format("map {} scr {} exstate {} carry", nmap, nscr, temp));
-				game->xstates[((nmap-1)<<7)+nscr] |= flag;
+					replay_step_comment(fmt::format("map {} scr {} exstate {} carry", map + 1, screen, temp));
+				game->xstates[mapind(map, screen)] |= flag;
 			}
-			
-			cmap=nmap;
-			cscr=nscr;
-			nmap=TheMaps[((cmap-1)*MAPSCRS)+cscr].nextmap;
-			nscr=TheMaps[((cmap-1)*MAPSCRS)+cscr].nextscr;
-			
-			for(auto it = done.begin(); it != done.end(); it++)
-			{
-				if(*it == ((nmap-1)<<7)+nscr)
-					looped = true;
-			}
-			
-			done.push_back(((nmap-1)<<7)+nscr);
-		}
+		});
 	}
 }
 void unsetxmapflag(int32_t screen, uint32_t flag)
@@ -2289,33 +2257,13 @@ void unsetxmapflag_mi(int32_t mi, uint32_t flag)
 	
 	if((scr->exstate_carry&flag)==flag)
 	{
-		byte nmap=TheMaps[((cmap)*MAPSCRS)+cscr].nextmap;
-		byte nscr=TheMaps[((cmap)*MAPSCRS)+cscr].nextscr;
-		
-		std::vector<int32_t> done;
-		bool looped = (nmap==cmap+1 && nscr==cscr);
-		
-		while((nmap!=0) && nmap <= map_count && !looped && !(nscr>=128))
-		{
-			if(game->xstates.get(((nmap-1)<<7)+nscr) & flag)
+		for_each_carryover_screen(cmap, cscr, [&](int map, int screen) {
+			if(game->xstates.get(mapind(map, screen)) & flag)
 			{
-				log_state_change(nmap, nscr, "ExState change carried over");
-				game->xstates[((nmap-1)<<7)+nscr] &= ~flag;
+				log_state_change(map + 1, screen, "ExState change carried over");
+				game->xstates[mapind(map, screen)] &= ~flag;
 			}
-			
-			cmap=nmap;
-			cscr=nscr;
-			nmap=TheMaps[((cmap-1)*MAPSCRS)+cscr].nextmap;
-			nscr=TheMaps[((cmap-1)*MAPSCRS)+cscr].nextscr;
-			
-			for(std::vector<int32_t>::iterator it = done.begin(); it != done.end(); it++)
-			{
-				if(*it == ((nmap-1)<<7)+nscr)
-					looped = true;
-			}
-			
-			done.push_back(((nmap-1)<<7)+nscr);
-		}
+		});
 	}
 }
 bool getxmapflag(int32_t screen, uint32_t flag)
@@ -3381,36 +3329,14 @@ void trigger_secrets_for_screen(TriggerSource source, mapscr* scr, bool high16on
 	// Respect secret state carryovers for active screens.
 	if (single >= 0) return;
 	if(scr->nocarry&mSECRET) return;
-	int cmap = scr->map;
-	int cscr = scr->screen;
-	int nmap=TheMaps[((cmap)*MAPSCRS)+cscr].nextmap;
-	int nscr=TheMaps[((cmap)*MAPSCRS)+cscr].nextscr;
-
-	std::vector<int32_t> done;
-	bool looped = (nmap==cmap+1 && nscr==cscr);
-
-	while((nmap!=0) && nmap <= map_count && !looped && !(nscr>=128))
-	{
-		if (nmap - 1 == cur_map && is_in_current_region(nscr) && !get_screen_state(nscr).triggered_secrets)
+	for_each_carryover_screen(scr->map, scr->screen, [&](int map, int screen) {
+		if (map == cur_map && is_in_current_region(screen) && !get_screen_state(screen).triggered_secrets)
 		{
 			log_trigger_secret_reason(TriggerSource::SecretsScreenState);
-			trigger_secrets_for_screen_internal(create_screen_handles(get_scr(nscr)), from_active_screen, high16only, single, do_replay_comment);
-			get_screen_state(nscr).triggered_secrets = true;
+			trigger_secrets_for_screen_internal(create_screen_handles(get_scr(screen)), from_active_screen, high16only, single, do_replay_comment);
+			get_screen_state(screen).triggered_secrets = true;
 		}
-		
-		cmap=nmap;
-		cscr=nscr;
-		nmap=TheMaps[((cmap-1)*MAPSCRS)+cscr].nextmap;
-		nscr=TheMaps[((cmap-1)*MAPSCRS)+cscr].nextscr;
-		
-		for(auto it = done.begin(); it != done.end(); it++)
-		{
-			if(*it == ((nmap-1)<<7)+nscr)
-				looped = true;
-		}
-		
-		done.push_back(((nmap-1)<<7)+nscr);
-	}
+	});
 }
 
 void trigger_secrets_for_screen(TriggerSource source, int32_t screen, bool high16only, int32_t single)
