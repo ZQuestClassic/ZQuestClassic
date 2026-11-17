@@ -706,6 +706,15 @@ static TestTask run_scopes_replay_coroutine()
 	verify_expression(debugger, "arr6[1] = 123", "123.0000");
 	verify_expression(debugger, "RefCount(arr5[0])", "4L");
 
+	// Only a value that contains itself is cut short with "...". The same array appearing twice
+	// is printed twice.
+	verify_expression(debugger, "arr6[0] = arr1", "{101.0000, 101.0000}");
+	verify_expression(debugger, "arr6[1] = arr1", "{101.0000, 101.0000}");
+	verify_expression(debugger, "arr6", "{{1010000, 1010000}, {1010000, 1010000}, {10000, 20000}, bitmap {Height = 32.0000, Width = 32.0000}}");
+	verify_expression(debugger, "arr6[0] = NULL", "0");
+	verify_expression(debugger, "arr6[1] = 123", "123.0000");
+	verify_expression(debugger, "RefCount(arr1)", "1L");
+
 	// A script error raised while evaluating must not pause the debugger, even when breaking on
 	// errors: that paused on the evaluation's temporary state, and the pause's own variable reads
 	// raised more errors, recursing until the stack overflowed.

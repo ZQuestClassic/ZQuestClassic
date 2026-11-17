@@ -1,6 +1,7 @@
 #include "zc/debugger/debugger.h"
 
 #include "base/expected.h"
+#include "base/general.h"
 #include "zalleg/new_menu.h"
 #include "core/qst.h"
 #include "base/util.h"
@@ -1222,15 +1223,36 @@ std::string Debugger::ValueToStringSummary(DebugValue value)
 	return fmt::format("{}", value.raw_value);
 }
 
+struct Debugger::PrintState
+{
+	// The arrays and objects currently being printed, outermost first. Each is its kind (-1 for an
+	// array, else its class - they have separate ids) and id.
+	std::vector<std::pair<int, int>> printing;
+	// How many more arrays and objects may be printed in full. Values that share many arrays and
+	// objects would otherwise print each of them again for every path there is to it.
+	int remaining = 2000;
+
+	// Whether to print this array or object in full, rather than as "...": not if it contains
+	// itself. If so, pop it from `printing` when done.
+	bool enter(std::pair<int, int> key)
+	{
+		if (util::contains(printing, key) || remaining-- <= 0)
+			return false;
+
+		printing.push_back(key);
+		return true;
+	}
+};
+
 // Returns a full recursive expansion of a value: scalars as in ValueToStringSummary, arrays with
 // all elements listed, class instances with all member fields expanded.
 // opts controls multiline formatting, array elision after 3 elements, and skipping deprecated
 // members.
 std::string Debugger::ValueToStringFull(DebugValue value, ValueStringOptions opts)
 {
-	std::set<int> seen;
+	PrintState state;
 	int depth = 0;
-	return ValueToStringHelper(value, opts, depth, seen);
+	return ValueToStringHelper(value, opts, depth, state);
 }
 
 std::string Debugger::ValueToStringTooltip(DebugValue value)
@@ -1262,7 +1284,7 @@ std::string Debugger::ValueToStringTooltip(DebugValue value)
 	return ValueToStringFull(value, opts);
 }
 
-std::string Debugger::ValueToStringHelper(DebugValue value, ValueStringOptions opts, int depth, std::set<int>& seen)
+std::string Debugger::ValueToStringHelper(DebugValue value, ValueStringOptions opts, int depth, PrintState& state)
 {
 	value.type = value.type->asNonConst(zasm_debug_data);
 	int raw_value = value.raw_value;
@@ -1280,10 +1302,9 @@ std::string Debugger::ValueToStringHelper(DebugValue value, ValueStringOptions o
 	{
 		if (!raw_value) return "null (Array)";
 
-		if (seen.contains(value.raw_value))
+		if (!state.enter({-1, raw_value}))
 			return "...";
-
-		seen.insert(value.raw_value);
+		ScopeExitHandler leave([&]{ state.printing.pop_back(); });
 
 		auto values = vm.readArray(value);
 		if (!values) return "invalid (Array)";
@@ -1315,7 +1336,7 @@ std::string Debugger::ValueToStringHelper(DebugValue value, ValueStringOptions o
 
 			for (size_t i = 0; i < values->size(); i++)
 			{
-				std::string item_str = ValueToStringHelper(values->at(i), opts, depth + 1, seen);
+				std::string item_str = ValueToStringHelper(values->at(i), opts, depth + 1, state);
 				if (i < values->size() - 1) item_str += ", ";
 
 				// If it's a complex type, it usually has its own newlines, so we just append.
@@ -1347,7 +1368,7 @@ std::string Debugger::ValueToStringHelper(DebugValue value, ValueStringOptions o
 		{
 			std::vector<std::string> parts;
 			for (size_t i = 0; i < values->size(); i++)
-				parts.push_back(ValueToStringHelper(values->at(i), opts, depth + 1, seen));
+				parts.push_back(ValueToStringHelper(values->at(i), opts, depth + 1, state));
 
 			result += fmt::format("{}", fmt::join(parts, ", "));
 			result += "}";
@@ -1368,8 +1389,9 @@ std::string Debugger::ValueToStringHelper(DebugValue value, ValueStringOptions o
 			return "null";
 		}
 
-		if (seen.contains(raw_value)) return "...";
-		seen.insert(raw_value);
+		if (!state.enter({(int)value.type->extra, raw_value}))
+			return "...";
+		ScopeExitHandler leave([&]{ state.printing.pop_back(); });
 
 		const DebugScope* scope = class_scope;
 		std::vector<const DebugScope*> scopes;
@@ -1433,7 +1455,7 @@ std::string Debugger::ValueToStringHelper(DebugValue value, ValueStringOptions o
 						elided_zero_count++;
 						continue;
 					}
-					fields.push_back({symbol->name, ValueToStringHelper(member_value, opts, depth + 1, seen)});
+					fields.push_back({symbol->name, ValueToStringHelper(member_value, opts, depth + 1, state)});
 				}
 			}
 
@@ -1486,7 +1508,7 @@ std::string Debugger::ValueToStringHelper(DebugValue value, ValueStringOptions o
 				if (auto v = vm.readObjectMember(value, symbol))
 				{
 					DebugValue& member_value = v.value();
-					std::string val_str = ValueToStringHelper(member_value, opts, depth + 1, seen);
+					std::string val_str = ValueToStringHelper(member_value, opts, depth + 1, state);
 					parts.push_back(symbol->name + " = " + val_str);
 				}
 			}

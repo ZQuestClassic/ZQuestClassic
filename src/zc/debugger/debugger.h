@@ -252,7 +252,8 @@ struct Debugger
 	std::string ValueToStringTooltip(DebugValue value);
 
 private:
-	std::string ValueToStringHelper(DebugValue value, ValueStringOptions opts, int depth, std::set<int>& seen);
+	struct PrintState;
+	std::string ValueToStringHelper(DebugValue value, ValueStringOptions opts, int depth, PrintState& state);
 	Variable CreateVariableFromValue(const std::string& name, DebugValue value);
 	void RenderVariableNode(Variable& var, std::vector<Variable*>& parents);
 };
