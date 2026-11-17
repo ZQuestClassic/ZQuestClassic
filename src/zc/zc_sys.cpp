@@ -5859,6 +5859,10 @@ void music_resume()
 bool reload_fonts = false;
 void System()
 {
+	// Only a debugger state change made while this menu is open closes it.
+	if (auto debugger = zscript_debugger_get_if_open())
+		debugger->system_menu_close_requested = false;
+
 	mouse_down = gui_mouse_b();
 	music_pause();
 	pause_all_sfx();
@@ -6064,7 +6068,7 @@ void System()
 		if(Quit || (GameFlags & GAMEFLAG_TRYQUIT))
 			break;
 		// If the system menu is open, and the debugger state is modified, we want to close the menus.
-		if (debugger && debugger->state != debugger->target_state)
+		if (debugger && debugger->system_menu_close_requested)
 			break;
 	}
 	while(running);

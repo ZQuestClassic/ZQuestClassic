@@ -414,16 +414,14 @@ void DrawDebuggerControls(Debugger* debugger)
 	bool is_running = debugger->state == Debugger::State::Playing;
 	if (is_running)
 	{
-		// Don't call SetState directly, because we need to be within the script engine to get an
-		// accurate stack frame. Defer the actual call to zscript_debugger_exec.
 		if (ImGui::Button("||", btn_size) || ImGui::IsKeyPressed(ImGuiKey_F6))
-			debugger->target_state = Debugger::State::Paused;
+			debugger->RequestState(Debugger::State::Paused);
 		if (ImGui::IsItemHovered()) ImGui::SetTooltip("Pause (F6)");
 	}
 	else
 	{
 		if (ImGui::Button("▶", btn_size) || ImGui::IsKeyPressed(ImGuiKey_F5))
-			debugger->target_state = Debugger::State::Playing;
+			debugger->RequestState(Debugger::State::Playing);
 		if (ImGui::IsItemHovered()) ImGui::SetTooltip("Continue (F5)");
 	}
 
@@ -432,19 +430,19 @@ void DrawDebuggerControls(Debugger* debugger)
 	ImGui::BeginDisabled(is_running);
 
 	if (ImGui::Button("➜", btn_size) || (!is_running && ImGui::IsKeyPressed(ImGuiKey_F10)))
-		debugger->target_state = Debugger::State::StepOver;
+		debugger->RequestState(Debugger::State::StepOver);
 	if (ImGui::IsItemHovered()) ImGui::SetTooltip("Step Over (F10)");
 
 	ImGui::SameLine();
 
 	if (ImGui::Button("↓", btn_size) || (!is_running && ImGui::IsKeyPressed(ImGuiKey_F11) && !io.KeyShift))
-		debugger->target_state = Debugger::State::StepInto;
+		debugger->RequestState(Debugger::State::StepInto);
 	if (ImGui::IsItemHovered()) ImGui::SetTooltip("Step Into (F11)");
 	
 	ImGui::SameLine();
 
 	if (ImGui::Button("↑", btn_size) || (!is_running && ImGui::IsKeyPressed(ImGuiKey_F11) && io.KeyShift))
-		debugger->target_state = Debugger::State::StepOut;
+		debugger->RequestState(Debugger::State::StepOut);
 	if (ImGui::IsItemHovered()) ImGui::SetTooltip("Step Out (Shift+F11)");
 
 	ImGui::EndDisabled();

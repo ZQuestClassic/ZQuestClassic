@@ -875,6 +875,16 @@ void Debugger::SetState(State new_state)
 	UpdateVariables();
 }
 
+void Debugger::RequestState(State new_state)
+{
+	if (new_state == target_state)
+		return;
+
+	target_state = new_state;
+	close_all_menu();
+	system_menu_close_requested = true;
+}
+
 void Debugger::SetSelectedScriptIndex(int index)
 {
 	selected_script = &active_scripts[index];
@@ -1645,10 +1655,6 @@ void zscript_debugger_update()
 {
 	if (!debugger)
 		return;
-
-	// If the system menu is open, and the debugger state is modified, we want to close the menus.
-	if (debugger->state != debugger->target_state)
-		close_all_menu();
 
 	if (!zscript_debugger_gui_update(debugger.get()))
 		zscript_debugger_close();

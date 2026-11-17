@@ -168,6 +168,8 @@ struct Debugger
 
 	State state = State::Playing;
 	State target_state = State::Playing;
+	// Set when the menus are closed for a state change, for System() to also leave its own loop.
+	bool system_menu_close_requested = false;
 	// Cache mapping the engine's current refInfo to its ScriptEngineData, used when evaluating
 	// value-change breakpoints. See CheckValueChangeBreakpoints.
 	const refInfo* value_bp_cached_ri = nullptr;
@@ -232,6 +234,9 @@ struct Debugger
 	void SetSourceFileAndLine(const SourceFile* source_file, int line);
 	void UpdateActiveScripts();
 	void SetState(State new_state);
+	// Changes the state once a script next runs: only from within the script engine is there an
+	// accurate call stack. Closes the system menus, so the game resumes and one can.
+	void RequestState(State new_state);
 	void SetSelectedScriptIndex(int index);
 	void SetSelectedStackFrameIndex(int index);
 	const Variable* FindVariable(const std::string& name) const;
