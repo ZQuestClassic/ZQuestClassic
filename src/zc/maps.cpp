@@ -1250,6 +1250,10 @@ int32_t COMBOPOS(int32_t x, int32_t y)
 	DCHECK(x >= 0 && x < 256 && y >= 0 && y < 176);
 	return (y & 0xF0) + (x >> 4);
 }
+int32_t COMBOPOS_IN_SCREEN(int32_t x, int32_t y)
+{
+	return COMBOPOS(x % 256, y % 176);
+}
 int32_t COMBOPOS_B(int32_t x, int32_t y)
 {
 	if(unsigned(x) >= 256 || unsigned(y) >= 176)
@@ -1269,7 +1273,7 @@ rpos_t COMBOPOS_REGION(const region_t& region, int32_t x, int32_t y)
 {
 	int scr_dx = x / (16*16);
 	int scr_dy = y / (11*16);
-	int pos = COMBOPOS(x%256, y%176);
+	int pos = COMBOPOS_IN_SCREEN(x, y);
 	return static_cast<rpos_t>((scr_dx + scr_dy * region.screen_width)*176 + pos);
 }
 rpos_t COMBOPOS_REGION(int32_t x, int32_t y)
@@ -1426,7 +1430,7 @@ int32_t MAPCOMBO(int32_t x, int32_t y)
 {
 	if (!is_in_world_bounds(x, y))
 		return 0;
-	int pos = COMBOPOS(x%256, y%176);
+	int pos = COMBOPOS_IN_SCREEN(x, y);
 	mapscr* scr = get_scr_for_world_xy(x, y);
 	return scr->data[pos];
 }
@@ -1442,7 +1446,7 @@ int32_t MAPCOMBOL(int32_t layer,int32_t x,int32_t y)
 	if (!m->is_valid())
 		return 0;
 
-	int pos = COMBOPOS(x%256, y%176);
+	int pos = COMBOPOS_IN_SCREEN(x, y);
 	return m->data[pos];
 }
 
@@ -1456,7 +1460,7 @@ int32_t MAPCSETL(int32_t layer,int32_t x,int32_t y)
     if (!m->is_valid())
 		return 0;
 
-    int pos = COMBOPOS(x%256, y%176);
+    int pos = COMBOPOS_IN_SCREEN(x, y);
     return m->cset[pos];
 }
 
@@ -1470,7 +1474,7 @@ int32_t MAPFLAGL(int32_t layer,int32_t x,int32_t y)
     if (!m->is_valid())
 		return 0;
 
-    int pos = COMBOPOS(x%256, y%176);
+    int pos = COMBOPOS_IN_SCREEN(x, y);
     return m->sflag[pos];
 }
 
@@ -1484,7 +1488,7 @@ int32_t COMBOTYPEL(int32_t layer,int32_t x,int32_t y)
     if (!m->is_valid())
 		return 0;
 
-	int pos = COMBOPOS(x%256, y%176);
+	int pos = COMBOPOS_IN_SCREEN(x, y);
     return combobuf[m->data[pos]].type;
 }
 
@@ -1498,7 +1502,7 @@ int32_t MAPCOMBOFLAGL(int32_t layer,int32_t x,int32_t y)
     if (!m->is_valid())
 		return 0;
 
-    int pos = COMBOPOS(x%256, y%176);
+    int pos = COMBOPOS_IN_SCREEN(x, y);
     return combobuf[m->data[pos]].flag;
 }
 
@@ -1536,7 +1540,7 @@ int32_t MAPCSET(int32_t x, int32_t y)
 	if (!is_in_world_bounds(x, y))
 		return 0;
 	mapscr* scr = get_scr_for_world_xy(x, y);
-	int pos = COMBOPOS(x%256, y%176);
+	int pos = COMBOPOS_IN_SCREEN(x, y);
 	return scr->cset[pos];
 }
 
@@ -1545,7 +1549,7 @@ int32_t MAPFLAG(int32_t x, int32_t y)
 	if (!is_in_world_bounds(x, y))
 		return 0;
 	mapscr* scr = get_scr_for_world_xy(x, y);
-	int pos = COMBOPOS(x%256, y%176);
+	int pos = COMBOPOS_IN_SCREEN(x, y);
 	return scr->sflag[pos];
 }
 
@@ -1613,7 +1617,7 @@ int32_t MAPCOMBOFLAG(int32_t x,int32_t y)
 		return 0;
 
 	mapscr* scr = get_scr_for_world_xy(x, y);
-	int pos = COMBOPOS(x%256, y%176);
+	int pos = COMBOPOS_IN_SCREEN(x, y);
 	return combobuf[scr->data[pos]].flag;
 }
 
@@ -7661,7 +7665,7 @@ bool _walkflag(zfix_round zx,zfix_round zy,int32_t cnt)
 bool _walkflag_new(std::array<const mapscr*, 7> screens, zfix_round zx, zfix_round zy, zfix const& standing_z_state, bool is_temp_screens)
 {
 	int x = zx.getRound(), y = zy.getRound();
-	int pos = COMBOPOS(x % 256, y % 176);
+	int pos = COMBOPOS_IN_SCREEN(x, y);
 	const newcombo& c = combobuf[screens[0]->data[pos]];
 	const newcombo& c1 = combobuf[screens[1]->data[pos]];
 	const newcombo& c2 = combobuf[screens[2]->data[pos]];
@@ -7771,7 +7775,7 @@ static bool effectflag(int32_t x, int32_t y, int32_t layer)
 	int32_t b = 1;
 	if (x&8) b <<= 2;
 	if (y&8) b <<= 1;
-	int pos = COMBOPOS(x % 256, y % 176);
+	int pos = COMBOPOS_IN_SCREEN(x, y);
 	
 	int maxlayer = get_qr(qr_BRIDGES_ABOVE_2) ? 6 : 2;
 	for (int lyr = maxlayer; lyr > layer; --lyr)
@@ -7877,7 +7881,7 @@ static bool _walkflag_layer_new(zfix_round zx,zfix_round zy,int32_t cnt, mapscr*
 
 	if(!m) return true;
 	
-	int pos = COMBOPOS(x%256, y%176);
+	int pos = COMBOPOS_IN_SCREEN(x, y);
 	const newcombo* c = &combobuf[m->data[pos]];
 	bool dried = ((iswater_type(c->type)) && DRIEDLAKE);
 	int32_t b=1;

@@ -678,7 +678,7 @@ bool enemy::scr_walkflag(int32_t dx,int32_t dy,int32_t special, [[maybe_unused]]
 	if (!s1 || !s1->valid) s1 = s0;
 	if (!s2 || !s2->valid) s2 = s0;
 	
-	int32_t cpos = COMBOPOS(dx%256, dy%176);
+	int32_t cpos = COMBOPOS_IN_SCREEN(dx, dy);
 	int32_t ci = s0->data[cpos], ci1 = (s1?s1:s0)->data[cpos], ci2 = (s2?s2:s0)->data[cpos];
 	newcombo c = combobuf[ci];
 	newcombo c1 = combobuf[ci1];
