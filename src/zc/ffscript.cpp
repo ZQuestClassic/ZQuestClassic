@@ -14120,6 +14120,12 @@ int32_t run_script_int(JittedScriptInstance* j_instance)
 			break;
 		}
 	}
+	// The debugger evaluates a function call by running it here, as a run nested within (or on
+	// behalf of) a script. Whatever ended that run must not end the script too, which is what the
+	// rest of this function goes on to do. Only a quit is reported as one.
+	if (script_is_within_debugger_vm)
+		return hit_invalid_zasm ? RUNSCRIPT_ERROR : RUNSCRIPT_STOPPED;
+
 	if(script_funcrun) return RUNSCRIPT_OK;
 	
 	if(!scriptCanSave)

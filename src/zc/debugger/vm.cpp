@@ -463,9 +463,10 @@ expected<int32_t, std::string> VM::executeSandboxed(pc_t start_pc, int this_zasm
 	if (!curscript || !curscript->valid())
 		return make_unexpected("Cannot call functions before scripts have started");
 
-	refInfo* prev_ri = ri;
-	int32_t(*prev_stack)[MAX_STACK_SIZE] = stack;
-	int32_t(*prev_ret_stack)[MAX_CALL_FRAMES] = ret_stack;
+	// This can run in the middle of a script's instruction (the engine updates the debugger GUI
+	// from within the interpreter loop), so everything the nested run overwrites must be put back -
+	// including the operands of the instruction that was interrupted.
+	auto saved_exec_state = ScriptExecState::save();
 
 	refInfo tmp_ri{};
 	int32_t tmp_stack[MAX_STACK_SIZE] = {0};
@@ -490,9 +491,7 @@ expected<int32_t, std::string> VM::executeSandboxed(pc_t start_pc, int this_zasm
 	int script_engine_result = run_script_int();
 	bool success = script_engine_result == RUNSCRIPT_OK;
 
-	ri = prev_ri;
-	stack = prev_stack;
-	ret_stack = prev_ret_stack;
+	saved_exec_state.restore();
 
 	if (!success)
 	{
@@ -502,6 +501,8 @@ expected<int32_t, std::string> VM::executeSandboxed(pc_t start_pc, int this_zasm
 			return make_unexpected("Detected possible infinite loop, aborting function call");
 		if (tmp_ri.overflow)
 			return make_unexpected("Function call overflowed");
+		if (script_engine_result == RUNSCRIPT_STOPPED)
+			return make_unexpected("Cannot quit the script from an expression evaluated in the debugger");
 		return make_unexpected(fmt::format("Function call failed for an unknown reason ({})", script_engine_result));
 	}
 

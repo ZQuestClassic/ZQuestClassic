@@ -812,6 +812,22 @@ static TestTask run_scopes_replay_coroutine()
 		assertTrue(debugger->root_node.children.empty());
 	}
 
+	// A function call must leave the interrupted instruction's operands as they were.
+	{
+		extern int32_t sarg1, sarg2, sarg3;
+		int32_t prev_sarg1 = sarg1, prev_sarg2 = sarg2, prev_sarg3 = sarg3;
+		sarg1 = 1111;
+		sarg2 = 2222;
+		sarg3 = 3333;
+		assertTrue(debugger->Evaluate("DebugFunctionVarargs(1, 2, 3)", true).has_value());
+		assertEqual(sarg1, 1111);
+		assertEqual(sarg2, 2222);
+		assertEqual(sarg3, 3333);
+		sarg1 = prev_sarg1;
+		sarg2 = prev_sarg2;
+		sarg3 = prev_sarg3;
+	}
+
 	// 'new' expression.
 	verify_expression(debugger, "new A::CL()", "CL {A_var = 11.0000, arr = {0.0000, 1.0000, 2.0000}, arr_untyped = {0, 10000, ...}, this_ptr = ...}");
 	verify_expression(debugger, "new A::CL()->A_var", "11.0000");
@@ -845,6 +861,9 @@ static TestTask run_scopes_replay_coroutine()
 	verify_expression_invalid(debugger, "Waitframe()", "Cannot call Waitframe for expressions evaluated in the debugger");
 	verify_expression_invalid(debugger, "DebugFunctionCallsWaitframe1()", "Cannot call Waitframe for expressions evaluated in the debugger");
 	verify_expression_invalid(debugger, "DebugFunctionInfiniteLoop(true)", "Detected possible infinite loop, aborting function call");
+	// Quitting from an evaluated function must not quit the script the debugger is paused in.
+	verify_expression_invalid(debugger, "Quit()", "Cannot quit the script from an expression evaluated in the debugger");
+	verify_expression(debugger, "Game->LoadGenericData(Game->GetGenericScript(\"scopes\"))->Running", "true");
 
 	/*
 	int DebugFrames1(int a, int b)
