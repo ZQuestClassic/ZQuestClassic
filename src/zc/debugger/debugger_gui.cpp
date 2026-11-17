@@ -16,6 +16,7 @@
 #include <memory>
 #include <optional>
 #include <string>
+#include <string_view>
 #include <utility>
 #include <vector>
 #include <fmt/ranges.h>
@@ -723,11 +724,19 @@ void DrawLeftPaneContent(Debugger* debugger)
 
 				ImGui::Text("%s", name.c_str());
 
+				// Variables are identified by name, so they stay expanded across steps. Names can
+				// repeat - across groups, and within one when a variable shadows another - so also
+				// identify each by its group and by how many of the same name came before it.
+				ImGui::PushID(name.c_str());
+				std::map<std::string_view, int> name_counts;
 				for (auto& var : variables)
 				{
+					ImGui::PushID(name_counts[var.name]++);
 					std::vector<Variable*> parents;
 					RenderDebugVariable(debugger, var, parents);
+					ImGui::PopID();
 				}
+				ImGui::PopID();
 			}
 		}
 		else
