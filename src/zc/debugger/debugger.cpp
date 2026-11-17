@@ -1129,18 +1129,15 @@ std::string Debugger::ValueToStringSummary(DebugValue value)
 	{
 		auto scope = &zasm_debug_data.scopes[type->extra];
 		auto symbols = zasm_debug_data.getChildSymbols(scope);
-		bool isFixed = scope->type_id == TYPE_INT;
+		bool isFixed = !type->isLongValued(zasm_debug_data);
 		if (type->tag == TYPE_BITFLAGS && (!isFixed || (value.raw_value % FIXED_ONE) == 0))
 		{
 			std::string result;
-			uint32_t remaining = value.raw_value;
-			if (isFixed)
-				remaining /= FIXED_ONE;
+			// Divide while still signed: a negative value (ex. `~FLAG`) must keep its bits.
+			uint32_t remaining = isFixed ? value.raw_value / FIXED_ONE : value.raw_value;
 			for (auto s : symbols)
 			{
-				uint32_t flag = s->offset;
-				if (isFixed)
-					flag /= FIXED_ONE;
+				uint32_t flag = isFixed ? s->offset / FIXED_ONE : s->offset;
 
 				if (flag == 0) continue;
 

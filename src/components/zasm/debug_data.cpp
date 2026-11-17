@@ -122,6 +122,16 @@ bool DebugType::isFixed(const DebugData& debug_data) const
 	return asNonConst(debug_data)->tag == TYPE_INT;
 }
 
+bool DebugType::isLongValued(const DebugData& debug_data) const
+{
+	auto type = asNonConst(debug_data);
+	if (type->tag == TYPE_LONG)
+		return true;
+	if (type->tag == TYPE_ENUM || type->tag == TYPE_BITFLAGS)
+		return debug_data.scopes[type->extra].type_id == TYPE_LONG;
+	return false;
+}
+
 bool DebugType::isLong(const DebugData& debug_data) const
 {
 	return asNonConst(debug_data)->tag == TYPE_LONG;

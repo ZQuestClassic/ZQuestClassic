@@ -599,7 +599,7 @@ DebugValue ExpressionEvaluator::evaluate(std::shared_ptr<ExprNode> node)
 			{
 				// The engine's bitwise-not works on the integer part for fixed values
 				// (do_bitwisenot); longs operate on the raw value (do_bitwisenot32).
-				if (val.type->isFixed(debugData))
+				if (!val.type->isLongValued(debugData))
 					val.raw_value = ~(val.raw_value / FIXED_ONE) * FIXED_ONE;
 				else
 					val.raw_value = ~val.raw_value;
@@ -870,7 +870,7 @@ DebugValue ExpressionEvaluator::evalBinaryOp(const std::string& op, DebugValue l
 	if (lType->isString(debugData) || rType->isString(debugData))
 		throw std::runtime_error("Binary operations on strings not supported.");
 
-	bool resultIsFixed = l.type->isFixed(debugData) || r.type->isFixed(debugData);
+	bool resultIsFixed = !l.type->isLongValued(debugData) || !r.type->isLongValued(debugData);
 
 	if (lType->tag == TYPE_BITFLAGS)
 	{
@@ -881,8 +881,7 @@ DebugValue ExpressionEvaluator::evalBinaryOp(const std::string& op, DebugValue l
 		{
 			DebugValue res = l;
 
-			auto scope = &debugData.scopes[lType->extra];
-			bool fixed = scope->type_id == TYPE_INT;
+			bool fixed = !lType->isLongValued(debugData);
 			int l_val = fixed ? l.raw_value / FIXED_ONE : l.raw_value;
 			int r_val = fixed ? r.raw_value / FIXED_ONE : r.raw_value;
 

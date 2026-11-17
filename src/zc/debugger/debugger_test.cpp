@@ -659,6 +659,9 @@ static TestTask run_scopes_replay_coroutine()
 	verify_expression(debugger, "arr6[0]->arr[1]", "1.0000");
 	verify_expression(debugger, "arr6[0]->arr_untyped", "{0, 10000, CL {A_var = 11.0000, arr = {0.0000, 1.0000, 2.0000}, arr_untyped = ..., this_ptr = ...}}");
 	verify_expression(debugger, "arr6[0]->arr_untyped[1]", "10000");
+	// Untyped values are fixed-point, same as an int.
+	verify_expression(debugger, "arr6[0]->arr_untyped[1] * arr6[0]->arr_untyped[1]", "1.0000");
+	verify_expression(debugger, "~arr6[0]->arr_untyped[1]", "-20000");
 	verify_expression(debugger, "arr6[0]->arr_untyped[2]", "CL {A_var = 11.0000, arr = {0.0000, 1.0000, 2.0000}, arr_untyped = {0, 10000, ...}, this_ptr = ...}");
 
 	verify_expression(debugger, "arr1[1] = 100", "100.0000");
@@ -758,6 +761,12 @@ static TestTask run_scopes_replay_coroutine()
 		DebugValue val{170000, blitflags_type};
 		assertEqual(debugger->ValueToStringSummary(val), "(BlitModeBitflags) BITDX_TRANS | 0x10"s);
 	}
+	// `~` works on the integer part of a bitflags value, like for any int - so it can clear a flag.
+	verify_expression(debugger, "(BITDX_TRANS | BITDX_PIVOT) & ~BITDX_PIVOT", "(BlitModeBitflags) BITDX_TRANS");
+	verify_expression(debugger, "~~BITDX_TRANS", "(BlitModeBitflags) BITDX_TRANS");
+	// Enums are fixed-point values, same as an int.
+	verify_expression(debugger, "Enum_B + Enum_B", "2.0000");
+	verify_expression(debugger, "Enum_B * Enum_B", "1.0000");
 	verify_expression(debugger, "NUM_COMBO_POS", "176.0000");
 	verify_expression(debugger, "OP_OPAQUE", "128.0000");
 
