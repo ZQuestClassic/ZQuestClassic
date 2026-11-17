@@ -116,6 +116,25 @@ std::string GetScriptTypeName(ScriptType type)
 	}
 }
 
+// The data of the running script (including one that is waiting for a later frame) with this
+// refInfo, if any. Only compares the pointer, so it's safe to give one that was since destroyed.
+ScriptEngineData* FindRunningScriptData(const refInfo* script_ri)
+{
+	for (auto& named_data : active_object_dtor_script_datas)
+	{
+		if (&named_data->data->ref == script_ri)
+			return named_data->data.get();
+	}
+
+	for (auto& data : scriptEngineDatas | std::views::values)
+	{
+		if (data.initialized && &data.ref == script_ri)
+			return &data;
+	}
+
+	return nullptr;
+}
+
 } // end namespace
 
 Debugger::Debugger()
@@ -467,26 +486,7 @@ Breakpoint* Debugger::CheckValueChangeBreakpoints(pc_t pc)
 	if (ri != value_bp_cached_ri)
 	{
 		value_bp_cached_ri = ri;
-		value_bp_cached_data = nullptr;
-		for (auto& named_data : active_object_dtor_script_datas)
-		{
-			if (&named_data->data->ref == ri)
-			{
-				value_bp_cached_data = named_data->data.get();
-				break;
-			}
-		}
-		if (!value_bp_cached_data)
-		{
-			for (auto& data : scriptEngineDatas | std::views::values)
-			{
-				if (&data.ref == ri)
-				{
-					value_bp_cached_data = &data;
-					break;
-				}
-			}
-		}
+		value_bp_cached_data = FindRunningScriptData(ri);
 	}
 
 	ScriptEngineData* prev_data = vm.current_data;
@@ -1677,6 +1677,12 @@ void zscript_debugger_update()
 {
 	if (!debugger)
 		return;
+
+	// A step only ends within the script being stepped. If that script ended first, it never
+	// will, so stop stepping.
+	bool is_stepping = debugger->state == Debugger::State::StepOver || debugger->state == Debugger::State::StepInto || debugger->state == Debugger::State::StepOut;
+	if (is_stepping && debugger->target_state == debugger->state && !FindRunningScriptData(debugger->last_ri))
+		debugger->SetState(Debugger::State::Playing);
 
 	if (!zscript_debugger_gui_update(debugger.get()))
 		zscript_debugger_close();

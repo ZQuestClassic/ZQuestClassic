@@ -1072,8 +1072,10 @@ static TestTask run_call_limit_replay_coroutine()
 	assertTrue(std::ranges::none_of(debugger->breakpoints_deduped, [](auto& bp){ return bp.source_file; }));
 	debugger->Init();
 
+	// The recursion never returns, so stepping out of it runs until the script is stopped for
+	// calling too deep. See the check after this replay ends.
 	debugger->RemoveBreakpoints();
-	debugger->SetState(Debugger::State::Playing);
+	debugger->SetState(Debugger::State::StepOut);
 }
 
 // Plays a replay, driving `task` once per frame until it finishes.
@@ -1170,7 +1172,12 @@ TestResults test_debugger([[maybe_unused]] bool verbose)
 	});
 
 	TEST("call_limit.zplay", tr, [](){
-		return run_replay_test(run_call_limit_replay_coroutine(), test_dir + "/replays/playground/auto_call_limit.zplay");
+		bool success = run_replay_test(run_call_limit_replay_coroutine(), test_dir + "/replays/playground/auto_call_limit.zplay");
+		// The test left the debugger stepping out of a script that then ended. Nothing is left to
+		// step through, so the debugger must have gone back to just playing. The game exits right
+		// after that script ends, so this can only be checked here.
+		assertTrue(zscript_debugger_open()->state == Debugger::State::Playing);
+		return success;
 	});
 
 	return tr;
