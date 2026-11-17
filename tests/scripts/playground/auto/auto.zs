@@ -40,6 +40,7 @@
 #include "auto/bug_opt_bool_compare_seti.zs"
 #include "auto/bug_opt_push_global_write.zs"
 #include "auto/bug_opt_var_across_waitframe.zs"
+#include "auto/bug_printf_long_chunk.zs"
 #include "auto/bug_reflected_eweapon_kept_script.zs"
 #include "auto/bug_reflected_eweapon_owned_leak.zs"
 #include "auto/bug_region_enemies_first_load.zs"

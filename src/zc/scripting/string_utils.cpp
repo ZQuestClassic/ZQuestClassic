@@ -213,7 +213,8 @@ std::string zs_sprintf(const char* format, int32_t num_args, std::function<int32
 			oss << format;
 			return oss.str();
 		}
-		char buf[256] = {0};
+		// One more than the 256 characters filled below, so a full chunk stays terminated.
+		char buf[257] = {0};
 		for ( int32_t q = 0; q < 256; ++q )
 		{
 			if(format[0] == '\0') //done
