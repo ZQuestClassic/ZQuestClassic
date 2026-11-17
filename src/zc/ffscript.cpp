@@ -10419,7 +10419,16 @@ int32_t run_script_int(JittedScriptInstance* j_instance)
 					scommand = 0xFFFF;
 					break;
 				}
-				ri->pc = (get_register(sarg1) / 10000) - 1;
+				// The compiler only jumps back to a pc it saved, but hand-written ZASM can jump
+				// anywhere, and the next command would be read from there.
+				int32_t target = (get_register(sarg1) / 10000) - 1;
+				if (target < 0 || (size_t)target >= zasm.size())
+				{
+					Z_scripterrlog("GOTOR attempted to jump to an invalid pc (%d).\n", target);
+					scommand = 0xFFFF;
+					break;
+				}
+				ri->pc = target;
 				increment = false;
 			}
 			break;
@@ -10651,7 +10660,15 @@ int32_t run_script_int(JittedScriptInstance* j_instance)
 					ri->pc = MAX_PC;
 					break; //handled below. 'RETURNFUNC' does this better now.
 				}
-				ri->pc = SH::read_stack(ri->sp) - 1;
+				// As with GOTOR, the return pc must be in the script.
+				int32_t target = SH::read_stack(ri->sp) - 1;
+				if (target < 0 || (size_t)target >= zasm.size())
+				{
+					Z_scripterrlog("RETURN attempted to jump to an invalid pc (%d).\n", target);
+					scommand = 0xFFFF;
+					break;
+				}
+				ri->pc = target;
 				++ri->sp;
 				increment = false;
 				break;
