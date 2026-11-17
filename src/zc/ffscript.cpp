@@ -30071,7 +30071,7 @@ void do_setsidewarp()
 	int32_t dmap   = SH::read_stack(ri->sp + 1) / 10000;
 	int32_t type   = SH::read_stack(ri->sp + 0) / 10000;
 	
-	if(BC::checkBounds(warp, -1, 3, "Screen->SetSideWarp") != SH::_NoError ||
+	if(BC::checkBounds(warp, 0, 3, "Screen->SetSideWarp") != SH::_NoError ||
 			BC::checkBounds(scrn, -1, 0x87, "Screen->SetSideWarp") != SH::_NoError ||
 			BC::checkBounds(dmap, -1, MAXDMAPS - 1, "Screen->SetSideWarp") != SH::_NoError ||
 			BC::checkBounds(type, -1, wtMAX - 1, "Screen->SetSideWarp") != SH::_NoError)
@@ -30094,7 +30094,7 @@ void do_settilewarp()
 	int32_t dmap   = SH::read_stack(ri->sp + 1) / 10000;
 	int32_t type   = SH::read_stack(ri->sp + 0) / 10000;
 	
-	if(BC::checkBounds(warp, -1, 3, "Screen->SetTileWarp") != SH::_NoError ||
+	if(BC::checkBounds(warp, 0, 3, "Screen->SetTileWarp") != SH::_NoError ||
 			BC::checkBounds(scrn, -1, 0x87, "Screen->SetTileWarp") != SH::_NoError ||
 			BC::checkBounds(dmap, -1, MAXDMAPS - 1, "Screen->SetTileWarp") != SH::_NoError ||
 			BC::checkBounds(type, -1, wtMAX - 1, "Screen->SetTileWarp") != SH::_NoError)
@@ -30114,7 +30114,7 @@ void do_getsidewarpdmap(const bool v)
 {
 	int32_t warp = SH::get_arg(sarg1, v) / 10000;
 	
-	if(BC::checkBounds(warp, -1, 3, "Screen->GetSideWarpDMap") != SH::_NoError)
+	if(BC::checkBounds(warp, 0, 3, "Screen->GetSideWarpDMap") != SH::_NoError)
 	{
 		set_register(sarg1, -10000);
 		return;
@@ -30127,7 +30127,7 @@ void do_getsidewarpscr(const bool v)
 {
 	int32_t warp = SH::get_arg(sarg1, v) / 10000;
 	
-	if(BC::checkBounds(warp, -1, 3, "Screen->GetSideWarpScreen") != SH::_NoError)
+	if(BC::checkBounds(warp, 0, 3, "Screen->GetSideWarpScreen") != SH::_NoError)
 	{
 		set_register(sarg1, -10000);
 		return;
@@ -30140,7 +30140,7 @@ void do_getsidewarptype(const bool v)
 {
 	int32_t warp = SH::get_arg(sarg1, v) / 10000;
 	
-	if(BC::checkBounds(warp, -1, 3, "Screen->GetSideWarpType") != SH::_NoError)
+	if(BC::checkBounds(warp, 0, 3, "Screen->GetSideWarpType") != SH::_NoError)
 	{
 		set_register(sarg1, -10000);
 		return;
@@ -30153,7 +30153,7 @@ void do_gettilewarpdmap(const bool v)
 {
 	int32_t warp = SH::get_arg(sarg1, v) / 10000;
 	
-	if(BC::checkBounds(warp, -1, 3, "Screen->GetTileWarpDMap") != SH::_NoError)
+	if(BC::checkBounds(warp, 0, 3, "Screen->GetTileWarpDMap") != SH::_NoError)
 	{
 		set_register(sarg1, -10000);
 		return;
@@ -30166,7 +30166,7 @@ void do_gettilewarpscr(const bool v)
 {
 	int32_t warp = SH::get_arg(sarg1, v) / 10000;
 	
-	if(BC::checkBounds(warp, -1, 3, "Screen->GetTileWarpScreen") != SH::_NoError)
+	if(BC::checkBounds(warp, 0, 3, "Screen->GetTileWarpScreen") != SH::_NoError)
 	{
 		set_register(sarg1, -10000);
 		return;
@@ -30179,7 +30179,7 @@ void do_gettilewarptype(const bool v)
 {
 	int32_t warp = SH::get_arg(sarg1, v) / 10000;
 	
-	if(BC::checkBounds(warp, -1, 3, "Screen->GetTileWarpType") != SH::_NoError)
+	if(BC::checkBounds(warp, 0, 3, "Screen->GetTileWarpType") != SH::_NoError)
 	{
 		set_register(sarg1, -10000);
 		return;
