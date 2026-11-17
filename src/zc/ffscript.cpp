@@ -30032,12 +30032,15 @@ void do_mapdataissolid_layer()
 					mapscr* m = GetMapscr(ri->mapsref);
 					if(layer > 0)
 					{
-						if(m->layermap[layer] == 0)
+						// layermap holds the map number + 1 (0 for no layer), and its first entry is
+						// layer 1.
+						int index = (m->layermap[layer - 1] - 1) * MAPSCRS + m->layerscreen[layer - 1];
+						if(m->layermap[layer - 1] == 0 || (unsigned)index >= TheMaps.size())
 						{
 							set_register(sarg1,10000);
 							break;
 						}
-						m = &TheMaps[(m->layermap[layer]*MAPSCRS + m->layerscreen[layer])];
+						m = &TheMaps[index];
 					}
 					set_register(sarg1, (_walkflag_layer(x, y, 1, m) ? 10000 : 0));
 					break;

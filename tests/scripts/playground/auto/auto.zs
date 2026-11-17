@@ -27,6 +27,7 @@
 #include "auto/init_scripts.zs"
 #include "auto/instant_reload_on_death.zs"
 #include "auto/literal_stack_slots.zs"
+#include "auto/mapdata_is_solid_layer.zs"
 #include "auto/stack_limit.zs"
 #include "auto/std_unit.zs"
 #include "auto/trace_types.zs"
