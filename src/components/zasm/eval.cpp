@@ -878,7 +878,8 @@ DebugValue ExpressionEvaluator::evalBinaryOp(const std::string& op, DebugValue l
 	if (lType->isString(debugData) || rType->isString(debugData))
 		throw std::runtime_error("Binary operations on strings not supported.");
 
-	bool resultIsFixed = !l.type->isLongValued(debugData) || !r.type->isLongValued(debugData);
+	// Same as the compiler: the result is a long if either operand is, else an int.
+	bool is_long = l.type->isLongValued(debugData) || r.type->isLongValued(debugData);
 
 	if (lType->tag == TYPE_BITFLAGS)
 	{
@@ -905,53 +906,38 @@ DebugValue ExpressionEvaluator::evalBinaryOp(const std::string& op, DebugValue l
 	}
 
 	DebugValue res{};
-	res.type = resultIsFixed ? &BasicTypes[TYPE_INT] : &BasicTypes[TYPE_LONG];
+	res.type = is_long ? &BasicTypes[TYPE_LONG] : &BasicTypes[TYPE_INT];
 
 	if (op == "|" || op == "&" || op == "^")
 	{
-		// The engine's bitwise ops work on the integer part for fixed values (do_and
-		// etc.); longs operate on the raw value (do_and32 etc.).
-		int32_t l_bits = resultIsFixed ? l_val / FIXED_ONE : l_val;
-		int32_t r_bits = resultIsFixed ? r_val / FIXED_ONE : r_val;
+		// The engine's bitwise ops work on the integer part of fixed values (do_and etc.), and on
+		// the raw values if either is a long (do_and32 etc.).
+		int32_t l_bits = is_long ? l_val : l_val / FIXED_ONE;
+		int32_t r_bits = is_long ? r_val : r_val / FIXED_ONE;
 
 		int32_t bits;
 		if (op == "|") bits = l_bits | r_bits;
 		else if (op == "&") bits = l_bits & r_bits;
 		else bits = l_bits ^ r_bits;
 
-		res.raw_value = resultIsFixed ? bits * FIXED_ONE : bits;
+		res.raw_value = is_long ? bits : bits * FIXED_ONE;
 		return res;
 	}
 
+	// The engine adds and subtracts raw values, but always multiplies and divides as fixed-point -
+	// even longs (do_mult, do_div), so 2L * 3L is 0L.
 	if (op == "+")
 		res.raw_value = l_val + r_val;
 	else if (op == "-")
 		res.raw_value = l_val - r_val;
 	else if (op == "*")
-	{
-		if (resultIsFixed)
-		{
-			int64_t bigRes = (int64_t)l_val * (int64_t)r_val;
-			res.raw_value = (int32_t)(bigRes / FIXED_ONE);
-		}
-		else
-			res.raw_value = l_val * r_val;
-	}
+		res.raw_value = (int32_t)(((int64_t)l_val * r_val) / FIXED_ONE);
 	else if (op == "/")
 	{
 		if (r_val == 0)
 			throw std::runtime_error("Divide by zero");
-		if (resultIsFixed)
-		{
-			int64_t bigL = (int64_t)l_val * FIXED_ONE;
-			res.raw_value = (int32_t)(bigL / r_val);
-		}
-		else
-		{
-			// Divide in 64 bits: INT_MIN / -1 overflows a 32-bit divide (SIGFPE on x86). The
-			// truncation wraps, like the fixed path.
-			res.raw_value = (int32_t)((int64_t)l_val / r_val);
-		}
+		// The 64-bit divide can't overflow, even for INT_MIN / -1. The truncation wraps.
+		res.raw_value = (int32_t)(((int64_t)l_val * FIXED_ONE) / r_val);
 	}
 	else if (op == "%")
 	{

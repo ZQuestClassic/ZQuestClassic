@@ -1017,30 +1017,35 @@ TestResults test_parser([[maybe_unused]] bool verbose)
 			assertEqual(val.raw_value, 3);
 			assertTrue(val.type->isLong(debugData));
 
-			// Mixed math (Fixed + Long = Fixed).
+			// Mixed math is a long, same as the compiler (Fixed + Long = Long).
 			val = eval("1 + 1L");
 			assertEqual(val.raw_value, 10001);
-			assertTrue(val.type->isFixed(debugData));
+			assertTrue(val.type->isLong(debugData));
 
-			// Mixed math (Long + Fixed = Fixed) - commutative case must also produce Fixed type.
+			// Long + Fixed = Long.
 			val = eval("1L + 1");
 			assertEqual(val.raw_value, 10001);
-			assertTrue(val.type->isFixed(debugData));
+			assertTrue(val.type->isLong(debugData));
 
-			// Division.
+			// Division. The engine always divides as fixed-point, even longs (do_div).
 			val = eval("10 / 2");
 			assertEqual(val.raw_value, 5 * FIXED_ONE);
 			val = eval("10 / 2L");
 			assertEqual(val.raw_value, 5 * FIXED_ONE * FIXED_ONE);
+			assertTrue(val.type->isLong(debugData));
+			val = eval("6L / 3L");
+			assertEqual(val.raw_value, 2 * FIXED_ONE);
+			assertTrue(val.type->isLong(debugData));
 
-			// Multiplication.
+			// Multiplication. Also always fixed-point (do_mult).
 			val = eval("10 * 2L");
 			assertEqual(val.raw_value, ((10 * FIXED_ONE) * 2) / FIXED_ONE);
-
-			// Long * Fixed must use fixed-point multiply, not plain integer multiply.
 			val = eval("2L * 3");
 			assertEqual(val.raw_value, (int32_t)(((int64_t)2 * (3 * FIXED_ONE)) / FIXED_ONE));
-			assertTrue(val.type->isFixed(debugData));
+			assertTrue(val.type->isLong(debugData));
+			val = eval("2L * 3L");
+			assertEqual(val.raw_value, 0);
+			assertTrue(val.type->isLong(debugData));
 
 			val = eval("2 * 3 * 4");
 			assertEqual(val.raw_value, 24 * FIXED_ONE);
@@ -1048,9 +1053,10 @@ TestResults test_parser([[maybe_unused]] bool verbose)
 			val = eval("24 / 2 / 3");
 			assertEqual(val.raw_value, 4 * FIXED_ONE);
 
-			// INT_MIN / -1 doesn't fit, which crashes a 32-bit divide on x86. It wraps instead.
+			// INT_MIN / -1 doesn't fit, which crashes a 32-bit divide on x86. It wraps instead:
+			// INT_MIN * 10000 / -1 is a multiple of 2^32.
 			val = eval("(-2147483647L - 1L) / -1L");
-			assertEqual(val.raw_value, INT32_MIN);
+			assertEqual(val.raw_value, 0);
 			assertTrue(val.type->isLong(debugData));
 		}
 
@@ -1093,6 +1099,12 @@ TestResults test_parser([[maybe_unused]] bool verbose)
 			assertEqual(val.raw_value, 2);
 			assertTrue(val.type->isLong(debugData));
 			assertEqual(eval("1L | 2L").raw_value, 3);
+
+			// Mixed, the raw values are used: same as the compiler, which uses long ops if either
+			// operand is a long.
+			val = eval("1 | 2L");
+			assertEqual(val.raw_value, FIXED_ONE | 2);
+			assertTrue(val.type->isLong(debugData));
 		}
 
 		// Modulo - works on the raw value for both fixed and long, matching the engine (do_mod).
