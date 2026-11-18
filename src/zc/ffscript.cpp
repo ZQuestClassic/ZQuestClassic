@@ -12925,7 +12925,16 @@ int32_t run_script_int(JittedScriptInstance* j_instance)
 				auto lwuid = SH::read_stack(ri->sp + 2);
 				auto lifttime = SH::read_stack(ri->sp + 1)/10000;
 				auto liftheight = zslongToFix(SH::read_stack(ri->sp + 0));
-				if(weapon* wpn = checkLWpn(lwuid))
+				weapon* wpn = checkLWpn(lwuid);
+				// Only an lweapon can be lifted: the hero holds it outside of every sprite list, and
+				// puts it in Lwpns when released. Any other weapon would stay in its own list too,
+				// and be freed from one list while still in the other.
+				if(wpn && wpn != Hero.lift_wpn && Lwpns.find(wpn) == -1)
+				{
+					scripting_log_error_with_context("Only an lweapon can be lifted");
+					wpn = nullptr;
+				}
+				if(wpn)
 				{
 					Hero.lift(wpn, lifttime, liftheight);
 					if(Lwpns.find(wpn) > -1)
