@@ -723,7 +723,7 @@ void game_set_register(int32_t reg, int32_t value)
 
 		case COMBODDM:
 		{
-			value = vbound(value/10000,0,MAXCOMBOS);
+			value = vbound(value/10000,0,MAXCOMBOS-1);
 			auto result = ResolveGameScreens("Game->SetComboData");
 			if (result.canonical_rpos_handle)
 				result.canonical_rpos_handle.set_data(value);

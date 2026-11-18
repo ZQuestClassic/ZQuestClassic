@@ -589,8 +589,16 @@ void screendata_set_register(int32_t reg, int32_t value)
 			break;
 		}
 		case UNDERCOMBO:
-			scr->undercombo=value/10000;
+		{
+			int cid = value/10000;
+			if (unsigned(cid) >= MAXCOMBOS)
+			{
+				scripting_log_error_with_context("Invalid combo: {}", cid);
+				break;
+			}
+			scr->undercombo = cid;
 			break;
+		}
 		case UNDERCSET:
 			scr->undercset=value/10000;
 			break;
@@ -1063,7 +1071,7 @@ static ArrayRegistrar SCREENDATASIDEWARPDMAP_registrar(SCREENDATASIDEWARPDMAP, [
 static ArrayRegistrar SCREENDATASECRETCOMBO_registrar(SCREENDATASECRETCOMBO, []{
 	static ScriptingArray_ObjectMemberCArray<screendata, &screendata::secretcombo> impl;
 	impl.setMul10000(true);
-	impl.setValueTransform(transforms::vboundInt);
+	impl.setValueTransform(transforms::validate<MAXCOMBOS>);
 	return &impl;
 }());
 

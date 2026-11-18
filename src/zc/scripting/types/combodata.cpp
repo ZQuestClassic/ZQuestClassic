@@ -869,7 +869,7 @@ void combodata_set_register(int32_t reg, int32_t value)
 		{
 			if (!checkComboRef()) break;
 
-			combobuf[GET_REF(combodataref)].liftcmb = vbound(value/10000, 0, MAXCOMBOS);
+			combobuf[GET_REF(combodataref)].liftcmb = vbound(value/10000, 0, MAXCOMBOS-1);
 			break;
 		}
 		case COMBODLIFTGFXSPRITE:
@@ -939,7 +939,7 @@ void combodata_set_register(int32_t reg, int32_t value)
 		{
 			if (!checkComboRef()) break;
 
-			combobuf[GET_REF(combodataref)].liftundercmb = vbound(value/10000, 0, MAXCOMBOS);
+			combobuf[GET_REF(combodataref)].liftundercmb = vbound(value/10000, 0, MAXCOMBOS-1);
 			break;
 		}
 		case COMBODLIFTUNDERCS:
@@ -957,7 +957,21 @@ void combodata_set_register(int32_t reg, int32_t value)
 			break;
 		}
 		case COMBODNEXTC:	SET_COMBO_VAR_BYTE(nextcset); break;					//C
-		case COMBODNEXTD:	SET_COMBO_VAR_INT(nextcombo); break;						//W
+		case COMBODNEXTD:
+		{
+			if (!checkComboRef()) break;
+
+			int cid = value/10000;
+			if (unsigned(cid) >= MAXCOMBOS)
+			{
+				scripting_log_error_with_context("Invalid combo: {}", cid);
+				break;
+			}
+			screen_combo_modify_pre(GET_REF(combodataref));
+			combobuf[GET_REF(combodataref)].nextcombo = cid;
+			screen_combo_modify_post(GET_REF(combodataref));
+			break;
+		}
 		case COMBODNEXTTIMER:	SET_COMBO_VAR_DWORD(nexttimer); break;					//W
 		case COMBODNUMTRIGGERS:
 		{
