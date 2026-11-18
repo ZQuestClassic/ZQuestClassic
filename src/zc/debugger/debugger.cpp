@@ -959,27 +959,6 @@ const Variable* Debugger::FindVariable(const std::string& name) const
 
 void Debugger::UpdateVariables()
 {
-	auto CreateVariable = [&](DebugValue value, std::string name){
-		// Discard const-ness.
-		value.type = value.type->asNonConst(zasm_debug_data);
-		std::string value_str = ValueToStringSummary(value);
-
-		bool expandable = false;
-		if (value.type->isArray(zasm_debug_data) && value.type->extra != TYPE_CHAR32)
-		{
-			expandable = value.raw_value != 0;
-		}
-		else if (value.type->isClass(zasm_debug_data))
-		{
-			expandable = !IsNull(value.raw_value, zasm_debug_data.getTypeName(value.type));
-		}
-
-		ImU32 color = GetColorForType(text_editor.GetPalette(), value.type);
-		Variable var(value, name, value_str, color);
-		var.is_expandable = expandable;
-		return var;
-	};
-
 	variables_version++;
 	variable_groups.clear();
 
@@ -1007,7 +986,7 @@ void Debugger::UpdateVariables()
 				continue;
 
 			DebugValue value = eval.readSymbol(symbol);
-			Variable var = CreateVariable(value, symbol->name);
+			Variable var = CreateVariableFromValue(symbol->name, value);
 			var.symbol = symbol;
 
 			if (symbol->storage == LOC_GLOBAL)
@@ -1040,12 +1019,12 @@ void Debugger::UpdateVariables()
 	{
 		if (watch.expression.empty())
 		{
-			Variable var = CreateVariable(watch.value, watch.value_label);
+			Variable var = CreateVariableFromValue(watch.value_label, watch.value);
 			watch_variables.push_back(var);
 		}
 		else if (auto v = Evaluate(watch.expression, true))
 		{
-			Variable var = CreateVariable(v.value(), watch.expression);
+			Variable var = CreateVariableFromValue(watch.expression, v.value());
 			watch_variables.push_back(var);
 		}
 		else
