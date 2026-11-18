@@ -22180,12 +22180,12 @@ void set_register_slow(int32_t arg, int32_t value)
 			{ \
 				Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", str, indx); \
 			} \
-			else if ( scrn_id > MAPSCRS ) \
+			else if ( scrn_id >= MAPSCRS ) \
 			{ \
 				Z_scripterrlog("Script attempted to use a mapdata->LayerScreen[%d].\n",scrn_id); \
-				Z_scripterrlog("Valid Screen values are (0) through (%d).\n",MAPSCRS); \
+				Z_scripterrlog("Valid Screen values are (0) through (%d).\n",MAPSCRS-1); \
 			} \
-			else tmpscr->member[indx-1] = vbound((scrn_id),0,MAPSCRS); \
+			else tmpscr->member[indx-1] = vbound((scrn_id),0,MAPSCRS-1); \
 		}
 		
 		#define SET_SCREENDATA_FLAG(member, str) \
@@ -22284,7 +22284,13 @@ void set_register_slow(int32_t arg, int32_t value)
 		case SCREENDATACSENSITIVE: 	SET_SCREENDATA_VAR_BYTE(csensitive, "CSensitive"); break;	//B
 		case SCREENDATANORESET: 		SET_SCREENDATA_VAR_INT32(noreset, "NoReset"); break;	//W
 		case SCREENDATANOCARRY: 		SET_SCREENDATA_VAR_INT32(nocarry, "NoCarry"); break;	//W
-		case SCREENDATALAYERMAP:	 	SET_SCREENDATA_LAYER_INDEX(layermap, "LayerMap", 5); break;	//B, 6 OF THESE
+		case SCREENDATALAYERMAP:
+			// Loading the screen reads the layer from this map.
+			if (value / 10000 > map_count)
+				Z_scripterrlog("Invalid map: %d - there are %d maps\n", value / 10000, map_count);
+			else
+				SET_SCREENDATA_LAYER_INDEX(layermap, "LayerMap", 5);
+			break;	//B, 6 OF THESE
 		case SCREENDATALAYERSCREEN: 	SET_SCREENDATA_LAYERSCREEN_INDEX(layerscreen, "LayerScreen", 5); break;	//B, 6 OF THESE
 		case SCREENDATALAYEROPACITY: 	SET_SCREENDATA_LAYER_INDEX(layeropacity, "LayerOpacity", 5); break;	//B, 6 OF THESE
 		case SCREENDATALAYERINVIS: 	
@@ -23116,14 +23122,14 @@ void set_register_slow(int32_t arg, int32_t value)
 			{ \
 				Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", str, indx); \
 			} \
-			else if ( scrn_id > MAPSCRS ) \
+			else if ( scrn_id >= MAPSCRS ) \
 			{ \
 				Z_scripterrlog("Script attempted to use a mapdata->LayerScreen[%d].\n",scrn_id); \
-				Z_scripterrlog("Valid Screen values are (0) through (%d).\n",MAPSCRS); \
+				Z_scripterrlog("Valid Screen values are (0) through (%d).\n",MAPSCRS-1); \
 			} \
 			else if (mapscr *m = GetMapscr(ri->mapsref)) \
 			{ \
-				m->member[indx-1] = vbound((scrn_id),0,MAPSCRS); \
+				m->member[indx-1] = vbound((scrn_id),0,MAPSCRS-1); \
 			} \
 			else \
 			{ \
@@ -23424,7 +23430,13 @@ void set_register_slow(int32_t arg, int32_t value)
 		//! Layer arrays should be a size of 7, and return the current screen / map / and OP_OPAQUE 
 		//! if you try to read 0, so that they correspond to actual layer IDs. 
 		//! 
-		case MAPDATALAYERMAP:	 	SET_MAPDATA_LAYER_INDEX(layermap, "LayerMap", 6); break;	//B, 6 OF THESE
+		case MAPDATALAYERMAP:
+			// Loading the screen reads the layer from this map.
+			if (value / 10000 > map_count)
+				Z_scripterrlog("Invalid map: %d - there are %d maps\n", value / 10000, map_count);
+			else
+				SET_MAPDATA_LAYER_INDEX(layermap, "LayerMap", 6);
+			break;	//B, 6 OF THESE
 		case MAPDATALAYERSCREEN: 	SET_MAPDATA_LAYERSCREEN_INDEX(layerscreen, "LayerScreen", 6); break;	//B, 6 OF THESE
 		case MAPDATALAYEROPACITY: 	SET_MAPDATA_LAYER_INDEX(layeropacity, "LayerOpacity", 6); break;	//B, 6 OF THESE
 		case MAPDATATIMEDWARPTICS: 	SET_MAPDATA_VAR_INT32(timedwarptics, "TimedWarpTimer"); break;	//W
