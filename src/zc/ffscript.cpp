@@ -21904,7 +21904,7 @@ void set_register_slow(int32_t arg, int32_t value)
 				Z_scripterrlog("Invalid Map ID (%d) passed to SetComboData", m);
 				break;
 			}
-			int32_t combo = vbound(value/10000,0,MAXCOMBOS);
+			int32_t combo = vbound(value/10000,0,MAXCOMBOS-1);
 			if(scr==(currmap*MAPSCRS+currscr))
 			{
 				screen_combo_modify_preroutine(tmpscr,pos);
@@ -22359,7 +22359,16 @@ void set_register_slow(int32_t arg, int32_t value)
 		case SCREENDATATIMEDWARPTICS: 	SET_SCREENDATA_VAR_INT32(timedwarptics, "TimedWarpTimer"); break;	//W
 		case SCREENDATANEXTMAP: 		SET_SCREENDATA_VAR_BYTE(nextmap, "NextMap"); break;	//B
 		case SCREENDATANEXTSCREEN: 	SET_SCREENDATA_VAR_BYTE(nextscr, "NextScreen"); break;	//B
-		case SCREENDATASECRETCOMBO: 	SET_SCREENDATA_VAR_INDEX32(secretcombo, "SecretCombo", 127); break;	//W, 128 OF THESE
+		case SCREENDATASECRETCOMBO:
+		{
+			int32_t cid = value/10000;
+			if (unsigned(cid) >= MAXCOMBOS)
+			{
+				Z_scripterrlog("Invalid combo (%d) passed to Screen->SecretCombo[]\n", cid);
+				break;
+			}
+			SET_SCREENDATA_VAR_INDEX32(secretcombo, "SecretCombo", 127); break;	//W, 128 OF THESE
+		}
 		case SCREENDATASECRETCSET: 	SET_SCREENDATA_BYTE_INDEX(secretcset, "SecretCSet", 127); break;	//B, 128 OF THESE
 		case SCREENDATASECRETFLAG: 	SET_SCREENDATA_BYTE_INDEX(secretflag, "SecretFlags", 127); break;	//B, 128 OF THESE
 		case SCREENDATAVIEWX: 		break;//SET_SCREENDATA_VAR_INT32(viewX, "ViewX"); break;	//W
@@ -22851,8 +22860,16 @@ void set_register_slow(int32_t arg, int32_t value)
 			break;
 			
 		case UNDERCOMBO:
-			tmpscr->undercombo=value/10000;
+		{
+			int32_t cid = value/10000;
+			if (unsigned(cid) >= MAXCOMBOS)
+			{
+				Z_scripterrlog("Invalid combo (%d) passed to Screen->UnderCombo\n", cid);
+				break;
+			}
+			tmpscr->undercombo=cid;
 			break;
+		}
 			
 		case UNDERCSET:
 			tmpscr->undercset=value/10000;
@@ -23420,7 +23437,16 @@ void set_register_slow(int32_t arg, int32_t value)
 
 		case MAPDATASIDEWARPDMAP: 	SET_MAPDATA_WARPDMAP_INDEX(sidewarpdmap, "SideWarpDMap", 3); break;	//w, 4 of these
 		case MAPDATASIDEWARPINDEX: 	SET_MAPDATA_VAR_BYTE(sidewarpindex, "SideWarpIndex"); break;	//b
-		case MAPDATAUNDERCOMBO: 	SET_MAPDATA_VAR_INT32(undercombo, "UnderCombo"); break;	//w
+		case MAPDATAUNDERCOMBO:
+		{
+			int32_t cid = value/10000;
+			if (unsigned(cid) >= MAXCOMBOS)
+			{
+				Z_scripterrlog("Invalid combo (%d) passed to mapdata->UnderCombo\n", cid);
+				break;
+			}
+			SET_MAPDATA_VAR_INT32(undercombo, "UnderCombo"); break;	//w
+		}
 		case MAPDATAUNDERCSET:	 	SET_MAPDATA_VAR_BYTE(undercset,	"UnderCSet"); break; //b
 		case MAPDATACATCHALL:	 	SET_MAPDATA_VAR_INT32(catchall,	"Catchall"); break; //W
 
@@ -23442,7 +23468,16 @@ void set_register_slow(int32_t arg, int32_t value)
 		case MAPDATATIMEDWARPTICS: 	SET_MAPDATA_VAR_INT32(timedwarptics, "TimedWarpTimer"); break;	//W
 		case MAPDATANEXTMAP: 		SET_MAPDATA_VAR_BYTE(nextmap, "NextMap"); break;	//B
 		case MAPDATANEXTSCREEN: 	SET_MAPDATA_VAR_BYTE(nextscr, "NextScreen"); break;	//B
-		case MAPDATASECRETCOMBO: 	SET_MAPDATA_VAR_INDEX32(secretcombo, "SecretCombo", 127); break;	//W, 128 OF THESE
+		case MAPDATASECRETCOMBO:
+		{
+			int32_t cid = value/10000;
+			if (unsigned(cid) >= MAXCOMBOS)
+			{
+				Z_scripterrlog("Invalid combo (%d) passed to mapdata->SecretCombo[]\n", cid);
+				break;
+			}
+			SET_MAPDATA_VAR_INDEX32(secretcombo, "SecretCombo", 127); break;	//W, 128 OF THESE
+		}
 		case MAPDATASECRETCSET: 	SET_MAPDATA_BYTE_INDEX(secretcset, "SecretCSet", 127); break;	//B, 128 OF THESE
 		case MAPDATASECRETFLAG: 	SET_MAPDATA_BYTE_INDEX(secretflag, "SecretFlags", 127); break;	//B, 128 OF THESE
 		case MAPDATAVIEWX: 		break;//SET_MAPDATA_VAR_INT32(viewX, "ViewX"); break;	//W
@@ -23482,6 +23517,10 @@ void set_register_slow(int32_t arg, int32_t value)
 			if(indx < 0 || indx > MAXFFCS-1 )
 			{
 				Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", "FFCData", (indx+1));
+			}
+			else if (unsigned(value/10000) >= MAXCOMBOS)
+			{
+				Z_scripterrlog("Invalid combo (%d) passed to mapdata->%s[]\n", value/10000, "FFCData");
 			}
 			else if (mapscr *m = GetMapscr(ri->mapsref))
 			{
@@ -25223,7 +25262,16 @@ void set_register_slow(int32_t arg, int32_t value)
 		}
 		case COMBODFOO:		break;							//W
 		case COMBODFRAMES:	SET_COMBO_VAR_BYTE(frames, "Frames"); break;						//C
-		case COMBODNEXTD:	SET_COMBO_VAR_INT(nextcombo, "NextData"); break;						//W
+		case COMBODNEXTD:
+		{
+			int32_t cid = value/10000;
+			if (unsigned(cid) >= MAXCOMBOS)
+			{
+				Z_scripterrlog("Invalid combo (%d) passed to combodata->NextData\n", cid);
+				break;
+			}
+			SET_COMBO_VAR_INT(nextcombo, "NextData"); break;						//W
+		}
 		case COMBODNEXTC:	SET_COMBO_VAR_BYTE(nextcset, "NextCSet"); break;					//C
 		case COMBODFLAG:	SET_COMBO_VAR_BYTE(flag, "Flag"); break;						//C
 		case COMBODSKIPANIM:	SET_COMBO_VAR_BYTE(skipanim, "SkipAnim"); break;					//C
@@ -25500,7 +25548,7 @@ void set_register_slow(int32_t arg, int32_t value)
 			{
 				Z_scripterrlog("Invalid Combo ID passed to combodata->LiftGFXCombo: %d\n", (ri->combosref*10000));
 			}
-			else combobuf[ri->combosref].liftcmb = vbound(value/10000, 0, MAXCOMBOS);
+			else combobuf[ri->combosref].liftcmb = vbound(value/10000, 0, MAXCOMBOS-1);
 			break;
 		}
 		case COMBODLIFTGFXCCSET:
@@ -25518,7 +25566,7 @@ void set_register_slow(int32_t arg, int32_t value)
 			{
 				Z_scripterrlog("Invalid Combo ID passed to combodata->LiftUnderCombo: %d\n", (ri->combosref*10000));
 			}
-			else combobuf[ri->combosref].liftundercmb = vbound(value/10000, 0, MAXCOMBOS);
+			else combobuf[ri->combosref].liftundercmb = vbound(value/10000, 0, MAXCOMBOS-1);
 			break;
 		}
 		case COMBODLIFTUNDERCS:
