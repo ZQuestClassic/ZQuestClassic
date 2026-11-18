@@ -1782,6 +1782,14 @@ bool enemy::isSubmerged() const
 	//!TODO SOLIDPUSH more things like teleporting wizzrobes
 }
 
+// The eweapon addEwpn just added. If it added none (an invalid weapon id, or the list is full),
+// this is still the last one in the list, which is what callers have always changed; or nullptr if
+// the list is empty.
+static weapon* last_ewpn()
+{
+	return (weapon*)Ewpns.spr(Ewpns.Count()-1);
+}
+
 void enemy::FireBreath(bool seekhero)
 {
 	if(wpn==wNone)
@@ -1850,6 +1858,8 @@ void enemy::FireBreath(bool seekhero)
 	
 	int32_t i=Ewpns.Count()-1;
 	weapon *ew = (weapon*)(Ewpns.spr(i));
+	if (!ew)
+		return;
 	ew->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
 	
 	if(!seekhero && (zc_oldrand()&4))
@@ -1900,28 +1910,27 @@ void enemy::FireWeapon()
 		//Z_scripterrlog("width flag enabled. yoff = %d\n", yoff);
 	}
 
-	// TODO(crash): check that .add succeeds.
 		
 	switch(dmisc1)
 	{
 	case e1t5SHOTS: //BS-Aquamentus
 		Ewpns.add(new weapon(x+xoff,y+yoff,z,wpn,2+(((dir^left)+5)<<3),wdp,dir,-1, getUID(),false));
-		((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->fakez = fakez;
+		if (auto ew = last_ewpn()) ew->fakez = fakez;
 		Ewpns.add(new weapon(x+xoff,y+yoff,z,wpn,2+(((dir^right)+5)<<3),wdp,dir,-1, getUID(),false));
-		((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->fakez = fakez;
+		if (auto ew = last_ewpn()) ew->fakez = fakez;
 		
 		[[fallthrough]];
 	case e1t3SHOTSFAST:
 	case e1t3SHOTS: //Aquamentus
 		Ewpns.add(new weapon(x+xoff,y+yoff,z,wpn,2+(((dir^left)+1)<<3)+(dmisc1==e1t3SHOTSFAST ? 4:0),wdp,dir,-1, getUID(),false));
-		((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->fakez = fakez;
+		if (auto ew = last_ewpn()) ew->fakez = fakez;
 		Ewpns.add(new weapon(x+xoff,y+yoff,z,wpn,2+(((dir^right)+1)<<3)+(dmisc1==e1t3SHOTSFAST ? 4:0),wdp,dir,-1, getUID(),false));
-		((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->fakez = fakez;
+		if (auto ew = last_ewpn()) ew->fakez = fakez;
 
 		[[fallthrough]];
 	default:
 		Ewpns.add(new weapon(x+xoff,y+yoff,z,wpn,2+(dmisc1==e1t3SHOTSFAST || dmisc1==e1tFAST ? 4:0),wdp,wpn==ewFireball2 || wpn==ewFireball ? 0:dir,-1, getUID(),false));
-		((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->fakez = fakez;
+		if (auto ew = last_ewpn()) ew->fakez = fakez;
 		sfx(wpnsfx(wpn),pan(int32_t(x)));
 		break;
 		
@@ -1935,39 +1944,39 @@ void enemy::FireWeapon()
 			slant = right;
 			
 		Ewpns.add(new weapon(x+xoff,y+yoff,z,wpn,2+(((dir^slant)+1)<<3),wdp,wpn==ewFireball2 || wpn==ewFireball ? 0:dir,-1, getUID(),false));
-		((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->fakez = fakez;
+		if (auto ew = last_ewpn()) ew->fakez = fakez;
 		sfx(wpnsfx(wpn),pan(int32_t(x)));
 		break;
 	}
 	
 	case e1t8SHOTS: //Fire Wizzrobe
 		Ewpns.add(new weapon(x+xoff,y+yoff,z,wpn,0,wdp,l_up,-1, getUID(),false));
-		((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->fakez = fakez;
-		((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
+		if (auto ew = last_ewpn()) ew->fakez = fakez;
+		if (auto ew = last_ewpn()) ew->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
 		Ewpns.add(new weapon(x+xoff,y+yoff,z,wpn,0,wdp,l_down,-1, getUID(),false));
-		((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->fakez = fakez;
-		((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
+		if (auto ew = last_ewpn()) ew->fakez = fakez;
+		if (auto ew = last_ewpn()) ew->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
 		Ewpns.add(new weapon(x+xoff,y+yoff,z,wpn,0,wdp,r_up,-1, getUID(),false));
-		((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->fakez = fakez;
-		((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
+		if (auto ew = last_ewpn()) ew->fakez = fakez;
+		if (auto ew = last_ewpn()) ew->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
 		Ewpns.add(new weapon(x+xoff,y+yoff,z,wpn,0,wdp,r_down,-1, getUID(),false));
-		((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->fakez = fakez;
-		((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
+		if (auto ew = last_ewpn()) ew->fakez = fakez;
+		if (auto ew = last_ewpn()) ew->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
 
 		[[fallthrough]];
 	case e1t4SHOTS: //Stalfos 3
 		Ewpns.add(new weapon(x+xoff,y+yoff,z,wpn,0,wdp,up,-1, getUID(),false));
-		((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->fakez = fakez;
-		((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
+		if (auto ew = last_ewpn()) ew->fakez = fakez;
+		if (auto ew = last_ewpn()) ew->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
 		Ewpns.add(new weapon(x+xoff,y+yoff,z,wpn,0,wdp,down,-1, getUID(),false));
-		((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->fakez = fakez;
-		((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
+		if (auto ew = last_ewpn()) ew->fakez = fakez;
+		if (auto ew = last_ewpn()) ew->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
 		Ewpns.add(new weapon(x+xoff,y+yoff,z,wpn,0,wdp,left,-1, getUID(),false));
-		((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->fakez = fakez;
-		((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
+		if (auto ew = last_ewpn()) ew->fakez = fakez;
+		if (auto ew = last_ewpn()) ew->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
 		Ewpns.add(new weapon(x+xoff,y+yoff,z,wpn,0,wdp,right,-1, getUID(),false));
-		((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->fakez = fakez;
-		((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
+		if (auto ew = last_ewpn()) ew->fakez = fakez;
+		if (auto ew = last_ewpn()) ew->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
 		sfx(wpnsfx(wpn),pan(int32_t(x)));
 		break;
 		
@@ -10935,21 +10944,21 @@ bool eStalfos::animate(int32_t index)
 				
 				dummy_bool[0]=true;
 				addEwpn(x,y,z,wpn2,0,dmisc4,up, getUID(), 0, fakez);
-				((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
+				if (auto ew = last_ewpn()) ew->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
 				addEwpn(x,y,z,wpn2,0,dmisc4,down, getUID(), 0, fakez);
-				((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
+				if (auto ew = last_ewpn()) ew->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
 				addEwpn(x,y,z,wpn2,0,dmisc4,left, getUID(), 0, fakez);
-				((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
+				if (auto ew = last_ewpn()) ew->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
 				addEwpn(x,y,z,wpn2,0,dmisc4,right, getUID(), 0, fakez);
-				((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
+				if (auto ew = last_ewpn()) ew->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
 				addEwpn(x,y,z,wpn2,0,dmisc4,l_up, getUID(), 0, fakez);
-				((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
+				if (auto ew = last_ewpn()) ew->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
 				addEwpn(x,y,z,wpn2,0,dmisc4,r_up, getUID(), 0, fakez);
-				((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
+				if (auto ew = last_ewpn()) ew->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
 				addEwpn(x,y,z,wpn2,0,dmisc4,l_down, getUID(), 0, fakez);
-				((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
+				if (auto ew = last_ewpn()) ew->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
 				addEwpn(x,y,z,wpn2,0,dmisc4,r_down, getUID(), 0, fakez);
-				((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
+				if (auto ew = last_ewpn()) ew->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
 				sfx(wpnsfx(wpn2),pan(int32_t(x)));
 			}
 		}
@@ -11389,7 +11398,7 @@ bool eStalfos::animate(int32_t index)
 		int32_t i=Ewpns.Count()-1;
 		weapon *ew = (weapon*)(Ewpns.spr(i));
 		
-		if(wpn==ewFIRETRAIL && wpnsbuf[ewFIRETRAIL].frames>1)
+		if(ew && wpn==ewFIRETRAIL && wpnsbuf[ewFIRETRAIL].frames>1)
 		{
 			ew->aframe=zc_oldrand()%wpnsbuf[ewFIRETRAIL].frames;
 			if ( ew->do_animation ) ew->tile+=ew->aframe;
@@ -11461,7 +11470,7 @@ bool eStalfos::animate(int32_t index)
 				if(!fired&&(clk5>=38))
 				{
 					Ewpns.add(new weapon(x,y,z, wpn, 0, wdp, dir, -1,getUID(),false));
-					((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->fakez = fakez;
+					if (auto ew = last_ewpn()) ew->fakez = fakez;
 					sfx(wpnsfx(wpn),pan(int32_t(x)));
 					fired=true;
 				}
@@ -12307,21 +12316,21 @@ void eWizzrobe::wizzrobe_attack_for_real()
 	else if(dmisc2 == 1) // ring of fire
 	{
 		addEwpn(x,y,z,wpn,0,wdp,up,getUID(), 0, fakez);
-		((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
+		if (auto ew = last_ewpn()) ew->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
 		addEwpn(x,y,z,wpn,0,wdp,down,getUID(), 0, fakez);
-		((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
+		if (auto ew = last_ewpn()) ew->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
 		addEwpn(x,y,z,wpn,0,wdp,left,getUID(), 0, fakez);
-		((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
+		if (auto ew = last_ewpn()) ew->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
 		addEwpn(x,y,z,wpn,0,wdp,right,getUID(), 0, fakez);
-		((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
+		if (auto ew = last_ewpn()) ew->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
 		addEwpn(x,y,z,wpn,0,wdp,l_up,getUID(), 0, fakez);
-		((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
+		if (auto ew = last_ewpn()) ew->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
 		addEwpn(x,y,z,wpn,0,wdp,r_up,getUID(), 0, fakez);
-		((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
+		if (auto ew = last_ewpn()) ew->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
 		addEwpn(x,y,z,wpn,0,wdp,l_down,getUID(), 0, fakez);
-		((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
+		if (auto ew = last_ewpn()) ew->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
 		addEwpn(x,y,z,wpn,0,wdp,r_down,getUID(), 0, fakez);
-		((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
+		if (auto ew = last_ewpn()) ew->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
 		sfx(WAV_FIRE,pan(int32_t(x)));
 	if (get_qr(qr_8WAY_SHOT_SFX)) sfx(WAV_FIRE,pan(int32_t(x))); 
 	else
@@ -16774,7 +16783,7 @@ bool ePatra::animate(int32_t index)
 										int32_t m=Ewpns.Count()-1;
 										weapon *ew = (weapon*)(Ewpns.spr(m));
 										
-										ew->setAngle(zc::math::ArcTan2(double(HeroY()-y),double(HeroX()-x)));
+										if (ew) ew->setAngle(zc::math::ArcTan2(double(HeroY()-y),double(HeroX()-x)));
 										((esPatra*)guys.spr(i))->clk5 = 0;
 										clk5 = 0;
 										if (editorflags & ENEMY_FLAG6) clk4 = 16;
@@ -16787,7 +16796,7 @@ bool ePatra::animate(int32_t index)
 									int32_t m=Ewpns.Count()-1;
 									weapon *ew = (weapon*)(Ewpns.spr(m));
 									
-									ew->setAngle(zc::math::ArcTan2(double(HeroY()-y),double(HeroX()-x)));
+									if (ew) ew->setAngle(zc::math::ArcTan2(double(HeroY()-y),double(HeroX()-x)));
 								}
 								break;
 							}
@@ -16895,24 +16904,24 @@ void ePatra::FirePatraWeapon()
 			if (dmisc28 != patrat4SHOTRAND || (zc_oldrand()%2)) //if it's the 4 shot rand type, only let it through half the time. Break is within so it doesn't do both, but if it skips this one it'll always do the other one.
 			{
 				Ewpns.add(new weapon(x+xoff,y+yoff,z,wpn,1,wdp,l_up,-1, getUID(),false));
-				((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->fakez = fakez;
-				((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
-				if (wpn != ewFlame && wpn != ewFlame2)  ((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->step *= .707; //Fire already does this internall for asome bizarre reason.
+				if (auto ew = last_ewpn()) ew->fakez = fakez;
+				if (auto ew = last_ewpn()) ew->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
+				if (wpn != ewFlame && wpn != ewFlame2) if (auto ew = last_ewpn()) ew->step *= .707; //Fire already does this internall for asome bizarre reason.
 				
 				Ewpns.add(new weapon(x+xoff,y+yoff,z,wpn,1,wdp,l_down,-1, getUID(),false));
-				((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->fakez = fakez;
-				((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
-				if (wpn != ewFlame && wpn != ewFlame2)  ((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->step *= .707; //Fire already does this internall for asome bizarre reason.
+				if (auto ew = last_ewpn()) ew->fakez = fakez;
+				if (auto ew = last_ewpn()) ew->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
+				if (wpn != ewFlame && wpn != ewFlame2) if (auto ew = last_ewpn()) ew->step *= .707; //Fire already does this internall for asome bizarre reason.
 				
 				Ewpns.add(new weapon(x+xoff,y+yoff,z,wpn,1,wdp,r_up,-1, getUID(),false));
-				((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->fakez = fakez;
-				((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
-				if (wpn != ewFlame && wpn != ewFlame2)  ((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->step *= .707; //Fire already does this internall for asome bizarre reason.
+				if (auto ew = last_ewpn()) ew->fakez = fakez;
+				if (auto ew = last_ewpn()) ew->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
+				if (wpn != ewFlame && wpn != ewFlame2) if (auto ew = last_ewpn()) ew->step *= .707; //Fire already does this internall for asome bizarre reason.
 				
 				Ewpns.add(new weapon(x+xoff,y+yoff,z,wpn,1,wdp,r_down,-1, getUID(),false));
-				((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->fakez = fakez;
-				((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
-				if (wpn != ewFlame && wpn != ewFlame2)  ((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->step *= .707; //Fire already does this internall for asome bizarre reason.
+				if (auto ew = last_ewpn()) ew->fakez = fakez;
+				if (auto ew = last_ewpn()) ew->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
+				if (wpn != ewFlame && wpn != ewFlame2) if (auto ew = last_ewpn()) ew->step *= .707; //Fire already does this internall for asome bizarre reason.
 				
 				if (dmisc28 == patrat4SHOTDIAG || dmisc28 == patrat4SHOTRAND) break;
 			}	
@@ -16920,44 +16929,60 @@ void ePatra::FirePatraWeapon()
 			[[fallthrough]];
 		case patrat4SHOTCARD: //Stalfos 3
 			Ewpns.add(new weapon(x+xoff,y+yoff,z,wpn,1,wdp,up,-1, getUID(),false));
-			((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->fakez = fakez;
-			((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
+			if (auto ew = last_ewpn()) ew->fakez = fakez;
+			if (auto ew = last_ewpn()) ew->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
 			Ewpns.add(new weapon(x+xoff,y+yoff,z,wpn,1,wdp,down,-1, getUID(),false));
-			((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->fakez = fakez;
-			((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
+			if (auto ew = last_ewpn()) ew->fakez = fakez;
+			if (auto ew = last_ewpn()) ew->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
 			Ewpns.add(new weapon(x+xoff,y+yoff,z,wpn,1,wdp,left,-1, getUID(),false));
-			((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->fakez = fakez;
-			((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
+			if (auto ew = last_ewpn()) ew->fakez = fakez;
+			if (auto ew = last_ewpn()) ew->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
 			Ewpns.add(new weapon(x+xoff,y+yoff,z,wpn,1,wdp,right,-1, getUID(),false));
-			((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->fakez = fakez;
-			((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
+			if (auto ew = last_ewpn()) ew->fakez = fakez;
+			if (auto ew = last_ewpn()) ew->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
 			break;
 		
 		default:
 			addEwpn(x,y,z,wpn,3,wdp,dir,getUID(), 0, fakez);
-			if (dmisc28 == patratBREATH) ((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->angle += (zc_rand(20,-20)/100.0)*PI;
-			double anglestore = ((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->angle;
-			if (dmisc28 == patrat1SHOTFAST || dmisc28 == patrat3SHOTFAST || dmisc28 == patrat5SHOTFAST) ((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->step *= 2;
+			double anglestore = 0;
+			if (auto ew = last_ewpn())
+			{
+				if (dmisc28 == patratBREATH) ew->angle += (zc_rand(20,-20)/100.0)*PI;
+				anglestore = ew->angle;
+				if (dmisc28 == patrat1SHOTFAST || dmisc28 == patrat3SHOTFAST || dmisc28 == patrat5SHOTFAST) ew->step *= 2;
+			}
 			if (dmisc28 == patrat3SHOT || dmisc28 == patrat3SHOTFAST || dmisc28 == patrat5SHOT || dmisc28 == patrat5SHOTFAST)
 			{
 				addEwpn(x,y,z,wpn,3,wdp,dir,getUID(), 0, fakez);
-				((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->angle = anglestore + (double)0.46364761;
-				((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->step += 0.1180;
-				if (dmisc28 == patrat3SHOTFAST || dmisc28 == patrat5SHOTFAST) ((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->step *= 2;
+				if (auto ew = last_ewpn())
+				{
+					ew->angle = anglestore + (double)0.46364761;
+					ew->step += 0.1180;
+					if (dmisc28 == patrat3SHOTFAST || dmisc28 == patrat5SHOTFAST) ew->step *= 2;
+				}
 				addEwpn(x,y,z,wpn,3,wdp,dir,getUID(), 0, fakez);
-				((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->angle = anglestore - (double)0.46364761;
-				((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->step += 0.1180;
-				if (dmisc28 == patrat3SHOTFAST || dmisc28 == patrat5SHOTFAST) ((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->step *= 2;
+				if (auto ew = last_ewpn())
+				{
+					ew->angle = anglestore - (double)0.46364761;
+					ew->step += 0.1180;
+					if (dmisc28 == patrat3SHOTFAST || dmisc28 == patrat5SHOTFAST) ew->step *= 2;
+				}
 				if (dmisc28 == patrat5SHOT || dmisc28 == patrat5SHOTFAST)
 				{
 					addEwpn(x,y,z,wpn,3,wdp,dir,getUID(), 0, fakez);
-					((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->angle = anglestore + (double)0.78539816;
-					((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->step += 0.4142;
-					if (dmisc28 == patrat5SHOTFAST) ((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->step *= 2;
+					if (auto ew = last_ewpn())
+					{
+						ew->angle = anglestore + (double)0.78539816;
+						ew->step += 0.4142;
+						if (dmisc28 == patrat5SHOTFAST) ew->step *= 2;
+					}
 					addEwpn(x,y,z,wpn,3,wdp,dir,getUID(), 0, fakez);
-					((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->angle = anglestore - (double)0.78539816;
-					((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->step += 0.4142;
-					if (dmisc28 == patrat5SHOTFAST) ((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->step *= 2;
+					if (auto ew = last_ewpn())
+					{
+						ew->angle = anglestore - (double)0.78539816;
+						ew->step += 0.4142;
+						if (dmisc28 == patrat5SHOTFAST) ew->step *= 2;
+					}
 				}
 			}
 			break;
@@ -17521,7 +17546,9 @@ void addEwpn(int32_t x,int32_t y,int32_t z,int32_t id,int32_t type,int32_t power
 {
 	if(id>wEnemyWeapons || (id >= wScript1 && id <= wScript10))
 		Ewpns.add(new weapon((zfix)x,(zfix)y,(zfix)z,id,type,power,dir, -1, parentid, script_generated));
-	if (fakez > 0) ((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->fakez = fakez;
+	if (fakez > 0)
+		if (auto ew = last_ewpn())
+			ew->fakez = fakez;
 }
 
 int32_t hit_enemy(int32_t index, int32_t wpnId,int32_t power,int32_t wpnx,int32_t wpny,int32_t dir, int32_t enemyHitWeapon, weapon* realweap)
