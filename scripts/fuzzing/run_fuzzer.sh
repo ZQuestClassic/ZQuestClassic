@@ -4,7 +4,8 @@
 #   bash scripts/fuzzing/run_fuzzer.sh <target> [jobs] [extra libFuzzer flags...]
 #
 # Crashes land in .tmp/fuzz/artifacts/<target>/, the growing corpus in .tmp/fuzz/corpus/<target>/,
-# and the output of each run in .tmp/fuzz/logs/<target>/. Stop it with Ctrl+C; running it again
+# the output of each run in .tmp/fuzz/logs/<target>/<time>.log, and the full report of each crash
+# in .tmp/fuzz/logs/<target>/<time>-asan/. Stop it with Ctrl+C; running it again
 # picks up where it left off.
 
 set -e
@@ -21,6 +22,12 @@ source "$( dirname -- "${BASH_SOURCE[0]}" )/common.sh"
 # qst corpus's coverage at 256 KB), so it is best as a second run next to one at the full limit.
 MAX_LEN=${MAX_LEN:-8388608}
 
+# In fork mode libFuzzer keeps only the first line of a crashing job's output, so ASan writes its
+# reports to files instead (one per process, named by pid).
+STAMP=$(date +%Y%m%d-%H%M%S)-$$
+mkdir -p "$FUZZ/logs/$TARGET/$STAMP-asan"
+export ASAN_OPTIONS="$ASAN_OPTIONS:log_path=$FUZZ/logs/$TARGET/$STAMP-asan/asan"
+
 ./zplayer \
     -fork="$JOBS" \
     -ignore_crashes=1 -ignore_timeouts=1 -ignore_ooms=1 \
@@ -29,4 +36,4 @@ MAX_LEN=${MAX_LEN:-8388608}
     -max_len="$MAX_LEN" \
     -artifact_prefix="$FUZZ/artifacts/$TARGET/" \
     "$@" \
-    "$FUZZ/corpus/$TARGET" $SEEDS 2>&1 | tee "$FUZZ/logs/$TARGET/$(date +%Y%m%d-%H%M%S)-$$.log"
+    "$FUZZ/corpus/$TARGET" $SEEDS 2>&1 | tee "$FUZZ/logs/$TARGET/$STAMP.log"

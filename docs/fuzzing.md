@@ -82,7 +82,9 @@ ZC_FUZZ=unpack ./zplayer quest.qst ../.tmp/fuzz/corpus/qst/quest.qst
 - Leak detection is off (`detect_leaks=0`): the loaders' globals make it noisy, and it is not what
   these look for.
 - Some crashes only happen after earlier inputs in the same process (left over global state) and
-  won't reproduce from the artifact alone. The fuzzer's log in `.tmp/fuzz/logs` has their stacks.
+  won't reproduce from the artifact alone. Their stacks are in the `-asan` folder next to the
+  run's log in `.tmp/fuzz/logs/<target>/`: libFuzzer's own log keeps only the first line of each
+  crash (timeouts included). The reports there don't name the input.
 - The `zasm` target's jumps only go forward, it limits calls and never writes the `PC` register,
   so every script ends. Commands that touch files or the network, end the game, or run whole
   frames are left out.

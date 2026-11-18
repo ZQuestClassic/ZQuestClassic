@@ -14,8 +14,10 @@ mkdir -p "$FUZZ/corpus/$TARGET" "$FUZZ/artifacts/$TARGET" "$FUZZ/logs/$TARGET"
 SEEDS=$FUZZ/seeds/$TARGET
 [ -d "$SEEDS" ] || SEEDS=
 
-# Leaks are not what this is looking for, and the loaders' globals make them noisy.
-export ASAN_OPTIONS=${ASAN_OPTIONS:-detect_leaks=0:allocator_may_return_null=1}
+# Leaks are not what this is looking for, and the loaders' globals make them noisy. handle_abort
+# gives failed asserts and CHECKs a full ASan report, rather than libFuzzer's one-line "deadly
+# signal".
+export ASAN_OPTIONS=${ASAN_OPTIONS:-detect_leaks=0:allocator_may_return_null=1:handle_abort=1}
 # Symbolized stacks in the log, for crashes that only happen after earlier inputs (and so may not
 # reproduce from the artifact alone).
 if [ -z "$ASAN_SYMBOLIZER_PATH" ]; then
