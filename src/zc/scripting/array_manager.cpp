@@ -322,6 +322,21 @@ ArrayManager::ArrayManager(int32_t ptr, bool neg) : negAccess(neg)
 
 ArrayManager::ArrayManager(int32_t ptr) : ArrayManager(ptr,can_neg_array){}
 
+ArrayManager::~ArrayManager()
+{
+	if (pinned_array)
+		script_object_unpin(pinned_array);
+}
+
+void ArrayManager::pin_array()
+{
+	if (script_array_object && !pinned_array)
+	{
+		pinned_array = script_array_object;
+		script_object_pin(pinned_array);
+	}
+}
+
 int32_t ArrayManager::get(int32_t indx) const
 {
 	if(_invalid)
@@ -376,6 +391,7 @@ void ArrayManager::set(int32_t indx, int32_t val, script_object_type type)
 		// If the array is capable of holding objects, we must manage lifecycles.
 		if (is_typed_obj_array || is_untyped_array)
 		{
+			pin_array();
 			if (is_typed_obj_array || (is_untyped_array && is_value_object))
 				script_object_ref_inc(val);
 
@@ -478,6 +494,7 @@ bool ArrayManager::resize(size_t newsize)
 		log_invalid_operation();
 		return false;
 	}
+	pin_array();
 	if (aptr->HoldsObjects())
 	{
 		for (int i = newsize; i < aptr->Size(); i++)

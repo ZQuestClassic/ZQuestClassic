@@ -4,6 +4,7 @@
 #include "auto/arrays.zs"
 #include "auto/bitmap_load_rt_screen.zs"
 #include "auto/bug_arc_fill.zs"
+#include "auto/bug_array_freed_while_written.zs"
 #include "auto/bug_bitmap_blit_source_oob.zs"
 #include "auto/bug_block_unblockable_ignores_shields.zs"
 #include "auto/bug_bomb_blast_no_coll_when_still.zs"

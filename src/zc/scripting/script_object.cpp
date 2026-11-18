@@ -389,6 +389,16 @@ static void script_object_ref_dec(script_object_base* object)
 	}
 }
 
+void script_object_pin(script_object_base* object)
+{
+	object->ref_count++;
+}
+
+void script_object_unpin(script_object_base* object)
+{
+	script_object_ref_dec(object);
+}
+
 void script_object_ref_dec(uint32_t id)
 {
 	if (!id)
