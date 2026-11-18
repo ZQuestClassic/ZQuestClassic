@@ -455,7 +455,10 @@ bool run_fuzz_script(std::shared_ptr<zasm_script> zs, bool optimize_and_jit)
 		valid = false;
 	globalscripts[fuzz_global_slot] = prev;
 
+	// Releasing what the script held is where references it forged show up.
 	FFCore.reset_script_engine_data(ScriptType::Global, fuzz_global_slot);
+	if (fuzz_invalid_zasm)
+		valid = false;
 	if (j_script)
 		jit_release(j_script);
 	fuzz_script_data->zasm_script = nullptr;

@@ -369,7 +369,9 @@ static void script_object_ref_dec(script_object_base* object)
 	if (object->ref_count <= 0)
 	{
 		scripting_log_error_with_context("Invalid object reference decrement in script_object_ref_dec: {}", object->id);
-		DCHECK(object->ref_count > 0);
+		// ZASM can mark any value as an object reference (MARK_TYPE_STACK, REF_DEC, ...), which
+		// releases references that were never taken.
+		ZASM_DCHECK_CONTINUE(object->ref_count > 0);
 		return;
 	}
 

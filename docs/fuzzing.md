@@ -78,7 +78,9 @@ ZC_FUZZ=unpack ./zplayer quest.qst ../.tmp/fuzz/corpus/qst/quest.qst
 - The `zasm` target makes ZASM the compiler never emits, and the engine aborts on some of it on
   purpose. Write those checks as `ZASM_CHECK`, `ZASM_DCHECK` or `ZASM_NOTREACHED` (`zc/scripting/zasm_check.h`):
   they are `CHECK`, `assert` and `NOTREACHED` in every other build, but in a fuzzing build they end
-  the script run and the input is dropped, rather than reported as a crash.
+  the script run and the input is dropped, rather than reported as a crash. Where ending the run
+  isn't possible (ex: after it is over) and the code handles the failure itself, use
+  `ZASM_DCHECK_CONTINUE`: it only drops the input.
 - Leak detection is off (`detect_leaks=0`): the loaders' globals make it noisy, and it is not what
   these look for.
 - Some crashes only happen after earlier inputs in the same process (left over global state) and
