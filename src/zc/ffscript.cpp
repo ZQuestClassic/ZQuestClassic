@@ -7267,6 +7267,18 @@ void FFScript::do_loadbitmapid(const bool v)
 	}
 }
 
+// The screen a sprite a script creates is spawned on. Scripts can set the screen ref to anything,
+// but consumers of screen_spawned need it to be a loaded screen (see SPRITE_SPAWN_SCREEN).
+static int script_spawn_screen()
+{
+	int screen = ri->screenref();
+	if (is_in_current_region(screen))
+		return screen;
+
+	scripting_log_error_with_context("Invalid screen {}: screen is not in the current region", screen);
+	return cur_screen;
+}
+
 void do_createlweapon(const bool v)
 {
 	const int32_t ID = SH::get_arg(sarg1, v) / 10000;
@@ -7297,7 +7309,7 @@ void do_createlweapon(const bool v)
 		);
 		weapon *w = (weapon*)Lwpns.spr(Lwpns.Count()-1); //last created
 		ri->lwpnref() = w->getUID();
-		w->screen_spawned = ri->screenref();
+		w->screen_spawned = script_spawn_screen();
 		w->ScriptGenerated = 1;
 		w->isLWeapon = 1;
 		if(ID == wWind) w->specialinfo = 1;
@@ -7326,7 +7338,7 @@ void do_createeweapon(const bool v)
 		if( ID > wEnemyWeapons || ( ID >= wScript1 && ID <= wScript10) )
 		{
 			weapon *w = (weapon*)Ewpns.spr(Ewpns.Count()-1); //last created
-			w->screen_spawned = ri->screenref();
+			w->screen_spawned = script_spawn_screen();
 			w->ScriptGenerated = 1;
 			w->isLWeapon = 0;
 			ri->ewpnref() = w->getUID();
@@ -7356,7 +7368,7 @@ void do_createitem(const bool v)
 	{
 		additem(0, (get_qr(qr_NOITEMOFFSET) ? 1: 0), ID, ipBIGRANGE);
 		sprite* item = items.spr(items.Count() - 1);
-		item->screen_spawned = ri->screenref();
+		item->screen_spawned = script_spawn_screen();
 		ri->itemref() = item->getUID();
 		Z_eventlog("Script created item \"%s\" with UID = %u\n", itemsbuf.get(ID).name.c_str(), ri->itemref());
 	}
@@ -7375,7 +7387,8 @@ void do_createnpc(const bool v)
 		return;
 		
 	//If we make a segmented enemy there'll be more than one sprite created
-	word numcreated = addenemy(ri->screenref(), 0, 0, ID, -10);
+	int spawn_screen = script_spawn_screen();
+	word numcreated = addenemy(spawn_screen, 0, 0, ID, -10);
 	
 	if(numcreated == 0)
 	{
@@ -7391,7 +7404,7 @@ void do_createnpc(const bool v)
 		{
 			enemy* e = ((enemy*)guys.spr(index));
 			e->script_spawned = true;
-			e->screen_spawned = ri->screenref();
+			e->screen_spawned = spawn_screen;
 		}
 			
 		Z_eventlog("Script created NPC \"%s\" with UID = %u\n", guy_string[ID], ri->npcref());
