@@ -360,9 +360,8 @@ struct JittedScriptHandle
 	JittedFunction fn;
 	script_data *script;
 	refInfo *ri;
-	// Every script function call pushes its return pc onto the script stack,
-	// so the call depth can never exceed MAX_STACK_SIZE before the stack
-	// overflow check stops the script - which keeps this in bounds.
+	// Compiled code checks its index on every call and return
+	// (check_call_stack_index), so hand-written ZASM can't go past either end.
 	intptr_t call_stack_rets[MAX_STACK_SIZE];
 	uint32_t call_stack_ret_index;
 };

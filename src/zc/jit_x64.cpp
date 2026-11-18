@@ -351,12 +351,14 @@ static void run_command_interpreted(CompilationState& state, x86::Compiler &cc, 
 // Modifies the stack pointer, checking that the result stays in bounds. sp may
 // range over [0, MAX_STACK_SIZE], where MAX_STACK_SIZE means the stack is
 // empty. On overflow (or underflow), undoes the modification and runs the
-// command in the interpreter.
-static void modify_sp_checked(CompilationState& state, x86::Compiler &cc, x86::Gp vStackIndex, int delta, int pc)
+// command in the interpreter. `is_pop` is for commands that read the slot below
+// the new sp (POP, POPARGS, RETURN), whatever the sign of delta: a POPARGS
+// count comes from the script, and can be negative.
+static void modify_sp_checked(CompilationState& state, x86::Compiler &cc, x86::Gp vStackIndex, int delta, int pc, bool is_pop)
 {
 	cc.add(vStackIndex, delta);
 	Label ok = cc.newLabel();
-	if (delta < 0)
+	if (!is_pop)
 	{
 		// For pushes the new sp must be a writable slot.
 		cc.cmp(vStackIndex, MAX_STACK_SIZE);
@@ -386,6 +388,41 @@ static void check_stack_offset(CompilationState& state, x86::Compiler &cc, x86::
 	cc.cmp(offset, MAX_STACK_SIZE);
 	cc.jb(ok);
 	run_command_interpreted(state, cc, vStackIndex, pc);
+	cc.bind(ok);
+}
+
+static void log_call_stack_error(bool is_return)
+{
+	extern refInfo *ri;
+
+	if (is_return)
+		Z_scripterrlog("Script returned from a function it never called. Stopping the script.\n");
+	else
+		Z_scripterrlog("Script exceeded the function call depth limit of %d. Stopping the script.\n", MAX_STACK_SIZE);
+	// Stops the script once the interpreter runs the command, as a stack overflow does.
+	ri->stack_overflow = true;
+}
+
+// Checks that a function call (is_return = false) or return (is_return = true)
+// stays within call_stack_rets, otherwise logs an error and stops the script.
+// The compiler's scripts can't fail this (every call also pushes its return pc
+// onto the script stack, which is checked), but hand-written ZASM can call
+// without pushing, or return without calling.
+static void check_call_stack_index(CompilationState& state, x86::Compiler &cc, x86::Gp vStackIndex, x86::Gp vCallStackRetIndex, bool is_return, int pc)
+{
+	Label ok = cc.newLabel();
+	x86::Gp slot = cc.newUInt32();
+	cc.mov(slot, vCallStackRetIndex);
+	if (is_return)
+		cc.sub(slot, 1);
+	cc.cmp(slot, MAX_STACK_SIZE);
+	cc.jb(ok);
+
+	InvokeNode *invokeNode;
+	cc.invoke(&invokeNode, log_call_stack_error, FuncSignatureT<void, bool>(CallConvId::kHost));
+	invokeNode->setArg(0, is_return);
+	run_command_interpreted(state, cc, vStackIndex, pc);
+
 	cc.bind(ok);
 }
 
@@ -818,6 +855,7 @@ JittedFunction jit_compile_script(script_data *script)
 			if (function_calls.contains(i))
 			{
 				// https://github.com/asmjit/asmjit/issues/286
+				check_call_stack_index(state, cc, vStackIndex, vCallStackRetIndex, false, i);
 				x86::Gp address = cc.newIntPtr();
 				cc.lea(address, x86::qword_ptr(call_pc_to_return_label.at(i)));
 				cc.mov(x86::qword_ptr(state.ptrCallStackRets, vCallStackRetIndex, 3), address);
@@ -835,7 +873,8 @@ JittedFunction jit_compile_script(script_data *script)
 		{
 			// Note: the return pc is on the stack, but we just ignore it and instead use
 			// the function call return label.
-			modify_sp_checked(state, cc, vStackIndex, 1, i);
+			check_call_stack_index(state, cc, vStackIndex, vCallStackRetIndex, true, i);
+			modify_sp_checked(state, cc, vStackIndex, 1, i, true);
 
 			cc.sub(vCallStackRetIndex, 1);
 			x86::Gp address = cc.newIntPtr();
@@ -856,6 +895,7 @@ JittedFunction jit_compile_script(script_data *script)
 			// compiled before RETURN existed.
 			// Note: the return pc is in a register, but we just ignore it and instead use
 			// the function call return label.
+			check_call_stack_index(state, cc, vStackIndex, vCallStackRetIndex, true, i);
 			cc.sub(vCallStackRetIndex, 1);
 			x86::Gp address = cc.newIntPtr();
 			cc.mov(address, x86::qword_ptr(state.ptrCallStackRets, vCallStackRetIndex, 3));
@@ -871,7 +911,7 @@ JittedFunction jit_compile_script(script_data *script)
 		break;
 		case PUSHV:
 		{
-			modify_sp_checked(state, cc, vStackIndex, -1, i);
+			modify_sp_checked(state, cc, vStackIndex, -1, i, false);
 			cc.mov(x86::ptr_32(state.ptrStack, vStackIndex, 2), arg1);
 		}
 		break;
@@ -879,7 +919,7 @@ JittedFunction jit_compile_script(script_data *script)
 		{
 			// Grab value from register and push onto stack.
 			x86::Gp val = get_z_register(state, cc, vStackIndex, arg1);
-			modify_sp_checked(state, cc, vStackIndex, -1, i);
+			modify_sp_checked(state, cc, vStackIndex, -1, i, false);
 			cc.mov(x86::ptr_32(state.ptrStack, vStackIndex, 2), val);
 		}
 		break;
@@ -944,7 +984,7 @@ JittedFunction jit_compile_script(script_data *script)
 		break;
 		case POP:
 		{
-			modify_sp_checked(state, cc, vStackIndex, 1, i);
+			modify_sp_checked(state, cc, vStackIndex, 1, i, true);
 			x86::Gp val = cc.newInt32();
 			cc.mov(val, x86::ptr_32(state.ptrStack, vStackIndex, 2, -4));
 			set_z_register(state, cc, vStackIndex, arg1, val);
@@ -954,7 +994,7 @@ JittedFunction jit_compile_script(script_data *script)
 		{
 			// int32_t num = sarg2;
 			// ri->sp += num;
-			modify_sp_checked(state, cc, vStackIndex, arg2, i);
+			modify_sp_checked(state, cc, vStackIndex, arg2, i, true);
 
 			// int32_t value = SH::read_stack(ri->sp - 1);
 			// set_register(sarg1, value);
