@@ -25,6 +25,7 @@
 #include "auto/bug_invalid_combo_id.zs"
 #include "auto/bug_invalid_combo_type.zs"
 #include "auto/bug_invalid_secret_combo.zs"
+#include "auto/bug_item_id_invalid.zs"
 #include "auto/bug_iwarp_kept_sprites.zs"
 #include "auto/bug_jit_class_arrays.zs"
 #include "auto/bug_jit_div_zero_sign.zs"

@@ -700,7 +700,13 @@ void itemsprite_set_register(int32_t reg, int32_t value)
 		case ITEMID:
 			if (s)
 			{
-				(s->id)=value/10000;
+				int id = value/10000;
+				if (unsigned(id) >= MAXITEMS)
+				{
+					scripting_log_error_with_context("Invalid item ID: {}", id);
+					break;
+				}
+				(s->id)=id;
 				flushItemCache();
 			}
 			
