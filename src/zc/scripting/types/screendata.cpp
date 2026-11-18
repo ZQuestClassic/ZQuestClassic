@@ -208,7 +208,7 @@ int32_t screendata_get_register(int32_t reg)
 		{
 			ret = 0;
 			int mi = mapind(cur_map, GET_REF(screenref));
-			if(mi < 0) break;
+			if(unsigned(mi) >= MAXSCRSNORMAL) break;
 			int dir = SH::read_stack(ri->sp+1) / 10000;
 			int ind = SH::read_stack(ri->sp+0) / 10000;
 			if(unsigned(dir) > 3)
@@ -240,7 +240,7 @@ int32_t screendata_get_register(int32_t reg)
 		case SCREENDATAGUYCOUNT:
 		{
 			int mi = mapind(cur_map, GET_REF(screenref));
-			if(mi < 0)
+			if(unsigned(mi) >= MAXSCRSNORMAL)
 				ret = -10000;
 			else ret = game->guys.get(mi) * 10000;
 			break;
@@ -457,7 +457,7 @@ void screendata_set_register(int32_t reg, int32_t value)
 		case SCREENDATAEXDOOR:
 		{
 			int mi = mapind(cur_map, GET_REF(screenref));
-			if(mi < 0) break;
+			if(unsigned(mi) >= MAXSCRSNORMAL) break;
 			int dir = SH::read_stack(ri->sp+1) / 10000;
 			int ind = SH::read_stack(ri->sp+0) / 10000;
 			if(unsigned(dir) > 3)
@@ -484,7 +484,7 @@ void screendata_set_register(int32_t reg, int32_t value)
 		case SCREENDATAGUYCOUNT:
 		{
 			int mi = mapind(cur_map, GET_REF(screenref));
-			if(mi > -1)
+			if(unsigned(mi) < MAXSCRSNORMAL)
 				game->guys[mi] = vbound(value/10000,10,0);
 			break;
 		}
