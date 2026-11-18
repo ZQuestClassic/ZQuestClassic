@@ -22138,6 +22138,16 @@ void set_register_slow(int32_t arg, int32_t value)
 			tmpscr->member[indx] = vbound((value / 10000),-214747,214747); \
 		} \
 		
+		// A warp's dmap, which warping uses without checking.
+		#define SET_SCREENDATA_WARPDMAP_INDEX(member, str, indexbound) \
+		{ \
+			int32_t indx = ri->d[rINDEX] / 10000; \
+			int32_t dmap = value / 10000; \
+			if (BC::checkBounds(indx, 0, indexbound, str) == SH::_NoError && \
+				BC::checkDMapID(dmap, str) == SH::_NoError) \
+				tmpscr->member[indx] = dmap; \
+		}
+
 		#define SET_SCREENDATA_VAR_INDEX16(member, str, indexbound) \
 		{ \
 			int32_t indx = ri->d[rINDEX] / 10000; \
@@ -22237,7 +22247,7 @@ void set_register_slow(int32_t arg, int32_t value)
 		case SCREENDATACOLOUR: 		SET_SCREENDATA_VAR_INT32(color, "CSet"); break;	//w
 		case SCREENDATAENEMYFLAGS: 	SET_SCREENDATA_VAR_BYTE(flags11, "EnemyFlags");	break;	//b
 		case SCREENDATADOOR: 		SET_SCREENDATA_BYTE_INDEX(door, "Door", 3); break;	//b, 4 of these
-		case SCREENDATATILEWARPDMAP: 	SET_SCREENDATA_VAR_INDEX32(tilewarpdmap, "TileWarpDMap", 3); break;	//w, 4 of these
+		case SCREENDATATILEWARPDMAP: 	SET_SCREENDATA_WARPDMAP_INDEX(tilewarpdmap, "TileWarpDMap", 3); break;	//w, 4 of these
 		case SCREENDATATILEWARPSCREEN: 	SET_SCREENDATA_BYTE_INDEX(tilewarpscr, "TileWarpScreen", 3); break;	//b, 4 of these
 		case SCREENDATAEXITDIR: 		SET_SCREENDATA_VAR_BYTE(exitdir, "ExitDir"); break;	//b
 		case SCREENDATAENEMY: 	
@@ -22265,7 +22275,7 @@ void set_register_slow(int32_t arg, int32_t value)
 		case SCREENDATAWARPARRIVALY: 	SET_SCREENDATA_VAR_BYTE(warparrivaly, "WarpArrivalY"); break;	//b
 		case SCREENDATAPATH: 		SET_SCREENDATA_BYTE_INDEX(path, "MazePath", 3); break;	//b, 4 of these
 		case SCREENDATASIDEWARPSC: 	SET_SCREENDATA_BYTE_INDEX(sidewarpscr, "SideWarpScreen", 3); break;	//b, 4 of these
-		case SCREENDATASIDEWARPDMAP: 	SET_SCREENDATA_VAR_INDEX32(sidewarpdmap, "SideWarpDMap", 3); break;	//w, 4 of these
+		case SCREENDATASIDEWARPDMAP: 	SET_SCREENDATA_WARPDMAP_INDEX(sidewarpdmap, "SideWarpDMap", 3); break;	//w, 4 of these
 		case SCREENDATASIDEWARPINDEX: 	SET_SCREENDATA_VAR_BYTE(sidewarpindex, "SideWarpIndex"); break;	//b
 		case SCREENDATAUNDERCOMBO: 	SET_SCREENDATA_VAR_INT32(undercombo, "Undercombo"); break;	//w
 		case SCREENDATAUNDERCSET:	 	SET_SCREENDATA_VAR_BYTE(undercset,	"UnderCSet"); break; //b
@@ -23021,6 +23031,27 @@ void set_register_slow(int32_t arg, int32_t value)
 			break; \
 		} \
 		
+		// A warp's dmap, which warping uses without checking.
+		#define SET_MAPDATA_WARPDMAP_INDEX(member, str, indexbound) \
+		{ \
+			int32_t indx = ri->d[rINDEX] / 10000; \
+			int32_t dmap = value / 10000; \
+			if(indx < 0 || indx > indexbound ) \
+			{ \
+				Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", str, indx); \
+			} \
+			else if (mapscr *m = GetMapscr(ri->mapsref)) \
+			{ \
+				if (BC::checkDMapID(dmap, str) == SH::_NoError) \
+					m->member[indx] = dmap; \
+			} \
+			else \
+			{ \
+				Z_scripterrlog("Script attempted to use a mapdata->%s on an invalid pointer\n",str); \
+			} \
+			break; \
+		} \
+		
 		#define SET_MAPDATA_VAR_INDEX16(member, str, indexbound) \
 		{ \
 			int32_t indx = ri->d[rINDEX] / 10000; \
@@ -23247,7 +23278,7 @@ void set_register_slow(int32_t arg, int32_t value)
 		case MAPDATACOLOUR: 		SET_MAPDATA_VAR_INT32(color, "CSet"); break;	//w
 		case MAPDATAENEMYFLAGS: 	SET_MAPDATA_VAR_BYTE(flags11, "EnemyFlags");	break;	//b
 		case MAPDATADOOR: 		SET_MAPDATA_BYTE_INDEX(door, "Door", 3); break;	//b, 4 of these
-		case MAPDATATILEWARPDMAP: 	SET_MAPDATA_VAR_INDEX32(tilewarpdmap, "TileWarpDMap", 3); break;	//w, 4 of these
+		case MAPDATATILEWARPDMAP: 	SET_MAPDATA_WARPDMAP_INDEX(tilewarpdmap, "TileWarpDMap", 3); break;	//w, 4 of these
 		case MAPDATATILEWARPSCREEN: 	SET_MAPDATA_BYTE_INDEX(tilewarpscr, "TileWarpScreen", 3); break;	//b, 4 of these
 		case MAPDATAEXITDIR: 		SET_MAPDATA_VAR_BYTE(exitdir, "ExitDir"); break;	//b
 		case MAPDATAENEMY: 
@@ -23381,7 +23412,7 @@ void set_register_slow(int32_t arg, int32_t value)
 			break;
 		}
 
-		case MAPDATASIDEWARPDMAP: 	SET_MAPDATA_VAR_INDEX32(sidewarpdmap, "SideWarpDMap", 3); break;	//w, 4 of these
+		case MAPDATASIDEWARPDMAP: 	SET_MAPDATA_WARPDMAP_INDEX(sidewarpdmap, "SideWarpDMap", 3); break;	//w, 4 of these
 		case MAPDATASIDEWARPINDEX: 	SET_MAPDATA_VAR_BYTE(sidewarpindex, "SideWarpIndex"); break;	//b
 		case MAPDATAUNDERCOMBO: 	SET_MAPDATA_VAR_INT32(undercombo, "UnderCombo"); break;	//w
 		case MAPDATAUNDERCSET:	 	SET_MAPDATA_VAR_BYTE(undercset,	"UnderCSet"); break; //b
