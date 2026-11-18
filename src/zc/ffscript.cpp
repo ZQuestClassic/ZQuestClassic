@@ -21665,7 +21665,14 @@ void set_register_slow(int32_t arg, int32_t value)
 			SET_DMAP_VAR(flags, "Game->DMapFlags") break;
 			
 		case DMAPLEVELD:
-			SET_DMAP_VAR(level, "Game->DMapLevel") break;
+		{
+			int32_t ID = ri->d[rINDEX] / 10000;
+			int32_t val = value / 10000;
+			if (BC::checkDMapID(ID, "Game->DMapLevel") == SH::_NoError &&
+				BC::checkBounds(val, 0, MAXLEVELS - 1, "Game->DMapLevel") == SH::_NoError)
+				DMaps[ID].level = val;
+			break;
+		}
 			
 		case DMAPCOMPASSD:
 			SET_DMAP_VAR(compass, "Game->DMapCompass") break;
@@ -24287,7 +24294,12 @@ void set_register_slow(int32_t arg, int32_t value)
 		}
 		case DMAPDATALEVEL:	//word
 		{
-			DMaps[ri->dmapsref].level = ((word)(value / 10000)); break;
+			int32_t val = value / 10000;
+			if (BC::checkBounds(val, 0, MAXLEVELS - 1, "dmapdata->Level") != SH::_NoError)
+				break;
+
+			DMaps[ri->dmapsref].level = val;
+			break;
 		}
 		case DMAPDATAOFFSET:	//char
 		{
