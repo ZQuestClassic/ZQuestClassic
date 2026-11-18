@@ -319,26 +319,13 @@ static void compile_command(CompilationState& state, x86::Compiler &cc, script_d
 	cc.invoke(&invokeNode, run_script_int, FuncSignatureT<int32_t, bool>(CallConvId::kHost));
 	invokeNode->setArg(0, true);
 
-	bool could_return_not_ok = false;
-	for (int j = 0; j < count; j++)
-	{
-		int index = i + j;
-		if (index >= state.size)
-			break;
-
-		if (command_could_return_not_ok(script->zasm[index].command))
-		{
-			could_return_not_ok = true;
-			break;
-		}
-	}
-
-	if (could_return_not_ok)
-	{
-		invokeNode->setRet(0, state.vRetVal);
-		cc.cmp(state.vRetVal, RUNSCRIPT_OK);
-		cc.jne(state.L_End);
-	}
+	// Check the result of every interpreted command, not just the ones that can stop the script
+	// by design (command_could_return_not_ok): any of them can end it on an error (ex: a stack
+	// read out of range, which only ZASM the compiler never emits can do), and carrying on would
+	// keep running a script that has exited.
+	invokeNode->setRet(0, state.vRetVal);
+	cc.cmp(state.vRetVal, RUNSCRIPT_OK);
+	cc.jne(state.L_End);
 }
 
 // Runs the command at pc (and the rest of the script) in the interpreter. Used
