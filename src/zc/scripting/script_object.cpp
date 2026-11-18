@@ -89,6 +89,10 @@ static std::vector<uint32_t> objects_being_destructed;
 static bool gc_in_progress;
 static std::vector<uint32_t> ids_freed_during_gc;
 
+// While an object being deleted releases the objects it holds, the ones that reach a reference
+// count of 0 are added here instead of being deleted right away (see delete_script_object).
+static std::vector<uint32_t>* deferred_deletes;
+
 // The engine storage slots holding objects (see engine_object_slot_set).
 static std::map<engine_object_slot, script_object_type> engine_object_slots;
 
@@ -246,6 +250,7 @@ void init_script_objects()
 	objects_being_destructed.clear();
 	gc_in_progress = false;
 	ids_freed_during_gc.clear();
+	deferred_deletes = nullptr;
 	engine_object_slots.clear();
 	allocations_since_last_gc = 0;
 	deallocations_since_last_gc = 0;
@@ -374,7 +379,12 @@ static void script_object_ref_dec(script_object_base* object)
 		return;
 
 	if (ZScriptVersion::gc() && object->ref_count == 0)
-		delete_script_object(object->id);
+	{
+		if (deferred_deletes)
+			deferred_deletes->push_back(object->id);
+		else
+			delete_script_object(object->id);
+	}
 }
 
 void script_object_ref_dec(uint32_t id)
@@ -463,11 +473,14 @@ static bool run_destructor(script_object_base* object)
 	return true;
 }
 
-void delete_script_object(uint32_t id, bool remove_refs)
+// The first half of deleting an object: runs its destructor and releases the objects it holds.
+// Those that are now unreferenced are added to `released`, to be deleted before the object itself
+// is (in finish_delete_script_object). Returns false if the object is not to be deleted after all.
+static bool begin_delete_script_object(uint32_t id, bool remove_refs, std::vector<uint32_t>& released)
 {
 	auto it = script_objects.find(id);
 	if (it == script_objects.end())
-		return;
+		return false;
 
 	script_object_base* object = it->second.get();
 
@@ -479,14 +492,14 @@ void delete_script_object(uint32_t id, bool remove_refs)
 		if (!bitmap->can_del())
 		{
 			bitmap->free_obj();
-			return;
+			return false;
 		}
 	}
 
 	// An object whose destructor is currently running must not be deleted out
 	// from under it (for example, by a GC run triggered within the destructor).
 	if (util::contains(objects_being_destructed, id))
-		return;
+		return false;
 
 	// Deleting because the last reference was released (rather than, say, the
 	// engine resetting all objects).
@@ -505,15 +518,18 @@ void delete_script_object(uint32_t id, bool remove_refs)
 	if (run_destructor(object) && unreferenced && object->ref_count > 1)
 	{
 		object->ref_count--;
-		return;
+		return false;
 	}
 
 	if (remove_refs)
 	{
 		std::vector<uint32_t> retained_ids;
 		object->get_retained_ids(retained_ids);
+		auto outer_deferred_deletes = deferred_deletes;
+		deferred_deletes = &released;
 		for (auto id : retained_ids)
 			script_object_ref_dec(id);
+		deferred_deletes = outer_deferred_deletes;
 	}
 
 	if (!ZScriptVersion::gc_arrays())
@@ -532,6 +548,16 @@ void delete_script_object(uint32_t id, bool remove_refs)
 
 	// Restore the reference count (doesn't really matter, about to delete it).
 	object->ref_count--;
+	return true;
+}
+
+static void finish_delete_script_object(uint32_t id, script_object_base* object)
+{
+	// A destructor run since begin_delete_script_object may have deleted it (ex. by a GC run), and
+	// its id may even belong to a new object now.
+	auto it = script_objects.find(id);
+	if (it == script_objects.end() || it->second.get() != object)
+		return;
 
 	if (auto locator_it = script_object_ids_by_type_locator.find(id); locator_it != script_object_ids_by_type_locator.end())
 	{
@@ -554,6 +580,53 @@ void delete_script_object(uint32_t id, bool remove_refs)
 		ids_freed_during_gc.push_back(id);
 	else if (next_script_object_id_freelist.size() < 10000)
 		next_script_object_id_freelist.push_back(id);
+}
+
+void delete_script_object(uint32_t id, bool remove_refs)
+{
+	// Deleting an object can make the objects it holds unreferenced, and so deleted too. That is
+	// done with a stack here rather than recursion, which a long chain of objects (ex. a linked
+	// list) would take past the native stack's end. The order is the same as recursion would give:
+	// an object's destructor runs, then each object it released is deleted (with everything that
+	// one released), and then the object itself is.
+	struct pending_delete
+	{
+		uint32_t id;
+		script_object_base* object;
+		std::vector<uint32_t> released;
+		size_t next_released = 0;
+	};
+	std::vector<pending_delete> stack;
+
+	// A destructor releasing an object deletes it right away, as outside of any deletion.
+	auto outer_deferred_deletes = deferred_deletes;
+	deferred_deletes = nullptr;
+
+	stack.push_back({id, get_script_object(id)});
+	if (!begin_delete_script_object(id, remove_refs, stack.back().released))
+		stack.pop_back();
+	while (!stack.empty())
+	{
+		auto& top = stack.back();
+		if (top.next_released == top.released.size())
+		{
+			finish_delete_script_object(top.id, top.object);
+			stack.pop_back();
+			continue;
+		}
+
+		uint32_t released_id = top.released[top.next_released++];
+		// Something since (ex. a destructor) may have referenced it again, or deleted it.
+		auto object = get_script_object(released_id);
+		if (!object || object->ref_count != 0)
+			continue;
+
+		pending_delete next = {released_id, object};
+		if (begin_delete_script_object(released_id, true, next.released))
+			stack.push_back(std::move(next));
+	}
+
+	deferred_deletes = outer_deferred_deletes;
 }
 
 void own_script_object(script_object_base* object, ScriptType type, int i)

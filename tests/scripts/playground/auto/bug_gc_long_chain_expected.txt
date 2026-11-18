@@ -1,0 +1,344 @@
+stderr:
+
+Compiling 'bug_gc_long_chain.zs'
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+Pass 4: Analyzing Code
+Pass 5: Checking code paths
+Pass 6: Generating object code
+Pass 7: Assembling
+Success!
+Compile finished with exit code '0' (success)
+
+stdout:
+
+{
+  "success": true,
+  "diagnostics": [],
+  "metadata": {
+    "currentFileSymbols": 20,
+    "symbols": 33,
+    "identifiers": 71,
+    "elided": true
+  }
+}
+
+zasm:
+
+SETV GD3 0; void run() Body Start
+ALLOCATEGMEMV D2 5 0
+MARK_TYPE_REG GD2 0.0009
+SET_OBJECT GD2 D2 0.0009
+MARK_TYPE_REG GD1 0.0009
+SETV GD1 0
+QUIT; void run() Body End
+PUSHARGSV 0 0.0003; void run() Body Start
+SETR D4 SP2
+ALLOCATEMEMV D2 100 0
+STORE_OBJECT D2 0.0002
+LOAD D2 0.0002; InlineFunc[void Game::GetSaveName(char32[])] Params
+GETSAVENAME D2; InlineFunc[void Game::GetSaveName(char32[])] Body
+ALLOCATEMEMV D2 19 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
+WRITEPODSTRING D2 "[Test] Running %s\n"
+PUSHR D2
+LOAD D2 0.0002
+PUSHVARGR D2
+MARK_TYPE_VARG 0.0009; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
+LOAD D2 0.0002; InlineFunc[int Game::GetGenericScript(char32[])] Params
+GETGENERICSCRIPT D2; InlineFunc[int Game::GetGenericScript(char32[])] Body
+STORE D2 0.0001
+LOAD D2 0.0001; if() Test
+COMPAREV D2 -1
+SETCMP D2 I==
+COMPAREV D2 0
+GOTOCMP 36 ==; Test 'if'
+ALLOCATEMEMV D2 53 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start AND if() Body Start
+WRITEPODSTRING D2 "[Test] failed to start - could not find test script\n"
+PUSHR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
+GAMEEXIT; InlineFunc[void Game::Exit()] Body AND if() Body End
+NOP
+LOAD D2 0.0001; InlineFunc[genericdata Game::LoadGenericData(int)] Params
+LOADGENERICDATA D2; InlineFunc[genericdata Game::LoadGenericData(int)] Body Start
+SETR D2 REFGENERICDATA; InlineFunc[genericdata Game::LoadGenericData(int)] Body End
+STORE D2 0
+SETV D2 1
+PUSHR D2
+LOAD D2 0
+POP D3
+PUSHR D2
+PUSHR D3
+POP D2
+CASTBOOLI D2
+POP REFGENERICDATA
+SETR GENDATARUNNING D2
+LOAD D2 0; while() Test
+PUSHR D2
+POP REFGENERICDATA
+SETR D2 GENDATARUNNING
+COMPAREV D2 0
+GOTOCMP 62 ==; Test 'while'
+PUSHR D4; while() Body Start
+CALLFUNC 0.0298; UsrFunc[void DrawLabel()] Call
+POP D4
+WAITFRAME; InlineFunc[void Waitframe()] Body AND while() Body End
+GOTO 51; while() End
+CALLFUNC 0.0269; UsrFunc[void End()] Call AND [Opt:NeverRet]
+REF_REMOVE 0.0002; [Opt:NeverRet] AND void run() Body End
+PUSHV 0; void run() Body Start
+SETR D4 SP2
+PUSHR D4
+PUSHV 0; UsrFunc[void Init(int)] Params
+CALLFUNC 0.0247; UsrFunc[void Init(int)] Call
+PEEK D4
+PUSHV 100000; UsrFunc[void DropChain(int)] Params
+CALLFUNC 0.0169; UsrFunc[void DropChain(int)] Call
+PEEK D4
+CALLFUNC 0.0204; UsrFunc[void DropTree()] Call
+PEEK D4
+PUSHR GD3; UsrFunc[void AssertEqual(int, int)] Params Start
+PUSHV 5; UsrFunc[void AssertEqual(int, int)] Params End
+CALLFUNC 0.0276; UsrFunc[void AssertEqual(int, int)] Call
+POP D4
+STOREV 0 0; for() setup
+LOAD D2 0; for() LoopTest
+COMPAREV D2 5
+SETCMP D2 I<
+COMPAREV D2 0
+GOTOCMP 101 ==; for() TestFail?
+PUSHR D4; for() Body Start
+SETR D2 GD2; UsrFunc[void AssertEqual(int, int)] Params Start
+PUSHR D2
+LOAD D2 0
+POP D0
+READPODARRAYR D2 D2
+PUSHR D2
+LOAD D2 0
+ADDV D2 1
+PUSHR D2; UsrFunc[void AssertEqual(int, int)] Params End
+CALLFUNC 0.0276; UsrFunc[void AssertEqual(int, int)] Call
+POP D4; for() Body End
+LOAD D2 0; for() LoopIncrement
+ADDV D2 1
+STORE D2 0
+GOTO 80; for() End
+NOP
+CALLFUNC 0.0269; UsrFunc[void End()] Call AND [Opt:NeverRet] AND [Opt:NeverRet] AND void run() Body End
+SETV D2 0; Func[ChainNode ChainNode::ChainNode()] Body Start
+SETR CLASS_THISKEY2 CLASS_THISKEY
+ZCLASS_CONSTRUCT CLASS_THISKEY {0.0001}
+ZCLASS_MARK_TYPE {0,0.0008}
+REF_INC -0.0001
+SETR D4 SP2
+PUSHR CLASS_THISKEY2
+NOP
+REF_AUTORELEASE CLASS_THISKEY
+REF_DEC -0.0001
+SETR D2 CLASS_THISKEY
+POP CLASS_THISKEY
+RETURNFUNC; Func[ChainNode ChainNode::ChainNode()] Body End
+SETV D2 0.0153; Func[TreeNode TreeNode::TreeNode(int, TreeNode, TreeNode)] Body Start
+SETR CLASS_THISKEY2 CLASS_THISKEY
+ZCLASS_CONSTRUCT CLASS_THISKEY {0.0003}
+ZCLASS_MARK_TYPE {0.0001,0.0008,0.0002,0.0008}
+REF_INC -0.0001
+SETR D4 SP2
+PUSHR CLASS_THISKEY2
+MARK_TYPE_STACK 0.0008 0.0001
+REF_INC 0.0001
+MARK_TYPE_STACK 0.0008 0
+REF_INC 0
+LOAD D2 0.0002
+PUSHR D2
+SETR D2 CLASS_THISKEY
+SETR D3 D2
+POP D2
+ZCLASS_WRITE D3 0
+LOAD D2 0.0001
+PUSHR D2
+SETR D2 CLASS_THISKEY
+SETR D3 D2
+POP D2
+ZCLASS_WRITE D3 0.0001
+LOAD D2 0
+PUSHR D2
+SETR D2 CLASS_THISKEY
+SETR D3 D2
+POP D2
+ZCLASS_WRITE D3 0.0002
+REF_REMOVE 0.0001
+REF_REMOVE 0
+POPARGS D5 0.0003
+REF_AUTORELEASE CLASS_THISKEY
+REF_DEC -0.0001
+SETR D2 CLASS_THISKEY
+POP CLASS_THISKEY
+RETURNFUNC; Func[TreeNode TreeNode::TreeNode(int, TreeNode, TreeNode)] Body End
+STARTDESTRUCTOR "TreeNode"; Func[void ~TreeNode::TreeNode()] Body Start
+SETR D4 SP2
+ZCLASS_READ CLASS_THISKEY 0
+PUSHR D2
+SETR D2 GD2
+PUSHR D2
+SETR D2 GD3
+PUSHR D2
+ADDV D2 1
+SETR GD3 D2
+POP D2
+SETR D3 D2
+POP D0
+POP D2
+WRITEPODARRAYRR D3 D2 0
+RETURNFUNC; Func[void ~TreeNode::TreeNode()] Body End
+PUSHARGSV 0 0.0003; Func[void DropChain(int)] Body Start
+SETR D4 SP2
+STOREV 0 0.0002
+STOREV 0 0.0001; for() setup
+LOAD D2 0.0001; for() LoopTest
+PUSHR D2
+LOAD D2 0.0003
+POP D3
+COMPARER D3 D2
+SETCMP D2 I<
+COMPAREV D2 0
+GOTOCMP 200 ==; for() TestFail?
+PUSHR CLASS_THISKEY; for() Body Start
+PUSHR D4
+CALLFUNC 0.0103; ClassFunc[ChainNode ChainNode::ChainNode()] Constructor Call
+POP D4
+POP CLASS_THISKEY
+STORE_OBJECT D2 0
+LOAD D2 0.0002
+PUSHR D2
+LOAD D2 0
+SETR D3 D2
+POP D2
+ZCLASS_WRITE D3 0
+LOAD D2 0
+STORE_OBJECT D2 0.0002
+REF_REMOVE 0; for() Body End
+LOAD D2 0.0001; for() LoopIncrement
+ADDV D2 1
+STORE D2 0.0001
+GOTO 173; for() End
+NOP
+REF_REMOVE 0.0002
+POPARGS D5 0.0004
+RETURNFUNC; Func[void DropChain(int)] Body End
+PUSHV 0; Func[void DropTree()] Body Start
+SETR D4 SP2
+PUSHR CLASS_THISKEY
+PUSHR D4
+PUSHV 1; ClassFunc[TreeNode TreeNode::TreeNode(int, TreeNode, TreeNode)] Params Start
+PUSHR CLASS_THISKEY
+PUSHR D4
+PUSHV 2; ClassFunc[TreeNode TreeNode::TreeNode(int, TreeNode, TreeNode)] Params Start
+PUSHR CLASS_THISKEY
+PUSHR D4
+PUSHV 3; ClassFunc[TreeNode TreeNode::TreeNode(int, TreeNode, TreeNode)] Params Start
+PUSHARGSV 0 0.0002; ClassFunc[TreeNode TreeNode::TreeNode(int, TreeNode, TreeNode)] Params End
+CALLFUNC 0.0116; ClassFunc[TreeNode TreeNode::TreeNode(int, TreeNode, TreeNode)] Constructor Call
+POP D4
+POP CLASS_THISKEY
+PUSHR D2
+PUSHR CLASS_THISKEY
+PUSHR D4
+PUSHV 4; ClassFunc[TreeNode TreeNode::TreeNode(int, TreeNode, TreeNode)] Params Start
+PUSHARGSV 0 0.0002; ClassFunc[TreeNode TreeNode::TreeNode(int, TreeNode, TreeNode)] Params End
+CALLFUNC 0.0116; ClassFunc[TreeNode TreeNode::TreeNode(int, TreeNode, TreeNode)] Constructor Call
+POP D4
+POP CLASS_THISKEY
+PUSHR D2; ClassFunc[TreeNode TreeNode::TreeNode(int, TreeNode, TreeNode)] Params End
+CALLFUNC 0.0116; ClassFunc[TreeNode TreeNode::TreeNode(int, TreeNode, TreeNode)] Constructor Call
+POP D4
+POP CLASS_THISKEY
+PUSHR D2
+PUSHR CLASS_THISKEY
+PUSHR D4
+PUSHV 5; ClassFunc[TreeNode TreeNode::TreeNode(int, TreeNode, TreeNode)] Params Start
+PUSHARGSV 0 0.0002; ClassFunc[TreeNode TreeNode::TreeNode(int, TreeNode, TreeNode)] Params End
+CALLFUNC 0.0116; ClassFunc[TreeNode TreeNode::TreeNode(int, TreeNode, TreeNode)] Constructor Call
+POP D4
+POP CLASS_THISKEY
+PUSHR D2; ClassFunc[TreeNode TreeNode::TreeNode(int, TreeNode, TreeNode)] Params End
+CALLFUNC 0.0116; ClassFunc[TreeNode TreeNode::TreeNode(int, TreeNode, TreeNode)] Constructor Call
+POP D4
+POP CLASS_THISKEY
+STORE_OBJECT D2 0
+REF_REMOVE 0
+POP D5
+RETURNFUNC; Func[void DropTree()] Body End
+SETR D4 SP2; Func[void Init(int)] Body Start
+ALLOCATEMEMV D2 35 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
+WRITEPODSTRING D2 "[Test] started: dmap %d screen %d\n"
+PUSHR D2
+PUSHVARGV 5
+LOAD D2 0
+PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
+LOAD D2 0; if() Test
+COMPAREV D2 0
+SETCMP D2 I!=
+COMPAREV D2 0
+GOTOCMP 266 ==; Test 'if'
+PUSHV 5; InlineFunc[void hero::Warp(int, int)] Params Start AND if() Body Start
+LOAD D2 0; InlineFunc[void hero::Warp(int, int)] Params End
+POP D3; InlineFunc[void hero::Warp(int, int)] Body Start
+WARPR D3 D2; InlineFunc[void hero::Warp(int, int)] Body End
+WAITFRAME; InlineFunc[void Waitframe()] Body AND if() Body End
+NOP
+POP D5
+RETURNFUNC; Func[void Init(int)] Body End
+SETR D4 SP2; Func[void End()] Body Start
+ALLOCATEMEMV D2 13 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
+WRITEPODSTRING D2 "[Test] done\n"
+PUSHR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
+GAMEEXIT; InlineFunc[void Game::Exit()] Body AND [Opt:NeverRet] AND Func[void End()] Body End
+SETR D4 SP2; Func[void AssertEqual(int, int)] Body Start
+LOAD D2 0; if() Test
+PUSHR D2
+LOAD D2 0.0001
+POP D3
+COMPARER D3 D2
+SETCMP D2 I!=
+COMPAREV D2 0
+GOTOCMP 295 ==; Test 'if'
+ALLOCATEMEMV D2 49 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start AND if() Body Start
+WRITEPODSTRING D2 "[Test] failed assertion: expected %d but got %d\n"
+PUSHR D2
+LOAD D2 0
+PUSHVARGR D2
+LOAD D2 0.0001
+PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
+GAMEEXIT; InlineFunc[void Game::Exit()] Body AND if() Body End
+NOP
+POPARGS D5 0.0002
+RETURNFUNC; Func[void AssertEqual(int, int)] Body End
+SETR D4 SP2; Func[void DrawLabel()] Body Start
+SETR D2 GD1; unless() Test
+COMPAREV D2 0
+GOTOCMP 316 ==; Test 'unless' AND return (Void) AND unless() Body
+NOP
+SETV D2 0.0001
+PUSHR D2
+POP D2
+SETR SCREEN_DRAW_ORIGIN D2
+PUSHV 7; InlineFunc[void screendata::DrawString(int, int, int, int, int, int, int, char32[], int)] Params Start
+PUSHARGSV 2 0.0003
+PUSHV 1
+PUSHV 15
+PUSHV 0
+PUSHR GD1
+PUSHV 128; InlineFunc[void screendata::DrawString(int, int, int, int, int, int, int, char32[], int)] Params End
+DRAWSTRINGR; InlineFunc[void screendata::DrawString(int, int, int, int, int, int, int, char32[], int)] Body Start
+POPARGS D5 0.0009; InlineFunc[void screendata::DrawString(int, int, int, int, int, int, int, char32[], int)] Body End
+RETURNFUNC; Func[void DrawLabel()] Body End
