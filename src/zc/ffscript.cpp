@@ -17580,7 +17580,13 @@ void set_register_slow(int32_t arg, int32_t value)
 		case ITEMID:
 			if(auto s=checkItem(ri->itemref))
 			{
-				(((item *)s)->id)=value/10000;
+				int32_t id = value/10000;
+				if (unsigned(id) >= MAXITEMS)
+				{
+					Z_scripterrlog("Invalid item ID: %d\n", id);
+					break;
+				}
+				(((item *)s)->id)=id;
 				flushItemCache();
 			}
 			
