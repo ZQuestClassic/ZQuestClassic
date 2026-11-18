@@ -1315,8 +1315,14 @@ void combodata_set_register(int32_t reg, int32_t value)
 		{
 			if (!checkComboRef()) break;
 
+			int type = value / 10000;
+			if (type >= cMAX)
+			{
+				scripting_log_error_with_context("Invalid combo type: {}", type);
+				break;
+			}
 			screen_combo_modify_pre(GET_REF(combodataref));
-			combobuf[GET_REF(combodataref)].type = vbound((value / 10000),0,255);
+			combobuf[GET_REF(combodataref)].type = zc_max(type, 0);
 			screen_combo_modify_post(GET_REF(combodataref));
 			break;
 		}

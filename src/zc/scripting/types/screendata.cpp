@@ -712,7 +712,7 @@ static ArrayRegistrar COMBOTD_registrar(COMBOTD, []{
 	);
 	impl.compatSetDefaultValue(-10000);
 	impl.setMul10000(true);
-	impl.setValueTransform(transforms::validate<256>);
+	impl.setValueTransform(transforms::validate<cMAX>);
 	return &impl;
 }());
 

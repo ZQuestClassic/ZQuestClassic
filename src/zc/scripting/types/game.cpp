@@ -799,6 +799,12 @@ void game_set_register(int32_t reg, int32_t value)
 				break;
 			}
 				
+			if(unsigned(value/10000) >= cMAX)
+			{
+				Z_scripterrlog("Invalid combo type (%d) passed to SetComboType", value/10000);
+				break;
+			}
+
 			int32_t cdata = TheMaps[screen].data[pos];
 			screen_combo_modify_pre(cdata);
 			combobuf[cdata].type=value/10000;
