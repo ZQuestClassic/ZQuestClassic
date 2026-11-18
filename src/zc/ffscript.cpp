@@ -33895,7 +33895,7 @@ static void do_drawing_command(int32_t script_command, bool is_screen_draw)
 				return;
 			}
 			std::vector<int32_t> *v = script_drawing_commands.GetVector();
-			v->resize(sz, 0);
+			v->resize(26, 0);
 			
 			int32_t* pos = &v->at(0);
 			int32_t* uv = &v->at(12);
@@ -33930,7 +33930,7 @@ static void do_drawing_command(int32_t script_command, bool is_screen_draw)
 			}
 			
 			std::vector<int32_t> *v = script_drawing_commands.GetVector();
-			v->resize(sz, 0);
+			v->resize(20, 0);
 			
 			int32_t* pos = &v->at(0);
 			int32_t* uv = &v->at(9);

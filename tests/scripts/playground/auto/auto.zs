@@ -4,6 +4,7 @@
 #include "auto/bug_arc_fill.zs"
 #include "auto/bug_bitmap_blit_source_oob.zs"
 #include "auto/bug_block_unblockable_ignores_shields.zs"
+#include "auto/bug_draw_3d_short_arrays.zs"
 #include "auto/bug_dummy_item_blocks_pickup.zs"
 #include "auto/bug_empty_constructor.zs"
 #include "auto/bug_generic_data_reload.zs"
