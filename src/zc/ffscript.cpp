@@ -22237,7 +22237,7 @@ void set_register_slow(int32_t arg, int32_t value)
 		{ 
 			int32_t indx = ri->d[rINDEX] / 10000; 
 			int32_t enemyid = value/10000;
-			if ( ((unsigned)enemyid) > MAXGUYS ) 
+			if ( ((unsigned)enemyid) >= MAXGUYS ) 
 			{ 
 				Z_scripterrlog("Invaid enemy ID (%d) passed to Screen->%s.\n", enemyid,"Enemy[]"); \
 				break; 
@@ -23251,7 +23251,7 @@ void set_register_slow(int32_t arg, int32_t value)
 			{ 
 				Z_scripterrlog("Invalid Index passed to mapdata->%s: %d\n", "Enemy[]", (indx));
 			} 
-			else if ( ((unsigned)enemyid) > MAXGUYS ) 
+			else if ( ((unsigned)enemyid) >= MAXGUYS ) 
 			{ 
 				Z_scripterrlog("Invaid enemy ID (%d) passed to Mapdata->%s.\n", enemyid,"Enemy[]");
 			} 
