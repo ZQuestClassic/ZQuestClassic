@@ -167,6 +167,11 @@ public:
 			IS_UNTYPED_ARRAY[zasm_var] = true;
 
 			int resolved_index = impl->getResolvedIndex(impl->getSize(ref), index);
+			// An index past the size can still be set when the array skips its index check (it
+			// grows on its own, like FFCs). There's nowhere to record the element's type then, so
+			// it holds no reference.
+			if (resolved_index < 0)
+				return impl->setElement(ref, index, value);
 
 			auto array = find_or_create_internal_script_array({zasm_var, ref});
 			array->arr.setObjectType(script_object_type::untyped);
