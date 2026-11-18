@@ -8,6 +8,7 @@
 #include "auto/bug_bitmap_blit_source_oob.zs"
 #include "auto/bug_block_unblockable_ignores_shields.zs"
 #include "auto/bug_bomb_blast_no_coll_when_still.zs"
+#include "auto/bug_breath_invalid_weapon.zs"
 #include "auto/bug_combodata_arrays_stale_ref.zs"
 #include "auto/bug_compound_assign_side_effects.zs"
 #include "auto/bug_convert_rgb.zs"
