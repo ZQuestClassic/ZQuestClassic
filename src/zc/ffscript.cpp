@@ -9081,13 +9081,19 @@ int32_t get_register_slow(const int32_t arg)
 		#define GET_SCREENDATA_VAR_INDEX32(member, str, indexbound) \
 		{ \
 			int32_t indx = ri->d[rINDEX] / 10000; \
-			ret = (tmpscr->member[indx] *10000); \
+			if (BC::checkBounds(indx, 0, indexbound, str) != SH::_NoError) \
+				ret = -10000; \
+			else \
+				ret = (tmpscr->member[indx] *10000); \
 		} \
 		
 		#define GET_SCREENDATA_VAR_INDEX16(member, str, indexbound) \
 		{ \
 			int32_t indx = ri->d[rINDEX] / 10000; \
-			ret = (tmpscr->member[indx] *10000); \
+			if (BC::checkBounds(indx, 0, indexbound, str) != SH::_NoError) \
+				ret = -10000; \
+			else \
+				ret = (tmpscr->member[indx] *10000); \
 		} \
 		
 		#define GET_SCREENDATA_BYTE_INDEX(member, str, indexbound) \
@@ -22141,7 +22147,8 @@ void set_register_slow(int32_t arg, int32_t value)
 		#define SET_SCREENDATA_VAR_INDEX32(member, str, indexbound) \
 		{ \
 			int32_t indx = ri->d[rINDEX] / 10000; \
-			tmpscr->member[indx] = vbound((value / 10000),-214747,214747); \
+			if (BC::checkBounds(indx, 0, indexbound, str) == SH::_NoError) \
+				tmpscr->member[indx] = vbound((value / 10000),-214747,214747); \
 		} \
 		
 		// A warp's dmap, which warping uses without checking.
@@ -22157,7 +22164,8 @@ void set_register_slow(int32_t arg, int32_t value)
 		#define SET_SCREENDATA_VAR_INDEX16(member, str, indexbound) \
 		{ \
 			int32_t indx = ri->d[rINDEX] / 10000; \
-			tmpscr->member[indx] = vbound((value / 10000),-32767,32767); \
+			if (BC::checkBounds(indx, 0, indexbound, str) == SH::_NoError) \
+				tmpscr->member[indx] = vbound((value / 10000),-32767,32767); \
 		} \
 
 		#define SET_SCREENDATA_BYTE_INDEX(member, str, indexbound) \
