@@ -12876,7 +12876,9 @@ int32_t read_one_ffscript(PACKFILE *f, zquestheader *, int32_t script_index, wor
 		return qe_invalid;
 	}
 	
-	(*script)->null_script(num_commands);
+	// One more than it holds, so it always ends with a terminator (0xFFFF): a quest's script
+	// might not have one, and the engine finds the end of a script by looking for it.
+	(*script)->null_script(num_commands + 1);
 
 	if(s_version >= 16)
 	{
