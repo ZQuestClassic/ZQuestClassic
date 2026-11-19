@@ -1161,8 +1161,16 @@ static void draw_tile16_unified_translucent(BITMAP* dest, int cl, int ct, int cr
 }
 
 
+// The 8x8 functions take a tile quarter, so there are 4 per tile.
+static bool valid_tile8(int32_t tile)
+{
+	return tile >= 0 && tile < NEWMAXTILES*4;
+}
+
 void puttiletranslucent8(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int32_t flip,[[maybe_unused]] int32_t opacity)
 {
+	if(!valid_tile8(tile))
+		return;
     if(x<-7 || y<-7)
         return;
         
@@ -1255,6 +1263,8 @@ void puttiletranslucent8(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t c
 
 void overtiletranslucent8(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int32_t flip,[[maybe_unused]] int32_t opacity)
 {
+	if(!valid_tile8(tile))
+		return;
     if(x<-7 || y<-7)
         return;
         
@@ -2144,6 +2154,8 @@ void overcomboblocktranslucent(BITMAP *dest, int32_t x, int32_t y, int32_t cid, 
 
 void puttile8(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int32_t flip)
 {
+	if(!valid_tile8(tile))
+		return;
     if(x<-7 || y<-7)
         return;
         
@@ -2239,6 +2251,8 @@ void puttile8(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int32_t
 
 void oldputtile8(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int32_t flip)
 {
+	if(!valid_tile8(tile))
+		return;
     if(x<-7 || y<-7)
         return;
         
@@ -2332,6 +2346,8 @@ void oldputtile8(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int3
 
 void overtile8(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int32_t flip)
 {
+	if(!valid_tile8(tile))
+		return;
 	int w = 8;
 	int cl = 0;
 	int ct = 0;
