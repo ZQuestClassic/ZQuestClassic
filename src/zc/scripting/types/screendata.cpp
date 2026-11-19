@@ -391,18 +391,6 @@ void screendata_set_register(int32_t reg, int32_t value)
 		else scr->.member|= ~flag; \
 	} \
 
-	#define SET_SCREENDATA_BOOL_INDEX(member, str, indexbound) \
-	{ \
-		int32_t indx = GET_D(rINDEX) / 10000; \
-		if(indx < 0 || indx > indexbound ) \
-		{ \
-			Z_scripterrlog("Invalid Index passed to Screen->%s[]: %d\n", (indx), str); \
-			break; \
-		} \
-		scr->member[indx] =( (value/10000) ? 1 : 0 ); \
-	}
-
-
 	switch (reg)
 	{
 		case LIT:
