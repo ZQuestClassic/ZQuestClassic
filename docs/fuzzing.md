@@ -1,65 +1,98 @@
 # Fuzzing
 
-Instructions for how to fuzz with [AFL++](https://github.com/AFLplusplus/AFLplusplus).
+Quests, saves, replays and music files all come from other people, so zplayer must survive any
+bytes in them. These scripts run [libFuzzer](https://llvm.org/docs/LibFuzzer.html) with
+AddressSanitizer against the code that reads them, and against the ZASM interpreter (quests
+carry ZASM that is not validated when loaded).
 
-Initial fuzzing (just overnight) on the quest loading code found 619 bad `.qst` inputs, leading to 18 different bug fixes.
+Only bugs that a quest, save or replay could exploit are worth fixing on this branch: writes out
+of bounds, uses after free, and reads out of bounds. A crash that only stops the program (a null
+dereference, a CHECK, deep recursion, running out of memory) is not.
 
-Scripts for fuzzing are located in `scripts/fuzzing`.
+The targets live in `src/zc/fuzz.cpp`, compiled into zplayer when CMake is configured with
+`-DWANT_FUZZ=ON`. They run in process, so each input costs one load, not a process launch.
 
-```sh
-# First run the setup script
-sh ./scripts/fuzzing/setup_fuzzer.sh
+| Target  | Input                                                                                    |
+|---------|------------------------------------------------------------------------------------------|
+| `qst`   | A quest file (`loadquest`)                                                               |
+| `sav`   | A save file                                                                              |
+| `zplay` | A replay file                                                                            |
+| `music` | First byte picks the decoder: 0 Ogg, 1 MP3 (both Allegro's acodec), 2 GME (.spc .nsf .gbs .vgm .gym), 3 MIDI |
+| `zasm`  | Decoded into a ZASM script, run in a game of `playground.qst` by the interpreter       |
 
-# Then start the main fuzzer instance
-sh ./scripts/fuzzing/start_fuzzer_instance.sh -M main -m 512 -t 3000 -i ../.tmp/fuzz_corpus -o ../.tmp/fuzz_results -- ./zplayer -load-and-quit @@
+## Running
 
-# Then start additional fuzzer instances, with a unique value of `-S` and perhaps different options
-sh ./scripts/fuzzing/start_fuzzer_instance.sh -S variant-1 -m 512 -t 3000 -i ../.tmp/fuzz_corpus -o ../.tmp/fuzz_results -- ./zplayer -load-and-quit @@
-sh ./scripts/fuzzing/start_fuzzer_instance.sh -S variant-2 -m 512 -t 3000 -i ../.tmp/fuzz_corpus -o ../.tmp/fuzz_results -- ./zplayer -load-and-quit @@
-```
-
-Bump up your Docker resources first to however much memory / cores make sense. You can run multiple fuzzers (each on a dedicated core) by running.
-
-When crashes are found the input file that caused them will be saved to `.tmp/fuzz_results`. You can debug it (outside of Docker):
-
-```sh
-./zplayer -load-and-quit .tmp/fuzz_results/ebd8aa410fae-main/crashes/id:000000,sig:11,src:000000,time:14618,execs:26,op:havoc,rep:2
-```
-
-You likely want to enable ASAN to help debug:
-```sh
-cmake --build build --config Asan -t zplayer
-```
-
-This script is helpful for 1) getting a stack trace of the program crashing with the bad inputs and 2) verifying changes no longer result in a crash:
+Needs LLVM's clang (on macOS: `brew install llvm`; Apple's clang has no libFuzzer).
 
 ```sh
-python scripts/process_fuzz_results.py --build_folder build/Asan
+bash scripts/fuzzing/build_fuzzer.sh      # build_fuzz/zplayer
+python3 scripts/fuzzing/create_corpus.py  # seed inputs from tests/, in .tmp/fuzz/seeds
+bash scripts/fuzzing/run_fuzzer.sh qst 4  # 4 parallel jobs; extra args go to libFuzzer
 ```
 
-Each crashing input will generate a file in `.tmp/fuzz_debugging/outputs` that looks something like this:
+`run_fuzzer.sh` keeps going after a crash. Crashes are saved in `.tmp/fuzz/artifacts/<target>/`,
+and the corpus it grows in `.tmp/fuzz/corpus/<target>/` (so a second run starts from where the
+first left off). Add `-max_total_time=<seconds>` to stop on its own.
 
-```cpp
-build/Asan/zplayer -load-and-quit /Users/connorclark/code/ZeldaClassic-secondary/.tmp/fuzz_results/main/hangs/id:000080,src:000787+000076,time:26346082,execs:78378,op:splice,rep:11
+How fast a target runs depends mostly on how big its inputs are: `qst` takes 100 ms for a 7 MB
+quest, and 7 ms for a 5 KB one. Two things help. A corpus that has grown large is worth shrinking
+now and then to the smallest inputs that reach the same code:
 
-=================================================================
-==10193==ERROR: AddressSanitizer: stack-buffer-overflow on address 0x700003bff22e at pc 0x00010c6489f5 bp 0x700003bfd790 sp 0x700003bfcf50
-READ of size 31 at 0x700003bff22e thread T3
-    #0 0x10c6489f4 in wrap_strlen+0x184 (libclang_rt.asan_osx_dynamic.dylib:x86_64h+0x1b9f4)
-    #1 0x10311e7a7 in readheader(PACKFILE*, zquestheader*, bool, unsigned char) qst.cpp:2605
-    #2 0x1031eecf4 in _lq_int(char const*, zquestheader*, miscQdata*, zctune*, bool, bool, unsigned char const*, unsigned char) qst.cpp:21630
-    #3 0x1031f5d14 in loadquest(char const*, zquestheader*, miscQdata*, zctune*, bool, bool, unsigned char*, unsigned char, bool, unsigned char) qst.cpp:22516
-    #4 0x103091f14 in do_load_and_quit_command(char const*) zplayer.cpp:4435
-    #5 0x103093103 in _al_mangled_main zplayer.cpp:4449
-    #6 0x10c391b7d in call_user_main osx_app_delegate.m:217
-    #7 0x10c391b58 in +[AllegroAppDelegate app_main:] osx_app_delegate.m:228
-    #8 0x7ff81abe6993 in __NSThread__start__+0x3f0 (Foundation:x86_64+0x58993)
-    #9 0x7ff819ccb4e0 in _pthread_start+0x7c (libsystem_pthread.dylib:x86_64+0x64e0)
-    #10 0x7ff819cc6f6a in thread_start+0xe (libsystem_pthread.dylib:x86_64+0x1f6a)
+```sh
+bash scripts/fuzzing/minimize_corpus.sh qst
 ```
 
-Just run the above script, inspect the stack traces saved to `.tmp/fuzz_debugging/outputs`, fix, re-build, repeat until all test inputs no longer crash.
+And a second run with a low limit on input size gets through many more inputs. It can't keep what
+only the long inputs in the corpus reach, so run it next to one at the full limit (they share the
+corpus):
+
+```sh
+MAX_LEN=262144 bash scripts/fuzzing/run_fuzzer.sh qst 4
+```
+
+Then group the crashes by where they happen:
+
+```sh
+python3 scripts/fuzzing/triage.py qst
+```
+
+Each group is marked `high`, `medium` or `low` by how exploitable its ASan report looks (see
+`severity()` in `triage.py`), most severe first. `--min_severity medium` leaves out the rest.
+
+To reproduce one, run zplayer on it from the build folder (the target comes from an env var, as
+libFuzzer reads the whole command line as its own):
+
+```sh
+cd build_fuzz
+ZC_FUZZ=qst ./zplayer ../.tmp/fuzz/artifacts/qst/crash-...
+```
+
+For `zasm`, also set `ZC_FUZZ_ZASM_QST` to `tests/replays/playground/playground.qst` (the run and
+triage scripts do), and `ZC_FUZZ_PRINT=1` to see the script an input decodes to.
+
+The corpus is stored with compression taken off (mutating compressed bytes rarely gets anywhere).
+To add your own quests or saves, unpack them the same way:
+
+```sh
+ZC_FUZZ=unpack ./zplayer quest.qst ../.tmp/fuzz/corpus/qst/quest.qst
+```
+
+## Notes
+
+- The build uses the `Asan` config at `-O1`, but with asserts off (`NDEBUG`, and no `DEBUGMODE` for
+  Allegro's `ASSERT`) as in a release build: an assert can stop a run just before the bug a release
+  build would go on to hit. CHECKs stay on.
+- Leak detection is off (`detect_leaks=0`): the loaders' globals make it noisy, and it is not what
+  these look for.
+- Some crashes only happen after earlier inputs in the same process (left over global state) and
+  won't reproduce from the artifact alone. Their stacks are in the `-asan` folder next to the
+  run's log in `.tmp/fuzz/logs/<target>/`: libFuzzer's own log keeps only the first line of each
+  crash (timeouts included). The reports there don't name the input.
+- The `zasm` target's jumps only go forward, and it leaves out `GOTOR`, `RETURN` and `LOOP` and
+  never writes the `PC` register, so every script ends. Commands that touch files, end the game,
+  or run whole frames are left out too.
 
 ## Future work
 
-Fuzz more things: ZScript parser, ZASM, the JIT compiler.
+Run the `zasm` target's scripts through the JIT as well (on x64 builds only, and only for players
+who turn it on).

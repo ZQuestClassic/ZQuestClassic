@@ -47,6 +47,7 @@
 #include "particles.h"
 #include "gamedata.h"
 #include "zc/ffscript.h"
+#include "zc/fuzz.h"
 #include "zc/jit.h"
 #include "zc/script_debug.h"
 #include "zc/combos.h"
@@ -4189,6 +4190,11 @@ int main(int argc, char **argv)
 	register_trace_handler(zc_trace_handler);
 	al_register_trace_handler([](const char* str){zc_trace_handler(str);});
 
+#ifdef ZC_FUZZ
+	if (zplayer_fuzz_requested())
+		zplayer_fuzz_setup_args(&argc, &argv);
+#endif
+
 	qstdir = (char*)malloc(2048);
 	qstpath = (char*)malloc(2048);
 	qstdir[0] = 0;
@@ -4295,6 +4301,17 @@ int main(int argc, char **argv)
 	{
 		set_headless_mode();
 	}
+
+#ifdef ZC_FUZZ
+	if (zplayer_fuzz_requested() && !zplayer_fuzz_needs_game())
+	{
+		set_headless_mode();
+		init_for_quest_load_command();
+		// Replays record the key bindings.
+		load_control_schemes();
+		zplayer_fuzz_main();
+	}
+#endif
 
 	int load_and_quit_arg = used_switch(argc, argv, "-load-and-quit");
 	if (load_and_quit_arg > 0)
@@ -5214,6 +5231,10 @@ reload_for_replay_file:
 			{
 				win32data.Update(0);
 			}
+#endif
+#ifdef ZC_FUZZ
+			if (fuzz_frame_hook)
+				fuzz_frame_hook();
 #endif
 			game_loop();
 			advanceframe(true);

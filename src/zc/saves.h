@@ -79,5 +79,9 @@ bool saves_delete(int32_t index, std::string& err);
 bool saves_copy(int32_t from_index, std::string& err);
 void saves_enable_save_current_replay();
 bool saves_test();
+#ifdef ZC_FUZZ
+// Loads a whole save file, then throws the result away.
+void saves_fuzz_load(fs::path path);
+#endif
 
 #endif

@@ -1471,6 +1471,16 @@ std::map<std::string, std::string> replay_load_meta(std::filesystem::path path)
 	return meta_map;
 }
 
+#ifdef ZC_FUZZ
+void replay_fuzz_load(std::filesystem::path path)
+{
+	std::string buffer;
+	std::map<std::string, std::string> meta;
+	load_replay(buffer, meta, path);
+	replay_log.clear();
+}
+#endif
+
 static void peek_meta_steps()
 {
 	if (!replay_is_replaying())
