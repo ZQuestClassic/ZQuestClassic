@@ -12048,7 +12048,7 @@ int32_t get_register_slow(const int32_t arg)
 					Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", str, ri->combosref); \
 					ret = -10000; \
 				} \
-				else if ( indx < 0 || indx > indexbound ) \
+				else if ( indx < 0 || indx >= indexbound ) \
 				{ \
 					Z_scripterrlog("Invalid Array Index passed to combodata->%s: %d\n", str, indx); \
 					ret = -10000; \
@@ -12212,7 +12212,7 @@ int32_t get_register_slow(const int32_t arg)
 				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", "Attributes[]", ri->combosref);
 				ret = -10000;
 			}
-			else if ( indx < 0 || indx > 4 )
+			else if ( indx < 0 || indx >= NUM_COMBO_ATTRIBUTES )
 			{
 				Z_scripterrlog("Invalid Array Index passed to combodata->%s: %d\n", "Attributes[]", indx);
 				ret = -10000;
@@ -12232,7 +12232,7 @@ int32_t get_register_slow(const int32_t arg)
 				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", "InitD[]", ri->combosref);
 				ret = -10000;
 			}
-			else if ( ((unsigned)indx) > 8 )
+			else if ( ((unsigned)indx) >= 8 )
 			{ 
 				Z_scripterrlog("Invalid Array Index passed to combodata->%s: %d\n", "InitD[]", indx); 
 				ret = -10000;
@@ -25297,7 +25297,7 @@ void set_register_slow(int32_t arg, int32_t value)
 				{ \
 					Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", str, ri->combosref); \
 				} \
-				else if ( indx < 0 || indx > indexbound ) \
+				else if ( indx < 0 || indx >= indexbound ) \
 				{ \
 					Z_scripterrlog("Invalid Array Index passed to combodata->%s: %d\n", str, indx); \
 				} \
@@ -25445,7 +25445,7 @@ void set_register_slow(int32_t arg, int32_t value)
 			{
 				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", "Attributes[]", ri->combosref);
 			}
-			else if ( indx < 0 || indx > 4 )
+			else if ( indx < 0 || indx >= NUM_COMBO_ATTRIBUTES )
 			{
 				Z_scripterrlog("Invalid Array Index passed to combodata->%s: %d\n", "Attributes[]", indx);
 			}
@@ -25462,7 +25462,7 @@ void set_register_slow(int32_t arg, int32_t value)
 			{
 				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", "InitD[]", ri->combosref);
 			}
-			else if ( ((unsigned)indx) > 8 )
+			else if ( ((unsigned)indx) >= 8 )
 			{ 
 				Z_scripterrlog("Invalid Array Index passed to combodata->%s: %d\n", "InitD[]", indx); 
 			} 
@@ -43029,9 +43029,9 @@ void FFScript::getComboData_animflags(){ GET_COMBODATA_VAR_INT(animflags); } //n
 
 
 //two inputs, one return
-void FFScript::getComboData_block_weapon(){ GET_COMBODATA_TYPE_INDEX(block_weapon,32); } //byte array[32] d (ID of LWeapon)
-void FFScript::getComboData_expansion(){ GET_COMBODATA_VAR_INDEX(expansion,6); } //newcombo byte, arr[6]
-void FFScript::getComboData_strike_weapons(){ GET_COMBODATA_TYPE_INDEX(strike_weapons,32); } //byte at, arr[32]
+void FFScript::getComboData_block_weapon(){ GET_COMBODATA_TYPE_INDEX(block_weapon,31); } //byte array[32] d (ID of LWeapon)
+void FFScript::getComboData_expansion(){ GET_COMBODATA_VAR_INDEX(expansion,5); } //newcombo byte, arr[6]
+void FFScript::getComboData_strike_weapons(){ GET_COMBODATA_TYPE_INDEX(strike_weapons,31); } //byte at, arr[32]
 
 //Setters, two inputs no returns
 
@@ -43116,9 +43116,9 @@ void FFScript::setComboData_skipanimy(){ SET_COMBODATA_VAR_INT(skipanimy,ZS_BYTE
 void FFScript::setComboData_animflags(){ SET_COMBODATA_VAR_INT(animflags,ZS_BYTE); } //newcombo byte
 
 //three inputs, no returns
-void FFScript::setComboData_block_weapon(int32_t v){ SET_COMBODATA_TYPE_INDEX(block_weapon,v,ZS_BYTE,32); } //byte array[32] d (ID of LWeapon)
-void FFScript::setComboData_strike_weapons(int32_t v){ SET_COMBODATA_TYPE_INDEX(strike_weapons,v,ZS_BYTE,32); } //byte at, arr[32]
-void FFScript::setComboData_expansion(int32_t v){ SET_COMBODATA_VAR_INDEX(expansion,v,ZS_BYTE,6); } //newcombo byte, arr[6]
+void FFScript::setComboData_block_weapon(int32_t v){ SET_COMBODATA_TYPE_INDEX(block_weapon,v,ZS_BYTE,31); } //byte array[32] d (ID of LWeapon)
+void FFScript::setComboData_strike_weapons(int32_t v){ SET_COMBODATA_TYPE_INDEX(strike_weapons,v,ZS_BYTE,31); } //byte at, arr[32]
+void FFScript::setComboData_expansion(int32_t v){ SET_COMBODATA_VAR_INDEX(expansion,v,ZS_BYTE,5); } //newcombo byte, arr[6]
 
 //SpriteData Macros
 #define GET_SPRITEDATA_TYPE_INT(member) \
