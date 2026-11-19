@@ -2981,7 +2981,7 @@ user_dir *checkDir(int32_t ref, const char *what, bool skipError = false)
 
 user_stack *checkStack(int32_t ref, const char *what, bool skipError = false)
 {
-	if(ref > 0 && ref <= USERSTACK_MAX_SIZE)
+	if(ref > 0 && ref <= MAX_USER_STACKS)
 	{
 		user_stack* st = &script_stacks[ref-1];
 		if(st->reserved)
