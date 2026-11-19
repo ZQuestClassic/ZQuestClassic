@@ -16866,7 +16866,8 @@ void set_register_slow(int32_t arg, int32_t value)
 				if(new_subscreen_active)
 					new_subscreen_active->get_page_pos(Bwpn, game->bwpn);
 				game->forced_bwpn = value/10000;
-				game->items_off[value/10000] = 0;
+				if(value/10000 >= 0)
+					game->items_off[value/10000] = 0;
 			}
 			directItemB = value/10000;
 			break;
@@ -16891,7 +16892,8 @@ void set_register_slow(int32_t arg, int32_t value)
 				Awpn = value/10000;
 				if(new_subscreen_active)
 					new_subscreen_active->get_page_pos(Awpn, game->awpn);
-				game->items_off[value/10000] = 0;
+				if(value/10000 >= 0)
+					game->items_off[value/10000] = 0;
 				game->forced_awpn = value/10000;
 			}
 			directItemA = value/10000;
@@ -16916,7 +16918,8 @@ void set_register_slow(int32_t arg, int32_t value)
 				Xwpn = value/10000;
 				if(new_subscreen_active)
 					new_subscreen_active->get_page_pos(Xwpn, game->xwpn);
-				game->items_off[value/10000] = 0;
+				if(value/10000 >= 0)
+					game->items_off[value/10000] = 0;
 				game->forced_xwpn = value/10000;
 			}
 			directItemX = value/10000;
@@ -16940,7 +16943,8 @@ void set_register_slow(int32_t arg, int32_t value)
 				Ywpn = value/10000;
 				if(new_subscreen_active)
 					new_subscreen_active->get_page_pos(Ywpn, game->ywpn);
-				game->items_off[value/10000] = 0;
+				if(value/10000 >= 0)
+					game->items_off[value/10000] = 0;
 				game->forced_ywpn = value/10000;
 			}
 			directItemY = value/10000;
