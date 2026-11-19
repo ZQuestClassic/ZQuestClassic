@@ -29356,7 +29356,7 @@ void do_allocatemem(const bool v, const bool local, ScriptType type, const uint3
 	if(local)
 	{
 		//localRAM[0] is used as an invalid container, so 0 can be the NULL pointer in ZScript
-		for(ptrval = 1; localRAM[ptrval].Valid(); ptrval++) ;
+		for(ptrval = 1; ptrval < NUM_ZSCRIPT_ARRAYS && localRAM[ptrval].Valid(); ptrval++) ;
 		
 		if(ptrval >= NUM_ZSCRIPT_ARRAYS)
 		{
@@ -29380,23 +29380,26 @@ void do_allocatemem(const bool v, const bool local, ScriptType type, const uint3
 	else
 	{
 		//Globals are only allocated here at first play, otherwise in init_game
-		for(ptrval = 0; game->globalRAM[ptrval].Valid(); ptrval++) ;
+		for(ptrval = 0; ptrval < game->globalRAM.size() && game->globalRAM[ptrval].Valid(); ptrval++) ;
 		
 		if(ptrval >= game->globalRAM.size())
 		{
 			Z_scripterrlog_force_trace("Invalid pointer value of %u passed to global allocate\n", ptrval);
 			//this shouldn't happen, unless people are putting ALLOCATEGMEM in their ZASM scripts where they shouldn't be
+			ptrval = 0;
 		}
-		
-		ZScriptArray &a = game->globalRAM[ptrval];
-		
-		a.Resize(size);
-		a.setValid(true);
-		
-		for(dword j = 0; j < (dword)size; j++)
-			a[j] = 0;
+		else
+		{
+			ZScriptArray &a = game->globalRAM[ptrval];
 			
-		ptrval += NUM_ZSCRIPT_ARRAYS; //so each pointer has a unique value
+			a.Resize(size);
+			a.setValid(true);
+			
+			for(dword j = 0; j < (dword)size; j++)
+				a[j] = 0;
+				
+			ptrval += NUM_ZSCRIPT_ARRAYS; //so each pointer has a unique value
+		}
 	}
 	
 	
@@ -49034,7 +49037,7 @@ void FFScript::do_varg_makearray(ScriptType type, const uint32_t UID)
 	size_t num_args = vargs.size();
 	//
 	dword ptrval;
-	for(ptrval = 1; localRAM[ptrval].Valid(); ptrval++) ;
+	for(ptrval = 1; ptrval < NUM_ZSCRIPT_ARRAYS && localRAM[ptrval].Valid(); ptrval++) ;
 	
 	if(ptrval >= NUM_ZSCRIPT_ARRAYS)
 	{
