@@ -17226,7 +17226,7 @@ void FFScript::do_varg_makearray(ScriptType type, const uint32_t UID, script_obj
 	}
 
 	dword ptrval;
-	for(ptrval = 1; localRAM[ptrval].Valid(); ptrval++) ;
+	for(ptrval = 1; ptrval < NUM_ZSCRIPT_ARRAYS && localRAM[ptrval].Valid(); ptrval++) ;
 	
 	if(ptrval >= NUM_ZSCRIPT_ARRAYS)
 	{
