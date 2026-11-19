@@ -1657,6 +1657,15 @@ static bool load_from_save_file_expect_one(ReadMode read_mode, fs::path path, sa
 	return true;
 }
 
+#ifdef ZC_FUZZ
+void saves_fuzz_load(fs::path path)
+{
+	save_t save;
+	std::string err;
+	load_from_save_file_expect_one(ReadMode::All, path, save, err);
+}
+#endif
+
 bool saves_is_valid_slot(int index)
 {
 	return index >= 0 && index < saves.size();
