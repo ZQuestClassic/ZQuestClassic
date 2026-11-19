@@ -8062,11 +8062,27 @@ int32_t get_register_slow(const int32_t arg)
 		}
 			
 		case GAMEITEMSD:
-			ret=(game->item[(ri->d[rINDEX])/10000] ? 10000 : 0);
+		{
+			int32_t id = ri->d[rINDEX]/10000;
+			if (BC::checkItemID(id, "Game->Item[]") != SH::_NoError)
+			{
+				ret = 0;
+				break;
+			}
+			ret = game->item[id] ? 10000 : 0;
 			break;
+		}
 		case DISABLEDITEM:
-			ret = (game->items_off[(ri->d[rINDEX])/10000] ? 10000 : 0);
+		{
+			int32_t id = ri->d[rINDEX]/10000;
+			if (BC::checkItemID(id, "Game->DisableItem[]") != SH::_NoError)
+			{
+				ret = 0;
+				break;
+			}
+			ret = game->items_off[id] ? 10000 : 0;
 			break;
+		}
 		case GAMESUSPEND:
 		{
 			int32_t inx = (ri->d[rINDEX])/10000;
@@ -21295,8 +21311,13 @@ void set_register_slow(int32_t arg, int32_t value)
 			break;
 		}
 		case GAMEITEMSD:
-			game->set_item((ri->d[rINDEX])/10000,(value!=0));
+		{
+			int32_t id = ri->d[rINDEX]/10000;
+			if (BC::checkItemID(id, "Game->Item[]") != SH::_NoError)
+				break;
+			game->set_item(id, value!=0);
 			break;
+		}
 		
 		case DISABLEDITEM:
 		{

@@ -893,6 +893,8 @@ void gamedata::set_item(int32_t id, bool value)
 
 void gamedata::set_item_no_flush(int32_t id, bool value)
 {
+    if(unsigned(id) >= MAXITEMS)
+        return;
     if(value != item[id])
         Z_eventlog("%s item %i: %s\n", value ? "Gained" : "Removed", id, item_string[id]);
         
