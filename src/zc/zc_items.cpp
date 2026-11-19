@@ -46,6 +46,10 @@ bool can_drop(item const* itm)
 
 int select_dropitem(int item_set)
 {
+	// Comes from enemies, combos and scripts, any of which can hold an invalid dropset.
+	if (unsigned(item_set) >= MAXITEMDROPSETS)
+		return -1;
+
 	auto const& dropset = item_drop_sets[item_set];
 	int chances[11] = {0};
 	int total_chance = 0;
