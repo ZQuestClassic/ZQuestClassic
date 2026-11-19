@@ -351,7 +351,17 @@ enum class ScriptType {
 enum direction { dir_invalid = -1, up, down, left, right, l_up, r_up, l_down, r_down };
 static const char* dirstr[] = {"up","down","left","right","up-left","up-right","down-left","down-right"};
 static const char* dirstr_proper[] = {"Up","Down","Left","Right","Up-Left","Up-Right","Down-Left","Down-Right"};
-const direction oppositeDir[]= {down, up, right, left, r_down, l_down, r_up, l_up};
+// Indexed with sprite directions that scripts can set to anything, so an out of range direction
+// gives dir_invalid rather than reading past the table.
+struct opposite_dir_table
+{
+	constexpr direction operator[](int32_t dir) const
+	{
+		constexpr direction table[] = {down, up, right, left, r_down, l_down, r_up, l_up};
+		return dir >= 0 && dir < 8 ? table[dir] : dir_invalid;
+	}
+};
+inline constexpr opposite_dir_table oppositeDir{};
 const direction normalDir[]={up,down,left,right,l_up,r_up,l_down,r_down,up,r_up,right,r_down,down,l_down,left,l_up};
 const direction xDir[] = { dir_invalid,dir_invalid,left,right,left,right,left,right };
 const direction yDir[] = { up,down,dir_invalid,dir_invalid,up,up,down,down };
