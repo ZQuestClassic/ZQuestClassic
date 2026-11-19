@@ -42515,7 +42515,10 @@ void FFScript::getNPCData_misc()
 	int32_t ID = int32_t(ri->d[rINDEX] / 10000); //the enemy ID value
 	int32_t indx = int32_t(ri->d[rINDEX2] / 10000); //the misc index ID
 	if ((ID < 1 || ID > 511) || ( indx < 0 || indx > 15 ))
+	{
 		set_register(sarg1, -10000); 
+		return;
+	}
 	switch ( indx )
 	{
 		case 0: set_register(sarg1, guysbuf[ID].misc1 * 10000); break;
