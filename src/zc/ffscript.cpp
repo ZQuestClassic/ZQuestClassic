@@ -36170,6 +36170,18 @@ int32_t run_script(ScriptType type, const word script, const int32_t i)
 		return RUNSCRIPT_ERROR;
 		
 	if(type != ScriptType::Global && !script) return RUNSCRIPT_OK; //Safeguard against running null scripts
+
+	// A script can run in the middle of another one: commands that run whole frames (like
+	// Screen->ZapOut) run generic scripts, and the engine throws generic script events from inside
+	// commands. The running script's state (ri, curscript, stack, ...) is global, so put it back
+	// afterwards, or the outer script would go on with this one's pc, registers and stack.
+	static int run_script_depth = 0;
+	struct NestedScriptScope
+	{
+		bool nested = run_script_depth > 0;
+		NestedScriptScope() { if (nested) push_ri(); ++run_script_depth; }
+		~NestedScriptScope() { --run_script_depth; if (nested) pop_ri(); }
+	} nested_script_scope;
 	
 	combopos_modified = -1;
 	curScriptType=type;
