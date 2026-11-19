@@ -997,6 +997,9 @@ static int32_t read_saves(ReadMode read_mode, PACKFILE* f, std::vector<save_t>& 
 				}
 				if(!p_igetl(&obj.owned_vars,f))
 					return 88;
+				// The member variables come first in the data; the rest are arrays it owns.
+				if(obj.owned_vars > obj.data.size())
+					return 88;
 				if (section_version >= 41)
 				{
 					std::vector<word> types;
@@ -1224,6 +1227,9 @@ static int32_t read_saves(ReadMode read_mode, PACKFILE* f, std::vector<save_t>& 
 					obj.data.push_back(templong);
 				}
 				if(!p_igetl(&obj.owned_vars,f))
+					return 88;
+				// The member variables come first in the data; the rest are arrays it owns.
+				if(obj.owned_vars > obj.data.size())
 					return 88;
 				if (section_version >= 41)
 				{
