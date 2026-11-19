@@ -4250,7 +4250,7 @@ int32_t get_register_slow(const int32_t arg)
 			
 		case FFRULE:
 		{
-			int32_t ruleid = vbound((ri->d[rINDEX]/10000),0,qr_MAX);
+			int32_t ruleid = vbound((ri->d[rINDEX]/10000),0,qr_MAX-1);
 			ret = get_qr(ruleid)?10000:0;
 		}
 		break;
@@ -17397,7 +17397,7 @@ void set_register_slow(int32_t arg, int32_t value)
 		
 		case FFRULE:
 		{
-			int32_t ruleid = vbound((ri->d[rINDEX]/10000),0,qr_MAX);
+			int32_t ruleid = vbound((ri->d[rINDEX]/10000),0,qr_MAX-1);
 			set_qr(ruleid, (value?true:false));
 			switch(ruleid)
 			{
