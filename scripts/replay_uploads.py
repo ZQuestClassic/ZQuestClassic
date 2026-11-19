@@ -111,7 +111,7 @@ def prepare_and_get_replay_keys():
 
     db = database.Database()
     get_qst_keys_by_hash = db.get_qst_keys_by_hash()
-    all_keys = list(_.key for _ in bucket.objects.all())
+    all_keys = list(_.key for _ in bucket.objects.all() if not _.key.startswith('baseline'))
     # Note: currently no plans to actual upload updated replays back to bucket.
     original_keys = [key for key in all_keys if updated_suffx not in key]
 
