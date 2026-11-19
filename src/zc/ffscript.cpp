@@ -21285,6 +21285,8 @@ void set_register_slow(int32_t arg, int32_t value)
 			break;
 			
 		case GAMECONTDMAP:
+			if (BC::checkDMapID(value/10000, "Game->ContinueDMap") != SH::_NoError)
+				break;
 			game->set_continue_dmap(value/10000);
 			break;
 			
@@ -21293,6 +21295,8 @@ void set_register_slow(int32_t arg, int32_t value)
 			break;
 			
 		case GAMEENTRDMAP:
+			if (BC::checkDMapID(value/10000, "Game->LastEntranceDMap") != SH::_NoError)
+				break;
 			lastentrance_dmap=value/10000;
 			break;
 			
