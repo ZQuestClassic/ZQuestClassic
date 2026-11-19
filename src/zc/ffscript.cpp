@@ -3364,7 +3364,10 @@ int32_t get_register_slow(const int32_t arg)
 		case DEBUGD:
 		{
 			int32_t a = ri->d[rINDEX] / 10000;
-			ret = ri->d[a] * 10000;
+			if (BC::checkBounds(a, 0, 7, "Debug->D[]") != SH::_NoError)
+				ret = -10000;
+			else
+				ret = ri->d[a] * 10000;
 			break;
 		}
 		
@@ -16028,8 +16031,9 @@ void set_register_slow(int32_t arg, int32_t value)
 		//debug ri->d[]
 		case DEBUGD:
 		{
-			int32_t a = vbound((ri->d[rINDEX] / 10000), 0, 255);
-			ri->d[a] = value/10000;
+			int32_t a = ri->d[rINDEX] / 10000;
+			if (BC::checkBounds(a, 0, 7, "Debug->D[]") == SH::_NoError)
+				ri->d[a] = value/10000;
 			break;
 		}    
 		
