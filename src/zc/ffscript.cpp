@@ -3266,6 +3266,8 @@ static bool is_dmapdata_register(int32_t arg)
 	{
 		case DMAPDATAASUBSCRIPT:
 		case DMAPDATACHARTED:
+		case DMAPINITD:
+		case DMAPSCRIPT:
 		case DMAPDATACOMPASS:
 		case DMAPDATACONTINUE:
 		case DMAPDATADISABLEDITEMS:
