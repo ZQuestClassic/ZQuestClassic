@@ -46,8 +46,24 @@ void loadfullpal()
 extern PALETTE tempgreypal;
 extern PALETTE userPALETTE[256];
 
+// Level and sprite palette numbers come from quests and scripts; reading outside of colordata
+// would copy other memory into the palette, where scripts can read it.
+static_assert(MAXLEVELS * pdLEVEL + poLEVEL <= poSPRITE255);
+static bool valid_lvlpal(int32_t level)
+{
+	return level >= 0 && level < MAXLEVELS;
+}
+
+static bool valid_palset(int32_t dataset, int32_t count = 1)
+{
+	return dataset >= 0 && dataset + count <= pdTOTAL255;
+}
+
 void loadlvlpal(int32_t level)
 {
+	if (!valid_lvlpal(level))
+		return;
+
 	byte *si = colordata + CSET(level*pdLEVEL+poLEVEL)*3;
 	
 	for(int32_t i=0; i<16*3; i++)
@@ -129,6 +145,9 @@ void loadlvlpal(int32_t level)
 
 void loadpalset(int32_t cset, int32_t dataset, bool update_tint)
 {
+	if (!valid_palset(dataset))
+		return;
+
 	int32_t j = CSET(dataset) * 3;
 
 	for (int32_t i = 0; i < 16; i++, j += 3)
@@ -190,6 +209,9 @@ void ringcolor(bool forceDefault)
 
 void loadfadepal(int32_t dataset)
 {
+    if (!valid_palset(dataset, pdFADE))
+        return;
+
     byte *si = colordata + CSET(dataset)*3;
     
     for(int32_t i=0; i<pdFADE*16; i++)
