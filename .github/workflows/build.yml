@@ -116,9 +116,19 @@ jobs:
 
       - if: ${{ contains(inputs.runs-on, 'windows') }}
         name: Install Dependencies
-        uses: crazy-max/ghaction-chocolatey@dff3862348493b11fba2fbc49147b6d2dfe09b66
-        with:
-          args: install .github/dependencies.config -y --allow-downgrade
+        # The community Chocolatey feed intermittently answers 503/504, which choco
+        # reports as "package not found". Already-installed packages are skipped on
+        # the next attempt, so retrying only re-fetches what failed.
+        shell: bash
+        run: |
+          for attempt in 1 2 3 4; do
+            choco install .github/dependencies.config -y --allow-downgrade && exit 0
+            if [ "$attempt" -lt 4 ]; then
+              echo "::warning::choco install failed, retrying in 30s ($attempt/3)"
+              sleep 30
+            fi
+          done
+          exit 1
       - name: Install LLVM and Clang
         if: inputs.compiler == 'clang' && runner.os == 'Linux'
         uses: KyleMayes/install-llvm-action@1a3da29f56261a1e1f937ec88f0856a9b8321d7e # v1
