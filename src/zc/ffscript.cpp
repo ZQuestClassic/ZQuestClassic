@@ -43144,10 +43144,14 @@ void FFScript::do_typedpointer_typecast(const bool v)
 
 void FFScript::SetItemMessagePlayed(int32_t itm)
 {
+	if(unsigned(itm) >= MAXITEMS)
+		return;
 	game->item_messages_played[itm] = 1;
 }
 bool FFScript::GetItemMessagePlayed(int32_t itm)
 {
+	if(unsigned(itm) >= MAXITEMS)
+		return false;
 	return ((game->item_messages_played[itm] ) ? true : false);
 }
 

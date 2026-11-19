@@ -3649,6 +3649,7 @@ bool HeroClass::checkstab()
 							bool nullify = ev[4] != 0;
 							if(nullify) continue;
 							id2 = ev[0]/10000;
+							if(unsigned(id2) >= MAXITEMS) continue;
 							pickup = (pickup&(ipCHECK|ipDUMMY)) | (ev[1]/10000);
 							pstr = ev[2] / 10000;
 							pstr_flags = ev[3] / 10000;
@@ -31028,6 +31029,7 @@ bool HeroClass::checkitems(int32_t index)
 			bool nullify = ev[4] != 0;
 			if(nullify) return false;
 			id2 = ev[0]/10000;
+			if(unsigned(id2) >= MAXITEMS) return false;
 			pickup = (pickup&(ipCHECK|ipDUMMY)) | (ev[1]/10000);
 			pstr = ev[2] / 10000;
 			pstr_flags = ev[3] / 10000;
