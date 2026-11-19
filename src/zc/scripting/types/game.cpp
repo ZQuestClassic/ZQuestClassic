@@ -692,6 +692,8 @@ void game_set_register(int32_t reg, int32_t value)
 			break;
 			
 		case GAMECONTDMAP:
+			if (BC::checkDMapID(value/10000) != SH::_NoError)
+				break;
 			game->set_continue_dmap(value/10000);
 			break;
 			
@@ -700,6 +702,8 @@ void game_set_register(int32_t reg, int32_t value)
 			break;
 			
 		case GAMEENTRDMAP:
+			if (BC::checkDMapID(value/10000) != SH::_NoError)
+				break;
 			lastentrance_dmap=value/10000;
 			break;
 		
