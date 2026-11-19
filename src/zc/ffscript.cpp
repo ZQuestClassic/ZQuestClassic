@@ -15962,7 +15962,7 @@ int32_t get_register_slow(const int32_t arg)
 		{
 			if(arg >= D(0) && arg <= D(7))			ret = ri->d[arg - D(0)];
 			else if(arg >= A(0) && arg <= A(1))		ret = ri->a[arg - A(0)];
-			else if(arg >= GD(0) && arg <= GD(MAX_SCRIPT_REGISTERS))	ret = game->global_d[arg - GD(0)];
+			else if(arg >= GD(0) && arg < GD(MAX_SCRIPT_REGISTERS))	ret = game->global_d[arg - GD(0)];
 			
 			break;
 		}
@@ -28941,7 +28941,7 @@ void set_register_slow(int32_t arg, int32_t value)
 		{
 			if(arg >= D(0) && arg <= D(7))			ri->d[arg - D(0)] = value;
 			else if(arg >= A(0) && arg <= A(1))		ri->a[arg - A(0)] = value;
-			else if(arg >= GD(0) && arg <= GD(MAX_SCRIPT_REGISTERS))	game->global_d[arg-GD(0)] = value;
+			else if(arg >= GD(0) && arg < GD(MAX_SCRIPT_REGISTERS))	game->global_d[arg-GD(0)] = value;
 			
 			break;
 		}

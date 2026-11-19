@@ -76,7 +76,7 @@ static x86::Gp get_z_register(CompilationState& state, x86::Compiler &cc, x86::G
 	{
 		cc.mov(val, x86::ptr_32(state.ptrRegisters, r * 4));
 	}
-	else if (r >= GD(0) && r <= GD(MAX_SCRIPT_REGISTERS))
+	else if (r >= GD(0) && r < GD(MAX_SCRIPT_REGISTERS))
 	{
 		cc.mov(val, x86::ptr_32(state.ptrGlobalRegisters, (r - GD(0)) * 4));
 	}
@@ -107,7 +107,7 @@ static x86::Gp get_z_register_64(CompilationState& state, x86::Compiler &cc, x86
 	{
 		cc.movsxd(val, x86::ptr_32(state.ptrRegisters, r * 4));
 	}
-	else if (r >= GD(0) && r <= GD(MAX_SCRIPT_REGISTERS))
+	else if (r >= GD(0) && r < GD(MAX_SCRIPT_REGISTERS))
 	{
 		cc.movsxd(val, x86::ptr_32(state.ptrGlobalRegisters, (r - GD(0)) * 4));
 	}
@@ -140,7 +140,7 @@ static void set_z_register(CompilationState& state, x86::Compiler &cc, x86::Gp v
 	{
 		cc.mov(x86::ptr_32(state.ptrRegisters, r * 4), val);
 	}
-	else if (r >= GD(0) && r <= GD(MAX_SCRIPT_REGISTERS))
+	else if (r >= GD(0) && r < GD(MAX_SCRIPT_REGISTERS))
 	{
 		cc.mov(x86::ptr_32(state.ptrGlobalRegisters, (r - GD(0)) * 4), val);
 	}
