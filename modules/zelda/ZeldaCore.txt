@@ -39,6 +39,7 @@ src/user_object.cpp
 src/ffc.cpp
 src/slopes.cpp
 src/zc/saves.cpp
+src/zc/fuzz.cpp
 src/zc/db_rng.cpp
 src/zc/zc_ffc.cpp
 src/music_playback.cpp

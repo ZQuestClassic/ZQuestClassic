@@ -32,7 +32,7 @@ if(MSVC AND CMAKE_CXX_COMPILER_LAUNCHER MATCHES "ccache")
 endif()
 set(WANT_ZUPDATER TRUE CACHE BOOL "Build the zupdater target")
 set(WANT_SENTRY FALSE CACHE BOOL "Include Sentry for crash dump handling")
-set(WANT_FUZZ FALSE CACHE BOOL "Set FUZZ CXX definition")
+set(WANT_FUZZ FALSE CACHE BOOL "Build zplayer with libFuzzer targets (ZC_FUZZ=<target> zplayer). Needs clang; see docs/fuzzing.md")
 set(WANT_GIT_HOOKS TRUE CACHE BOOL "Install git hooks")
 set(WANT_VENDORED_ZLIB TRUE CACHE BOOL "Build the vendored library at third_party/zlib")
 set(WANT_VENDORED_LIBPNG TRUE CACHE BOOL "Build the vendored library at third_party/libpng")
@@ -77,6 +77,27 @@ else()
 	set(CMAKE_CXX_FLAGS_ASAN "-O1 -g -fsanitize=address -fno-omit-frame-pointer" CACHE STRING "" FORCE)
 	set(CMAKE_C_FLAGS_ASAN "-O1 -g -fsanitize=address -fno-omit-frame-pointer" CACHE STRING "" FORCE)
 	set(CMAKE_EXE_LINKER_FLAGS_ASAN "${CMAKE_EXE_LINKER_FLAGS_DEBUG} -fsanitize=address" CACHE STRING "" FORCE)
+endif()
+
+if(WANT_FUZZ)
+	if(NOT CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR MSVC)
+		message(FATAL_ERROR "WANT_FUZZ needs clang (with libFuzzer, e.g. Homebrew llvm on macOS)")
+	endif()
+	# Coverage instrumentation for everything built from here on, vendored libraries
+	# included, so the fuzzer can see into the music decoders too. zplayer links libFuzzer's
+	# no-main runtime and enters it when the ZC_FUZZ env var names a target (src/zc/fuzz.cpp).
+	add_compile_options(-fsanitize=fuzzer-no-link)
+	add_link_options(-fsanitize=fuzzer-no-link)
+	execute_process(
+		COMMAND ${CMAKE_CXX_COMPILER} -print-resource-dir
+		OUTPUT_VARIABLE CLANG_RESOURCE_DIR
+		OUTPUT_STRIP_TRAILING_WHITESPACE)
+	file(GLOB_RECURSE LIBFUZZER_NO_MAIN "${CLANG_RESOURCE_DIR}/lib/*fuzzer_no_main*.a")
+	if(NOT LIBFUZZER_NO_MAIN)
+		message(FATAL_ERROR "Could not find libFuzzer's no-main runtime under ${CLANG_RESOURCE_DIR}")
+	endif()
+	list(GET LIBFUZZER_NO_MAIN 0 LIBFUZZER_NO_MAIN)
+	message(STATUS "libFuzzer: ${LIBFUZZER_NO_MAIN}")
 endif()
 
 if(WANT_GIT_HOOKS)
@@ -292,7 +313,10 @@ add_definitions(-DALLEGRO_KCM_AUDIO_SRC)
 #    aintern_bitmap.h:154:33: error: unknown type name 'ALLEGRO_BITMAP_WRAP'
 add_definitions(-DALLEGRO_UNSTABLE)
 add_compile_definitions("$<$<CONFIG:DEBUG>:DEBUGMODE>")
-add_compile_definitions("$<$<CONFIG:ASAN>:DEBUGMODE>")
+# Not for fuzzing, which looks for what a release build would do (see docs/fuzzing.md).
+if(NOT WANT_FUZZ)
+	add_compile_definitions("$<$<CONFIG:ASAN>:DEBUGMODE>")
+endif()
 
 set(MINIMP3_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/include/minimp3)
 
@@ -1168,6 +1192,7 @@ if(WANT_FUZZ)
 	foreach(target IN LISTS zc_targets)
 		target_compile_definitions(${target} PRIVATE ZC_FUZZ)
 	endforeach()
+	target_link_libraries(zplayer PRIVATE ${LIBFUZZER_NO_MAIN})
 endif()
 
 if (WIN32)
