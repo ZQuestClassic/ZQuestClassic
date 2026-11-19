@@ -1267,7 +1267,10 @@ int32_t get_qst_buffers()
         
     memset(guysbuf,0,sizeof(guydata)*MAXGUYS);
     
-    if((combo_class_buf=(comboclass*)malloc(sizeof(comboclass)*cMAX))==NULL)
+    // One entry for every value a combo's type can hold, not just the valid ones: quests and
+    // scripts can set any type, and it indexes this directly.
+    static_assert(cMAX <= 256);
+    if((combo_class_buf=(comboclass*)calloc(256, sizeof(comboclass)))==NULL)
         return 0;
         
     return 1;
