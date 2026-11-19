@@ -7,7 +7,7 @@
 struct user_stack;
 
 user_stack* checkStack(uint32_t id, bool skipError = false);
-void register_existing_user_stack(user_stack* stack);
+bool register_existing_user_stack(user_stack* stack);
 std::vector<user_stack*> get_user_stacks();
 
 int32_t stack_get_register(int32_t reg);

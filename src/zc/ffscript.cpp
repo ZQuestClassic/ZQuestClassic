@@ -295,9 +295,9 @@ script_array* create_script_array()
 	return script_arrays.create();
 }
 
-void register_existing_script_array(script_array* array)
+bool register_existing_script_array(script_array* array)
 {
-	script_arrays.register_existing(array);
+	return script_arrays.register_existing(array);
 }
 
 std::vector<script_array*> get_script_arrays()

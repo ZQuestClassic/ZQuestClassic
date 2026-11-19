@@ -81,8 +81,8 @@ void gamedata::load_user_objects()
 	for (const saved_user_object& obj : compat_saved_user_objects)
 	{
 		auto object = new user_object{obj.obj};
-		register_existing_user_object(object);
-		object->load_arrays(obj.held_arrays);
+		if (register_existing_user_object(object))
+			object->load_arrays(obj.held_arrays);
 	}
 #endif
 }

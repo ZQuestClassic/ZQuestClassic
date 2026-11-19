@@ -328,6 +328,12 @@ void init_script_objects()
 	}
 }
 
+bool can_register_existing_script_object_id(uint32_t id)
+{
+	// Saves made before 3.0 have ids that are reserved now, so only reject ids in use.
+	return !script_objects.contains(id);
+}
+
 void register_script_object(script_object_base* object, script_object_type type, uint32_t id)
 {
 	if (id == -1)

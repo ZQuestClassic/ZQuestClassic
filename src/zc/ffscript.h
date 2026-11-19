@@ -305,7 +305,7 @@ struct user_paldata : public script_object_base
 #define MAX_SCRIPT_ARRAYS 1000000
 
 script_array* create_script_array();
-void register_existing_script_array(script_array* array);
+bool register_existing_script_array(script_array* array);
 std::vector<script_array*> get_script_arrays();
 script_array* find_or_create_internal_script_array(script_array::internal_array_id internal_id);
 script_array* checkArray(uint32_t id, bool skipError = false);

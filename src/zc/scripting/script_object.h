@@ -43,6 +43,9 @@ void script_object_lookup_cache_clear();
 
 void init_script_objects();
 void register_script_object(script_object_base* object, script_object_type type, uint32_t id = -1);
+// False if an object loaded from a save can't have this id: another object already has it (a
+// damaged or crafted save).
+bool can_register_existing_script_object_id(uint32_t id);
 void script_object_ref_inc(uint32_t id);
 void script_object_ref_dec(uint32_t id);
 // Keeps an object alive while the engine is using it. Unlike script_object_ref_inc, this doesn't
@@ -132,11 +135,20 @@ struct UserDataContainer
 		return object;
 	}
 
-	void register_existing(T* object)
+	// Takes ownership of the object. Returns false (and deletes the object) if its id can't be
+	// used.
+	bool register_existing(T* object)
 	{
+		if (!can_register_existing_script_object_id(object->id))
+		{
+			delete object;
+			return false;
+		}
+
 		auto& vec = next_script_object_id_freelist;
 		vec.erase(std::remove(vec.begin(), vec.end(), object->id), vec.end());
 		register_script_object(object, type, object->id);
+		return true;
 	}
 
 	uint32_t get_free(bool skipError = false)

@@ -18,9 +18,9 @@ extern const string *sargstr;
 
 static UserDataContainer<user_object, MAX_USER_OBJECTS> user_objects = {script_object_type::object, "object"};
 
-void register_existing_user_object(user_object* object)
+bool register_existing_user_object(user_object* object)
 {
-	user_objects.register_existing(object);
+	return user_objects.register_existing(object);
 }
 
 std::vector<user_object*> get_user_objects()

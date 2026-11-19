@@ -19,9 +19,9 @@ user_stack *checkStack(uint32_t id, bool skipError)
 	return user_stacks.check(id, skipError);
 }
 
-void register_existing_user_stack(user_stack* stack)
+bool register_existing_user_stack(user_stack* stack)
 {
-	user_stacks.register_existing(stack);
+	return user_stacks.register_existing(stack);
 }
 
 std::vector<user_stack*> get_user_stacks()

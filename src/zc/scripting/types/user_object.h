@@ -9,7 +9,7 @@
 
 struct user_object;
 
-void register_existing_user_object(user_object* object);
+bool register_existing_user_object(user_object* object);
 std::vector<user_object*> get_user_objects();
 
 void user_object_init();
