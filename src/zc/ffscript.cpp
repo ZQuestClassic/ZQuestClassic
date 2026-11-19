@@ -211,7 +211,8 @@ mapscr* GetMapscr(int32_t mapref)
 		case MAPSCR_SCROLL6: return FFCore.ScrollingScreens[6]; //Temp scrolllayer 6
 		default:
 		{
-			if(mapref < 0) return NULL; //Bad negative value
+			// A script can set its mapdata pointer to any value.
+			if(mapref < 0 || (size_t)mapref >= TheMaps.size()) return NULL;
 			else return &TheMaps[mapref]; //Standard mapdata
 		}
 	}
@@ -9521,7 +9522,7 @@ int32_t get_register_slow(const int32_t arg)
 				else
 				{
 					mapscr *m = GetMapscr(ri->mapsref);
-					ret = ((m->hidelayers >> indx) & 1) *10000;
+					ret = m ? ((m->hidelayers >> indx) & 1) *10000 : -10000;
 				}
 			}
 			break;
@@ -9544,7 +9545,7 @@ int32_t get_register_slow(const int32_t arg)
 				else
 				{
 					mapscr *m = GetMapscr(ri->mapsref);
-					ret = ((m->hidescriptlayers >> indx) & 1) ? 0 : 10000;
+					ret = !m ? -10000 : ((m->hidescriptlayers >> indx) & 1) ? 0 : 10000;
 				}
 			}
 			break;
@@ -30172,7 +30173,10 @@ void do_mapdataissolid()
 				set_register(sarg1, (_walkflag(x, y, 1, FFCore.ScrollingScreens[0], FFCore.ScrollingScreens[1], FFCore.ScrollingScreens[2])) ? 10000 : 0);
 				break;
 			default:
-				set_register(sarg1, (_walkflag(x, y, 1, GetMapscr(ri->mapsref)) ? 10000 : 0));
+				if (mapscr* m = GetMapscr(ri->mapsref))
+					set_register(sarg1, (_walkflag(x, y, 1, m) ? 10000 : 0));
+				else
+					set_register(sarg1, 10000);
 		}
 	}
 }
@@ -30206,6 +30210,11 @@ void do_mapdataissolid_layer()
 					break;
 				default:
 					mapscr* m = GetMapscr(ri->mapsref);
+					if (!m)
+					{
+						set_register(sarg1,10000);
+						break;
+					}
 					if(layer > 0)
 					{
 						// layermap holds the map number + 1 (0 for no layer), and its first entry is
