@@ -30650,6 +30650,8 @@ void getitem(int32_t id, bool nosound, bool doRunPassive)
 
 void takeitem(int32_t id)
 {
+    if(unsigned(id) >= MAXITEMS)
+        return;
     game->set_item(id, false);
     itemdata const& idat = itemsbuf[id];
     
