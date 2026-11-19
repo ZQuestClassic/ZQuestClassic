@@ -13190,6 +13190,11 @@ int32_t get_register_slow(const int32_t arg)
 			
 			int32_t arrayptr = get_register(sarg1) / 10000;
 			int32_t init_d_index = get_register(sarg2) / 10000;
+			if (BC::checkBounds(init_d_index, 0, 7, "npcdata->MatchInitDLabel()") != SH::_NoError)
+			{
+				ret = 0;
+				break;
+			}
 			
 			string name;
 			ArrayH::getString(arrayptr, name, 256); // What's the limit on name length?
