@@ -11114,7 +11114,12 @@ int32_t get_register_slow(const int32_t arg)
 			int32_t ref = ri->shopsref; 
 			bool isInfo = ( ref >= NUMSHOPS && ref <= NUMINFOSHOPS ); 
 			int32_t indx = ri->d[rINDEX] / 10000; 
-			if ( indx < 0 || indx > 2 ) 
+			if ( ref < 0 || ref > NUMINFOSHOPS )
+			{
+				Z_scripterrlog("Invalid shopdata pointer: %d\n", ref);
+				ret = -10000;
+			}
+			else if ( indx < 0 || indx > 2 ) 
 			{ 
 				Z_scripterrlog("Invalid Array Index passed to shopdata->%s: %d\n", "Item", indx);
 				ret = -10000;
@@ -11142,7 +11147,12 @@ int32_t get_register_slow(const int32_t arg)
 			int32_t ref = ri->shopsref; 
 			bool isInfo = ( ref >= NUMSHOPS && ref <= NUMINFOSHOPS ); 
 			int32_t indx = ri->d[rINDEX] / 10000; 
-			if ( indx < 0 || indx > 2 ) 
+			if ( ref < 0 || ref > NUMINFOSHOPS )
+			{
+				Z_scripterrlog("Invalid shopdata pointer: %d\n", ref);
+				ret = -10000;
+			}
+			else if ( indx < 0 || indx > 2 ) 
 			{ 
 				Z_scripterrlog("Invalid Array Index passed to shopdata->%s: %d\n", "HasItem", indx); 
 				ret = -10000;
@@ -11170,7 +11180,12 @@ int32_t get_register_slow(const int32_t arg)
 			int32_t ref = ri->shopsref; 
 			bool isInfo = ( ref >= NUMSHOPS && ref <= NUMINFOSHOPS ); 
 			int32_t indx = ri->d[rINDEX] / 10000; 
-			if ( indx < 0 || indx > 2 ) 
+			if ( ref < 0 || ref > NUMINFOSHOPS )
+			{
+				Z_scripterrlog("Invalid shopdata pointer: %d\n", ref);
+				ret = -10000;
+			}
+			else if ( indx < 0 || indx > 2 ) 
 			{ 
 				Z_scripterrlog("Invalid Array Index passed to shopdata->%s: %d\n", "Price", indx); 
 				ret = -10000;
@@ -24290,7 +24305,11 @@ void set_register_slow(int32_t arg, int32_t value)
 			int32_t ref = ri->shopsref; 
 			bool isInfo = ( ref >= NUMSHOPS && ref <= NUMINFOSHOPS ); 
 			int32_t indx = ri->d[rINDEX] / 10000; 
-			if ( indx < 0 || indx > 2 ) 
+			if ( ref < 0 || ref > NUMINFOSHOPS )
+			{
+				Z_scripterrlog("Invalid shopdata pointer: %d\n", ref);
+			}
+			else if ( indx < 0 || indx > 2 ) 
 			{ 
 				Z_scripterrlog("Invalid Array Index passed to shopdata->%s: %d\n", "Item", indx); 
 				break;
@@ -24317,7 +24336,11 @@ void set_register_slow(int32_t arg, int32_t value)
 			int32_t ref = ri->shopsref; 
 			bool isInfo = ( ref >= NUMSHOPS && ref <= NUMINFOSHOPS ); 
 			int32_t indx = ri->d[rINDEX] / 10000; 
-			if ( indx < 0 || indx > 2 ) 
+			if ( ref < 0 || ref > NUMINFOSHOPS )
+			{
+				Z_scripterrlog("Invalid shopdata pointer: %d\n", ref);
+			}
+			else if ( indx < 0 || indx > 2 ) 
 			{ 
 				Z_scripterrlog("Invalid Array Index passed to shopdata->%s: %d\n", "HasItem", indx); 
 				break;
@@ -24343,7 +24366,11 @@ void set_register_slow(int32_t arg, int32_t value)
 			int32_t ref = ri->shopsref; 
 			bool isInfo = ( ref >= NUMSHOPS && ref <= NUMINFOSHOPS ); 
 			int32_t indx = ri->d[rINDEX] / 10000; 
-			if ( indx < 0 || indx > 2 ) 
+			if ( ref < 0 || ref > NUMINFOSHOPS )
+			{
+				Z_scripterrlog("Invalid shopdata pointer: %d\n", ref);
+			}
+			else if ( indx < 0 || indx > 2 ) 
 			{ 
 				Z_scripterrlog("Invalid Array Index passed to shopdata->%s: %d\n", "Price", indx); 
 				break;
