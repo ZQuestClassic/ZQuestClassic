@@ -3311,6 +3311,9 @@ int32_t enemy::defendNewInt(int32_t wpnId, int32_t *power, int32_t edef, byte un
 	unblockable = byte(ev[2]/10000);
 	wpnId = ev[3] / 10000;
 	bool nullify = ev[4]!=0;
+	// Negative values pick a defense type directly; others index the enemy's defenses.
+	if(edef >= edefLAST255)
+		nullify = true;
 	ev.clear();
 	int ret = 0;
 	if(!nullify)
