@@ -12839,7 +12839,7 @@ int32_t get_register_slow(const int32_t arg)
 					Z_scripterrlog("Invalid NPC ID passed to npcdata->%s: %d\n", str, (ri->npcdataref*10000)); \
 					ret = -10000; \
 				} \
-				else if ( (unsigned)indx > indexbound ) \
+				else if ( (unsigned)indx >= indexbound ) \
 				{ \
 					Z_scripterrlog("Invalid Array Index passed to npcdata->%s: %d\n", str, indx); \
 					ret = -10000; \
@@ -12925,7 +12925,7 @@ int32_t get_register_slow(const int32_t arg)
 		case NPCDATATILEHEIGHT: GET_NPCDATA_VAR_INT32(tysz, "TileHeight"); break;
 		case NPCDATAWPNSPRITE: GET_NPCDATA_VAR_INT32(wpnsprite, "WeaponSprite"); break;
 		case NPCDATAWEAPONSCRIPT: GET_NPCDATA_VAR_INT32(weaponscript, "WeaponScript"); break;
-		case NPCDATADEFENSE: GET_NPCDATA_VAR_INDEX(defense, "Defense", 42); break;
+		case NPCDATADEFENSE: GET_NPCDATA_VAR_INDEX(defense, "Defense", edefLAST255); break;
 		case NPCDATAINITD:
 		{
 			int32_t indx = ri->d[rINDEX] / 10000;
@@ -26035,7 +26035,7 @@ void set_register_slow(int32_t arg, int32_t value)
 				{ \
 					Z_scripterrlog("Invalid NPC ID passed to npcdata->%s: %d\n", str, (ri->npcdataref*10000)); \
 				} \
-				else if ( (unsigned)indx > indexbound ) \
+				else if ( (unsigned)indx >= indexbound ) \
 				{ \
 					Z_scripterrlog("Invalid Array Index passed to npcdata->%s: %d\n", str, indx); \
 				} \
@@ -26122,7 +26122,7 @@ void set_register_slow(int32_t arg, int32_t value)
 		case NPCDATATILEHEIGHT: SET_NPCDATA_VAR_INT(tysz, "TileHeight"); break;
 		case NPCDATAWPNSPRITE: SET_NPCDATA_VAR_INT(wpnsprite, "WeaponSprite"); break;
 		case NPCDATAWEAPONSCRIPT: SET_NPCDATA_VAR_INT(weaponscript, "WeaponScript"); break;
-		case NPCDATADEFENSE: SET_NPCDATA_VAR_INDEX(defense, "Defense", 42); break;
+		case NPCDATADEFENSE: SET_NPCDATA_VAR_INDEX(defense, "Defense", edefLAST255); break;
 		case NPCDATAWEAPONINITD:
 		{
 			int32_t indx = ri->d[rINDEX] / 10000;
