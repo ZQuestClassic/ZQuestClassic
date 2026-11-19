@@ -21,6 +21,14 @@ int32_t report_too_many_literals(const std::string& script_name)
 	return qe_invalid;
 }
 
+// The engine finds the end of a script by looking for the terminator (0xFFFF), not by its size. A
+// corrupt quest might leave it out, so add it: otherwise running the script reads past its end.
+void ensure_zasm_terminated(std::vector<ffscript>& zasm)
+{
+	if (!zasm.empty() && zasm.back().command != 0xFFFF)
+		zasm.emplace_back(0xFFFF);
+}
+
 // 3.0+ calls this.
 int32_t read_quest_zasm(PACKFILE *f, word s_version)
 {
@@ -86,6 +94,8 @@ int32_t read_quest_zasm(PACKFILE *f, word s_version)
 			return report_too_many_literals("@single");
 		zasm.push_back(temp_script);
 	}
+
+	ensure_zasm_terminated(zasm);
 
 	// Modern versions of ZC never emit invalid jumps, so this must be a corrupt file. See
 	// zasm_find_invalid_jump.
@@ -371,6 +381,8 @@ int32_t read_old_ffscript(PACKFILE *f, word s_version, script_data *script, word
 	if (script == &fake_script_data)
 		return 0;
 
+	ensure_zasm_terminated(zasm);
+
 	// If the first command is unknown, invalidate the whole thing.
 	// Saw this for https://www.purezc.net/index.php?page=quests&id=411 hero script 0
 	if (!zasm.empty() && zasm[0].command >= NUMCOMMANDS && zasm[0].command != 0xFFFF)
@@ -442,6 +454,7 @@ int32_t read_one_ffscript(PACKFILE *f, zquestheader *, [[maybe_unused]] int32_t 
 
 	assert(zasm_scripts.size() == 1);
 	auto& zs = zasm_scripts[0];
+
 	script->zasm_script = zs;
 
 	if (script->valid())
