@@ -8220,7 +8220,7 @@ int32_t get_register_slow(const int32_t arg)
 		case GAMEMISCSPR:
 		{
 			int32_t inx = (ri->d[rINDEX])/10000;
-			if ( ((unsigned)inx) > sprMAX )
+			if ( ((unsigned)inx) >= sprMAX )
 			{
 				Z_scripterrlog("Invalid index %d supplied to Game->MiscSprites[].\n", inx);
 				ret = -10000;
@@ -8234,7 +8234,7 @@ int32_t get_register_slow(const int32_t arg)
 		case GAMEMISCSFX:
 		{
 			int32_t inx = (ri->d[rINDEX])/10000;
-			if ( ((unsigned)inx) > sfxMAX )
+			if ( ((unsigned)inx) >= sfxMAX )
 			{
 				Z_scripterrlog("Invalid index %d supplied to Game->MiscSFX[].\n", inx);
 				ret = -10000;
@@ -21469,7 +21469,7 @@ void set_register_slow(int32_t arg, int32_t value)
 		case GAMEMISCSPR:
 		{
 			int32_t inx = (ri->d[rINDEX])/10000;
-			if ( ((unsigned)inx) > sprMAX )
+			if ( ((unsigned)inx) >= sprMAX )
 			{
 				Z_scripterrlog("Invalid index %d supplied to Game->MiscSprites[].\n", inx);
 			}
@@ -21482,7 +21482,7 @@ void set_register_slow(int32_t arg, int32_t value)
 		case GAMEMISCSFX:
 		{
 			int32_t inx = (ri->d[rINDEX])/10000;
-			if ( ((unsigned)inx) > sfxMAX )
+			if ( ((unsigned)inx) >= sfxMAX )
 			{
 				Z_scripterrlog("Invalid index %d supplied to Game->MiscSFX[].\n", inx);
 			}
