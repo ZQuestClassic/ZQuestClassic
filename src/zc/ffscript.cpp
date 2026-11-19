@@ -14232,43 +14232,30 @@ int32_t run_script_int(JittedScriptInstance* j_instance)
 	return RUNSCRIPT_OK;
 }
 
+// The script for an object destructor to run in. `script` and `i` can come from a save file, so
+// neither is trusted. Returns nullptr if there is no such script (or sprite).
 script_data* load_scrdata(ScriptType type, word script, int32_t i)
 {
+	sprite_list* sprites = nullptr;
 	switch(type)
 	{
-		case ScriptType::FFC:
-			return ffscripts[script];
-		case ScriptType::NPC:
-			return guyscripts[guys.getByUID(i)->scrconfig.script];
-		case ScriptType::Lwpn:
-			return lwpnscripts[Lwpns.getByUID(i)->scrconfig.script];
-		case ScriptType::Ewpn:
-			return ewpnscripts[Ewpns.getByUID(i)->scrconfig.script];
-		case ScriptType::ItemSprite:
-			return itemspritescripts[items.getByUID(i)->scrconfig.script];
-		case ScriptType::Item:
-			return itemscripts[script];
-		case ScriptType::Global:
-			return globalscripts[script];
-		case ScriptType::Generic:
-		case ScriptType::GenericFrozen:
-			return genericscripts[script];
-		case ScriptType::Hero:
-			return playerscripts[script];
-		case ScriptType::DMap:
-			return dmapscripts[script];
-		case ScriptType::OnMap:
-		case ScriptType::ScriptedActiveSubscreen:
-		case ScriptType::ScriptedPassiveSubscreen:
-			return dmapscripts[script];
-		case ScriptType::Screen:
-			return screenscripts[script];
-		case ScriptType::Combo:
-			return comboscripts[script];
-		case ScriptType::EngineSubscreen:
-			return subscreenscripts[script];
+		case ScriptType::NPC: sprites = &guys; break;
+		case ScriptType::Lwpn: sprites = &Lwpns; break;
+		case ScriptType::Ewpn: sprites = &Ewpns; break;
+		case ScriptType::ItemSprite: sprites = &items; break;
+		default: break;
 	}
-	return nullptr;
+
+	// For a sprite, the script is the one the sprite runs.
+	if (sprites)
+	{
+		sprite* spr = sprites->getByUID(i);
+		if (!spr)
+			return nullptr;
+		script = spr->scrconfig.script;
+	}
+
+	return get_script_safe(type, script);
 }
 
 //This keeps ffc scripts running beyond the first frame. 
