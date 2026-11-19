@@ -1601,6 +1601,32 @@ bool& FFScript::waitdraw(ScriptType type, int index)
 	return get_script_engine_data(type, index).waitdraw;
 }
 
+// The number of scripts of a type: script ids index tables this big.
+static int script_table_size(ScriptType type)
+{
+	switch(type)
+	{
+		case ScriptType::FFC: return NUMSCRIPTFFC;
+		case ScriptType::NPC: return NUMSCRIPTGUYS;
+		case ScriptType::Lwpn:
+		case ScriptType::Ewpn: return NUMSCRIPTWEAPONS;
+		case ScriptType::ItemSprite: return NUMSCRIPTSITEMSPRITE;
+		case ScriptType::Item: return NUMSCRIPTITEM;
+		case ScriptType::Global: return NUMSCRIPTGLOBAL;
+		case ScriptType::Generic:
+		case ScriptType::GenericFrozen: return NUMSCRIPTSGENERIC;
+		case ScriptType::Player: return NUMSCRIPTPLAYER;
+		case ScriptType::DMap:
+		case ScriptType::OnMap:
+		case ScriptType::ScriptedActiveSubscreen:
+		case ScriptType::ScriptedPassiveSubscreen: return NUMSCRIPTSDMAP;
+		case ScriptType::Screen: return NUMSCRIPTSCREEN;
+		case ScriptType::Combo: return NUMSCRIPTSCOMBODATA;
+		case ScriptType::EngineSubscreen: return NUMSCRIPTSSUBSCREEN;
+		default: return 0;
+	}
+}
+
 // Returns true if registers had to be initialized.
 static bool set_current_script_engine_data(ScriptType type, int script, int index)
 {
@@ -36144,6 +36170,10 @@ int32_t run_script(ScriptType type, const word script, const int32_t i)
 		return RUNSCRIPT_ERROR;
 	}
 
+	// Script ids come from quest data, which isn't checked when loaded.
+	if (script >= script_table_size(type))
+		return RUNSCRIPT_OK;
+
 	bool got_initialized = false;
 	switch(type)
 	{
@@ -40881,18 +40911,32 @@ j_command:
 
 script_data* load_scrdata(ScriptType type, word script, int32_t i)
 {
+	if (script >= script_table_size(type))
+		return nullptr;
 	switch(type)
 	{
 		case ScriptType::FFC:
 			return ffscripts[script];
 		case ScriptType::NPC:
-			return guyscripts[guys.spr(GuyH::getNPCIndex(i))->script];
+		{
+			int id = guys.spr(GuyH::getNPCIndex(i))->script;
+			return unsigned(id) < NUMSCRIPTGUYS ? guyscripts[id] : nullptr;
+		}
 		case ScriptType::Lwpn:
-			return lwpnscripts[Lwpns.spr(LwpnH::getLWeaponIndex(i))->weaponscript];
+		{
+			int id = Lwpns.spr(LwpnH::getLWeaponIndex(i))->weaponscript;
+			return unsigned(id) < NUMSCRIPTWEAPONS ? lwpnscripts[id] : nullptr;
+		}
 		case ScriptType::Ewpn:
-			return ewpnscripts[Ewpns.spr(EwpnH::getEWeaponIndex(i))->weaponscript];
+		{
+			int id = Ewpns.spr(EwpnH::getEWeaponIndex(i))->weaponscript;
+			return unsigned(id) < NUMSCRIPTWEAPONS ? ewpnscripts[id] : nullptr;
+		}
 		case ScriptType::ItemSprite:
-			return itemspritescripts[items.spr(ItemH::getItemIndex(i))->script];
+		{
+			int id = items.spr(ItemH::getItemIndex(i))->script;
+			return unsigned(id) < NUMSCRIPTSITEMSPRITE ? itemspritescripts[id] : nullptr;
+		}
 		case ScriptType::Item:
 			return itemscripts[script];
 		case ScriptType::Global:
