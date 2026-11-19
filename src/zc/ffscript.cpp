@@ -13250,7 +13250,10 @@ int32_t get_register_slow(const int32_t arg)
 			//	ret = scb.script_created_bitmaps[ri->bitmapref-10].u_bmp->w * 10000;
 			//}
 			//else ret = 0;
-			ret = scb.script_created_bitmaps[ri->bitmapref-10].width * 10000;
+			if (unsigned(ri->bitmapref-10) < MAX_USER_BITMAPS)
+				ret = scb.script_created_bitmaps[ri->bitmapref-10].width * 10000;
+			else
+				ret = -10000;
 			break;
 		}
 
@@ -13263,7 +13266,10 @@ int32_t get_register_slow(const int32_t arg)
 			//	ret = scb.script_created_bitmaps[ri->bitmapref].u_bmp->h * 10000;
 			//}
 			//else ret = 0;
-			ret = scb.script_created_bitmaps[ri->bitmapref-10].height * 10000;
+			if (unsigned(ri->bitmapref-10) < MAX_USER_BITMAPS)
+				ret = scb.script_created_bitmaps[ri->bitmapref-10].height * 10000;
+			else
+				ret = -10000;
 			break;
 		}
 		///----------------------------------------------------------------------------------------------------//
@@ -41560,6 +41566,10 @@ void FFScript::do_write_bitmap()
 		{
 			Z_scripterrlog("WriteBitmap() failed to write image file %s\n",filename_str.c_str());
 		}
+	}
+	else if ( ref >= MAX_USER_BITMAPS )
+	{
+		Z_scripterrlog("WriteBitmap() was given an invalid bitmap (%d)\n", ri->bitmapref);
 	}
 	else if ( ref >= 7 )
 	{

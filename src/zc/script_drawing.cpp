@@ -5828,7 +5828,7 @@ void bmp_do_clearr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
     //sdci[1]=layer
 	//sdci[DRAWCMD_BMP_TARGET] Bitmap Pointer
 	//Z_scripterrlog("bitmap->Clear() pointer is: %d\n", sdci[DRAWCMD_BMP_TARGET]);
-    if ( sdci[DRAWCMD_BMP_TARGET] <= 0 )
+    if ( unsigned(sdci[DRAWCMD_BMP_TARGET] - 10) >= MAX_USER_BITMAPS )
     {
 	Z_scripterrlog("bitmap->Clear() wanted to use to an invalid bitmap id: %d. Aborting.\n", sdci[DRAWCMD_BMP_TARGET]);
 	return;
@@ -5844,7 +5844,7 @@ void bmp_do_clearcolorr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yof
     //sdci[2]=color
 	//sdci[DRAWCMD_BMP_TARGET] Bitmap Pointer
 	int32_t pal_color = sdci[2]/10000;
-    if ( sdci[DRAWCMD_BMP_TARGET] <= 0 )
+    if ( unsigned(sdci[DRAWCMD_BMP_TARGET] - 10) >= MAX_USER_BITMAPS )
     {
 	Z_scripterrlog("bitmap->ClearToColor() wanted to use to an invalid bitmap id: %d. Aborting.\n", sdci[DRAWCMD_BMP_TARGET]);
 	return;
@@ -5869,7 +5869,7 @@ void bmp_do_regenr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 	}
 	//sdci[DRAWCMD_BMP_TARGET] Bitmap Pointer
 	//Z_scripterrlog("bitmap->Create() pointer is: %d\n", sdci[DRAWCMD_BMP_TARGET]);
-    if ( sdci[DRAWCMD_BMP_TARGET] <= 0 )
+    if ( unsigned(sdci[DRAWCMD_BMP_TARGET] - 10) >= MAX_USER_BITMAPS )
     {
 	Z_scripterrlog("bitmap->Create() wanted to use to an invalid bitmap id: %d. Aborting.\n", sdci[DRAWCMD_BMP_TARGET]);
 	return;
@@ -5913,7 +5913,7 @@ void bmp_do_readr(BITMAP *bmp, int32_t i, int32_t *sdci, int32_t xoffset, int32_
     //sdci[9]=opacity
 	//sdci[DRAWCMD_BMP_TARGET] Bitmap Pointer
 	//Z_scripterrlog("bitmap->Read() pointer is: %d\n", sdci[DRAWCMD_BMP_TARGET]);
-    if ( sdci[DRAWCMD_BMP_TARGET] <= 0 )
+    if ( unsigned(sdci[DRAWCMD_BMP_TARGET] - 10) >= MAX_USER_BITMAPS )
     {
 		Z_scripterrlog("bitmap->Read() wanted to use to an invalid bitmap id: %d. Aborting.\n", sdci[DRAWCMD_BMP_TARGET]);
 		return;
@@ -5977,7 +5977,7 @@ void bmp_do_writer(BITMAP *bmp, int32_t i, int32_t *sdci, int32_t xoffset, int32
 	//sdci[DRAWCMD_BMP_TARGET] Bitmap Pointer
 	//Z_scripterrlog("bitmap->Write() pointer is: %d\n", sdci[DRAWCMD_BMP_TARGET]);
 	
-    if ( sdci[DRAWCMD_BMP_TARGET] <= 0 )
+    if ( unsigned(sdci[DRAWCMD_BMP_TARGET] - 10) >= MAX_USER_BITMAPS )
     {
 	Z_scripterrlog("bitmap->Write() wanted to use to an invalid bitmap id: %d. Aborting.\n",  sdci[DRAWCMD_BMP_TARGET]);
 	return;
@@ -6205,7 +6205,7 @@ void bmp_do_getpixelr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffs
     
     int32_t x1 = sdci[2]/10000;
     int32_t y1 = (sdci[3]/10000)+yoffset;
-    int32_t col = getpixel(scb.script_created_bitmaps[(sdci[DRAWCMD_BMP_TARGET]-10)].u_bmp, x1, y1);
+    int32_t col = getpixel(refbmp, x1, y1);
     Z_scripterrlog("bitmap->GetPixel col is %d\n",col);
     Z_scripterrlog("bitmap->GetPixel bitmap ptr is is %d\n",(sdci[DRAWCMD_BMP_TARGET]-10));
     FFCore.set_sarg1(col);
@@ -6531,9 +6531,9 @@ void bmp_do_mode7r(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 		//Otherwise, we are using a user-created bitmap, so, get that pointer insted.
 		default: 
 		{
-			destBMP = scb.script_created_bitmaps[usr_bitmap_index].u_bmp;
+			destBMP = unsigned(usr_bitmap_index) < MAX_USER_BITMAPS ? scb.script_created_bitmaps[usr_bitmap_index].u_bmp : nullptr;
 			//sdci[18] = usr_bitmap_index;
-			if ( !scb.script_created_bitmaps[usr_bitmap_index].u_bmp )
+			if ( !destBMP )
 			{
 				Z_scripterrlog("Target for bitmap->DrawPlane is uninitialised. Aborting.\n");
 				break;
@@ -6764,8 +6764,8 @@ void bmp_do_drawbitmapexr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t y
 		//Otherwise, we are using a user-created bitmap, so, get that pointer insted.
 		default: 
 		{
-			destBMP = scb.script_created_bitmaps[bitmapIndex-10].u_bmp;
-			if ( !scb.script_created_bitmaps[bitmapIndex-10].u_bmp )
+			destBMP = unsigned(bitmapIndex-10) < MAX_USER_BITMAPS ? scb.script_created_bitmaps[bitmapIndex-10].u_bmp : nullptr;
+			if ( !destBMP )
 			{
 				Z_scripterrlog("Target for bitmap->Blit is uninitialised. Aborting.\n");
 				break;
@@ -8152,8 +8152,8 @@ void bmp_do_blittor(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset
 		//Otherwise, we are using a user-created bitmap, so, get that pointer insted.
 		default: 
 		{
-			destBMP = scb.script_created_bitmaps[bitmapIndex-10].u_bmp;
-			if ( !scb.script_created_bitmaps[bitmapIndex-10].u_bmp )
+			destBMP = unsigned(bitmapIndex-10) < MAX_USER_BITMAPS ? scb.script_created_bitmaps[bitmapIndex-10].u_bmp : nullptr;
+			if ( !destBMP )
 			{
 				Z_scripterrlog("Target for bitmap->Blit is uninitialised. Aborting.\n");
 				break;
