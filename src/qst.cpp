@@ -13115,6 +13115,31 @@ int32_t read_one_ffscript(PACKFILE *f, zquestheader *, int32_t script_index, wor
 
 	(*script)->recalc_size();
 
+	// The interpreter and JIT trust these jump targets, so one outside of the script would run
+	// whatever is past it. No compiler emits one (the 2.55 alphas' Export/Import ZASM did, as
+	// -1); such a script never ran past that jump anyway, so it is disabled.
+	for(uint32_t q = 0; q < (*script)->size; ++q)
+	{
+		const ffscript& op = (*script)->zasm[q];
+		switch(op.command)
+		{
+			case GOTO:
+			case GOTOTRUE:
+			case GOTOFALSE:
+			case GOTOLESS:
+			case GOTOMORE:
+			case LOOP:
+				if(op.arg1 < 0 || uint32_t(op.arg1) >= (*script)->size)
+				{
+					zprint2("Error: script %s %d jumps outside of itself (to %d at pc %u), so it was disabled\n",
+						ScriptTypeToString((*script)->id.type), (*script)->id.index, op.arg1, q);
+					(*script)->disable();
+					return 0;
+				}
+				break;
+		}
+	}
+
 	return 0;
 }
 
