@@ -286,7 +286,7 @@ void dmapdata_set_register(int32_t reg, int32_t value)
 		}
 		case DMAPDATAMIRRDMAP:
 		{
-			dmap.mirrorDMap = vbound(value / 10000, -1, MAXDMAPS); break;
+			dmap.mirrorDMap = vbound(value / 10000, -1, MAXDMAPS-1); break;
 		}
 		case DMAPDATAMUISCTRACK:	//byte
 		{

@@ -10662,7 +10662,7 @@ void HeroClass::doMirror(int32_t mirrorid)
 		int32_t destdmap = DMaps[cur_dmap].mirrorDMap;
 		int32_t sourcescr = get_screen_for_world_xy(x, y), sourcedmap = cur_dmap;
 		int32_t offscr = sourcescr - DMaps[cur_dmap].xoff;
-		if(destdmap < 0)
+		if(destdmap < 0 || destdmap >= MAXDMAPS)
 			return;
 		int32_t destscr = DMaps[destdmap].xoff + offscr;
 		if((offscr%16 != destscr%16) || unsigned(destscr) >= 0x80)
