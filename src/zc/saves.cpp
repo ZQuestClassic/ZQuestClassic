@@ -1016,6 +1016,9 @@ static int32_t read_saves(ReadMode read_mode, PACKFILE* f, std::vector<save_t>& 
 				saved_user_object& s_ob = game.user_objects.emplace_back();
 				if(!p_igetl(&s_ob.object_index,f))
 					return 84;
+				// The object is copied into this slot when the game starts.
+				if(unsigned(s_ob.object_index) >= MAX_USER_OBJECTS)
+					return 84;
 				//user_object
 				user_object& obj = s_ob.obj;
 				if(!p_getc(&tempbyte,f))
