@@ -8042,7 +8042,7 @@ int32_t get_register_slow(const int32_t arg)
 			int32_t inx = (ri->d[rINDEX])/10000;
 			if ( (unsigned) inx > (susptLAST-1) )
 			{
-				Z_scripterrlog("Invalid array index [%d] passed to Game->Suspend[]\n");
+				Z_scripterrlog("Invalid array index [%d] passed to Game->Suspend[]\n", inx);
 				break;
 			}
 			ret = (( FFCore.system_suspend[inx] ) ? 10000 : 0);
@@ -9127,7 +9127,7 @@ int32_t get_register_slow(const int32_t arg)
 			int32_t indx = ri->d[rINDEX] / 10000; \
 			if(indx < 0 || indx > indexbound ) \
 			{ \
-				Z_scripterrlog("Invalid Index passed to Screen->%s[]: %d\n", (indx), str); \
+				Z_scripterrlog("Invalid Index passed to Screen->%s[]: %d\n", str, indx); \
 				ret = -10000; \
 			} \
 			else \
@@ -9141,7 +9141,7 @@ int32_t get_register_slow(const int32_t arg)
 			int32_t indx = ri->d[rINDEX] / 10000; \
 			if(indx < 0 || indx > indexbound ) \
 			{ \
-				Z_scripterrlog("Invalid Index passed to Screen->%s[]: %d\n", (indx), str); \
+				Z_scripterrlog("Invalid Index passed to Screen->%s[]: %d\n", str, indx); \
 				ret = -10000; \
 			} \
 			else \
@@ -9266,7 +9266,7 @@ int32_t get_register_slow(const int32_t arg)
 			int32_t indx = ri->d[rINDEX] / 10000;
 			if (indx < 0 || indx > MAXFFCS-1)
 			{
-				Z_scripterrlog("Invalid Index passed to Screen->%s[]: %d\n", indx, "FFCRunning");
+				Z_scripterrlog("Invalid Index passed to Screen->%s[]: %d\n", "FFCRunning", indx);
 				ret = -10000;
 			}
 			else
@@ -9854,7 +9854,7 @@ int32_t get_register_slow(const int32_t arg)
 			if(unsigned(ri->spritesref) > (MAXWPNS-1) )
 			{
 				ret = -10000;
-				Z_scripterrlog("Invalid Sprite ID passed to spritedata->%s: %d\n", (ri->spritesref*10000), "FlashCSet");
+				Z_scripterrlog("Invalid Sprite ID passed to spritedata->%s: %d\n", "FlashCSet", ri->spritesref);
 				break;
 			}
 			ret = (((wpnsbuf[ri->spritesref].csets & 0xF0)>>4) * 10000);
@@ -10136,7 +10136,7 @@ int32_t get_register_slow(const int32_t arg)
 			int32_t indx = (ri->d[rINDEX] / 10000)-1; \
 			if(indx < 0 || indx > indexbound ) \
 			{ \
-				Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", (indx+1), str); \
+				Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", str, indx+1); \
 				ret = -10000; \
 			} \
 			else if (mapscr *m = GetMapscr(ri->mapsref)) \
@@ -10155,7 +10155,7 @@ int32_t get_register_slow(const int32_t arg)
 			int32_t indx = (ri->d[rINDEX] / 10000)-1; \
 			if(indx < 0 || indx > indexbound ) \
 			{ \
-				Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", (indx+1), str); \
+				Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", str, indx+1); \
 				ret = -10000; \
 			} \
 			else if (mapscr *m = GetMapscr(ri->mapsref)) \
@@ -10174,7 +10174,7 @@ int32_t get_register_slow(const int32_t arg)
 			int32_t indx = (ri->d[rINDEX] / 10000)-1; \
 			if(indx < 0 || indx > indexbound ) \
 			{ \
-				Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", (indx+1), str); \
+				Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", str, indx+1); \
 				ret = -10000; \
 			} \
 			else if (mapscr *m = GetMapscr(ri->mapsref)) \
@@ -11097,7 +11097,7 @@ int32_t get_register_slow(const int32_t arg)
 			int32_t indx = ri->d[rINDEX] / 10000; 
 			if ( indx < 0 || indx > 2 ) 
 			{ 
-				Z_scripterrlog("Invalid Array Index passed to shopdata->%s: %d\n", indx, "Item");
+				Z_scripterrlog("Invalid Array Index passed to shopdata->%s: %d\n", "Item", indx);
 				ret = -10000;
 			} 
 			else 
@@ -11125,7 +11125,7 @@ int32_t get_register_slow(const int32_t arg)
 			int32_t indx = ri->d[rINDEX] / 10000; 
 			if ( indx < 0 || indx > 2 ) 
 			{ 
-				Z_scripterrlog("Invalid Array Index passed to shopdata->%s: %d\n", indx, "HasItem"); 
+				Z_scripterrlog("Invalid Array Index passed to shopdata->%s: %d\n", "HasItem", indx); 
 				ret = -10000;
 			} 
 			else 
@@ -11153,7 +11153,7 @@ int32_t get_register_slow(const int32_t arg)
 			int32_t indx = ri->d[rINDEX] / 10000; 
 			if ( indx < 0 || indx > 2 ) 
 			{ 
-				Z_scripterrlog("Invalid Array Index passed to shopdata->%s: %d\n", indx, "Price"); 
+				Z_scripterrlog("Invalid Array Index passed to shopdata->%s: %d\n", "Price", indx); 
 				ret = -10000;
 			} 
 			else 
@@ -11187,7 +11187,7 @@ int32_t get_register_slow(const int32_t arg)
 				int32_t indx = ri->d[rINDEX] / 10000; 
 				if ( indx < 0 || indx > 2 ) 
 				{ 
-					Z_scripterrlog("Invalid Array Index passed to shopdata->%s: %d\n", indx, "String"); 
+					Z_scripterrlog("Invalid Array Index passed to shopdata->%s: %d\n", "String", indx); 
 				} 
 				else 
 				{ 
@@ -11792,7 +11792,7 @@ int32_t get_register_slow(const int32_t arg)
 		{ \
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) ) \
 			{ \
-				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), str); \
+				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", str, ri->combosref); \
 				ret = -10000; \
 			} \
 			else \
@@ -11805,7 +11805,7 @@ int32_t get_register_slow(const int32_t arg)
 		{ \
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) ) \
 			{ \
-				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), str); \
+				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", str, ri->combosref); \
 				ret = -10000; \
 			} \
 			else \
@@ -11818,7 +11818,7 @@ int32_t get_register_slow(const int32_t arg)
 		{ \
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) ) \
 			{ \
-				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), str); \
+				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", str, ri->combosref); \
 				ret = -10000; \
 			} \
 			else \
@@ -11832,12 +11832,12 @@ int32_t get_register_slow(const int32_t arg)
 				int32_t indx = ri->d[rINDEX] / 10000; \
 				if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) ) \
 				{ \
-					Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), str); \
+					Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", str, ri->combosref); \
 					ret = -10000; \
 				} \
 				else if ( indx < 0 || indx >= indexbound ) \
 				{ \
-					Z_scripterrlog("Invalid Array Index passed to combodata->%s: %d\n", indx, str); \
+					Z_scripterrlog("Invalid Array Index passed to combodata->%s: %d\n", str, indx); \
 					ret = -10000; \
 				} \
 				else \
@@ -11851,12 +11851,12 @@ int32_t get_register_slow(const int32_t arg)
 				int32_t indx = ri->d[rINDEX] / 10000; \
 				if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) ) \
 				{ \
-					Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), str); \
+					Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", str, ri->combosref); \
 					ret = -10000; \
 				} \
 				else if ( indx < 0 || indx >= indexbound ) \
 				{ \
-					Z_scripterrlog("Invalid Array Index passed to combodata->%s: %d\n", indx, str); \
+					Z_scripterrlog("Invalid Array Index passed to combodata->%s: %d\n", str, indx); \
 					ret = -10000; \
 				} \
 				else \
@@ -11870,7 +11870,7 @@ int32_t get_register_slow(const int32_t arg)
 			int32_t flag =  (value/10000);  \
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) ) \
 			{ \
-				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), str); \
+				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", str, ri->combosref); \
 			} \
 			else \
 			{ \
@@ -11884,7 +11884,7 @@ int32_t get_register_slow(const int32_t arg)
 		{ \
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) ) \
 			{ \
-				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), str); \
+				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", str, ri->combosref); \
 				ret = -10000; \
 			} \
 			else \
@@ -11897,7 +11897,7 @@ int32_t get_register_slow(const int32_t arg)
 		{ \
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) ) \
 			{ \
-				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), str); \
+				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", str, ri->combosref); \
 				ret = -10000; \
 			} \
 			else \
@@ -11910,7 +11910,7 @@ int32_t get_register_slow(const int32_t arg)
 		{ \
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) ) \
 			{ \
-				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), str); \
+				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", str, ri->combosref); \
 				ret = -10000; \
 			} \
 			else \
@@ -11924,12 +11924,12 @@ int32_t get_register_slow(const int32_t arg)
 				int32_t indx = ri->d[rINDEX] / 10000; \
 				if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) ) \
 				{ \
-					Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), str); \
+					Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", str, ri->combosref); \
 					ret = -10000; \
 				} \
 				else if ( indx < 0 || indx > indexbound ) \
 				{ \
-					Z_scripterrlog("Invalid Array Index passed to combodata->%s: %d\n", indx, str); \
+					Z_scripterrlog("Invalid Array Index passed to combodata->%s: %d\n", str, indx); \
 					ret = -10000; \
 				} \
 				else \
@@ -11943,12 +11943,12 @@ int32_t get_register_slow(const int32_t arg)
 				int32_t indx = ri->d[rINDEX] / 10000; \
 				if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) ) \
 				{ \
-					Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), str); \
+					Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", str, ri->combosref); \
 					ret = -10000; \
 				} \
 				else if ( indx < 0 || indx > indexbound ) \
 				{ \
-					Z_scripterrlog("Invalid Array Index passed to combodata->%s: %d\n", indx, str); \
+					Z_scripterrlog("Invalid Array Index passed to combodata->%s: %d\n", str, indx); \
 					ret = -10000; \
 				} \
 				else \
@@ -11962,7 +11962,7 @@ int32_t get_register_slow(const int32_t arg)
 			int32_t flag =  (value/10000);  \
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) ) \
 			{ \
-				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), str); \
+				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", str, ri->combosref); \
 			} \
 			else \
 			{ \
@@ -12042,7 +12042,7 @@ int32_t get_register_slow(const int32_t arg)
 		{
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), "Walk");
+				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", "Walk", ri->combosref);
 				ret = -10000;
 			}
 			else
@@ -12055,7 +12055,7 @@ int32_t get_register_slow(const int32_t arg)
 		{
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), "Effect");
+				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", "Effect", ri->combosref);
 				ret = -10000;
 			}
 			else
@@ -12069,7 +12069,7 @@ int32_t get_register_slow(const int32_t arg)
 		{
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), "CSet2");
+				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", "CSet2", ri->combosref);
 				ret = -10000;
 			}
 			else
@@ -12083,7 +12083,7 @@ int32_t get_register_slow(const int32_t arg)
 		{
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), "CSet2Flags");
+				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", "CSet2Flags", ri->combosref);
 			}
 			else
 			{
@@ -12107,12 +12107,12 @@ int32_t get_register_slow(const int32_t arg)
 			int32_t indx = ri->d[rINDEX] / 10000;
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), "Attributes[]");
+				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", "Attributes[]", ri->combosref);
 				ret = -10000;
 			}
 			else if ( indx < 0 || indx > 4 )
 			{
-				Z_scripterrlog("Invalid Array Index passed to combodata->%s: %d\n", indx, "Attributes[]");
+				Z_scripterrlog("Invalid Array Index passed to combodata->%s: %d\n", "Attributes[]", indx);
 				ret = -10000;
 			}
 			else
@@ -12127,12 +12127,12 @@ int32_t get_register_slow(const int32_t arg)
 			int32_t indx = ri->d[rINDEX] / 10000;
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), "InitD[]");
+				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", "InitD[]", ri->combosref);
 				ret = -10000;
 			}
 			else if ( ((unsigned)indx) > 8 )
 			{ 
-				Z_scripterrlog("Invalid Array Index passed to combodata->%s: %d\n", indx, "InitD[]"); 
+				Z_scripterrlog("Invalid Array Index passed to combodata->%s: %d\n", "InitD[]", indx); 
 				ret = -10000;
 			} 
 			else 
@@ -12189,11 +12189,11 @@ int32_t get_register_slow(const int32_t arg)
 			ret = -10000;
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), "TrigFlags[]");
+				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", "TrigFlags[]", ri->combosref);
 			}
 			else if ( unsigned(indx) >= 32*6 )
 			{
-				Z_scripterrlog("Invalid Array Index passed to combodata->%s: %d\n", indx, "TrigFlags[]");
+				Z_scripterrlog("Invalid Array Index passed to combodata->%s: %d\n", "TrigFlags[]", indx);
 			}
 			else
 			{
@@ -12207,11 +12207,11 @@ int32_t get_register_slow(const int32_t arg)
 			ret = -10000;
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), "TriggerButton[]");
+				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", "TriggerButton[]", ri->combosref);
 			}
 			else if ( unsigned(indx) >= 8 )
 			{
-				Z_scripterrlog("Invalid Array Index passed to combodata->%s: %d\n", indx, "TriggerButton[]");
+				Z_scripterrlog("Invalid Array Index passed to combodata->%s: %d\n", "TriggerButton[]", indx);
 			}
 			else
 			{
@@ -12224,7 +12224,7 @@ int32_t get_register_slow(const int32_t arg)
 			ret = -10000;
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), "TriggerItem");
+				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", "TriggerItem", ri->combosref);
 			}
 			else ret = (combobuf[ri->combosref].triggeritem) * 10000;
 			break;
@@ -12234,7 +12234,7 @@ int32_t get_register_slow(const int32_t arg)
 			ret = -10000;
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), "TriggerTimer");
+				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", "TriggerTimer", ri->combosref);
 			}
 			else ret = (combobuf[ri->combosref].trigtimer) * 10000;
 			break;
@@ -12244,7 +12244,7 @@ int32_t get_register_slow(const int32_t arg)
 			ret = -10000;
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), "TriggerSFX");
+				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", "TriggerSFX", ri->combosref);
 			}
 			else ret = (combobuf[ri->combosref].trigsfx) * 10000;
 			break;
@@ -12254,7 +12254,7 @@ int32_t get_register_slow(const int32_t arg)
 			ret = -10000;
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), "TriggerChange");
+				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", "TriggerChange", ri->combosref);
 			}
 			else ret = (combobuf[ri->combosref].trigchange) * 10000;
 			break;
@@ -12264,7 +12264,7 @@ int32_t get_register_slow(const int32_t arg)
 			ret = -10000;
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), "TriggerProximity");
+				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", "TriggerProximity", ri->combosref);
 			}
 			else ret = (combobuf[ri->combosref].trigprox) * 10000;
 			break;
@@ -12274,7 +12274,7 @@ int32_t get_register_slow(const int32_t arg)
 			ret = -10000;
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), "TriggerLightBeam");
+				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", "TriggerLightBeam", ri->combosref);
 			}
 			else ret = (combobuf[ri->combosref].triglbeam) * 10000;
 			break;
@@ -12284,7 +12284,7 @@ int32_t get_register_slow(const int32_t arg)
 			ret = -10000;
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), "TriggerCounter");
+				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", "TriggerCounter", ri->combosref);
 			}
 			else ret = (combobuf[ri->combosref].trigctr) * 10000;
 			break;
@@ -12294,7 +12294,7 @@ int32_t get_register_slow(const int32_t arg)
 			ret = -10000;
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), "TriggerCtrAmount");
+				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", "TriggerCtrAmount", ri->combosref);
 			}
 			else ret = (combobuf[ri->combosref].trigctramnt) * 10000;
 			break;
@@ -13081,7 +13081,7 @@ int32_t get_register_slow(const int32_t arg)
 			
 			if( (unsigned) ri->npcdataref > (MAXNPCS-1) ) \
 			{ 
-				Z_scripterrlog("Invalid NPC ID passed to npcdata->%s: %d\n", (ri->npcdataref*10000), "MatchInitDLabel()"); 
+				Z_scripterrlog("Invalid NPC ID passed to npcdata->%s: %d\n", "MatchInitDLabel()", ri->npcdataref); 
 				ret = 0; 
 				break;
 			} 
@@ -21260,7 +21260,7 @@ void set_register_slow(int32_t arg, int32_t value)
 			int32_t inx = (ri->d[rINDEX])/10000;
 			if ( (unsigned) inx > (susptLAST-1) )
 			{
-				Z_scripterrlog("Invalid array index [%d] passed to Game->Suspend[]\n");
+				Z_scripterrlog("Invalid array index [%d] passed to Game->Suspend[]\n", inx);
 				break;
 			}
 			FFCore.system_suspend[inx]= ( (value) ? 1 : 0 );
@@ -22217,7 +22217,7 @@ void set_register_slow(int32_t arg, int32_t value)
 			int32_t indx = ri->d[rINDEX] / 10000; \
 			if(indx < 0 || indx > indexbound ) \
 			{ \
-				Z_scripterrlog("Invalid Index passed to Screen->%s[]: %d\n", (indx), str); \
+				Z_scripterrlog("Invalid Index passed to Screen->%s[]: %d\n", str, indx); \
 				break; \
 			} \
 			tmpscr->member[indx] =( (value/10000) ? 1 : 0 ); \
@@ -22228,7 +22228,7 @@ void set_register_slow(int32_t arg, int32_t value)
 			int32_t indx = ri->d[rINDEX] / 10000; \
 			if(indx < 0 || indx > indexbound ) \
 			{ \
-				Z_scripterrlog("Invalid Index passed to Screen->%s[]: %d\n", (indx), str); \
+				Z_scripterrlog("Invalid Index passed to Screen->%s[]: %d\n", str, indx); \
 				break; \
 			} \
 			tmpscr->ffcs[indx].member =( (value/10000) ? 1 : 0 ); \
@@ -22421,7 +22421,7 @@ void set_register_slow(int32_t arg, int32_t value)
 			int32_t indx = ri->d[rINDEX] / 10000;
 			if (indx < 0 || indx > MAXFFCS-1)
 			{
-				Z_scripterrlog("Invalid Index passed to Screen->%s[]: %d\n", (indx), "FFCRunning");
+				Z_scripterrlog("Invalid Index passed to Screen->%s[]: %d\n", "FFCRunning", indx);
 				break;
 			}
 			get_script_engine_data(ScriptType::FFC, indx).initialized = (value/10000) ? true : false;
@@ -23560,7 +23560,7 @@ void set_register_slow(int32_t arg, int32_t value)
 			int32_t indx = (ri->d[rINDEX] / 10000)-1;
 			if(indx < 0 || indx > MAXFFCS-1)
 			{
-				Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", (indx+1), "FFCFlags");
+				Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", "FFCFlags", indx+1);
 			}
 			else if (mapscr *m = GetMapscr(ri->mapsref))
 			{
@@ -24266,7 +24266,7 @@ void set_register_slow(int32_t arg, int32_t value)
 			int32_t indx = ri->d[rINDEX] / 10000; 
 			if ( indx < 0 || indx > 2 ) 
 			{ 
-				Z_scripterrlog("Invalid Array Index passed to shopdata->%s: %d\n", indx, "Item"); 
+				Z_scripterrlog("Invalid Array Index passed to shopdata->%s: %d\n", "Item", indx); 
 				break;
 			} 
 			else 
@@ -24293,7 +24293,7 @@ void set_register_slow(int32_t arg, int32_t value)
 			int32_t indx = ri->d[rINDEX] / 10000; 
 			if ( indx < 0 || indx > 2 ) 
 			{ 
-				Z_scripterrlog("Invalid Array Index passed to shopdata->%s: %d\n", indx, "HasItem"); 
+				Z_scripterrlog("Invalid Array Index passed to shopdata->%s: %d\n", "HasItem", indx); 
 				break;
 			} 
 			else 
@@ -24319,7 +24319,7 @@ void set_register_slow(int32_t arg, int32_t value)
 			int32_t indx = ri->d[rINDEX] / 10000; 
 			if ( indx < 0 || indx > 2 ) 
 			{ 
-				Z_scripterrlog("Invalid Array Index passed to shopdata->%s: %d\n", indx, "Price"); 
+				Z_scripterrlog("Invalid Array Index passed to shopdata->%s: %d\n", "Price", indx); 
 				break;
 			} 
 			else
@@ -24353,7 +24353,7 @@ void set_register_slow(int32_t arg, int32_t value)
 					int32_t indx = ri->d[rINDEX] / 10000; 
 					if ( indx < 0 || indx > 2 ) 
 					{ 
-						Z_scripterrlog("Invalid Array Index passed to shopdata->%s: %d\n", indx, "HasItem"); 
+						Z_scripterrlog("Invalid Array Index passed to shopdata->%s: %d\n", "HasItem", indx); 
 						break;
 					} 
 					else 
@@ -24991,7 +24991,7 @@ void set_register_slow(int32_t arg, int32_t value)
 		{ \
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) ) \
 			{ \
-				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), str); \
+				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", str, ri->combosref); \
 			} \
 			else \
 			{ \
@@ -25003,7 +25003,7 @@ void set_register_slow(int32_t arg, int32_t value)
 		{ \
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) ) \
 			{ \
-				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), str); \
+				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", str, ri->combosref); \
 			} \
 			else \
 			{ \
@@ -25015,7 +25015,7 @@ void set_register_slow(int32_t arg, int32_t value)
 		{ \
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) ) \
 			{ \
-				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), str); \
+				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", str, ri->combosref); \
 			} \
 			else \
 			{ \
@@ -25028,11 +25028,11 @@ void set_register_slow(int32_t arg, int32_t value)
 				int32_t indx = ri->d[rINDEX] / 10000; \
 				if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) ) \
 				{ \
-					Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), str); \
+					Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", str, ri->combosref); \
 				} \
 				else if ( indx < 0 || indx >= indexbound ) \
 				{ \
-					Z_scripterrlog("Invalid Array Index passed to combodata->%s: %d\n", indx, str); \
+					Z_scripterrlog("Invalid Array Index passed to combodata->%s: %d\n", str, indx); \
 				} \
 				else \
 				{ \
@@ -25045,11 +25045,11 @@ void set_register_slow(int32_t arg, int32_t value)
 				int32_t indx = ri->d[rINDEX] / 10000; \
 				if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) ) \
 				{ \
-					Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), str); \
+					Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", str, ri->combosref); \
 				} \
 				else if ( indx < 0 || indx >= indexbound ) \
 				{ \
-					Z_scripterrlog("Invalid Array Index passed to combodata->%s: %d\n", indx, str); \
+					Z_scripterrlog("Invalid Array Index passed to combodata->%s: %d\n", str, indx); \
 				} \
 				else \
 				{ \
@@ -25062,11 +25062,11 @@ void set_register_slow(int32_t arg, int32_t value)
 				int32_t indx = ri->d[rINDEX] / 10000; \
 				if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) ) \
 				{ \
-					Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), str); \
+					Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", str, ri->combosref); \
 				} \
 				else if ( indx < 0 || indx >= indexbound ) \
 				{ \
-					Z_scripterrlog("Invalid Array Index passed to combodata->%s: %d\n", indx, str); \
+					Z_scripterrlog("Invalid Array Index passed to combodata->%s: %d\n", str, indx); \
 				} \
 				else \
 				{ \
@@ -25079,7 +25079,7 @@ void set_register_slow(int32_t arg, int32_t value)
 			int32_t flag =  (value/10000);  \
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) ) \
 			{ \
-				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), str); \
+				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", str, ri->combosref); \
 			} \
 			else \
 			{ \
@@ -25096,7 +25096,7 @@ void set_register_slow(int32_t arg, int32_t value)
 		{ \
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) ) \
 			{ \
-				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), str); \
+				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", str, ri->combosref); \
 			} \
 			else \
 			{ \
@@ -25108,7 +25108,7 @@ void set_register_slow(int32_t arg, int32_t value)
 		{ \
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) ) \
 			{ \
-				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), str); \
+				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", str, ri->combosref); \
 			} \
 			else \
 			{ \
@@ -25120,7 +25120,7 @@ void set_register_slow(int32_t arg, int32_t value)
 		{ \
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) ) \
 			{ \
-				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), str); \
+				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", str, ri->combosref); \
 			} \
 			else \
 			{ \
@@ -25133,11 +25133,11 @@ void set_register_slow(int32_t arg, int32_t value)
 				int32_t indx = ri->d[rINDEX] / 10000; \
 				if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) ) \
 				{ \
-					Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), str); \
+					Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", str, ri->combosref); \
 				} \
 				else if ( indx < 0 || indx > indexbound ) \
 				{ \
-					Z_scripterrlog("Invalid Array Index passed to combodata->%s: %d\n", indx, str); \
+					Z_scripterrlog("Invalid Array Index passed to combodata->%s: %d\n", str, indx); \
 				} \
 				else \
 				{ \
@@ -25150,11 +25150,11 @@ void set_register_slow(int32_t arg, int32_t value)
 				int32_t indx = ri->d[rINDEX] / 10000; \
 				if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) ) \
 				{ \
-					Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), str); \
+					Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", str, ri->combosref); \
 				} \
 				else if ( indx < 0 || indx > indexbound ) \
 				{ \
-					Z_scripterrlog("Invalid Array Index passed to combodata->%s: %d\n", indx, str); \
+					Z_scripterrlog("Invalid Array Index passed to combodata->%s: %d\n", str, indx); \
 				} \
 				else \
 				{ \
@@ -25167,7 +25167,7 @@ void set_register_slow(int32_t arg, int32_t value)
 			int32_t flag =  (value/10000);  \
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) ) \
 			{ \
-				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), str); \
+				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", str, ri->combosref); \
 			} \
 			else \
 			{ \
@@ -25185,7 +25185,7 @@ void set_register_slow(int32_t arg, int32_t value)
 		{
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), "OriginalTile");
+				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", "OriginalTile", ri->combosref);
 			}
 			else
 			{
@@ -25211,7 +25211,7 @@ void set_register_slow(int32_t arg, int32_t value)
 		{
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), "Walk");
+				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", "Walk", ri->combosref);
 			}
 			else
 			{
@@ -25224,7 +25224,7 @@ void set_register_slow(int32_t arg, int32_t value)
 		{
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), "Effect");
+				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", "Effect", ri->combosref);
 			}
 			else
 			{
@@ -25251,7 +25251,7 @@ void set_register_slow(int32_t arg, int32_t value)
 		{
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), "CSet2");
+				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", "CSet2", ri->combosref);
 			}
 			else
 			{
@@ -25265,7 +25265,7 @@ void set_register_slow(int32_t arg, int32_t value)
 		{
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), "CSet2Flags");
+				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", "CSet2Flags", ri->combosref);
 			}
 			else
 			{
@@ -25298,11 +25298,11 @@ void set_register_slow(int32_t arg, int32_t value)
 			int32_t indx = ri->d[rINDEX] / 10000;
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), "Attributes[]");
+				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", "Attributes[]", ri->combosref);
 			}
 			else if ( indx < 0 || indx > 4 )
 			{
-				Z_scripterrlog("Invalid Array Index passed to combodata->%s: %d\n", indx, "Attributes[]");
+				Z_scripterrlog("Invalid Array Index passed to combodata->%s: %d\n", "Attributes[]", indx);
 			}
 			else
 			{
@@ -25315,11 +25315,11 @@ void set_register_slow(int32_t arg, int32_t value)
 			int32_t indx = ri->d[rINDEX] / 10000;
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), "InitD[]");
+				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", "InitD[]", ri->combosref);
 			}
 			else if ( ((unsigned)indx) > 8 )
 			{ 
-				Z_scripterrlog("Invalid Array Index passed to combodata->%s: %d\n", indx, "InitD[]"); 
+				Z_scripterrlog("Invalid Array Index passed to combodata->%s: %d\n", "InitD[]", indx); 
 			} 
 			else 
 			{ 
@@ -25372,11 +25372,11 @@ void set_register_slow(int32_t arg, int32_t value)
 			int32_t indx = ri->d[rINDEX] / 10000;
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), "TrigFlags[]");
+				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", "TrigFlags[]", ri->combosref);
 			}
 			else if ( unsigned(indx) >= 32*6 )
 			{
-				Z_scripterrlog("Invalid Array Index passed to combodata->%s: %d\n", indx, "TrigFlags[]");
+				Z_scripterrlog("Invalid Array Index passed to combodata->%s: %d\n", "TrigFlags[]", indx);
 			}
 			else
 			{
@@ -25389,11 +25389,11 @@ void set_register_slow(int32_t arg, int32_t value)
 			int32_t indx = ri->d[rINDEX] / 10000;
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), "TriggerButton[]");
+				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", "TriggerButton[]", ri->combosref);
 			}
 			else if ( unsigned(indx) >= 8 )
 			{
-				Z_scripterrlog("Invalid Array Index passed to combodata->%s: %d\n", indx, "TriggerButton[]");
+				Z_scripterrlog("Invalid Array Index passed to combodata->%s: %d\n", "TriggerButton[]", indx);
 			}
 			else
 			{
@@ -25405,7 +25405,7 @@ void set_register_slow(int32_t arg, int32_t value)
 		{
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalueid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), "TriggerItem");
+				Z_scripterrlog("Invalueid Combo ID passed to combodata->%s: %d\n", "TriggerItem", ri->combosref);
 			}
 			else combobuf[ri->combosref].triggeritem = vbound(value/10000,0,255);
 			break;
@@ -25414,7 +25414,7 @@ void set_register_slow(int32_t arg, int32_t value)
 		{
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalueid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), "TriggerTimer");
+				Z_scripterrlog("Invalueid Combo ID passed to combodata->%s: %d\n", "TriggerTimer", ri->combosref);
 			}
 			else combobuf[ri->combosref].trigtimer = vbound(value/10000,0,255);
 			break;
@@ -25423,7 +25423,7 @@ void set_register_slow(int32_t arg, int32_t value)
 		{
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalueid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), "TriggerSFX");
+				Z_scripterrlog("Invalueid Combo ID passed to combodata->%s: %d\n", "TriggerSFX", ri->combosref);
 			}
 			else combobuf[ri->combosref].trigsfx = vbound(value/10000,0,255);
 			break;
@@ -25432,7 +25432,7 @@ void set_register_slow(int32_t arg, int32_t value)
 		{
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalueid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), "TriggerChange");
+				Z_scripterrlog("Invalueid Combo ID passed to combodata->%s: %d\n", "TriggerChange", ri->combosref);
 			}
 			else combobuf[ri->combosref].trigchange = vbound(value/10000,-65535,65535);
 			break;
@@ -25441,7 +25441,7 @@ void set_register_slow(int32_t arg, int32_t value)
 		{
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), "TriggerProximity");
+				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", "TriggerProximity", ri->combosref);
 			}
 			else combobuf[ri->combosref].trigprox = vbound(value/10000,0,65535);
 			break;
@@ -25450,7 +25450,7 @@ void set_register_slow(int32_t arg, int32_t value)
 		{
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), "TriggerLightBeam");
+				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", "TriggerLightBeam", ri->combosref);
 			}
 			else combobuf[ri->combosref].triglbeam = vbound(value/10000,0,32);
 			break;
@@ -25459,7 +25459,7 @@ void set_register_slow(int32_t arg, int32_t value)
 		{
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), "TriggerCounter");
+				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", "TriggerCounter", ri->combosref);
 			}
 			else combobuf[ri->combosref].trigctr = vbound(value/10000, 0, MAX_COUNTERS-1);
 			break;
@@ -25468,7 +25468,7 @@ void set_register_slow(int32_t arg, int32_t value)
 		{
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), "TriggerCtrAmount");
+				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", "TriggerCtrAmount", ri->combosref);
 			}
 			else combobuf[ri->combosref].trigctramnt = vbound(value/10000, -65535, 65535);
 			break;
@@ -31792,7 +31792,7 @@ void FFScript::do_paldata_write_levelcset()
 			}
 			break;
 		default:
-			Z_scripterrlog("Invalid CSet (%d) passed to 'paldata->WriteLevelCSet()'. Level palettes can use CSets 1, 2, 3, 4, 5, 7, 8, 9.\n");
+			Z_scripterrlog("Invalid CSet (%d) passed to 'paldata->WriteLevelCSet()'. Level palettes can use CSets 1, 2, 3, 4, 5, 7, 8, 9.\n", cs);
 			return;
 		}
 	
@@ -31965,7 +31965,7 @@ void FFScript::do_paldata_write_maincset()
 		}
 		else
 		{
-			Z_scripterrlog("Invalid CSet (%d) passed to 'paldata->WriteMainCSet()'. Valid csets are 0-15. Aborting.\n");
+			Z_scripterrlog("Invalid CSet (%d) passed to 'paldata->WriteMainCSet()'. Valid csets are 0-15. Aborting.\n", cs);
 			return;
 		}
 
@@ -32023,7 +32023,7 @@ void FFScript::do_paldata_write_cyclecset()
 			}
 			break;
 		default:
-			Z_scripterrlog("Invalid CSet (%d) passed to 'paldata->WriteCycleCSet()'. Cycle palettes use CSets 4-12.\n");
+			Z_scripterrlog("Invalid CSet (%d) passed to 'paldata->WriteCycleCSet()'. Cycle palettes use CSets 4-12.\n", cs);
 			return;
 		}
 
@@ -33441,7 +33441,7 @@ void do_createeweapon(const bool v)
 		}
 		else
 		{
-			Z_scripterrlog("Couldn't create eweapon %ld: Invalid ID/Type (%d) specified.\n", ID);
+			Z_scripterrlog("Couldn't create eweapon: Invalid ID/Type (%d) specified.\n", ID);
 			return;
 		}
 	}
@@ -35698,7 +35698,7 @@ int32_t FFScript::IsBlankTile(int32_t i)
 {
 	if( ((unsigned)i) >= NEWMAXTILES )
 	{
-		Z_scripterrlog("Invalid tile ID (%d) passed to Graphics->IsBlankTile[]\n");
+		Z_scripterrlog("Invalid tile ID (%d) passed to Graphics->IsBlankTile[]\n", i);
 		return -1;
 	}
 	    
@@ -35721,7 +35721,7 @@ int32_t FFScript::Is8BitTile(int32_t i)
 {
 	if (((unsigned)i) >= NEWMAXTILES)
 	{
-		Z_scripterrlog("Invalid tile ID (%d) passed to Graphics->Is8BitTile[]\n");
+		Z_scripterrlog("Invalid tile ID (%d) passed to Graphics->Is8BitTile[]\n", i);
 		return -1;
 	}
 
@@ -53287,7 +53287,7 @@ void FFScript::do_loadlweapon_by_script_uid(const bool v)
 	{
 		ri->lwpn = 0;
 		if(get_qr(qr_LOG_INVALID_UID_LOAD))
-			Z_scripterrlog("There is no valid LWeapon associated with UID (%) at this time.\nThe UID is stale, or invalid.\n", sUID);
+			Z_scripterrlog("There is no valid LWeapon associated with UID (%d) at this time.\nThe UID is stale, or invalid.\n", sUID);
 	}
 }
 
@@ -53303,7 +53303,7 @@ void FFScript::do_loadeweapon_by_script_uid(const bool v)
 	{
 		ri->ewpn = 0;
 		if(get_qr(qr_LOG_INVALID_UID_LOAD))
-			Z_scripterrlog("There is no valid EWeapon associated with UID (%) at this time.\nThe UID is stale, or invalid.\n", sUID);
+			Z_scripterrlog("There is no valid EWeapon associated with UID (%d) at this time.\nThe UID is stale, or invalid.\n", sUID);
 	}
 }
 
@@ -53320,7 +53320,7 @@ void FFScript::do_loadnpc_by_script_uid(const bool v)
 	{
 		ri->guyref = 0;
 		if(get_qr(qr_LOG_INVALID_UID_LOAD))
-			Z_scripterrlog("There is no valid NPC associated with UID (%) at this time.\nThe UID is stale, or invalid.\n", sUID);
+			Z_scripterrlog("There is no valid NPC associated with UID (%d) at this time.\nThe UID is stale, or invalid.\n", sUID);
 	}
 }
 
