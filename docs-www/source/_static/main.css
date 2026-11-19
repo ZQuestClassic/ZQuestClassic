@@ -279,6 +279,9 @@ dialog.lightbox-dialog::backdrop {
 }
 dialog.lightbox-dialog img {
 	display: block;
+	/* fit() in main.js sets the exact size */
+	max-width: none;
+	max-height: none;
 	/* Most images on this site are pixel art */
 	image-rendering: pixelated;
 }

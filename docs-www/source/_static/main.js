@@ -40,8 +40,9 @@ function setupLightbox() {
 	const open = (img) => {
 		big.src = img.currentSrc || img.src;
 		big.alt = img.alt;
-		// Keep the image's other classes, like 'dark-light'.
-		big.className = img.className.replace(/\blightbox\b/, '');
+		// Keep 'dark-light' so the image follows the theme, but no layout classes (like
+		// 'ct-header' or 'align-center'), whose sizes would fight the size set by fit().
+		big.className = img.classList.contains('dark-light') ? 'dark-light' : '';
 		fit();
 		dialog.showModal();
 	};
