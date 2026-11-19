@@ -80,8 +80,12 @@ if(MSVC)
 	set(CMAKE_SHARED_LINKER_FLAGS_ASAN "${CMAKE_SHARED_LINKER_FLAGS_DEBUG} /fsanitize=address /DEBUG" CACHE STRING "" FORCE)
 	set(CMAKE_MODULE_LINKER_FLAGS_ASAN "${CMAKE_MODULE_LINKER_FLAGS_DEBUG} /fsanitize=address /DEBUG" CACHE STRING "" FORCE)
 else()
-	set(CMAKE_CXX_FLAGS_ASAN "${CMAKE_CXX_FLAGS_DEBUG} -fsanitize=address -fno-omit-frame-pointer" CACHE STRING "" FORCE)
-	set(CMAKE_C_FLAGS_ASAN "${CMAKE_C_FLAGS_DEBUG} -fsanitize=address -fno-omit-frame-pointer" CACHE STRING "" FORCE)
+	# -O1 rather than Debug's -O0: the sanitizer still catches nearly everything (only
+	# bad reads whose value is never used get optimized away), and the replay suite runs
+	# several times faster, which is what makes replays under ASan reasonable.
+	# Asserts stay on (no NDEBUG).
+	set(CMAKE_CXX_FLAGS_ASAN "-O1 -g -fsanitize=address -fno-omit-frame-pointer" CACHE STRING "" FORCE)
+	set(CMAKE_C_FLAGS_ASAN "-O1 -g -fsanitize=address -fno-omit-frame-pointer" CACHE STRING "" FORCE)
 	set(CMAKE_EXE_LINKER_FLAGS_ASAN "${CMAKE_EXE_LINKER_FLAGS_DEBUG} -fsanitize=address" CACHE STRING "" FORCE)
 endif()
 
@@ -566,7 +570,7 @@ if(MSVC)
 	# set_source_files_properties(src/base/zc_math.cpp PROPERTIES COMPILE_FLAGS /O2)
 else()
 	# -O3 defines __OPTIMIZE__, which clang refuses to mix with a PCH built at a
-	# lower opt level (Asan/Debug). Skip the PCH for this one file.
+	# lower opt level (Debug/Coverage). Skip the PCH for this one file.
 	set_source_files_properties(src/base/zc_math.cpp PROPERTIES COMPILE_FLAGS -O3 SKIP_PRECOMPILE_HEADERS ON)
 endif()
 
@@ -802,6 +806,16 @@ endif()
 FetchContent_MakeAvailable(gme_external)
 # gme_shared or gme_static.
 get_target_property(GME_TARGET gme::gme ALIASED_TARGET)
+# gme links its shared library with -Wl,-no-undefined (on Linux). A sanitized
+# shared library leaves the sanitizer runtime's symbols undefined on purpose
+# (they resolve against the executable at load time), so that flag fails the
+# Asan link. Move it out of the plain LINK_FLAGS string into a per-config option.
+get_target_property(gme_link_flags ${GME_TARGET} LINK_FLAGS)
+if(gme_link_flags MATCHES "-Wl,-no-undefined")
+	string(REPLACE " -Wl,-no-undefined" "" gme_link_flags "${gme_link_flags}")
+	set_target_properties(${GME_TARGET} PROPERTIES LINK_FLAGS "${gme_link_flags}")
+	target_link_options(${GME_TARGET} PRIVATE "$<$<NOT:$<CONFIG:Asan>>:-Wl,-no-undefined>")
+endif()
 add_library(gme_headers INTERFACE)
 target_include_directories(gme_headers INTERFACE ${gme_external_SOURCE_DIR}/gme)
 target_link_libraries(gme_headers INTERFACE ${ZLIB_LIBRARIES})
