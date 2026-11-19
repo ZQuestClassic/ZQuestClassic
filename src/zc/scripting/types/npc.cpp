@@ -1575,7 +1575,7 @@ void npc_set_register(int32_t reg, int32_t value)
 			
 		case NPCFRAME:
 			if (npc)
-				(npc->clk2) = vbound(value/10000,0,214748);
+				(npc->clk) = vbound(value/10000,0,214748);
 				
 			break;
 		
