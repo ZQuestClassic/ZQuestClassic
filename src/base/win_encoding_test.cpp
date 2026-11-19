@@ -2,6 +2,10 @@
 #include "test_runner/test_runner.h"
 #include "test_runner/assert.h"
 
+#ifdef _WIN32
+#include <windows.h>
+#endif
+
 // Escaped because MSVC reads source files in the ANSI code page.
 // "C:\Créateur\クエスト.qst"
 static const std::string utf8_path = "C:\\Cr\xc3\xa9" "ateur\\\xe3\x82\xaf\xe3\x82\xa8\xe3\x82\xb9\xe3\x83\x88.qst";
@@ -14,11 +18,17 @@ static void test_legacy_path_to_utf8()
 
 #ifdef _WIN32
 	// "C:\Créateur\quest.qst" in cp1252, as a pre-manifest version on a Western system saved it.
+	// Converted only under the UTF-8 process code page; otherwise the narrow-char APIs take the
+	// ANSI code page, so it is left as is.
 	if (util::system_ansi_code_page() == 1252)
 	{
-		path = "C:\\Cr\xe9" "ateur\\quest.qst";
+		std::string ansi_path = "C:\\Cr\xe9" "ateur\\quest.qst";
+		path = ansi_path;
 		util::legacy_path_to_utf8(path);
-		assertEqual(path, std::string("C:\\Cr\xc3\xa9" "ateur\\quest.qst"));
+		if (GetACP() == CP_UTF8)
+			assertEqual(path, std::string("C:\\Cr\xc3\xa9" "ateur\\quest.qst"));
+		else
+			assertEqual(path, ansi_path);
 	}
 #endif
 }
