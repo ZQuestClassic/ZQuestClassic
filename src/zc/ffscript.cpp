@@ -24729,7 +24729,7 @@ void set_register_slow(int32_t arg, int32_t value)
 		}
 		case DMAPDATAMIRRDMAP:
 		{
-			DMaps[ri->dmapsref].mirrorDMap = vbound(value / 10000, -1, MAXDMAPS); break;
+			DMaps[ri->dmapsref].mirrorDMap = vbound(value / 10000, -1, MAXDMAPS-1); break;
 		}
 		case DMAPDATALOOPSTART:
 		{
