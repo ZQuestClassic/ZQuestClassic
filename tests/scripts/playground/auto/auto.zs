@@ -60,6 +60,7 @@
 #include "auto/bug_script_draw_error_logging.zs"
 #include "auto/bug_script_weapon_bomb_door.zs"
 #include "auto/bug_scroll_created_sprite_screen.zs"
+#include "auto/bug_shopdata_invalid_pointer.zs"
 #include "auto/bug_spawn_screen_oob.zs"
 #include "auto/bug_sprite_script_self_remove.zs"
 #include "auto/bug_string_16bit_index.zs"

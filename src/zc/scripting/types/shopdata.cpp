@@ -39,9 +39,21 @@ void shopdata_set_register([[maybe_unused]] int32_t reg, [[maybe_unused]] int32_
 
 // shopdata arrays.
 
+// A shopdata pointer is a shop (0 to NUMSHOPS-1) or an info shop (NUMSHOPS to NUMINFOSHOPS). Its
+// arrays have no elements for any other value, so their getters and setters never see one.
+static size_t shopdata_array_size(int ref)
+{
+	if (ref < 0 || ref > NUMINFOSHOPS)
+	{
+		scripting_log_error_with_context("Invalid shopdata pointer: {}", ref);
+		return 0;
+	}
+	return 3;
+}
+
 static ArrayRegistrar SHOPDATAHASITEM_registrar(SHOPDATAHASITEM, []{
 	static ScriptingArray_GlobalComputed<bool> impl(
-		[](int){ return 3; },
+		shopdata_array_size,
 		[](int ref, int index) -> bool {
 			bool isInfo = ( ref >= NUMSHOPS && ref <= NUMINFOSHOPS ); 
 			if (isInfo)
@@ -72,7 +84,7 @@ static ArrayRegistrar SHOPDATAHASITEM_registrar(SHOPDATAHASITEM, []{
 
 static ArrayRegistrar SHOPDATAITEM_registrar(SHOPDATAITEM, []{
 	static ScriptingArray_GlobalComputed<int> impl(
-		[](int){ return 3; },
+		shopdata_array_size,
 		[](int ref, int index) -> int {
 			bool isInfo = ( ref >= NUMSHOPS && ref <= NUMINFOSHOPS ); 
 			if (isInfo)
@@ -104,7 +116,7 @@ static ArrayRegistrar SHOPDATAITEM_registrar(SHOPDATAITEM, []{
 
 static ArrayRegistrar SHOPDATAPRICE_registrar(SHOPDATAPRICE, []{
 	static ScriptingArray_GlobalComputed<int> impl(
-		[](int){ return 3; },
+		shopdata_array_size,
 		[](int ref, int index) -> int {
 			bool isInfo = ( ref >= NUMSHOPS && ref <= NUMINFOSHOPS ); 
 			if (isInfo)
@@ -129,7 +141,7 @@ static ArrayRegistrar SHOPDATAPRICE_registrar(SHOPDATAPRICE, []{
 
 static ArrayRegistrar SHOPDATASTRING_registrar(SHOPDATASTRING, []{
 	static ScriptingArray_GlobalComputed<int> impl(
-		[](int){ return 3; },
+		shopdata_array_size,
 		[](int ref, int index) -> int {
 			bool isInfo = ( ref >= NUMSHOPS && ref <= NUMINFOSHOPS ); 
 			if (isInfo)
