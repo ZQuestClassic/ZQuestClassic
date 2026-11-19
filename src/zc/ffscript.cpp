@@ -5340,7 +5340,7 @@ void FFScript::do_loaddropset(const bool v)
 {
 	int32_t ID = SH::get_arg(sarg1, v) / 10000;
 	
-	if ( ID < 0 || ID > MAXITEMDROPSETS )
+	if ( ID < 0 || ID >= MAXITEMDROPSETS )
 	{
 		scripting_log_error_with_context("Invalid Dropset ID: {}", ID);
 		ri->dropsetdataref() = MAX_DWORD;
