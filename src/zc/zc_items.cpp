@@ -81,6 +81,13 @@ int select_dropitem(int item_set)
 		if (k > 0) // 0 is nothing chance
 		{
 			int current_item = dropset.item[k-1];
+			// Damaged quest data; never drop it.
+			if(unsigned(current_item) >= MAXITEMS)
+			{
+				current_chance = 0;
+				chances[k] = 0;
+				continue;
+			}
 			auto const& itm = itemsbuf[current_item];
 			bool remove = false;
 
