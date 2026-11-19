@@ -2,6 +2,11 @@ html {
 	--pst-header-height: 5rem;
 }
 
+/* The theme smooth-scrolls to anchor targets; jump instantly instead. */
+:root {
+	scroll-behavior: auto !important;
+}
+
 .navbar-brand img {
 	padding: 3px;
 }
