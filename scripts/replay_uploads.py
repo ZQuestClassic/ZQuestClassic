@@ -213,12 +213,34 @@ def read_replay(path: Path) -> tuple[dict[str, str], list[str]]:
     return meta, [l for l in lines[num_meta:] if l]
 
 
+# A replay that sits idle for longer than this at its end (ex: the player paused and
+# walked away for hours before closing the program) is cut off at its last step before
+# the idling. Playback ends at the last step, so the idle frames are never run.
+max_idle_tail_frames = 60 * 60 * 5
+
+
+def get_step_frame(step: str) -> int:
+    return int(step.split(' ', 2)[1])
+
+
 def get_replay_pin(key: str) -> dict:
     """The length (number of steps) and frames of the local copy of an uploaded replay."""
-    # The api server only accepts a replay whose length meta matches its steps, so the
-    # whole replay need not be read.
-    meta = read_replay_meta(get_replay_path(key))
-    return {'length': int(meta['length']), 'frames': int(meta['frames'])}
+    meta, steps = read_replay(get_replay_path(key))
+    # The api server only accepts a replay whose length meta matches its steps.
+    pin = {'length': int(meta['length']), 'frames': int(meta['frames'])}
+
+    # Find the last step that isn't a quit.
+    last_index = len(steps) - 1
+    while last_index >= 0 and steps[last_index].startswith('Q'):
+        last_index -= 1
+    if last_index < 0:
+        return pin
+
+    last_frame = get_step_frame(steps[last_index])
+    if pin['frames'] - last_frame > max_idle_tail_frames:
+        pin = {'length': last_index + 1, 'frames': last_frame}
+
+    return pin
 
 
 def get_updated_key(key: str):
