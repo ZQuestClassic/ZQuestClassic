@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2026-11-17 04:20:31</td>
+      <td>2026-11-19 00:49:48</td>
     </tr>
   </table>
 </div>
@@ -41,21 +41,21 @@
     </tr>
     <tr>
       <th scope="row">Lines:</th>
-      <td>6</td>
-      <td>6</td>
+      <td>8</td>
+      <td>8</td>
       <td class="coverage-high">100.0%</td>
     </tr>
     <tr>
       <th scope="row">Functions:</th>
-      <td>3</td>
-      <td>3</td>
+      <td>4</td>
+      <td>4</td>
       <td class="coverage-high">100.0%</td>
     </tr>
     <tr>
       <th scope="row">Branches:</th>
-      <td>3</td>
       <td>4</td>
-      <td class="coverage-medium">75.0%</td>
+      <td>6</td>
+      <td class="coverage-low">66.7%</td>
     </tr>
   </table>
 </div>
@@ -74,8 +74,9 @@
       <th>Block coverage</th>
     </tr>
     <tr><td><a href="#l32">mapdata::canonical() const (line 32)</a></td><td>called 662118 times, returned 662118 times</td><td>100.0%</td></tr>
-    <tr><td><a href="#l37">mapdata::current() const (line 37)</a></td><td>called 6573906 times, returned 6573906 times</td><td>100.0%</td></tr>
-    <tr><td><a href="#l42">mapdata::scrolling() const (line 42)</a></td><td>called 275394421 times, returned 275394421 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l37">mapdata::current() const (line 37)</a></td><td>called 6573962 times, returned 6573962 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l42">mapdata::scrolling() const (line 42)</a></td><td>called 275394433 times, returned 275394433 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l27">mapdata::temporary() const (line 27)</a></td><td>called 672 times, returned 672 times</td><td>100.0%</td></tr>
   </table>
 </details>
 
@@ -276,8 +277,8 @@
       <td class="lineno"><a id="l27" href="#l27">27</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">bool</span><span class="w"> </span><span class="nf">temporary</span><span class="p">()</span><span class="w"> </span><span class="k">const</span></td>
+      <td class="linecount coveredLine">672</td>
+      <td class="src coveredLine"><span class="w">	</span><span class="kt">bool</span><span class="w"> </span><span class="nf">temporary</span><span class="p">()</span><span class="w"> </span><span class="k">const</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l28" href="#l28">28</a></td>
@@ -289,9 +290,16 @@
     <tr class="source-line">
       <td class="lineno"><a id="l29" href="#l29">29</a></td>
       <td class="linebranch">
+        <details class="linebranchDetails">
+        <summary class="linebranchSummary">1/2</summary>
+        <div class="linebranchContents">
+          <div class="takenBranch">&check; Branch 0 taken 672 times.</div>
+          <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
+        </div>
+        </details>
       </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="k">return</span><span class="w"> </span><span class="n">type</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">mapdata_type</span><span class="o">::</span><span class="n">None</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">type</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">mapdata_type</span><span class="o">::</span><span class="n">CanonicalScreen</span><span class="p">;</span></td>
+      <td class="linecount partialCoveredLine">672</td>
+      <td class="src partialCoveredLine"><span class="w">		</span><span class="k">return</span><span class="w"> </span><span class="n">type</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">mapdata_type</span><span class="o">::</span><span class="n">None</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">type</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">mapdata_type</span><span class="o">::</span><span class="n">CanonicalScreen</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l30" href="#l30">30</a></td>
@@ -346,7 +354,7 @@
       <td class="lineno"><a id="l37" href="#l37">37</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">6573906</td>
+      <td class="linecount coveredLine">6573962</td>
       <td class="src coveredLine"><span class="w">	</span><span class="kt">bool</span><span class="w"> </span><span class="nf">current</span><span class="p">()</span><span class="w"> </span><span class="k">const</span></td>
     </tr>
     <tr class="source-line">
@@ -362,12 +370,12 @@
         <details class="linebranchDetails">
         <summary class="linebranchSummary">2/2</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 1366754 times.</div>
-          <div class="takenBranch">&check; Branch 1 taken 5207152 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 1366762 times.</div>
+          <div class="takenBranch">&check; Branch 1 taken 5207200 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount coveredLine">6573906</td>
+      <td class="linecount coveredLine">6573962</td>
       <td class="src coveredLine"><span class="w">		</span><span class="k">return</span><span class="w"> </span><span class="n">type</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">mapdata_type</span><span class="o">::</span><span class="n">TemporaryCurrentRegion</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">type</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">mapdata_type</span><span class="o">::</span><span class="n">TemporaryCurrentScreen</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
@@ -388,7 +396,7 @@
       <td class="lineno"><a id="l42" href="#l42">42</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">275394421</td>
+      <td class="linecount coveredLine">275394433</td>
       <td class="src coveredLine"><span class="w">	</span><span class="kt">bool</span><span class="w"> </span><span class="nf">scrolling</span><span class="p">()</span><span class="w"> </span><span class="k">const</span></td>
     </tr>
     <tr class="source-line">
@@ -405,11 +413,11 @@
         <summary class="linebranchSummary">1/2</summary>
         <div class="linebranchContents">
           <div class="notTakenBranch">&cross; Branch 0 not taken.</div>
-          <div class="takenBranch">&check; Branch 1 taken 275394421 times.</div>
+          <div class="takenBranch">&check; Branch 1 taken 275394433 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">275394421</td>
+      <td class="linecount partialCoveredLine">275394433</td>
       <td class="src partialCoveredLine"><span class="w">		</span><span class="k">return</span><span class="w"> </span><span class="n">type</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">mapdata_type</span><span class="o">::</span><span class="n">TemporaryScrollingRegion</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">type</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">mapdata_type</span><span class="o">::</span><span class="n">TemporaryScrollingScreen</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
