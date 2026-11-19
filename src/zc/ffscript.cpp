@@ -9867,6 +9867,18 @@ int32_t run_script(ScriptType type, word script, int32_t i)
 		~RestoreZasmCommand() { current_zasm_command = prev; }
 	} _restore_zasm_command;
 
+	// A script can also run inside another script's command: generic scripts run during the frames
+	// that commands like Screen->ZapOut() run, and commands throw generic script events. Put the
+	// outer script's state back afterwards, or it goes on running with this script's position,
+	// registers and stack. Top-level runs are left alone, since the state they leave behind is
+	// what error logs read between frames.
+	struct NestedScriptScope
+	{
+		std::optional<ScriptExecState> saved;
+		NestedScriptScope() { if (script_run_depth > 0) saved = ScriptExecState::save(); }
+		~NestedScriptScope() { if (saved) saved->restore(); }
+	} _nested_script_scope;
+
 	struct ScriptRunDepthScope
 	{
 		ScriptRunDepthScope() { ++script_run_depth; }
