@@ -1025,6 +1025,8 @@ class GuyH : public SH
 public:
 	static int32_t loadNPC(const int32_t eid, const char * const funcvar)
 	{
+		// Never leave the previous npc here on failure: it may have been deleted since.
+		tempenemy = NULL;
 		if ( !eid ) 
 		{
 			//can never be zero?
@@ -1153,6 +1155,8 @@ class ItemH : public SH
 public:
 	static int32_t loadItem(const int32_t iid, const char * const funcvar)
 	{
+		// Never leave the previous item here on failure: it may have been deleted since.
+		tempitem = NULL;
 		if ( !iid ) 
 		{
 			//can never be zero?
@@ -20574,37 +20578,37 @@ void set_register_slow(int32_t arg, int32_t value)
 			SET_NPC_VAR_INT(dir, "npc->Dir") break;
 			
 		case NPCHITDIR:
-			if(GuyH::loadNPC(ri->guyref, "npc->HitDir") != SH::_NoError)
+			if(GuyH::loadNPC(ri->guyref, "npc->HitDir") == SH::_NoError)
 				(GuyH::getNPC()->hitdir) = vbound(value/10000, 0, 3);
 				
 			break;
 			
 		case NPCSLIDECLK:
-			if(GuyH::loadNPC(ri->guyref, "npc->SlideClock") != SH::_NoError)
+			if(GuyH::loadNPC(ri->guyref, "npc->SlideClock") == SH::_NoError)
 				GuyH::getNPC()->sclk = value/10000;//vbound(value/10000,0,255);
 				
 			break;
 			
 		case NPCFADING:
-			if(GuyH::loadNPC(ri->guyref, "npc->Fading") != SH::_NoError)
+			if(GuyH::loadNPC(ri->guyref, "npc->Fading") == SH::_NoError)
 				(GuyH::getNPC()->fading) = vbound(value/10000,0,4);
 				
 			break;
 			
 		case NPCHALTCLK:
-			if(GuyH::loadNPC(ri->guyref, "npc->Halt") != SH::_NoError)
+			if(GuyH::loadNPC(ri->guyref, "npc->Halt") == SH::_NoError)
 				(GuyH::getNPC()->clk2) = vbound(value/10000,0,214748);
 				
 			break;
 			
 		case NPCFRAME:
-			if(GuyH::loadNPC(ri->guyref, "npc->Frame") != SH::_NoError)
-				(GuyH::getNPC()->clk2) = vbound(value/10000,0,214748);
+			if(GuyH::loadNPC(ri->guyref, "npc->Frame") == SH::_NoError)
+				(GuyH::getNPC()->clk) = vbound(value/10000,0,214748);
 				
 			break;
 		
 		case NPCMOVESTATUS:
-			if(GuyH::loadNPC(ri->guyref, "npc->MoveStatus") != SH::_NoError)
+			if(GuyH::loadNPC(ri->guyref, "npc->MoveStatus") == SH::_NoError)
 				(GuyH::getNPC()->movestatus) = vbound(value/10000,0,3);
 				
 			break;
