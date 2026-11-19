@@ -2271,7 +2271,7 @@ void do_drawquadr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
     */
     polytype = vbound(polytype, 0, 14);
     
-    if(((w-1) & w) != 0 || ((h-1) & h) != 0)
+    if(w < 1 || h < 1 || ((w-1) & w) != 0 || ((h-1) & h) != 0)
     {
         Z_message("Quad() : Args h, w, must be in powers of two! Power of 2 error with %i, %i.", w, h);
         return; //non power of two error
@@ -2366,7 +2366,7 @@ void do_drawtriangler(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffs
     
     polytype = vbound(polytype, 0, 14);
     
-    if(((w-1) & w) != 0 || ((h-1) & h) != 0)
+    if(w < 1 || h < 1 || ((w-1) & w) != 0 || ((h-1) & h) != 0)
     {
         Z_message("Quad() : Args h, w, must be in powers of two! Power of 2 error with %i, %i.", w, h);
         return; //non power of two error
@@ -3842,7 +3842,7 @@ void do_drawquad3dr(BITMAP *bmp, int32_t i, int32_t *sdci, int32_t xoffset, int3
     
     polytype = vbound(polytype, 0, 14);
     
-	if(((w-1) & w) != 0 || ((h-1) & h) != 0)
+	if(w < 1 || h < 1 || ((w-1) & w) != 0 || ((h-1) & h) != 0)
 	{
 		Z_message("Quad3d() : Args h, w, must be in powers of two! Power of 2 error with %i, %i.", w, h);
 		return; //non power of two error
@@ -3926,7 +3926,7 @@ void do_drawtriangle3dr(BITMAP *bmp, int32_t i, int32_t *sdci, int32_t xoffset, 
     
     polytype = vbound(polytype, 0, 14);
     
-	if(((w-1) & w) != 0 || ((h-1) & h) != 0)
+	if(w < 1 || h < 1 || ((w-1) & w) != 0 || ((h-1) & h) != 0)
 	{
 		Z_message("Triangle3d() : Args h, w, must be in powers of two! Power of 2 error with %i, %i.", w, h);
 		return; //non power of two error
@@ -6124,6 +6124,12 @@ void bmp_do_drawquadr(BITMAP*, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 	}
 	else
 	{
+		// Before the texture is made from w and h, which it can't be for a bad size.
+		if(w < 1 || h < 1 || ((w-1) & w) != 0 || ((h-1) & h) != 0)
+		{
+			Z_message("Quad() : Args h, w, must be in powers of two! Power of 2 error with %i, %i.", w, h);
+			return; //non power of two error
+		}
 		tex = script_drawing_commands.GetSmallTextureBitmap(w,h);
 		if(!tex)
 		{
@@ -6146,11 +6152,6 @@ void bmp_do_drawquadr(BITMAP*, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 		
 			if(!(c.animflags & AF_EDITOR_ONLY))
 				TileHelper::OldPutTile(tex, tiletodraw, 0, 0, w, h, color, flip);
-		}
-		if(((w-1) & w) != 0 || ((h-1) & h) != 0)
-		{
-			Z_message("Quad() : Args h, w, must be in powers of two! Power of 2 error with %i, %i.", w, h);
-			return; //non power of two error
 		}
 		//Z_scripterrlog("bitmap->Quad() is trying to blit from a bitmap texture.\n");
 		V3D_f V1 = { static_cast<float>(x1+xoffset), static_cast<float>(y1+yoffset), 0, 0,                             0,                              col[0] };
@@ -6253,16 +6254,6 @@ void bmp_do_drawtriangler(BITMAP*, int32_t *sdci, int32_t xoffset, int32_t yoffs
     int32_t tex_width = w*16;
     int32_t tex_height = h*16;
     
-    bool mustDestroyBmp = false;
-    BITMAP *tex = script_drawing_commands.GetSmallTextureBitmap(w,h);
-    
-    if(!tex)
-    {
-        mustDestroyBmp = true;
-        tex = create_bitmap_ex(8, tex_width, tex_height);
-        clear_bitmap(tex);
-    }
-    
     int32_t col[3];
     /*
     if( color < 0 )
@@ -6275,7 +6266,25 @@ void bmp_do_drawtriangler(BITMAP*, int32_t *sdci, int32_t xoffset, int32_t yoffs
     {
         col[0]=col[1]=col[2]=color;
     }
-    
+
+    bool mustDestroyBmp = false;
+    BITMAP *tex = NULL;
+    if ( !tex_is_bitmap )
+    {
+	// Before the texture is made from w and h, which it can't be for a bad size.
+	if(w < 1 || h < 1 || ((w-1) & w) != 0 || ((h-1) & h) != 0)
+	{
+		Z_message("bitmap->Triangle() : Args h, w, must be in powers of two! Power of 2 error with %i, %i.", w, h);
+		return; //non power of two error
+	}
+	tex = script_drawing_commands.GetSmallTextureBitmap(w,h);
+	if(!tex)
+	{
+		mustDestroyBmp = true;
+		tex = create_bitmap_ex(8, tex_width, tex_height);
+		clear_bitmap(tex);
+	}
+
     if(tile > 0)   // TILE
     {
         TileHelper::OverTile(tex, tile, 0, 0, w, h, color, flip);
@@ -6289,13 +6298,6 @@ void bmp_do_drawtriangler(BITMAP*, int32_t *sdci, int32_t xoffset, int32_t yoffs
         if(!(c.animflags & AF_EDITOR_ONLY))
 			TileHelper::OldPutTile(tex, tiletodraw, 0, 0, w, h, color, flip);
     }
-    if ( !tex_is_bitmap )
-    {
-	if(((w-1) & w) != 0 || ((h-1) & h) != 0)
-	{
-		Z_message("bitmap->Triangle() : Args h, w, must be in powers of two! Power of 2 error with %i, %i.", w, h);
-		return; //non power of two error
-	}
 	V3D_f V1 = { static_cast<float>(x1+xoffset), static_cast<float>(y1+yoffset), 0, 0,                             0,                              col[0] };
 	V3D_f V2 = { static_cast<float>(x2+xoffset), static_cast<float>(y2+yoffset), 0, 0,                             static_cast<float>(tex_height), col[1] };
 	V3D_f V3 = { static_cast<float>(x3+xoffset), static_cast<float>(y3+yoffset), 0, static_cast<float>(tex_width), static_cast<float>(tex_height), col[2] };
@@ -10574,6 +10576,12 @@ void bmp_do_drawquad3dr(BITMAP*, int32_t i, int32_t *sdci, int32_t xoffset, int3
 	
 	if ( !tex_is_bitmap )
 	{
+	// Before the texture is made from w and h, which it can't be for a bad size.
+	if(w < 1 || h < 1 || ((w-1) & w) != 0 || ((h-1) & h) != 0)
+	{
+		Z_message("Quad3d() : Args h, w, must be in powers of two! Power of 2 error with %i, %i.", w, h);
+		return; //non power of two error
+	}
 	tex = script_drawing_commands.GetSmallTextureBitmap(w,h);
 	
 	if(!tex)
@@ -10581,11 +10589,6 @@ void bmp_do_drawquad3dr(BITMAP*, int32_t i, int32_t *sdci, int32_t xoffset, int3
 		mustDestroyBmp = true;
 		tex = create_bitmap_ex(8, tex_width, tex_height);
 		clear_bitmap(tex);
-	}
-	if(((w-1) & w) != 0 || ((h-1) & h) != 0)
-	{
-		Z_message("Quad3d() : Args h, w, must be in powers of two! Power of 2 error with %i, %i.", w, h);
-		return; //non power of two error
 	}
 	if(tile > 0)   // TILE
 		{
@@ -10689,7 +10692,7 @@ void bmp_do_drawtriangle3dr(BITMAP*, int32_t i, int32_t *sdci, int32_t xoffset, 
 	int32_t quad_render_source = sdci[9];
 	polytype = vbound(polytype, 0, 14);
 	
-	if(((w-1) & w) != 0 || ((h-1) & h) != 0)
+	if(w < 1 || h < 1 || ((w-1) & w) != 0 || ((h-1) & h) != 0)
 	{
 		Z_message("bitmap->Triangle3d() : Args h, w, must be in powers of two! Power of 2 error with %i, %i.", w, h);
 		return; //non power of two error
