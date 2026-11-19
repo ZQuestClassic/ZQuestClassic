@@ -17740,6 +17740,7 @@ int32_t addchild(int32_t x,int32_t y,int32_t id,int32_t clk, int32_t parent_scri
 int32_t addchild(int32_t x,int32_t y,int32_t z,int32_t id,int32_t clk, int32_t parent_scriptUID)
 {
 	if(id <= 0) return 0;
+	if((id&0xFFF) >= MAXGUYS) return 0;
 	
 	int32_t ret = 0;
 	sprite *e=NULL;
