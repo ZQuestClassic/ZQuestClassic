@@ -684,6 +684,14 @@ const char *screenstate_string[16] =
     "Boss Locked Chests", "Secrets", "Visited", "Light Beams"
 };
 
+// The name of a screen state flag, given log2 of the flag. Scripts can set any flag.
+static const char* screenstate_name(float flag_log2)
+{
+	if (flag_log2 >= 0 && flag_log2 < std::size(screenstate_string))
+		return screenstate_string[(int32_t)flag_log2];
+	return "<Unknown>";
+}
+
 void eventlog_mapflags()
 {
 	std::ostringstream oss;
@@ -763,11 +771,11 @@ void setmapflag(int32_t mi2, int32_t flag)
     
     float temp=log2((float)flag);
     if (replay_is_active() && !(game->maps[mi2] & flag))
-        replay_step_comment(fmt::format("map {} scr {} flag {}", cmap, cscr, flag > 0 ? screenstate_string[(int32_t)temp] : "<Unknown>"));
+        replay_step_comment(fmt::format("map {} scr {} flag {}", cmap, cscr, screenstate_name(temp)));
     game->maps[mi2] |= flag;
     Z_eventlog("%s's State was set: %s\n",
                mi2 != (currmap*MAPSCRSNORMAL)+homescr ? buf : "Current screen",
-               flag>0 ? screenstate_string[(int32_t)temp] : "<Unknown>");
+               screenstate_name(temp));
                
     if(flag==mSECRET||flag==mITEM||flag==mSPECIALITEM||flag==mLOCKBLOCK||
             flag==mBOSSLOCKBLOCK||flag==mCHEST||flag==mBOSSCHEST||flag==mLOCKEDCHEST)
@@ -784,7 +792,7 @@ void setmapflag(int32_t mi2, int32_t flag)
             {
                 Z_eventlog("State change carried over to (%d, %02X)\n",nmap+1,nscr);
                 if (replay_is_active() & !(game->maps[((nmap-1)<<7)+nscr] & flag))
-                    replay_step_comment(fmt::format("map {} scr {} flag {} carry", nmap, nscr, flag > 0 ? screenstate_string[(int32_t)temp] : "<Unknown>"));
+                    replay_step_comment(fmt::format("map {} scr {} flag {} carry", nmap, nscr, screenstate_name(temp)));
                 game->maps[((nmap-1)<<7)+nscr] |= flag;
             }
             
@@ -828,7 +836,7 @@ void unsetmapflag(int32_t mi2, int32_t flag, bool anyflag)
     float temp=log2((float)flag);
     Z_eventlog("%s's State was unset: %s\n",
                mi2 != (currmap*MAPSCRSNORMAL)+homescr ? buf : "Current screen",
-               flag>0 ? screenstate_string[(int32_t)temp] : "<Unknown>");
+               screenstate_name(temp));
                
     if(flag==mSECRET||flag==mITEM||flag==mSPECIALITEM||flag==mLOCKBLOCK||
             flag==mBOSSLOCKBLOCK||flag==mCHEST||flag==mBOSSCHEST||flag==mLOCKEDCHEST)
