@@ -41794,7 +41794,7 @@ void FFScript::set_screenlayeropacity(mapscr *m, int32_t d, int32_t value)
 void FFScript::set_screensecretcombo(mapscr *m, int32_t d, int32_t value)
 {
 	int32_t indx = vbound(value,0,127);
-	int32_t cmb = vbound(value,0,MAXCOMBOS);
+	int32_t cmb = vbound(value,0,MAXCOMBOS-1);
 	m->secretcombo[indx] = cmb;
 }
 void FFScript::set_screensecretcset(mapscr *m, int32_t d, int32_t value)
@@ -41865,7 +41865,7 @@ void FFScript::set_screenitem(mapscr *m, int32_t value)
 }
 void FFScript::set_screenundercombo(mapscr *m, int32_t value)
 {
-	int32_t cmb = vbound(value,0,MAXCOMBOS);
+	int32_t cmb = vbound(value,0,MAXCOMBOS-1);
 	m->undercombo = cmb;
 }
 void FFScript::set_screenundercset(mapscr *m, int32_t value)
@@ -42628,7 +42628,7 @@ void FFScript::setNPCData_misc(int32_t val)
 //Getters for ComboData 'Type' submembers. 
 #define GET_COMBODATA_TYPE_INT(member) \
 { \
-	int32_t ID = vbound((get_register(sarg2) / 10000),0,MAXCOMBOS);\
+	int32_t ID = vbound((get_register(sarg2) / 10000),0,MAXCOMBOS-1);\
 	set_register(sarg1, combo_class_buf[combobuf[ID].type].member * 10000); \
 }
 
@@ -42638,14 +42638,14 @@ void FFScript::setNPCData_misc(int32_t val)
 
 #define GET_COMBODATA_TYPE_INDEX(member, bound) \
 { \
-	int32_t ID = int32_t(vbound((ri->d[rINDEX] / 10000),0,MAXCOMBOS));\
+	int32_t ID = int32_t(vbound((ri->d[rINDEX] / 10000),0,MAXCOMBOS-1));\
 	int32_t indx = int32_t(vbound((ri->d[rINDEX2] / 10000), 0, bound));\
 	set_register(sarg1, combo_class_buf[combobuf[ID].type].member[indx] * 10000); \
 }
 
 #define GET_COMBODATA_TYPE_FLAG(member) \
 { \
-	int32_t ID = int32_t(vbound(ri->d[rINDEX] / 10000),0,MAXCOMBOS);\
+	int32_t ID = int32_t(vbound((ri->d[rINDEX] / 10000),0,MAXCOMBOS-1));\
 	int32_t flag = int32_t(ri->d[rINDEX2] / 10000);\
 	set_register(sarg1, (combo_class_buf[combobuf[ID].type].member&flag) ? 10000 : 0); \
 }
@@ -42655,20 +42655,20 @@ void FFScript::setNPCData_misc(int32_t val)
 //Getters for ComboData main members. 
 #define GET_COMBODATA_VAR_INT(member) \
 { \
-	int32_t ID = vbound( (get_register(sarg2) / 10000), 0, MAXCOMBOS);\
+	int32_t ID = vbound( (get_register(sarg2) / 10000), 0, MAXCOMBOS-1);\
 	set_register(sarg1, combobuf[ID].member * 10000); \
 }
 
 #define GET_COMBODATA_VAR_INDEX(member, bound) \
 { \
-	int32_t ID = int32_t( vbound( (ri->d[rINDEX] / 10000),0,MAXCOMBOS) );\
+	int32_t ID = int32_t( vbound( (ri->d[rINDEX] / 10000),0,MAXCOMBOS-1) );\
 	int32_t indx = int32_t ( vbound( (ri->d[rINDEX2] / 10000),0,bound) );\
 	set_register(sarg1, combobuf[ID].member[indx] * 10000); \
 }
 
 #define GET_COMBODATA_VAR_FLAG(member) \
 { \
-	int32_t ID = int32_t( vbound( ( ri->d[rINDEX] / 10000),0,MAXCOMBOS) );\
+	int32_t ID = int32_t( vbound( ( ri->d[rINDEX] / 10000),0,MAXCOMBOS-1) );\
 	int32_t flag = int32_t(ri->d[rINDEX2] / 10000);\
 	set_register(sarg1, (combobuf[ID].member&flag) ? 10000 : 0); \
 }
@@ -42690,14 +42690,14 @@ void FFScript::setNPCData_misc(int32_t val)
 
 #define SET_COMBODATA_TYPE_INDEX(member, val, bound, indexbound) \
 { \
-	int32_t ID = vbound((ri->d[rINDEX]/10000),0,MAXCOMBOS);  \
+	int32_t ID = vbound((ri->d[rINDEX]/10000),0,MAXCOMBOS-1);  \
 	int32_t indx =  vbound((ri->d[rINDEX2]/10000),0,indexbound);  \
 	combo_class_buf[combobuf[ID].type].member[indx] = vbound(val,0,bound); \
 }
 
 #define SET_COMBODATA_TYPE_FLAG(member, val, bound) \
 { \
-	int32_t ID = vbound((ri->d[rINDEX]/10000),0,MAXCOMBOS);  \
+	int32_t ID = vbound((ri->d[rINDEX]/10000),0,MAXCOMBOS-1);  \
 	int32_t flag =  (ri->d[rINDEX2]/10000);  \
 	combo_class_buf[combobuf[ID].type].member&flag = ((vbound(val,0,bound))!=0); \
  \
@@ -42706,7 +42706,7 @@ void FFScript::setNPCData_misc(int32_t val)
 //Setters for ComboData main members
 #define SET_COMBODATA_VAR_INT(member, bound) \
 { \
-	int32_t ID = vbound( (get_register(sarg1) / 10000), 0, MAXCOMBOS); \
+	int32_t ID = vbound( (get_register(sarg1) / 10000), 0, MAXCOMBOS-1); \
 	int32_t val = vbound((get_register(sarg2) / 10000),0,bound); \
 	combobuf[ID].member = val; \
 }
@@ -42714,7 +42714,7 @@ void FFScript::setNPCData_misc(int32_t val)
 //SET_NPC_VAR_INDEX(member,value)
 #define SET_COMBODATA_VAR_INDEX(member, val, bound, indexbound) \
 { \
-	int32_t ID = vbound((ri->d[rINDEX]/10000),0,MAXCOMBOS);  \
+	int32_t ID = vbound((ri->d[rINDEX]/10000),0,MAXCOMBOS-1);  \
 	int32_t indx =  vbound((ri->d[rINDEX2]/10000),0,indexbound);  \
 	combobuf[ID].member[indx] = vbound(val,0,bound); \
 }
@@ -42722,7 +42722,7 @@ void FFScript::setNPCData_misc(int32_t val)
 //Special case for flags, three inputs one return
 #define SET_COMBODATA_VAR_FLAG(member, val, bound) \
 { \
-	int32_t ID = vbound((ri->d[rINDEX]/10000),0,MAXCOMBOS);  \
+	int32_t ID = vbound((ri->d[rINDEX]/10000),0,MAXCOMBOS-1);  \
 	int32_t flag =  (ri->d[rINDEX2]/10000);  \
 	else \
 	{ \
