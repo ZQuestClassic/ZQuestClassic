@@ -455,6 +455,14 @@ int32_t read_one_ffscript(PACKFILE *f, zquestheader *, [[maybe_unused]] int32_t 
 	assert(zasm_scripts.size() == 1);
 	auto& zs = zasm_scripts[0];
 
+	// Where the script starts and ends comes from the file, and running it reads from there.
+	if (script->end_pc && (script->pc >= zs->size || script->pc > script->end_pc || script->end_pc > zs->size))
+	{
+		al_trace("Warning: found script outside of the quest's ZASM (pc %u to %u), disabling script: %s %d\n", script->pc, script->end_pc, ScriptTypeToString(script->id.type), script->id.index);
+		script->disable();
+		return 0;
+	}
+
 	script->zasm_script = zs;
 
 	if (script->valid())
