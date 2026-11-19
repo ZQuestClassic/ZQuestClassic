@@ -6206,7 +6206,7 @@ int32_t get_register_slow(const int32_t arg)
 			int32_t a = ri->d[rINDEX] / 10000;
 			
 			if(GuyH::loadNPC(ri->guyref, "npc->Defense[]") != SH::_NoError ||
-					BC::checkBounds(a, 0, (edefLAST255), "npc->Defense[]") != SH::_NoError)
+					BC::checkBounds(a, 0, edefLAST255-1, "npc->Defense[]") != SH::_NoError)
 				ret = -10000;
 			else
 				ret = GuyH::getNPC()->defense[a] * 10000;
@@ -6288,7 +6288,8 @@ int32_t get_register_slow(const int32_t arg)
 		{
 			int32_t a = ri->d[rINDEX] / 10000;
 			
-			if(GuyH::loadNPC(ri->guyref, "npc->InitD[]") != SH::_NoError )
+			if(GuyH::loadNPC(ri->guyref, "npc->InitD[]") != SH::_NoError ||
+					BC::checkBounds(a, 0, 7, "npc->InitD[]") != SH::_NoError)
 				ret = -10000;
 			else
 			{
@@ -12850,7 +12851,7 @@ int32_t get_register_slow(const int32_t arg)
 				Z_scripterrlog("Invalid NPC ID passed to npcdata->%s: %d\n", "InitD", (ri->npcdataref*10000));
 				ret = -1;
 			}
-			else if ( (unsigned)indx > 8 )
+			else if ( (unsigned)indx > 7 )
 			{
 				Z_scripterrlog("Invalid Array Index passed to npcdata->%s: %d\n", "InitD", indx);
 				ret = -1;
@@ -12869,7 +12870,7 @@ int32_t get_register_slow(const int32_t arg)
 				Z_scripterrlog("Invalid NPC ID passed to npcdata->%s: %d\n", "WeaponInitD", (ri->npcdataref*10000));
 				ret = -1;
 			}
-			else if ( (unsigned)indx > 8 )
+			else if ( (unsigned)indx > 7 )
 			{
 				Z_scripterrlog("Invalid Array Index passed to npcdata->%s: %d\n", "WeaponInitD", indx);
 				ret = -1;
@@ -20710,7 +20711,7 @@ void set_register_slow(int32_t arg, int32_t value)
 			int32_t a = ri->d[rINDEX] / 10000;
 			
 			if(GuyH::loadNPC(ri->guyref, "npc->Defense") == SH::_NoError &&
-					BC::checkBounds(a, 0, (edefLAST255), "npc->Defense") == SH::_NoError)
+					BC::checkBounds(a, 0, edefLAST255-1, "npc->Defense") == SH::_NoError)
 			{
 				if ( ( get_qr(qr_250WRITEEDEFSCRIPT) ) && a == edefSCRIPT ) 
 				{
@@ -20802,7 +20803,8 @@ void set_register_slow(int32_t arg, int32_t value)
 		{
 			int32_t a = ri->d[rINDEX] / 10000;
 			
-			if(GuyH::loadNPC(ri->guyref, "npc->InitD[]") == SH::_NoError)
+			if(GuyH::loadNPC(ri->guyref, "npc->InitD[]") == SH::_NoError &&
+					BC::checkBounds(a, 0, 7, "npc->InitD[]") == SH::_NoError)
 			{
 				//enemy *e = (enemy*)guys.spr(ri->guyref);
 				//e->initD[a] = value; 
@@ -25993,7 +25995,7 @@ void set_register_slow(int32_t arg, int32_t value)
 			{
 				Z_scripterrlog("Invalid NPC ID passed to npcdata->%s: %d\n", "WeaponInitD", (ri->npcdataref*10000));
 			}
-			else if ( (unsigned)indx > 8 )
+			else if ( (unsigned)indx > 7 )
 			{
 				Z_scripterrlog("Invalid Array Index passed to npcdata->%s: %d\n", "WeaponInitD", indx);
 			}
@@ -26010,7 +26012,7 @@ void set_register_slow(int32_t arg, int32_t value)
 			{
 				Z_scripterrlog("Invalid NPC ID passed to npcdata->%s: %d\n", "InitD", (ri->npcdataref*10000));
 			}
-			else if ( (unsigned)indx > 8 )
+			else if ( (unsigned)indx > 7 )
 			{
 				Z_scripterrlog("Invalid Array Index passed to npcdata->%s: %d\n", "InitD", indx);
 			}
@@ -42454,7 +42456,7 @@ void do_issolid()
 //void FFScript::getNPCData_scriptdefence(){GET_NPCDATA_FUNCTION_VAR_INDEX(scriptdefence)};
 
 
-void FFScript::getNPCData_defense(){GET_NPCDATA_FUNCTION_VAR_INDEX(defense,int32_t(edefLAST255))};
+void FFScript::getNPCData_defense(){GET_NPCDATA_FUNCTION_VAR_INDEX(defense,int32_t(edefLAST255-1))};
 
 
 void FFScript::getNPCData_SIZEflags(){GET_NPCDATA_FUNCTION_VAR_FLAG(SIZEflags);}
@@ -42611,7 +42613,7 @@ void FFScript::setNPCData_wpnsprite(){SET_NPCDATA_FUNCTION_VAR_INT(wpnsprite,511
 
 
 //void FFScript::setNPCData_scriptdefence(){SET_NPCDATA_FUNCTION_VAR_INDEX(scriptdefence);}
-void FFScript::setNPCData_defense(int32_t v){SET_NPCDATA_FUNCTION_VAR_INDEX(defense,v, ZS_INT, int32_t(edefLAST255) );}
+void FFScript::setNPCData_defense(int32_t v){SET_NPCDATA_FUNCTION_VAR_INDEX(defense,v, ZS_INT, int32_t(edefLAST255-1) );}
 void FFScript::setNPCData_SIZEflags(int32_t v){SET_NPCDATA_FUNCTION_VAR_FLAG(SIZEflags,v);}
 void FFScript::setNPCData_misc(int32_t val)
 {
