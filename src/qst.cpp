@@ -4985,6 +4985,9 @@ int32_t read_one_dmap(PACKFILE* f, zquestheader *Header, int s_version, int inde
 			{
 				return qe_invalid;
 			}
+			// As with the subscreen scripts above.
+			if(tempDMap.onmap_script >= NUMSCRIPTSDMAP)
+				tempDMap.onmap_script = 0;
 			for ( int32_t q = 0; q < 8; ++q )
 			{
 				if(!p_igetl(&tempDMap.onmap_initD[q],f))
