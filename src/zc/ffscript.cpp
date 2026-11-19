@@ -16277,9 +16277,14 @@ void set_register_slow(int32_t arg, int32_t value)
 			
 		case LINKDIR:
 		{
+			// The Hero's tiles only have the 4 cardinal directions, and are indexed by it.
+			int32_t d = value/10000;
+			if (BC::checkBounds(d, up, right, "Hero->Dir") != SH::_NoError)
+				break;
+
 			//Hero->setDir() calls reset_hookshot(), which removes the sword sprite.. O_o
-			if(Hero.getAction() == attacking || Hero.getAction() == sideswimattacking) Hero.dir = (value/10000);
-			else Hero.setDir(value/10000);
+			if(Hero.getAction() == attacking || Hero.getAction() == sideswimattacking) Hero.dir = d;
+			else Hero.setDir(d);
 			
 			break;
 		}
