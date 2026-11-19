@@ -93,6 +93,10 @@ static std::vector<uint32_t> ids_freed_during_gc;
 // count of 0 are added here instead of being deleted right away (see delete_script_object).
 static std::vector<uint32_t>* deferred_deletes;
 
+// Objects that have released the objects they hold, but are still to be erased (they wait for those
+// to be deleted first; see delete_script_object).
+static std::vector<uint32_t> objects_being_deleted;
+
 // The engine storage slots holding objects (see engine_object_slot_set).
 static std::map<engine_object_slot, script_object_type> engine_object_slots;
 
@@ -251,6 +255,7 @@ void init_script_objects()
 	gc_in_progress = false;
 	ids_freed_during_gc.clear();
 	deferred_deletes = nullptr;
+	objects_being_deleted.clear();
 	engine_object_slots.clear();
 	allocations_since_last_gc = 0;
 	deallocations_since_last_gc = 0;
@@ -510,7 +515,7 @@ static bool begin_delete_script_object(uint32_t id, bool remove_refs, std::vecto
 
 	// An object whose destructor is currently running must not be deleted out
 	// from under it (for example, by a GC run triggered within the destructor).
-	if (util::contains(objects_being_destructed, id))
+	if (util::contains(objects_being_destructed, id) || util::contains(objects_being_deleted, id))
 		return false;
 
 	// Deleting because the last reference was released (rather than, say, the
@@ -532,6 +537,8 @@ static bool begin_delete_script_object(uint32_t id, bool remove_refs, std::vecto
 		object->ref_count--;
 		return false;
 	}
+
+	objects_being_deleted.push_back(id);
 
 	if (remove_refs)
 	{
@@ -565,8 +572,11 @@ static bool begin_delete_script_object(uint32_t id, bool remove_refs, std::vecto
 
 static void finish_delete_script_object(uint32_t id, script_object_base* object)
 {
-	// A destructor run since begin_delete_script_object may have deleted it (ex. by a GC run), and
-	// its id may even belong to a new object now.
+	if (auto it = std::find(objects_being_deleted.rbegin(), objects_being_deleted.rend(), id); it != objects_being_deleted.rend())
+		objects_being_deleted.erase(std::next(it).base());
+
+	// Nothing should delete an object in objects_being_deleted (GC runs treat them as roots), but
+	// destructors have run since begin_delete_script_object, so be sure the id still maps to it.
 	auto it = script_objects.find(id);
 	if (it == script_objects.end() || it->second.get() != object)
 		return;
@@ -758,6 +768,11 @@ static auto run_mark_and_sweep(bool only_include_global_roots)
 		// destructors, are roots too - otherwise a GC triggered from within a
 		// destructor could delete objects the destructor is still using.
 		for (auto id : objects_being_destructed)
+			live_object_ids.insert(id);
+		// Objects partway through being deleted have already released what they hold. If a GC run
+		// (from the destructor of an object they released) found them unreachable, it would
+		// release those references again.
+		for (auto id : objects_being_deleted)
 			live_object_ids.insert(id);
 		for (auto* named_data : active_object_dtor_script_datas)
 			for_each_script_object_ref(*named_data->data, [&](uint32_t id) { live_object_ids.insert(id); });
