@@ -13148,7 +13148,7 @@ int32_t get_register_slow(const int32_t arg)
 
 		case DROPSETITEMS:
 		{
-			if(ri->dropsetref > MAXITEMDROPSETS)
+			if(ri->dropsetref >= MAXITEMDROPSETS)
 			{
 				Z_scripterrlog("Invalid dropset pointer %d\n", ri->dropsetref);
 				ret = -10000;
@@ -13168,7 +13168,7 @@ int32_t get_register_slow(const int32_t arg)
 		}
 		case DROPSETCHANCES:
 		{
-			if(ri->dropsetref > MAXITEMDROPSETS)
+			if(ri->dropsetref >= MAXITEMDROPSETS)
 			{
 				Z_scripterrlog("Invalid dropset pointer %d\n", ri->dropsetref);
 				ret = -10000;
@@ -13188,7 +13188,7 @@ int32_t get_register_slow(const int32_t arg)
 		}
 		case DROPSETNULLCHANCE:
 		{
-			if(ri->dropsetref > MAXITEMDROPSETS)
+			if(ri->dropsetref >= MAXITEMDROPSETS)
 			{
 				Z_scripterrlog("Invalid dropset pointer %d\n", ri->dropsetref);
 				ret = -10000;
@@ -13199,7 +13199,7 @@ int32_t get_register_slow(const int32_t arg)
 		}
 		case DROPSETCHOOSE:
 		{
-			if(ri->dropsetref > MAXITEMDROPSETS)
+			if(ri->dropsetref >= MAXITEMDROPSETS)
 			{
 				Z_scripterrlog("Invalid dropset pointer %d\n", ri->dropsetref);
 				ret = -10000;
@@ -26290,7 +26290,7 @@ void set_register_slow(int32_t arg, int32_t value)
 
 		case DROPSETITEMS:
 		{
-			if(ri->dropsetref > MAXITEMDROPSETS)
+			if(ri->dropsetref >= MAXITEMDROPSETS)
 			{
 				Z_scripterrlog("Invalid dropset pointer %d\n", ri->dropsetref);
 				break;
@@ -26308,7 +26308,7 @@ void set_register_slow(int32_t arg, int32_t value)
 		}
 		case DROPSETCHANCES:
 		{
-			if(ri->dropsetref > MAXITEMDROPSETS)
+			if(ri->dropsetref >= MAXITEMDROPSETS)
 			{
 				Z_scripterrlog("Invalid dropset pointer %d\n", ri->dropsetref);
 				break;
@@ -26326,7 +26326,7 @@ void set_register_slow(int32_t arg, int32_t value)
 		}
 		case DROPSETNULLCHANCE:
 		{
-			if(ri->dropsetref > MAXITEMDROPSETS)
+			if(ri->dropsetref >= MAXITEMDROPSETS)
 			{
 				Z_scripterrlog("Invalid dropset pointer %d\n", ri->dropsetref);
 				break;
@@ -31406,7 +31406,7 @@ void FFScript::do_loaddropset(const bool v)
 {
 	int32_t ID = SH::get_arg(sarg1, v) / 10000;
 	
-	if ( ID < 0 || ID > MAXITEMDROPSETS )
+	if ( ID < 0 || ID >= MAXITEMDROPSETS )
 	{
 		Z_scripterrlog("Invalid Dropset ID passed to Game->LoadDropset(): %d\n", ID);
 		ri->dropsetref = MAX_DWORD;
