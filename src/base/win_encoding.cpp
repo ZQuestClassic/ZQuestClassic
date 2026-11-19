@@ -12,6 +12,11 @@ namespace util
 {
 	void legacy_path_to_utf8(std::string& path)
 	{
+		// Before Windows 10 1903 the narrow-char APIs still take the ANSI code page, so there
+		// the path already is what they expect. See docs/windows_support.md.
+		if (GetACP() != CP_UTF8)
+			return;
+
 		if (!is_valid_utf8(path))
 			path = wide_to_utf8(utf8_to_wide(path));
 	}

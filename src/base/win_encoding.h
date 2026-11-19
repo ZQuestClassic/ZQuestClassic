@@ -13,7 +13,9 @@ namespace util
 {
 	// Converts a path saved on Windows before src/windows.manifest (which can be in the ANSI
 	// code page) to UTF-8. Valid UTF-8 is left as is, so the rare ANSI string that is also valid
-	// UTF-8 (like cp1252 "Ã©") is not converted. Does nothing on other platforms.
+	// UTF-8 (like cp1252 "Ã©") is not converted. Does nothing on other platforms, or when the
+	// process code page isn't UTF-8 (before Windows 10 1903): the narrow-char APIs take the
+	// ANSI code page there, so the path must stay in it to keep working.
 	void legacy_path_to_utf8(std::string& path);
 
 #ifdef _WIN32

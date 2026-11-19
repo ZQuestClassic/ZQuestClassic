@@ -25,6 +25,9 @@ Older versions ignore that setting and use the ANSI code page, so there a string
 either encoding, and paths with characters outside ASCII can fail. Keep the manifest; these can
 go:
 
+- `util::legacy_path_to_utf8` (`src/base/win_encoding.cpp`): does nothing unless the process
+  code page is UTF-8, since the narrow-char APIs need the path left in the ANSI code page
+  otherwise. Drop the `GetACP` check.
 - `util::utf8_to_wide` (`src/base/win_encoding.cpp`): reads strings that aren't valid UTF-8 in
   the system's ANSI code page. Keep the fallback only while `util::legacy_path_to_utf8` is
   needed for saves written before the manifest; otherwise always convert from UTF-8.
