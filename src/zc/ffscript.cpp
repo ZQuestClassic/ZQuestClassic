@@ -3697,7 +3697,7 @@ int32_t get_register_slow(const int32_t arg)
 			break;
 		}
 		case LINKDEFENCE:
-			ret = (int32_t)(Hero.get_defence(vbound(ri->d[rINDEX]/10000,0,255)))* 10000;
+			ret = (int32_t)(Hero.get_defence(vbound(ri->d[rINDEX]/10000,0,wMax-1)))* 10000;
 			break;
 			
 			
@@ -16695,7 +16695,7 @@ void set_register_slow(int32_t arg, int32_t value)
 		}
 		
 		case LINKDEFENCE:
-			Hero.set_defence(vbound(ri->d[rINDEX]/10000,0,255), ((char)vbound((value/10000), 0, 255)));
+			Hero.set_defence(vbound(ri->d[rINDEX]/10000,0,wMax-1), ((char)vbound((value/10000), 0, 255)));
 			break;
 			
 		case LINKHXOFS:
