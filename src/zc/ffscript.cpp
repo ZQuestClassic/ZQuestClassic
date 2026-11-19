@@ -2882,6 +2882,24 @@ portal *checkPortal(int32_t ref, const char *what, bool skiperr = false)
 	return p;
 }
 
+// The screen that Game->GetScreen*() and SetScreen*() functions like Game->SetScreenItem() act
+// on, from the map and screen in the index registers. If those don't name a screen, this logs an
+// error and gives a blank screen to read from and write to instead.
+static mapscr* legacy_game_screen()
+{
+	// INDEX2 is the screen and INDEX the map (the compiler pops them in reverse), so this isn't
+	// the screen they mean - but it is what these have always done.
+	int64_t index = (int64_t)(ri->d[rINDEX2] / 10000) * MAPSCRS + ri->d[rINDEX] / 10000;
+	if (index < 0 || index >= (int64_t)TheMaps.size())
+	{
+		Z_scripterrlog("Invalid map (%d) or screen (%d) passed to a Game->Screen function\n", ri->d[rINDEX] / 10000, ri->d[rINDEX2] / 10000);
+		static mapscr blank;
+		blank = mapscr();
+		return &blank;
+	}
+	return &TheMaps[index];
+}
+
 savedportal *checkSavedPortal(int32_t ref, const char* what, bool skiperr = false)
 {
 	savedportal* sp = game->getSavedPortal(ref);
@@ -9549,39 +9567,39 @@ int32_t get_register_slow(const int32_t arg)
 			break;
 
 		case SCREENGUY:
-			ret=get_screenGuy(&TheMaps[(ri->d[rINDEX2] / 10000) * MAPSCRS + (ri->d[rINDEX]/10000)]);
+			ret=get_screenGuy(legacy_game_screen());
 			break;
 
 		case SCREENSTRING:
-			ret=get_screenString(&TheMaps[(ri->d[rINDEX2] / 10000) * MAPSCRS + (ri->d[rINDEX]/10000)]);
+			ret=get_screenString(legacy_game_screen());
 			break;
 
 		case SCREENROOM:
-			ret=get_screenRoomtype(&TheMaps[(ri->d[rINDEX2] / 10000) * MAPSCRS + (ri->d[rINDEX]/10000)]);
+			ret=get_screenRoomtype(legacy_game_screen());
 			break;
 
 		case SCREENENTX:
-			ret=get_screenEntryX(&TheMaps[(ri->d[rINDEX2] / 10000) * MAPSCRS + (ri->d[rINDEX]/10000)]);
+			ret=get_screenEntryX(legacy_game_screen());
 			break;
 
 		case SCREENENTY:
-			ret=get_screenEntryY(&TheMaps[(ri->d[rINDEX2] / 10000) * MAPSCRS + (ri->d[rINDEX]/10000)]);
+			ret=get_screenEntryY(legacy_game_screen());
 			break;
 
 		case SCREENITEM:
-			ret=get_screenitem(&TheMaps[(ri->d[rINDEX2] / 10000) * MAPSCRS + (ri->d[rINDEX]/10000)]);
+			ret=get_screenitem(legacy_game_screen());
 			break;
 
 		case SCREENUNDCMB:
-			ret=get_screenundercombo(&TheMaps[(ri->d[rINDEX2] / 10000) * MAPSCRS + (ri->d[rINDEX]/10000)]);
+			ret=get_screenundercombo(legacy_game_screen());
 			break;
 
 		case SCREENUNDCST:
-			ret=get_screenundercset(&TheMaps[(ri->d[rINDEX2] / 10000) * MAPSCRS + (ri->d[rINDEX]/10000)]);
+			ret=get_screenundercset(legacy_game_screen());
 			break;
 
 		case SCREENCATCH:
-			ret=get_screenatchall(&TheMaps[(ri->d[rINDEX2] / 10000) * MAPSCRS + (ri->d[rINDEX]/10000)]);
+			ret=get_screenatchall(legacy_game_screen());
 			break;
 	 
 			
@@ -22587,12 +22605,12 @@ void set_register_slow(int32_t arg, int32_t value)
 			break;
 
 		case SCREENGUY:
-			FFScript::set_screenGuy(&TheMaps[(ri->d[rINDEX2] / 10000) * MAPSCRS + (ri->d[rINDEX]/10000)], value/10000);
+			FFScript::set_screenGuy(legacy_game_screen(), value/10000);
 			break;
 
 		case SCREENSTRING:
 		{
-			FFScript::set_screenString(&TheMaps[(ri->d[rINDEX2] / 10000) * MAPSCRS + (ri->d[rINDEX]/10000)], value/10000);
+			FFScript::set_screenString(legacy_game_screen(), value/10000);
 			//should this be either
 			//set_screenString(&TheMaps[((ri->d[rINDEX2] / 10000) * MAPSCRS + (ri->d[rINDEX]/10000)])-1), value/10000);
 			//or
@@ -22602,31 +22620,31 @@ void set_register_slow(int32_t arg, int32_t value)
 		break;
 
 		case SCREENROOM:
-			FFScript::set_screenRoomtype(&TheMaps[(ri->d[rINDEX2] / 10000) * MAPSCRS + (ri->d[rINDEX]/10000)], value/10000);
+			FFScript::set_screenRoomtype(legacy_game_screen(), value/10000);
 			break;
 
 		case SCREENENTX:
-			FFScript::set_screenEntryX(&TheMaps[(ri->d[rINDEX2] / 10000) * MAPSCRS + (ri->d[rINDEX]/10000)], value/10000);
+			FFScript::set_screenEntryX(legacy_game_screen(), value/10000);
 			break;
 
 		case SCREENENTY:
-			FFScript::set_screenEntryY(&TheMaps[(ri->d[rINDEX2] / 10000) * MAPSCRS + (ri->d[rINDEX]/10000)], value/10000);
+			FFScript::set_screenEntryY(legacy_game_screen(), value/10000);
 			break;
 
 		case SCREENITEM:
-			FFScript::set_screenitem(&TheMaps[(ri->d[rINDEX2] / 10000) * MAPSCRS + (ri->d[rINDEX]/10000)], value/10000);
+			FFScript::set_screenitem(legacy_game_screen(), value/10000);
 			break;
 
 		case SCREENUNDCMB:
-			FFScript::set_screenundercombo(&TheMaps[(ri->d[rINDEX2] / 10000) * MAPSCRS + (ri->d[rINDEX]/10000)], value/10000);
+			FFScript::set_screenundercombo(legacy_game_screen(), value/10000);
 			break;
 
 		case SCREENUNDCST:
-			FFScript::set_screenundercset(&TheMaps[(ri->d[rINDEX2] / 10000) * MAPSCRS + (ri->d[rINDEX]/10000)], value/10000);
+			FFScript::set_screenundercset(legacy_game_screen(), value/10000);
 			break;
 
 		case SCREENCATCH:
-			FFScript::set_screenatchall(&TheMaps[(ri->d[rINDEX2] / 10000) * MAPSCRS + (ri->d[rINDEX]/10000)], value/10000);
+			FFScript::set_screenatchall(legacy_game_screen(), value/10000);
 			break;
 
 		//These use the method of SetScreenEnemy
