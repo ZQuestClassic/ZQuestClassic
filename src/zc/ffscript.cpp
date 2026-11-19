@@ -4277,6 +4277,11 @@ int32_t get_register_slow(const int32_t arg)
 		{
 			//Game->ReadKey(int32_t key), also clears it. 
 			int32_t keyid = ri->d[rINDEX]/10000;
+			if (BC::checkBounds(keyid, 0, std::size(KeyPress) - 1, "Input->ReadKey[]") != SH::_NoError)
+			{
+				ret = 0;
+				break;
+			}
 			bool pressed = zc_readkey(keyid, true);
 			ret = pressed?10000:0;
 		}
