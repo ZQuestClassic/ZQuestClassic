@@ -335,6 +335,7 @@ public:
     void Template(int32_t floorcombo, int32_t floorcset, int32_t scr);
     void putdoor(int32_t scr,int32_t side,int32_t door);
     void goto_dmapscr(int32_t dmap, int32_t scr);
+    void goto_mapscr(int32_t map, int32_t scr);
     void dowarp(int32_t type, int32_t index);
     void prv_dowarp(int32_t type, int32_t index);
     void dowarp2(int32_t ring,int32_t index);

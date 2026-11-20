@@ -234,8 +234,7 @@ bool BrowseNotesDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 		case message::GOTO:
 			if(auto inf = sel_info())
 			{
-				Map.setCurrMap(inf->map);
-				Map.setCurrScr(inf->screen);
+				Map.goto_mapscr(inf->map, inf->screen);
 				return true;
 			}
 			return false;
