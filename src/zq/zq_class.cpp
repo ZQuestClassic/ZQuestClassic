@@ -12035,63 +12035,60 @@ int32_t write_quest_zasm(PACKFILE *f)
 
 	auto& zasm = zasm_scripts[0]->zasm;
 	auto& literals = zasm_scripts[0]->literals;
-    size_t num_commands = zasm.size();
-    
-    if(!p_iputl(num_commands,f))
-        new_return(1);
-	
-    for(int32_t j=0; j<num_commands; j++)
-    {
-        auto& zas = zasm[j];
-        
-        if(zas.command==0xFFFF)
-            continue;
-        else
-        {
-			if(!p_iputw(zas.command,f))
-				new_return(2);
-			
-            if(!p_iputl(zas.arg1,f))
-                new_return(3);
-            
-            if(!p_iputl(zas.arg2,f))
-                new_return(4);
-            
-            if(!p_iputl(zas.arg3,f))
-                new_return(5);
-			
-			auto strptr = literals.str(zas);
-			auto vecptr = literals.vec(zas);
-			uint32_t sz = 0;
-			if(strptr)
-				sz = strptr->size();
-			if(!p_iputl(sz,f))
-				new_return(6);
-			if(sz)
+	size_t num_commands = zasm.size();
+
+	// Write every command, terminators included: a script's pc, end_pc and jump targets are
+	// positions in this list, so leaving any out would shift everything after it.
+	if(!p_iputl(num_commands,f))
+		new_return(1);
+
+	for(size_t j=0; j<num_commands; j++)
+	{
+		auto& zas = zasm[j];
+
+		if(!p_iputw(zas.command,f))
+			new_return(2);
+
+		if(!p_iputl(zas.arg1,f))
+			new_return(3);
+
+		if(!p_iputl(zas.arg2,f))
+			new_return(4);
+
+		if(!p_iputl(zas.arg3,f))
+			new_return(5);
+
+		auto strptr = literals.str(zas);
+		auto vecptr = literals.vec(zas);
+		uint32_t sz = 0;
+		if(strptr)
+			sz = strptr->size();
+		if(!p_iputl(sz,f))
+			new_return(6);
+		if(sz)
+		{
+			auto& str = *strptr;
+			for(size_t q = 0; q < sz; ++q)
 			{
-				auto& str = *strptr;
-				for(size_t q = 0; q < sz; ++q)
-				{
-					if(!p_putc(str[q],f))
-						new_return(7);
-				}
+				if(!p_putc(str[q],f))
+					new_return(7);
 			}
-			sz = 0;
-			if(vecptr)
-				sz = vecptr->size();
-			if(!p_iputl(sz,f))
-				new_return(8);
-			if(sz) //vector found
+		}
+		sz = 0;
+		if(vecptr)
+			sz = vecptr->size();
+		if(!p_iputl(sz,f))
+			new_return(8);
+		if(sz) //vector found
+		{
+			auto& vec = *vecptr;
+			for(size_t q = 0; q < sz; ++q)
 			{
-				auto& vec = *vecptr;
-				for(size_t q = 0; q < sz; ++q)
-				{
-					if(!p_iputl(vec[q],f))
-						new_return(9);
-				}
+				if(!p_iputl(vec[q],f))
+					new_return(9);
 			}
-        }
-    }
+		}
+	}
 	return 0;
 }
 
