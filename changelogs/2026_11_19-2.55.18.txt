@@ -1,0 +1,845 @@
+https://zquestclassic.com/releases/2.55.18
+
+# Features
+
+
+`Once Per Weapon` combo trigger weapon effect
+  Combo triggers have a new `Once Per Weapon` weapon effect: once a weapon
+  has triggered the combo, that weapon doesn't trigger it again. Until now
+  only triggers with certain effects (secrets, a combo change, a copycat,
+  ...) worked that way, and any other trigger, like one that only plays a
+  sound, fired again every frame the weapon touched the combo.
+
+
+# Bug Fixes
+
+
+Prevent crash when closing the program
+  Fixed a crash that could happen when closing the player, editor or
+  launcher, most often on Windows.
+  
+  Bug introduced when Allegro 5 replaced Allegro 4 in 2.55-alpha-108
+  (a7fccd1f21).
+
+[linux] prevent crash on startup when there is no ALSA MIDI sequencer
+  Bug introduced when Linux support was added in 2.55-alpha-112
+  (75d202a5af).
+
+[win] support file paths with non-ASCII characters
+  On Windows, a quest in a folder with an accented name (like "Créateur")
+  could be opened in the editor, but launching test mode failed with
+  "-test invalid parameter: 'quest_file_path' ... but that file does not
+  exist!". Other file loads had the same problem.
+  
+  Bug introduced when test mode was added in 2.55-alpha-103 (77fc0e7ffc).
+
+  Discord: https://discord.com/channels/876899628556091432/1563898092930072667
+
+Prevent out-of-bounds read when loading certain NSF music files
+  An NSF file that enables every expansion sound chip could make the
+  music player read past the end of an internal table as the file loaded.
+
+Stop long log messages from writing past their buffer
+  A message longer than 1024 characters overflowed the buffer it is
+  formatted into.
+
+Terminate door combo set names read from quests
+  Regressed in 2.55.8 (1a8794c713).
+
+Read the string count of a 1.92 quest as unsigned
+  A 1.92 quest with more than 127 strings could crash the editor on
+  platforms where a char is signed, and let scripts use string ids past
+  the last string.
+  
+  Bug present since at least 2.53-Beta-11 (429df347a1).
+
+Stop reading past the end of a MIDI when showing its info
+  A MIDI track that ends in the middle of an event (a truncated or
+  corrupt file) made the MIDI info dialogs read memory past the track,
+  which could show garbage text or crash.
+  
+  Bug has been present since the initial commit (429df347a1).
+
+Keep SPC, GBS and VGM music playback within memory
+  Bugs in the game-music-emu library, found by fuzzing, are now patched:
+  
+  * SPC: a sample directory at the top of memory read past the emulated
+    RAM.
+  * GBS: a program counter that ran past $FFFF read past the CPU's memory
+    map.
+  * VGM: a PCM seek, a data block's size, or the data or loop offset in
+    the header could point the reader anywhere in memory.
+  * VGM: a file that ends in the middle of a command read past its end.
+  * VGM: a write to a YM2612 chip that the header never set up used
+    uninitialized memory.
+
+Clear a damaged quest's invalid screen enemy on load
+  Loading a quest cleared screen enemies with an id over the number of
+  enemies, but missed an id exactly equal to it, which could crash the
+  player when the screen was entered. Only a damaged quest has such an
+  id. Screen->Enemy[] and mapdata->Enemy[] had the same gap, and now give
+  an error for that id too.
+  
+  Bug introduced when invalid screen enemies were cleared on load in
+  2.55-alpha-83 (68b5ec66fd).
+
+Keep a DMap's level within the number of levels
+  A DMap's level is used to look up the level's items (map, compass, boss
+  key, Triforce) and keys, but it could be set past the last level, by a
+  damaged quest or by a script through dmapdata->Level or
+  Game->DMapLevel[]. Entering such a DMap crashed the player. A damaged
+  quest's level is now cleared to 0, and scripts get an error.
+  
+  Bug present since at least 2.53-Beta-11 (429df347a1).
+
+Keep a screen's warp DMaps within the number of DMaps
+  A tile or side warp could have a DMap past the last one, from a damaged
+  quest or a script setting Screen->TileWarpDMap[] or SideWarpDMap[] (or
+  the mapdata versions), and warping with it could crash the player. A
+  damaged quest's warp DMap is now cleared to 0, and scripts get an
+  error, as SetSideWarp() and SetTileWarp() already did. The Screen
+  versions also give an error for an index out of range, instead of
+  writing outside the screen.
+  
+  Bug present since at least 2.53-Beta-11 (429df347a1).
+
+Don't load a layer from a map that doesn't exist
+  A screen layer set to a map past the last one could crash the player
+  when the screen loaded. This could come from a damaged quest, from a
+  script setting Screen->LayerMap[] or mapdata->LayerMap[], or from
+  lowering the map count in the editor, which fixes only the current
+  screen's layers right away and the others only once they are viewed.
+  Such layers are now turned off when the quest loads, and scripts get an
+  error. Screen->LayerScreen[] and mapdata->LayerScreen[] also accepted
+  one screen past the last, which now gives an error too.
+  
+  Bug present since at least 2.53-Beta-11 (429df347a1).
+
+Keep warp rings within their warps and DMaps
+  A warp room or whistle with a bad warp ring could crash the player.
+  This happened with a warp room whose screen Catch All value isn't a
+  valid ring, a whistle whose warp ring attribute isn't one, or a damaged
+  quest whose ring lists too many warps or a DMap past the last one. Now
+  such a warp room has no warps, such a whistle uses the last ring (as
+  with no whistle), and a damaged quest's rings are kept in range.
+  
+  Bug present since at least 2.53-Beta-11 (429df347a1).
+
+Don't read garbage from a damaged quest's build details
+  A damaged quest's template path or build details (compiler, product,
+  module, developer, build date, time and timezone) could read random
+  memory when shown, because their text had no end marker. They are now
+  cut off at their field size, as the title and author already were.
+  
+  Bug present since at least 2.53-Beta-11 (429df347a1).
+
+Handle a DMap on a map that doesn't exist
+  A damaged quest could have a DMap on a map past the quest's last one,
+  and loading or warping to that DMap could crash the player. That DMap
+  now uses the first map.
+  
+  Bug present since at least 2.53-Beta-11 (429df347a1).
+
+A combo type past the last one from the quest read past the combo type table
+  A combo's type can be any number up to 255, from the quest or set by a
+  script, but the table of combo type properties only had room for the
+  valid types. Higher types read past the table wherever the game checks
+  those properties, for example when checking for water or solid ground,
+  and combodata's type properties wrote past it.
+  
+  Bug present since at least 2.53-Beta-11 (429df347a1).
+
+Dropping an item from an invalid dropset read past the dropsets
+  An enemy's npc->ItemSet, a combo's dropset attribute, and the dropset
+  given by a generic script's item drop event were not checked before
+  being used to pick a dropped item. A number past the last dropset
+  picked an item from the memory after them. Now nothing drops.
+  
+  Bug present since at least 2.53-Beta-11 (429df347a1).
+
+An invalid continue or entrance DMap read and wrote outside the dmaps
+  The DMap to continue at, from the save file, the quest's starting DMap
+  or Game->ContinueDMap, and Game->LastEntranceDMap weren't checked. The
+  game would start or continue on that DMap, reading past the dmaps and
+  marking it visited in memory past the list of visited dmaps. An invalid
+  continue DMap now acts as DMap 0, and both script variables log an
+  error for an invalid DMap.
+  
+  Bug present since at least 2.53-Beta-11 (429df347a1).
+
+Drawing an invalid 8x8 tile read past the tiles
+  The functions that draw a quarter of a tile didn't check the tile, the
+  way the ones that draw whole tiles do. Subscreen widgets, frames and
+  minimap tiles from the quest could pass one past the last tile, which
+  read tile data from past the end of the tiles and drew from wherever it
+  pointed. Such tiles are now not drawn.
+  
+  Bug present since at least 2.53-Beta-11 (429df347a1).
+
+Invalid palette numbers loaded colors from outside the palettes
+  npc->FrozenCSet, an enemy's boss palette, and a combo trigger's level
+  and sprite palettes were used to load palettes without checking them.
+  A number past the last palette copied whatever memory followed the
+  palette data into the screen's colors, where a script could read it
+  back. Such palettes are now ignored.
+  
+  Bug present since at least 2.53-Beta-11 (429df347a1).
+
+zc: Replays were never re-uploaded on Windows and Linux
+  A replay that grows after being uploaded (the player keeps playing
+  that save) is meant to be uploaded again, but checking whether the
+  file changed only worked on macOS. This also meant a save that was
+  first seen before it had been played was never uploaded at all.
+  
+  Bug introduced when replay uploading was added in 2.55.5 (2cee0ae2a7).
+
+zc: Replay never uploaded after an unexpected server response
+  Any error response other than a server error made the client give up
+  on that replay forever - including ones that have nothing to do with
+  the replay, like a 404 or 429 from a proxy or a bad server deploy. Now
+  the replay is only given up on when the server rejects the replay
+  itself, and is otherwise tried again later.
+  
+  Bug introduced when replay uploading was added in 2.55.5 (2cee0ae2a7).
+
+zc: Replay of a copied save never uploaded
+  Copying a save file gives its replay a new identity the first time the
+  copy is played. If replays were uploaded before then, the copy's replay
+  was mistaken for one too old to upload, and was never uploaded - even
+  after being played.
+  
+  Bug introduced when replay uploading was added in 2.55.5 (2cee0ae2a7).
+
+zc: A single unreadable save file prevented the program from starting
+  Now the save file is just skipped, and shows up as a broken save slot on
+  the title screen.
+  
+  Bug introduced when saves were split into individual files in
+  2.55-alpha-117 (b6b151149c).
+
+zc: Bad screen state SCC args leaking into the rest of the string
+  The SCCs that set a screen state (133 and 134) stopped reading their
+  arguments as soon as one was invalid, such as a map number that doesn't
+  exist. The arguments left over were then run as other commands or
+  printed as stray characters - for example, SCC 134 with a bad map could
+  take rupees away and swallow the next character of the string.
+  
+  Bug introduced when these SCCs were added in 2.55-alpha-106
+  (59cd55adb9).
+
+zc: Reloading in test mode restored stale generic script state
+  When playing a quest in test mode (or in a replay), saving left out the
+  generic scripts' state - whether each one is running, its Data[], and
+  so on - so reloading that save restored their state from before it,
+  unlike when playing normally.
+  
+  Bug introduced when generic script state began being saved in
+  2.55-alpha-107 (e66e359835).
+
+zc: Explain that a save from a newer version can't be opened
+  A save file made by a newer version of ZC now says that it was made by a
+  newer version, instead of only saying it failed to read.
+
+  Discord: https://discord.com/channels/876899628556091432/1567569655860691054
+
+zc: [win] player closed when a replay upload couldn't connect
+  When uploading replays failed to reach the server, printing the error
+  threw an exception, which closed the player at startup.
+  
+  Bug introduced when replay uploads were added in
+  2.55.5 (2cee0ae2a7).
+
+zc: Splitting an old save file reset generic script state
+  When a save file from before 2.55-alpha-117 (which held every save
+  slot) was split into one file per save, each save lost the state of
+  its generic scripts - whether each one is running, its InitD[] and
+  Data[], and so on.
+  
+  Bug introduced when saves were split into individual files in
+  2.55-alpha-117 (b6b151149c).
+
+zc: Weapons triggered a combo once per hitbox corner each frame
+  A weapon checked a combo's triggers once for each point of its hitbox
+  that touched it, so a weapon sitting on one combo usually triggered it
+  four times a frame. Now a weapon triggers each combo at most once a
+  frame.
+  
+  Bug introduced when weapon combo triggers were added in 2.55-alpha-44
+  (014b580d5c).
+
+zc: Stop crashing when a sprite is removed while the hero swaps with it
+  The switch hook kept pointing at the enemy, item or weapon the hero was
+  swapping places with after it was removed (for example by a script
+  clearing all weapons), then used it.
+  
+  Bug introduced when the switch hook was added in 2.55-alpha-100
+  (ffe999c23c).
+
+zc: Stop reading outside the next screen when the hero is off screen
+  Checking what is on the next screen in front of the hero used the
+  hero's position as is. When a script had put the hero off the screen
+  along the other axis too, this read outside of the screen's combos (for
+  example when a script set the hero's action to rafting).
+  
+  Bug has been present since the initial commit (429df347a1).
+
+zc: Stop warp combos reading past the edge of the map
+  A warp combo read the return point of its destination before the warp
+  checked that the destination exists. A small DMap's offset can put that
+  off the edge of its map, which read outside the screens on the first or
+  last map. Past the last map, the warp itself was already cancelled with
+  an error.
+  
+  Regressed in 2.55-alpha-112 (1bf800867c).
+
+zc: Stop carrying over screen state to a map that doesn't exist
+  A screen's carryover map can name a map past the last one (from a
+  damaged quest, or a script setting Screen->NextMap), and carrying a
+  screen state or secrets over read past the last map's screens. The
+  carryover now stops there.
+  
+  Bug present since at least 2.53-Beta-11 (429df347a1).
+
+zc: Keep changed combos within the number of combos
+  A combo changed by a crystal switch's combo offset, or by a combo
+  trigger's "Combo Change" going past the last combo, became one past the
+  last combo instead of the last one, and the game read past the combos.
+  
+  Bug introduced when crystal switches were added in 2.55-alpha-97
+  (b22399d6d6).
+
+zc: Shop and info rooms with a catchall past the last one
+  A shop, take-one, info or bottle shop room picks its shop by the
+  screen's catchall, which can be past the last shop (from a damaged
+  quest, or a script setting Screen->Catchall or mapdata->Catchall).
+  Entering or buying in such a room read past the shops. It is now an
+  empty shop.
+  
+  Bug present since at least 2.53-Beta-11 (429df347a1).
+
+zc: Script without an end in a quest file read past it
+  A quest file's script ends with a marker, and the engine finds the end
+  of the script by looking for it. A quest file whose script filled its
+  whole stated length without one led the engine to read past the script,
+  and run what it found there as more of it.
+  
+  Bug introduced when ZScript was added, before 2.50.0.
+
+zc: Read past the screen state names for a high `Screen->State[]`
+  Setting Screen->State[] at an index past the last screen state looked
+  up a name for it past the end of the list of names, for the event log
+  and replays.
+  
+  This has been wrong since before 2.53 (429df347a1).
+
+zc: A quest string taking an invalid item read and wrote outside the items
+  The string control code that takes an item away didn't check the item
+  number. An invalid one cleared a byte outside the list of owned items
+  and read item data from past the end of the item list, which then
+  changed counters.
+  
+  Bug present since at least 2.53 (429df347a1, the initial commit).
+
+zc: An enemy spawning an invalid child enemy read past the enemy list
+  Enemies that spawn other enemies (for example when split or killed)
+  took the enemy to spawn from one of their attributes without checking
+  it, so a number past the last enemy read and built an enemy from memory
+  past the end of the enemy list.
+  
+  Bug present since at least 2.53 (429df347a1, the initial commit).
+
+zc: An invalid script number from the quest ran a script from outside the script list
+  Scripts attached to ffcs, screens, dmaps, items, combos and other
+  things are stored in the quest as numbers that aren't checked when it
+  loads. A number past the last script read a script from past the end of
+  the list of scripts, and ran it. Such a script now doesn't run.
+  
+  Bug present since at least 2.53 (429df347a1, the initial commit).
+
+zc: Dropset items past the last item read outside the item data
+  The items in a dropset come from the quest without being checked, and
+  one past the last item read its item data from past the end of the
+  list when an enemy or combo dropped from that dropset, and could then
+  be dropped. Such items are now never picked.
+  
+  Bug present since at least 2.53 (429df347a1, the initial commit).
+
+zc: Damaged save could write a script object anywhere in memory
+  Global script objects saved in a save file are restored to the slot
+  number stored with them, which wasn't checked. A damaged or crafted
+  save could give any number, and starting the game then copied the
+  object to that place in memory, far outside the list of objects. Such
+  saves now fail to load.
+  
+  Bug introduced when global script objects started being saved in
+  2.55-alpha-112 (e9bc106b91).
+
+zq: SCC wizard labels the map field of SCC 134 as DMap
+  The "Set a state of any screen" SCC takes a map number, not a DMap.
+  
+  Bug introduced when the SCC wizard was added in 2.55-alpha-110
+  (fb95ba0a2c).
+
+zscript: Clear script render targets and `bitmap->Create()` bitmaps
+  The bitmaps behind `Screen->SetRenderTarget`, and those made with
+  `bitmap->Create()`, were not cleared on creation, meaning that it
+  contained random pixel data.
+  
+  One quest that this bug is visible in is Destiny of the Oracles. It
+  draws its scripted active subscreen into a render target and copies 176
+  rows of it to the screen, but only ever draws the first 168. With "Hide
+  bottom 8 pixels" off the 8 undrawn rows are visible and contain random
+  colors.
+  
+  Bug introduced when `Screen->SetRenderTarget` was added in 2.50.
+
+zscript: Clamp combo ids given as negative tiles to drawing functions
+  The combo-as-tile forms of Quad, Triangle, Quad3D, Triangle3D and their
+  bitmap variants clamped the id to 65535, but there are only 65280
+  combos, so ids past the end read outside the combo table.
+
+zscript: `combodata->OriginalTile` could be set one past the last tile
+  Setting a combo's OriginalTile to the tile count or higher stored a tile
+  just past the end of the tile sheet, so drawing that combo read outside
+  the tiles.
+  
+  Bug introduced when OriginalTile was bounded in 2.55-alpha-100
+  (e895ad2d).
+
+zscript: Keep script file paths inside the Files folder
+  Scripts could reach files outside the quest's "Files" folder.
+  FileSystem->Remove() could delete any file the user can write to with
+  a path like "../../file", and bitmap->Write(), bitmap->Read(),
+  paldata->LoadBitmapPalette(), FileSystem->FileExists() and
+  FileSystem->DirExists() accepted ".." too - and, for quests without
+  the QR "All bitmap-> and FileSystem-> paths relative to quest 'Files'
+  folder", absolute paths. Script files could also be created with an
+  executable extension in another case ("game.EXE"), with some common
+  executable types (.dll, .lnk, .sh, .py and more), or with Windows
+  device names like "nul.txt".
+  
+  Paths for quests without that QR are still relative to the ZC folder
+  as before, but absolute paths, drive letters, network paths and paths
+  that go above the ZC folder are now refused with a script error. ".."
+  is now allowed in file and directory paths, as long as the path stays
+  inside the folder.
+  
+  Bug introduced when FileSystem->Remove() was added in 2.55-alpha-75
+  (c218bef69c).
+
+zscript: Stop CopyTile and SwapTile from using invalid tile ids
+  Graphics->CopyTile and SwapTile didn't check their tile ids, so an id
+  out of range read and wrote past the tiles. They now log an error and do
+  nothing, like the other tile functions.
+  
+  Bug introduced when CopyTile was added in 2.54-Alpha-1 (0ecc4bf680).
+
+zscript: Stop IsBlankTile and Is8BitTile from reading past the last tile
+  Graphics->IsBlankTile[] and Is8BitTile[] accepted an id one past the
+  last tile. That id is now an error, like any other invalid one.
+  
+  Bug introduced when IsBlankTile was added in 2.55-alpha-75
+  (74b17339ed).
+
+zscript: Don't crash exploding a sprite whose tile doesn't exist
+  Calling Explode() on the Hero or a weapon whose Tile a script had set
+  past the last tile read outside of the tile data. Like drawing such a
+  tile, exploding it now does nothing.
+  
+  Bug introduced when Explode was added in 2.55-alpha-16 (37097ce61b).
+
+zscript: Stop with an error on a bitmap of an invalid size
+  Creating a bitmap with a negative size crashed the player, as did one
+  so big its byte count overflowed (which instead wrote past the memory
+  it got). Bitmaps are now limited to 32767 in either direction: past
+  that, or with a negative size, creating one logs an error and leaves
+  the bitmap invalid. A bitmap too big to allocate is left invalid too
+  instead of crashing.
+  
+  Bug introduced when user bitmaps were added in 2.55-alpha-1
+  (8ef41de87c).
+
+zscript: Check the level and page given to paldata functions
+  The paldata functions that load or write a level palette, a palette
+  cycle or a sprite page used the number a script gave them as is, so one
+  that doesn't exist read or wrote outside of the quest's palette data.
+  They now log an error and do nothing.
+  
+  Bug introduced when paldata was added in 2.55-alpha-112 (b1b262ecc9).
+
+zscript: Check the DMap, palette and map used through dmapdata
+  Reading or writing a dmapdata variable used its DMap number as is (for
+  example, one from Game->LoadDMapData() given a DMap that doesn't
+  exist), and setting dmapdata->Palette on the current DMap loaded the
+  new palette without checking it. One that doesn't exist read or wrote
+  outside of the dmaps or the quest's palette data. Both now log an
+  error.
+  
+  Setting dmapdata->Map to a number that is not one of the quest's maps
+  (0 included) was stored anyway, and could later crash. It is now
+  ignored with an error.
+  
+  Bug introduced when dmapdata was added in 2.54-Alpha-21 (c31918250c).
+
+zscript: Check the index given to `Screen->TileWarpType[]` and others
+  Screen->TileWarpType[], TileWarpScreen[], SideWarpType[],
+  SideWarpScreen[], WarpReturnX[], WarpReturnY[], MazePath[], SecretCSet[]
+  and SecretFlags[] used the index a script gave them as is, so one out of
+  range read or wrote memory outside of the screen. It now logs an error;
+  reading one gives -1.
+  
+  Bug introduced when these were added in 2.55-Alpha-21 (d9b16b1396).
+
+zscript: Check the direction given to `Hero->GetOriginalTile()`
+  A direction outside of 0-3 read memory outside of the hero's sprites.
+  
+  Bug introduced when Hero->GetOriginalTile() was added in 2.55-alpha-27
+  (d084ee4f00).
+
+zscript: Check the map and screen given to `Game->SetComboSolid()`
+  A map or screen past the last one in the quest wrote to memory outside
+  of the quest's screens, which could crash.
+  
+  Bug has been present since the initial commit (429df347a1).
+
+zscript: Prevent crash after a script changes number of subscreens
+  Setting `Game->NumActiveSubscreens` (or the passive or overlay ones)
+  could leave the engine using a subscreen that no longer exists, which
+  could result in a crash.
+  
+  Bug introduced when the number of subscreens became writable in
+  2.55-alpha-119 (0d049c6554).
+
+zscript: `mapdata->isSolidLayer()` checks the wrong layer screen
+  For mapdata from Game->LoadMapData(), it looked up the map and screen
+  of the next layer up, and took the map number as one higher than it
+  is. That gave the wrong answer for every layer, and could read past
+  the last map's screens (or past the six layers, for layer 6).
+  
+  Bug introduced when mapdata->isSolidLayer() was added in 2.55-alpha-44
+  (f575e0ee6e).
+
+zscript: Side and tile warp functions with a warp of -1
+  Screen->SetSideWarp() and SetTileWarp() accepted -1 for the warp, and
+  wrote its screen, DMap and type before the first warp, over other screen
+  data. GetSideWarpDMap(), GetSideWarpScreen(), GetSideWarpType() and the
+  same for tile warps also accepted -1, and returned other screen data. A
+  warp of -1 is now an error, like any other warp past the four.
+  
+  Bug present since at least 2.53-Beta-11 (429df347a1).
+
+zscript: Check stack bounds in JIT-compiled scripts
+  Only hand-written ZASM: JIT-compiled scripts didn't check where they
+  read and wrote the script stack, so a script could read or write memory
+  far outside it, and crash the player. Out of range stack accesses now
+  stop the script with a stack overflow error, as they do without the
+  JIT.
+  
+  Bug introduced when the JIT was added in 2.55-alpha-112 (36fd73c209).
+
+zscript: Stop JIT-compiled scripts that hit a stack error
+  Only hand-written ZASM: when a JIT-compiled script hit an error that
+  ends the script, such as a stack read out of range, the rest of the
+  script kept running and could crash the player. It now stops there, as
+  it does without the JIT.
+  
+  Bug introduced when the JIT was added in 2.55-alpha-112 (36fd73c209).
+
+zscript: Check function calls and returns in JIT-compiled scripts
+  Only hand-written ZASM: a JIT-compiled script could return from a
+  function it never called, or call functions too deeply, and could crash
+  the player. A negative POPARGS count could also read just before the
+  script stack. These now stop the script with an error, as a stack
+  overflow does.
+  
+  Bug introduced when the JIT was added in 2.55-alpha-112 (36fd73c209).
+
+zscript: printf of a long string read past its buffer
+  printf() and sprintf() format text in chunks of 256 characters, and a
+  chunk that filled all 256 was not terminated, so formatting a long
+  string could add bytes from outside the buffer to the result.
+  
+  Bug introduced when printf() was added in 2.55-alpha-75 (fb25d06770).
+
+zscript: Stop a script that returns or jumps outside of itself
+  Only reachable with hand-written ZASM: GOTOR and RETURN, which the
+  compiler uses to return from a function, jumped to whatever position
+  was in a register or on the stack, and the next command was read from
+  there, even if it was outside of the script. The script now stops
+  with an error instead.
+  
+  Bug present since at least 2.53-Beta-11 (429df347a1).
+
+zscript: Prevent crash when a script sets an invalid combo id
+  mapdata->FFCData[], Screen->SecretCombo[], Screen->UnderCombo, their
+  mapdata versions and ComboData->NextData accepted combo ids past the
+  last combo, and Game->SetComboData, ComboData->LiftGFXCombo and
+  ComboData->LiftUnderCombo accepted one past the last combo. Using such
+  a combo (for a secret or Undercombo, by triggering the screen's
+  secrets) read past the end of the combo list.
+  
+  Bug present since at least 2.53-Beta-11 (429df347a1).
+
+zscript: Prevent crash after setting an item's ID to an invalid item
+  item->ID accepted any value, and the item's data was then looked up by
+  it (for example when moving the item).
+  
+  Bug present since at least 2.53-Beta-11 (429df347a1).
+
+zscript: Quad3D and Triangle3D read past the end of their values
+  Quad3D and Triangle3D made room for only as many values as their arrays
+  held in total. Given arrays one value short of what they use, they
+  wrote and drew one value past the end of that room.
+  
+  Regressed in 2.55-alpha-26 (15fe2ecf60).
+
+zscript: Check the index given to `Screen->SecretCombo[]` and others
+  Screen->SecretCombo[], Enemy[], TileWarpDMap[] and SideWarpDMap[] used
+  their index without checking it, so a script could read past the ends
+  of the screen's arrays, and write past the end with SecretCombo[]. An
+  invalid index now logs an error, and reads give -1.
+  
+  Bug introduced when these were added in 2.54-Alpha-21 (d9b16b1396).
+
+zscript: Reading memory as text in some script error messages
+  About a hundred error messages a script can trigger, like an invalid
+  combodata ID or shopdata index, passed their values in the wrong order,
+  so the number was read as the address of a string. A script could crash
+  the game this way, or print the contents of memory to the log. A few
+  others printed a number they were never given.
+  
+  These have been wrong since the 2.55 alphas (77301a965f or earlier).
+
+zscript: Combo ID one past the last combo wrote past the combo list
+  Some combodata functions and screen setters (like Screen->UnderCombo)
+  took combo IDs up to and including the number of combos, one more than
+  the last valid ID. Given that ID, they read or wrote just past the end
+  of the combo list.
+  
+  Bug introduced when combodata was added in 2.54-Alpha-1 (0ecc4bf680).
+
+zscript: Wrote past the global arrays when every slot was in use
+  Allocating an array looked for a free slot past the last one when every
+  slot was taken. For a global array, it then went on to make the array
+  there anyway, past the end of the global arrays. Now it gives back a
+  null array, as it already did for a local array.
+  
+  Bug introduced when script arrays were added, before 2.50.0.
+
+zscript: `Game->SetScreen` functions wrote outside the maps
+  Game->GetScreenItem(), SetScreenItem() and the other Game->Screen
+  functions that take a map and a screen never checked them, so a script
+  could read or write memory anywhere near the maps. They now log an
+  error for a map or screen that doesn't exist, and do nothing.
+  
+  Bug introduced when these functions were added in 2.54-Alpha-1
+  (0ecc4bf680).
+
+zscript: `npc->InitD[]` read and wrote outside the npc
+  npc->InitD[] never checked its index, so a script could read or write
+  memory anywhere near an npc. It now logs an error for an index outside
+  0-7. npc->Defense[], npcdata->Defense[], npcdata->InitD[] and
+  npcdata->WeaponInitD[] each also took one index past their last.
+  
+  Bug introduced when npc->InitD[] was added in 2.55-Alpha-21
+  (fdd5391369).
+
+zscript: Bitmap functions read and wrote outside the bitmaps
+  bitmap->Width, Height, Clear(), ClearToColor(), Create(), Read(),
+  Write(), WriteBitmap(), Blit(), DrawPlane() and others only checked
+  that a bitmap pointer was above 0, not that it named a bitmap. Given
+  any other number, they read or wrote memory past the list of bitmaps.
+  They now treat it as an invalid bitmap.
+  
+  Bug introduced when script bitmaps were added in 2.55-Alpha-21
+  (8ef41de87c).
+
+zscript: Shopdata arrays wrote outside the shops
+  shopdata's Item[], HasItem[], Price[] and String[] checked the index
+  given to them, but not the shopdata. A script can make a shopdata out
+  of any number, and for one that is neither a shop nor an info shop
+  they read and wrote memory past the shops. Now they log an error for
+  such a shopdata, and do nothing.
+  
+  Bug introduced when shopdata was added in 2.54-Alpha-21 (0993538aeb).
+
+zscript: mapdata read and wrote outside the maps
+  A script can make a mapdata out of any number, and for one past the
+  last map, mapdata's functions and variables read and wrote memory past
+  the maps. They now treat it as an invalid mapdata.
+  
+  Bug introduced when mapdata was added in 2.54-Alpha-21 (09820d8c79).
+
+zscript: `dmapdata->Script` and `InitD[]` read and wrote outside the dmaps
+  dmapdata->Script and dmapdata->InitD[] used a dmapdata's DMap number
+  as is, so one cast from any number, or loaded from a DMap that doesn't
+  exist, read and wrote memory outside the dmaps. They now log an error,
+  as the other dmapdata variables already do.
+  
+  Bug introduced when dmapdata was added in 2.54-Alpha-21 (c31918250c).
+
+zscript: `npcdata->GetAttribute()` read outside the enemy list
+  npcdata->GetAttribute() logged an error for an enemy or attribute
+  number that doesn't exist, but then read it anyway, from memory outside
+  the enemy list.
+  
+  Bug introduced when npcdata->GetAttribute() was added in 2.54-Alpha-1
+  (0ecc4bf680).
+
+zscript: `Debug->D[]` read and wrote past the script's registers
+  Debug->D[] took any index when read and up to 255 when written, but a
+  script only has 8 D registers, so other indices read and wrote other
+  memory. Indices outside 0-7 now log an error.
+  
+  Bug introduced when Debug->D[] was added in 2.55-Alpha-21 (bb08cafadd).
+
+zscript: `Input->ReadKey[]` read past the key list
+  Input->ReadKey[] didn't check the key number it was given, so any other
+  number read memory past the list of keys. It now logs an error.
+  
+  Bug introduced when Game->ReadKey() was added in 2.54-Alpha-1
+  (0ecc4bf680).
+
+zscript: Dropsetdata one past the last dropset read and wrote past them
+  Game->LoadDropset() and dropsetdata accepted the number of dropsets as
+  a dropset, one past the last one. Its variables read and wrote memory
+  just past the dropsets.
+  
+  Bug introduced when dropsetdata was added in 2.55-alpha-44
+  (7383b32fc0).
+
+zscript: `Game->Item[]` read and wrote outside the item list
+  An old item register, which ZScript no longer compiles to but a quest's
+  ZASM can still use, didn't check the item number it was given. Reading
+  it read memory around the list of owned items, and writing it wrote
+  there. Game->DisableItem[] had the same problem when read. Both now log
+  an error for an invalid item.
+  
+  Bug present since at least 2.53 (429df347a1, the initial commit).
+
+zscript: A global variable one past the last read and wrote past them
+  A quest's ZASM could use the register for global variable 1024, one past
+  the last one. It read and wrote the memory just after the global
+  variables, which holds the quest's global arrays.
+  
+  Bug introduced when global variables were raised to 1024 in
+  2.55-alpha-16 (e86b3fb5e4).
+
+zscript: An invalid item from the item collect event read and wrote outside the items
+  A generic script handling the item collect event could change the item
+  being collected to any number. An invalid one read item data from past
+  the end of the item list, ran a script from there, and marked a byte
+  outside the list as "pickup message played". Such an item is now not
+  collected.
+  
+  Bug introduced when the item collect event was added in 2.55-alpha-109
+  (49140ec38f).
+
+zscript: An eweapon with an invalid ID read past the Hero's defenses
+  A script can set a weapon's ID to any number, and when such an eweapon
+  hit the Hero, the Hero's defense against it was read from past the end
+  of the Hero's defenses. Unknown weapons now get the normal defense.
+  
+  Bug introduced when the Hero's defenses were added in 2.55-alpha-86
+  (4d3bbaf096).
+
+zscript: `Hero->Defense[]` read and wrote past the Hero's defenses
+  Hero->Defense[] took indices up to 255, but the Hero has fewer defenses
+  than that, so higher ones read and wrote other parts of the Hero.
+  
+  Bug introduced when Hero->Defense[] was added in 2.54-Alpha-34
+  (5f7fb261b7).
+
+zscript: An invalid defense from the enemy hit event read past the enemy's defenses
+  A generic script handling the enemy hit event could set the defense to
+  use to any number, and higher ones than the enemy has read past its
+  defenses. Such a hit is now ignored.
+  
+  Bug introduced when the enemy hit event was added in 2.55-alpha-109
+  (f42eaa3ee6).
+
+zscript: `Hero->Dir` accepted directions the Hero can't face
+  Hero->Dir could be set to any number, but the Hero's sprites only have
+  the four main directions, and drawing the Hero looked up its tile from
+  memory past them. Hero->Dir now logs an error for any other direction,
+  and leaves the direction alone.
+  
+  Bug present since at least 2.53-Beta-11 (429df347a1).
+
+zscript: A script jumping outside of itself ran memory past its end
+  A quest's scripts are loaded without checking where their jumps go, so
+  a hand-made script could jump past its end and the game would run
+  whatever memory followed it as script commands. Such a script is now
+  disabled when the quest loads, with an error in the log.
+  
+  Bug present since at least 2.53 (429df347a1, the initial commit).
+
+zscript: Some npc variables wrote to a stale or missing npc
+  npc->HitDir, SlideClock, Fading, Halt, Frame and MoveStatus wrote their
+  value only when the npc pointer was invalid, and never when it was
+  valid. With a null pointer they wrote into the last npc a script used,
+  which may have been deleted since; with any other invalid pointer the
+  game crashed. They now write to the npc when it is valid.
+  
+  Bug introduced when these were added in 2.55-alpha-92 (766c243d34).
+
+zscript: An invalid stack pointer read and wrote far outside the stacks
+  The check on a stack pointer compared it against the most values a
+  stack can hold (about 2 billion), not the number of stacks (256). Any
+  pointer past the last stack was taken as valid, and the stack functions
+  read and wrote memory up to gigabytes past the stacks.
+  
+  Bug introduced when the stack type was added in 2.55-alpha-108
+  (d391060c52).
+
+zscript: A script running inside another one corrupted the outer script
+  Some commands run generic scripts from inside the command (like the zap
+  and wavy effects, which run whole frames). The running script's state
+  is global and wasn't put back afterwards, so scripts went on with
+  another script's position, registers and stack, running the wrong code.
+  The outer script's state is now restored.
+  
+  Bug introduced when generic scripts started running during those frames
+  in 2.55-alpha-107 (28603ced76).
+
+zscript: Turning around a sprite with an invalid direction read garbage
+  Scripts can give a weapon, enemy or item any direction. Reversing one
+  whose direction wasn't one of the 8 (a reflected weapon, a bounced
+  boomerang hitting a shield) read its new direction from past the end
+  of a table. Now it gets no direction.
+  
+  Bug present since at least 2.53-Beta-11 (429df347a1).
+
+zscript: Quad and Triangle with a size of 0 read outside the texture
+  Quad(), Triangle() and their 3D and bitmap versions require the tile
+  width and height to be powers of two, but 0 passed that check. Drawing
+  with an empty texture read pixels from outside it. A size of 0 is now
+  rejected like the other invalid sizes.
+  
+  Bug present since at least 2.53-Beta-11 (429df347a1).
+
+zupdater: Only download updates from the official GitHub releases
+  The updater downloaded whatever file the release list on the website
+  pointed to, from any server and over any protocol, so anyone able to
+  change that list could make it install anything. Updates now are only
+  considered valid if the URL is to the GitHub releases over https.
+
+
+# Build
+
+
+Update libpng to 1.6.59
+  Picks up upstream security fixes for loading malformed PNG images.
+
+Update game-music-emu
+  Picks up upstream fixes for loading malformed music files.
+
+Update zlib to 1.4
+  Picks up upstream security fixes for compressed data handling.
+
+[linux] stop on a stack buffer overflow instead of continuing
+  Linux builds now have stack canaries and checked string functions, as
+  the Windows and macOS builds already do, so writing past a fixed size
+  buffer on the stack (for example, a long quest string in a log message)
+  stops the program instead of overwriting what follows it.
+
