@@ -35,3 +35,14 @@ pick 7c8a5625c582a12b7d779cf6173f670543d25214 test: move zquest save classic_1st
 drop 2769fc99965e764f2b2f809ea935bb15d5db4213 build: fix windows compile
 
 pick f3e3f7ecbf8d0e1e998296a185fa2eca248dd454 fix(zscript): compiler crash related to invalid array indices
+
+reword ddacc80aef567576af86901b0d2333a0821f4d60 fix: [win] links in info popups could run any command
+Links in info popups can come from a quest (script metadata, ZInfo
+help), and on Windows they were handed to the command shell, so a
+quest opened in the editor could offer a button that runs any
+command. Links are now only opened if they are plain http:// or
+https:// URLs, and never through a shell.
+
+Bug introduced when URL buttons in info popups were added in 2.55.17
+(44ff37880e).
+=end
