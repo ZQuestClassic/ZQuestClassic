@@ -259,7 +259,7 @@ if(APPLE)
 
 	# In a universal build the script JIT only exists in the x86_64 slice, so its
 	# library is not a target of this (arm64) build. The merge step leaves it next
-	# to the merged binaries - see .github/workflows/merge_mac_universal.py.
+	# to the merged binaries - see merge_mac_binaries in .github/workflows/ci.py.
 	if(NOT TARGET asmjit)
 		install(FILES "${CMAKE_BINARY_DIR}/$<CONFIG>/libasmjit.dylib"
 			DESTINATION "${INSTALL_LIB_DIR}"
