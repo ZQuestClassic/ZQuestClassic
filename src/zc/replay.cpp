@@ -2192,7 +2192,7 @@ void replay_stop(bool aborted)
 			zc_exit(rs.has_assert_failed ? ASSERT_FAILED_EXIT_CODE : 0);
         }
         // Stopping at a requested frame has its own message, and didn't check the whole replay.
-        else if (!batch_when_done && (rs.has_assert_failed || rs.frame_arg == -1))
+        else if (!batch_when_done && !is_headless() && (rs.has_assert_failed || rs.frame_arg == -1))
         {
             enter_sys_pal();
             InfoDialog("Assert", rs.has_assert_failed ? "Replay has stopped, and the assert failed." :
