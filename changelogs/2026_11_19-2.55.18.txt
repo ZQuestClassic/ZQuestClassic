@@ -39,6 +39,16 @@ Prevent out-of-bounds read when loading certain NSF music files
   An NSF file that enables every expansion sound chip could make the
   music player read past the end of an internal table as the file loaded.
 
+[win] links in info popups could run any command
+  Links in info popups can come from a quest (script metadata, ZInfo
+  help), and on Windows they were handed to the command shell, so a
+  quest opened in the editor could offer a button that runs any
+  command. Links are now only opened if they are plain http:// or
+  https:// URLs, and never through a shell.
+  
+  Bug introduced when URL buttons in info popups were added in 2.55.17
+  (44ff37880e).
+
 Stop long log messages from writing past their buffer
   A message longer than 1024 characters overflowed the buffer it is
   formatted into.
