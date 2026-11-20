@@ -564,10 +564,9 @@ void zmap::pushCursorToHistory(MapCursor cursor)
 void zmap::setCurrentView(int32_t map, int32_t scr)
 {
     bool change_view = map != Map.getCurrMap() || scr != Map.getCurrScr();
-    if (map != Map.getCurrMap()) Map.setCurrMap(map);
-    if (scr != Map.getCurrScr()) Map.setCurrScr(scr);
     if (change_view)
     {
+        goto_mapscr(map, scr);
         refresh(rALL);
         rebuild_trans_table();
     }
@@ -5591,16 +5590,21 @@ void zmap::update_freeform_combos()
     }
 }
 
-// Goes to a screen of a dmap, as a single step in the cursor history. Setting
+void zmap::goto_dmapscr(int32_t dmap, int32_t scr)
+{
+	goto_mapscr(DMaps[dmap].map, scr+DMaps[dmap].xoff);
+}
+
+// Goes to a screen of a map, as a single step in the cursor history. Setting
 // the map and then the screen would record the map's remembered screen in
 // between, which the user never viewed.
-void zmap::goto_dmapscr(int32_t dmap, int32_t scr)
+void zmap::goto_mapscr(int32_t map, int32_t scr)
 {
 	MapCursor old_cursor = getCursor();
 	bool was_enabled = cursor_history_enabled;
 	ConfigureCursorHistory(false);
-	setCurrMap(DMaps[dmap].map);
-	setCurrScr(scr+DMaps[dmap].xoff);
+	setCurrMap(map);
+	setCurrScr(scr);
 	ConfigureCursorHistory(was_enabled);
 	if(old_cursor != getCursor())
 		pushCursorToHistory(old_cursor);
