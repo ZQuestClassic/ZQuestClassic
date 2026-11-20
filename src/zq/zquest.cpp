@@ -10079,8 +10079,7 @@ void domouse()
 						map_page[current_mappage].map=Map.getCurrMap();
 						map_page[current_mappage].screen=Map.getCurrScr();
 						current_mappage=btn;
-						Map.setCurrMap(map_page[current_mappage].map);
-						Map.setCurrScr(map_page[current_mappage].screen);
+						Map.goto_mapscr(map_page[current_mappage].map, map_page[current_mappage].screen);
 						rebuild_trans_table(); //Woo
 					}
 					else if (rclick)
