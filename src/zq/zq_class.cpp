@@ -6463,6 +6463,9 @@ bool setMapCount2(int32_t c)
     bound(currmap,0,c-1);
     if(map_count>oldmapcount)
     {
+        // Visiting each new map to clear it is not something the user did, so keep
+        // it out of the screen history.
+        Map.ConfigureCursorHistory(false);
         for(int32_t mc=oldmapcount; mc<map_count; mc++)
         {
             Map.setCurrMap(mc);
@@ -6473,6 +6476,7 @@ bool setMapCount2(int32_t c)
             }
         }
         Map.setCurrMap(currmap);
+        Map.ConfigureCursorHistory(true);
     }
     else
     {
