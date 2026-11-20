@@ -166,7 +166,7 @@ if(APPLE)
 	# Using an API newer than the deployment target without an availability
 	# guard would crash at runtime on the older systems the target claims to
 	# support (CI builds target the oldest supported macOS - see
-	# CMAKE_OSX_DEPLOYMENT_TARGET in .github/workflows/build.yml). Surface
+	# MAC_DEPLOYMENT_TARGET in .github/workflows/ci.py). Surface
 	# that at compile time instead.
 	add_compile_options(-Werror=unguarded-availability-new)
 endif()
@@ -592,7 +592,7 @@ endif()
 #      from those same macros so each slice self-selects its backend.
 #   3. Build the third-party dependencies as universal too.
 # Instead, the release CI builds each arch separately and merges the results
-# with lipo - see the "universal" steps in .github/workflows/build.yml.
+# with lipo - see the build command in .github/workflows/ci.py.
 list(LENGTH ZC_TARGET_PROCESSOR zc_num_target_processors)
 if(zc_num_target_processors GREATER 1)
 	message(FATAL_ERROR "Universal binaries (multiple archs in CMAKE_OSX_ARCHITECTURES) are not supported yet - build each arch separately.")
