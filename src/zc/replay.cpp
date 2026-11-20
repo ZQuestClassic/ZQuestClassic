@@ -2010,7 +2010,7 @@ void replay_stop(bool aborted)
 			replay_exit(has_assert_failed ? ASSERT_FAILED_EXIT_CODE : 0);
         }
         // Stopping at a requested frame has its own message, and didn't check the whole replay.
-        else if (has_assert_failed || frame_arg == -1)
+        else if (!is_headless() && (has_assert_failed || frame_arg == -1))
         {
             enter_sys_pal();
             if (has_assert_failed)
