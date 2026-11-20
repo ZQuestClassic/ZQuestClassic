@@ -405,6 +405,11 @@ int32_t read_one_dmap(PACKFILE* f, zquestheader *Header, int s_version, int inde
 				return qe_invalid;
 			if (!p_getvar(&tempDMap.onmap_scrconfig, f))
 				return qe_invalid;
+			// These index the fixed-size dmapscripts[NUMSCRIPTSDMAP] table, so don't trust
+			// the file.
+			for (auto* config : {&tempDMap.active_scrconfig, &tempDMap.active_sub_scrconfig, &tempDMap.passive_sub_scrconfig, &tempDMap.onmap_scrconfig})
+				if (config->script >= NUMSCRIPTSDMAP)
+					config->script = 0;
 		}
 		else
 		{
