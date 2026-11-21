@@ -10852,6 +10852,12 @@ void do_primitives(BITMAP *targetBitmap, int32_t type, mapscr* theScreen, int32_
 	bool oldScriptFuncrun = script_funcrun;
 	refInfo* oldRi = ri;
 
+	// Old versions (and quests with this rule) had a bug: once a command drew to an offscreen
+	// bitmap, every later command in this layer drawn to the screen lost the playing field
+	// offset. Some quests compensate for this by adding the offset themselves.
+	const bool broken_offset = get_er(er_BITMAPOFFSET) || get_qr(qr_BITMAPOFFSETFIX);
+	bool broken_offset_lost = false;
+
 	for (int i = 0; i < numDrawCommandsToProcess; i++)
 	{
 		auto& command = script_drawing_commands[i];
@@ -10871,12 +10877,15 @@ void do_primitives(BITMAP *targetBitmap, int32_t type, mapscr* theScreen, int32_
 		{
 			bmp = targetBitmap;
 			isTargetOffScreenBmp = false;
+			if (broken_offset_lost)
+				draw_origin = DrawOrigin::Screen;
 		}
 		else
 		{
 			// Render target was set to a internal bitmap (but not the screen bitmap).
 			isTargetOffScreenBmp = true;
 			draw_origin = DrawOrigin::Screen;
+			broken_offset_lost = broken_offset;
 		}
 
 		int xoffset, yoffset;
