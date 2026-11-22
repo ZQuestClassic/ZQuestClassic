@@ -184,7 +184,7 @@ class ReplayResultUpdatedHandler(FileSystemEventHandler):
         if self.is_result_stale:
             self.parse_result()
 
-    def parse_result(self):
+    def parse_result(self, final=False):
         if self.result and self.result['stopped']:
             return
 
@@ -194,6 +194,9 @@ class ReplayResultUpdatedHandler(FileSystemEventHandler):
         try:
             new_result = parse_result_txt_file(self.path)
             if not new_result:
+                return
+            # The player may still be writing the file.
+            if not final and new_result['stopped'] and 'success' not in new_result:
                 return
             self.result = new_result
         except:
@@ -612,7 +615,7 @@ def _run_replay_test(
                 result.frame = int(w.result['frame'])
                 result.num_frames = int(w.result['replay_log_frames'])
                 result.stopped = w.result['stopped']
-                result.success = w.result['stopped'] and w.result['success']
+                result.success = w.result['stopped'] and w.result.get('success', False)
                 result.rng_desync = w.result.get('rng_desync', False)
 
             watcher = ReplayResultUpdatedHandler(result_path, on_result_updated)
@@ -639,7 +642,8 @@ def _run_replay_test(
 
                 retcode = player_interface.poll()
                 if retcode != None:
-                    watcher.update_result()
+                    # The file event for the last write may not have arrived yet.
+                    watcher.parse_result()
                     if not watcher.result:
                         raise Exception(
                             f'process finished before replay started, exit code: {retcode}'
@@ -670,6 +674,8 @@ def _run_replay_test(
                 yield (key, 'status', result)
 
             player_interface.wait_for_finish()
+            # The file event for the last write may not have arrived yet.
+            watcher.parse_result(final=True)
             on_result_updated(watcher)
 
             if not result.success:
