@@ -1,0 +1,608 @@
+# Features
+
+
+publish a Linux build for aarch64 (arm64) devices
+  Releases now include "{version}-linux-aarch64.tar.gz" alongside the
+  x86-64 Linux package, which is renamed from "{version}-linux.tar.gz" to
+  "{version}-linux-x64.tar.gz".
+
+publish a Windows build for arm64 devices
+  Releases now include "{version}-windows-arm64.zip", a native build for
+  Windows on arm64.
+
+publish a universal mac app supporting Apple Silicon and Intel
+  The mac release is now a single universal dmg, named
+  `{version}-mac-universal.dmg` instead of `{version}-mac.dmg` (which was
+  Intel-only). Apple Silicon users no longer run under Rosetta. The
+  ZScript JIT is still Intel-only, so scripts are interpreted on Apple
+  Silicon; that was about twice as fast as the JIT under Rosetta when
+  tested on one large quest.
+
+zc: say when a replay assert passes
+  A replay loaded in assert mode said when the assert failed, but nothing
+  when it passed, so there was no way to tell it had been checked.
+
+zq: add history navigation for viewed screens
+  You can now navigate recently viewed screens by using the side buttons
+  on the mouse, or configuring the "Go back/forward" hotkeys.
+
+zq: allow binding hotkeys to mouse buttons
+  Hotkeys can now be bound to the middle mouse button, the side buttons,
+  or any other extra mouse buttons (optionally with modifier keys). The
+  "Go Back" and "Go Forward" hotkeys are now bound to the mouse side
+  buttons by default, and so can be rebound.
+
+  Discord: https://discord.com/channels/876899628556091432/1552182585285812224
+
+zq: label player weapons "L" in weapon type lists
+  Player weapons in weapon type dropdowns are now prefixed with "L"
+  (e.g. "L Arrow"), matching the existing "E" prefix on enemy weapons.
+  The Weapon Type dropdown in the Shooter and Step Effects combo
+  wizards also has a tooltip explaining whether the chosen weapon can
+  hit the Hero or only enemies.
+
+  Discord: https://discord.com/channels/876899628556091432/1566325806127517756
+
+
+# Bug Fixes
+
+
+headless runs could crash driving keyboard LEDs
+  Installing or removing the keyboard updates the physical keyboard LEDs,
+  which goes through X11 on Linux and crashes when there is no usable
+  display. Skip LED updates when running headless.
+
+prevent crashes from long file names and paths
+  Grabbing colors from an image whose file name was longer than 64
+  characters crashed the editor. Fixed several similar crashes from long
+  file names or paths:
+  
+  * Grabbing tiles from a file with a very long name and no extension
+  * Changing the file type filter in the built-in file picker when the
+    current file has a very long name
+  * Opening a quest with a very long path (Recent quests menu)
+  * File and music names with many non-English characters
+  * Very long paths for quests, images, MIDIs and music in the editor
+  
+  The palette grab crash regressed in 2.55-alpha-113 (bc22503603), and
+  the Recent quests crash was introduced when that menu was added in
+  2.55-alpha-103 (d530a2fba3). The rest are long-standing.
+
+  Discord: https://discord.com/channels/876899628556091432/1557949663615909998
+
+leaked memory when loading quests with custom type names
+  Loading a quest that has custom names for item classes, combo types,
+  map flags, etc. leaked those names every time it was loaded.
+  
+  Regressed in 2.55-alpha-107 (6b0abe1f8a).
+
+prevent crash on startup with some gamepads, like some 8BitDo controllers
+  Controllers that report more than 32 buttons, such as some 8BitDo
+  controllers on Windows, corrupted memory when detected, which crashed
+  the program at startup or soon after. Extra buttons and sticks beyond
+  what the engine supports are now ignored.
+  
+  Also fixes a rarer crash when a controller was connected or
+  disconnected while controllers were being detected.
+  
+  Regressed in 2.55.17 (3f58ea5b73).
+
+fix gauges from old subscreens sometimes drawing as a grid
+  Life and magic gauges converted from a quest's old-format subscreens
+  got random values for settings the old format doesn't have, such as
+  the gauge's grid size and spacing, so a gauge could draw as a grid of
+  pieces. Other converted subscreen widgets had the same problem with a
+  few of their settings. Saving the quest in the editor also stored the
+  random values.
+  
+  Bug introduced when new life gauge settings were added in
+  2.55-alpha-117 (99462bf6b0).
+
+fix random settings on widgets from old-style subscreens
+  Subscreen widgets converted from a quest's old-style subscreens kept
+  random values for settings the old format doesn't have, such as
+  whether the widget can be selected, its selector position, and what
+  pressing a button on it does. Depending on leftover memory, the item
+  selector could stop on the wrong widget, or a button press could
+  change the subscreen page.
+  
+  Bug introduced when the subscreen backend was rewritten in
+  2.55-alpha-117 (872925132a).
+
+snapshots taken from the menu showing the menu itself
+  Taking a snapshot from the editor's Etc menu captured the open menu
+  again, and snapshots in both apps could show an out-of-date frame.
+  
+  Regressed in 2.55.17 (a4ce9a3bb3).
+
+  Discord: https://discord.com/channels/876899628556091432/1564728448864362616
+
+draw accented letters and symbols in older quests' text again
+  Text with characters that weren't stored as UTF-8 drew each of them as
+  "^" (or as the wrong character) in DMap titles, DMap intros, item
+  names, script-drawn strings and the editor. Quests made before 2.55
+  store accented letters this way (such as "Générique" in a French
+  quest), and some use the 128-255 range of the Zelda NES font for
+  symbols like hearts and arrows. These draw as they did in 2.53 again.
+  
+  Regressed in 2.55-alpha-117 (134c2fd7af).
+
+  Discord: https://discord.com/channels/876899628556091432/1564839184978542693
+
+explain a missing X11 display on Linux instead of crashing
+  On Linux, starting the player, editor or launcher without a reachable
+  X11 display (for example from a remote shell with DISPLAY unset, or on a
+  system with no X server or XWayland) crashed immediately. It now exits
+  with a message saying an X11 display is required and how to set DISPLAY.
+
+  Discord: https://discord.com/channels/876899628556091432/1565488192013082767
+
+stop a combo alias larger than the maximum from aborting quest load
+  Bug present since at least 2.53-Beta-11 (429df347a1).
+
+stop a damaged save or quest from reserving memory for a huge list
+  A list stored with its length made room for that many entries before
+  reading any of them, so a file with a bad length could use up all
+  memory. Only a modest amount is reserved up front now.
+  
+  Bug introduced when generic script data was added in 2.55-alpha-112
+  (f7901fa547).
+
+stop a damaged quest from reserving memory for a huge string
+  Loading a damaged quest could try to reserve gigabytes of memory for
+  one string, because the string's stated length was used before it was
+  checked.
+  
+  Bug introduced when long strings were added in 2.55.2 (4ed3e71bca).
+
+save strings longer than 65535 characters in full
+  Saving a string longer than 65535 characters, such as long screen
+  notes, cut it short.
+  
+  Bug introduced when long strings were added in 2.55.2 (4ed3e71bca).
+
+[win] prevent crash when the MIDI device can't be opened
+  If Windows refused to open the MIDI output device (for example, when
+  another program holds it or there is none), the first MIDI to play
+  crashed the program. MIDIs are now silent instead.
+  
+  Bug introduced when the program moved to Allegro 5 in 2.55-alpha-108
+  (a7fccd1f21).
+
+zc: Manhandla and Patra bodies drawn 1px off when moving diagonally
+  When moving up-right or down-left, the body of a Manhandla or Patra was
+  drawn one pixel to the right of its heads / orbiting parts.
+  
+  Bug present since at least 2.50.
+
+  Discord: https://discord.com/channels/876899628556091432/1525358901451690004
+
+zc: Large Hitbox Hero could not walk up a slope off the top of the screen
+  In sideview, with the Large Hitbox quest rule on, walking up a slope
+  that continues onto the screen above made the Hero stop at the top edge
+  and fall back down, instead of scrolling to the next screen.
+  
+  Regressed in 2.55.7 (4e45313545).
+
+  Discord: https://discord.com/channels/876899628556091432/1556688796995559475
+
+zc: reflected weapons could randomly run their death effects
+  When a weapon was reflected (which creates a copy of it), the copy
+  started with leftover memory for a few properties. It could then
+  randomly spawn its death item/sprite/sound when it died, draw the wrong
+  shadow tile, or use the wrong weapon/defense type for bomb-style
+  weapons.
+  
+  Bug introduced when lifted combos as bombs were added in
+  2.55-alpha-114 (21447f7517).
+
+zc: prevent freeze when an FFC light beam loops back into a prism
+  A light beam from an FFC spotlight that came back around into a Magic
+  Prism split again every time it passed through, freezing the game. This
+  happened when the beam bounced off a light target (with the broken light
+  beam hitbox compat rule on) or travelled around a loop of mirrors.
+  
+  Bug introduced when spotlights were made to work on FFCs in
+  2.55-alpha-119 (fd039e80).
+
+zc: continuing could leave the hero with no life
+  When continuing, the hero could be given 0 life and so die again
+  immediately, over and over. This happened when the continue health is a
+  percentage that rounds down to less than one heart (for example, 3% of 3
+  hearts), or when it is set to 0. Continuing now always gives at least
+  one heart when rounding to whole hearts, and never less than 1 HP.
+  
+  Context: https://www.purezc.net/index.php?page=comments&t=comments&id=6777
+
+zc: fix portals sometimes warping the Hero on arrival
+  Entering a screen with a portal on it, such as the one left by the
+  Magic Mirror, could warp the Hero as soon as they were standing on the
+  portal, instead of waiting for them to step off of it first. Whether
+  it happened depended on leftover memory. Portals created by scripts
+  could also start animating from a random frame and draw the wrong
+  tile.
+  
+  Bug introduced when user created portals were added in 2.55-alpha-114
+  (ca30be23d1).
+
+zc: save file replays could desync after the game was closed
+  A save file's replay continues each time the save is loaded. If the
+  previous session ended without a recorded quit - quitting while
+  paused, or closing the program right after saving - playback carried
+  on with the old session using the next session's inputs, which then
+  went out of sync.
+  
+  Quitting while paused now records the quit. Recording also continues
+  only after the last save, since the save menu saves a while after its
+  last input. For replays already recorded this way, playback ends the
+  session itself where the next one begins (waiting for a pending save
+  first), and updating the replay records that quit.
+  
+  Bug introduced when save file replays were added in 2.55-alpha-110
+  (923a1031c9).
+
+zc: a Quickload Slot that no longer exists stopped the program
+  If the launcher's Quickload Slot setting (or -load) named a save slot
+  that doesn't exist, for example because that save was deleted, the
+  player showed a fatal "Cannot load slot" error on every launch. It now
+  logs the error and shows the file select screen instead.
+  
+  Bug introduced when invalid save slots were made an error in
+  2.55.1 (d6cefc9da4).
+
+zc: old save file replays desynced after the game was reloaded
+  Loading a save used to unequip the A button, until that was fixed in
+  2.55.11 and 3.0. Replays recorded before then expect the A button to be
+  unequipped when a save was loaded after closing the program, so they
+  went out of sync from then on.
+  
+  Regressed in 2.55.11 (8bd1cdc08f).
+
+zc: fail to load a save file with an impossible amount of script data
+  A damaged save could give a size for its script arrays far beyond what
+  a script can make, and loading it used up all memory before reading
+  any of them. Such a file now fails to load.
+  
+  Bug present since at least 2.53-Beta-11 (429df347a1).
+
+zq: DMap editor leaks a file handle every time it opens
+  Each time the DMap editor opened, its enhanced music file was loaded
+  nine times to decide which fields to disable, and none of those
+  loads were ever freed. After enough opens the process could no longer
+  open files at all: every music file then reported "failed to load", the
+  enhanced music fields stayed disabled, and the editor had to be
+  restarted.
+  
+  The file is now loaded (and freed) once when the dialog opens (and again
+  after "Load"), and the disable checks read the cached result.
+  
+  Bug introduced when the loop preview buttons were added to the dmap
+  editor in 2.55-alpha-120 (1822e0e47a).
+
+  Discord: https://discord.com/channels/876899628556091432/1408024771001585694
+
+zq: fix see-through transparent pixel marks in the tile editor
+  The X marks drawn over transparent pixels in the tile editor could turn
+  see-through, showing whatever was behind the editor, for some choices of
+  color 0 (for example a dark gray). They are now always drawn with one of
+  the standard editor colors.
+  
+  Regressed in 2.55-alpha-113 (93f18c3ef0).
+
+  Discord: https://discord.com/channels/876899628556091432/1563790874016485417
+
+zq: keep non-ASCII characters in quest package names
+  Packaging a quest whose title has characters outside ASCII, like
+  "Créateur", named the package folder and exe "Cr-ateur". Those
+  characters are now kept; only ones not allowed in file names are
+  replaced with "-".
+  
+  Regressed in 2.55-alpha-119 (e64f888d24).
+
+zq: [mac/linux] fix the editor sometimes closing after a compile
+  On macOS and Linux, the editor could close right after compiling
+  scripts, most often on a slow or busy computer.
+  
+  Regressed in 2.55-alpha-108 (c05576d9da).
+
+zq: report how the compiler ended when it crashes
+  If the script compiler crashed or quit partway through compiling, the
+  editor closed without any message on macOS and Linux, and showed a
+  timeout error on Windows. It now shows an error saying how the compiler
+  process ended (for example, which signal killed it).
+  
+  Bug introduced when the compiler was moved into its own process on
+  Linux in 2.55-alpha-103 (7667238ef9).
+
+zq: prevent crash when jumping to a map the quest doesn't have
+  The editor could move to one map past the last and then crash drawing
+  the screen. This happened when clicking a map tab left over from a
+  larger quest (quests from before 2.55 don't store map tabs, so they
+  kept those of the last quest opened), and from anything else that
+  asked for a map that doesn't exist.
+  
+  Bug has existed since at least 2.53-Beta-11 (429df347a1).
+
+zq: show an error when no window can be created, instead of crashing
+  When the editor could not find a usable graphics driver (for example,
+  over some remote desktop sessions), it crashed without saying why.
+  
+  Regressed in 2.55-alpha-51 (6d1aa3a665).
+
+zscript: scripted weapons imitating a bomb blast now open bomb doors
+  An lweapon such as `LW_SCRIPT1` with its `Weapon` attribute set to a
+  bomb blast would trigger bomb secret flags and combo triggers, but left
+  NES bomb doors shut. Only the engine's own blast opened them, on a
+  detonation timer that scripted weapons never run.
+  
+  Bug introduced when weapon imitation via the `Weapon` attribute was
+  added in 2.55-alpha-44 (2ab35aaba1).
+
+  Discord: https://discord.com/channels/876899628556091432/1551521592209576036
+
+zscript: script state of weapons, enemies and item sprites was never freed
+  Every scripted weapon, enemy or item sprite keeps its script's state
+  (registers and a 20 KB stack) in a table that was meant to drop the
+  entry when the sprite was destroyed. The entry was never dropped, so the
+  table grew with every scripted sprite that spawned until the game was
+  restarted.
+  
+  Playing the Stellar Seas Randomizer replay peaked at 932 MB in the
+  player; it now peaks at 487 MB.
+  
+  Regressed in 2.55.0 (ce8062e192).
+
+zscript: script state leaked when a scripted eweapon reflected into an lweapon
+  A scripted enemy weapon that bounced off a mirror shield became a
+  player weapon in place. The state of the script it had been running,
+  and every object and array that script owned, stayed filed under the
+  enemy weapon type and was never released when the weapon was removed.
+  They lingered until the game was restarted.
+  
+  Regressed in 2.55.0 (27c41e1f2a).
+
+zscript: reflected scripted eweapons ran an lweapon script
+  A scripted enemy weapon that bounced off the hero's mirror shield kept
+  its script number after becoming a player weapon, so it started running
+  whichever lweapon script happened to have the same number.
+  
+  Regressed in 2.55.0 (27c41e1f2a).
+
+zscript: trigger group counts went wrong when scripts changed a placed combo's triggers
+  Changing a placed combo's 'Contributes To TrigGroup' flag or its
+  TrigGroup from a script didn't adjust the per-screen trigger group
+  counts (Game->TrigGroups[]), and removing the combo afterwards
+  subtracted using the new settings, so a count could end up negative.
+  FFCs at the end of a screen's list also kept contributing after their
+  Data was set to 0.
+  
+  Bug introduced when trigger groups were added in 2.55-alpha-114
+  (8841692c).
+
+zscript: wrong values for NPCDT_SWITCH and some combo type constants
+  NPCDT_SWITCH was 50 instead of 51, so using it as an enemy defense set
+  an unimplemented defense rather than 'Switch w/ Player'.
+  CT_CUSTOM_BLOCKER and CT_SHOOTER were each one too low (they were really
+  the Button Prompt and Block Weapon (Custom) types), because Button
+  Prompt was missing.
+  
+  Also adds constants for the combo types that had none (CT_BUTTON_PROMPT
+  through CT_CRUMBLE), and for the Split, Transform, explosion and
+  Summon enemy defenses.
+  
+  Bug introduced when the 'Switch w/ Player' defense was added in
+  2.55-alpha-100 (ffe999c2), and for the combo types when their constants
+  were added in 2.55-alpha-108 (9d7d25cedb), after Button Prompts had
+  already shifted the combo type list.
+
+zscript: give non-ASCII string characters the same value everywhere
+  Characters outside ASCII (such as the two bytes of "é") in script
+  strings were negative numbers on Windows, macOS and x86 Linux, but
+  positive on ARM Linux, so scripts and replays could behave differently
+  across platforms. They are now always 0-255, matching File->ReadBytes.
+  This covers string literals and strings the engine gives to scripts
+  (item and dmap names, File->ReadString, ...).
+  
+  File->ReadChars also stopped at the first such character on those
+  platforms, as if it were the end of the file. It now reads them.
+  
+  Bug present since at least 2.53 (429df347a1, the initial commit).
+  File->ReadChars bug introduced when file functions were added in
+  2.55-alpha-75 (ef54b03d25).
+
+zscript: make stricmp() give the same result on every platform
+  stricmp() compared characters outside ASCII differently per platform:
+  stricmp("é", "a") was -1 on macOS and x86 Linux but 1 on Windows and
+  ARM Linux, and only some platforms treated "É" and "é" as equal. It
+  now matches strnicmp(), which already behaved the same everywhere and
+  ignores the case of letters like "É".
+  
+  Bug introduced when stricmp() was added in 2.55-alpha-75 (db4eb36a6c).
+
+zscript: destructors of saved objects could freeze the game after a quest update
+  When an object loaded from a save file was destroyed after the quest's
+  scripts had been recompiled (ex. the player updated to a new version of
+  the quest), finding its destructor could loop forever, freezing the game
+  - or, depending on the compiler the player was built with, skip the
+  destructor entirely.
+  
+  Bug introduced when objects began being saved to the save file in
+  2.55-alpha-112 (e9bc106b91).
+
+zscript: screen D[] errors showed the screen instead of the index
+  The error for an invalid Screen->D[] index (or Game->GetScreenD /
+  SetScreenD) showed the screen instead of the index.
+  
+  The wrong value has been shown since at least 2.50.
+
+zscript: don't crash when bitmap->Read() can't load the image
+  Reading a file that exists but isn't an image the player can load
+  crashed instead of logging the error. As the error message says, it now
+  makes a blank bitmap, the same as for a file that doesn't exist.
+  
+  Regressed in 2.55-alpha-26 (5ee0c64964).
+
+zscript: Game->FFRules[] read and wrote one past the last rule
+  The index was clamped to the number of rules, which is one past the
+  last rule, so that index read and wrote just past the quest rules.
+  
+  Bug introduced when Game->FFRules[] was added in 2.55-Alpha-21
+  (88c3658fc1).
+
+zscript: npcdata->MatchInitDLabel() read outside the enemy's labels
+  The InitD index wasn't checked, so any index other than 0-7 compared the
+  string against memory outside the enemy's InitD labels. It now logs an
+  error.
+  
+  Bug introduced when npcdata->MatchInitDLabel() was added in
+  2.55-alpha-16 (6fbbe5fce3).
+
+zscript: Game->MiscSprites[] and MiscSFX[] read and wrote one past the end
+  Both accepted the number of entries as an index, one past the last
+  entry, so that index read and wrote just past them.
+  
+  Bug introduced when these were added in 2.55-alpha-100 (699e38450d).
+
+zscript: npcdata->Defense[] read and wrote two past the end
+  npcdata->Defense[] accepted indices up to 42, but enemies have 41
+  defenses, so the last two indices read and wrote past them.
+  
+  Bug introduced when npcdata->Defense[] was added in 2.54-Alpha-21
+  (9a4276623b).
+
+zscript: setting Hero->ItemA/B/X/Y to -1 wrote just before the disabled items
+  Setting a button's item to -1 (no item) also cleared "disabled" for
+  item -1, a byte just before the list of disabled items.
+  
+  Bug present since at least 2.55-alpha-1 (5e97128dc5).
+
+zscript: combodata arrays read and wrote one past the end
+  combodata->Attributes[], InitD[], BlockWeapon[] and Strike[], and the
+  function versions of BlockWeapon, Strike and Expansion, accepted the
+  number of entries as an index, one past the last one. That index read
+  and wrote just past the array.
+  
+  Bug introduced when the combodata functions were added in 2.54-Alpha-1
+  (0ecc4bf680).
+
+zscript: handle WAITX not actually yielding in JIT compilers
+  `WAITFRAMESR D2` does nothing when D2 is 0, but the JIT compilers assume
+  all wait commands should yield. Now they check if waiting actually
+  occurs.
+
+zscript: GOTOLESS branched on the wrong comparison under the JIT
+  The interpreter takes a GOTOLESS branch when the compared values are
+  less than or equal, or strictly less than when the "GOTOLESS Not Equal"
+  compat QR is set (as it is for quests from before build 411, such as
+  Lost Isle). The JIT had the two cases swapped.
+  
+  Scripts using GOTOLESS (only hand-written or 2016-2019 compiler ZASM)
+  branched differently on equality, which sent Lost Isle's circular cave
+  sparks on a different path than the interpreter.
+  
+  Bug introduced when the JIT was added in 2.55-alpha-112 (36fd73c209).
+
+zscript: JIT script misbehaved after running another script
+  When a script running under the JIT ran another script partway through
+  (for example, by running a frozen generic script), it could then skip
+  commands or run some twice.
+  
+  Bug introduced when the JIT was added in 2.55-alpha-112 (36fd73c209).
+
+zscript: for jit, prevent running script from changing itself
+  It's forbidden for a script to directly change its own `Script`
+  variable, and such a write is ignored. When jit is enabled that check
+  was missing, so the write went through and the script could behave
+  differently than it does without jit.
+  
+  Bug introduced when the JIT was added in 2.55-alpha-112 (36fd73c209).
+
+launcher: fix cursor and alternate text colors for built-in themes
+  The built-in themes left the cursor, read-only text and disabled colors
+  unset (or set to the wrong value), instead of using their defaults.
+  
+  Regressed in 2.55.2 (702396d7fd).
+
+
+# Build
+
+
+support AArch64 targets, including native arm64 macs
+  Native arm64 mac builds previously failed to compile. The fast tile
+  blitters now have NEON implementations (matching the SSE versions pixel
+  for pixel) on all AArch64 platforms, including Windows on ARM.
+
+compress the mac .dmg with LZMA
+  The mac download is about 17% smaller (29 MB -> 24 MB for 2.55.17).
+  LZMA disk images need macOS 10.15, and the minimum supported version
+  is already 12.0.
+
+strip symbol tables from mac and linux binaries
+  Shrinks the mac download by about 1 MB and the linux download by about
+  1.2 MB. Debug info was already kept out of the packages, but the symbol
+  tables were not.
+
+upgrade sentry-native from 0.6.6 to 0.17.4
+vendor libvorbis and libogg for mac builds
+  The mac app no longer needs libogg and libvorbis from Homebrew: they are
+  built from source kept in the repository. Windows and Linux builds are
+  unchanged.
+
+make the editor about 10% smaller
+  Dialog code is now built for size, which shrinks zeditor by about 12%
+  (6% compressed) with no effect on gameplay.
+
+update fmtlib to 11.2.0
+
+# Refactors
+
+
+reduce memory usage of fixed-point values
+  Every fixed-point number (positions, speeds, and other fractional
+  values) used 16 bytes of memory instead of 4. Shrinking them reduces
+  peak memory usage by roughly 55-320 MB depending on the quest, in both
+  the player and the editor. For example, The ROSEMASTER went from
+  1.04 GB to 0.72 GB.
+
+  Discord: https://discord.com/channels/876899628556091432/1556484930635042917
+
+zc: share one buffer between all blank tiles
+  Every one of the 214500 tile slots had its own memory allocated, even
+  though most are blank. Blank tiles now share a single buffer in the
+  player, which saves about 30-60 MB of memory.
+
+  Discord: https://discord.com/channels/876899628556091432/1556484930635042917
+
+zscript: halve the memory used to hold compiled scripts
+  Every instruction of a compiled script took 32 bytes, most of which were
+  for the string or array that a few instructions carry. They now take 12
+  bytes, which lowers memory usage by about 260 MB for Yuurand and 30-50
+  MB for Stellar Seas, in both the player and the editor.
+  
+  The code of a script can now have at most 65535 strings and arrays, and
+  compiling one with more shows an error.
+
+  Discord: https://discord.com/channels/876899628556091432/1556484930635042917
+
+
+# CI
+
+test AArch64 Linux
+
+test Windows arm64
+  Builds with MSVC on the windows-11-arm runner and runs the replay suite
+  there with the native arm64 build (6 shards, like the other platforms).
+  2.55 has no arm64 JIT, so scripts run interpreted and the entry stops
+  the same replays early as ubuntu-22.04-arm. vcpkg uses the
+  arm64-windows triplet; RELEASE_PLATFORM is "windows-arm64", which
+  zupdater's substring match can't confuse with windows-x64/x86.
+  
+  CI's Python is x64 there, since many pinned packages have no win_arm64
+  wheels. Local runs on ARM64 Windows are labeled windows-11-arm even
+  from such an emulated python.
+
+
+# Misc.
+
+ignore fixup commits in git hook
+
