@@ -235,10 +235,11 @@ static void compile_compare(CompilationState& state, x86::Compiler &cc, std::map
 	}
 	else if (command == GOTOLESS)
 	{
+		// With the rule set this is a strict less-than, to match the interpreter.
 		if (get_qr(qr_GOTOLESSNOTEQUAL))
-			cc.jle(goto_labels.at(arg));
-		else
 			cc.jl(goto_labels.at(arg));
+		else
+			cc.jle(goto_labels.at(arg));
 	}
 	else if (command == SETTRUE)
 	{
