@@ -101,7 +101,6 @@ static std::set<script_id> seen_scripts;
 static std::map<script_id, ScriptDebugHandle> script_debug_handles;
 ScriptDebugHandle* runtime_script_debug_handle;
 static std::map<std::pair<script_data*, refInfo*>, JittedScriptHandle*> jitted_scripts;
-int32_t jitted_uncompiled_command_count;
 // Set when the interpreter runs a wait command for a JIT-compiled script: whether
 // the command suspended the script. Some don't (ex: waiting for zero frames).
 int32_t jitted_script_did_wait;
@@ -36336,7 +36335,7 @@ int32_t run_script(ScriptType type, const word script, const int32_t i)
 	}
 	else
 	{
-		result = run_script_int(false);
+		result = run_script_int(false, 0);
 	}
 
 	if (replay_is_active() && replay_get_meta_bool("debug_script_state"))
@@ -36376,7 +36375,9 @@ int32_t run_script(ScriptType type, const word script, const int32_t i)
 	return result;
 }
 
-int32_t run_script_int(bool is_jitted)
+// When called from JIT-compiled code, runs just the next `uncompiled_command_count`
+// commands.
+int32_t run_script_int(bool is_jitted, int32_t uncompiled_command_count)
 {
 	ScriptType type = curScriptType;
 	word script = curScriptNum;
@@ -40806,7 +40807,7 @@ j_command:
 
 		// If running a JIT compiled script, we're only here to do a few commands.
 		commands_run += 1;
-		if (is_jitted && commands_run == jitted_uncompiled_command_count) break;
+		if (is_jitted && commands_run == uncompiled_command_count) break;
 	}
 	if(script_funcrun) return RUNSCRIPT_OK;
 	
