@@ -139,7 +139,7 @@ void scr_func_exec::execute()
 		bool old_funcrun = script_funcrun;
 		script_funcrun = true;
 		
-		run_script_int(false);
+		run_script_int(false, 0);
 		
 		script_funcrun = old_funcrun;
 		destructstr = oldstr;

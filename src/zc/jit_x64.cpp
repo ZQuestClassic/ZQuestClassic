@@ -307,18 +307,13 @@ static void compile_compare(CompilationState& state, x86::Compiler &cc, std::map
 // Defer to the ZASM command interpreter for 1+ commands.
 static void compile_command(CompilationState& state, x86::Compiler &cc, script_data *script, int i, int count, x86::Gp vStackIndex)
 {
-	extern int32_t jitted_uncompiled_command_count;
-
-	x86::Gp reg = cc.newIntPtr();
-	cc.mov(reg, (uint64_t)&jitted_uncompiled_command_count);
-	cc.mov(x86::ptr_32(reg), count);
-
 	cc.mov(x86::ptr_32(state.ptrPc), i);
 	cc.mov(x86::ptr_32(state.ptrStackIndex), vStackIndex);
 
 	InvokeNode *invokeNode;
-	cc.invoke(&invokeNode, run_script_int, FuncSignatureT<int32_t, bool>(CallConvId::kHost));
+	cc.invoke(&invokeNode, run_script_int, FuncSignatureT<int32_t, bool, int32_t>(CallConvId::kHost));
 	invokeNode->setArg(0, true);
+	invokeNode->setArg(1, count);
 
 	// Check the result of every interpreted command, not just the ones that can stop the script
 	// by design (command_could_return_not_ok): any of them can end it on an error (ex: a stack
@@ -334,17 +329,13 @@ static void compile_command(CompilationState& state, x86::Compiler &cc, script_d
 // stops the script - identical to non-jit behavior.
 static void run_command_interpreted(CompilationState& state, x86::Compiler &cc, x86::Gp vStackIndex, int pc)
 {
-	extern int32_t jitted_uncompiled_command_count;
-
-	x86::Gp reg = cc.newIntPtr();
-	cc.mov(reg, (uint64_t)&jitted_uncompiled_command_count);
-	cc.mov(x86::ptr_32(reg), 1);
 	cc.mov(x86::ptr_32(state.ptrPc), pc);
 	cc.mov(x86::ptr_32(state.ptrStackIndex), vStackIndex);
 	cc.mov(x86::ptr_32(state.ptrWaitIndex), 0);
 	InvokeNode *invokeNode;
-	cc.invoke(&invokeNode, run_script_int, FuncSignatureT<int32_t, bool>(CallConvId::kHost));
+	cc.invoke(&invokeNode, run_script_int, FuncSignatureT<int32_t, bool, int32_t>(CallConvId::kHost));
 	invokeNode->setArg(0, true);
+	invokeNode->setArg(1, 1);
 	invokeNode->setRet(0, state.vRetVal);
 	cc.jmp(state.L_End);
 }

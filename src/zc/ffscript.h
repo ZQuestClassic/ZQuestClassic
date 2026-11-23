@@ -602,7 +602,7 @@ static char **config_argv = NULL;
 static char *argv_buf = NULL;
 static int32_t argv_buf_size = 0;
 
-int32_t run_script_int(bool is_jitted);
+int32_t run_script_int(bool is_jitted, int32_t uncompiled_command_count);
 
 //Config files
 void zscript_flush_config(ZSCRIPT_CONFIG *cfg);
