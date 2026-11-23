@@ -679,7 +679,7 @@ void zmap::setCurrMap(int32_t index)
 	scrview[cursor.map] = cursor.viewscr;
 
 	auto new_cursor = cursor;
-	new_cursor.map = bound(index,0,map_count);
+	new_cursor.map = vbound(index, 0, map_count - 1);
 
 	new_cursor.viewscr = scrview[new_cursor.map];
 	new_cursor.setScreen(scrpos[new_cursor.map]);
@@ -5216,9 +5216,11 @@ void zmap::goto_dmapscr(int dmap, int scr)
 }
 void zmap::goto_mapscr(int map, int scr)
 {
+	// The destination may not exist: a warp to a DMap whose map was removed, or a map
+	// tab left over from a quest with more maps.
 	auto new_cursor = cursor;
-	new_cursor.map = map;
-	new_cursor.setScreen(scr);
+	new_cursor.map = vbound(map, 0, map_count - 1);
+	new_cursor.setScreen(vbound(scr, 0, MAPSCRS - 1));
 	setCursor(std::move(new_cursor));
 }
 

@@ -1491,6 +1491,11 @@ void init_favorites()
     {
         favorite_combos[i]=-1;
     }
+
+	// Quests from before the favorites section have no map tabs, so don't keep those
+	// of the last quest loaded.
+	for (auto& page : map_page)
+		page = {0, 0};
 }
 
 void reset_subscreens()
