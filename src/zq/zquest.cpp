@@ -26082,11 +26082,10 @@ int32_t main(int32_t argc,char **argv)
 	auto [w, h] = zc_get_default_display_size(LARGE_W, LARGE_H, window_width, window_height);
 	int32_t videofail = is_headless() ? 0 : (set_gfx_mode(tempmode,w,h,zq_screen_w,zq_screen_h));
 
-	//extra block here is intentional
 	if(videofail!=0)
 	{
-		quit_game();
-		allegro_exit();
+		al_trace("Fatal Error: could not create a window for ZQuest Classic.\n");
+		Z_error_fatal("%s", allegro_error);
 	}
 	else
 	{
