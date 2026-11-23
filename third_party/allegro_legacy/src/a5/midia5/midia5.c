@@ -33,21 +33,39 @@ MIDIA5_OUTPUT_HANDLE * midia5_create_output_handle(int device)
 
 void midia5_destroy_output_handle(MIDIA5_OUTPUT_HANDLE * hp)
 {
-	_midia5_free_output_platform_data(hp);
+	// local edit: the platform data is NULL when the device failed to open (for
+	// example, midiOutOpen on Windows), and no platform code checks for that.
+	//_midia5_free_output_platform_data(hp);
+	if(hp->platform_data)
+	{
+		_midia5_free_output_platform_data(hp);
+	}
 	free(hp);
 }
 
 void midia5_send_data(MIDIA5_OUTPUT_HANDLE * hp, int data)
 {
-	_midia5_platform_send_data(hp, data);
+	// local edit
+	//_midia5_platform_send_data(hp, data);
+	if(hp->platform_data)
+	{
+		_midia5_platform_send_data(hp, data);
+	}
 }
 
 void midia5_reset_output_device(MIDIA5_OUTPUT_HANDLE * hp)
 {
-	_midia5_platform_reset_output_device(hp);
+	// local edit
+	//_midia5_platform_reset_output_device(hp);
+	if(hp->platform_data)
+	{
+		_midia5_platform_reset_output_device(hp);
+	}
 }
 
 bool midia5_set_output_gain(MIDIA5_OUTPUT_HANDLE * hp, float gain)
 {
-	return _midia5_platform_set_output_gain(hp, gain);
+	// local edit
+	//return _midia5_platform_set_output_gain(hp, gain);
+	return hp->platform_data ? _midia5_platform_set_output_gain(hp, gain) : false;
 }
