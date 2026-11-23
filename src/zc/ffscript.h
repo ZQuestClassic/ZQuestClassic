@@ -1914,6 +1914,9 @@ extern refInfo* ri;
 int32_t get_register_slow(int32_t arg);
 void set_register_slow(int32_t arg, int32_t value);
 
+bool is_guarded_script_register(int reg);
+void do_set(int reg, int value);
+
 inline int32_t get_register(int32_t arg)
 {
 	return uint32_t(arg) < 8 ? ri->d[arg] : get_register_slow(arg);
