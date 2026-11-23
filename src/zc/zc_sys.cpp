@@ -7658,6 +7658,8 @@ void load_control_state()
 			replay_peek_input();
 		else if (replay_is_replaying() && replay_version_check(8, 11))
 			replay_peek_input();
+		if (replay_is_replaying())
+			replay_apply_input();
 		if (replay_get_version() == 8)
 			update_keys();
 	}

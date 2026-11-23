@@ -47,6 +47,7 @@ bool replay_init_game_in_new_process();
 void replay_on_program_exit();
 void replay_on_game_saved();
 void replay_peek_input();
+void replay_apply_input();
 void replay_do_cheats();
 void replay_do_qrs();
 bool replay_is_assert_done();
