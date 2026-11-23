@@ -153,6 +153,9 @@ struct ReplayState
 	bool did_attempt_input_during_replay = false;
 	int frame_count = 0;
 	bool previous_control_state[controls::btnLast] = {};
+	// The button states as of the replay's steps so far. Only copied to raw_control_state by
+	// replay_apply_input - see there.
+	bool control_state[controls::btnLast] = {};
 	char previous_keys[KEY_MAX] = {};
 	std::vector<zc_randgen *> rngs;
 	// Per-rng count of how many times each rng was seeded this frame, indexed by rng
@@ -290,7 +293,7 @@ struct KeyReplayStep : public ReplayStep
     void run()
     {
         if (button_index != -1)
-            raw_control_state[button_index] = type == TypeKeyDown;
+            rs.control_state[button_index] = type == TypeKeyDown;
 
         // Set the key/joystick states, in case zscript queries the state of these things.
         if (button_index != -1 && button_index >= 14)
@@ -839,7 +842,10 @@ static void do_recording_poll()
 
 	for (int i = 0; i < KeyMapReplayStep::NumButtons; i++)
 	{
-		bool state = raw_control_state[i];
+		// When replaying, the steps are the source of truth: raw_control_state lags behind them
+		// until the game next reads input (see replay_apply_input), and the steps written here
+		// must keep their frames.
+		bool state = replay_is_replaying() ? rs.control_state[i] : raw_control_state[i];
 		if (state == rs.previous_control_state[i])
 			continue;
 
@@ -1522,6 +1528,10 @@ static void do_replaying_poll()
         rs.replay_log_current_index += 1;
     }
 
+    // These old replays applied their input right here.
+    if (rs.version < 6)
+        replay_apply_input();
+
     rs.replay_log_current_quit_index = rs.replay_log_current_index;
     rs.replay_log_current_state_index = rs.replay_log_current_index;
     rs.replay_log_current_qr_index = rs.replay_log_current_index;
@@ -2095,6 +2105,20 @@ void replay_peek_input()
     }
 }
 
+// Makes the game see the button states of the replay's steps.
+//
+// When recording, the game only reads the buttons in load_control_state, so until then
+// everything still sees the previous frame's states - even though the frame has advanced. A
+// button change is recorded with the frame it was read on. Playback must update the states at
+// that same point, not as soon as that frame starts: otherwise code that runs in between sees
+// a press too early. For example, walking through a dungeon door ends by marking every held
+// button as "already pressed", which swallowed a press that the recording had acted on.
+void replay_apply_input()
+{
+    for (int i = 0; i < KeyMapReplayStep::NumButtons; i++)
+        raw_control_state[i] = rs.control_state[i];
+}
+
 void replay_do_cheats()
 {
     size_t i = rs.replay_log_current_index;
@@ -2152,7 +2176,7 @@ void replay_forget_input()
         key_current_frame[i] = 0;
     }
     for (int i = 0; i < KeyMapReplayStep::NumButtons; i++)
-        rs.previous_control_state[i] = raw_control_state[i] = false;
+        rs.previous_control_state[i] = rs.control_state[i] = raw_control_state[i] = false;
     for (int i = 0; i < KEY_MAX; i++)
         rs.previous_keys[i] = false;
 }
