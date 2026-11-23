@@ -1,3 +1,4 @@
+#include <array>
 #include <memory>
 #include <filesystem>
 #include <stdio.h>
@@ -3813,6 +3814,30 @@ enum { tint_r, tint_g, tint_b, tint_bool_dist};
 
 int16_t lastCustomTint[4] = {0,0,0,0}; // The current custom tint information. 0/1/2: R/G/B, 3: Base
 
+static constexpr std::array<double, 256> make_grey_weights(double weight)
+{
+	std::array<double, 256> weights{};
+	for (int i = 0; i < 256; i++)
+		weights[i] = weight * i;
+	return weights;
+}
+
+// Weighted greyscale of a color: 0.299*r + 0.587*g + 0.114*b, rounded down.
+//
+// Written out as plain arithmetic, the result depends on the architecture: arm64 fuses a
+// multiply and an add into one operation, which rounds differently for some colors. So
+// the products come from tables built at compile time, and the sum is done in a fixed
+// order. This gives what x64 always has.
+static int32_t distributed_grey(RGB c)
+{
+	static constexpr auto weights_r = make_grey_weights(0.299);
+	static constexpr auto weights_g = make_grey_weights(0.587);
+	static constexpr auto weights_b = make_grey_weights(0.114);
+
+	volatile double rg = weights_r[c.r] + weights_g[c.g];
+	return rg + weights_b[c.b];
+}
+
 void shiftColour(int32_t rshift, int32_t gshift, int32_t bshift, int32_t base)
 {
 	for(int32_t i=0; i <= 0xEF; i++)
@@ -3821,7 +3846,7 @@ void shiftColour(int32_t rshift, int32_t gshift, int32_t bshift, int32_t base)
 			int32_t grey = (RAMpal[i].r+RAMpal[i].g+RAMpal[i].b)/3;
 			RAMpal[i] = _RGB(grey,grey,grey);
 		} else if(base==baseDISTRIBUTED){//Recolor the palette to distributed greyscale before tinting
-			int32_t grey = 0.299*RAMpal[i].r + 0.587*RAMpal[i].g + 0.114*RAMpal[i].b;
+			int32_t grey = distributed_grey(RAMpal[i]);
 			RAMpal[i] = _RGB(grey,grey,grey);
 		}
 		//Bit-shifting negatives throws errors. If negative, shift in the other direction.
@@ -3851,7 +3876,7 @@ void addColour(int32_t radd, int32_t gadd, int32_t badd, int32_t base)
 			int32_t grey = (RAMpal[i].r+RAMpal[i].g+RAMpal[i].b)/3;
 			RAMpal[i] = _RGB(grey,grey,grey);
 		} else if(base==baseDISTRIBUTED){//Recolor the palette to distributed greyscale before tinting
-			int32_t grey = 0.299*RAMpal[i].r + 0.587*RAMpal[i].g + 0.114*RAMpal[i].b;
+			int32_t grey = distributed_grey(RAMpal[i]);
 			RAMpal[i] = _RGB(grey,grey,grey);
 		}
 		//Add the r/g/b adds to the r/g/b values, clamping between 0 and 63.
