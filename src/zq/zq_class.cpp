@@ -582,7 +582,7 @@ void zmap::setCurrMap(int32_t index)
 	bool had_cursor = screens != nullptr;
 	MapCursor old_cursor = getCursor();
 	scrpos[currmap]=currscr;
-	currmap=bound(index,0,map_count);
+	currmap=vbound(index,0,map_count-1);
 	screens=&TheMaps[currmap*MAPSCRS];
 	
 	currscr=scrpos[currmap];
