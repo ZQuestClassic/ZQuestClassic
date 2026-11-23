@@ -1015,15 +1015,6 @@ def _is_known_failure_test(run: RunResult, arch: str):
         platform.system() == 'Windows'
         and arch == 'win32'
         and run.name
-        == 'enigma_of_basilischi_island_basilse/enigma_of_basilischi_island_basilse_1_of_2.zplay'
-    ):
-        if run.failing_frame == 135221:
-            ignore = True
-
-    if (
-        platform.system() == 'Windows'
-        and arch == 'win32'
-        and run.name
         == 'enigma_of_basilischi_island_basilse/enigma_of_basilischi_island_basilse_2_of_2.zplay'
     ):
         if run.failing_frame == 31839:

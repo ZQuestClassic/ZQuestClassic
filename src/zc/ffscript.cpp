@@ -102,6 +102,9 @@ static std::map<script_id, ScriptDebugHandle> script_debug_handles;
 ScriptDebugHandle* runtime_script_debug_handle;
 static std::map<std::pair<script_data*, refInfo*>, JittedScriptHandle*> jitted_scripts;
 int32_t jitted_uncompiled_command_count;
+// Set when the interpreter runs a wait command for a JIT-compiled script: whether
+// the command suspended the script. Some don't (ex: waiting for zero frames).
+int32_t jitted_script_did_wait;
 
 CScriptDrawingCommands scriptdraws;
 FFScript FFCore;
@@ -36380,7 +36383,11 @@ int32_t run_script_int(bool is_jitted)
 	int32_t i = curScriptIndex;
 
 	int commands_run = 0;
-	if (is_jitted) goto j_command;
+	if (is_jitted)
+	{
+		jitted_script_did_wait = 0;
+		goto j_command;
+	}
 
 	if(ri->waitframes)
 	{
@@ -40732,6 +40739,8 @@ j_command:
 		goto post_switch;
 	wait_command:
 		// A waitframe-type command was reached: suspend until next frame.
+		if (is_jitted)
+			jitted_script_did_wait = 1;
 		break;
 	post_switch:
 #ifdef _SCRIPT_COUNTER

@@ -39,16 +39,13 @@ jobs:
             arch: win32
             compiler: msvc
             config: RelWithDebInfo
-            # For some reason, crucible_quest.zplay fails on frame 1492 but only on this build.
-            extra-args: --max_duration 60 --frame=crucible_quest.zplay=1
+            extra-args: --max_duration 60
           - runs-on: windows-11-arm
             arch: arm64
             compiler: msvc
             config: Release
             # No arm64 JIT on 2.55; see the ubuntu-22.04-arm entry.
             extra-args: >-
-              --frame=crucible_quest.zplay=1490
-              --frame=enigma_of_basilischi_island_basilse_1_of_2.zplay=135200
               --frame=enigma_of_basilischi_island_basilse_2_of_2.zplay=31800
           - runs-on: macos-15-intel
             arch: intel
@@ -62,13 +59,11 @@ jobs:
             arch: aarch64
             compiler: clang
             config: RelWithDebInfo
-            # There is no AArch64 JIT on 2.55, so these replays run under the
+            # There is no AArch64 JIT on 2.55, so this replay runs under the
             # interpreter, which diverges from the expected (x64 JIT) output
-            # at these frames. Same on any platform with --no-jit; see also the
-            # win32 entry. Stop just before.
+            # at this frame. Same on any platform with --no-jit; see also the
+            # win32 known failure in tests/replays.py. Stop just before.
             extra-args: >-
-              --frame=crucible_quest.zplay=1490
-              --frame=enigma_of_basilischi_island_basilse_1_of_2.zplay=135200
               --frame=enigma_of_basilischi_island_basilse_2_of_2.zplay=31800
       fail-fast: false
     uses: ./.github/workflows/test.yml

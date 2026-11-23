@@ -785,9 +785,16 @@ JittedFunction jit_compile_script(script_data *script)
 
 		if (command_is_wait(command))
 		{
-			compile_command(state, cc, script, i, 1, vStackIndex);
+			extern int32_t jitted_script_did_wait;
+
 			cc.mov(x86::ptr_32(state.ptrWaitIndex), label_index + 1);
-			cc.jmp(state.L_End);
+			compile_command(state, cc, script, i, 1, vStackIndex);
+			// Wait commands normally suspend the script, but not always. For example,
+			// waiting for zero frames does nothing.
+			x86::Gp did_wait = cc.newIntPtr();
+			cc.mov(did_wait, (uint64_t)&jitted_script_did_wait);
+			cc.cmp(x86::ptr_32(did_wait), 0);
+			cc.jne(state.L_End);
 			cc.bind(wait_frame_labels[label_index]);
 			label_index += 1;
 			continue;
