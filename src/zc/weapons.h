@@ -28,7 +28,7 @@ private:
 
 // How close the weapon can get to the edge of the screen before
 	// being deleted (or bouncing, in the case of boomerangs)
-	int32_t minX, maxX, minY, maxY;
+	int32_t minX = 0, maxX = 0, minY = 0, maxY = 0;
 	friend void setScreenLimits(weapon&);
     
 	optional<word> _handle_loadsprite(optional<word> spr, bool isDummy = false, bool force = false);
@@ -40,38 +40,38 @@ public:
 	void load_weap_data(weapon_data const& data, optional<word>* out_wpnspr = nullptr);
     void setAngle(double angletoset);
     void doAutoRotate(bool dodir = false, bool doboth = false);
-    int32_t power,dead,clk2,misc2;
+    int32_t power = 0, dead = -1, clk2 = 0, misc2 = 0;
     // The level (or "sub-type") of the weapon.
     // Each weapon type (sprite::id) uses this differently (and some not at all).
     // For weapons created by an item, it's the item level.
     // For fireballs, the first bit is the "boss fireball" flag.
-    int32_t level;
-	rpos_t ignorecombo;
-	ffc_id_t ignoreffc;
-	bool fake_weapon;
-    bool isLit; //if true, this weapon is providing light to the current screen
-    int32_t parentid, //Enemy who created it
-        parentitem; //Item which created it
-    int32_t dragging;
+    int32_t level = 0;
+	rpos_t ignorecombo = rpos_t::None;
+	ffc_id_t ignoreffc = -1;
+	bool fake_weapon = false;
+    bool isLit = false; //if true, this weapon is providing light to the current screen
+    int32_t parentid = 0, //Enemy who created it
+        parentitem = -1; //Item which created it
+    int32_t dragging = -1;
     zfix step;
-    bool bounce, ignoreHero;
-    word flash,wid,aframe,csclk;
-    int32_t o_speed, o_type, frames, o_flip, ref_o_tile;
-	byte script_wrote_otile;
-    int32_t temp1;
-    bool autorotate;
-	byte linkedItem;
-	byte unblockable;
+    bool bounce = false, ignoreHero = false;
+    word flash = 0, wid = 0, aframe = 0, csclk = 0;
+    int32_t o_speed = 0, o_type = 0, frames = 0, o_flip = 0, ref_o_tile = 0;
+	byte script_wrote_otile = 0;
+    int32_t temp1 = 0;
+    bool autorotate = false;
+	byte linkedItem = 0;
+	byte unblockable = 0;
 	
-    weapon_flags misc_wflags;
-	word misc_wsprites[WPNSPR_MAX];
-	byte light_rads[WPNSPR_MAX];
-	int32_t light_offsets[WPNSPR_MAX];
-	byte last_burnstate;
+    weapon_flags misc_wflags = WFLAG_NONE;
+	word misc_wsprites[WPNSPR_MAX] = {};
+	byte light_rads[WPNSPR_MAX] = {};
+	int32_t light_offsets[WPNSPR_MAX] = {};
+	byte last_burnstate = 0;
 	byte get_burnstate() const;
 	
-	byte wscreengrid[22];
-	byte wscreengrid_layer[6][22];
+	byte wscreengrid[22] = {};
+	byte wscreengrid_layer[6][22] = {};
 	// (layer, rpos_t)
 	std::set<std::pair<int, rpos_t>> rposes_checked;
 	std::set<ffcdata*> ffcs_checked;
@@ -97,68 +97,68 @@ public:
 	std::set<std::tuple<int, rpos_t, int, int>> rpos_triggers_once;
 	std::set<std::tuple<ffcdata*, int, int>> ffc_triggers_once;
 	
-	int16_t death_spawnitem;
-	int16_t death_spawndropset;
-	int32_t death_item_pflags;
-	int16_t death_sprite;
-	word death_sfx;
+	int16_t death_spawnitem = -1;
+	int16_t death_spawndropset = -1;
+	int32_t death_item_pflags = 0;
+	int16_t death_sprite = -1;
+	word death_sfx = 0;
 	
-	bool has_shadow;
+	bool has_shadow = true;
 	
-	byte lift_level;
+	byte lift_level = 0;
 	byte lift_time = 16;
 	zfix lift_height = 8;
 	
 	//!DIMI: More variables? That suuuuuure won't break anything. Nope.
-    int32_t count1; 
-    int32_t count2;
-    int32_t count3;
-    int32_t count4;
-    int32_t count5;
+    int32_t count1 = 0; 
+    int32_t count2 = 0;
+    int32_t count3 = 0;
+    int32_t count4 = 0;
+    int32_t count5 = 0;
     void bookfirecreate();
 
     //Weapon Editor -Z
-    byte useweapon; //lweapon id type -Z
-    byte useweapondummy; //weapon id type for things like bombs that pass it into a real weapon.
-    byte usedefense; //default defence type -Z
-    byte usedefensedummy; //defence type for things like bombs that pass it into a real weapon.
-    word linked_parent;
-    byte quantity_iterator;
-    int32_t weap_pattern[ITEM_MOVEMENT_PATTERNS]; //formation, arg1, arg2 -Z Note: totally unused.
-    int32_t weaprange; //default range -Z
-    int32_t weapduration; //default duration, 0 = infinite. 
-    int32_t clocks[WEAPON_CLOCKS];
-    int32_t tilemod;
-    byte drawlayer;
-    word family_class;												
-    byte family_level;
-    word flags;
-    int32_t collectflags; //items that this weapon can collect on contact.
-    int32_t ffmisc[FFSCRIPT_MISC];
-    char weapname[128]; //Weapon Name, pulled from editor. 
-     int32_t duplicates; //Number of duplicate weapons generated.
-     int32_t wpn_misc_d[FFSCRIPT_MISC];
+    byte useweapon = 0; //lweapon id type -Z
+    byte useweapondummy = 0; //weapon id type for things like bombs that pass it into a real weapon.
+    byte usedefense = 0; //default defence type -Z
+    byte usedefensedummy = 0; //defence type for things like bombs that pass it into a real weapon.
+    word linked_parent = 0;
+    byte quantity_iterator = 0;
+    int32_t weap_pattern[ITEM_MOVEMENT_PATTERNS] = {}; //formation, arg1, arg2 -Z Note: totally unused.
+    int32_t weaprange = 0; //default range -Z
+    int32_t weapduration = 0; //default duration, 0 = infinite. 
+    int32_t clocks[WEAPON_CLOCKS] = {};
+    int32_t tilemod = 0;
+    byte drawlayer = 0;
+    word family_class = 0;												
+    byte family_level = 0;
+    word flags = 0;
+    int32_t collectflags = 0; //items that this weapon can collect on contact.
+    int32_t ffmisc[FFSCRIPT_MISC] = {};
+    char weapname[128] = {}; //Weapon Name, pulled from editor. 
+     int32_t duplicates = 0; //Number of duplicate weapons generated.
+     int32_t wpn_misc_d[FFSCRIPT_MISC] = {};
     //! End weapon editor. -Z
     
     bool isHeroWeapon();
     bool isHeroMelee();
     
     //2.6 enemy editor weapon sprite
-    int32_t wpnsprite;
+    int32_t wpnsprite = 0;
     
     //Used only by ffscript! No not make readable by scripts!
-    byte ScriptGenerated; //Used to permit creating HeroClass weapons, or other weapon types that the engine does not control.
-    byte isLWeapon;
-	bool weapon_dying_frame; //a last_hurrah for weapons -Em
+    byte ScriptGenerated = 0; //Used to permit creating HeroClass weapons, or other weapon types that the engine does not control.
+    byte isLWeapon = 0;
+	bool weapon_dying_frame = false; //a last_hurrah for weapons -Em
 	bool weapon_start_frame = true; //a ... first hurrah. Used for running scripts earlier on the first frame.
-	bool rundeath; //run death effects
-	int weap_timeout;
-    byte specialinfo;
+	bool rundeath = false; //run death effects
+	int weap_timeout = 0;
+    byte specialinfo = 0;
 	int16_t pierce_count = -1;
 	zfix bounce_mult, bounce_add;
 
-	int shd_aclk, shd_aframe;
-    word specialsfx;
+	int shd_aclk = 0, shd_aframe = 0;
+    word specialsfx = 0;
 	
 	bool disable_triggers = false;
 	
