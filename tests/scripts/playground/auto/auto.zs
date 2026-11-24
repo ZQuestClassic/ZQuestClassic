@@ -12,6 +12,7 @@
 #include "auto/bug_invalid_combo_id.zs"
 #include "auto/bug_invalid_secret_combo.zs"
 #include "auto/bug_item_id_invalid.zs"
+#include "auto/bug_lifted_weapon_self.zs"
 #include "auto/bug_mod_int_min.zs"
 #include "auto/bug_nested_class_constructors.zs"
 #include "auto/bug_nested_script_state.zs"

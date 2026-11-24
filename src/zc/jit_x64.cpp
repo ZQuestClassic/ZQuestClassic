@@ -628,7 +628,8 @@ JittedFunction jit_compile_script(script_data *script)
 	for (size_t i = 0; i < size; i++)
 	{
 		int command = script->zasm[i].command;
-		if (!command_is_wait(command))
+		// An lweapon script lifting itself also stops for the frame, and resumes after the lift.
+		if (!command_is_wait(command) && !instruction_could_lift_self(script->zasm[i]))
 			continue;
 
 		Label label = cc.newLabel();
@@ -797,6 +798,19 @@ JittedFunction jit_compile_script(script_data *script)
 			continue;
 		}
 
+		if (instruction_could_lift_self(script->zasm[i]))
+		{
+			// Runs in the interpreter, which stops the script if it lifted its own weapon (even
+			// for an assignment to Hero->LiftedWeapon, which is otherwise a compiled SETR).
+			// compile_command exits on that result, and the script resumes at the label after this
+			// command - like a wait.
+			cc.mov(x86::ptr_32(state.ptrWaitIndex), label_index + 1);
+			compile_command(state, cc, script, i, 1, vStackIndex);
+			cc.bind(wait_frame_labels[label_index]);
+			label_index += 1;
+			continue;
+		}
+
 		if (!command_is_compiled(command))
 		{
 			if (DEBUG_JIT_PRINT_ASM && command != 0xFFFF)
@@ -816,6 +830,8 @@ JittedFunction jit_compile_script(script_data *script)
 			for (int j = i + 1; j < size; j++)
 			{
 				if (command_is_compiled(script->zasm[j].command))
+					break;
+				if (instruction_could_lift_self(script->zasm[j]))
 					break;
 				if (goto_labels.contains(j))
 					break;

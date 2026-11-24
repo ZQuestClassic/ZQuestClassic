@@ -5105,6 +5105,10 @@ struct triangle3Dstruct
 bool command_is_wait(int command);
 bool command_uses_comparison_result(int command);
 bool command_could_return_not_ok(int command);
+// Returns true if `op` can lift the weapon running the script: Hero->LiftWeapon(), or assigning
+// Hero->LiftedWeapon. An lweapon script lifting itself stops there for the frame (it returns
+// RUNSCRIPT_SELFREMOVE), and continues after `op` once it runs again.
+bool instruction_could_lift_self(const ffscript& op);
 const script_command& get_script_command(int command);
 
 int32_t get_combopos_ref(int32_t pos, int32_t layer);

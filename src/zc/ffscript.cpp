@@ -55461,6 +55461,19 @@ bool command_could_return_not_ok(int command)
 	return false;
 }
 
+bool instruction_could_lift_self(const ffscript& op)
+{
+	switch (op.command)
+	{
+	case HEROLIFTGRAB:
+		return true;
+	case SETR:
+	case SETV:
+		return op.arg1 == HEROLIFTEDWPN;
+	}
+	return false;
+}
+
 const script_command& get_script_command(int command)
 {
 	return ZASMcommands[command];
