@@ -7195,6 +7195,11 @@ void weapon::onhit(bool clipped, int32_t special, int32_t linkdir, enemy* e, int
 		goto offscreenCheck;
 	}
 	
+	// A reflected eweapon moves to the lweapon list. If that list is full it can't be reflected
+	// (adding it would delete it), so the shield just blocks it.
+	if(special==2 && Ewpns.find(this) >= 0 && !Lwpns.has_space())
+		special = 1;
+
 	if(special==2)                                            // hit Hero's mirror shield
 	{
 		bool reflect = false;
