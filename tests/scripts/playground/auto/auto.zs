@@ -114,6 +114,7 @@
 #include "auto/switches_and_step_effects.zs"
 #include "auto/tango.zs"
 #include "auto/templates.zs"
+#include "auto/transform_effects.zs"
 #include "auto/varargs.zs"
 #include "auto/viewport.zs"
 #include "auto/weapon_data.zs"

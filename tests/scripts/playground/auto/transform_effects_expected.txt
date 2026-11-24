@@ -1,0 +1,976 @@
+stderr:
+
+Compiling 'transform_effects.zs'
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+Pass 4: Analyzing Code
+Pass 5: Checking code paths
+Pass 6: Generating object code
+Pass 7: Assembling
+Debug: could not resolve symbol "fcc"
+Debug: could not resolve symbol "fcc"
+Debug: could not resolve symbol "int"
+Success!
+Compile finished with exit code '0' (success)
+
+stdout:
+
+{
+  "success": true,
+  "diagnostics": [],
+  "metadata": {
+    "currentFileSymbols": 31,
+    "symbols": 92,
+    "identifiers": 262,
+    "elided": true
+  }
+}
+
+zasm:
+
+SETV GD8 0; void run() Body Start
+SETV GD4 0
+SETV GD2 0
+SETV GD3 0
+SETV GD7 0
+SETV GD5 0
+SETV GD6 0
+MARK_TYPE_REG GD1 0.0009
+SETV GD1 0
+QUIT; void run() Body End
+PUSHARGSV 0 0.0003; void run() Body Start
+SETR D4 SP2
+ALLOCATEMEMV D2 100 0
+STORE_OBJECT D2 0.0002
+LOAD D2 0.0002; InlineFunc[void Game::GetSaveName(char32[])] Params
+GETSAVENAME D2; InlineFunc[void Game::GetSaveName(char32[])] Body
+ALLOCATEMEMV D2 19 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
+WRITEPODSTRING D2 "[Test] Running %s\n"
+PUSHR D2
+LOAD D2 0.0002
+PUSHVARGR D2
+MARK_TYPE_VARG 0.0009; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
+LOAD D2 0.0002; InlineFunc[int Game::GetGenericScript(char32[])] Params
+GETGENERICSCRIPT D2; InlineFunc[int Game::GetGenericScript(char32[])] Body
+STORE D2 0.0001
+LOAD D2 0.0001; if() Test
+COMPAREV D2 -1
+SETCMP D2 I==
+COMPAREV D2 0
+GOTOCMP 39 ==; Test 'if'
+ALLOCATEMEMV D2 53 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start AND if() Body Start
+WRITEPODSTRING D2 "[Test] failed to start - could not find test script\n"
+PUSHR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
+GAMEEXIT; InlineFunc[void Game::Exit()] Body AND if() Body End
+NOP
+LOAD D2 0.0001; InlineFunc[genericdata Game::LoadGenericData(int)] Params
+LOADGENERICDATA D2; InlineFunc[genericdata Game::LoadGenericData(int)] Body Start
+SETR D2 REFGENERICDATA; InlineFunc[genericdata Game::LoadGenericData(int)] Body End
+STORE D2 0
+SETV D2 1
+PUSHR D2
+LOAD D2 0
+POP D3
+PUSHR D2
+PUSHR D3
+POP D2
+CASTBOOLI D2
+POP REFGENERICDATA
+SETR GENDATARUNNING D2
+LOAD D2 0; while() Test
+PUSHR D2
+POP REFGENERICDATA
+SETR D2 GENDATARUNNING
+COMPAREV D2 0
+GOTOCMP 65 ==; Test 'while'
+PUSHR D4; while() Body Start
+CALLFUNC 0.0927; UsrFunc[void DrawLabel()] Call
+POP D4
+WAITFRAME; InlineFunc[void Waitframe()] Body AND while() Body End
+GOTO 54; while() End
+CALLFUNC 0.0770; UsrFunc[void End()] Call AND [Opt:NeverRet]
+REF_REMOVE 0.0002; [Opt:NeverRet] AND void run() Body End
+SETR D4 SP2; void run() Body Start
+PUSHR D4
+PUSHV 0; UsrFunc[void Init(int)] Params
+CALLFUNC 0.0748; UsrFunc[void Init(int)] Call
+POP D4
+SETV D2 10; InlineFunc[void Waitframes(int)] Params
+WAITFRAMESR D2; InlineFunc[void Waitframes(int)] Body
+PUSHR D4
+PUSHV 0; UsrFunc[void transform(int, int, int, char32[])] Params Start
+PUSHARGSV 1 0.0002
+ALLOCATEMEMV D2 5 0
+WRITEPODSTRING D2 "none"
+PUSHR D2; UsrFunc[void transform(int, int, int, char32[])] Params End
+CALLFUNC 0.0312; UsrFunc[void transform(int, int, int, char32[])] Call
+PEEK D4
+PUSHR GD6; UsrFunc[void AssertEqual(int, int, char32[])] Params Start
+PUSHV 0
+ALLOCATEMEMV D2 26 0
+WRITEPODSTRING D2 "no effect makes no weapon"
+PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
+CALLFUNC 0.0777; UsrFunc[void AssertEqual(int, int, char32[])] Call
+PEEK D4
+PUSHR GD7; UsrFunc[void AssertEqual(int, int, char32[])] Params Start
+PUSHV 0
+ALLOCATEMEMV D2 32 0
+WRITEPODSTRING D2 "no effect leaves the hero alone"
+PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
+CALLFUNC 0.0777; UsrFunc[void AssertEqual(int, int, char32[])] Call
+PEEK D4
+PUSHR GD8; UsrFunc[void AssertEqual(int, int, char32[])] Params Start
+PUSHV 0
+ALLOCATEMEMV D2 37 0
+WRITEPODSTRING D2 "no effect leaves the new enemy alone"
+PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
+CALLFUNC 0.0777; UsrFunc[void AssertEqual(int, int, char32[])] Call
+PEEK D4
+PUSHV 22; UsrFunc[void transform(int, int, int, char32[])] Params Start
+PUSHARGSV 1 0.0002
+ALLOCATEMEMV D2 9 0
+WRITEPODSTRING D2 "a sprite"
+PUSHR D2; UsrFunc[void transform(int, int, int, char32[])] Params End
+CALLFUNC 0.0312; UsrFunc[void transform(int, int, int, char32[])] Call
+PEEK D4
+PUSHR GD2; UsrFunc[void AssertEqual(int, int, char32[])] Params Start
+PUSHV 23
+ALLOCATEMEMV D2 29 0
+WRITEPODSTRING D2 "a sprite effect is a sparkle"
+PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
+CALLFUNC 0.0777; UsrFunc[void AssertEqual(int, int, char32[])] Call
+PEEK D4
+SETR D2 GD5; UsrFunc[void Assert(bool, char32[])] Params Start
+COMPAREV D2 1
+SETCMP D2 I>
+PUSHR D2
+ALLOCATEMEMV D2 42 0
+WRITEPODSTRING D2 "a sprite effect lasts longer than a frame"
+PUSHR D2; UsrFunc[void Assert(bool, char32[])] Params End
+CALLFUNC 0.0805; UsrFunc[void Assert(bool, char32[])] Call
+PEEK D4
+PUSHR GD7; UsrFunc[void AssertEqual(int, int, char32[])] Params Start
+PUSHV 0
+ALLOCATEMEMV D2 38 0
+WRITEPODSTRING D2 "a sprite effect leaves the hero alone"
+PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
+CALLFUNC 0.0777; UsrFunc[void AssertEqual(int, int, char32[])] Call
+PEEK D4
+PUSHR GD8; UsrFunc[void AssertEqual(int, int, char32[])] Params Start
+PUSHV 0
+ALLOCATEMEMV D2 43 0
+WRITEPODSTRING D2 "a sprite effect leaves the new enemy alone"
+PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
+CALLFUNC 0.0777; UsrFunc[void AssertEqual(int, int, char32[])] Call
+PEEK D4
+PUSHV 22; UsrFunc[void transform(int, int, int, char32[])] Params Start
+PUSHV 2
+PUSHV 1
+ALLOCATEMEMV D2 26 0
+WRITEPODSTRING D2 "a sprite, on a wide enemy"
+PUSHR D2; UsrFunc[void transform(int, int, int, char32[])] Params End
+CALLFUNC 0.0312; UsrFunc[void transform(int, int, int, char32[])] Call
+PEEK D4
+PUSHR GD3; UsrFunc[void AssertEqual(int, int, char32[])] Params Start
+PUSHV 2
+ALLOCATEMEMV D2 40 0
+WRITEPODSTRING D2 "a sprite effect is as wide as the enemy"
+PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
+CALLFUNC 0.0777; UsrFunc[void AssertEqual(int, int, char32[])] Call
+PEEK D4
+PUSHR GD4; UsrFunc[void AssertEqual(int, int, char32[])] Params Start
+PUSHV 1
+ALLOCATEMEMV D2 40 0
+WRITEPODSTRING D2 "a sprite effect is as tall as the enemy"
+PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
+CALLFUNC 0.0777; UsrFunc[void AssertEqual(int, int, char32[])] Call
+PEEK D4
+PUSHV 22; UsrFunc[void transform(int, int, int, char32[])] Params Start
+PUSHV 1
+PUSHV 2
+ALLOCATEMEMV D2 26 0
+WRITEPODSTRING D2 "a sprite, on a tall enemy"
+PUSHR D2; UsrFunc[void transform(int, int, int, char32[])] Params End
+CALLFUNC 0.0312; UsrFunc[void transform(int, int, int, char32[])] Call
+PEEK D4
+PUSHR GD3; UsrFunc[void AssertEqual(int, int, char32[])] Params Start
+PUSHV 1
+ALLOCATEMEMV D2 40 0
+WRITEPODSTRING D2 "a sprite effect is as wide as the enemy"
+PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
+CALLFUNC 0.0777; UsrFunc[void AssertEqual(int, int, char32[])] Call
+PEEK D4
+PUSHR GD4; UsrFunc[void AssertEqual(int, int, char32[])] Params Start
+PUSHV 2
+ALLOCATEMEMV D2 40 0
+WRITEPODSTRING D2 "a sprite effect is as tall as the enemy"
+PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
+CALLFUNC 0.0777; UsrFunc[void AssertEqual(int, int, char32[])] Call
+PEEK D4
+PUSHV -1; UsrFunc[void transform(int, int, int, char32[])] Params Start
+PUSHARGSV 1 0.0002
+ALLOCATEMEMV D2 12 0
+WRITEPODSTRING D2 "explosion 0"
+PUSHR D2; UsrFunc[void transform(int, int, int, char32[])] Params End
+CALLFUNC 0.0312; UsrFunc[void transform(int, int, int, char32[])] Call
+PEEK D4
+PUSHV -2; UsrFunc[void transform(int, int, int, char32[])] Params Start
+PUSHARGSV 1 0.0002
+ALLOCATEMEMV D2 12 0
+WRITEPODSTRING D2 "explosion 2"
+PUSHR D2; UsrFunc[void transform(int, int, int, char32[])] Params End
+CALLFUNC 0.0312; UsrFunc[void transform(int, int, int, char32[])] Call
+PEEK D4
+PUSHV -3; UsrFunc[void transform(int, int, int, char32[])] Params Start
+PUSHARGSV 1 0.0002
+ALLOCATEMEMV D2 12 0
+WRITEPODSTRING D2 "explosion 1"
+PUSHR D2; UsrFunc[void transform(int, int, int, char32[])] Params End
+CALLFUNC 0.0312; UsrFunc[void transform(int, int, int, char32[])] Call
+PEEK D4
+PUSHV -5; UsrFunc[void transform(int, int, int, char32[])] Params Start
+PUSHARGSV 1 0.0002
+ALLOCATEMEMV D2 22 0
+WRITEPODSTRING D2 "a bomb blast for show"
+PUSHR D2; UsrFunc[void transform(int, int, int, char32[])] Params End
+CALLFUNC 0.0312; UsrFunc[void transform(int, int, int, char32[])] Call
+PEEK D4
+PUSHV 4; UsrFunc[void assertBlast(int)] Params
+CALLFUNC 0.0720; UsrFunc[void assertBlast(int)] Call
+PEEK D4
+PUSHR GD7; UsrFunc[void AssertEqual(int, int, char32[])] Params Start
+PUSHV 0
+ALLOCATEMEMV D2 39 0
+WRITEPODSTRING D2 "a blast for show leaves the hero alone"
+PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
+CALLFUNC 0.0777; UsrFunc[void AssertEqual(int, int, char32[])] Call
+PEEK D4
+PUSHR GD8; UsrFunc[void AssertEqual(int, int, char32[])] Params Start
+PUSHV 0
+ALLOCATEMEMV D2 44 0
+WRITEPODSTRING D2 "a blast for show leaves the new enemy alone"
+PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
+CALLFUNC 0.0777; UsrFunc[void AssertEqual(int, int, char32[])] Call
+PEEK D4
+PUSHV -4; UsrFunc[void transform(int, int, int, char32[])] Params Start
+PUSHARGSV 1 0.0002
+ALLOCATEMEMV D2 28 0
+WRITEPODSTRING D2 "a super bomb blast for show"
+PUSHR D2; UsrFunc[void transform(int, int, int, char32[])] Params End
+CALLFUNC 0.0312; UsrFunc[void transform(int, int, int, char32[])] Call
+PEEK D4
+PUSHV 5; UsrFunc[void assertBlast(int)] Params
+CALLFUNC 0.0720; UsrFunc[void assertBlast(int)] Call
+PEEK D4
+PUSHR GD7; UsrFunc[void AssertEqual(int, int, char32[])] Params Start
+PUSHV 0
+ALLOCATEMEMV D2 39 0
+WRITEPODSTRING D2 "a blast for show leaves the hero alone"
+PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
+CALLFUNC 0.0777; UsrFunc[void AssertEqual(int, int, char32[])] Call
+PEEK D4
+PUSHR GD8; UsrFunc[void AssertEqual(int, int, char32[])] Params Start
+PUSHV 0
+ALLOCATEMEMV D2 44 0
+WRITEPODSTRING D2 "a blast for show leaves the new enemy alone"
+PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
+CALLFUNC 0.0777; UsrFunc[void AssertEqual(int, int, char32[])] Call
+PEEK D4
+PUSHV -7; UsrFunc[void transform(int, int, int, char32[])] Params Start
+PUSHARGSV 1 0.0002
+ALLOCATEMEMV D2 13 0
+WRITEPODSTRING D2 "a bomb blast"
+PUSHR D2; UsrFunc[void transform(int, int, int, char32[])] Params End
+CALLFUNC 0.0312; UsrFunc[void transform(int, int, int, char32[])] Call
+PEEK D4
+PUSHV 4; UsrFunc[void assertBlast(int)] Params
+CALLFUNC 0.0720; UsrFunc[void assertBlast(int)] Call
+PEEK D4
+PUSHV -6; UsrFunc[void transform(int, int, int, char32[])] Params Start
+PUSHARGSV 1 0.0002
+ALLOCATEMEMV D2 19 0
+WRITEPODSTRING D2 "a super bomb blast"
+PUSHR D2; UsrFunc[void transform(int, int, int, char32[])] Params End
+CALLFUNC 0.0312; UsrFunc[void transform(int, int, int, char32[])] Call
+PEEK D4
+PUSHV 5; UsrFunc[void assertBlast(int)] Params
+CALLFUNC 0.0720; UsrFunc[void assertBlast(int)] Call
+POP D4
+CALLFUNC 0.0770; UsrFunc[void End()] Call AND [Opt:NeverRet] AND [Opt:NeverRet] AND void run() Body End
+PUSHARGSV 0 0.0002; Func[npc findEnemy(int)] Body Start
+SETR D4 SP2
+STOREV 1 0.0001; for() setup
+LOAD D2 0.0001; for() LoopTest
+PUSHR D2
+SETR D2 NPCCOUNT
+POP D3
+COMPARER D3 D2
+SETCMP D2 I<=
+COMPAREV D2 0
+GOTOCMP 308 ==; for() TestFail?
+LOAD D2 0.0001; InlineFunc[npc screendata::LoadNPC(int)] Params AND for() Body Start
+SUBV D2 1; InlineFunc[npc screendata::LoadNPC(int)] Body Start
+LOADNPCR D2
+SETR D2 REFNPC; InlineFunc[npc screendata::LoadNPC(int)] Body End
+STORE D2 0
+LOAD D2 0; if() Test
+PUSHR D2
+POP REFNPC
+SETR D2 NPCID
+PUSHR D2
+LOAD D2 0.0002
+POP D3
+COMPARER D3 D2
+SETCMP D2 I==
+COMPAREV D2 0
+GOTOCMP 303 ==; Test 'if'
+LOAD D2 0; return Start AND if() Body Start
+GOTO 310; return End AND if() Body End
+NOP; for() Body End
+LOAD D2 0.0001; for() LoopIncrement
+ADDV D2 1
+STORE D2 0.0001
+GOTO 277; for() End
+NOP
+SETV D2 0; return Start
+POPARGS D5 0.0003; return End
+RETURNFUNC; Func[npc findEnemy(int)] Body End
+PUSHARGSV 0 0.0008; Func[void transform(int, int, int, char32[])] Body Start
+SETR D4 SP2
+MARK_TYPE_STACK 0.0009 0.0008
+REF_INC 0.0008
+ALLOCATEMEMV D2 64 0
+STORE_OBJECT D2 0.0007
+LOAD D2 0.0007; InlineFunc[int sprintf(char32[], char32[], ...untyped[])] Params Start
+PUSHR D2
+ALLOCATEMEMV D2 21 0
+WRITEPODSTRING D2 "transform effect: %s"
+PUSHR D2
+LOAD D2 0.0008
+PUSHVARGR D2
+MARK_TYPE_VARG 0.0009; InlineFunc[int sprintf(char32[], char32[], ...untyped[])] Params End
+SPRINTFVARG; InlineFunc[int sprintf(char32[], char32[], ...untyped[])] Body Start
+POPARGS D5 0.0002; InlineFunc[int sprintf(char32[], char32[], ...untyped[])] Body End
+PUSHR D4
+LOAD D2 0.0007; UsrFunc[void Label(char32[])] Params Start
+PUSHR D2; UsrFunc[void Label(char32[])] Params End
+CALLFUNC 0.0919; UsrFunc[void Label(char32[])] Call
+PEEK D4
+CALLFUNC 0.0897; UsrFunc[void clearNPCs()] Call
+PEEK D4
+CALLFUNC 0.0857; UsrFunc[void clearWeapons()] Call
+POP D4
+SETV D2 128
+PUSHR D2
+SETV D2 0.0001
+POP D3
+PUSHR D2
+PUSHR D3
+POP D2
+POP REFSPRITE
+SETR SPRITE_X D2
+SETV D2 88
+PUSHR D2
+SETV D2 0.0001
+POP D3
+PUSHR D2
+PUSHR D3
+POP D2
+POP REFSPRITE
+SETR SPRITE_Y D2
+SETR D2 LINKMAXHP
+PUSHR D2
+POP D2
+SETR LINKHP D2
+WAITFRAME; InlineFunc[void Waitframe()] Body
+SETV D2 45; InlineFunc[npc screendata::CreateNPC(int)] Params
+CREATENPCR D2; InlineFunc[npc screendata::CreateNPC(int)] Body Start
+SETR D2 REFNPC; InlineFunc[npc screendata::CreateNPC(int)] Body End
+STORE D2 0.0006
+SETV D2 128
+PUSHR D2
+LOAD D2 0.0006
+POP D3
+PUSHR D2
+PUSHR D3
+POP D2
+POP REFSPRITE
+SETR SPRITE_X D2
+SETV D2 64
+PUSHR D2
+LOAD D2 0.0006
+POP D3
+PUSHR D2
+PUSHR D3
+POP D2
+POP REFSPRITE
+SETR SPRITE_Y D2
+SETV D2 100
+PUSHR D2
+LOAD D2 0.0006
+POP D3
+PUSHR D2
+PUSHR D3
+POP D2
+POP REFNPC
+SETR NPCHP D2
+SETV D2 0
+PUSHR D2
+LOAD D2 0.0006
+POP D3
+PUSHR D2
+PUSHR D3
+POP D2
+POP REFNPC
+SETR NPCSTEP D2
+SETV D2 0
+PUSHR D2
+LOAD D2 0.0006
+POP D3
+PUSHR D2
+PUSHR D3
+POP D2
+POP REFNPC
+SETR NPCHALTRATE D2
+SETV D2 27
+PUSHR D2
+LOAD D2 0.0006
+POP D3
+PUSHR D2
+PUSHR D3
+SETV D2 3
+PUSHR D2
+POP D0
+POP D2
+POP REFNPC
+SETR NPCDEFENSED D2
+LOAD D2 0.0011
+PUSHR D2
+LOAD D2 0.0006
+POP D3
+PUSHR D2
+PUSHR D3
+SETV D2 14
+PUSHR D2
+POP D0
+POP D2
+POP REFNPC
+SETR NPCDD D2
+SETV D2 41
+PUSHR D2
+LOAD D2 0.0006
+POP D3
+PUSHR D2
+PUSHR D3
+SETV D2 15
+PUSHR D2
+POP D0
+POP D2
+POP REFNPC
+SETR NPCDD D2
+SETV D2 210
+PUSHR D2
+LOAD D2 0.0006
+POP D3
+PUSHR D2
+PUSHR D3
+SETV D2 16
+PUSHR D2
+POP D0
+POP D2
+POP REFNPC
+SETR NPCDD D2
+LOAD D2 0.0010; if() Test
+COMPAREV D2 1
+GOTOCMP 465 !=
+LOAD D2 0.0009
+COMPAREV D2 1
+GOTOCMP 465 !=
+SETV D2 0
+GOTO 466
+SETV D2 1
+COMPAREV D2 0
+GOTOCMP 495 ==; Test 'if'
+SETV D2 3; if() Body Start
+PUSHR D2
+LOAD D2 0.0006
+POP D3
+PUSHR D2
+PUSHR D3
+POP D2
+POP REFSPRITE
+SETR SPRITE_EXTEND D2
+LOAD D2 0.0010
+PUSHR D2
+LOAD D2 0.0006
+POP D3
+PUSHR D2
+PUSHR D3
+POP D2
+POP REFSPRITE
+SETR SPRITE_TILE_W D2
+LOAD D2 0.0009
+PUSHR D2
+LOAD D2 0.0006
+POP D3
+PUSHR D2
+PUSHR D3
+POP D2
+POP REFSPRITE
+SETR SPRITE_TILE_H D2; if() Body End
+NOP
+SETV D2 60; InlineFunc[void Waitframes(int)] Params
+WAITFRAMESR D2; InlineFunc[void Waitframes(int)] Body
+SETV D2 8; InlineFunc[lweapon screendata::CreateLWeapon(int)] Params
+CREATELWEAPONR D2; InlineFunc[lweapon screendata::CreateLWeapon(int)] Body Start
+SETR D2 REFLWPN; InlineFunc[lweapon screendata::CreateLWeapon(int)] Body End
+STORE D2 0.0005
+SETV D2 88
+PUSHR D2
+LOAD D2 0.0005
+POP D3
+PUSHR D2
+PUSHR D3
+POP D2
+POP REFSPRITE
+SETR SPRITE_X D2
+SETV D2 64
+PUSHR D2
+LOAD D2 0.0005
+POP D3
+PUSHR D2
+PUSHR D3
+POP D2
+POP REFSPRITE
+SETR SPRITE_Y D2
+SETV D2 3
+PUSHR D2
+LOAD D2 0.0005
+POP D3
+PUSHR D2
+PUSHR D3
+POP D2
+POP REFSPRITE
+SETR SPRITE_DIR D2
+SETV D2 300
+PUSHR D2
+LOAD D2 0.0005
+POP D3
+PUSHR D2
+PUSHR D3
+POP D2
+POP REFLWPN
+SETR LWPNSTEP D2
+SETV D2 4
+PUSHR D2
+LOAD D2 0.0005
+POP D3
+PUSHR D2
+PUSHR D3
+POP D2
+POP REFLWPN
+SETR LWPNPOWER D2
+STOREV 0 0.0004
+STOREV 0 0.0003; for() setup
+LOAD D2 0.0003; for() LoopTest
+COMPAREV D2 60
+GOTOCMP 557 >=
+LOAD D2 0.0004
+COMPAREV D2 0
+GOTOCMP 557 !=
+SETV D2 1
+GOTO 558
+SETV D2 0
+COMPAREV D2 0
+GOTOCMP 570 ==; for() TestFail?
+WAITFRAME; InlineFunc[void Waitframe()] Body AND for() Body Start
+PUSHR D4
+PUSHV 41; UsrFunc[npc findEnemy(int)] Params
+CALLFUNC 0.0274; UsrFunc[npc findEnemy(int)] Call
+POP D4
+STORE D2 0.0004; for() Body End
+LOAD D2 0.0003; for() LoopIncrement
+ADDV D2 1
+STORE D2 0.0003
+GOTO 549; for() End
+NOP
+PUSHR D4
+LOAD D2 0.0004; UsrFunc[void Assert(npc, char32[])] Params Start
+PUSHR D2
+ALLOCATEMEMV D2 30 0
+WRITEPODSTRING D2 "transforms into the new enemy"
+PUSHR D2; UsrFunc[void Assert(npc, char32[])] Params End
+CALLFUNC 0.0818; UsrFunc[void Assert(npc, char32[])] Call
+POP D4
+LOAD D2 0.0005; InlineFunc[bool lweapon::isValid()] Params AND if() Test
+ISVALIDLWPN D2; InlineFunc[bool lweapon::isValid()] Body
+COMPAREV D2 0
+GOTOCMP 586 ==; Test 'if'
+LOAD D2 0.0005; InlineFunc[void lweapon::Remove()] Params Start AND if() Body Start
+SETR REFLWPN D2; InlineFunc[void lweapon::Remove()] Params End
+LWPNDEL; InlineFunc[void lweapon::Remove()] Body AND if() Body End
+NOP
+SETV D2 100
+PUSHR D2
+LOAD D2 0.0004
+POP D3
+PUSHR D2
+PUSHR D3
+POP D2
+POP REFNPC
+SETR NPCHP D2
+SETR D2 LINKHP
+STORE D2 0.0003
+SETV D2 -1
+SETR GD2 D2
+SETV D2 0
+SETR GD3 D2
+SETV D2 0
+SETR GD4 D2
+SETV D2 -1
+SETR GD5 D2
+SETV D2 0
+SETR GD6 D2
+STOREV 0 0.0002; for() setup
+LOAD D2 0.0002; for() LoopTest
+COMPAREV D2 150
+SETCMP D2 I<
+COMPAREV D2 0
+GOTOCMP 678 ==; for() TestFail?
+SETR D2 LWPNCOUNT; for() Body Start
+STORE D2 0.0001
+LOAD D2 0.0001; if() Test
+PUSHR D2
+SETR D2 GD6
+POP D3
+COMPARER D3 D2
+SETCMP D2 I>
+COMPAREV D2 0
+GOTOCMP 626 ==; Test 'if'
+LOAD D2 0.0001; if() Body Start
+SETR GD6 D2; if() Body End
+NOP
+LOAD D2 0.0001; if() Test
+COMPAREV D2 0
+GOTOCMP 635 <=
+SETR D2 GD2
+COMPAREV D2 -1
+GOTOCMP 635 !=
+SETV D2 1
+GOTO 636
+SETV D2 0
+COMPAREV D2 0
+GOTOCMP 658 ==; Test 'if'
+SETV D2 1; InlineFunc[lweapon screendata::LoadLWeapon(int)] Params AND if() Body Start
+SUBV D2 1; InlineFunc[lweapon screendata::LoadLWeapon(int)] Body Start
+LOADLWEAPONR D2
+SETR D2 REFLWPN; InlineFunc[lweapon screendata::LoadLWeapon(int)] Body End
+STORE D2 0
+LOAD D2 0
+PUSHR D2
+POP REFLWPN
+SETR D2 LWPNTYPE
+SETR GD2 D2
+LOAD D2 0
+PUSHR D2
+POP REFSPRITE
+SETR D2 SPRITE_TILE_W
+SETR GD3 D2
+LOAD D2 0
+PUSHR D2
+POP REFSPRITE
+SETR D2 SPRITE_TILE_H
+SETR GD4 D2; if() Body End
+NOP
+LOAD D2 0.0001; if() Test
+COMPAREV D2 0
+GOTOCMP 667 !=
+SETR D2 GD5
+COMPAREV D2 -1
+GOTOCMP 667 !=
+SETV D2 1
+GOTO 668
+SETV D2 0
+COMPAREV D2 0
+GOTOCMP 672 ==; Test 'if'
+LOAD D2 0.0002; if() Body Start
+SETR GD5 D2; if() Body End
+NOP
+WAITFRAME; InlineFunc[void Waitframe()] Body AND for() Body End
+LOAD D2 0.0002; for() LoopIncrement
+ADDV D2 1
+STORE D2 0.0002
+GOTO 609; for() End
+NOP
+LOAD D2 0.0003
+PUSHR D2
+SETR D2 LINKHP
+POP D3
+SUBR D3 D2
+SETR D2 D3
+SETR GD7 D2
+LOAD D2 0.0004; InlineFunc[bool npc::isValid()] Params
+ISVALIDNPC D2; InlineFunc[bool npc::isValid()] Body
+COMPAREV D2 0
+GOTOCMP 696 ==
+LOAD D2 0.0004
+PUSHR D2
+POP REFNPC
+SETR D2 NPCHP
+SUBV2 100 D2
+GOTO 697
+SETV D2 1000
+SETR GD8 D2
+ALLOCATEMEMV D2 124 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
+WRITEPODSTRING D2 "transform effect %d (%dx%d): weapon %d sized %dx%d, most at once %d, gone after %d frames, hero lost %d, new enemy lost %d\n"
+PUSHR D2
+LOAD D2 0.0011
+PUSHVARGR D2
+LOAD D2 0.0010
+PUSHVARGR D2
+LOAD D2 0.0009
+PUSHVARGR D2
+PUSHVARGR GD2
+PUSHVARGR GD3
+PUSHVARGR GD4
+PUSHVARGR GD6
+PUSHVARGR GD5
+PUSHVARGR GD7
+PUSHVARGR GD8; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
+REF_REMOVE 0.0007
+REF_REMOVE 0.0008
+POPARGS D5 0.0012
+RETURNFUNC; Func[void transform(int, int, int, char32[])] Body End
+SETR D4 SP2; Func[void assertBlast(int)] Body Start
+PUSHR D4
+PUSHR GD2; UsrFunc[void AssertEqual(int, int, char32[])] Params Start
+LOAD D2 0
+PUSHR D2
+ALLOCATEMEMV D2 22 0
+WRITEPODSTRING D2 "the effect is a blast"
+PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
+CALLFUNC 0.0777; UsrFunc[void AssertEqual(int, int, char32[])] Call
+PEEK D4
+PUSHR GD6; UsrFunc[void AssertEqual(int, int, char32[])] Params Start
+PUSHV 1
+ALLOCATEMEMV D2 24 0
+WRITEPODSTRING D2 "the effect is one blast"
+PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
+CALLFUNC 0.0777; UsrFunc[void AssertEqual(int, int, char32[])] Call
+PEEK D4
+SETR D2 GD5; UsrFunc[void Assert(bool, char32[])] Params Start
+COMPAREV D2 1
+SETCMP D2 I>
+PUSHR D2
+ALLOCATEMEMV D2 36 0
+WRITEPODSTRING D2 "the blast lasts longer than a frame"
+PUSHR D2; UsrFunc[void Assert(bool, char32[])] Params End
+CALLFUNC 0.0805; UsrFunc[void Assert(bool, char32[])] Call
+POP D4
+POP D5
+RETURNFUNC; Func[void assertBlast(int)] Body End
+SETR D4 SP2; Func[void Init(int)] Body Start
+ALLOCATEMEMV D2 35 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
+WRITEPODSTRING D2 "[Test] started: dmap %d screen %d\n"
+PUSHR D2
+PUSHVARGV 5
+LOAD D2 0
+PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
+LOAD D2 0; if() Test
+COMPAREV D2 0
+SETCMP D2 I!=
+COMPAREV D2 0
+GOTOCMP 767 ==; Test 'if'
+PUSHV 5; InlineFunc[void hero::Warp(int, int)] Params Start AND if() Body Start
+LOAD D2 0; InlineFunc[void hero::Warp(int, int)] Params End
+POP D3; InlineFunc[void hero::Warp(int, int)] Body Start
+WARPR D3 D2; InlineFunc[void hero::Warp(int, int)] Body End
+WAITFRAME; InlineFunc[void Waitframe()] Body AND if() Body End
+NOP
+POP D5
+RETURNFUNC; Func[void Init(int)] Body End
+SETR D4 SP2; Func[void End()] Body Start
+ALLOCATEMEMV D2 13 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
+WRITEPODSTRING D2 "[Test] done\n"
+PUSHR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
+GAMEEXIT; InlineFunc[void Game::Exit()] Body AND [Opt:NeverRet] AND Func[void End()] Body End
+SETR D4 SP2; Func[void AssertEqual(int, int, char32[])] Body Start
+MARK_TYPE_STACK 0.0009 0
+REF_INC 0
+LOAD D2 0.0001; if() Test
+PUSHR D2
+LOAD D2 0.0002
+POP D3
+COMPARER D3 D2
+SETCMP D2 I!=
+COMPAREV D2 0
+GOTOCMP 801 ==; Test 'if'
+ALLOCATEMEMV D2 53 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start AND if() Body Start
+WRITEPODSTRING D2 "[Test] failed assertion: expected %d but got %d. %s\n"
+PUSHR D2
+LOAD D2 0.0001
+PUSHVARGR D2
+LOAD D2 0.0002
+PUSHVARGR D2
+LOAD D2 0
+PUSHVARGR D2
+MARK_TYPE_VARG 0.0009; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
+GAMEEXIT; InlineFunc[void Game::Exit()] Body AND if() Body End
+NOP
+REF_REMOVE 0
+POPARGS D5 0.0003
+RETURNFUNC; Func[void AssertEqual(int, int, char32[])] Body End
+SETR D4 SP2; Func[void Assert(bool, char32[])] Body Start
+MARK_TYPE_STACK 0.0009 0
+REF_INC 0
+LOAD D2 0.0001; unless() Test
+COMPAREV D2 0
+GOTOCMP 814 !=; Test 'unless'
+LOAD D2 0; UsrFunc[void Fail(char32[])] Params Start AND unless() Body Start
+PUSHR D2; UsrFunc[void Fail(char32[])] Params End
+CALLFUNC 0.0831; UsrFunc[void Fail(char32[])] Call AND [Opt:NeverRet] AND unless() Body End
+NOP
+REF_REMOVE 0
+POPARGS D5 0.0002
+RETURNFUNC; Func[void Assert(bool, char32[])] Body End
+SETR D4 SP2; Func[void Assert(npc, char32[])] Body Start
+MARK_TYPE_STACK 0.0009 0
+REF_INC 0
+LOAD D2 0.0001; unless() Test
+COMPAREV D2 0
+GOTOCMP 827 !=; Test 'unless'
+LOAD D2 0; UsrFunc[void Fail(char32[])] Params Start AND unless() Body Start
+PUSHR D2; UsrFunc[void Fail(char32[])] Params End
+CALLFUNC 0.0831; UsrFunc[void Fail(char32[])] Call AND [Opt:NeverRet] AND unless() Body End
+NOP
+REF_REMOVE 0
+POPARGS D5 0.0002
+RETURNFUNC; Func[void Assert(npc, char32[])] Body End
+SETR D4 SP2; Func[void Fail(char32[])] Body Start
+MARK_TYPE_STACK 0.0009 0
+REF_INC 0
+LOAD D2 0; InlineFunc[int strlen(char32[])] Params Start AND if() Test
+SETR D3 D2; InlineFunc[int strlen(char32[])] Params End
+STRINGLENGTH D2 D3; InlineFunc[int strlen(char32[])] Body
+COMPAREV D2 0
+SETCMP D2 I>
+COMPAREV D2 0
+GOTOCMP 850 ==; Test 'if'
+ALLOCATEMEMV D2 24 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start AND if() Body Start
+WRITEPODSTRING D2 "[Test] failed test: %s\n"
+PUSHR D2
+LOAD D2 0
+PUSHVARGR D2
+MARK_TYPE_VARG 0.0009; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
+GOTO 855; if() Body End
+ALLOCATEMEMV D2 20 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start AND if() Else Start
+WRITEPODSTRING D2 "[Test] failed test\n"
+PUSHR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End AND if() Else End
+NOP
+GAMEEXIT; InlineFunc[void Game::Exit()] Body AND [Opt:NeverRet] AND Func[void Fail(char32[])] Body End
+PUSHV 0; Func[void clearWeapons()] Body Start
+SETR D4 SP2
+SETR D2 LWPNCOUNT; for() setup
+STORE D2 0
+LOAD D2 0; for() LoopTest
+COMPAREV D2 0
+SETCMP D2 I>
+COMPAREV D2 0
+GOTOCMP 876 ==; for() TestFail?
+LOAD D2 0; InlineFunc[lweapon screendata::LoadLWeapon(int)] Params AND InlineFunc[void lweapon::Remove()] Params Start AND for() Body Start
+SUBV D2 1; InlineFunc[lweapon screendata::LoadLWeapon(int)] Body Start
+LOADLWEAPONR D2
+SETR D2 REFLWPN; InlineFunc[lweapon screendata::LoadLWeapon(int)] Body End
+SETR REFLWPN D2; InlineFunc[void lweapon::Remove()] Params End
+LWPNDEL; InlineFunc[void lweapon::Remove()] Body AND for() Body End
+LOAD D2 0; for() LoopIncrement
+SUBV D2 1
+STORE D2 0
+GOTO 861; for() End
+NOP
+SETR D2 EWPNCOUNT; for() setup
+STORE D2 0
+LOAD D2 0; for() LoopTest
+COMPAREV D2 0
+SETCMP D2 I>
+COMPAREV D2 0
+GOTOCMP 894 ==; for() TestFail?
+LOAD D2 0; InlineFunc[eweapon screendata::LoadEWeapon(int)] Params AND InlineFunc[void eweapon::Remove()] Params Start AND for() Body Start
+SUBV D2 1; InlineFunc[eweapon screendata::LoadEWeapon(int)] Body Start
+LOADEWEAPONR D2
+SETR D2 REFEWPN; InlineFunc[eweapon screendata::LoadEWeapon(int)] Body End
+SETR REFEWPN D2; InlineFunc[void eweapon::Remove()] Params End
+EWPNDEL; InlineFunc[void eweapon::Remove()] Body AND for() Body End
+LOAD D2 0; for() LoopIncrement
+SUBV D2 1
+STORE D2 0
+GOTO 879; for() End
+NOP
+POP D5
+RETURNFUNC; Func[void clearWeapons()] Body End
+PUSHV 0; Func[void clearNPCs()] Body Start
+SETR D4 SP2
+SETR D2 NPCCOUNT; for() setup
+STORE D2 0
+LOAD D2 0; for() LoopTest
+COMPAREV D2 0
+SETCMP D2 I>
+COMPAREV D2 0
+GOTOCMP 916 ==; for() TestFail?
+LOAD D2 0; InlineFunc[npc screendata::LoadNPC(int)] Params AND InlineFunc[void npc::Remove()] Params Start AND for() Body Start
+SUBV D2 1; InlineFunc[npc screendata::LoadNPC(int)] Body Start
+LOADNPCR D2
+SETR D2 REFNPC; InlineFunc[npc screendata::LoadNPC(int)] Body End
+SETR REFNPC D2; InlineFunc[void npc::Remove()] Params End
+NPCKICKBUCKET; InlineFunc[void npc::Remove()] Body AND for() Body End
+LOAD D2 0; for() LoopIncrement
+SUBV D2 1
+STORE D2 0
+GOTO 901; for() End
+NOP
+POP D5
+RETURNFUNC; Func[void clearNPCs()] Body End
+SETR D4 SP2; Func[void Label(char32[])] Body Start
+MARK_TYPE_STACK 0.0009 0
+REF_INC 0
+LOAD D2 0
+SET_OBJECT GD1 D2 0.0009
+REF_REMOVE 0
+POP D5
+RETURNFUNC; Func[void Label(char32[])] Body End
+SETR D4 SP2; Func[void DrawLabel()] Body Start
+SETR D2 GD1; unless() Test
+COMPAREV D2 0
+GOTOCMP 945 ==; Test 'unless' AND return (Void) AND unless() Body
+NOP
+SETV D2 0.0001
+PUSHR D2
+POP D2
+SETR SCREEN_DRAW_ORIGIN D2
+PUSHV 7; InlineFunc[void screendata::DrawString(int, int, int, int, int, int, int, char32[], int)] Params Start
+PUSHARGSV 2 0.0003
+PUSHV 1
+PUSHV 15
+PUSHV 0
+PUSHR GD1
+PUSHV 128; InlineFunc[void screendata::DrawString(int, int, int, int, int, int, int, char32[], int)] Params End
+DRAWSTRINGR; InlineFunc[void screendata::DrawString(int, int, int, int, int, int, int, char32[], int)] Body Start
+POPARGS D5 0.0009; InlineFunc[void screendata::DrawString(int, int, int, int, int, int, int, char32[], int)] Body End
+RETURNFUNC; Func[void DrawLabel()] Body End
