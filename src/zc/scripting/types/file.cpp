@@ -444,10 +444,12 @@ void do_file_putchar()
 
 	if(user_file* f = checkFile(GET_REF(fileref), true))
 	{
-		if(char(c) != c)
+		// String characters are 0-255. Negative values are allowed too, for scripts written
+		// when characters outside ASCII were negative.
+		if(c < -128 || c > 255)
 		{
 			Z_scripterrlog("Invalid character val %d passed to PutChar(); value will overflow.\n", c);
-			c = char(c);
+			c = byte(c);
 		}
 		SET_D(rEXP1, fputc(c, f->file) * 10000L);
 		check_file_error(GET_REF(fileref)); // TODO: should be checking file error before setting rEXP1.
@@ -460,10 +462,12 @@ void do_file_ungetchar()
 
 	if(user_file* f = checkFile(GET_REF(fileref), true))
 	{
-		if(char(c) != c)
+		// String characters are 0-255. Negative values are allowed too, for scripts written
+		// when characters outside ASCII were negative.
+		if(c < -128 || c > 255)
 		{
 			Z_scripterrlog("Invalid character val %d passed to UngetChar(); value will overflow.\n", c);
-			c = char(c);
+			c = byte(c);
 		}
 		SET_D(rEXP1, ungetc(c,f->file) * 10000L);
 		check_file_error(GET_REF(fileref)); // TODO: should be checking file error before setting rEXP1.

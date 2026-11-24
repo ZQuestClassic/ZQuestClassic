@@ -2206,7 +2206,8 @@ Literal_Numeric :
 		$$ = new ASTLongNumberLiteral(val, @$);}
 	| SINGLECHAR {
 		ASTString* as = (ASTString*)$1;
-		ASTFloat* number = new ASTFloat(int(as->getValue().at(1)), 0, @$);
+		// Like the characters of a string, always 0-255 (plain char is signed on most platforms).
+		ASTFloat* number = new ASTFloat(int((unsigned char)as->getValue().at(1)), 0, @$);
 		$$ = new ASTCharLiteral(number, @$);}
 	| OPTIONVALUE LPAREN IDENTIFIER RPAREN {
 		ASTString* name = (ASTString*)$3;
