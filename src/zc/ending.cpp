@@ -115,6 +115,14 @@ void put_triforce()
 	}
 }
 
+// An ending string is shown as three lines of 24 characters. A line that starts past the end
+// of the string is empty.
+static void copy_ending_line(char* dest, const std::string& str, size_t line)
+{
+	size_t start = 24*line;
+	snprintf(dest, 25, "%.24s", start < str.size() ? str.c_str()+start : "");
+}
+
 void putendmsg(const char *s,int32_t x,int32_t y,int32_t speed,void(proc)())
 {
 	int32_t i=0;
@@ -274,12 +282,12 @@ void ending()
 	
 	for(int32_t x=0; x<3; x++)
 	{
-		snprintf(tmpmsg[x], sizeof(tmpmsg[x]), "%.24s", MsgStrings[QMisc.endstring].s.c_str()+(24*x));
+		copy_ending_line(tmpmsg[x], MsgStrings[QMisc.endstring].s, x);
 	}
 
 	for(int32_t x=0; x<3; x++)
 	{
-		snprintf(tmpmsg[x+3], sizeof(tmpmsg[x+3]), "%.24s", MsgStrings[QMisc.endstring+1].s.c_str()+(24*x));
+		copy_ending_line(tmpmsg[x+3], MsgStrings[QMisc.endstring+1].s, x);
 	}
 	
 	if(QMisc.endstring==0)
