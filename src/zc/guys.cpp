@@ -2992,13 +2992,14 @@ int32_t enemy::defendNew(int32_t wpnId, int32_t *power, int32_t edef, byte unblo
 				}
 				case -5: 
 				{
-					weapon *w = new weapon(x,y-fakez,z,wBomb,effect_type,0,0,Hero.getUID(), txsz, tysz);
+					// A blast for show: it has no power and no item, and isn't from this enemy.
+					weapon *w = new weapon(x,y-fakez,z,wBomb,0,0,0,-1,Hero.getUID(),true);
 					Lwpns.add(w);
 					break;
 				}
 				case -4:
 				{
-					weapon *w = new weapon(x,y-fakez,z,wSBomb,effect_type,0,0,Hero.getUID(), txsz, tysz);
+					weapon *w = new weapon(x,y-fakez,z,wSBomb,0,0,0,-1,Hero.getUID(),true);
 					Lwpns.add(w);
 					break;
 				}
