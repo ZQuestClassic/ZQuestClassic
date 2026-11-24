@@ -17,6 +17,11 @@ generic script bug_string_non_ascii_chars
 		Test::AssertEqual(s[1], 0xC3);
 		Test::AssertEqual(s[2], 0xA9);
 
+		// Character literals have the same values as the characters of a string.
+		Test::AssertEqual('\xC3', 0xC3);
+		Test::AssertEqual(s[1], '\xC3');
+		Test::AssertEqual(s[2], '\xA9');
+
 		// Case conversion leaves bytes outside ASCII alone.
 		ltou(s);
 		Test::AssertEqual(s[0], 'A');
@@ -55,6 +60,14 @@ generic script bug_string_non_ascii_chars
 		Test::AssertEqual(line[1], 0xC3);
 		Test::AssertEqual(line[2], 0xA9);
 		Test::AssertEqual(line[3], '\n');
+
+		// PutChar takes a string's characters as they are, without logging an error.
+		f->Rewind();
+		f->PutChar(s[1]);
+		f->PutChar(s[2]);
+		f->Rewind();
+		Test::AssertEqual(f->GetChar(), 0xC3);
+		Test::AssertEqual(f->GetChar(), 0xA9);
 
 		f->Remove();
 

@@ -2146,7 +2146,8 @@ Literal :
 	| SINGLECHAR {
 		ASTString* as = (ASTString*)$1;
 		char val[15];
-		sprintf(val, "%d", as->getValue().at(1));
+		// Like the characters of a string, always 0-255 (plain char is signed on most platforms).
+		sprintf(val, "%d", (unsigned char)as->getValue().at(1));
 		ASTFloat* number = new ASTFloat(val, (ASTFloat::Type)0, @$);
 		$$ = new ASTCharLiteral(number, @$);}
 	| Literal_String {$$ = $1;}
