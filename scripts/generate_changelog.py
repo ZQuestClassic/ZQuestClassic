@@ -798,6 +798,10 @@ def stringify_changelog(
     return '\n'.join(lines)
 
 
+def is_bot_author(author_email: str) -> bool:
+    return 'dependabot[bot]' in author_email
+
+
 def generate_changelog(from_sha: str, to_sha: str, to_ref: str = None) -> str:
     # to_sha names the release (used for the displayed version/URLs); to_ref is
     # the actual git range endpoint, which may differ when the tag doesn't exist
@@ -812,16 +816,21 @@ def generate_changelog(from_sha: str, to_sha: str, to_ref: str = None) -> str:
             f'{from_sha}..{to_ref}',
             '--reverse',
             '-z',
-            '--format=%h%x00%H%x00%s%x00%b',
+            '--format=%h%x00%H%x00%ae%x00%s%x00%b',
         ],
         encoding='utf-8',
     ).removesuffix('\0')
     fields = fields.split('\0') if fields else []
 
     commits: list[Commit] = []
-    for i in range(0, len(fields), 4):
-        short_hash, hash, subject, body = fields[i : i + 4]
+    for i in range(0, len(fields), 5):
+        short_hash, hash, author_email, subject, body = fields[i : i + 5]
         if hash in overrides and overrides[hash][0] == 'drop':
+            continue
+
+        # Dependency bumps are never user-facing, so they are excluded even from
+        # nightly changelogs (which otherwise include "!" commits).
+        if is_bot_author(author_email):
             continue
 
         # Remove GitHub PR number. The commit URL will link to this anyway.
