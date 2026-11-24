@@ -49,4 +49,5 @@
 #include "auto/stack_limit.zs"
 #include "auto/std_unit.zs"
 #include "auto/trace_types.zs"
+#include "auto/transform_effects.zs"
 #include "auto/varargs.zs"
